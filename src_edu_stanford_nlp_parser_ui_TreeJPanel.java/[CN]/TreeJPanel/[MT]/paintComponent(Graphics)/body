@@ -1,0 +1,24 @@
+{
+  superPaint(g);
+  Graphics2D g2=(Graphics2D)g;
+  g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
+  Dimension space=getSize();
+  FontMetrics fM=pickFont(g2,tree,space);
+  double width=width(tree,fM);
+  double height=height(tree,fM);
+  double startX=0.0;
+  double startY=0.0;
+  if (HORIZONTAL_ALIGN == SwingConstants.CENTER) {
+    startX=(space.getWidth() - width) / 2.0;
+  }
+  if (HORIZONTAL_ALIGN == SwingConstants.RIGHT) {
+    startX=space.getWidth() - width;
+  }
+  if (VERTICAL_ALIGN == SwingConstants.CENTER) {
+    startY=(space.getHeight() - height) / 2.0;
+  }
+  if (VERTICAL_ALIGN == SwingConstants.BOTTOM) {
+    startY=space.getHeight() - height;
+  }
+  paintTree(tree,new Point2D.Double(startX,startY),g2,fM);
+}

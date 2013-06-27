@@ -1,0 +1,27 @@
+{
+  ArrayList<HTKLatticeReader.LatticeWord> silences=new ArrayList<HTKLatticeReader.LatticeWord>();
+  for (  LatticeWord lw : latticeWords) {
+    if (lw.word.equalsIgnoreCase(SILENCE)) {
+      silences.add(lw);
+    }
+  }
+  for (  LatticeWord lw : silences) {
+    changeEndTimes(wordsEndAt[lw.startNode],lw.endNode);
+  }
+  silences.clear();
+  for (  HTKLatticeReader.LatticeWord lw : latticeWords) {
+    if (lw.word.equalsIgnoreCase(SILENCE)) {
+      silences.add(lw);
+    }
+  }
+  for (  LatticeWord lw : silences) {
+    if (lw.word.equalsIgnoreCase(SILENCE)) {
+      latticeWords.remove(lw);
+      wordsStartAt[lw.startNode].remove(lw);
+      wordsEndAt[lw.endNode].remove(lw);
+      for (int j=lw.startNode; j <= lw.endNode; j++) {
+        wordsAtTime[j].remove(lw);
+      }
+    }
+  }
+}

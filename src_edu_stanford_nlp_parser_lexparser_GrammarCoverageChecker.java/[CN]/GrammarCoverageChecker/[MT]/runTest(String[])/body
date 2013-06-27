@@ -1,0 +1,10 @@
+{
+  LexicalizedParser pd=LexicalizedParser.loadModel(args[0]);
+  op=pd.getOp();
+  Treebank testTreebank=op.tlpParams.memoryTreebank();
+  int testlow=Integer.parseInt(args[2]);
+  int testhigh=Integer.parseInt(args[3]);
+  testTreebank.loadPath(args[1],new NumberRangeFileFilter(testlow,testhigh,true));
+  op.setOptionsOrWarn(args,4,args.length);
+  testOnTreebank(pd,new EnglishTreebankParserParams(),testTreebank,args[1],pd.stateIndex);
+}

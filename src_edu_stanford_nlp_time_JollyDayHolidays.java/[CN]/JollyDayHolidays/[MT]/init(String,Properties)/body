@@ -1,0 +1,18 @@
+{
+  String country=props.getProperty(prefix + "country","sutime");
+  varPrefix=props.getProperty(prefix + "prefix",varPrefix);
+  Properties managerProps=new Properties();
+  managerProps.setProperty("manager.impl","edu.stanford.nlp.time.JollyDayHolidays$MyXMLManager");
+  try {
+    holidayManager=HolidayManager.getInstance(new URL("classpath",null,0,"edu/stanford/nlp/models/sutime/jollyday/Holidays_sutime.xml",new ClasspathURLStreamHandler()),managerProps);
+  }
+ catch (  java.net.MalformedURLException e) {
+    throw new RuntimeException(e);
+  }
+  System.err.println("Initializing JollyDayHoliday for " + country);
+  if (!(holidayManager instanceof MyXMLManager)) {
+    throw new AssertionError("Did not get back JollyDayHolidays$MyXMLManager");
+  }
+  Configuration config=((MyXMLManager)holidayManager).getConfiguration();
+  holidays=getAllHolidaysMap(config);
+}

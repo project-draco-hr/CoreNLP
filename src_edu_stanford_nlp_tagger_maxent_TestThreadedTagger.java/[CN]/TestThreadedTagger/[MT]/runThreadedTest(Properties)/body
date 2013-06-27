@@ -1,0 +1,80 @@
+{
+  ArrayList<Properties> configs=new ArrayList<Properties>();
+  ArrayList<MaxentTagger> taggers=new ArrayList<MaxentTagger>();
+  int numThreads=DEFAULT_NUM_THREADS;
+  if (props.getProperty(THREAD_FLAG) != null) {
+    numThreads=Integer.valueOf(props.getProperty(THREAD_FLAG));
+  }
+  System.out.println();
+  System.out.println("Loading taggers...");
+  System.out.println();
+  if (props.getProperty("model") != null) {
+    configs.add(props);
+    taggers.add(new MaxentTagger(configs.get(0).getProperty("model"),configs.get(0)));
+  }
+ else {
+    int taggerNum=1;
+    String taggerName="model" + taggerNum;
+    while (props.getProperty(taggerName) != null) {
+      Properties newProps=new Properties();
+      newProps.putAll(props);
+      newProps.setProperty("model",props.getProperty(taggerName));
+      configs.add(newProps);
+      taggers.add(new MaxentTagger(configs.get(taggerNum - 1).getProperty("model"),configs.get(taggerNum - 1)));
+      ++taggerNum;
+      taggerName="model" + taggerNum;
+    }
+  }
+  if (taggers.isEmpty()) {
+    throw new IllegalArgumentException("Please specify at least one of " + "-model or -model1");
+  }
+  System.out.println();
+  System.out.println("Running the baseline results for tagger 1");
+  System.out.println();
+  TaggerThread baselineThread=new TaggerThread(taggers.get(0),"BaseResults-1");
+  baselineThread.start();
+  baselineThread.join();
+  ArrayList<String> baselineResults=new ArrayList<String>();
+  baselineResults.add(baselineThread.getResultsString());
+  System.out.println();
+  System.out.println("Running " + numThreads + " threads of tagger 1");
+  System.out.println();
+  ArrayList<TaggerThread> threads=new ArrayList<TaggerThread>();
+  for (int i=0; i < numThreads; ++i) {
+    threads.add(new TaggerThread(taggers.get(0),"Simultaneous-" + (i + 1)));
+  }
+  for (  TaggerThread thread : threads) {
+    thread.start();
+  }
+  for (  TaggerThread thread : threads) {
+    thread.join();
+    compareResults(thread.getResultsString(),baselineResults.get(0));
+  }
+  if (taggers.size() > 1) {
+    for (int i=1; i < taggers.size(); ++i) {
+      System.out.println();
+      System.out.println("Running the baseline results for tagger " + (i + 1));
+      System.out.println();
+      baselineThread=new TaggerThread(taggers.get(i),"BaseResults-" + (i + 1));
+      baselineThread.start();
+      baselineThread.join();
+      baselineResults.add(baselineThread.getResultsString());
+    }
+    System.out.println();
+    System.out.println("Running " + taggers.size() + " threads of different taggers");
+    System.out.println();
+    threads.clear();
+    for (int i=0; i < taggers.size(); ++i) {
+      threads.add(new TaggerThread(taggers.get(i),"DifferentTaggers-" + (i + 1)));
+    }
+    for (    TaggerThread thread : threads) {
+      thread.start();
+    }
+    for (int i=0; i < taggers.size(); ++i) {
+      TaggerThread thread=threads.get(i);
+      thread.join();
+      compareResults(thread.getResultsString(),baselineResults.get(i));
+    }
+  }
+  System.out.println("Done!");
+}

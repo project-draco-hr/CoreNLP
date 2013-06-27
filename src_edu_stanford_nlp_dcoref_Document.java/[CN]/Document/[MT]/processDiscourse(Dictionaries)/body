@@ -1,0 +1,20 @@
+{
+  docType=findDocType(dict);
+  markQuotations(this.annotation.get(CoreAnnotations.SentencesAnnotation.class),false);
+  findSpeakers(dict);
+  for (  Mention m : allPredictedMentions.values()) {
+    int utter=m.headWord.get(CoreAnnotations.UtteranceAnnotation.class);
+    try {
+      int speakerMentionID=Integer.parseInt(m.headWord.get(CoreAnnotations.SpeakerAnnotation.class));
+      if (utter != 0) {
+        speakerPairs.add(new Pair<Integer,Integer>(m.mentionID,speakerMentionID));
+        speakerPairs.add(new Pair<Integer,Integer>(speakerMentionID,m.mentionID));
+      }
+    }
+ catch (    Exception e) {
+    }
+    if (docType != DocType.ARTICLE && m.person == Person.YOU && m.endIndex < m.sentenceWords.size() - 1 && m.sentenceWords.get(m.endIndex).get(CoreAnnotations.TextAnnotation.class).equalsIgnoreCase("know")) {
+      m.generic=true;
+    }
+  }
+}

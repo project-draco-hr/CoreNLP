@@ -1,0 +1,39 @@
+{
+  boolean createdDir=(new File(distribName)).mkdir();
+  if (createdDir) {
+    String currentFile="";
+    try {
+      for (      String filename : distFiles) {
+        currentFile=filename;
+        File destFile=new File(filename);
+        String relativePath=distribName + "/" + destFile.getName();
+        destFile=new File(relativePath);
+        FileSystem.copyFile(new File(filename),destFile);
+      }
+      String tarFileName=String.format("%s.tar",distribName);
+      Runtime r=Runtime.getRuntime();
+      Process p=r.exec(String.format("tar -cf %s %s/",tarFileName,distribName));
+      if (p.waitFor() == 0) {
+        File tarFile=new File(tarFileName);
+        FileSystem.gzipFile(tarFile,new File(tarFileName + ".gz"));
+        tarFile.delete();
+        FileSystem.deleteDir(new File(distribName));
+        lastCreatedDistribution=distribName;
+        return true;
+      }
+ else {
+        System.err.printf("%s: Unable to create tar file %s\n",this.getClass().getName(),tarFileName);
+      }
+    }
+ catch (    IOException e) {
+      System.err.printf("%s: Unable to add file %s to distribution %s\n",this.getClass().getName(),currentFile,distribName);
+    }
+catch (    InterruptedException e) {
+      System.err.printf("%s: tar did not return from building %s.tar\n",this.getClass().getName(),distribName);
+    }
+  }
+ else {
+    System.err.printf("%s: Unable to create temp directory %s\n",this.getClass().getName(),distribName);
+  }
+  return false;
+}

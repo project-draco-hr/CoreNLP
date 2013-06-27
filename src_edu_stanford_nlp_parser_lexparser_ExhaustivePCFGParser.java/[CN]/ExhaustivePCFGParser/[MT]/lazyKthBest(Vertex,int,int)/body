@@ -1,0 +1,21 @@
+{
+  PriorityQueue<Derivation> candV=getCandidates(v,kPrime);
+  LinkedList<Derivation> dHatV=dHat.get(v);
+  if (dHatV == null) {
+    dHatV=new LinkedList<Derivation>();
+    dHat.put(v,dHatV);
+  }
+  while (dHatV.size() < k) {
+    if (!dHatV.isEmpty()) {
+      Derivation derivation=dHatV.getLast();
+      lazyNext(candV,derivation,kPrime);
+    }
+    if (!candV.isEmpty()) {
+      Derivation d=candV.removeFirst();
+      dHatV.add(d);
+    }
+ else {
+      break;
+    }
+  }
+}

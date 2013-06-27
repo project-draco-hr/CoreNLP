@@ -1,0 +1,16 @@
+{
+  assert(line.startsWith("macro"));
+  int equalPosition=line.indexOf('=');
+  if (equalPosition < 0) {
+    throw new RuntimeException("ERROR: Invalid syntax in macro line: \"" + line + "\"!");
+  }
+  String name=line.substring(5,equalPosition).trim();
+  if (name.length() == 0) {
+    throw new RuntimeException("ERROR: Invalid syntax in macro line: \"" + line + "\"!");
+  }
+  String value=line.substring(equalPosition + 1).trim();
+  if (value.length() == 0) {
+    throw new RuntimeException("ERROR: Invalid syntax in macro line: \"" + line + "\"!");
+  }
+  return new Pair<String,String>(name,value);
+}

@@ -1,0 +1,31 @@
+{
+  try {
+    if (file != null) {
+      classifier=CRFClassifier.getClassifier(file);
+    }
+ else {
+      classifier=CRFClassifier.getDefaultClassifier();
+    }
+  }
+ catch (  Throwable e) {
+    String message;
+    if (file != null) {
+      message="Error loading CRF: " + file.getAbsolutePath();
+    }
+ else {
+      message="Error loading default CRF";
+    }
+    System.err.println(message);
+    String title="CRF Load Error";
+    String msg=e.toString();
+    if (msg != null) {
+      message+="\n" + msg;
+    }
+    displayError(title,message);
+    return;
+  }
+  removeTags();
+  buildTagPanel();
+  extractButton.setEnabled(true);
+  extract.setEnabled(true);
+}

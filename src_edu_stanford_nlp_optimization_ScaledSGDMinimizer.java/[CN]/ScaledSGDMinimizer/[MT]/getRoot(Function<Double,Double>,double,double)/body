@@ -1,0 +1,26 @@
+{
+  double mid=0.5 * (lower + upper);
+  double TOL=1e-8;
+  double skew=0.4;
+  int count=0;
+  if (func.apply(upper) > 0 || func.apply(lower) < 0) {
+    say("LOWER AND UPPER SUPPLIED TO GET ROOT DO NOT BOUND THE ROOT.");
+  }
+  double fval=func.apply(mid);
+  while (Math.abs(fval) > TOL) {
+    count+=1;
+    if (fval > 0) {
+      lower=mid;
+    }
+ else     if (fval < 0) {
+      upper=mid;
+    }
+    mid=skew * lower + (1 - skew) * upper;
+    fval=func.apply(mid);
+    if (count > 100) {
+      break;
+    }
+  }
+  say("   " + nf.format(mid) + "  f"+ nf.format(fval));
+  return mid;
+}

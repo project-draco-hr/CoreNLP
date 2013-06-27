@@ -1,0 +1,20 @@
+{
+  System.setOut(new PrintStream(System.out,true,"UTF-8"));
+  System.setErr(new PrintStream(System.err,true,"UTF-8"));
+  Properties config=StringUtils.argsToProperties(args);
+  checkArgs(config);
+  CountClosedTags cct=new CountClosedTags(config);
+  String trainFiles=config.getProperty(TRAIN_FILE_PROPERTY);
+  String testFiles=config.getProperty(TEST_FILE_PROPERTY);
+  List<TaggedFileRecord> files=TaggedFileRecord.createRecords(config,trainFiles);
+  for (  TaggedFileRecord file : files) {
+    cct.countTrainingTags(file);
+  }
+  if (testFiles != null) {
+    files=TaggedFileRecord.createRecords(config,testFiles);
+    for (    TaggedFileRecord file : files) {
+      cct.countTestTags(file);
+    }
+  }
+  cct.report();
+}

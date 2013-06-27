@@ -1,0 +1,78 @@
+{
+  double[] initial=new double[domainDimension()];
+  if (useHiddenLayer || useOutputLayer) {
+    double epsilon=0.1;
+    double twoEpsilon=epsilon * 2;
+    int count=0;
+    double val=0;
+    for (int i=0; i < edgeParamCount; i++) {
+      val=random.nextDouble() * twoEpsilon - epsilon;
+      initial[count++]=val;
+    }
+    if (flags.blockInitialize) {
+      double fanIn=1 / Math.sqrt(numNodeFeatures + 0.0);
+      double twoFanIn=2.0 * fanIn;
+      int interval=numNodeFeatures / numHiddenUnits;
+      for (int i=0; i < numHiddenUnits; i++) {
+        int lower=i * interval;
+        int upper=(i + 1) * interval;
+        if (i == numHiddenUnits - 1)         upper=numNodeFeatures;
+        for (int j=0; j < outputLayerSize; j++) {
+          for (int k=0; k < numNodeFeatures; k++) {
+            val=0;
+            if (k >= lower && k < upper) {
+              val=random.nextDouble() * twoFanIn - fanIn;
+            }
+            initial[count++]=val;
+          }
+        }
+      }
+      if (count != beforeOutputWeights) {
+        throw new RuntimeException("after blockInitialize, param Index (" + count + ") not equal to beforeOutputWeights ("+ beforeOutputWeights+ ")");
+      }
+    }
+ else {
+      double fanIn=1 / Math.sqrt(numNodeFeatures + 0.0);
+      double twoFanIn=2.0 * fanIn;
+      for (int i=edgeParamCount; i < beforeOutputWeights; i++) {
+        val=random.nextDouble() * twoFanIn - fanIn;
+        initial[count++]=val;
+      }
+    }
+    if (flags.sparseOutputLayer) {
+      for (int i=0; i < outputLayerSize; i++) {
+        double total=1;
+        for (int j=0; j < numHiddenUnits - 1; j++) {
+          val=random.nextDouble() * total;
+          initial[count++]=val;
+          total-=val;
+        }
+        initial[count++]=total;
+      }
+    }
+ else     if (flags.tieOutputLayer) {
+      double total=1;
+      double sum=0;
+      for (int j=0; j < numHiddenUnits - 1; j++) {
+        if (flags.hardcodeSoftmaxOutputWeights)         val=1.0 / numHiddenUnits;
+ else {
+          val=random.nextDouble() * total;
+          total-=val;
+        }
+        initial[count++]=val;
+      }
+      if (flags.hardcodeSoftmaxOutputWeights)       initial[count++]=1.0 / numHiddenUnits;
+ else       initial[count++]=total;
+    }
+ else {
+      for (int i=beforeOutputWeights; i < domainDimension(); i++) {
+        val=random.nextDouble() * twoEpsilon - epsilon;
+        initial[count++]=val;
+      }
+    }
+    if (count != domainDimension()) {
+      throw new RuntimeException("after param initialization, param Index (" + count + ") not equal to domainDimension ("+ domainDimension()+ ")");
+    }
+  }
+  return initial;
+}

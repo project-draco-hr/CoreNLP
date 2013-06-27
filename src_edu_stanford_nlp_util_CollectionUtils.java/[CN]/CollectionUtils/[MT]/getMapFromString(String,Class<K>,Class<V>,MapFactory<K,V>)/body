@@ -1,0 +1,22 @@
+{
+  Constructor<K> keyC=keyClass.getConstructor(new Class[]{String.class});
+  Constructor<V> valueC=valueClass.getConstructor(new Class[]{String.class});
+  if (s.charAt(0) != '{')   throw new RuntimeException("");
+  s=s.substring(1);
+  String[] fields=s.split("\\s+");
+  Map<K,V> m=mapFactory.newMap();
+  for (int i=0; i < fields.length; i++) {
+    fields[i]=fields[i].substring(0,fields[i].length() - 1);
+    String[] a=fields[i].split("=");
+    K key=keyC.newInstance(a[0]);
+    V value;
+    if (a.length > 1) {
+      value=valueC.newInstance(a[1]);
+    }
+ else {
+      value=valueC.newInstance("");
+    }
+    m.put(key,value);
+  }
+  return m;
+}

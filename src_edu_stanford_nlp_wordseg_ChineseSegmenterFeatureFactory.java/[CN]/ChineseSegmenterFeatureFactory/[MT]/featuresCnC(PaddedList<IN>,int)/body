@@ -1,0 +1,21 @@
+{
+  Collection<String> features=new ArrayList<String>();
+  CoreLabel c=cInfo.get(loc);
+  CoreLabel c1=cInfo.get(loc + 1);
+  CoreLabel p=cInfo.get(loc - 1);
+  String charc=c.get(CoreAnnotations.CharAnnotation.class);
+  String charc1=c1.get(CoreAnnotations.CharAnnotation.class);
+  String charp=p.get(CoreAnnotations.CharAnnotation.class);
+  if (flags.useWordn) {
+    features.add(charc + "c");
+    features.add(charc1 + "c1");
+    features.add(charp + "p");
+    features.add(charp + charc + "pc");
+    if (flags.useAs || flags.useMsr || flags.usePk|| flags.useHk) {
+      features.add(charc + charc1 + "cc1");
+      features.add(charp + charc1 + "pc1");
+    }
+    features.add("|wordn");
+  }
+  return features;
+}

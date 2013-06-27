@@ -1,0 +1,33 @@
+{
+  Value value=valueExpr.evaluate(env,args);
+  if (args != null) {
+    if (args.length == 1 && args[0] instanceof CoreMap) {
+      CoreMap cm=(CoreMap)args[0];
+      Class annotationKey=EnvLookup.lookupAnnotationKey(env,varName);
+      if (annotationKey != null) {
+        cm.set(annotationKey,(value != null) ? value.get() : null);
+        return value;
+      }
+    }
+  }
+  if (bindAsValue) {
+    env.bind(varName,value);
+  }
+ else {
+    env.bind(varName,(value != null) ? value.get() : null);
+    if (TYPE_REGEX == value.getType()) {
+      try {
+        Object vobj=value.get();
+        if (vobj instanceof String) {
+          env.bindStringRegex(varName,(String)vobj);
+        }
+ else         if (vobj instanceof Pattern) {
+          env.bindStringRegex(varName,((Pattern)vobj).pattern());
+        }
+      }
+ catch (      Exception ex) {
+      }
+    }
+  }
+  return value;
+}

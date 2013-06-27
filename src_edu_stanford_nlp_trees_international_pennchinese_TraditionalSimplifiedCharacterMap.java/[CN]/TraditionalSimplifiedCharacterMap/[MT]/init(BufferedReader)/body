@@ -1,0 +1,28 @@
+{
+  try {
+    Set<String> hardcodedSet=Generics.newHashSet();
+    for (    String[] transform : HARDCODED) {
+      hardcodedSet.add(transform[0]);
+      String traditional=transform[0];
+      String simplified=transform[1];
+      map.put(traditional,simplified);
+    }
+    String line;
+    while ((line=reader.readLine()) != null) {
+      if (line.startsWith("#")) {
+        continue;
+      }
+      if (line.length() >= 3 && line.charAt(1) == ' ' && line.charAt(3) == ' ') {
+        String traditional=line.substring(0,1);
+        String simplified=line.substring(2,3);
+        if (map.containsKey(traditional) && !hardcodedSet.contains(traditional) && !simplified.equals(map.get(traditional))) {
+          throw new RuntimeException("Character " + traditional + " mapped to "+ simplified+ " already mapped to "+ map.get(traditional));
+        }
+        map.put(traditional,simplified);
+      }
+    }
+  }
+ catch (  IOException e) {
+    throw new RuntimeIOException(e);
+  }
+}

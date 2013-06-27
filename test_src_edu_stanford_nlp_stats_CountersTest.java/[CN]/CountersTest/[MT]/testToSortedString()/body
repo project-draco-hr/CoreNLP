@@ -1,0 +1,18 @@
+{
+  Counter<String> c=new ClassicCounter<String>();
+  c.setCount("b",0.25);
+  c.setCount("a",0.5);
+  c.setCount("c",1.0);
+  String result=Counters.toSortedString(c,5,"%s%.1f",":","{%s}");
+  assertEquals("{c1.0:a0.5:b0.3}",result);
+  result=Counters.toSortedString(c,2,"%2$f %1$s","\n");
+  assertEquals("1.000000 c\n0.500000 a",result);
+  int k=2;
+  result=Counters.toSortedString(c,k,"%s=%s",", ","[%s]");
+  assertEquals(Counters.toString(c,k),result);
+  assertEquals(Counters.toBiggestValuesFirstString(c,k),result);
+  result=Counters.toSortedString(c,k,"%2$g\t%1$s","\n","%s\n");
+  assertEquals(Counters.toVerticalString(c,k),result);
+  result=Counters.toSortedByKeysString(c,"%s=>%.2f","; ","<%s>");
+  assertEquals("<a=>0.50; b=>0.25; c=>1.00>",result);
+}

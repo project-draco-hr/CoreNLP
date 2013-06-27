@@ -1,0 +1,24 @@
+{
+  if (isPreTerminal()) {
+    int nodeIndex=((HasIndex)firstChild().label()).index();
+    ((HasIndex)label()).setIndex(nodeIndex);
+    return;
+  }
+  String wordAnnotation=((HasWord)label()).word();
+  if (wordAnnotation == null) {
+    wordAnnotation=value();
+  }
+  boolean seenHead=false;
+  for (  Tree child : children()) {
+    child.percolateHeadIndices();
+    String childWordAnnotation=((HasWord)child.label()).word();
+    if (childWordAnnotation == null) {
+      childWordAnnotation=child.value();
+    }
+    if (!seenHead && wordAnnotation.equals(childWordAnnotation)) {
+      seenHead=true;
+      int nodeIndex=((HasIndex)child.label()).index();
+      ((HasIndex)label()).setIndex(nodeIndex);
+    }
+  }
+}

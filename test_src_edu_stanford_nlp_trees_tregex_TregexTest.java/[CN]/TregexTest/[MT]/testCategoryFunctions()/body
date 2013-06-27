@@ -1,0 +1,42 @@
+{
+  Function<String,String> fooCategory=new Function<String,String>(){
+    public String apply(    String label){
+      if (label == null) {
+        return label;
+      }
+      if (label.equals("bar")) {
+        return "foo";
+      }
+      return label;
+    }
+  }
+;
+  TregexPatternCompiler fooCompiler=new TregexPatternCompiler(fooCategory);
+  TregexPattern fooTregex=fooCompiler.compile("@foo > bar");
+  runTest(fooTregex,"(bar (foo 0))","(foo 0)");
+  runTest(fooTregex,"(bar (bar 0))","(bar 0)");
+  runTest(fooTregex,"(foo (foo 0))");
+  runTest(fooTregex,"(foo (bar 0))");
+  Function<String,String> barCategory=new Function<String,String>(){
+    public String apply(    String label){
+      if (label == null) {
+        return label;
+      }
+      if (label.equals("foo")) {
+        return "bar";
+      }
+      return label;
+    }
+  }
+;
+  TregexPatternCompiler barCompiler=new TregexPatternCompiler(barCategory);
+  TregexPattern barTregex=barCompiler.compile("@bar > foo");
+  runTest(barTregex,"(bar (foo 0))");
+  runTest(barTregex,"(bar (bar 0))");
+  runTest(barTregex,"(foo (foo 0))","(foo 0)");
+  runTest(barTregex,"(foo (bar 0))","(bar 0)");
+  runTest(fooTregex,"(bar (foo 0))","(foo 0)");
+  runTest(fooTregex,"(bar (bar 0))","(bar 0)");
+  runTest(fooTregex,"(foo (foo 0))");
+  runTest(fooTregex,"(foo (bar 0))");
+}

@@ -1,0 +1,15 @@
+{
+  super(dict,semantics);
+  stanfordProcessor=loadStanfordProcessor(props);
+  if (props.containsKey(Constants.ACE2004_PROP)) {
+    corpusPath=props.getProperty(Constants.ACE2004_PROP);
+    aceReader=new AceReader(stanfordProcessor,false,"ACE2004");
+  }
+ else   if (props.containsKey(Constants.ACE2005_PROP)) {
+    corpusPath=props.getProperty(Constants.ACE2005_PROP);
+    aceReader=new AceReader(stanfordProcessor,false);
+  }
+  aceReader.setLoggerLevel(Level.INFO);
+  if (corpusPath.charAt(corpusPath.length() - 1) != File.separatorChar)   corpusPath+=File.separatorChar;
+  files=new File(corpusPath).list();
+}

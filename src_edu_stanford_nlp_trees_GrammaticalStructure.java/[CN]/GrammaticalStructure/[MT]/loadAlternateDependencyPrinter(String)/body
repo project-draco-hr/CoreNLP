@@ -1,0 +1,64 @@
+{
+  Class<? extends DependencyPrinter> altDepPrinterClass=null;
+  String[] toks=parseClassConstructArgs(altDepPrinterName);
+  altDepPrinterName=toks[0];
+  String[] depPrintArgs=new String[toks.length - 1];
+  System.arraycopy(toks,1,depPrintArgs,0,toks.length - 1);
+  try {
+    Class<?> cl=Class.forName(altDepPrinterName);
+    altDepPrinterClass=cl.asSubclass(DependencyPrinter.class);
+  }
+ catch (  ClassNotFoundException e) {
+  }
+  if (altDepPrinterClass == null) {
+    try {
+      Class<?> cl=Class.forName("edu.stanford.nlp.trees." + altDepPrinterName);
+      altDepPrinterClass=cl.asSubclass(DependencyPrinter.class);
+    }
+ catch (    ClassNotFoundException e) {
+    }
+  }
+  if (altDepPrinterClass == null) {
+    System.err.printf("Unable to load alternative printer %s or %s. Is your classpath set correctly?\n",altDepPrinterName,"edu.stanford.nlp.trees." + altDepPrinterName);
+    return null;
+  }
+  try {
+    DependencyPrinter depPrinter;
+    if (depPrintArgs.length == 0) {
+      depPrinter=altDepPrinterClass.newInstance();
+    }
+ else {
+      depPrinter=altDepPrinterClass.getConstructor(String[].class).newInstance((Object)depPrintArgs);
+    }
+    return depPrinter;
+  }
+ catch (  IllegalArgumentException e) {
+    e.printStackTrace();
+    return null;
+  }
+catch (  SecurityException e) {
+    e.printStackTrace();
+    return null;
+  }
+catch (  InstantiationException e) {
+    e.printStackTrace();
+    return null;
+  }
+catch (  IllegalAccessException e) {
+    e.printStackTrace();
+    return null;
+  }
+catch (  InvocationTargetException e) {
+    e.printStackTrace();
+    return null;
+  }
+catch (  NoSuchMethodException e) {
+    if (depPrintArgs == null) {
+      System.err.printf("Can't find no-argument constructor %s().\n",altDepPrinterName);
+    }
+ else {
+      System.err.printf("Can't find constructor %s(%s).\n",altDepPrinterName,Arrays.toString(depPrintArgs));
+    }
+    return null;
+  }
+}

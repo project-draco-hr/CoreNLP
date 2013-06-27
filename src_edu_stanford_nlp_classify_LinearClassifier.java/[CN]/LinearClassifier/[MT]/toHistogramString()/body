@@ -1,0 +1,68 @@
+{
+  double[][] hist=new double[3][202];
+  Object[][] histEg=new Object[3][202];
+  int num=0;
+  int pos=0;
+  int neg=0;
+  int zero=0;
+  double total=0.0;
+  double x2total=0.0;
+  double max=0.0, min=0.0;
+  for (int f=0; f < weights.length; f++) {
+    for (int l=0; l < weights[f].length; l++) {
+      Pair<F,L> feat=new Pair<F,L>(featureIndex.get(f),labelIndex.get(l));
+      num++;
+      double wt=weights[f][l];
+      total+=wt;
+      x2total+=wt * wt;
+      if (wt > max) {
+        max=wt;
+      }
+      if (wt < min) {
+        min=wt;
+      }
+      if (wt < 0.0) {
+        neg++;
+      }
+ else       if (wt > 0.0) {
+        pos++;
+      }
+ else {
+        zero++;
+      }
+      int index;
+      index=bucketizeValue(wt);
+      hist[0][index]++;
+      if (histEg[0][index] == null) {
+        histEg[0][index]=feat;
+      }
+      if (wt < 0.1 && wt >= -0.1) {
+        index=bucketizeValue(wt * 100.0);
+        hist[1][index]++;
+        if (histEg[1][index] == null) {
+          histEg[1][index]=feat;
+        }
+        if (wt < 0.001 && wt >= -0.001) {
+          index=bucketizeValue(wt * 10000.0);
+          hist[2][index]++;
+          if (histEg[2][index] == null) {
+            histEg[2][index]=feat;
+          }
+        }
+      }
+    }
+  }
+  double ave=total / num;
+  double stddev=(x2total / num) - ave * ave;
+  StringWriter sw=new StringWriter();
+  PrintWriter pw=new PrintWriter(sw);
+  pw.println("Linear classifier with " + num + " f(x,y) features");
+  pw.println("Average weight: " + ave + "; std dev: "+ stddev);
+  pw.println("Max weight: " + max + " min weight: "+ min);
+  pw.println("Weights: " + neg + " negative; "+ pos+ " positive; "+ zero+ " zero.");
+  printHistCounts(0,"Counts of lambda parameters between [-10, 10)",pw,hist,histEg);
+  printHistCounts(1,"Closeup view of [-0.1, 0.1) depicted * 10^2",pw,hist,histEg);
+  printHistCounts(2,"Closeup view of [-0.001, 0.001) depicted * 10^4",pw,hist,histEg);
+  pw.close();
+  return sw.toString();
+}

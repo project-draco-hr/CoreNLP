@@ -1,0 +1,72 @@
+{
+  if (annotationPatterns.keySet().contains(args[i])) {
+    if (!baselineFeatures.contains(args[i]))     additionalFeatures.add(args[i]);
+    Pair<TregexPattern,Function<TregexMatcher,String>> p=annotationPatterns.get(args[i]);
+    activeAnnotations.add(p);
+    optionsString.append("Option " + args[i] + " added annotation pattern "+ p.first()+ " with annotation "+ p.second()+ '\n');
+    i++;
+  }
+ else   if (args[i].equals("-collinizerRetainsPunctuation")) {
+    optionsString.append("Collinizer retains punctuation.\n");
+    collinizerRetainsPunctuation=true;
+    i++;
+  }
+ else   if (args[i].equalsIgnoreCase("-headFinder") && (i + 1 < args.length)) {
+    try {
+      HeadFinder hf=(HeadFinder)Class.forName(args[i + 1]).newInstance();
+      setHeadFinder(hf);
+      optionsString.append("HeadFinder: " + args[i + 1] + "\n");
+    }
+ catch (    Exception e) {
+      System.err.println(e);
+      System.err.println(this.getClass().getName() + ": Could not load head finder " + args[i + 1]);
+    }
+    i+=2;
+  }
+ else   if (args[i].equals("-xmlFormat")) {
+    optionsString.append("Reading trees in XML format.\n");
+    readPennFormat=false;
+    setInputEncoding(tlp.getEncoding());
+    i++;
+  }
+ else   if (args[i].equals("-frenchFactored")) {
+    for (    String annotation : baselineFeatures) {
+      String[] a={annotation};
+      setOptionFlag(a,0);
+    }
+    i++;
+  }
+ else   if (args[i].equals("-frenchMWMap")) {
+    loadMWMap(args[i + 1]);
+    i+=2;
+  }
+ else   if (args[i].equals("-tsg")) {
+    optionsString.append("Removing baseline features: ");
+    removeBaselineFeature("-markVN");
+    optionsString.append(" (removed -markVN)");
+    removeBaselineFeature("-coord1");
+    optionsString.append(" (removed -coord1)\n");
+    i++;
+  }
+ else   if (args[i].equals("-factlex") && (i + 1 < args.length)) {
+    String activeFeats=setupMorphoFeatures(args[i + 1]);
+    optionsString.append("Factored Lexicon: active features: ").append(activeFeats);
+    removeBaselineFeature("-tagPAFr");
+    optionsString.append(" (removed -tagPAFr)\n");
+    String[] option={"-mweTag"};
+    setOptionFlag(option,0);
+    i+=2;
+  }
+ else   if (args[i].equals("-noFeatures")) {
+    activeAnnotations.clear();
+    optionsString.append("Removed all manual features.\n");
+    i++;
+  }
+ else   if (args[i].equals("-ccTagsetAnnotations")) {
+    tagSpec=new FrenchMorphoFeatureSpecification();
+    tagSpec.activate(MorphoFeatureType.OTHER);
+    optionsString.append("Adding CC tagset as POS state splits.\n");
+    ++i;
+  }
+  return i;
+}

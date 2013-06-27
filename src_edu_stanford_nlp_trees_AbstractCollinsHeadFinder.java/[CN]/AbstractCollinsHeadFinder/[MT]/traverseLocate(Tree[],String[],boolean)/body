@@ -1,0 +1,49 @@
+{
+  int headIdx;
+  if (how[0].equals("left")) {
+    headIdx=findLeftHead(daughterTrees,how);
+  }
+ else   if (how[0].equals("leftdis")) {
+    headIdx=findLeftDisHead(daughterTrees,how);
+  }
+ else   if (how[0].equals("leftexcept")) {
+    headIdx=findLeftExceptHead(daughterTrees,how);
+  }
+ else   if (how[0].equals("right")) {
+    headIdx=findRightHead(daughterTrees,how);
+  }
+ else   if (how[0].equals("rightdis")) {
+    headIdx=findRightDisHead(daughterTrees,how);
+  }
+ else   if (how[0].equals("rightexcept")) {
+    headIdx=findRightExceptHead(daughterTrees,how);
+  }
+ else {
+    throw new IllegalStateException("ERROR: invalid direction type " + how[0] + " to nonTerminalInfo map in AbstractCollinsHeadFinder.");
+  }
+  if (headIdx < 0) {
+    if (lastResort) {
+      String[] rule;
+      if (how[0].startsWith("left")) {
+        headIdx=0;
+        rule=defaultLeftRule;
+      }
+ else {
+        headIdx=daughterTrees.length - 1;
+        rule=defaultRightRule;
+      }
+      Tree child=traverseLocate(daughterTrees,rule,false);
+      if (child != null) {
+        return child;
+      }
+ else {
+        return daughterTrees[headIdx];
+      }
+    }
+ else {
+      return null;
+    }
+  }
+  headIdx=postOperationFix(headIdx,daughterTrees);
+  return daughterTrees[headIdx];
+}

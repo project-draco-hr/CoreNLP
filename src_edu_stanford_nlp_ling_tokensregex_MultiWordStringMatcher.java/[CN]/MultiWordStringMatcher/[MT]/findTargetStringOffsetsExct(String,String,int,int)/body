@@ -1,0 +1,33 @@
+{
+  if (start > text.length())   return null;
+  if (end > text.length())   return null;
+  List<IntPair> offsets=null;
+  int i=text.indexOf(targetString,start);
+  if (i >= 0 && i < end) {
+    offsets=new ArrayList<IntPair>();
+  }
+  while (i >= 0 && i < end) {
+    boolean matched=true;
+    if (i > 0) {
+      char charBefore=text.charAt(i - 1);
+      if (Character.isLetterOrDigit(charBefore)) {
+        matched=false;
+      }
+    }
+    if (i + targetString.length() < text.length()) {
+      char charAfter=text.charAt(i + targetString.length());
+      if (Character.isLetterOrDigit(charAfter)) {
+        matched=false;
+      }
+    }
+    if (matched) {
+      offsets.add(new IntPair(i,i + targetString.length()));
+      i+=targetString.length();
+    }
+ else {
+      i++;
+    }
+    i=text.indexOf(targetString,i);
+  }
+  return offsets;
+}

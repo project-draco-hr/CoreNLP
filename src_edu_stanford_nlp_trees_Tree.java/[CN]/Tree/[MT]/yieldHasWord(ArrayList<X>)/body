@@ -1,0 +1,25 @@
+{
+  if (isLeaf()) {
+    Label lab=label();
+    if (lab instanceof HasWord) {
+      if (lab instanceof CoreLabel) {
+        CoreLabel cl=(CoreLabel)lab;
+        if (cl.word() == null)         cl.setWord(cl.value());
+        y.add((X)cl);
+      }
+ else {
+        y.add((X)lab);
+      }
+    }
+ else {
+      y.add((X)new Word(lab));
+    }
+  }
+ else {
+    Tree[] kids=children();
+    for (int i=0; i < kids.length; i++) {
+      kids[i].yield(y);
+    }
+  }
+  return y;
+}

@@ -1,0 +1,14 @@
+{
+  logger.fine("Looking for " + token + " at pos "+ index+ " plus upto "+ approximateness+ " in tree: "+ root.pennString());
+  List<Tree> leaves=root.getLeaves();
+  for (  Tree leaf : leaves) {
+    CoreLabel label=CoreLabel.class.cast(leaf.label());
+    int ind=label.get(CoreAnnotations.BeginIndexAnnotation.class);
+    if (token.equals(leaf.value()) && ind >= index && ind <= index + approximateness) {
+      return leaf;
+    }
+  }
+  logger.severe("GenericDataSetReader: WARNING: Failed to find head token");
+  logger.severe("  when looking for " + token + " at pos "+ index+ " plus upto "+ approximateness+ " in tree: "+ root.pennString());
+  return null;
+}

@@ -1,0 +1,26 @@
+{
+  matcher.clearMatched();
+  if (matchStateIndex >= 0) {
+    State state=states.get(matchStateIndex);
+    int bid=state.bid;
+    BranchState bs=branchStates.getBranchState(bid);
+    if (bs != null) {
+      branchStates.mergeBranchStates(bs);
+      Map<Integer,MatchedGroup> matchedGroups=bs.matchedGroups;
+      if (matchedGroups != null) {
+        for (        int group : matchedGroups.keySet()) {
+          matcher.matchedGroups[group]=matchedGroups.get(group);
+        }
+      }
+      Map<Integer,Object> matchedResults=bs.matchedResults;
+      if (matchedResults != null) {
+        if (matcher.matchedResults == null) {
+          matcher.matchedResults=new Object[matcher.elements().size()];
+        }
+        for (        int index : matchedResults.keySet()) {
+          matcher.matchedResults[index]=matchedResults.get(index);
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  if (args.length == 0) {
+    System.err.println("Usage: java edu.stanford.nlp.math.SloppyMath " + "[-logAdd|-fishers k n r m|-binomial r n p");
+  }
+ else   if (args[0].equals("-logAdd")) {
+    System.out.println("Log adds of neg infinity numbers, etc.");
+    System.out.println("(logs) -Inf + -Inf = " + logAdd(Double.NEGATIVE_INFINITY,Double.NEGATIVE_INFINITY));
+    System.out.println("(logs) -Inf + -7 = " + logAdd(Double.NEGATIVE_INFINITY,-7.0));
+    System.out.println("(logs) -7 + -Inf = " + logAdd(-7.0,Double.NEGATIVE_INFINITY));
+    System.out.println("(logs) -50 + -7 = " + logAdd(-50.0,-7.0));
+    System.out.println("(logs) -11 + -7 = " + logAdd(-11.0,-7.0));
+    System.out.println("(logs) -7 + -11 = " + logAdd(-7.0,-11.0));
+    System.out.println("real 1/2 + 1/2 = " + logAdd(Math.log(0.5),Math.log(0.5)));
+  }
+ else   if (args[0].equals("-fishers")) {
+    int k=Integer.parseInt(args[1]);
+    int n=Integer.parseInt(args[2]);
+    int r=Integer.parseInt(args[3]);
+    int m=Integer.parseInt(args[4]);
+    double ans=SloppyMath.hypergeometric(k,n,r,m);
+    System.out.println("hypg(" + k + "; "+ n+ ", "+ r+ ", "+ m+ ") = "+ ans);
+    ans=SloppyMath.oneTailedFishersExact(k,n,r,m);
+    System.out.println("1-tailed Fisher's exact(" + k + "; "+ n+ ", "+ r+ ", "+ m+ ") = "+ ans);
+    double ansChi=SloppyMath.chiSquare2by2(k,n,r,m);
+    System.out.println("chiSquare(" + k + "; "+ n+ ", "+ r+ ", "+ m+ ") = "+ ansChi);
+    System.out.println("Swapping arguments should give same hypg:");
+    ans=SloppyMath.hypergeometric(k,n,r,m);
+    System.out.println("hypg(" + k + "; "+ n+ ", "+ m+ ", "+ r+ ") = "+ ans);
+    int othrow=n - m;
+    int othcol=n - r;
+    int cell12=m - k;
+    int cell21=r - k;
+    int cell22=othrow - (r - k);
+    ans=SloppyMath.hypergeometric(cell12,n,othcol,m);
+    System.out.println("hypg(" + cell12 + "; "+ n+ ", "+ othcol+ ", "+ m+ ") = "+ ans);
+    ans=SloppyMath.hypergeometric(cell21,n,r,othrow);
+    System.out.println("hypg(" + cell21 + "; "+ n+ ", "+ r+ ", "+ othrow+ ") = "+ ans);
+    ans=SloppyMath.hypergeometric(cell22,n,othcol,othrow);
+    System.out.println("hypg(" + cell22 + "; "+ n+ ", "+ othcol+ ", "+ othrow+ ") = "+ ans);
+  }
+ else   if (args[0].equals("-binomial")) {
+    int k=Integer.parseInt(args[1]);
+    int n=Integer.parseInt(args[2]);
+    double p=Double.parseDouble(args[3]);
+    double ans=SloppyMath.exactBinomial(k,n,p);
+    System.out.println("Binomial p(X >= " + k + "; "+ n+ ", "+ p+ ") = "+ ans);
+  }
+ else {
+    System.err.println("Unknown option: " + args[0]);
+  }
+}

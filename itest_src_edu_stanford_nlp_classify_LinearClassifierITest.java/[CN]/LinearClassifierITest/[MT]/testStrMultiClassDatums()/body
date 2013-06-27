@@ -1,0 +1,14 @@
+{
+  RVFDataset<String,String> trainData=new RVFDataset<String,String>();
+  List<RVFDatum<String,String>> datums=new ArrayList<RVFDatum<String,String>>();
+  datums.add(newDatum("alpha",new String[]{"f1","f2"},new Double[]{1.0,0.0}));
+  ;
+  datums.add(newDatum("beta",new String[]{"f1","f2"},new Double[]{0.0,1.0}));
+  datums.add(newDatum("charlie",new String[]{"f1","f2"},new Double[]{5.0,5.0}));
+  for (  RVFDatum<String,String> datum : datums)   trainData.add(datum);
+  LinearClassifierFactory<String,String> lfc=new LinearClassifierFactory<String,String>();
+  LinearClassifier<String,String> lc=lfc.trainClassifier(trainData);
+  RVFDatum td1=newDatum("alpha",new String[]{"f1","f2","f3"},new Double[]{2.0,0.0,5.5});
+  for (  RVFDatum<String,String> datum : datums)   Assert.assertEquals(datum.label(),lc.classOf(datum));
+  Assert.assertEquals(td1.label(),lc.classOf(td1));
+}

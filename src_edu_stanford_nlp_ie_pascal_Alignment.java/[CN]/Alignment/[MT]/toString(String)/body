@@ -1,0 +1,21 @@
+{
+  StringBuffer buf=new StringBuffer();
+  buf.append(prefix);
+  buf.append(longForm);
+  buf.append("\n");
+  buf.append(spaces,0,prefix.length());
+  int l=0;
+  for (int s=0; s < shortForm.length; ++s) {
+    if (pointers[s] == -1) {
+      continue;
+    }
+    for (; l < longForm.length && pointers[s] != l; ++l) {
+      buf.append(" ");
+    }
+    if (l < longForm.length) {
+      buf.append(shortForm[s]);
+      ++l;
+    }
+  }
+  return buf.toString();
+}

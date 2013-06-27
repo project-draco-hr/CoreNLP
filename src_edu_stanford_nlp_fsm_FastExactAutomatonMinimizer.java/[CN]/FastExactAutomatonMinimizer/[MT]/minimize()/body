@@ -1,0 +1,20 @@
+{
+  makeInitialBlocks();
+  while (hasSplit()) {
+    Split split=getSplit();
+    Collection inverseImages=getInverseImages(split);
+    Map inverseImagesByBlock=sortIntoBlocks(inverseImages);
+    for (Iterator blockI=inverseImagesByBlock.keySet().iterator(); blockI.hasNext(); ) {
+      Block block=(Block)blockI.next();
+      Collection members=(Collection)inverseImagesByBlock.get(block);
+      if (members.size() == 0 || members.size() == block.getMembers().size()) {
+        continue;
+      }
+      if (members.size() > block.getMembers().size() - members.size()) {
+        members=difference(block.getMembers(),members);
+      }
+      removeAll(block.getMembers(),members);
+      makeBlock(members);
+    }
+  }
+}

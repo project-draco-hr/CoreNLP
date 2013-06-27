@@ -1,0 +1,41 @@
+{
+  Label nodeLabel=label();
+  if (isLeaf()) {
+    if (nodeLabel instanceof HasWord) {
+      HasWord w=(HasWord)nodeLabel;
+      if (w.word() == null) {
+        w.setWord(nodeLabel.value());
+      }
+    }
+  }
+ else {
+    for (    Tree kid : children()) {
+      kid.percolateHeads(hf);
+    }
+    final Tree head=hf.determineHead(this);
+    if (head != null) {
+      final Label headLabel=head.label();
+      String headTag=(headLabel instanceof HasTag) ? ((HasTag)headLabel).tag() : null;
+      if (headTag == null && head.isLeaf()) {
+        headTag=nodeLabel.value();
+      }
+      String headWord=(headLabel instanceof HasWord) ? ((HasWord)headLabel).word() : null;
+      if (headWord == null && head.isLeaf()) {
+        headWord=headLabel.value();
+      }
+      int headIndex=(headLabel instanceof HasIndex) ? ((HasIndex)headLabel).index() : -1;
+      if (nodeLabel instanceof HasWord) {
+        ((HasWord)nodeLabel).setWord(headWord);
+      }
+      if (nodeLabel instanceof HasTag) {
+        ((HasTag)nodeLabel).setTag(headTag);
+      }
+      if (nodeLabel instanceof HasIndex && headIndex >= 0) {
+        ((HasIndex)nodeLabel).setIndex(headIndex);
+      }
+    }
+ else {
+      System.err.println("Head is null: " + this);
+    }
+  }
+}

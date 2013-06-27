@@ -1,0 +1,27 @@
+{
+  if (tree.isLeaf()) {
+    return 0.0;
+  }
+  if (tree.isPreTerminal()) {
+    String wordStr=tree.children()[0].label().value();
+    int tag=tagIndex.indexOf(tree.label().value());
+    int word=wordIndex.indexOf(wordStr);
+    IntTaggedWord iTW=new IntTaggedWord(word,tag);
+    float score=lex.score(iTW,start,wordStr,null);
+    tree.setScore(score);
+    return score;
+  }
+  int parent=stateIndex.indexOf(tree.label().value());
+  int firstChild=stateIndex.indexOf(tree.children()[0].label().value());
+  if (tree.numChildren() == 1) {
+    UnaryRule ur=new UnaryRule(parent,firstChild);
+    double score=ug.scoreRule(ur) + scoreBinarizedTree(tree.children()[0],start);
+    tree.setScore(score);
+    return score;
+  }
+  int secondChild=stateIndex.indexOf(tree.children()[1].label().value());
+  BinaryRule br=new BinaryRule(parent,firstChild,secondChild);
+  double score=bg.scoreRule(br) + scoreBinarizedTree(tree.children()[0],start) + scoreBinarizedTree(tree.children()[1],start + tree.children()[0].yield().size());
+  tree.setScore(score);
+  return score;
+}

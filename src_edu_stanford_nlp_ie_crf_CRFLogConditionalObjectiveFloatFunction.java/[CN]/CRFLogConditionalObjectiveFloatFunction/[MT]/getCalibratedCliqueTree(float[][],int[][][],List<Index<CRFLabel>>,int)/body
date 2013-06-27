@@ -1,0 +1,39 @@
+{
+  FloatFactorTable[] factorTables=new FloatFactorTable[data.length];
+  FloatFactorTable[] messages=new FloatFactorTable[data.length - 1];
+  for (int i=0; i < data.length; i++) {
+    factorTables[i]=getFloatFactorTable(weights,data[i],labelIndices,numClasses);
+    if (VERBOSE) {
+      System.err.println(i + ": " + factorTables[i]);
+    }
+    if (i > 0) {
+      messages[i - 1]=factorTables[i - 1].sumOutFront();
+      if (VERBOSE) {
+        System.err.println(messages[i - 1]);
+      }
+      factorTables[i].multiplyInFront(messages[i - 1]);
+      if (VERBOSE) {
+        System.err.println(factorTables[i]);
+        if (i == data.length - 1) {
+          System.err.println(i + ": " + factorTables[i].toProbString());
+        }
+      }
+    }
+  }
+  for (int i=factorTables.length - 2; i >= 0; i--) {
+    FloatFactorTable summedOut=factorTables[i + 1].sumOutEnd();
+    if (VERBOSE) {
+      System.err.println((i + 1) + "-->" + i+ ": "+ summedOut);
+    }
+    summedOut.divideBy(messages[i]);
+    if (VERBOSE) {
+      System.err.println((i + 1) + "-->" + i+ ": "+ summedOut);
+    }
+    factorTables[i].multiplyInEnd(summedOut);
+    if (VERBOSE) {
+      System.err.println(i + ": " + factorTables[i]);
+      System.err.println(i + ": " + factorTables[i].toProbString());
+    }
+  }
+  return factorTables;
+}

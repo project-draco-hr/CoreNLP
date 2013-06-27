@@ -1,0 +1,30 @@
+{
+  int length=logInputs.size();
+  if (length == 0)   throw new IllegalArgumentException();
+  if (fromIndex >= 0 && toIndex < length && fromIndex >= toIndex)   return Double.NEGATIVE_INFINITY;
+  int maxIdx=fromIndex;
+  double max=logInputs.get(fromIndex);
+  for (int i=fromIndex + 1; i < toIndex; i++) {
+    double d=logInputs.get(i);
+    if (d > max) {
+      maxIdx=i;
+      max=d;
+    }
+  }
+  boolean haveTerms=false;
+  double intermediate=0.0;
+  double cutoff=max - SloppyMath.LOGTOLERANCE;
+  for (int i=fromIndex; i < toIndex; i++) {
+    double d=logInputs.get(i);
+    if (i != maxIdx && d > cutoff) {
+      haveTerms=true;
+      intermediate+=Math.exp(d - max);
+    }
+  }
+  if (haveTerms) {
+    return max + Math.log(1.0 + intermediate);
+  }
+ else {
+    return max;
+  }
+}

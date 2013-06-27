@@ -1,0 +1,25 @@
+{
+  usedOneline.add(node);
+  boolean isntLeaf=(sg.outDegree(node) > 0);
+  if (isntLeaf) {
+    sb.append(LPAREN);
+  }
+  sb.append(formatLabel(node));
+  for (  SemanticGraphEdge depcy : sg.getOutEdgesSorted(node)) {
+    IndexedWord dep=depcy.getDependent();
+    sb.append(SPACE);
+    if (showRelns) {
+      sb.append(depcy.getRelation());
+      sb.append(COLON);
+    }
+    if (!usedOneline.contains(dep) && !used.contains(dep)) {
+      formatSGNodeOnelineHelper(sg,dep,sb,usedOneline);
+    }
+ else {
+      sb.append(formatLabel(dep));
+    }
+  }
+  if (isntLeaf) {
+    sb.append(RPAREN);
+  }
+}

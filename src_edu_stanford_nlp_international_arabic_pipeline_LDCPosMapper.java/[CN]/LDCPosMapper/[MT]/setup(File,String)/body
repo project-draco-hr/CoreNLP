@@ -1,0 +1,34 @@
+{
+  if (path == null || !path.exists())   return;
+  LineNumberReader reader=null;
+  try {
+    reader=new LineNumberReader(new FileReader(path));
+    boolean insideTagMap=false;
+    for (String line; (line=reader.readLine()) != null; ) {
+      line=line.trim();
+      Matcher isStartSymbol=startOfTagMap.matcher(line);
+      insideTagMap=(isStartSymbol.matches() || insideTagMap);
+      if (insideTagMap) {
+        if (line.startsWith(";"))         continue;
+        Matcher mappingLine=mapping.matcher(line);
+        if (mappingLine.find()) {
+          if (mappingLine.groupCount() == numExpectedTokens) {
+            String finalShortTag=processShortTag(mappingLine.group(1),mappingLine.group(2));
+            tagMap.put(mappingLine.group(1),finalShortTag);
+          }
+ else           System.err.printf("%s: Skipping bad mapping in %s (line %d)%n",this.getClass().getName(),path.getPath(),reader.getLineNumber());
+        }
+        Matcher isEndSymbol=endOfTagMap.matcher(line);
+        if (isEndSymbol.matches())         break;
+      }
+    }
+    reader.close();
+  }
+ catch (  FileNotFoundException e) {
+    System.err.printf("%s: Could not open mapping file %s%n",this.getClass().getName(),path.getPath());
+  }
+catch (  IOException e) {
+    int lineNum=(reader == null) ? -1 : reader.getLineNumber();
+    System.err.printf("%s: Error reading %s (line %d)%n",this.getClass().getName(),path.getPath(),lineNum);
+  }
+}

@@ -1,0 +1,56 @@
+{
+  final int maxleng=150;
+  int[] lengthCounts=new int[maxleng + 2];
+  int numSents=0;
+  int longestSeen=0;
+  int totalWords=0;
+  String longSent="";
+  double median=0.0;
+  NumberFormat nf=new DecimalFormat("0.0");
+  boolean foundMedian=false;
+  for (  Tree t : treebank) {
+    numSents++;
+    int len=t.yield().size();
+    if (len <= maxleng) {
+      lengthCounts[len]++;
+    }
+ else {
+      lengthCounts[maxleng + 1]++;
+    }
+    totalWords+=len;
+    if (len > longestSeen) {
+      longestSeen=len;
+      longSent=t.toString();
+    }
+  }
+  System.out.print("Files " + name + ' ');
+  if (range != null) {
+    System.out.print(range + ' ');
+  }
+  System.out.println("consists of " + numSents + " sentences");
+  int runningTotal=0;
+  for (int i=0; i <= maxleng; i++) {
+    runningTotal+=lengthCounts[i];
+    System.out.println("  " + lengthCounts[i] + " of length "+ i+ " (running total: "+ runningTotal+ ')');
+    if (!foundMedian && runningTotal > numSents / 2) {
+      if (numSents % 2 == 0 && runningTotal == numSents / 2 + 1) {
+        int j=i - 1;
+        while (j > 0 && lengthCounts[j] == 0) {
+          j--;
+        }
+        median=((double)i + j) / 2;
+      }
+ else {
+        median=i;
+      }
+      foundMedian=true;
+    }
+  }
+  if (lengthCounts[maxleng + 1] > 0) {
+    runningTotal+=lengthCounts[maxleng + 1];
+    System.out.println("  " + lengthCounts[maxleng + 1] + " of length "+ (maxleng + 1)+ " to "+ longestSeen+ " (running total: "+ runningTotal+ ')');
+  }
+  System.out.println("Average length: " + nf.format(((double)totalWords) / numSents) + "; median length: "+ nf.format(median));
+  System.out.println("Longest sentence is of length: " + longestSeen);
+  pw.println(longSent);
+}

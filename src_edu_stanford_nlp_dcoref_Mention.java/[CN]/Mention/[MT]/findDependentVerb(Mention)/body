@@ -1,0 +1,28 @@
+{
+  Pair<IndexedWord,String> ret=new Pair<IndexedWord,String>();
+  int headIndex=m.headIndex + 1;
+  try {
+    IndexedWord w=m.dependency.getNodeByIndex(headIndex);
+    if (w == null)     return ret;
+    while (true) {
+      IndexedWord p=null;
+      for (      Pair<GrammaticalRelation,IndexedWord> parent : m.dependency.parentPairs(w)) {
+        if (ret.second() == null) {
+          String relation=parent.first().getShortName();
+          ret.setSecond(relation);
+        }
+        p=parent.second();
+      }
+      if (p == null || p.get(CoreAnnotations.PartOfSpeechAnnotation.class).startsWith("V")) {
+        ret.setFirst(p);
+        break;
+      }
+      if (w == p)       return ret;
+      w=p;
+    }
+  }
+ catch (  Exception e) {
+    return ret;
+  }
+  return ret;
+}

@@ -1,0 +1,16 @@
+{
+  if (t == null)   return this;
+  if (t == TIME_UNKNOWN || t == DURATION_UNKNOWN)   return this;
+  if (t instanceof Time) {
+    RelativeTime rt=new RelativeTime((Time)t,TemporalOp.INTERSECT,this);
+    rt=(RelativeTime)rt.addMod(this.getMod());
+    return rt;
+  }
+ else   if (t instanceof Range) {
+  }
+ else   if (t instanceof Duration) {
+    Duration d=(Duration)t;
+    return intersect(d);
+  }
+  return null;
+}

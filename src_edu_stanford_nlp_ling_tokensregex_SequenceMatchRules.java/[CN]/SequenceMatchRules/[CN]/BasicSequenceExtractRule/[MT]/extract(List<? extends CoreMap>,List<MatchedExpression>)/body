@@ -1,0 +1,13 @@
+{
+  boolean extracted=false;
+  for (int i=0; i < seq.size(); i++) {
+    CoreMap t=seq.get(i);
+    Value v=extractor.apply(t);
+    if (v != null) {
+      MatchedExpression te=extractor.createMatchedExpression(Interval.toInterval(i,i + 1,Interval.INTERVAL_OPEN_END),null);
+      out.add(te);
+      extracted=true;
+    }
+  }
+  return extracted;
+}

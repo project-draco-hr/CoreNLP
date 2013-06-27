@@ -1,0 +1,12 @@
+{
+  ObjectOutputStream oos=IOUtils.writeStreamFromString(dirPath + "/objs.obj");
+  oos.writeObject(Integer.valueOf(42));
+  oos.writeObject("forty two");
+  oos.close();
+  ObjectInputStream ois=IOUtils.readStreamFromString(dirPath + "/objs.obj");
+  Object i=ois.readObject();
+  Object s=ois.readObject();
+  Assert.assertTrue(Integer.valueOf(42).equals(i));
+  Assert.assertTrue("forty two".equals(s));
+  ois.close();
+}

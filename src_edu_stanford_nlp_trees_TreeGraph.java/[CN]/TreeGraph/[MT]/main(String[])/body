@@ -1,0 +1,18 @@
+{
+  Tree t;
+  try {
+    t=Tree.valueOf("(S (NP (NNP Sam)) (VP (VBD died) (NP-TMP (NN today))))");
+  }
+ catch (  Exception e) {
+    System.err.println("Horrible error: " + e);
+    e.printStackTrace();
+    return;
+  }
+  t.pennPrint();
+  System.out.println("----------------------------");
+  TreeGraph tg=new TreeGraph(t);
+  System.out.println(tg);
+  tg.root.percolateHeads(new SemanticHeadFinder());
+  System.out.println("----------------------------");
+  System.out.println(tg);
+}

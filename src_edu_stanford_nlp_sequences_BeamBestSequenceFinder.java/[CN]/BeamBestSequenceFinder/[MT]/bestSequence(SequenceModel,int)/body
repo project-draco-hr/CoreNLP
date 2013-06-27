@@ -1,0 +1,59 @@
+{
+  int length=ts.length();
+  int leftWindow=ts.leftWindow();
+  int rightWindow=ts.rightWindow();
+  int padLength=length + leftWindow + rightWindow;
+  int[][] tags=new int[padLength][];
+  int[] tagNum=new int[padLength];
+  for (int pos=0; pos < padLength; pos++) {
+    tags[pos]=ts.getPossibleValues(pos);
+    tagNum[pos]=tags[pos].length;
+  }
+  Beam newBeam=new Beam(beamSize,ScoredComparator.ASCENDING_COMPARATOR);
+  TagSeq initSeq=new TagSeq();
+  newBeam.add(initSeq);
+  for (int pos=0; pos < padLength; pos++) {
+    Beam oldBeam=newBeam;
+    if (pos < leftWindow + rightWindow && exhaustiveStart) {
+      newBeam=new Beam(100000,ScoredComparator.ASCENDING_COMPARATOR);
+    }
+ else {
+      newBeam=new Beam(beamSize,ScoredComparator.ASCENDING_COMPARATOR);
+    }
+    for (Iterator beamI=oldBeam.iterator(); beamI.hasNext(); ) {
+      TagSeq tagSeq=(TagSeq)beamI.next();
+      for (int nextTagNum=0; nextTagNum < tagNum[pos]; nextTagNum++) {
+        TagSeq nextSeq=tagSeq.tclone();
+        if (pos >= leftWindow + rightWindow) {
+          nextSeq.extendWith(tags[pos][nextTagNum],ts,size);
+        }
+ else {
+          nextSeq.extendWith(tags[pos][nextTagNum]);
+        }
+        newBeam.add(nextSeq);
+      }
+    }
+    if (recenter) {
+      double max=Double.NEGATIVE_INFINITY;
+      for (Iterator beamI=newBeam.iterator(); beamI.hasNext(); ) {
+        TagSeq tagSeq=(TagSeq)beamI.next();
+        if (tagSeq.score > max) {
+          max=tagSeq.score;
+        }
+      }
+      for (Iterator beamI=newBeam.iterator(); beamI.hasNext(); ) {
+        TagSeq tagSeq=(TagSeq)beamI.next();
+        tagSeq.score-=max;
+      }
+    }
+  }
+  try {
+    TagSeq bestSeq=(TagSeq)newBeam.iterator().next();
+    int[] seq=bestSeq.tags();
+    return seq;
+  }
+ catch (  NoSuchElementException e) {
+    System.err.println("Beam empty -- no best sequence.");
+    return null;
+  }
+}

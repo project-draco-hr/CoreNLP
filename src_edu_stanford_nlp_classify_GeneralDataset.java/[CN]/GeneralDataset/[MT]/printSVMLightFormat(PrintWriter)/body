@@ -1,0 +1,19 @@
+{
+  String[] labelMap=makeSvmLabelMap();
+  for (int i=0; i < size; i++) {
+    RVFDatum<L,F> d=getRVFDatum(i);
+    Counter<F> c=d.asFeaturesCounter();
+    ClassicCounter<Integer> printC=new ClassicCounter<Integer>();
+    for (    F f : c.keySet()) {
+      printC.setCount(featureIndex.indexOf(f),c.getCount(f));
+    }
+    Integer[] features=printC.keySet().toArray(new Integer[printC.keySet().size()]);
+    Arrays.sort(features);
+    StringBuilder sb=new StringBuilder();
+    sb.append(labelMap[labels[i]]).append(' ');
+    for (    int f : features) {
+      sb.append((f + 1)).append(':').append(printC.getCount(f)).append(' ');
+    }
+    pw.println(sb.toString());
+  }
+}

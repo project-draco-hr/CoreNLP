@@ -1,0 +1,27 @@
+{
+  Map<Pair<Integer,String>,List<Triple<Integer,String,Double>>> hashMap=Generics.newHashMap();
+  try {
+    BufferedReader wordMapBReader=new BufferedReader(new InputStreamReader(new FileInputStream(filename),"UTF-8"));
+    String wordMapLine;
+    Pattern linePattern=Pattern.compile("sim\\((.+)/(.+):(.+)/(.+)\\)=(.+)");
+    while ((wordMapLine=wordMapBReader.readLine()) != null) {
+      Matcher m=linePattern.matcher(wordMapLine);
+      if (!m.matches()) {
+        System.err.println("Ill-formed line in similar word map file: " + wordMapLine);
+        continue;
+      }
+      Pair<Integer,String> iTW=new Pair<Integer,String>(wordIndex.indexOf(m.group(1),true),m.group(2));
+      double score=Double.parseDouble(m.group(5));
+      List<Triple<Integer,String,Double>> tripleList=hashMap.get(iTW);
+      if (tripleList == null) {
+        tripleList=new ArrayList<Triple<Integer,String,Double>>();
+        hashMap.put(iTW,tripleList);
+      }
+      tripleList.add(new Triple<Integer,String,Double>(wordIndex.indexOf(m.group(3),true),m.group(4),score));
+    }
+  }
+ catch (  IOException e) {
+    throw new RuntimeException("Problem reading similar words file!");
+  }
+  return hashMap;
+}

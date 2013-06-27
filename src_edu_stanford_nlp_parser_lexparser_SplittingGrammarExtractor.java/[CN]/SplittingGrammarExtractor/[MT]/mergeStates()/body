@@ -1,0 +1,40 @@
+{
+  if (op.trainOptions.splitRecombineRate <= 0.0) {
+    return;
+  }
+  TwoDimensionalMap<String,String,double[][]> tempUnaryBetas=new TwoDimensionalMap<String,String,double[][]>();
+  ThreeDimensionalMap<String,String,String,double[][][]> tempBinaryBetas=new ThreeDimensionalMap<String,String,String,double[][][]>();
+  Map<String,double[]> totalStateMass=Generics.newHashMap();
+  recalculateTemporaryBetas(false,totalStateMass,tempUnaryBetas,tempBinaryBetas);
+  Map<String,double[]> deltaAnnotations=Generics.newHashMap();
+  for (  Tree tree : trees) {
+    countMergeEffects(tree,totalStateMass,deltaAnnotations);
+  }
+  List<Triple<String,Integer,Double>> sortedDeltas=new ArrayList<Triple<String,Integer,Double>>();
+  for (  String state : deltaAnnotations.keySet()) {
+    double[] scores=deltaAnnotations.get(state);
+    for (int i=0; i < scores.length; ++i) {
+      sortedDeltas.add(new Triple<String,Integer,Double>(state,i * 2,scores[i]));
+    }
+  }
+  Collections.sort(sortedDeltas,new Comparator<Triple<String,Integer,Double>>(){
+    public int compare(    Triple<String,Integer,Double> first,    Triple<String,Integer,Double> second){
+      return Double.compare(second.third(),first.third());
+    }
+    public boolean equals(    Object o){
+      return o == this;
+    }
+  }
+);
+  int splitsToMerge=(int)(sortedDeltas.size() * op.trainOptions.splitRecombineRate);
+  splitsToMerge=Math.max(0,splitsToMerge);
+  splitsToMerge=Math.min(sortedDeltas.size() - 1,splitsToMerge);
+  sortedDeltas=sortedDeltas.subList(0,splitsToMerge);
+  System.out.println();
+  System.out.println(sortedDeltas);
+  Map<String,int[]> mergeCorrespondence=buildMergeCorrespondence(sortedDeltas);
+  recalculateMergedBetas(mergeCorrespondence);
+  for (  Triple<String,Integer,Double> delta : sortedDeltas) {
+    stateSplitCounts.decrementCount(delta.first(),1);
+  }
+}

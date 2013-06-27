@@ -1,0 +1,22 @@
+{
+  if (!a.isPrimitive() && !b.isPrimitive())   return false;
+  if (a.isPrimitive()) {
+    try {
+      Class<?> type=(Class<?>)b.getField("TYPE").get(null);
+      return type.equals(a);
+    }
+ catch (    Exception e) {
+      return false;
+    }
+  }
+  if (b.isPrimitive()) {
+    try {
+      Class<?> type=(Class<?>)a.getField("TYPE").get(null);
+      return type.equals(b);
+    }
+ catch (    Exception e) {
+      return false;
+    }
+  }
+  throw new IllegalStateException("Impossible case");
+}

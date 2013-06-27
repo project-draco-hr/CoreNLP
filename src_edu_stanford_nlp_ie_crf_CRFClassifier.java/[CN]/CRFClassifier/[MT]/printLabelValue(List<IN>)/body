@@ -1,0 +1,49 @@
+{
+  if (flags.useReverse) {
+    Collections.reverse(document);
+  }
+  NumberFormat nf=new DecimalFormat();
+  List<String> classes=new ArrayList<String>();
+  for (int i=0; i < classIndex.size(); i++) {
+    classes.add(classIndex.get(i));
+  }
+  String[] columnHeaders=classes.toArray(new String[classes.size()]);
+  for (int j=0; j < document.size(); j++) {
+    System.out.println("--== " + document.get(j).get(CoreAnnotations.TextAnnotation.class) + " ==--");
+    List<String[]> lines=new ArrayList<String[]>();
+    List<String> rowHeaders=new ArrayList<String>();
+    List<String> line=new ArrayList<String>();
+    for (int p=0; p < labelIndices.size(); p++) {
+      if (j + p >= document.size()) {
+        continue;
+      }
+      CRFDatum<List<String>,CRFLabel> d=makeDatum(document,j + p,featureFactory);
+      List<List<String>> features=d.asFeatures();
+      for (int k=p, fSize=features.size(); k < fSize; k++) {
+        Collection<String> cliqueFeatures=features.get(k);
+        for (        String feature : cliqueFeatures) {
+          int index=featureIndex.indexOf(feature);
+          if (index >= 0) {
+            rowHeaders.add(feature + '[' + (-p)+ ']');
+            double[] values=new double[labelIndices.get(0).size()];
+            for (            CRFLabel label : labelIndices.get(k)) {
+              int[] l=label.getLabel();
+              double v=weights[index][labelIndices.get(k).indexOf(label)];
+              values[l[l.length - 1 - p]]+=v;
+            }
+            for (            double value : values) {
+              line.add(nf.format(value));
+            }
+            lines.add(line.toArray(new String[line.size()]));
+            line=new ArrayList<String>();
+          }
+        }
+      }
+      System.out.println(StringUtils.makeAsciiTable(lines.toArray(new String[lines.size()][0]),rowHeaders.toArray(new String[rowHeaders.size()]),columnHeaders,0,1,true));
+      System.out.println();
+    }
+  }
+  if (flags.useReverse) {
+    Collections.reverse(document);
+  }
+}

@@ -1,0 +1,16 @@
+{
+  System.out.println("Matching pattern " + pattern + " to\n"+ graph+ "  :"+ (pattern.matcher(graph).matches() ? "matches" : "doesn't match"));
+  System.out.println();
+  pattern.prettyPrint();
+  System.out.println();
+  SemgrexMatcher matcher=pattern.matcher(graph);
+  while (matcher.find()) {
+    System.out.println("  " + matcher.getMatch());
+    Set<String> nodeNames=matcher.getNodeNames();
+    if (nodeNames != null && nodeNames.size() > 0) {
+      for (      String name : nodeNames) {
+        System.out.println("    " + name + ": "+ matcher.getNode(name));
+      }
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  Set<String> roleSet=aceEventMention.getRoles();
+  List<String> roles=new ArrayList<String>();
+  for (  String role : roleSet)   roles.add(role);
+  List<ExtractionObject> convertedArgs=new ArrayList<ExtractionObject>();
+  int left=Integer.MAX_VALUE;
+  int right=Integer.MIN_VALUE;
+  for (  String role : roles) {
+    AceEntityMention arg=aceEventMention.getArg(role);
+    ExtractionObject o=entityMap.get(arg.getId());
+    if (o == null) {
+      logger.severe("READER ERROR: Failed to find event argument with id " + arg.getId());
+      logger.severe("This happens because a few event mentions illegally span multiple sentences. Will ignore this mention.");
+      return null;
+    }
+    convertedArgs.add(o);
+    if (o.getExtentTokenStart() < left)     left=o.getExtentTokenStart();
+    if (o.getExtentTokenEnd() > right)     right=o.getExtentTokenEnd();
+  }
+  AceCharSeq anchor=aceEventMention.getAnchor();
+  ExtractionObject anchorObject=new ExtractionObject(aceEventMention.getId() + "-anchor",sentence,new Span(anchor.getTokenStart() - tokenOffset,anchor.getTokenEnd() + 1 - tokenOffset),"ANCHOR",null);
+  EventMention em=new EventMention(aceEventMention.getId(),sentence,new Span(left,right),aceEventMention.getParent().getType(),aceEventMention.getParent().getSubtype(),anchorObject,convertedArgs,roles);
+  return em;
+}

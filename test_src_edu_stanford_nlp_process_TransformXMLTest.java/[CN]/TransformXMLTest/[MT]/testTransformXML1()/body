@@ -1,0 +1,11 @@
+{
+  TransformXML<String> tx=new TransformXML<String>();
+  StringWriter sw=new StringWriter();
+  tx.transformXML(StringUtils.EMPTY_STRING_ARRAY,new IdentityFunction<String>(),new ByteArrayInputStream(testCase.getBytes()),sw);
+  String answer=sw.toString().replaceAll("\\s+"," ").trim();
+  assertEquals("Bad XML transform",expectedAnswer,answer);
+  sw=new StringWriter();
+  tx.transformXML(new String[]{"el"},duplicate,new ByteArrayInputStream(testCase.getBytes()),sw);
+  String answer2=sw.toString().replaceAll("\\s+"," ").trim();
+  assertEquals("Bad XML transform",expectedAnswer2,answer2);
+}

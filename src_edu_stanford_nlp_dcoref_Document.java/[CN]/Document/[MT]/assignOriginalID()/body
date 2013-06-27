@@ -1,0 +1,20 @@
+{
+  List<List<Mention>> orderedMentionsBySentence=this.getOrderedMentions();
+  boolean hasOriginalID=true;
+  for (  List<Mention> l : orderedMentionsBySentence) {
+    if (l.size() == 0)     continue;
+    for (    Mention m : l) {
+      if (m.mentionID == -1) {
+        hasOriginalID=false;
+      }
+    }
+  }
+  if (!hasOriginalID) {
+    int id=0;
+    for (    List<Mention> l : orderedMentionsBySentence) {
+      for (      Mention m : l) {
+        m.mentionID=id++;
+      }
+    }
+  }
+}

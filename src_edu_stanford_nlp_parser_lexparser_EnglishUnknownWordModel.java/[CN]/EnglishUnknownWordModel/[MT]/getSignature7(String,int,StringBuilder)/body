@@ -1,0 +1,57 @@
+{
+  boolean hasDigit=false;
+  boolean hasNonDigit=false;
+  boolean hasLower=false;
+  boolean hasUpper=false;
+  boolean hasDash=false;
+  int wlen=word.length();
+  for (int i=0; i < wlen; i++) {
+    char ch=word.charAt(i);
+    if (Character.isDigit(ch)) {
+      hasDigit=true;
+    }
+ else {
+      hasNonDigit=true;
+      if (Character.isLetter(ch)) {
+        if (Character.isLowerCase(ch) || Character.isTitleCase(ch)) {
+          hasLower=true;
+        }
+ else {
+          hasUpper=true;
+        }
+      }
+ else       if (ch == '-') {
+        hasDash=true;
+      }
+    }
+  }
+  if (wlen > 0 && hasUpper) {
+    if (!hasLower) {
+      sb.append("-ALLC");
+    }
+ else     if (loc == 0) {
+      sb.append("-INIT");
+    }
+ else {
+      sb.append("-UC");
+    }
+  }
+ else   if (hasLower) {
+    sb.append("-LC");
+  }
+  if (hasDash) {
+    sb.append("-DASH");
+  }
+  if (hasDigit) {
+    if (!hasNonDigit) {
+      sb.append("-NUM");
+    }
+ else {
+      sb.append("-DIG");
+    }
+  }
+ else   if (wlen > 3) {
+    char ch=word.charAt(word.length() - 1);
+    sb.append(Character.toLowerCase(ch));
+  }
+}

@@ -1,0 +1,22 @@
+{
+  try {
+    File inFile=File.createTempFile("charniak.",".in");
+    if (deleteTempFiles)     inFile.deleteOnExit();
+    File outFile=File.createTempFile("charniak.",".out");
+    if (deleteTempFiles)     outFile.deleteOnExit();
+    File errFile=File.createTempFile("charniak.",".err");
+    if (deleteTempFiles)     errFile.deleteOnExit();
+    printSentences(sentences,inFile.getAbsolutePath());
+    runCharniak(k,inFile.getAbsolutePath(),outFile.getAbsolutePath(),errFile.getAbsolutePath());
+    Iterable<List<ScoredObject<Tree>>> iter=scoredParsesReaderWriter.readScoredTrees(outFile.getAbsolutePath());
+    if (deleteTempFiles) {
+      inFile.delete();
+      outFile.delete();
+      errFile.delete();
+    }
+    return new IterableIterator<List<ScoredObject<Tree>>>(iter.iterator());
+  }
+ catch (  IOException ex) {
+    throw new RuntimeException(ex);
+  }
+}

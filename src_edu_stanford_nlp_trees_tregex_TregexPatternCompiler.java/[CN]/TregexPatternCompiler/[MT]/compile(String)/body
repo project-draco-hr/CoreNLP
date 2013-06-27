@@ -1,0 +1,18 @@
+{
+  for (  Pair<String,String> macro : macros) {
+    tregex=tregex.replaceAll(macro.first(),macro.second());
+  }
+  TregexPattern pattern;
+  try {
+    TregexParser parser=new TregexParser(new StringReader(tregex + '\n'),basicCatFunction,headFinder);
+    pattern=parser.Root();
+  }
+ catch (  TokenMgrError tme) {
+    throw new TregexParseException("Could not parse " + tregex,tme);
+  }
+catch (  ParseException e) {
+    throw new TregexParseException("Could not parse " + tregex,e);
+  }
+  pattern.setPatternString(tregex);
+  return pattern;
+}

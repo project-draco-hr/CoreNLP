@@ -1,0 +1,51 @@
+{
+  for (  LatticeEdge edge : lr) {
+    int start=edge.start;
+    int end=edge.end;
+    String word=edge.word;
+    for (int state=0; state < numStates; state++) {
+      if (isTag[state]) {
+        IntTaggedWord itw=new IntTaggedWord(word,stateIndex.get(state),wordIndex,tagIndex);
+        float newScore=lex.score(itw,start,word,null) + (float)edge.weight;
+        if (newScore > iScore[start][end][state]) {
+          iScore[start][end][state]=newScore;
+          narrowRExtent[start][state]=Math.min(end,narrowRExtent[start][state]);
+          narrowLExtent[end][state]=Math.max(start,narrowLExtent[end][state]);
+          wideRExtent[start][state]=Math.max(end,wideRExtent[start][state]);
+          wideLExtent[end][state]=Math.min(start,wideLExtent[end][state]);
+        }
+      }
+    }
+    if (floodTags && (!op.testOptions.noRecoveryTagging)) {
+      for (int state=0; state < numStates; state++) {
+        float iS=iScore[start][end][state];
+        if (isTag[state] && iS == Float.NEGATIVE_INFINITY) {
+          iScore[start][end][state]=-1000.0f + (float)edge.weight;
+          narrowRExtent[start][state]=end;
+          narrowLExtent[end][state]=start;
+          wideRExtent[start][state]=end;
+          wideLExtent[end][state]=start;
+        }
+      }
+    }
+    for (int state=0; state < numStates; state++) {
+      float iS=iScore[start][end][state];
+      if (iS == Float.NEGATIVE_INFINITY) {
+        continue;
+      }
+      UnaryRule[] unaries=ug.closedRulesByChild(state);
+      for (      UnaryRule ur : unaries) {
+        int parentState=ur.parent;
+        float pS=ur.score;
+        float tot=iS + pS;
+        if (tot > iScore[start][end][parentState]) {
+          iScore[start][end][parentState]=tot;
+          narrowRExtent[start][parentState]=Math.min(end,narrowRExtent[start][parentState]);
+          narrowLExtent[end][parentState]=Math.max(start,narrowLExtent[end][parentState]);
+          wideRExtent[start][parentState]=Math.max(end,wideRExtent[start][parentState]);
+          wideLExtent[end][parentState]=Math.min(start,wideLExtent[end][parentState]);
+        }
+      }
+    }
+  }
+}

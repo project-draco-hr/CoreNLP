@@ -1,0 +1,17 @@
+{
+  NumberFormat nf=NumberFormat.getNumberInstance();
+  nf.setMaximumFractionDigits(numDigits);
+  StringBuilder sb=new StringBuilder();
+  double confWeightedAccuracy=confidenceWeightedAccuracy();
+  sb.append("--- Accuracy Stats ---").append("\n");
+  sb.append("accuracy: ").append(nf.format(accuracy)).append(" (").append(correct).append("/").append(total).append(")\n");
+  sb.append("confidence weighted accuracy :").append(nf.format(confWeightedAccuracy)).append("\n");
+  sb.append("log-likelihood: ").append(logLikelihood).append("\n");
+  if (saveFile != null) {
+    String f=saveFile + "-" + saveIndex;
+    sb.append("saving accuracy info to ").append(f).append(".accuracy\n");
+    StringUtils.printToFile(f + ".accuracy",AccuracyStats.toStringArr(getAccCoverage()));
+    saveIndex++;
+  }
+  return sb.toString();
+}

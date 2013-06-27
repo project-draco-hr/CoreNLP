@@ -1,0 +1,30 @@
+{
+  StringBuffer buffer=new StringBuffer();
+  appendOffset(buffer,offset);
+  buffer.append("<?xml version=\"1.0\"?>\n");
+  appendOffset(buffer,offset);
+  buffer.append("<!DOCTYPE source_file SYSTEM \"apf.v5.1.2.dtd\">\n");
+  appendOffset(buffer,offset);
+  buffer.append("<source_file URI=\"" + mId + ".sgm\" SOURCE=\""+ mSource+ "\" TYPE=\"text\" AUTHOR=\"LDC\" ENCODING=\"UTF-8\">\n");
+  appendOffset(buffer,offset);
+  buffer.append("<document DOCID=\"" + getId() + "\">\n");
+  Set<String> entKeys=mEntities.keySet();
+  for (  String key : entKeys) {
+    AceEntity e=mEntities.get(key);
+    buffer.append(e.toXml(offset));
+    buffer.append("\n");
+  }
+  Set<String> relKeys=mRelations.keySet();
+  for (  String key : relKeys) {
+    AceRelation r=mRelations.get(key);
+    if (!r.getType().equals(AceRelation.NIL_LABEL)) {
+      buffer.append(r.toXml(offset));
+      buffer.append("\n");
+    }
+  }
+  appendOffset(buffer,offset);
+  buffer.append("</document>\n");
+  appendOffset(buffer,offset);
+  buffer.append("</source_file>\n");
+  return buffer.toString();
+}

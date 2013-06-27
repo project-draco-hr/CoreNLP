@@ -1,0 +1,25 @@
+{
+  if (VERBOSE) {
+    System.err.println("Adding to chart: " + edge);
+  }
+  chart.addEdge(edge);
+  for (  Hook hook : chart.getPreHooks(edge)) {
+    combine(edge,hook);
+  }
+  for (  Hook hook : chart.getPostHooks(edge)) {
+    combine(edge,hook);
+  }
+  projectUnaries(edge);
+  if (!bg.isSynthetic(edge.state) && !op.freeDependencies) {
+    projectHooks(edge);
+    registerReal(edge);
+  }
+  if (op.freeDependencies) {
+    projectHooks(edge);
+    registerReal(edge);
+    triggerAllHooks(edge);
+  }
+ else {
+    triggerHooks(edge);
+  }
+}

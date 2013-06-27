@@ -1,0 +1,65 @@
+{
+  Class<? extends DependencyReader> altDepReaderClass=null;
+  String[] toks=parseClassConstructArgs(altDepReaderName);
+  altDepReaderName=toks[0];
+  String[] depReaderArgs=new String[toks.length - 1];
+  System.arraycopy(toks,1,depReaderArgs,0,toks.length - 1);
+  try {
+    Class<?> cl=Class.forName(altDepReaderName);
+    altDepReaderClass=cl.asSubclass(DependencyReader.class);
+  }
+ catch (  ClassNotFoundException e) {
+  }
+  if (altDepReaderClass == null) {
+    try {
+      Class<?> cl=Class.forName("edu.stanford.nlp.trees." + altDepReaderName);
+      altDepReaderClass=cl.asSubclass(DependencyReader.class);
+    }
+ catch (    ClassNotFoundException e) {
+    }
+  }
+  if (altDepReaderClass == null) {
+    System.err.println("Can't load dependency reader " + altDepReaderName + " or edu.stanford.nlp.trees."+ altDepReaderName);
+    return null;
+  }
+  DependencyReader altDepReader;
+  if (depReaderArgs.length == 0) {
+    try {
+      altDepReader=altDepReaderClass.newInstance();
+    }
+ catch (    InstantiationException e) {
+      throw new RuntimeException(e);
+    }
+catch (    IllegalAccessException e) {
+      System.err.println("No argument constructor to " + altDepReaderName + " is not public");
+      return null;
+    }
+  }
+ else {
+    try {
+      altDepReader=altDepReaderClass.getConstructor(String[].class).newInstance((Object)depReaderArgs);
+    }
+ catch (    IllegalArgumentException e) {
+      throw new RuntimeException(e);
+    }
+catch (    SecurityException e) {
+      throw new RuntimeException(e);
+    }
+catch (    InstantiationException e) {
+      e.printStackTrace();
+      return null;
+    }
+catch (    IllegalAccessException e) {
+      System.err.println(depReaderArgs.length + " argument constructor to " + altDepReaderName+ " is not public.");
+      return null;
+    }
+catch (    InvocationTargetException e) {
+      throw new RuntimeException(e);
+    }
+catch (    NoSuchMethodException e) {
+      System.err.println("String arguments constructor to " + altDepReaderName + " does not exist.");
+      return null;
+    }
+  }
+  return altDepReader;
+}

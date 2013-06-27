@@ -1,0 +1,43 @@
+{
+  if (host == null) {
+    host="localhost";
+  }
+  for (String userInput; (userInput=input.readLine()) != null; ) {
+    if (userInput.matches("\\n?")) {
+      if (closeOnBlank) {
+        break;
+      }
+ else {
+        continue;
+      }
+    }
+    try {
+      Socket socket=new Socket(host,port);
+      PrintWriter out=new PrintWriter(new OutputStreamWriter(socket.getOutputStream(),charset),true);
+      BufferedReader in=new BufferedReader(new InputStreamReader(socket.getInputStream(),charset));
+      out.println(userInput);
+      String result;
+      while ((result=in.readLine()) != null) {
+        if (output == null) {
+          EncodingPrintWriter.out.println(result,charset);
+        }
+ else {
+          output.write(result);
+          output.newLine();
+        }
+      }
+      in.close();
+      socket.close();
+    }
+ catch (    UnknownHostException e) {
+      System.err.print("Cannot find host: ");
+      System.err.println(host);
+      return;
+    }
+catch (    IOException e) {
+      System.err.print("I/O error in the connection to: ");
+      System.err.println(host);
+      return;
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  if (tagPanel == null) {
+    tagPanel=new JToolBar(SwingConstants.VERTICAL);
+    tagPanel.setFloatable(false);
+    frame.getContentPane().add(tagPanel,BorderLayout.EAST);
+  }
+ else {
+    tagPanel.removeAll();
+  }
+  if (classifier != null) {
+    makeTagMaps();
+    Set<String> tags=classifier.labels();
+    String backgroundSymbol=classifier.backgroundSymbol();
+    for (    String tag : tags) {
+      if (backgroundSymbol.equals(tag)) {
+        continue;
+      }
+      Color color=tagToColorMap.get(tag);
+      JButton b=new JButton(tag,new ColorIcon(color));
+      tagPanel.add(b);
+    }
+  }
+  tagPanel.revalidate();
+  tagPanel.repaint();
+}

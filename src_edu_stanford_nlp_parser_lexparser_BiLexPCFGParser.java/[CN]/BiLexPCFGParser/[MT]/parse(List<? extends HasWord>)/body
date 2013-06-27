@@ -1,0 +1,135 @@
+{
+  int nGoodRemaining=0;
+  if (op.testOptions.printFactoredKGood > 0) {
+    nGoodRemaining=op.testOptions.printFactoredKGood;
+    nGoodTrees.clear();
+  }
+  int spanFound=0;
+  long last=0;
+  int exHook=0;
+  relaxHook1=0;
+  relaxHook2=0;
+  relaxHook3=0;
+  relaxHook4=0;
+  builtHooks=0;
+  builtEdges=0;
+  extractedHooks=0;
+  extractedEdges=0;
+  if (op.testOptions.verbose) {
+    Timing.tick("Starting combined parse.");
+  }
+  dparser.binDistance=dparser.binDistance;
+  initialize(words);
+  while (!agenda.isEmpty()) {
+    Item item=agenda.extractMin();
+    if (!item.isEdge()) {
+      exHook++;
+      extractedHooks++;
+    }
+ else {
+      extractedEdges++;
+    }
+    if (relaxHook1 > last + 1000000) {
+      last=relaxHook1;
+      if (op.testOptions.verbose) {
+        System.err.println("Proposed hooks:   " + relaxHook1);
+        System.err.println("Unfiltered hooks: " + relaxHook2);
+        System.err.println("Built hooks:      " + relaxHook3);
+        System.err.println("Waste hooks:      " + relaxHook4);
+        System.err.println("Extracted hooks:  " + exHook);
+      }
+    }
+    if (item.end - item.start > spanFound) {
+      spanFound=item.end - item.start;
+      if (op.testOptions.verbose) {
+        System.err.print(spanFound + " ");
+      }
+    }
+    if (item.equals(goal)) {
+      if (op.testOptions.verbose) {
+        System.err.println("Found goal!");
+        System.err.println("Comb iScore " + item.iScore);
+        Timing.tick("Done, parse found.");
+        System.err.println("Built items:      " + (builtEdges + builtHooks));
+        System.err.println("Built hooks:      " + builtHooks);
+        System.err.println("Built edges:      " + builtEdges);
+        System.err.println("Extracted items:  " + (extractedEdges + extractedHooks));
+        System.err.println("Extracted hooks:  " + extractedHooks);
+        System.err.println("Extracted edges:  " + extractedEdges);
+      }
+      if (op.testOptions.printFactoredKGood <= 0) {
+        goal=(Edge)item;
+        interner=null;
+        agenda=null;
+        return true;
+      }
+ else {
+        goal=(Edge)item;
+        nGoodTrees.add(goal);
+        nGoodRemaining--;
+        if (nGoodRemaining > 0) {
+          if (VERBOSE) {
+            System.err.println("Found parse! Number of remaining trees to find = " + nGoodRemaining);
+          }
+        }
+ else {
+          if (VERBOSE) {
+            System.err.println("Found last parse!");
+          }
+          interner=null;
+          agenda=null;
+          return true;
+        }
+      }
+    }
+    if (item.score() == Double.NEGATIVE_INFINITY) {
+      if (nGoodTrees.size() > 0) {
+        if (VERBOSE) {
+          System.err.println("Aborting kGood search because of an unacceptable (-Inf) item: " + item);
+        }
+        goal=nGoodTrees.get(0);
+        interner=null;
+        agenda=null;
+        return true;
+      }
+      System.err.println("FactoredParser: no consistent parse [hit A*-blocked edges, aborting].");
+      if (op.testOptions.verbose) {
+        Timing.tick("FactoredParser: no consistent parse [hit A*-blocked edges, aborting].");
+      }
+      return false;
+    }
+    if (op.testOptions.MAX_ITEMS > 0 && (builtEdges + builtHooks) >= op.testOptions.MAX_ITEMS) {
+      if (nGoodTrees.size() > 0) {
+        System.err.println("DEBUG: aborting search because of reaching the MAX_ITEMS work limit [" + op.testOptions.MAX_ITEMS + " items]");
+        goal=nGoodTrees.get(0);
+        interner=null;
+        agenda=null;
+        return true;
+      }
+      System.err.println("FactoredParser: exceeded MAX_ITEMS work limit [" + op.testOptions.MAX_ITEMS + " items]; aborting.");
+      if (op.testOptions.verbose) {
+        Timing.tick("FactoredParser: exceeded MAX_ITEMS work limit [" + op.testOptions.MAX_ITEMS + " items]; aborting.");
+      }
+      return false;
+    }
+    if (VERBOSE && item.score() != Double.NEGATIVE_INFINITY) {
+      System.err.printf("Removing from agenda: %s score i %.2f + o %.2f = %.2f\n",item,item.iScore,item.oScore,item.score());
+      if (item.backEdge != null) {
+        System.err.println("  Backtrace: " + item.backEdge.toString() + " "+ (item.isEdge() ? (((Edge)item).backHook != null ? ((Edge)item).backHook.toString() : "") : ""));
+      }
+    }
+    processItem(item);
+  }
+  if (nGoodTrees.size() > 0) {
+    System.err.println("DEBUG: aborting search because of empty agenda");
+    goal=nGoodTrees.get(0);
+    interner=null;
+    agenda=null;
+    return true;
+  }
+  System.err.println("FactoredParser: emptied agenda, no parse found!");
+  if (op.testOptions.verbose) {
+    Timing.tick("FactoredParser: emptied agenda, no parse found!");
+  }
+  return false;
+}

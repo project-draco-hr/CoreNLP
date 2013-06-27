@@ -1,0 +1,32 @@
+{
+  if (finished) {
+    return false;
+  }
+  while (!finished) {
+    if (matchChild()) {
+      if (myNode.isNegated()) {
+        finished=true;
+        return false;
+      }
+ else {
+        if (myNode.isOptional()) {
+          finished=true;
+        }
+        return true;
+      }
+    }
+ else {
+      goToNextNodeMatch();
+    }
+  }
+  if (myNode.isNegated()) {
+    return true;
+  }
+ else {
+    nextMatch=null;
+    decommitVariableGroups();
+    decommitNamedNodes();
+    decommitNamedRelations();
+    return myNode.isOptional();
+  }
+}

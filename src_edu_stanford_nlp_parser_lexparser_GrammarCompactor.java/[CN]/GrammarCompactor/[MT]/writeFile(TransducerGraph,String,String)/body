@@ -1,0 +1,37 @@
+{
+  try {
+    File baseDir=new File(dir);
+    if (baseDir.exists()) {
+      if (!baseDir.isDirectory()) {
+        return false;
+      }
+    }
+ else {
+      if (!baseDir.mkdirs()) {
+        return false;
+      }
+    }
+    File file=new File(baseDir,name + ".dot");
+    PrintWriter w;
+    try {
+      w=new PrintWriter(new FileWriter(file));
+      String dotString=graph.asDOTString();
+      w.print(dotString);
+      w.flush();
+      w.close();
+    }
+ catch (    FileNotFoundException e) {
+      System.err.println("Failed to open file in writeToDOTfile: " + file);
+      return false;
+    }
+catch (    IOException e) {
+      System.err.println("Failed to open file in writeToDOTfile: " + file);
+      return false;
+    }
+    return true;
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+    return false;
+  }
+}

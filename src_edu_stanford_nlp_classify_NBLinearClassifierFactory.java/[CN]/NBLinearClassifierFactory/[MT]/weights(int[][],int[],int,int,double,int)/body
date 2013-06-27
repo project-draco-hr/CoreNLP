@@ -1,0 +1,42 @@
+{
+  int numFeatures=numFeatures();
+  int numClasses=numClasses();
+  double[][] weights=new double[numFeatures][numClasses];
+  int num=0;
+  double[] numc=new double[numClasses];
+  double n=0;
+  double[] n_c=new double[numClasses];
+  double[] n_f=new double[numFeatures];
+  double[][] n_fc=new double[numFeatures][numClasses];
+  for (int d=0; d < data.length; d++) {
+    if (d == testMin) {
+      d=testMax - 1;
+      continue;
+    }
+    num++;
+    numc[labels[d]]++;
+    for (int i=0; i < data[d].length; i++) {
+      if (i == testMin) {
+        i=testMax - 1;
+        continue;
+      }
+      n++;
+      n_c[labels[d]]++;
+      n_f[data[d][i]]++;
+      n_fc[data[d][i]][labels[d]]++;
+    }
+  }
+  for (int c=0; c < numClasses; c++) {
+    for (int f=0; f < numFeatures; f++) {
+      if (interpretAlwaysOnFeatureAsPrior && n_f[f] == data.length - foldSize) {
+        weights[f][c]=Math.log(numc[c] / num);
+      }
+ else {
+        double p_c=(n_c[c] + epsilon) / (n + numClasses * epsilon);
+        double p_c_f=(n_fc[f][c] + trialSigma) / (n_f[f] + trialSigma * numClasses);
+        weights[f][c]=Math.log(p_c_f / p_c);
+      }
+    }
+  }
+  return weights;
+}

@@ -1,0 +1,34 @@
+{
+  Tree ht=headFinder.determineHead(tree);
+  if (ht.value().equals("POS")) {
+    int j=tree.objectIndexOf(ht);
+    if (j > 0) {
+      ht=tree.getChild(j - 1);
+    }
+  }
+  if (ht.isPreTerminal() || ht.value().startsWith("NP") || ht.value().startsWith("PP")|| ht.value().startsWith("ADVP")) {
+    if (!TmpPattern.matcher(ht.value()).matches()) {
+      LabelFactory lf=ht.labelFactory();
+      ht.setLabel(lf.newLabel(ht.value() + "-TMP"));
+    }
+    if (ht.value().startsWith("NP") || ht.value().startsWith("PP") || ht.value().startsWith("ADVP")) {
+      addTMP9(ht);
+    }
+  }
+  Tree[] kidlets=tree.children();
+  for (int k=0; k < kidlets.length; k++) {
+    ht=kidlets[k];
+    LabelFactory lf;
+    if (tree.isPrePreTerminal() && !TmpPattern.matcher(ht.value()).matches()) {
+      lf=ht.labelFactory();
+      ht.setLabel(lf.newLabel(ht.value() + "-TMP"));
+    }
+ else     if (ht.value().startsWith("NP")) {
+      if (!TmpPattern.matcher(ht.value()).matches()) {
+        lf=ht.labelFactory();
+        ht.setLabel(lf.newLabel(ht.value() + "-TMP"));
+      }
+      addTMP9(ht);
+    }
+  }
+}

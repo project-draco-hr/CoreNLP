@@ -1,0 +1,15 @@
+{
+  DateTimeFieldType dt=getDateTimeFieldType();
+  if (fieldValueStr != null && dt != null) {
+    Integer v=parseValue(fieldValueStr);
+    if (v != null) {
+      Partial pt=new Partial();
+      pt=JodaTimeUtils.setField(pt,dt,v);
+      t=t.intersect(new SUTime.PartialTime(pt));
+    }
+ else {
+      throw new IllegalArgumentException("Cannot interpret " + fieldValueStr + " for "+ fieldType);
+    }
+  }
+  return t;
+}

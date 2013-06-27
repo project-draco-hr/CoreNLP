@@ -1,0 +1,12 @@
+{
+  String[] tags=stringTagsAt(h.current - h.start + leftWindow());
+  double[] histories=getHistories(tags,h);
+  ArrayMath.logNormalize(histories);
+  double[] scores=new double[tags.length];
+  for (int j=0; j < tags.length; j++) {
+    String tag=tags[j];
+    int tagindex=maxentTagger.tags.getIndex(tag);
+    scores[j]=histories[tagindex];
+  }
+  return scores;
+}

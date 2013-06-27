@@ -1,0 +1,24 @@
+{
+  final TregexPattern dominatesPattern=TregexPattern.compile("foo << bar");
+  runTest(dominatesPattern,"(foo (bar 1))","(foo (bar 1))");
+  runTest(dominatesPattern,"(foo (a (bar 1)))","(foo (a (bar 1)))");
+  runTest(dominatesPattern,"(foo (a (b (bar 1))))","(foo (a (b (bar 1))))");
+  runTest(dominatesPattern,"(foo (a (b 1) (bar 2)))","(foo (a (b 1) (bar 2)))");
+  runTest(dominatesPattern,"(foo (a (b 1) (c 2) (bar 3)))","(foo (a (b 1) (c 2) (bar 3)))");
+  runTest(dominatesPattern,"(foo (baz 1))");
+  runTest(dominatesPattern,"(a (foo (bar 1)))","(foo (bar 1))");
+  runTest(dominatesPattern,"(a (foo (baz (bar 1))))","(foo (baz (bar 1)))");
+  runTest(dominatesPattern,"(a (foo (bar 1)) (foo (bar 2)))","(foo (bar 1))","(foo (bar 2))");
+  final TregexPattern dominatedPattern=TregexPattern.compile("foo >> bar");
+  runTest(dominatedPattern,"(foo (bar 1))");
+  runTest(dominatedPattern,"(foo (a (bar 1)))");
+  runTest(dominatedPattern,"(foo (a (b (bar 1))))");
+  runTest(dominatedPattern,"(foo (a (b 1) (bar 2)))");
+  runTest(dominatedPattern,"(foo (a (b 1) (c 2) (bar 3)))");
+  runTest(dominatedPattern,"(bar (foo 1))","(foo 1)");
+  runTest(dominatedPattern,"(bar (a (foo 1)))","(foo 1)");
+  runTest(dominatedPattern,"(bar (a (foo (b 1))))","(foo (b 1))");
+  runTest(dominatedPattern,"(bar (a (foo 1) (foo 2)))","(foo 1)","(foo 2)");
+  runTest(dominatedPattern,"(bar (foo (foo 1)))","(foo (foo 1))","(foo 1)");
+  runTest(dominatedPattern,"(a (bar (foo 1)))","(foo 1)");
+}

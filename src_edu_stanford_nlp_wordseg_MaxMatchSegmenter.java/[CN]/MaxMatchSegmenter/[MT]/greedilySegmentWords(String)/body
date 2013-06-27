@@ -1,0 +1,24 @@
+{
+  List<Word> segmentedWords=new ArrayList<Word>();
+  int length=s.length();
+  int start=0;
+  while (start < length) {
+    int end=Math.min(length,start + maxLength);
+    while (end > start + 1) {
+      String nextWord=s.substring(start,end);
+      if (words.contains(nextWord)) {
+        segmentedWords.add(new Word(nextWord));
+        break;
+      }
+      end--;
+    }
+    if (end == start + 1) {
+      segmentedWords.add(new Word(new String(new char[]{s.charAt(start)})));
+      start++;
+    }
+ else {
+      start=end;
+    }
+  }
+  return new ArrayList<Word>(segmentedWords);
+}

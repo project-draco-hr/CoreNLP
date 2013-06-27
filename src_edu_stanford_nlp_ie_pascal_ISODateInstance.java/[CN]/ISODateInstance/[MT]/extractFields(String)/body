@@ -1,0 +1,44 @@
+{
+  if (tokens.size() < 2) {
+    tokenizeDate(inputDate);
+  }
+  if (DEBUG) {
+    System.err.println("Extracting date: " + inputDate);
+  }
+  Pair<String,String> dateEndpoints=getRangeDates(inputDate);
+  if (dateEndpoints != null) {
+    ISODateInstance date1=new ISODateInstance(dateEndpoints.first());
+    if (dateEndpoints.first().contains(" ") && !dateEndpoints.second().contains(" ")) {
+      String date=dateEndpoints.first().substring(0,dateEndpoints.first().indexOf(' ')) + ' ' + dateEndpoints.second();
+      ISODateInstance date2=new ISODateInstance(date);
+      if (!date1.isUnparseable() && !date2.isUnparseable()) {
+        isoDate=(new ISODateInstance(date1,date2)).getDateString();
+        return true;
+      }
+    }
+    ISODateInstance date2=new ISODateInstance(dateEndpoints.second());
+    if (!date1.isUnparseable() && !date2.isUnparseable()) {
+      isoDate=(new ISODateInstance(date1,date2)).getDateString();
+      return true;
+    }
+  }
+  if (extractYYYYMMDD(inputDate)) {
+    return true;
+  }
+  if (extractMMDDYY(inputDate)) {
+    return true;
+  }
+  boolean passed=false;
+  passed=extractYear(inputDate) || passed;
+  passed=extractMonth(inputDate) || passed;
+  passed=extractDay(inputDate) || passed;
+  passed=addExtraRanges(inputDate) || passed;
+  if (!passed) {
+    unparseable=true;
+    boolean weekday=extractWeekday(inputDate);
+    if (!weekday) {
+      isoDate=inputDate;
+    }
+  }
+  return passed;
+}

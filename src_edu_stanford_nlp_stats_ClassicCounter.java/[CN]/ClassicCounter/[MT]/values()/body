@@ -1,0 +1,26 @@
+{
+  return new AbstractCollection<Double>(){
+    @Override public Iterator<Double> iterator(){
+      return new Iterator<Double>(){
+        Iterator<MutableDouble> inner=map.values().iterator();
+        @Override public boolean hasNext(){
+          return inner.hasNext();
+        }
+        @Override public Double next(){
+          return Double.valueOf(inner.next().doubleValue());
+        }
+        @Override public void remove(){
+          throw new UnsupportedOperationException();
+        }
+      }
+;
+    }
+    @Override public int size(){
+      return map.size();
+    }
+    @Override public boolean contains(    Object v){
+      return v instanceof Double && map.values().contains(new MutableDouble((Double)v));
+    }
+  }
+;
+}

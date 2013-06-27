@@ -1,0 +1,101 @@
+{
+  boolean alwaysPad=((flags & FORMAT_PAD_UNKNOWN) != 0);
+  boolean hasDate=true;
+  boolean isISO=((flags & FORMAT_ISO) != 0);
+  boolean isTimex3=((flags & FORMAT_TIMEX3_VALUE) != 0);
+  if (JodaTimeUtils.hasField(base,DateTimeFieldType.era())) {
+    int era=base.get(DateTimeFieldType.era());
+    if (era == 0) {
+      builder.appendLiteral('-');
+    }
+ else     if (era == 1) {
+      builder.appendLiteral('+');
+    }
+  }
+  if (JodaTimeUtils.hasField(base,DateTimeFieldType.centuryOfEra()) || JodaTimeUtils.hasField(base,JodaTimeUtils.DecadeOfCentury) || JodaTimeUtils.hasField(base,DateTimeFieldType.yearOfCentury())) {
+    if (JodaTimeUtils.hasField(base,DateTimeFieldType.centuryOfEra())) {
+      builder.appendCenturyOfEra(2,2);
+    }
+ else {
+      builder.appendLiteral(PAD_FIELD_UNKNOWN2);
+    }
+    if (JodaTimeUtils.hasField(base,JodaTimeUtils.DecadeOfCentury)) {
+      builder.appendDecimal(JodaTimeUtils.DecadeOfCentury,1,1);
+      builder.appendLiteral(PAD_FIELD_UNKNOWN);
+    }
+ else     if (JodaTimeUtils.hasField(base,DateTimeFieldType.yearOfCentury())) {
+      builder.appendYearOfCentury(2,2);
+    }
+ else {
+      builder.appendLiteral(PAD_FIELD_UNKNOWN2);
+    }
+  }
+ else   if (JodaTimeUtils.hasField(base,DateTimeFieldType.year())) {
+    builder.appendYear(4,4);
+  }
+ else   if (JodaTimeUtils.hasField(base,DateTimeFieldType.weekyear())) {
+    builder.appendWeekyear(4,4);
+  }
+ else {
+    builder.appendLiteral(PAD_FIELD_UNKNOWN4);
+    hasDate=false;
+  }
+  boolean appendQuarter=false;
+  boolean appendMonthDay=false;
+  boolean appendWeekDay=false;
+  if (isISO || isTimex3) {
+    if (JodaTimeUtils.hasField(base,DateTimeFieldType.monthOfYear()) && JodaTimeUtils.hasField(base,DateTimeFieldType.dayOfMonth())) {
+      appendMonthDay=true;
+    }
+ else     if (JodaTimeUtils.hasField(base,DateTimeFieldType.weekOfWeekyear()) || JodaTimeUtils.hasField(base,DateTimeFieldType.dayOfWeek())) {
+      appendWeekDay=true;
+    }
+ else     if (JodaTimeUtils.hasField(base,DateTimeFieldType.monthOfYear()) || JodaTimeUtils.hasField(base,DateTimeFieldType.dayOfMonth())) {
+      appendMonthDay=true;
+    }
+ else     if (JodaTimeUtils.hasField(base,JodaTimeUtils.QuarterOfYear)) {
+      appendQuarter=true;
+    }
+  }
+ else {
+    appendQuarter=true;
+    appendMonthDay=true;
+    appendWeekDay=true;
+  }
+  if (appendQuarter && JodaTimeUtils.hasField(base,JodaTimeUtils.QuarterOfYear)) {
+    builder.appendLiteral("-Q");
+    builder.appendDecimal(JodaTimeUtils.QuarterOfYear,1,1);
+  }
+  if (appendMonthDay && (JodaTimeUtils.hasField(base,DateTimeFieldType.monthOfYear()) || JodaTimeUtils.hasField(base,DateTimeFieldType.dayOfMonth()))) {
+    hasDate=true;
+    builder.appendLiteral('-');
+    if (JodaTimeUtils.hasField(base,DateTimeFieldType.monthOfYear())) {
+      builder.appendMonthOfYear(2);
+    }
+ else {
+      builder.appendLiteral(PAD_FIELD_UNKNOWN2);
+    }
+    if (JodaTimeUtils.hasField(base,DateTimeFieldType.dayOfMonth())) {
+      builder.appendLiteral('-');
+      builder.appendDayOfMonth(2);
+    }
+ else     if (alwaysPad) {
+      builder.appendLiteral(PAD_FIELD_UNKNOWN2);
+    }
+  }
+  if (appendWeekDay && (JodaTimeUtils.hasField(base,DateTimeFieldType.weekOfWeekyear()) || JodaTimeUtils.hasField(base,DateTimeFieldType.dayOfWeek()))) {
+    hasDate=true;
+    builder.appendLiteral("-W");
+    if (JodaTimeUtils.hasField(base,DateTimeFieldType.weekOfWeekyear())) {
+      builder.appendWeekOfWeekyear(2);
+    }
+ else {
+      builder.appendLiteral(PAD_FIELD_UNKNOWN2);
+    }
+    if (JodaTimeUtils.hasField(base,DateTimeFieldType.dayOfWeek())) {
+      builder.appendLiteral("-");
+      builder.appendDayOfWeek(1);
+    }
+  }
+  return hasDate;
+}

@@ -1,0 +1,11 @@
+{
+  List<CoreLabel> input1=CoreUtilities.toCoreLabelList(words,tags,firstInput);
+  List<CoreLabel> input2=CoreUtilities.toCoreLabelList(words,tags,secondInput);
+  List<CoreLabel> result=CoreUtilities.toCoreLabelList(words,tags,expectedOutput);
+  Set<String> auxLabels=new HashSet<String>();
+  for (  String label : labels) {
+    auxLabels.add(label);
+  }
+  ClassifierCombiner.mergeTwoDocuments(input1,input2,auxLabels,"O");
+  assertEquals(result,input1);
+}

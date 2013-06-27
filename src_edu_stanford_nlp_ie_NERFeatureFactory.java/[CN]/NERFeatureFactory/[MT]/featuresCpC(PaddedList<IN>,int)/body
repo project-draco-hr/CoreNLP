@@ -1,0 +1,150 @@
+{
+  CoreLabel p=cInfo.get(loc - 1);
+  CoreLabel c=cInfo.get(loc);
+  CoreLabel n=cInfo.get(loc + 1);
+  String cWord=getWord(c);
+  String pWord=getWord(p);
+  String cDS=c.getString(CoreAnnotations.DistSimAnnotation.class);
+  String pDS=p.getString(CoreAnnotations.DistSimAnnotation.class);
+  String cShape=c.getString(CoreAnnotations.ShapeAnnotation.class);
+  String pShape=p.getString(CoreAnnotations.ShapeAnnotation.class);
+  Collection<String> featuresCpC=new ArrayList<String>();
+  if (flags.noEdgeFeature)   return featuresCpC;
+  if (flags.transitionEdgeOnly) {
+    featuresCpC.add("PSEQ");
+    return featuresCpC;
+  }
+  if (flags.useNeighborNGrams) {
+    int maxLen=pWord.length();
+    if (flags.maxNGramLeng >= 0 && flags.maxNGramLeng < maxLen) {
+      maxLen=flags.maxNGramLeng;
+    }
+    for (int len=1; len <= maxLen; ++len) {
+      featuresCpC.add(pWord.substring(0,len) + "-PREVIOUS-PREFIX");
+    }
+    for (int pos=pWord.length() - maxLen; pos < pWord.length(); ++pos) {
+      featuresCpC.add(pWord.substring(pos,pWord.length()) + "-PREVIOUS-SUFFIX");
+    }
+    maxLen=cWord.length();
+    if (flags.maxNGramLeng >= 0 && flags.maxNGramLeng < maxLen) {
+      maxLen=flags.maxNGramLeng;
+    }
+    for (int len=1; len <= maxLen; ++len) {
+      featuresCpC.add(cWord.substring(0,len) + "-CURRENT-PREFIX");
+    }
+    for (int pos=cWord.length() - maxLen; pos < cWord.length(); ++pos) {
+      featuresCpC.add(cWord.substring(pos,cWord.length()) + "-CURRENT-SUFFIX");
+    }
+  }
+  if (flags.useInternal && flags.useExternal) {
+    if (flags.useOrdinal) {
+      if (isOrdinal(cInfo,loc)) {
+        featuresCpC.add("C_ORDINAL");
+        if (isOrdinal(cInfo,loc - 1)) {
+          featuresCpC.add("PC_ORDINAL");
+        }
+      }
+      if (isOrdinal(cInfo,loc - 1)) {
+        featuresCpC.add("P_ORDINAL");
+      }
+    }
+    if (flags.useAbbr || flags.useMinimalAbbr) {
+      featuresCpC.add(p.get(CoreAnnotations.AbbrAnnotation.class) + '-' + c.get(CoreAnnotations.AbbrAnnotation.class)+ "-PABBRANS");
+    }
+    if (flags.useAbbr1 || flags.useMinimalAbbr1) {
+      if (!c.get(CoreAnnotations.AbbrAnnotation.class).equals("XX")) {
+        featuresCpC.add(p.get(CoreAnnotations.AbbrAnnotation.class) + '-' + c.get(CoreAnnotations.AbbrAnnotation.class)+ "-PABBRANS");
+      }
+    }
+    if (flags.useChunkySequences) {
+      featuresCpC.add(p.get(CoreAnnotations.ChunkAnnotation.class) + '-' + c.get(CoreAnnotations.ChunkAnnotation.class)+ '-'+ n.get(CoreAnnotations.ChunkAnnotation.class)+ "-PCNCHUNK");
+    }
+    if (flags.usePrev) {
+      if (flags.useSequences && flags.usePrevSequences) {
+        featuresCpC.add("PSEQ");
+        featuresCpC.add(cWord + "-PSEQW");
+        featuresCpC.add(pWord + '-' + cWord+ "-PSEQW2");
+        featuresCpC.add(pWord + "-PSEQpW");
+        featuresCpC.add(pDS + "-PSEQpDS");
+        featuresCpC.add(cDS + "-PSEQcDS");
+        featuresCpC.add(pDS + '-' + cDS+ "-PSEQpcDS");
+        if (((flags.wordShape > WordShapeClassifier.NOWORDSHAPE) || flags.useShapeStrings)) {
+          featuresCpC.add(pShape + "-PSEQpS");
+          featuresCpC.add(cShape + "-PSEQcS");
+          featuresCpC.add(pShape + '-' + cShape+ "-PSEQpcS");
+        }
+      }
+    }
+    if (((flags.wordShape > WordShapeClassifier.NOWORDSHAPE) || flags.useShapeStrings) && flags.useTypeSeqs && (flags.useTypeSeqs2 || flags.useTypeSeqs3)) {
+      if (flags.useTypeSeqs3) {
+        featuresCpC.add(pShape + '-' + cShape+ '-'+ n.get(CoreAnnotations.ShapeAnnotation.class)+ "-PCNSHAPES");
+      }
+      if (flags.useTypeSeqs2) {
+        featuresCpC.add(pShape + '-' + cShape+ "-TYPES");
+      }
+      if (flags.useYetMoreCpCShapes) {
+        String p2Shape=cInfo.get(loc - 2).getString(CoreAnnotations.ShapeAnnotation.class);
+        featuresCpC.add(p2Shape + '-' + pShape+ '-'+ cShape+ "-YMS");
+        featuresCpC.add(pShape + '-' + cShape+ "-"+ n.getString(CoreAnnotations.ShapeAnnotation.class)+ "-YMSPCN");
+      }
+    }
+    if (flags.useTypeySequences) {
+      featuresCpC.add(cShape + "-TPS2");
+      featuresCpC.add(n.get(CoreAnnotations.ShapeAnnotation.class) + "-TNS1");
+    }
+    if (flags.useTaggySequences) {
+      if (flags.useTags) {
+        featuresCpC.add(p.getString(CoreAnnotations.PartOfSpeechAnnotation.class) + '-' + c.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ "-TS");
+      }
+      if (flags.useDistSim) {
+        featuresCpC.add(p.get(CoreAnnotations.DistSimAnnotation.class) + '-' + c.get(CoreAnnotations.DistSimAnnotation.class)+ "-DISTSIM_TS1");
+      }
+    }
+    if (flags.useParenMatching) {
+      if (flags.useReverse) {
+        if (cWord.equals("(") || cWord.equals("[") || cWord.equals("-LRB-")) {
+          if (pWord.equals(")") || pWord.equals("]") || pWord.equals("-RRB-")) {
+            featuresCpC.add("PAREN-MATCH");
+          }
+        }
+      }
+ else {
+        if (cWord.equals(")") || cWord.equals("]") || cWord.equals("-RRB-")) {
+          if (pWord.equals("(") || pWord.equals("[") || pWord.equals("-LRB-")) {
+            featuresCpC.add("PAREN-MATCH");
+          }
+        }
+      }
+    }
+    if (flags.useEntityTypeSequences) {
+      featuresCpC.add(p.get(CoreAnnotations.EntityTypeAnnotation.class) + '-' + c.get(CoreAnnotations.EntityTypeAnnotation.class)+ "-ETSEQ");
+    }
+    if (flags.useURLSequences) {
+      featuresCpC.add(p.get(CoreAnnotations.IsURLAnnotation.class) + '-' + c.get(CoreAnnotations.IsURLAnnotation.class)+ "-URLSEQ");
+    }
+  }
+ else   if (flags.useInternal) {
+    if (flags.useSequences && flags.usePrevSequences) {
+      featuresCpC.add("PSEQ");
+      featuresCpC.add(cWord + "-PSEQW");
+    }
+    if (flags.useTypeySequences) {
+      featuresCpC.add(cShape + "-TPS2");
+    }
+  }
+ else   if (flags.useExternal) {
+    if (((flags.wordShape > WordShapeClassifier.NOWORDSHAPE) || flags.useShapeStrings) && flags.useTypeSeqs && (flags.useTypeSeqs2 || flags.useTypeSeqs3)) {
+      if (flags.useTypeSeqs3) {
+        featuresCpC.add(pShape + '-' + cShape+ '-'+ n.get(CoreAnnotations.ShapeAnnotation.class)+ "-PCNSHAPES");
+      }
+      if (flags.useTypeSeqs2) {
+        featuresCpC.add(pShape + '-' + cShape+ "-TYPES");
+      }
+    }
+    if (flags.useTypeySequences) {
+      featuresCpC.add(n.get(CoreAnnotations.ShapeAnnotation.class) + "-TNS1");
+      featuresCpC.add(pShape + '-' + c.get(CoreAnnotations.ShapeAnnotation.class)+ "-TPS");
+    }
+  }
+  return featuresCpC;
+}

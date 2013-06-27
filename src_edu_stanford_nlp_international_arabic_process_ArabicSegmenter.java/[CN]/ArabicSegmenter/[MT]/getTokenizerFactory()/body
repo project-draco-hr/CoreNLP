@@ -1,0 +1,19 @@
+{
+  TokenizerFactory<CoreLabel> tokFactory=null;
+  if (!isTokenized) {
+    if (tokenizerOptions == null) {
+      tokFactory=ArabicTokenizer.atbFactory();
+      String atbVocOptions="removeProMarker,removeMorphMarker";
+      tokFactory.setOptions(atbVocOptions);
+    }
+ else {
+      if (tokenizerOptions.contains("removeSegMarker")) {
+        throw new RuntimeException("Option 'removeSegMarker' cannot be used with ArabicSegmenter");
+      }
+      tokFactory=ArabicTokenizer.factory();
+      tokFactory.setOptions(tokenizerOptions);
+    }
+    System.err.println("Loaded ArabicTokenizer with options: " + tokenizerOptions);
+  }
+  return tokFactory;
+}

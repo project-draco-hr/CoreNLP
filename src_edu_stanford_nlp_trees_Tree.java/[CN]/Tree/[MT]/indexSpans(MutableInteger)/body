@@ -1,0 +1,20 @@
+{
+  int start=Integer.MAX_VALUE;
+  int end=Integer.MIN_VALUE;
+  if (isLeaf()) {
+    start=startIndex.intValue();
+    end=startIndex.intValue() + 1;
+    startIndex.incValue(1);
+  }
+ else {
+    for (    Tree kid : children()) {
+      Pair<Integer,Integer> span=kid.indexSpans(startIndex);
+      if (span.first < start)       start=span.first;
+      if (span.second > end)       end=span.second;
+    }
+  }
+  CoreLabel afl=(CoreLabel)label();
+  afl.set(CoreAnnotations.BeginIndexAnnotation.class,start);
+  afl.set(CoreAnnotations.EndIndexAnnotation.class,end);
+  return new Pair<Integer,Integer>(start,end);
+}

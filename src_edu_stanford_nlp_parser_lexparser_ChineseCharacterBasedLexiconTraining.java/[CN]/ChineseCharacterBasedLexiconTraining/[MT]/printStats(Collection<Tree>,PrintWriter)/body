@@ -1,0 +1,52 @@
+{
+  ClassicCounter<Integer> wordLengthCounter=new ClassicCounter<Integer>();
+  ClassicCounter<TaggedWord> wordCounter=new ClassicCounter<TaggedWord>();
+  ClassicCounter<Symbol> charCounter=new ClassicCounter<Symbol>();
+  int counter=0;
+  for (  Tree tree : trees) {
+    counter++;
+    List<TaggedWord> taggedWords=tree.taggedYield();
+    for (int i=0, size=taggedWords.size(); i < size; i++) {
+      TaggedWord taggedWord=taggedWords.get(i);
+      String word=taggedWord.word();
+      if (word.equals(Lexicon.BOUNDARY)) {
+        continue;
+      }
+      wordCounter.incrementCount(taggedWord);
+      wordLengthCounter.incrementCount(Integer.valueOf(word.length()));
+      for (int j=0, length=word.length(); j < length; j++) {
+        Symbol sym=Symbol.cannonicalSymbol(word.charAt(j));
+        charCounter.incrementCount(sym);
+      }
+      charCounter.incrementCount(Symbol.END_WORD);
+    }
+  }
+  Set<Symbol> singletonChars=Counters.keysBelow(charCounter,1.5);
+  Set<TaggedWord> singletonWords=Counters.keysBelow(wordCounter,1.5);
+  ClassicCounter<String> singletonWordPOSes=new ClassicCounter<String>();
+  for (  TaggedWord taggedWord : singletonWords) {
+    singletonWordPOSes.incrementCount(taggedWord.tag());
+  }
+  Distribution<String> singletonWordPOSDist=Distribution.getDistribution(singletonWordPOSes);
+  ClassicCounter<Character> singletonCharRads=new ClassicCounter<Character>();
+  for (  Symbol s : singletonChars) {
+    singletonCharRads.incrementCount(Character.valueOf(RadicalMap.getRadical(s.getCh())));
+  }
+  Distribution<Character> singletonCharRadDist=Distribution.getDistribution(singletonCharRads);
+  Distribution<Integer> wordLengthDist=Distribution.getDistribution(wordLengthCounter);
+  NumberFormat percent=new DecimalFormat("##.##%");
+  pw.println("There are " + singletonChars.size() + " singleton chars out of "+ (int)charCounter.totalCount()+ " tokens and "+ charCounter.size()+ " types found in "+ counter+ " trees.");
+  pw.println("Thus singletonChars comprise " + percent.format(singletonChars.size() / charCounter.totalCount()) + " of tokens and "+ percent.format((double)singletonChars.size() / charCounter.size())+ " of types.");
+  pw.println();
+  pw.println("There are " + singletonWords.size() + " singleton words out of "+ (int)wordCounter.totalCount()+ " tokens and "+ wordCounter.size()+ " types.");
+  pw.println("Thus singletonWords comprise " + percent.format(singletonWords.size() / wordCounter.totalCount()) + " of tokens and "+ percent.format((double)singletonWords.size() / wordCounter.size())+ " of types.");
+  pw.println();
+  pw.println("Distribution over singleton word POS:");
+  pw.println(singletonWordPOSDist.toString());
+  pw.println();
+  pw.println("Distribution over singleton char radicals:");
+  pw.println(singletonCharRadDist.toString());
+  pw.println();
+  pw.println("Distribution over word length:");
+  pw.println(wordLengthDist);
+}

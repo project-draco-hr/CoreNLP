@@ -1,0 +1,12 @@
+{
+  wordIndex=new HashIndex<String>();
+  tagIndex=new HashIndex<String>();
+  lex=op.tlpParams.lex(op,wordIndex,tagIndex);
+  lex.initializeTraining(trainSize);
+  for (  Tree tree : trees) {
+    double weight=treeWeights.getCount(tree);
+    lex.incrementTreesRead(weight);
+    initialBetasAndLexicon(tree,0,weight);
+  }
+  lex.finishTraining();
+}

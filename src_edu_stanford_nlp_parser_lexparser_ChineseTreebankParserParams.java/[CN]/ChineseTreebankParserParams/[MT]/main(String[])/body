@@ -1,0 +1,15 @@
+{
+  TreebankLangParserParams tlpp=new ChineseTreebankParserParams();
+  System.out.println("Default encoding is: " + tlpp.diskTreebank().encoding());
+  if (args.length < 2) {
+    printlnErr("Usage: edu.stanford.nlp.parser.lexparser.ChineseTreebankParserParams treesPath fileRange");
+  }
+ else {
+    Treebank m=tlpp.diskTreebank();
+    m.loadPath(args[0],new NumberRangesFileFilter(args[1],false));
+    for (    Tree t : m) {
+      t.pennPrint(tlpp.pw());
+    }
+    System.out.println("There were " + m.size() + " trees.");
+  }
+}

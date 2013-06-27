@@ -1,0 +1,27 @@
+{
+  if (words.size() <= 1)   return;
+  boolean first=true;
+  StringBuilder newText=new StringBuilder();
+  E foundEntity=null;
+  for (  E word : words) {
+    if (foundEntity == null && (word.get(CoreAnnotations.PartOfSpeechAnnotation.class).equals("CD") || word.get(CoreAnnotations.PartOfSpeechAnnotation.class).equals("NNP"))) {
+      foundEntity=word;
+    }
+    if (first) {
+      first=false;
+    }
+ else {
+      newText.append('_');
+    }
+    newText.append(word.get(CoreAnnotations.TextAnnotation.class));
+  }
+  if (foundEntity == null) {
+    foundEntity=words.get(0);
+  }
+  toRemove.addAll(words);
+  toRemove.remove(foundEntity);
+  foundEntity.set(CoreAnnotations.PartOfSpeechAnnotation.class,"CD");
+  String collapsed=newText.toString();
+  foundEntity.set(CoreAnnotations.TextAnnotation.class,collapsed);
+  foundEntity.set(CoreAnnotations.OriginalTextAnnotation.class,collapsed);
+}

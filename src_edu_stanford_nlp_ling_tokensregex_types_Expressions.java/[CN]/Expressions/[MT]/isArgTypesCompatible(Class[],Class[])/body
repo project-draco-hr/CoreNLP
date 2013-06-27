@@ -1,0 +1,33 @@
+{
+  boolean compatible=true;
+  if (targetParamTypes.length == paramTypes.length) {
+    for (int i=0; i < targetParamTypes.length; i++) {
+      if (targetParamTypes[i].isPrimitive()) {
+        compatible=false;
+        if (paramTypes[i] != null) {
+          try {
+            Class<?> type=(Class<?>)paramTypes[i].getField("TYPE").get(null);
+            if (type.equals(targetParamTypes[i])) {
+              compatible=true;
+            }
+          }
+ catch (          NoSuchFieldException ex2) {
+          }
+catch (          IllegalAccessException ex2) {
+          }
+        }
+        if (!compatible)         break;
+      }
+ else {
+        if (paramTypes[i] != null && !targetParamTypes[i].isAssignableFrom(paramTypes[i])) {
+          compatible=false;
+          break;
+        }
+      }
+    }
+  }
+ else {
+    compatible=false;
+  }
+  return compatible;
+}

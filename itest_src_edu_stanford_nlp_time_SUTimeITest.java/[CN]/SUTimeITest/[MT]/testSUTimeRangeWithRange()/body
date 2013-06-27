@@ -1,0 +1,23 @@
+{
+  String testText="Archduchess Maria Magdalena ( 17 August 1656 - 21 January 1669 )\n";
+  Iterator<Timex> expectedTimexes=Arrays.asList(Timex.fromXml("<TIMEX3 tid=\"t1\" value=\"1656-08-17\" type=\"DATE\">17 August 1656</TIMEX3>"),Timex.fromXml("<TIMEX3 tid=\"t2\" value=\"1669-01-21\" type=\"DATE\">21 January 1669</TIMEX3>"),Timex.fromXml("<TIMEX3 tid=\"t3\" value=\"PT108960H\" type=\"DURATION\" beginPoint=\"t1\" endPoint=\"t2\">17 August 1656 - 21 January 1669</TIMEX3>")).iterator();
+  Iterator<Timex> expectedTimexesResolved=Arrays.asList(Timex.fromXml("<TIMEX3 tid=\"t1\" value=\"1656-08-17\" type=\"DATE\">17 August 1656</TIMEX3>"),Timex.fromXml("<TIMEX3 tid=\"t2\" value=\"1669-01-21\" type=\"DATE\">21 January 1669</TIMEX3>"),Timex.fromXml("<TIMEX3 tid=\"t3\" value=\"PT108960H\" type=\"DURATION\" beginPoint=\"t1\" endPoint=\"t2\">17 August 1656 - 21 January 1669</TIMEX3>")).iterator();
+  Annotation document=createDocument(testText);
+  Properties props=getDefaultProperties();
+  props.setProperty(TIME_ANNOTATOR_NAME + ".markTimeRanges","true");
+  props.setProperty(TIME_ANNOTATOR_NAME + ".includeNested","true");
+  TimeAnnotator sutime=getTimeAnnotator(props);
+  sutime.annotate(document);
+  for (  CoreMap timexAnn : document.get(TimeAnnotations.TimexAnnotations.class)) {
+    Timex expectedTimex=expectedTimexes.next();
+    testTimex(testText,expectedTimex.text(),expectedTimex,timexAnn);
+  }
+  assertFalse(expectedTimexes.hasNext());
+  Annotation documentWithRefTime=createDocument(testText,"20030414");
+  sutime.annotate(documentWithRefTime);
+  for (  CoreMap timexAnn : documentWithRefTime.get(TimeAnnotations.TimexAnnotations.class)) {
+    Timex expectedTimex=expectedTimexesResolved.next();
+    testTimex(testText,expectedTimex.text(),expectedTimex,timexAnn);
+  }
+  assertFalse(expectedTimexes.hasNext());
+}

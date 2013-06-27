@@ -1,0 +1,37 @@
+{
+  clearArrays();
+  int numTags=tagIndex.size();
+  iScore=new float[length][length + 1][];
+  for (int start=0; start < length; start++) {
+    for (int end=start + 1; end <= length; end++) {
+      iScore[start][end]=new float[numStates];
+    }
+  }
+  if (op.doDep && !op.testOptions.useFastFactored) {
+    oScore=new float[length][length + 1][];
+    for (int start=0; start < length; start++) {
+      for (int end=start + 1; end <= length; end++) {
+        oScore[start][end]=new float[numStates];
+      }
+    }
+  }
+  narrowRExtent=new int[length][numStates];
+  wideRExtent=new int[length][numStates];
+  narrowLExtent=new int[length + 1][numStates];
+  wideLExtent=new int[length + 1][numStates];
+  if (op.doDep && !op.testOptions.useFastFactored) {
+    iPossibleByL=new boolean[length][numStates];
+    iPossibleByR=new boolean[length + 1][numStates];
+    oPossibleByL=new boolean[length][numStates];
+    oPossibleByR=new boolean[length + 1][numStates];
+  }
+  tags=new boolean[length][numTags];
+  if (op.testOptions.lengthNormalization) {
+    wordsInSpan=new int[length][length + 1][];
+    for (int start=0; start < length; start++) {
+      for (int end=start + 1; end <= length; end++) {
+        wordsInSpan[start][end]=new int[numStates];
+      }
+    }
+  }
+}

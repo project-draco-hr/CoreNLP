@@ -1,0 +1,26 @@
+{
+  List<AceRelationMentionArgument> args=Arrays.asList(aceRelationMention.getArgs());
+  List<ExtractionObject> convertedArgs=new ArrayList<ExtractionObject>();
+  List<String> argNames=new ArrayList<String>();
+  int left=Integer.MAX_VALUE;
+  int right=Integer.MIN_VALUE;
+  for (  AceRelationMentionArgument arg : args) {
+    ExtractionObject o=entityMap.get(arg.getContent().getId());
+    if (o == null) {
+      logger.severe("READER ERROR: Failed to find relation argument with id " + arg.getContent().getId());
+      logger.severe("This happens because a few relation mentions illegally span multiple sentences. Will ignore this mention.");
+      return null;
+    }
+    convertedArgs.add(o);
+    argNames.add(arg.getRole());
+    if (o.getExtentTokenStart() < left)     left=o.getExtentTokenStart();
+    if (o.getExtentTokenEnd() > right)     right=o.getExtentTokenEnd();
+  }
+  if (argNames.size() != 2 || !argNames.get(0).equalsIgnoreCase("arg-1") || !argNames.get(1).equalsIgnoreCase("arg-2")) {
+    logger.severe("READER ERROR: Invalid succession of arguments in relation mention: " + argNames);
+    logger.severe("ACE relations must have two arguments. Will ignore this mention.");
+    return null;
+  }
+  RelationMention relation=new RelationMention(aceRelationMention.getId(),sentence,new Span(left,right),aceRelationMention.getParent().getType(),aceRelationMention.getParent().getSubtype(),convertedArgs,null);
+  return relation;
+}

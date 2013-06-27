@@ -1,0 +1,49 @@
+{
+  sumOfExpectedLogPotential=new double[data.length][][][][];
+  sumOfObservedLogPotential=new double[numLopExpert];
+  for (int m=0; m < data.length; m++) {
+    int[][][] docData=data[m];
+    int[] docLabels=labels[m];
+    int[] windowLabels=new int[window];
+    Arrays.fill(windowLabels,classIndex.indexOf(backgroundSymbol));
+    double[][][][] sumOfELPm=new double[docData.length][][][];
+    if (docLabels.length > docData.length) {
+      System.arraycopy(docLabels,0,windowLabels,0,windowLabels.length);
+      int[] newDocLabels=new int[docData.length];
+      System.arraycopy(docLabels,docLabels.length - newDocLabels.length,newDocLabels,0,newDocLabels.length);
+      docLabels=newDocLabels;
+    }
+    for (int i=0; i < docData.length; i++) {
+      System.arraycopy(windowLabels,1,windowLabels,0,window - 1);
+      windowLabels[window - 1]=docLabels[i];
+      double[][][] sumOfELPmi=new double[docData[i].length][][];
+      int[][] docDataI=docData[i];
+      for (int j=0; j < docDataI.length; j++) {
+        int[] docDataIJ=docDataI[j];
+        int[] cliqueLabel=new int[j + 1];
+        System.arraycopy(windowLabels,window - 1 - j,cliqueLabel,0,j + 1);
+        CRFLabel crfLabel=new CRFLabel(cliqueLabel);
+        Index<CRFLabel> labelIndex=labelIndices.get(j);
+        double[][] sumOfELPmij=new double[numLopExpert][];
+        int observedLabelIndex=labelIndex.indexOf(crfLabel);
+        for (int lopIter=0; lopIter < numLopExpert; lopIter++) {
+          double[] sumOfELPmijIter=new double[labelIndex.size()];
+          Set<Integer> indicesSet=featureIndicesSetArray.get(lopIter);
+          for (int k=0; k < docDataIJ.length; k++) {
+            int featureIdx=docDataIJ[k];
+            if (indicesSet.contains(featureIdx)) {
+              sumOfObservedLogPotential[lopIter]+=learnedLopExpertWeights2D[lopIter][featureIdx][observedLabelIndex];
+              for (int l=0; l < labelIndex.size(); l++) {
+                sumOfELPmijIter[l]+=learnedLopExpertWeights2D[lopIter][featureIdx][l];
+              }
+            }
+          }
+          sumOfELPmij[lopIter]=sumOfELPmijIter;
+        }
+        sumOfELPmi[j]=sumOfELPmij;
+      }
+      sumOfELPm[i]=sumOfELPmi;
+    }
+    sumOfExpectedLogPotential[m]=sumOfELPm;
+  }
+}

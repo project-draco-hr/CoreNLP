@@ -1,0 +1,14 @@
+{
+  if (t == null)   return this;
+  if (t == TIME_UNKNOWN || t == DURATION_UNKNOWN)   return this;
+  if (t instanceof Time) {
+    return intersect((Time)t);
+  }
+ else   if (t instanceof Range) {
+    return t.intersect(this);
+  }
+ else   if (t instanceof Duration) {
+    return new RelativeTime(this,TemporalOp.INTERSECT,t);
+  }
+  return null;
+}

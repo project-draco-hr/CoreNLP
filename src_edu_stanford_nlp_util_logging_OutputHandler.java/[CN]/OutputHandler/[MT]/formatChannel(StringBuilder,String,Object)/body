@@ -1,0 +1,34 @@
+{
+  if (this.channelColors == null && this.channelStyles == null) {
+    b.append(channelStr);
+  }
+ else {
+    String channelToString=channel.toString().toLowerCase();
+    Color color=Color.NONE;
+    Style style=Style.NONE;
+    if (this.channelColors != null) {
+      Color candColor=this.channelColors.get(channelToString);
+      if (candColor != null) {
+        color=candColor;
+      }
+ else       if (addRandomColors) {
+        color=Color.values()[(Math.abs(channelToString.hashCode()) % (Color.values().length - 3)) + 3];
+        if (channelToString.equals(Redwood.ERR.toString().toLowerCase())) {
+          color=Color.RED;
+        }
+ else         if (channelToString.equals(Redwood.WARN.toString().toLowerCase())) {
+          color=Color.YELLOW;
+        }
+        this.channelColors.put(channelToString,color);
+      }
+    }
+    if (this.channelStyles != null) {
+      Style candStyle=this.channelStyles.get(channelToString);
+      if (candStyle != null) {
+        style=candStyle;
+      }
+    }
+    style(b,channelStr,color,style);
+  }
+  return true;
+}

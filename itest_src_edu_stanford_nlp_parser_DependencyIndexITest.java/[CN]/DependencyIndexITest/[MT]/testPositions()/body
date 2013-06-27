@@ -1,0 +1,17 @@
+{
+  try {
+    Tree tree=(new PennTreeReader(new StringReader("(S (NP (NNP Mary)) (VP (VBD had) (NP (DT a) (JJ little) (NN lamb))) (. .))"),new LabeledScoredTreeFactory(new StringLabelFactory()))).readTree();
+    checkTree(tree);
+    tree=Tree.valueOf("(S (NP (NNP Mary)) (VP (VBD had) (NP (DT a) (JJ little) (NN lamb))) (. .))");
+    checkTree(tree);
+    tree=(new PennTreeReader(new StringReader("(S (NP (NNP Mary)) (VP (VBD had) (NP (DT a) (JJ little) (NN lamb))) (. .))"),new LabeledScoredTreeFactory(CoreLabel.factory()))).readTree();
+    checkTree(tree);
+    LexicalizedParser parser=LexicalizedParser.loadModel();
+    tree=parser.parse("Mary had a little lamb .");
+    tree.indexLeaves();
+    checkTree(tree);
+  }
+ catch (  IOException e) {
+    fail("IOException shouldn't happen.");
+  }
+}

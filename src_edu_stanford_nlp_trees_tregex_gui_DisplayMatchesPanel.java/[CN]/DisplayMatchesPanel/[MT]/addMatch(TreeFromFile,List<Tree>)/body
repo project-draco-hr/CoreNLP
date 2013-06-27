@@ -1,0 +1,23 @@
+{
+  JPanel treeDisplay=new JPanel(new BorderLayout());
+  JTextField filename=new JTextField("From file: " + match.getFilename());
+  filename.setEditable(false);
+  MouseInputAdapter listener=new FilenameMouseInputAdapter(filename);
+  filename.addMouseListener(listener);
+  filename.addMouseMotionListener(listener);
+  treeDisplay.add(filename,BorderLayout.NORTH);
+  if (TregexGUI.getInstance().isTdiffEnabled()) {
+    tjp=getTreeJPanel(match.getDiffDecoratedTree(),matchedParts);
+    tjp.setDiffConstituents(match.getDiffConstituents());
+  }
+ else {
+    tjp=getTreeJPanel(match.getTree(),matchedParts);
+  }
+  treeDisplay.add(tjp,BorderLayout.CENTER);
+  filename.setOpaque(true);
+  filename.setBackground(tjp.getBackground());
+  filename.setBorder(BorderFactory.createEmptyBorder(0,5,0,0));
+  scroller.setViewportView(treeDisplay);
+  this.revalidate();
+  this.repaint();
+}

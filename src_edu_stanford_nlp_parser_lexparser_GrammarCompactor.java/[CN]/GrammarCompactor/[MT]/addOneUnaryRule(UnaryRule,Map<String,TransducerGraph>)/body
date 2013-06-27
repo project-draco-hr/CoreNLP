@@ -1,0 +1,21 @@
+{
+  String parentString=stateIndex.get(rule.parent);
+  String childString=stateIndex.get(rule.child);
+  if (isSyntheticState(parentString)) {
+    String topcat=getTopCategoryOfSyntheticState(parentString);
+    TransducerGraph graph=getGraphFromMap(graphs,topcat);
+    Double output=new Double(smartNegate(rule.score()));
+    graph.addArc(graph.getStartNode(),parentString,childString,output);
+    return true;
+  }
+ else   if (isSyntheticState(childString)) {
+    TransducerGraph graph=getGraphFromMap(graphs,parentString);
+    Double output=new Double(smartNegate(rule.score()));
+    graph.addArc(childString,parentString,END,output);
+    graph.setEndNode(parentString);
+    return true;
+  }
+ else {
+    return false;
+  }
+}

@@ -1,0 +1,31 @@
+{
+  if (gold == null || guess == null) {
+    System.err.printf("%s: Cannot compare against a null gold or guess tree!\n",this.getClass().getName());
+    return;
+  }
+  final List<List<CoreLabel>> guessLineages=makeLineages(guess);
+  final List<List<CoreLabel>> goldLineages=makeLineages(gold);
+  if (guessLineages.size() == goldLineages.size()) {
+    double localScores=0.0;
+    for (int i=0; i < guessLineages.size(); i++) {
+      List<CoreLabel> guessLin=guessLineages.get(i);
+      List<CoreLabel> goldLin=goldLineages.get(i);
+      double levDist=editDistance(guessLin,goldLin);
+      double la=1.0 - (levDist / (double)(guessLin.size() + goldLin.size()));
+      localScores+=la;
+      updateCatAverages(goldLin,la);
+    }
+    corpusAvg+=localScores;
+    corpusNum+=goldLineages.size();
+    double localSentAvg=localScores / goldLineages.size();
+    if (localSentAvg == 1.0)     sentExact++;
+    sentAvg+=localSentAvg;
+    sentNum++;
+  }
+ else {
+    System.err.printf("%s: Number of guess (%d) gold (%d) don't match!\n",this.getClass().getName(),guessLineages.size(),goldLineages.size());
+    System.err.println("Cannot evaluate!");
+    System.err.printf("GUESS tree:\n%s\n",guess.toString());
+    System.err.printf("GOLD tree:\n%s\n",gold.toString());
+  }
+}

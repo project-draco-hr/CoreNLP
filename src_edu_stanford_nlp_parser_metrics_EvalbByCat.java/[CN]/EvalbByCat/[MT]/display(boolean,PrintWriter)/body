@@ -1,0 +1,53 @@
+{
+  if (precisions.keySet().size() != recalls.keySet().size()) {
+    System.err.println("ERROR: Different counts for precisions and recalls!");
+    return;
+  }
+  final Set<Label> cats=getEvalLabelSet(precisions.keySet());
+  final Random rand=new Random();
+  Map<Double,Label> f1Map=new TreeMap<Double,Label>();
+  for (  Label cat : cats) {
+    double pnum2=pnums2.getCount(cat);
+    double rnum2=rnums2.getCount(cat);
+    double prec=precisions2.getCount(cat) / pnum2;
+    double rec=recalls2.getCount(cat) / rnum2;
+    double f1=2.0 / (1.0 / prec + 1.0 / rec);
+    if (new Double(f1).equals(Double.NaN))     f1=-1.0;
+    if (f1Map.containsKey(f1)) {
+      f1Map.put(f1 + (rand.nextDouble() / 1000.0),cat);
+    }
+ else {
+      f1Map.put(f1,cat);
+    }
+  }
+  pw.println("============================================================");
+  pw.println("Labeled Bracketed Evaluation by Category -- final statistics");
+  pw.println("============================================================");
+  double catPrecisions=0.0;
+  double catPrecisionNums=0.0;
+  double catRecalls=0.0;
+  double catRecallNums=0.0;
+  for (  Label cat : f1Map.values()) {
+    double pnum2=pnums2.getCount(cat);
+    double rnum2=rnums2.getCount(cat);
+    double prec=precisions2.getCount(cat) / pnum2;
+    prec*=100.0;
+    double rec=recalls2.getCount(cat) / rnum2;
+    rec*=100.0;
+    double f1=2.0 / (1.0 / prec + 1.0 / rec);
+    catPrecisions+=precisions2.getCount(cat);
+    catPrecisionNums+=pnum2;
+    catRecalls+=recalls2.getCount(cat);
+    catRecallNums+=rnum2;
+    String LP=pnum2 == 0.0 ? "N/A" : String.format("%.2f",prec);
+    String LR=rnum2 == 0.0 ? "N/A" : String.format("%.2f",rec);
+    String F1=(pnum2 == 0.0 || rnum2 == 0.0) ? "N/A" : String.format("%.2f",f1);
+    pw.printf("%s\tLP: %s\tguessed: %d\tLR: %s\tgold: %d\t F1: %s%n",cat.value(),LP,(int)pnum2,LR,(int)rnum2,F1);
+  }
+  pw.println("============================================================");
+  double prec=catPrecisions / catPrecisionNums;
+  double rec=catRecalls / catRecallNums;
+  double f1=(2 * prec * rec) / (prec + rec);
+  pw.printf("Total\tLP: %.2f\tguessed: %d\tLR: %.2f\tgold: %d\t F1: %.2f%n",prec * 100.0,(int)catPrecisionNums,rec * 100.0,(int)catRecallNums,f1 * 100.0);
+  pw.println("============================================================");
+}

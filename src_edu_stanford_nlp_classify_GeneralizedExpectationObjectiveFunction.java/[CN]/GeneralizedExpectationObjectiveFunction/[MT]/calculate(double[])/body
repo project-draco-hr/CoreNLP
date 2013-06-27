@@ -1,0 +1,40 @@
+{
+  classifier.setWeights(to2D(x));
+  if (derivative == null) {
+    derivative=new double[x.length];
+  }
+ else {
+    Arrays.fill(derivative,0.0);
+  }
+  Counter<Triple<Integer,Integer,Integer>> feature2classPairDerivatives=new ClassicCounter<Triple<Integer,Integer,Integer>>();
+  value=0.0;
+  for (int n=0; n < geFeatures.size(); n++) {
+    double[] modelDist=new double[numClasses];
+    Arrays.fill(modelDist,0);
+    List<Integer> activeData=geFeature2DatumList.get(n);
+    for (    Integer activeDatum : activeData) {
+      Datum<L,F> datum=unlabeledDataList.get(activeDatum);
+      double[] probs=getModelProbs(datum);
+      for (int c=0; c < numClasses; c++) {
+        modelDist[c]+=probs[c];
+      }
+      updateDerivative(datum,probs,feature2classPairDerivatives);
+    }
+    if (activeData.size() > 0) {
+      for (int c=0; c < numClasses; c++) {
+        modelDist[c]/=activeData.size();
+      }
+      smoothDistribution(modelDist);
+      for (int c=0; c < numClasses; c++)       value+=-geFeature2EmpiricalDist[n][c] * Math.log(modelDist[c]);
+      for (int f=0; f < labeledDataset.featureIndex().size(); f++) {
+        for (int c=0; c < numClasses; c++) {
+          int wtIndex=indexOf(f,c);
+          for (int cPrime=0; cPrime < numClasses; cPrime++) {
+            derivative[wtIndex]+=feature2classPairDerivatives.getCount(new Triple<Integer,Integer,Integer>(f,c,cPrime)) * geFeature2EmpiricalDist[n][cPrime] / modelDist[cPrime];
+          }
+          derivative[wtIndex]/=activeData.size();
+        }
+      }
+    }
+  }
+}

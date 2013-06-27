@@ -1,0 +1,36 @@
+{
+  this();
+  ArcProcessor arcProcessor2=null;
+  if (nodeProcessor != null) {
+    arcProcessor2=new NodeProcessorWrappingArcProcessor(nodeProcessor);
+  }
+  for (  Arc a : newArcs) {
+    a=new Arc(a);
+    if (arcProcessor != null) {
+      a=arcProcessor.processArc(a);
+    }
+    if (arcProcessor2 != null) {
+      a=arcProcessor2.processArc(a);
+    }
+    addArc(a);
+  }
+  if (nodeProcessor != null) {
+    this.startNode=nodeProcessor.processNode(startNode);
+  }
+ else {
+    this.startNode=startNode;
+  }
+  if (nodeProcessor != null) {
+    if (endNodes != null) {
+      for (Iterator endIter=endNodes.iterator(); endIter.hasNext(); ) {
+        Object o=endIter.next();
+        this.endNodes.add(nodeProcessor.processNode(o));
+      }
+    }
+  }
+ else {
+    if (endNodes != null) {
+      this.endNodes.addAll(endNodes);
+    }
+  }
+}

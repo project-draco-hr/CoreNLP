@@ -1,0 +1,20 @@
+{
+  if (r.force()) {
+    flushParents(willReturn);
+    if (isRepeat) {
+      flush(current,willReturn);
+    }
+    shouldPrint=true;
+  }
+  if (!isRepeat) {
+    flush(current,willReturn);
+    current.lastRecord=r;
+  }
+  if (shouldPrint) {
+    current.timeOfLastPrintedRecord=r.timesstamp;
+    current.timesPrinted+=1;
+  }
+  current.timesSeen+=1;
+  current.somethingPrinted=true;
+  return shouldPrint;
+}

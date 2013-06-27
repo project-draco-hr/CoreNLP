@@ -1,0 +1,13 @@
+{
+  super(dict,semantics);
+  corpusPath=props.getProperty(Constants.CONLL2011_PROP);
+  replicateCoNLL=Boolean.parseBoolean(props.getProperty(Constants.REPLICATECONLL_PROP,"false"));
+  CoNLL2011DocumentReader.Options options=new CoNLL2011DocumentReader.Options();
+  options.annotateTokenCoref=false;
+  options.annotateTokenSpeaker=Constants.USE_GOLD_SPEAKER_TAGS || replicateCoNLL;
+  options.annotateTokenNer=Constants.USE_GOLD_NE || replicateCoNLL;
+  options.annotateTokenPos=Constants.USE_GOLD_POS || replicateCoNLL;
+  if (Constants.USE_CONLL_AUTO)   options.setFilter(".*_auto_conll$");
+  reader=new CoNLL2011DocumentReader(corpusPath,options);
+  stanfordProcessor=loadStanfordProcessor(props);
+}

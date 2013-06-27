@@ -1,0 +1,14 @@
+{
+  List<String> files=new ArrayList<String>();
+  ZipFile zin=new ZipFile(jarFile);
+  Enumeration<? extends ZipEntry> entries=zin.entries();
+  while (entries.hasMoreElements()) {
+    ZipEntry entry=entries.nextElement();
+    String name=entry.getName();
+    if (name.matches(pattern)) {
+      files.add(name);
+    }
+  }
+  Collections.sort(files);
+  return files;
+}

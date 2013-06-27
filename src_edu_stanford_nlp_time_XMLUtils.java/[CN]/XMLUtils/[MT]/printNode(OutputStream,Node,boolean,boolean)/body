@@ -1,0 +1,20 @@
+{
+  TransformerFactory tfactory=TransformerFactory.newInstance();
+  Transformer serializer;
+  try {
+    serializer=tfactory.newTransformer();
+    if (prettyPrint) {
+      serializer.setOutputProperty(OutputKeys.INDENT,"yes");
+      serializer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2");
+    }
+    if (!includeXmlDeclaration) {
+      serializer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION,"yes");
+    }
+    DOMSource xmlSource=new DOMSource(node);
+    StreamResult outputTarget=new StreamResult(out);
+    serializer.transform(xmlSource,outputTarget);
+  }
+ catch (  TransformerException e) {
+    throw new RuntimeException(e);
+  }
+}

@@ -1,0 +1,15 @@
+{
+  boolean ret=super.setOptions(opts);
+  if (lexMapper == null) {
+    lexMapper=new DefaultLexicalMapper();
+    lexMapper.setup(null,lexMapOptions.split(","));
+  }
+  if (pathsToMappings.size() != 0) {
+    if (posMapper == null) {
+      posMapper=new LDCPosMapper(addDeterminer);
+    }
+    String[] mapOpts=posMapOptions.split(",");
+    for (    File path : pathsToMappings)     posMapper.setup(path,mapOpts);
+  }
+  return ret;
+}

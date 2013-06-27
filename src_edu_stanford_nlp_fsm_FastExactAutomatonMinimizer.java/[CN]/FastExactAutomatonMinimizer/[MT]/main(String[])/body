@@ -1,0 +1,19 @@
+{
+  System.out.println("Starting minimizer test...");
+  List pathList=new ArrayList();
+  TransducerGraph randomFA=TransducerGraph.createRandomGraph(5000,5,1.0,5,pathList);
+  List outputs=randomFA.getPathOutputs(pathList);
+  TransducerGraph.GraphProcessor quasiDeterminizer=new QuasiDeterminizer();
+  AutomatonMinimizer minimizer=new FastExactAutomatonMinimizer();
+  TransducerGraph.NodeProcessor ntsp=new TransducerGraph.SetToStringNodeProcessor(new PennTreebankLanguagePack());
+  TransducerGraph.ArcProcessor isp=new TransducerGraph.InputSplittingProcessor();
+  TransducerGraph.ArcProcessor ocp=new TransducerGraph.OutputCombiningProcessor();
+  TransducerGraph detGraph=quasiDeterminizer.processGraph(randomFA);
+  TransducerGraph combGraph=new TransducerGraph(detGraph,ocp);
+  TransducerGraph result=minimizer.minimizeFA(combGraph);
+  System.out.println("Minimized from " + randomFA.getNodes().size() + " to "+ result.getNodes().size());
+  result=new TransducerGraph(result,ntsp);
+  result=new TransducerGraph(result,isp);
+  List minOutputs=result.getPathOutputs(pathList);
+  System.out.println("Equal? " + outputs.equals(minOutputs));
+}

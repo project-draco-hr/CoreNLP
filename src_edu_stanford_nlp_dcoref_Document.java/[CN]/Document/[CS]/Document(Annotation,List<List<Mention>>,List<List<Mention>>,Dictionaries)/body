@@ -1,0 +1,18 @@
+{
+  this();
+  annotation=anno;
+  numSentences=anno.get(CoreAnnotations.SentencesAnnotation.class).size();
+  predictedOrderedMentionsBySentence=predictedMentions;
+  goldOrderedMentionsBySentence=goldMentions;
+  if (goldMentions != null) {
+    findTwinMentions(true);
+    for (    List<Mention> l : goldOrderedMentionsBySentence) {
+      for (      Mention g : l) {
+        allGoldMentions.put(g.mentionID,g);
+      }
+    }
+  }
+  initialize();
+  processDiscourse(dict);
+  printMentionDetection();
+}

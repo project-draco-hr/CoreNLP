@@ -1,0 +1,28 @@
+{
+  int[][] feature2label=new int[dataset.numFeatures()][dataset.numClasses()];
+  for (int f=0; f < dataset.numFeatures(); f++)   Arrays.fill(feature2label[f],0);
+  int[][] data=dataset.data;
+  int[] labels=dataset.labels;
+  for (int d=0; d < data.length; d++) {
+    int label=labels[d];
+    if (data[d] != null) {
+      for (int n=0; n < data[d].length; n++) {
+        feature2label[data[d][n]][label]++;
+      }
+    }
+  }
+  Counter<F> feature2freq=new ClassicCounter<F>();
+  for (int f=0; f < dataset.numFeatures(); f++) {
+    int maxF=ArrayMath.max(feature2label[f]);
+    int total=ArrayMath.sum(feature2label[f]);
+    double precision=((double)maxF) / total;
+    F feature=dataset.featureIndex.get(f);
+    if (precision >= minPrecision) {
+      feature2freq.incrementCount(feature,total);
+    }
+  }
+  if (feature2freq.size() > maxNumFeatures) {
+    Counters.retainTop(feature2freq,maxNumFeatures);
+  }
+  return Counters.toSortedList(feature2freq);
+}

@@ -1,0 +1,37 @@
+{
+  AceCharSeq ext=entityMention.getExtent();
+  AceCharSeq head=entityMention.getHead();
+  int extStart=ext.getTokenStart() - tokenOffset;
+  int extEnd=ext.getTokenEnd() - tokenOffset + 1;
+  if (extStart < 0) {
+    logger.severe("READER ERROR: Invalid extent start " + extStart + " for entity mention "+ entityMention.getId()+ " in document "+ docId+ " in sentence "+ sentence);
+    logger.severe("This may happen due to incorrect EOS detection. Adjusting entity extent.");
+    extStart=0;
+  }
+  if (extEnd > sentence.get(CoreAnnotations.TokensAnnotation.class).size()) {
+    logger.severe("READER ERROR: Invalid extent end " + extEnd + " for entity mention "+ entityMention.getId()+ " in document "+ docId+ " in sentence "+ sentence);
+    logger.severe("This may happen due to incorrect EOS detection. Adjusting entity extent.");
+    extEnd=sentence.get(CoreAnnotations.TokensAnnotation.class).size();
+  }
+  int headStart=head.getTokenStart() - tokenOffset;
+  int headEnd=head.getTokenEnd() - tokenOffset + 1;
+  if (headStart < 0) {
+    logger.severe("READER ERROR: Invalid head start " + headStart + " for entity mention "+ entityMention.getId()+ " in document "+ docId+ " in sentence "+ sentence);
+    logger.severe("This may happen due to incorrect EOS detection. Adjusting entity head span.");
+    headStart=0;
+  }
+  if (headEnd > sentence.get(CoreAnnotations.TokensAnnotation.class).size()) {
+    logger.severe("READER ERROR: Invalid head end " + headEnd + " for entity mention "+ entityMention.getId()+ " in document "+ docId+ " in sentence "+ sentence);
+    logger.severe("This may happen due to incorrect EOS detection. Adjusting entity head span.");
+    headEnd=sentence.get(CoreAnnotations.TokensAnnotation.class).size();
+  }
+  if (headStart < extStart) {
+    headStart=extStart;
+  }
+  if (headEnd > extEnd) {
+    headEnd=extEnd;
+  }
+  assert(headStart < headEnd);
+  EntityMention converted=new EntityMention(entityMention.getId(),sentence,new Span(extStart,extEnd),new Span(headStart,headEnd),entityMention.getParent().getType(),entityMention.getParent().getSubtype(),entityMention.getLdctype());
+  return converted;
+}

@@ -1,0 +1,16 @@
+{
+  final boolean hasOffset;
+  hasOffset=origWords != null && (origWords.get(0) instanceof HasOffset);
+  ArrayList<TaggedWord> taggedSentence=new ArrayList<TaggedWord>();
+  for (int j=0; j < size - 1; j++) {
+    String tag=finalTags[j];
+    TaggedWord w=new TaggedWord(sent.get(j),tag);
+    if (hasOffset) {
+      HasOffset offset=(HasOffset)origWords.get(j);
+      w.setBeginPosition(offset.beginPosition());
+      w.setEndPosition(offset.endPosition());
+    }
+    taggedSentence.add(w);
+  }
+  return taggedSentence;
+}

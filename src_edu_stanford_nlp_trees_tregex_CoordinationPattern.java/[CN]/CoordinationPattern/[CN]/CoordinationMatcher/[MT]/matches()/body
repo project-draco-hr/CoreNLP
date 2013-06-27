@@ -1,0 +1,53 @@
+{
+  if (considerAll) {
+    if (currChild < 0) {
+      return myNode.isOptional();
+    }
+    if (currChild == children.length) {
+      --currChild;
+    }
+    while (true) {
+      if (children[currChild] == null) {
+        children[currChild]=myNode.children.get(currChild).matcher(root,tree,nodesToParents,namesToNodes,variableStrings);
+        children[currChild].resetChildIter(tree);
+      }
+      if (myNode.isNegated() != children[currChild].matches()) {
+        ++currChild;
+        if (currChild == children.length) {
+          if (myNode.isNegated()) {
+            currChild=-1;
+          }
+          return true;
+        }
+      }
+ else {
+        children[currChild].resetChildIter();
+        --currChild;
+        if (currChild < 0) {
+          return myNode.isOptional();
+        }
+      }
+    }
+  }
+ else {
+    for (; currChild < children.length; currChild++) {
+      if (children[currChild] == null) {
+        children[currChild]=myNode.children.get(currChild).matcher(root,tree,nodesToParents,namesToNodes,variableStrings);
+        children[currChild].resetChildIter(tree);
+      }
+      if (myNode.isNegated() != children[currChild].matches()) {
+        if (myNode.isNegated()) {
+          currChild=children.length;
+        }
+        return true;
+      }
+    }
+    if (myNode.isNegated()) {
+      currChild=children.length;
+    }
+    for (int resetChild=0; resetChild < currChild; ++resetChild) {
+      children[resetChild].resetChildIter();
+    }
+    return myNode.isOptional();
+  }
+}

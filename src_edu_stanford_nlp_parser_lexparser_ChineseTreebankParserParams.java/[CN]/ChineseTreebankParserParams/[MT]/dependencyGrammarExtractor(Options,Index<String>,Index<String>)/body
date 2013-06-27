@@ -1,0 +1,24 @@
+{
+  if (useSimilarWordMap) {
+    return new MLEDependencyGrammarExtractor(op,wordIndex,tagIndex){
+      @Override public MLEDependencyGrammar formResult(){
+        wordIndex.indexOf(Lexicon.UNKNOWN_WORD,true);
+        ChineseSimWordAvgDepGrammar dg=new ChineseSimWordAvgDepGrammar(tlpParams,directional,useDistance,useCoarseDistance,op.trainOptions.basicCategoryTagsInDependencyGrammar,op,wordIndex,tagIndex);
+        if (lex == null) {
+          throw new RuntimeException("Attempt to create ChineseSimWordAvgDepGrammar before Lexicon!!!");
+        }
+ else {
+          dg.setLex(lex);
+        }
+        for (        IntDependency dependency : dependencyCounter.keySet()) {
+          dg.addRule(dependency,dependencyCounter.getCount(dependency));
+        }
+        return dg;
+      }
+    }
+;
+  }
+ else {
+    return new MLEDependencyGrammarExtractor(op,wordIndex,tagIndex);
+  }
+}

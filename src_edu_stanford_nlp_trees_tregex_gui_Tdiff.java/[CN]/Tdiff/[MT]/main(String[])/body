@@ -1,0 +1,25 @@
+{
+  if (args.length != 2) {
+    System.out.println("Usage: java Tdiff tree1 tree2");
+    return;
+  }
+  File tree1Path=new File(args[0]);
+  File tree2Path=new File(args[1]);
+  try {
+    TreeReaderFactory trf=new LabeledScoredTreeReaderFactory();
+    TreeReader tR1=trf.newTreeReader(new BufferedReader(new FileReader(tree1Path)));
+    TreeReader tR2=trf.newTreeReader(new BufferedReader(new FileReader(tree2Path)));
+    Tree t1=tR1.readTree();
+    Tree t2=tR2.readTree();
+    Set<Constituent> t1Diff=markDiff(t1,t2);
+    System.out.println(t2.pennString());
+    System.out.println();
+    for (    Constituent c : t1Diff)     System.out.println(c);
+  }
+ catch (  FileNotFoundException e) {
+    System.err.println("File not found!");
+  }
+catch (  IOException e) {
+    System.err.println("Unable to read file!");
+  }
+}

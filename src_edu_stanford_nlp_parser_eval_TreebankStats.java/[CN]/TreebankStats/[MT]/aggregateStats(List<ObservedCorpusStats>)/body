@@ -1,0 +1,26 @@
+{
+  if (allStats.size() == 0)   return null;
+ else   if (allStats.size() == 1)   return allStats.get(0);
+  ObservedCorpusStats agStats=new ObservedCorpusStats("CORPUS");
+  for (  ObservedCorpusStats ocs : allStats) {
+    agStats.numTrees+=ocs.numTrees;
+    agStats.breadth2+=ocs.breadth2;
+    agStats.breadths.addAll(ocs.breadths);
+    agStats.depth2+=ocs.depth2;
+    agStats.depths.addAll(ocs.depths);
+    agStats.length2+=ocs.length2;
+    agStats.lengths.addAll(ocs.lengths);
+    if (ocs.minLength < agStats.minLength)     agStats.minLength=ocs.minLength;
+    if (ocs.maxLength > agStats.maxLength)     agStats.maxLength=ocs.maxLength;
+    if (ocs.minBreadth < agStats.minBreadth)     agStats.minBreadth=ocs.minBreadth;
+    if (ocs.maxBreadth > agStats.maxBreadth)     agStats.maxBreadth=ocs.maxBreadth;
+    if (ocs.minDepth < agStats.minDepth)     agStats.minDepth=ocs.minDepth;
+    if (ocs.maxDepth > agStats.maxDepth)     agStats.maxDepth=ocs.maxDepth;
+    agStats.words.addAll(ocs.words);
+    agStats.posTags.addAll(ocs.posTags);
+    agStats.phrasalBranching2.addAll(ocs.phrasalBranching2);
+    agStats.phrasalBranchingNum2.addAll(ocs.phrasalBranchingNum2);
+  }
+  agStats.computeFinalValues();
+  return agStats;
+}

@@ -1,0 +1,17 @@
+{
+  int i=0;
+  while (i < args.length) {
+    Tree tree=Tree.valueOf(args[i]);
+    if (tree == null) {
+      tree=Tree.valueOf(IOUtils.slurpFile(args[i]));
+    }
+    if (tree != null) {
+      System.out.println(escape(texTree(tree)));
+    }
+    i++;
+  }
+  if (i == 0) {
+    Tree tree=(new PennTreeReader(new BufferedReader(new InputStreamReader(System.in)),new LabeledScoredTreeFactory(new StringLabelFactory()))).readTree();
+    System.out.println(escape(texTree(tree)));
+  }
+}

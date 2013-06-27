@@ -1,0 +1,33 @@
+{
+  List<IntTaggedWord> wordTaggings;
+  if (isKnown(word)) {
+    if (!flexiTag) {
+      wordTaggings=rulesWithWord[word];
+    }
+ else {
+      IntTaggedWord iW=new IntTaggedWord(word,nullTag);
+      if (seenCounter.getCount(iW) > smoothInUnknownsThreshold) {
+        return rulesWithWord[word].iterator();
+      }
+ else {
+        wordTaggings=new ArrayList<IntTaggedWord>(40);
+        for (        IntTaggedWord iTW2 : tags) {
+          IntTaggedWord iTW=new IntTaggedWord(word,iTW2.tag);
+          if (score(iTW,loc,wordIndex.get(word),null) > Float.NEGATIVE_INFINITY) {
+            wordTaggings.add(iTW);
+          }
+        }
+      }
+    }
+  }
+ else {
+    wordTaggings=new ArrayList<IntTaggedWord>(40);
+    for (    IntTaggedWord iTW : rulesWithWord[wordIndex.indexOf(UNKNOWN_WORD)]) {
+      wordTaggings.add(new IntTaggedWord(word,iTW.tag));
+    }
+  }
+  if (DEBUG_LEXICON) {
+    EncodingPrintWriter.err.println("Lexicon: " + wordIndex.get(word) + " ("+ (isKnown(word) ? "known" : "unknown")+ ", loc="+ loc+ ", n="+ (isKnown(word) ? word : wordIndex.indexOf(UNKNOWN_WORD))+ ") "+ (flexiTag ? "flexi" : "lexicon")+ " taggings: "+ wordTaggings,"UTF-8");
+  }
+  return wordTaggings.iterator();
+}

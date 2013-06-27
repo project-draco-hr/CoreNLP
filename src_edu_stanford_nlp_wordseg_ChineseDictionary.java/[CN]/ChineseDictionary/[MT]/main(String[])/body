@@ -1,0 +1,19 @@
+{
+  String inputDicts="/u/nlp/data/chinese-dictionaries/plain/ne_wikipedia-utf8.txt,/u/nlp/data/chinese-dictionaries/plain/newsexplorer_entities_utf8.txt,/u/nlp/data/chinese-dictionaries/plain/Ch-name-list-utf8.txt,/u/nlp/data/chinese-dictionaries/plain/wikilex-20070908-zh-en.txt,/u/nlp/data/chinese-dictionaries/plain/adso-1.25-050405-monolingual-clean.utf8.txt,/u/nlp/data/chinese-dictionaries/plain/lexicon_108k_normalized.txt,/u/nlp/data/chinese-dictionaries/plain/lexicon_mandarintools_normalized.txt,/u/nlp/data/chinese-dictionaries/plain/harbin-ChineseNames_utf8.txt,/u/nlp/data/chinese-dictionaries/plain/lexicon_HowNet_normalized.txt";
+  String output="/u/nlp/data/gale/segtool/stanford-seg/classifiers/dict-chris6.ser.gz";
+  Map<String,Integer> flagMap=Generics.newHashMap();
+  flagMap.put("-inputDicts",1);
+  flagMap.put("-output",1);
+  Map<String,String[]> argsMap=StringUtils.argsToMap(args,flagMap);
+  if (argsMap.keySet().contains("-inputDicts")) {
+    inputDicts=argsMap.get("-inputDicts")[0];
+  }
+  if (argsMap.keySet().contains("-output")) {
+    output=argsMap.get("-output")[0];
+  }
+  String[] dicts=inputDicts.split(",");
+  ChineseDocumentToSentenceProcessor cdtos=new ChineseDocumentToSentenceProcessor(null);
+  boolean expandMidDot=true;
+  ChineseDictionary dict=new ChineseDictionary(dicts,cdtos,expandMidDot);
+  dict.serializeDictionary(output);
+}

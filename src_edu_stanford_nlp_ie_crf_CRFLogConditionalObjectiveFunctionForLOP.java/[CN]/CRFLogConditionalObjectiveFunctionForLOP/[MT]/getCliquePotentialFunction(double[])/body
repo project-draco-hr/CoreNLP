@@ -1,0 +1,10 @@
+{
+  double[] rawScales=separateLopScales(x);
+  double[] scales=ArrayMath.softmax(rawScales);
+  double[][][] learnedLopExpertWeights2D=lopExpertWeights2D;
+  if (backpropTraining) {
+    learnedLopExpertWeights2D=separateLopExpertWeights2D(x);
+  }
+  double[][] combinedWeights2D=combineAndScaleLopWeights2D(numLopExpert,learnedLopExpertWeights2D,scales);
+  return new LinearCliquePotentialFunction(combinedWeights2D);
+}

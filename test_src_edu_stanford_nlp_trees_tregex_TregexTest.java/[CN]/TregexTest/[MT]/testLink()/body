@@ -1,0 +1,30 @@
+{
+  runTest("bar $- (bar $- foo)","(a (foo 1) (bar 2) (bar 3))","(bar 3)");
+  runTest("bar=a $- (~a $- foo)","(a (foo 1) (bar 2) (bar 3))","(bar 3)");
+  runTest("bar=a $- (=a $- foo)","(a (foo 1) (bar 2) (bar 3))");
+  runTest("bar=a $- (~a=b $- foo)","(a (foo 1) (bar 2) (bar 3))","(bar 3)");
+  Tree tree=treeFromString("(a (foo 1) (bar 2) (bar 3))");
+  TregexPattern pattern=TregexPattern.compile("bar=a $- (~a $- foo)");
+  TregexMatcher matcher=pattern.matcher(tree);
+  assertTrue(matcher.find());
+  assertEquals("(bar 3)",matcher.getMatch().toString());
+  assertEquals("(bar 3)",matcher.getNode("a").toString());
+  assertFalse(matcher.find());
+  tree=treeFromString("(a (foo 1) (bar 2) (bar 3))");
+  pattern=TregexPattern.compile("bar=a $- (~a=b $- foo)");
+  matcher=pattern.matcher(tree);
+  assertTrue(matcher.find());
+  assertEquals("(bar 3)",matcher.getMatch().toString());
+  assertEquals("(bar 3)",matcher.getNode("a").toString());
+  assertEquals("(bar 2)",matcher.getNode("b").toString());
+  assertFalse(matcher.find());
+  tree=treeFromString("(a (foo 1) (bar 2) (bar 3))");
+  pattern=TregexPattern.compile("bar=a $- (~a=b $- foo=c)");
+  matcher=pattern.matcher(tree);
+  assertTrue(matcher.find());
+  assertEquals("(bar 3)",matcher.getMatch().toString());
+  assertEquals("(bar 3)",matcher.getNode("a").toString());
+  assertEquals("(bar 2)",matcher.getNode("b").toString());
+  assertEquals("(foo 1)",matcher.getNode("c").toString());
+  assertFalse(matcher.find());
+}

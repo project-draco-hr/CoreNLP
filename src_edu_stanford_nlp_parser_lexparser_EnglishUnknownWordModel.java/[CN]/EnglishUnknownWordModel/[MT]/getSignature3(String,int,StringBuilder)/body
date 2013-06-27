@@ -1,0 +1,48 @@
+{
+  sb.append('-');
+  char lastClass='-';
+  int num=0;
+  for (int i=0; i < word.length(); i++) {
+    char ch=word.charAt(i);
+    char newClass;
+    if (Character.isUpperCase(ch) || Character.isTitleCase(ch)) {
+      if (loc == 0) {
+        newClass='S';
+      }
+ else {
+        newClass='L';
+      }
+    }
+ else     if (Character.isLetter(ch)) {
+      newClass='l';
+    }
+ else     if (Character.isDigit(ch)) {
+      newClass='d';
+    }
+ else     if (ch == '-') {
+      newClass='h';
+    }
+ else     if (ch == '.') {
+      newClass='p';
+    }
+ else {
+      newClass='s';
+    }
+    if (newClass != lastClass) {
+      lastClass=newClass;
+      sb.append(lastClass);
+      num=1;
+    }
+ else {
+      if (num < 2) {
+        sb.append('+');
+      }
+      num++;
+    }
+  }
+  if (word.length() > 3) {
+    char ch=Character.toLowerCase(word.charAt(word.length() - 1));
+    sb.append('-');
+    sb.append(ch);
+  }
+}

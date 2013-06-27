@@ -1,0 +1,21 @@
+{
+  GrammaticalRelation reln=(stringsToRelations.get(language) != null ? valueOf(s,stringsToRelations.get(language).values()) : null);
+  if (reln == null) {
+    reln=EnglishGrammaticalRelations.valueOf(s);
+  }
+  if (reln == null) {
+    String name;
+    String specific;
+    int underscorePosition=s.indexOf('_');
+    if (underscorePosition > 0) {
+      name=s.substring(0,underscorePosition);
+      specific=s.substring(underscorePosition + 1);
+    }
+ else {
+      name=s;
+      specific=null;
+    }
+    reln=new GrammaticalRelation(language,name,null,null,null,specific);
+  }
+  return reln;
+}

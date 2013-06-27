@@ -1,0 +1,17 @@
+{
+  Distribution<E> norm=new Distribution<E>();
+  norm.counter=new ClassicCounter<E>();
+  norm.numberOfKeys=wordCounter.size();
+  norm.reservedMass=0;
+  double totalCount=wordCounter.totalCount();
+  double stdev=1.0 / norm.numberOfKeys / 1000.0;
+  for (  E key : wordCounter.keySet()) {
+    double prob=wordCounter.getCount(key) / totalCount;
+    double perturbedProb=prob + (r.nextGaussian() * stdev);
+    if (perturbedProb < 0.0) {
+      perturbedProb=0.0;
+    }
+    norm.counter.setCount(key,perturbedProb);
+  }
+  return norm;
+}

@@ -1,0 +1,11 @@
+{
+  CompositePartialTime cpt=makeComposite(new PartialTime(new Partial()),this);
+  if (cpt != null) {
+    return cpt.resolve(refTime,flags);
+  }
+  Range groundedRange=null;
+  if (range != null) {
+    groundedRange=range.resolve(refTime,flags).getRange();
+  }
+  return createTemporal(standardTemporalType,timeLabel,new TimeWithRange(this,groundedRange));
+}

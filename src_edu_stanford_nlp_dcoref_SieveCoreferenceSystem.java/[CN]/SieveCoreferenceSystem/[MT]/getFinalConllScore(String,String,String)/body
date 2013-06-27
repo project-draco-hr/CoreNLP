@@ -1,0 +1,31 @@
+{
+  Pattern pattern=Pattern.compile("METRIC\\s+(.*):Coreference:.*" + scoreType + ":\\s*(\\([ 0-9./]*\\))?\\s*(\\d+(\\.\\d+)?)%");
+  Matcher matcher=pattern.matcher(summary);
+  double[] scores=new double[5];
+  String[] names=new String[5];
+  int i=0;
+  while (matcher.find()) {
+    names[i]=matcher.group(1);
+    scores[i]=Double.parseDouble(matcher.group(3));
+    i++;
+  }
+  metricType=metricType.toLowerCase();
+  if ("combined".equals(metricType)) {
+    double finalScore=(scores[0] + scores[1] + scores[3]) / 3;
+    logger.info("Final conll score ((muc+bcub+ceafe)/3) " + scoreType + " = "+ finalScore);
+    return finalScore;
+  }
+ else {
+    if ("bcubed".equals(metricType)) {
+      metricType="bcub";
+    }
+    for (i=0; i < names.length; i++) {
+      if (names[i] != null && names[i].equals(metricType)) {
+        double finalScore=scores[i];
+        logger.info("Final conll score (" + metricType + ") "+ scoreType+ " = "+ finalScore);
+        return finalScore;
+      }
+    }
+    throw new IllegalArgumentException("Invalid metricType:" + metricType);
+  }
+}

@@ -1,0 +1,30 @@
+{
+  if (!adjustCharacterOffsets && !forceCopy)   return srcList;
+  List<CoreLabel> dstList=new ArrayList<CoreLabel>();
+  int adjustment=0;
+  int offset=0;
+  for (  CoreLabel src : srcList) {
+    if (adjustCharacterOffsets) {
+      int wordLength=(src.containsKey(CoreAnnotations.OriginalTextAnnotation.class)) ? src.get(CoreAnnotations.OriginalTextAnnotation.class).length() : src.word().length();
+      if (src.containsKey(CoreAnnotations.CharacterOffsetBeginAnnotation.class) && src.containsKey(CoreAnnotations.CharacterOffsetEndAnnotation.class)) {
+        int start=src.get(CoreAnnotations.CharacterOffsetBeginAnnotation.class);
+        int end=src.get(CoreAnnotations.CharacterOffsetEndAnnotation.class);
+        int origLength=end - start;
+        start+=adjustment;
+        end=start + wordLength;
+        dstList.add(copyCoreLabel(src,start,end));
+        adjustment+=wordLength - origLength;
+      }
+ else {
+        int start=offset;
+        int end=start + wordLength;
+        offset=end + 1;
+        dstList.add(copyCoreLabel(src,start,end));
+      }
+    }
+ else {
+      dstList.add(copyCoreLabel(src,null,null));
+    }
+  }
+  return dstList;
+}

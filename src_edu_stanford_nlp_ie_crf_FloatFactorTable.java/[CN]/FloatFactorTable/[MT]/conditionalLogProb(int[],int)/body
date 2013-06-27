@@ -1,0 +1,13 @@
+{
+  if (given.length != windowSize - 1) {
+    System.err.println("error computing conditional log prob");
+    System.exit(0);
+  }
+  int[] label=indicesFront(given);
+  float[] masses=new float[label.length];
+  for (int i=0; i < masses.length; i++) {
+    masses[i]=table[label[i]];
+  }
+  float z=ArrayMath.logSum(masses);
+  return table[indexOf(given,of)] - z;
+}

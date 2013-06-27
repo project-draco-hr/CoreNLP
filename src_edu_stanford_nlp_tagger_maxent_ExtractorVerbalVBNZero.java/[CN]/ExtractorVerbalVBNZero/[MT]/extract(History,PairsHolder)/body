@@ -1,0 +1,32 @@
+{
+  String cword=pH.getWord(h,0);
+  int allCount=dict.sum(cword);
+  int vBNCount=dict.getCount(cword,vbnTag);
+  int vBDCount=dict.getCount(cword,vbdTag);
+  if ((allCount == 0) && (!(cword.endsWith(edSuff) || cword.endsWith(enSuff)))) {
+    return zeroSt;
+  }
+  if ((allCount > 0) && (vBNCount + vBDCount <= allCount / 100)) {
+    return zeroSt;
+  }
+  String lastverb=naWord;
+  for (int index=-1; index >= -bound; index--) {
+    String word2=pH.getWord(h,index);
+    if ("NA".equals(word2)) {
+      break;
+    }
+    if (stopper.matcher(word2).matches()) {
+      break;
+    }
+    if (vbnWord.matcher(word2).matches()) {
+      lastverb=word2;
+      break;
+    }
+    index--;
+  }
+  if (!lastverb.equals(naWord)) {
+    System.err.println("VBN: For " + cword + ", found preceding VBN cue "+ lastverb);
+    return oneSt;
+  }
+  return zeroSt;
+}

@@ -1,0 +1,31 @@
+{
+  IntTaggedWord headT=getCachedITW(dependency.head.tag);
+  IntTaggedWord argT=getCachedITW(dependency.arg.tag);
+  IntTaggedWord head=new IntTaggedWord(dependency.head.word,tagBin(dependency.head.tag));
+  IntTaggedWord arg=new IntTaggedWord(dependency.arg.word,tagBin(dependency.arg.tag));
+  boolean leftHeaded=dependency.leftHeaded;
+  argCounter.incrementCount(intern(head,arg,leftHeaded,valBinDist),count);
+  argCounter.incrementCount(intern(headT,arg,leftHeaded,valBinDist),count);
+  argCounter.incrementCount(intern(head,argT,leftHeaded,valBinDist),count);
+  argCounter.incrementCount(intern(headT,argT,leftHeaded,valBinDist),count);
+  argCounter.incrementCount(intern(head,wildTW,leftHeaded,valBinDist),count);
+  argCounter.incrementCount(intern(headT,wildTW,leftHeaded,valBinDist),count);
+  argCounter.incrementCount(intern(wildTW,arg,false,(short)-1),count);
+  argCounter.incrementCount(intern(wildTW,argT,false,(short)-1),count);
+  if (useSmoothTagProjection) {
+    IntTaggedWord headP=new IntTaggedWord(dependency.head.word,tagProject(dependency.head.tag));
+    IntTaggedWord headTP=new IntTaggedWord(ANY_WORD_INT,tagProject(dependency.head.tag));
+    IntTaggedWord argP=new IntTaggedWord(dependency.arg.word,tagProject(dependency.arg.tag));
+    IntTaggedWord argTP=new IntTaggedWord(ANY_WORD_INT,tagProject(dependency.arg.tag));
+    argCounter.incrementCount(intern(headP,argP,leftHeaded,valBinDist),count);
+    argCounter.incrementCount(intern(headTP,argP,leftHeaded,valBinDist),count);
+    argCounter.incrementCount(intern(headP,argTP,leftHeaded,valBinDist),count);
+    argCounter.incrementCount(intern(headTP,argTP,leftHeaded,valBinDist),count);
+    argCounter.incrementCount(intern(headP,wildTW,leftHeaded,valBinDist),count);
+    argCounter.incrementCount(intern(headTP,wildTW,leftHeaded,valBinDist),count);
+    argCounter.incrementCount(intern(wildTW,argP,false,(short)-1),count);
+    argCounter.incrementCount(intern(wildTW,argTP,false,(short)-1),count);
+    argCounter.incrementCount(intern(wildTW,new IntTaggedWord(dependency.head.word,ANY_TAG_INT),false,(short)-1),count);
+  }
+  numWordTokens++;
+}

@@ -1,0 +1,19 @@
+{
+  if (t == null) {
+    return null;
+  }
+ else   if (t.isLeaf()) {
+    return tf.newLeaf(t.label().toString());
+  }
+ else   if (t.isPreTerminal()) {
+    return tf.newTreeNode(t.label().toString(),Collections.singletonList(apply(t.children()[0])));
+  }
+ else {
+    int numKids=t.numChildren();
+    List<Tree> children=new ArrayList<Tree>(numKids);
+    for (int k=0; k < numKids; k++) {
+      children.add(apply(t.children()[k]));
+    }
+    return tf.newTreeNode(t.label().toString(),children);
+  }
+}

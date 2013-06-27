@@ -1,0 +1,14 @@
+{
+  boolean isUpper=Character.isUpperCase(rawToken.charAt(0));
+  boolean isAllUpper=pAllUpper.matcher(rawToken).matches();
+  boolean isParen=rawToken.equals("-RRB-") || rawToken.equals("-LRB-");
+  boolean isPunc=pIsPunct.matcher(rawToken).matches();
+  if (isParen || isPunc || isAllUpper) {
+    return rawToken;
+  }
+  if (isUpper) {
+    Character firstChar=Character.toUpperCase(lemma.charAt(0));
+    lemma=firstChar + lemma.substring(1,lemma.length());
+  }
+  return lemma;
+}

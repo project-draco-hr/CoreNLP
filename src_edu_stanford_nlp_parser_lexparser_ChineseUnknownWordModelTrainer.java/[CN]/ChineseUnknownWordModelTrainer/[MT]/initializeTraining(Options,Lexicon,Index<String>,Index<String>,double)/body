@@ -1,0 +1,36 @@
+{
+  super.initializeTraining(op,lex,wordIndex,tagIndex,totalTrees);
+  boolean useGoodTuringUnknownWordModel=ChineseTreebankParserParams.DEFAULT_USE_GOOD_TURNING_UNKNOWN_WORD_MODEL;
+  useFirst=true;
+  useGT=(op.lexOptions.useUnknownWordSignatures == 0);
+  if (lex instanceof ChineseLexicon) {
+    useGoodTuringUnknownWordModel=((ChineseLexicon)lex).useGoodTuringUnknownWordModel;
+  }
+ else   if (op.tlpParams instanceof ChineseTreebankParserParams) {
+    useGoodTuringUnknownWordModel=((ChineseTreebankParserParams)op.tlpParams).useGoodTuringUnknownWordModel;
+  }
+  if (useGoodTuringUnknownWordModel) {
+    this.useGT=true;
+    this.useFirst=false;
+  }
+  this.useUnicodeType=op.lexOptions.useUnicodeType;
+  if (useFirst) {
+    System.err.println("ChineseUWM: treating unknown word as the average of their equivalents by first-character identity. useUnicodeType: " + useUnicodeType);
+  }
+  if (useGT) {
+    System.err.println("ChineseUWM: using Good-Turing smoothing for unknown words.");
+  }
+  this.c=Generics.newHashMap();
+  this.tc=new ClassicCounter<Label>();
+  this.unSeenCounter=new ClassicCounter<IntTaggedWord>();
+  this.seenCounter=new ClassicCounter<IntTaggedWord>();
+  this.seenFirst=Generics.newHashSet();
+  this.tagHash=Generics.newHashMap();
+  this.indexToStartUnkCounting=(totalTrees * op.trainOptions.fractionBeforeUnseenCounting);
+  this.unknownGTTrainer=(useGT) ? new UnknownGTTrainer() : null;
+  Map<String,Float> unknownGT=null;
+  if (useGT) {
+    unknownGT=unknownGTTrainer.unknownGT;
+  }
+  this.model=new ChineseUnknownWordModel(op,lex,wordIndex,tagIndex,unSeenCounter,tagHash,unknownGT,useGT,seenFirst);
+}

@@ -1,0 +1,32 @@
+{
+  Properties options=StringUtils.argsToProperties(args,optionArgDefs());
+  if (options.containsKey("help") || args.length == 0) {
+    System.err.println(usage());
+    System.exit(-1);
+  }
+  int nThreads=PropertiesUtils.getInt(options,"nthreads",1);
+  ArabicSegmenter segmenter=getSegmenter(options);
+  try {
+    PrintWriter pwOut=new PrintWriter(System.out,true);
+    if (segmenter.flags.testFile != null) {
+      if (segmenter.flags.answerFile == null) {
+        segmenter.evaluate(pwOut);
+      }
+ else {
+        segmenter.evaluateRawText(pwOut);
+      }
+    }
+ else {
+      BufferedReader br=(segmenter.flags.textFile == null) ? new BufferedReader(new InputStreamReader(System.in)) : new BufferedReader(new InputStreamReader(new FileInputStream(segmenter.flags.textFile),segmenter.flags.inputEncoding));
+      double charsPerSec=decode(segmenter,br,pwOut,nThreads);
+      IOUtils.closeIgnoringExceptions(br);
+      System.err.printf("Done! Processed input text at %.2f input characters/second%n",charsPerSec);
+    }
+  }
+ catch (  UnsupportedEncodingException e) {
+    e.printStackTrace();
+  }
+catch (  FileNotFoundException e) {
+    System.err.printf("%s: Could not open %s%n",ArabicSegmenter.class.getName(),segmenter.flags.textFile);
+  }
+}

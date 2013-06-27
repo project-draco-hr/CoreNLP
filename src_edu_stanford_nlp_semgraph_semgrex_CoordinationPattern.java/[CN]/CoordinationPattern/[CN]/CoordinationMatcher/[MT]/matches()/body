@@ -1,0 +1,47 @@
+{
+  if (considerAll) {
+    if (currChild < 0) {
+      return myNode.isOptional();
+    }
+    if (currChild == children.length) {
+      --currChild;
+    }
+    while (true) {
+      if (myNode.isNegated() != children[currChild].matches()) {
+        ++currChild;
+        if (currChild == children.length) {
+          if (myNode.isNegated()) {
+            currChild=-1;
+          }
+ else           if (myNode.isNodeCoord) {
+            nextNodeMatch=children[0].getMatch();
+          }
+          return true;
+        }
+      }
+ else {
+        children[currChild].resetChildIter();
+        --currChild;
+        if (currChild < 0) {
+          return myNode.isOptional();
+        }
+      }
+    }
+  }
+ else {
+    for (; currChild < children.length; currChild++) {
+      if (myNode.isNegated() != children[currChild].matches()) {
+        if (myNode.isNegated()) {
+          currChild=children.length;
+        }
+        if (myNode.isNodeCoord)         nextNodeMatch=children[currChild].getMatch();
+        return true;
+      }
+      children[currChild].resetChildIter();
+    }
+    if (myNode.isNegated()) {
+      currChild=children.length;
+    }
+    return myNode.isOptional();
+  }
+}

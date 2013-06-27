@@ -1,0 +1,25 @@
+{
+  if (historyFrame == null) {
+    historyFrame=new JFrame("Statistics History");
+  }
+ else {
+    historyFrame.setVisible(false);
+    historyFrame=new JFrame("Statistics History");
+  }
+  historyFrame.setLayout(new GridLayout(1,0));
+  Object[][] entries=new Object[historyList.size()][3];
+  for (int i=0; i < historyList.size(); i++) {
+    entries[i]=historyList.get(i).toArray();
+  }
+  DefaultTableModel tableModel=new TregexGUITableModel(entries,HistoryEntry.columnNamesArray());
+  JTable statTable=new JTable(tableModel);
+  DefaultTableCellRenderer dtcr=(DefaultTableCellRenderer)statTable.getDefaultRenderer(String.class);
+  dtcr.setHorizontalAlignment(DefaultTableCellRenderer.CENTER);
+  JScrollPane scroller=new JScrollPane(statTable);
+  historyFrame.add(scroller);
+  historyFrame.pack();
+  historyFrame.setLocationRelativeTo(TregexGUI.getInstance());
+  historyFrame.setBackground(Color.WHITE);
+  historyFrame.setVisible(true);
+  historyFrame.repaint();
+}

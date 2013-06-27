@@ -1,0 +1,13 @@
+{
+  TsurgeonPattern tsurgeon=Tsurgeon.parseOperation("delete bob");
+  TregexPattern tregex=TregexPattern.compile("B=bob");
+  runTest(tregex,tsurgeon,"(A (B (C 1)))","A");
+  runTest(tregex,tsurgeon,"(A (foo 1) (B (C 1)))","(A (foo 1))");
+  runTest(tregex,tsurgeon,"(A (B 1) (B (C 1)))","A");
+  runTest(tregex,tsurgeon,"(A (foo 1) (bar (C 1)))","(A (foo 1) (bar (C 1)))");
+  tregex=TregexPattern.compile("C=bob");
+  runTest(tregex,tsurgeon,"(A (B (C 1)))","(A B)");
+  runTest(tregex,tsurgeon,"(A (foo 1) (B (C 1)))","(A (foo 1) B)");
+  runTest(tregex,tsurgeon,"(A (B 1) (B (C 1)))","(A (B 1) B)");
+  runTest(tregex,tsurgeon,"(A (foo 1) (bar (C 1)))","(A (foo 1) bar)");
+}

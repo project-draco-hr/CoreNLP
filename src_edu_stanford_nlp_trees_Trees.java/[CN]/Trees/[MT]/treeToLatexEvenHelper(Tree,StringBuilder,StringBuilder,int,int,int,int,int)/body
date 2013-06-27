@@ -1,0 +1,26 @@
+{
+  StringBuilder sb=new StringBuilder();
+  for (int i=0; i < indent; i++)   sb.append("  ");
+  h.append('\n').append(sb);
+  int tDepth=t.depth();
+  if (tDepth == 0 && tDepth + curDepth < maxDepth) {
+    for (int pad=0; pad < maxDepth - tDepth - curDepth; pad++) {
+      h.append("{\\ntnode{pad}{}, ");
+    }
+  }
+  h.append("{\\ntnode{z").append(n).append("}{").append(t.label()).append('}');
+  if (!t.isLeaf()) {
+    for (int k=0; k < t.children().length; k++) {
+      h.append(", ");
+      c.append("\\nodeconnect{z").append(n).append("}{z").append(nextN).append("}\n");
+      nextN=treeToLatexEvenHelper(t.children()[k],c,h,nextN,nextN + 1,indent + 1,curDepth + 1,maxDepth);
+    }
+  }
+  if (tDepth == 0 && tDepth + curDepth < maxDepth) {
+    for (int pad=0; pad < maxDepth - tDepth - curDepth; pad++) {
+      h.append('}');
+    }
+  }
+  h.append('}');
+  return nextN;
+}

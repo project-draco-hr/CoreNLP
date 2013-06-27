@@ -1,0 +1,56 @@
+{
+  this.rel=rel;
+  this.negDesc=negDesc;
+  this.isLink=isLink;
+  this.linkedName=linkedName;
+  if (desc != null) {
+    stringDesc=desc;
+    if (desc.equals("__") || desc.equals("/.*/") || desc.equals("/^.*$/")) {
+      descriptionMode=DescriptionMode.ANYTHING;
+      descPattern=null;
+      exactMatch=null;
+      stringFilter=null;
+    }
+ else     if (desc.matches("/.*/")) {
+      descriptionMode=DescriptionMode.PATTERN;
+      descPattern=Pattern.compile(desc.substring(1,desc.length() - 1));
+      exactMatch=null;
+      stringFilter=null;
+    }
+ else     if (desc.indexOf('|') >= 0) {
+      String[] words=desc.split("[|]");
+      if (words.length <= MAX_STRING_MATCHER_SIZE) {
+        descriptionMode=DescriptionMode.STRINGS;
+        descPattern=null;
+        exactMatch=null;
+        stringFilter=new ArrayStringFilter(words);
+      }
+ else {
+        descriptionMode=DescriptionMode.PATTERN;
+        descPattern=Pattern.compile("^(?:" + desc + ")$");
+        exactMatch=null;
+        stringFilter=null;
+      }
+    }
+ else {
+      descriptionMode=DescriptionMode.EXACT;
+      descPattern=null;
+      exactMatch=desc;
+      stringFilter=null;
+    }
+  }
+ else {
+    if (name == null && linkedName == null) {
+      throw new AssertionError("Illegal description pattern.  Does not describe a node or link/name a variable");
+    }
+    stringDesc=" ";
+    descriptionMode=null;
+    descPattern=null;
+    exactMatch=null;
+    stringFilter=null;
+  }
+  this.name=name;
+  setChild(null);
+  this.basicCatFunction=(useBasicCat ? basicCatFunction : null);
+  this.variableGroups=variableGroups;
+}

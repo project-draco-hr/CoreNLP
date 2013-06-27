@@ -1,0 +1,79 @@
+{
+  final String testFile=props.getProperty("testFile");
+  ArrayList<String> baseResults=new ArrayList<String>();
+  ArrayList<String> modelNames=new ArrayList<String>();
+  ArrayList<CRFClassifier> classifiers=new ArrayList<CRFClassifier>();
+  for (int i=1; props.getProperty("crf" + Integer.toString(i)) != null; ++i) {
+    String model=props.getProperty("crf" + Integer.toString(i));
+    CRFClassifier crf=loadClassifier(model,props);
+    System.out.println("Loaded model " + model);
+    modelNames.add(model);
+    classifiers.add(crf);
+    String results=runClassifier(crf,testFile);
+    results=runClassifier(crf,testFile);
+    baseResults.add(results);
+    System.out.println("Stored base results for " + model + "; length "+ results.length());
+  }
+  for (int i=0; i < classifiers.size(); ++i) {
+    CRFClassifier crf=classifiers.get(i);
+    String model=modelNames.get(i);
+    String base=baseResults.get(i);
+    String repeated=runClassifier(crf,testFile);
+    if (!base.equals(repeated)) {
+      throw new RuntimeException("Repeated unthreaded results " + "not the same for " + model + " run on file "+ testFile);
+    }
+  }
+  int numThreads=PropertiesUtils.getInt(props,"simThreads",DEFAULT_SIM_THREADS);
+  ArrayList<CRFThread> threads=new ArrayList<CRFThread>();
+  for (int i=0; i < numThreads; ++i) {
+    threads.add(new CRFThread(classifiers.get(0),testFile,"Simultaneous-" + i));
+  }
+  for (int i=0; i < numThreads; ++i) {
+    threads.get(i).start();
+  }
+  for (int i=0; i < numThreads; ++i) {
+    try {
+      threads.get(i).join();
+    }
+ catch (    InterruptedException e) {
+      throw new RuntimeException(e);
+    }
+    if (baseResults.get(0).equals(threads.get(i).getResultsString())) {
+      System.out.println("Yay!");
+    }
+ else {
+      throw new RuntimeException("Results not equal when running " + modelNames.get(0) + " under "+ numThreads+ " simultaneous threads");
+    }
+  }
+  if (classifiers.size() > 1) {
+    numThreads=PropertiesUtils.getInt(props,"multipleThreads",DEFAULT_MULTIPLE_THREADS);
+    threads=new ArrayList<CRFThread>();
+    for (int i=0; i < numThreads * classifiers.size(); ++i) {
+      int classifierNum=i % classifiers.size();
+      int repeatNum=i / classifiers.size();
+      threads.add(new CRFThread(classifiers.get(classifierNum),testFile,("Simultaneous-" + classifierNum + "-"+ repeatNum)));
+    }
+    for (int i=0; i < threads.size(); ++i) {
+      threads.get(i).start();
+    }
+    for (int i=0; i < threads.size(); ++i) {
+      int classifierNum=i % classifiers.size();
+      int repeatNum=i / classifiers.size();
+      try {
+        threads.get(i).join();
+      }
+ catch (      InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+      String base=baseResults.get(classifierNum);
+      String threadResults=threads.get(i).getResultsString();
+      if (base.equals(threadResults)) {
+        System.out.println("Yay!");
+      }
+ else {
+        throw new RuntimeException("Results not equal when running " + modelNames.get(classifierNum) + " under "+ numThreads+ " threads with "+ classifiers.size()+ " total classifiers");
+      }
+    }
+  }
+  System.out.println("Everything worked!");
+}

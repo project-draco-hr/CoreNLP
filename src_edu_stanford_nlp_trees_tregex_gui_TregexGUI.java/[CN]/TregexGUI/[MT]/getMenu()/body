@@ -1,0 +1,54 @@
+{
+  JMenuBar mbar=new JMenuBar();
+  JMenu file=new JMenu("File");
+  loadFiles=new JMenuItem("Load trees...");
+  loadFiles.addActionListener(this);
+  saveMatches=new JMenuItem("Save matched trees...");
+  saveMatches.addActionListener(this);
+  saveMatches.setEnabled(false);
+  saveSentences=new JMenuItem("Save matched sentences...");
+  saveSentences.addActionListener(this);
+  saveSentences.setEnabled(false);
+  saveHistory=new JMenuItem("Save statistics...");
+  saveHistory.addActionListener(this);
+  saveHistory.setEnabled(false);
+  loadTsurgeon=new JMenuItem("Load Tsurgeon script...");
+  loadTsurgeon.addActionListener(this);
+  clearFileList=new JMenuItem("Clear tree file list");
+  clearFileList.addActionListener(this);
+  clearFileList.setEnabled(false);
+  quit=new JMenuItem("Exit");
+  quit.addActionListener(this);
+  file.add(loadFiles);
+  file.add(loadTsurgeon);
+  file.addSeparator();
+  file.add(clearFileList);
+  file.addSeparator();
+  file.add(saveMatches);
+  file.add(saveSentences);
+  file.add(saveHistory);
+  if (!isMacOSX()) {
+    file.addSeparator();
+    file.addSeparator();
+    file.add(quit);
+  }
+  JMenu edit=new JMenu("Edit");
+  copy=new JMenuItem("Copy");
+  copy.setActionCommand((String)TransferHandler.getCopyAction().getValue(Action.NAME));
+  copy.addActionListener(new TransferActionListener());
+  edit.add(copy);
+  preferences=new JMenuItem("Options...");
+  preferences.addActionListener(this);
+  tDiff=new JCheckBoxMenuItem("Tdiff");
+  tDiff.addActionListener(this);
+  JMenu tools=new JMenu("Tools");
+  if (!isMacOSX()) {
+    tools.add(preferences);
+  }
+  tools.add(tDiff);
+  mbar.add(file);
+  mbar.add(edit);
+  mbar.add(tools);
+  setShortcutKeys();
+  return mbar;
+}

@@ -1,0 +1,41 @@
+{
+  CoNLLDocumentReaderAndWriter f=new CoNLLDocumentReaderAndWriter();
+  f.init(new SeqClassifierFlags());
+  int numDocs=0;
+  int numTokens=0;
+  int numEntities=0;
+  String lastAnsBase="";
+  for (Iterator<List<CoreLabel>> it=f.getIterator(new FileReader(args[0])); it.hasNext(); ) {
+    List<CoreLabel> doc=it.next();
+    numDocs++;
+    for (    CoreLabel fl : doc) {
+      if (fl.word().equals(BOUNDARY)) {
+        continue;
+      }
+      String ans=fl.get(CoreAnnotations.AnswerAnnotation.class);
+      String ansBase;
+      String ansPrefix;
+      String[] bits=ans.split("-");
+      if (bits.length == 1) {
+        ansBase=bits[0];
+        ansPrefix="";
+      }
+ else {
+        ansBase=bits[1];
+        ansPrefix=bits[0];
+      }
+      numTokens++;
+      if (ansBase.equals("O")) {
+      }
+ else       if (ansBase.equals(lastAnsBase)) {
+        if (ansPrefix.equals("B")) {
+          numEntities++;
+        }
+      }
+ else {
+        numEntities++;
+      }
+    }
+  }
+  System.out.println("File " + args[0] + " has "+ numDocs+ " documents, "+ numTokens+ " (non-blank line) tokens and "+ numEntities+ " entities.");
+}

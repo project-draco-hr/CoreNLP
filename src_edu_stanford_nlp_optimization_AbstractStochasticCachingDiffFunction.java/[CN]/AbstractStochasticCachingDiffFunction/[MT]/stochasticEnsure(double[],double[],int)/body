@@ -1,0 +1,56 @@
+{
+  if (lastXBatch == null) {
+    lastXBatch=new double[domainDimension()];
+    System.err.println("Setting previous position (x).");
+  }
+  if (lastVBatch == null) {
+    lastVBatch=new double[domainDimension()];
+    System.err.println("Setting previous gain (v)");
+  }
+  if (derivative == null) {
+    derivative=new double[domainDimension()];
+    System.err.println("Setting Derivative.");
+  }
+  if (HdotV == null) {
+    HdotV=new double[domainDimension()];
+    System.err.println("Setting HdotV.");
+  }
+  if (lastBatch == null) {
+    lastBatch=new int[batchSize];
+    System.err.println("Setting last batch");
+  }
+  if (recalculatePrevBatch && batchSize == lastBatch.length) {
+    thisBatch=lastBatch;
+  }
+ else {
+    if (returnPreviousValues) {
+      returnPreviousValues=false;
+      return;
+    }
+    if (!hasNewVals && lastElement != curElement) {
+      if ((lastBatchSize == batchSize) && Arrays.equals(x,lastXBatch) && Arrays.equals(v,lastVBatch)&& Arrays.equals(thisBatch,lastBatch)) {
+        return;
+      }
+    }
+    getBatch(batchSize);
+  }
+  copy(lastXBatch,x);
+  if (lastBatch.length != batchSize) {
+    lastBatch=new int[batchSize];
+  }
+  System.arraycopy(thisBatch,0,lastBatch,0,thisBatch.length);
+  if (v != null) {
+    copy(lastVBatch,v);
+  }
+  lastBatchSize=batchSize;
+  calculateStochastic(x,v,thisBatch);
+  if (scaleUp) {
+    double ratio=((double)this.dataDimension()) / ((double)batchSize);
+    for (int i=0; i < x.length; i++) {
+      derivative[i]=derivative[i] * ratio;
+    }
+    value=ratio * value;
+  }
+  incrementBatch(batchSize);
+  lastElement=curElement;
+}

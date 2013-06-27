@@ -1,0 +1,20 @@
+{
+  if (isWord && removeSegMarker) {
+    text=segmentationMarker.matcher(text).replaceAll("");
+  }
+  int len=text.length();
+  StringBuilder sb=new StringBuilder(len);
+  for (int i=0; i < len; ++i) {
+    String thisChar=String.valueOf(text.charAt(i));
+    if (isWord && removeMorphMarker && thisChar.equals("+")) {
+      continue;
+    }
+    if (normMap.containsKey(thisChar)) {
+      thisChar=normMap.get(thisChar);
+    }
+    if (thisChar.length() > 0) {
+      sb.append(thisChar);
+    }
+  }
+  return sb.toString();
+}

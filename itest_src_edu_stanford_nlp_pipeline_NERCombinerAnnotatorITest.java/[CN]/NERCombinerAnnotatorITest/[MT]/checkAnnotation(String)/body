@@ -1,0 +1,22 @@
+{
+  Iterator<Annotation> goldDocs=getTestData(goldInputString,true);
+  Iterator<Annotation> testDocs=getTestData(goldInputString,false);
+  int k=0;
+  while (testDocs.hasNext()) {
+    Annotation goldDoc=goldDocs.next();
+    Annotation testDoc=testDocs.next();
+    nerAnnotator.annotate(testDoc);
+    List<CoreLabel> goldTokens=goldDoc.get(CoreAnnotations.TokensAnnotation.class);
+    List<CoreLabel> testTokens=testDoc.get(CoreAnnotations.TokensAnnotation.class);
+    assertEquals("token number",goldTokens.size(),testTokens.size());
+    for (int i=0; i < goldTokens.size(); i++) {
+      CoreLabel goldToken=goldTokens.get(i);
+      CoreLabel testToken=testTokens.get(i);
+      System.err.println("POS: " + testToken.get(CoreAnnotations.PartOfSpeechAnnotation.class));
+      String goldNer=goldToken.get(CoreAnnotations.AnswerAnnotation.class);
+      String testNer=testToken.get(CoreAnnotations.NamedEntityTagAnnotation.class);
+      assertEquals("Ner tag for token " + i + " (\""+ testToken.word()+ "\") doc "+ k,goldNer,testNer);
+    }
+    k++;
+  }
+}

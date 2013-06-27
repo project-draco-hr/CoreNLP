@@ -1,0 +1,37 @@
+{
+  TregexPattern pattern=TregexPattern.compile("/.*/ . foo");
+  runTest(pattern,"(a (foo 1) (bar 2))");
+  runTest(pattern,"(a (bar 1) (foo 2))","(bar 1)","(1)");
+  runTest(pattern,"(a (bar 1) (baz 2) (foo 3))","(baz 2)","(2)");
+  runTest(pattern,"(a (foo 1) (baz 2) (bar 3))");
+  runTest(pattern,"(a (bar (foo 1)) (baz 2))");
+  runTest(pattern,"(a (bar 1) (baz (foo 2)))","(bar 1)","(1)");
+  runTest(pattern,"(a (bar 1) (baz 2) (bif (foo 3)))","(baz 2)","(2)");
+  runTest(pattern,"(a (bar (foo 1)) (baz 2) (bif 3))");
+  runTest(pattern,"(a (bar 1) (baz 2) (foo (bif 3)))","(baz 2)","(2)");
+  runTest(pattern,"(a (bar 1) (foo (bif 2)) (baz 3))","(bar 1)","(1)");
+  runTest(pattern,"(a (bar 1) (foo 2) (baz 3) (foo 4) (bif 5))","(bar 1)","(1)","(baz 3)","(3)");
+  runTest(pattern,"(a (bar 1) (foo 2) (foo 3) (baz 4))","(bar 1)","(1)","(foo 2)","(2)");
+  runTest(pattern,"(a (b (c 1) (d 2)) (foo))","(b (c 1) (d 2))","(d 2)","(2)");
+  runTest(pattern,"(a (b (c 1) (d 2)) (bar (foo 3)))","(b (c 1) (d 2))","(d 2)","(2)");
+  runTest(pattern,"(a (b (c 1) (d 2)) (bar (baz 3) (foo 4)))","(baz 3)","(3)");
+  runTest(pattern,"(a (b (c 1) (d 2)) (bar (baz 2 3) (foo 4)))","(baz 2 3)","(3)");
+  pattern=TregexPattern.compile("/.*/ , foo");
+  runTest(pattern,"(a (foo 1) (bar 2))","(bar 2)","(2)");
+  runTest(pattern,"(a (bar 1) (foo 2))");
+  runTest(pattern,"(a (bar 1) (baz 2) (foo 3))");
+  runTest(pattern,"(a (foo 1) (baz 2) (bar 3))","(baz 2)","(2)");
+  runTest(pattern,"(a (bar (foo 1)) (baz 2))","(baz 2)","(2)");
+  runTest(pattern,"(a (bar 1) (baz (foo 2)))");
+  runTest(pattern,"(a (bar 1) (baz 2) (bif (foo 3)))");
+  runTest(pattern,"(a (bar (foo 1)) (baz 2) (bif 3))","(baz 2)","(2)");
+  runTest(pattern,"(a (bar 1) (baz 2) (foo (bif 3)))");
+  runTest(pattern,"(a (foo (bif 1)) (bar 2) (baz 3))","(bar 2)","(2)");
+  runTest(pattern,"(a (bar 1) (foo (bif 2)) (baz 3))","(baz 3)","(3)");
+  runTest(pattern,"(a (bar 1) (foo 2) (baz 3) (foo 4) (bif 5))","(baz 3)","(3)","(bif 5)","(5)");
+  runTest(pattern,"(a (bar 1) (foo 2) (foo 3) (baz 4))","(foo 3)","(3)","(baz 4)","(4)");
+  runTest(pattern,"(a (foo) (b (c 1) (d 2)))","(b (c 1) (d 2))","(c 1)","(1)");
+  runTest(pattern,"(a (bar (foo 3)) (b (c 1) (d 2)))","(b (c 1) (d 2))","(c 1)","(1)");
+  runTest(pattern,"(a (bar (baz 3) (foo 4)) (b (c 1) (d 2)))","(b (c 1) (d 2))","(c 1)","(1)");
+  runTest(pattern,"(a (bar (foo 4) (baz 3)) (b (c 1) (d 2)))","(baz 3)","(3)");
+}

@@ -1,0 +1,18 @@
+{
+  if (tree == null)   return;
+  String yield=Sentence.listToString(tree.yield());
+  if (mweDictionary.contains(yield)) {
+    List<Tree> children=getPreterminalSubtrees(tree);
+    String newLabel="MW" + tree.value();
+    tree.setValue(newLabel);
+    tree.setChildren(children);
+    return;
+  }
+ else {
+    for (    Tree subTree : tree.children()) {
+      if (subTree.isPhrasal()) {
+        visitTree(subTree);
+      }
+    }
+  }
+}

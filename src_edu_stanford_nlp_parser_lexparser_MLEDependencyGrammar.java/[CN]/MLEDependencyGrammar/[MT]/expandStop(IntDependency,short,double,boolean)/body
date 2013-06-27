@@ -1,0 +1,14 @@
+{
+  IntTaggedWord headT=getCachedITW(dependency.head.tag);
+  IntTaggedWord head=new IntTaggedWord(dependency.head.word,tagBin(dependency.head.tag));
+  IntTaggedWord arg=new IntTaggedWord(dependency.arg.word,tagBin(dependency.arg.tag));
+  boolean leftHeaded=dependency.leftHeaded;
+  if (arg.word == STOP_WORD_INT) {
+    stopCounter.incrementCount(intern(head,arg,leftHeaded,distBinDist),count);
+    stopCounter.incrementCount(intern(headT,arg,leftHeaded,distBinDist),count);
+  }
+  if (wildForStop || arg.word != STOP_WORD_INT) {
+    stopCounter.incrementCount(intern(head,wildTW,leftHeaded,distBinDist),count);
+    stopCounter.incrementCount(intern(headT,wildTW,leftHeaded,distBinDist),count);
+  }
+}

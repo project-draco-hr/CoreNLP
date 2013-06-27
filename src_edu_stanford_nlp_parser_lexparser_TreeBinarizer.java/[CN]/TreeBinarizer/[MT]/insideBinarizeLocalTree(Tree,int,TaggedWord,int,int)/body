@@ -1,0 +1,42 @@
+{
+  String word=head.word();
+  String tag=head.tag();
+  List<Tree> newChildren=new ArrayList<Tree>(2);
+  if (t.numChildren() <= leftProcessed + rightProcessed + 2) {
+    Tree leftChild=t.getChild(leftProcessed);
+    newChildren.add(leftChild);
+    if (t.numChildren() == leftProcessed + rightProcessed + 1) {
+      String finalCat=t.label().value();
+      return tf.newTreeNode(new CategoryWordTag(finalCat,word,tag),newChildren);
+    }
+    Tree rightChild=t.getChild(leftProcessed + 1);
+    newChildren.add(rightChild);
+    String labelStr=t.label().value();
+    if (leftProcessed != 0 || rightProcessed != 0) {
+      labelStr=("@ " + leftChild.label().value() + " "+ rightChild.label().value());
+    }
+    return tf.newTreeNode(new CategoryWordTag(labelStr,word,tag),newChildren);
+  }
+  if (headNum > leftProcessed) {
+    Tree leftChild=t.getChild(leftProcessed);
+    Tree rightChild=insideBinarizeLocalTree(t,headNum,head,leftProcessed + 1,rightProcessed);
+    newChildren.add(leftChild);
+    newChildren.add(rightChild);
+    String labelStr=("@ " + leftChild.label().value() + " "+ rightChild.label().value().substring(2));
+    if (leftProcessed == 0 && rightProcessed == 0) {
+      labelStr=t.label().value();
+    }
+    return tf.newTreeNode(new CategoryWordTag(labelStr,word,tag),newChildren);
+  }
+ else {
+    Tree leftChild=insideBinarizeLocalTree(t,headNum,head,leftProcessed,rightProcessed + 1);
+    Tree rightChild=t.getChild(t.numChildren() - rightProcessed - 1);
+    newChildren.add(leftChild);
+    newChildren.add(rightChild);
+    String labelStr=("@ " + leftChild.label().value().substring(2) + " "+ rightChild.label().value());
+    if (leftProcessed == 0 && rightProcessed == 0) {
+      labelStr=t.label().value();
+    }
+    return tf.newTreeNode(new CategoryWordTag(labelStr,word,tag),newChildren);
+  }
+}

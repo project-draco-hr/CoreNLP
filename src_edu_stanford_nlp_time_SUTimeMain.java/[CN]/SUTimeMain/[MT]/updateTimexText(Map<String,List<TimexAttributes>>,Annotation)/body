@@ -1,0 +1,15 @@
+{
+  String docId=docAnnotation.get(CoreAnnotations.DocIDAnnotation.class);
+  List<CoreMap> sents=docAnnotation.get(CoreAnnotations.SentencesAnnotation.class);
+  List<TimexAttributes> list=timexMap.get(docId);
+  if (list != null) {
+    for (    TimexAttributes timex : list) {
+      CoreMap sent=sents.get(timex.sentIndex);
+      List<CoreLabel> tokens=sent.get(CoreAnnotations.TokensAnnotation.class);
+      timex.text=StringUtils.joinWords(tokens," ",timex.tokenStart,timex.tokenEnd);
+      timex.context=joinWordTags(tokens," ",timex.tokenStart - 3,timex.tokenEnd + 3);
+    }
+    return list;
+  }
+  return null;
+}

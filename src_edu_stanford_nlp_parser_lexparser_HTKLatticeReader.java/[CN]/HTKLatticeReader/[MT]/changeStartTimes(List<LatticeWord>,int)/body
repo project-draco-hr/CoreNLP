@@ -1,0 +1,39 @@
+{
+  ArrayList<LatticeWord> toRemove=new ArrayList<LatticeWord>();
+  for (  LatticeWord lw : words) {
+    latticeWords.remove(lw);
+    int oldStartTime=lw.startNode;
+    lw.startNode=newStartTime;
+    if (latticeWords.contains(lw)) {
+      if (DEBUG) {
+        System.err.println("duplicate found");
+      }
+      LatticeWord twin=latticeWords.get(latticeWords.indexOf(lw));
+      lw.startNode=oldStartTime;
+      twin.merge(lw);
+      toRemove.add(lw);
+      wordsEndAt[lw.endNode].remove(lw);
+      for (int i=lw.startNode; i <= lw.endNode; i++) {
+        wordsAtTime[i].remove(lw);
+      }
+    }
+ else {
+      if (oldStartTime < newStartTime) {
+        for (int i=oldStartTime; i < newStartTime; i++) {
+          wordsAtTime[i].remove(lw);
+        }
+      }
+ else {
+        for (int i=newStartTime; i < oldStartTime; i++) {
+          wordsAtTime[i].add(lw);
+        }
+      }
+      latticeWords.add(lw);
+      if (oldStartTime != newStartTime) {
+        toRemove.add(lw);
+        wordsStartAt[newStartTime].add(lw);
+      }
+    }
+  }
+  words.removeAll(toRemove);
+}

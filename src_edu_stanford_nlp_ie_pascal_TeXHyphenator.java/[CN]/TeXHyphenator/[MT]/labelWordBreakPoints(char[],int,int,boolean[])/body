@@ -1,0 +1,23 @@
+{
+  char[] word=new char[end - start + 2];
+  System.arraycopy(phrase,start,word,1,end - start);
+  word[0]='.';
+  word[word.length - 1]='.';
+  int[] breakScore=new int[word.length + 1];
+  for (int c=0; c < word.length; ++c) {
+    List patterns=getMatchingPatterns(word,c);
+    Iterator iter=patterns.iterator();
+    while (iter.hasNext()) {
+      int[] pattern=(int[])iter.next();
+      for (int i=0; i < pattern.length; ++i) {
+        if (breakScore[c + i] < pattern[i]) {
+          breakScore[c + i]=pattern[i];
+        }
+      }
+    }
+  }
+  breakPoints[start]=true;
+  for (int i=start + 1; i < end; i++) {
+    breakPoints[i - 1]|=(breakScore[i - start] % 2 == 1);
+  }
+}

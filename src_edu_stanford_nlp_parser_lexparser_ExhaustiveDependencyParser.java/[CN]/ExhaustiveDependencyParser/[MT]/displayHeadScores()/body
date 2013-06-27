@@ -1,0 +1,36 @@
+{
+  int numTags=tagIndex.size();
+  System.out.println("---- headScore matrix (head x dep, best tags) ----");
+  System.out.print(StringUtils.padOrTrim("",6));
+  for (int i=0; i < words.length; i++) {
+    System.out.print(" " + StringUtils.padOrTrim(wordIndex.get(words[i]),2));
+  }
+  System.out.println();
+  for (int hWord=0; hWord < words.length; hWord++) {
+    System.out.print(StringUtils.padOrTrim(wordIndex.get(words[hWord]),6));
+    int bigBD=-1, bigHTag=-1, bigATag=-1;
+    for (int aWord=0; aWord < words.length; aWord++) {
+      float biggest=Float.NEGATIVE_INFINITY;
+      for (int bd=0; bd < dg.numDistBins(); bd++) {
+        for (int hTag=0; hTag < numTags; hTag++) {
+          for (int aTag=0; aTag < numTags; aTag++) {
+            if (headScore[bd][hWord][dg.tagBin(hTag)][aWord][dg.tagBin(aTag)] > biggest) {
+              biggest=headScore[bd][hWord][dg.tagBin(hTag)][aWord][dg.tagBin(aTag)];
+              bigBD=bd;
+              bigHTag=hTag;
+              bigATag=aTag;
+            }
+          }
+        }
+      }
+      if (Float.isInfinite(biggest)) {
+        System.out.print(" " + StringUtils.padOrTrim("in",2));
+      }
+ else {
+        int score=Math.round(Math.abs(headScore[bigBD][hWord][dg.tagBin(bigHTag)][aWord][dg.tagBin(bigATag)]));
+        System.out.print(" " + StringUtils.padOrTrim(Integer.toString(score),2));
+      }
+    }
+    System.out.println();
+  }
+}

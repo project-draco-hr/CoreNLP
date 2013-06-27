@@ -1,0 +1,18 @@
+{
+  final TreeReaderFactory trf=new FrenchTreeReaderFactory();
+  Map<String,Tree> treeMap=Generics.newHashMap();
+  for (  String filename : filenames) {
+    File file=new File(filename);
+    String canonicalFilename=file.getName().substring(0,file.getName().lastIndexOf('.'));
+    FrenchTreeReader tr=(FrenchTreeReader)trf.newTreeReader(new BufferedReader(new InputStreamReader(new FileInputStream(file),"ISO8859_1")));
+    Tree t=null;
+    int numTrees;
+    for (numTrees=0; (t=tr.readTree()) != null; numTrees++) {
+      String id=canonicalFilename + "-" + ((CoreLabel)t.label()).get(CoreAnnotations.SentenceIDAnnotation.class);
+      treeMap.put(id,t);
+    }
+    tr.close();
+    System.err.printf("%s: %d trees%n",file.getName(),numTrees);
+  }
+  return treeMap;
+}

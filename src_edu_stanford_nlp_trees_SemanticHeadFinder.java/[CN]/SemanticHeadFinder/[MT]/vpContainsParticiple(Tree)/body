@@ -1,0 +1,24 @@
+{
+  for (  Tree kid : t.children()) {
+    if (DEBUG) {
+      System.err.println("vpContainsParticiple examining " + kid);
+    }
+    if (kid.isPreTerminal()) {
+      Label kidLabel=kid.label();
+      String tag=null;
+      if (kidLabel instanceof HasTag) {
+        tag=((HasTag)kidLabel).tag();
+      }
+      if (tag == null) {
+        tag=kid.value();
+      }
+      if ("VBN".equals(tag) || "VBG".equals(tag) || "VBD".equals(tag)) {
+        if (DEBUG) {
+          System.err.println("vpContainsParticiple found VBN/VBG/VBD VP");
+        }
+        return true;
+      }
+    }
+  }
+  return false;
+}

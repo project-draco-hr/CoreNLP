@@ -1,0 +1,25 @@
+{
+  Dataset<String,String> train=getDataset(wordInfos);
+  train(train);
+  for (int i=0; i < flags.numTimesPruneFeatures; i++) {
+    Index<String> featuresAboveThreshhold=getFeaturesAboveThreshhold(train,flags.featureDiffThresh);
+    System.err.println("Removing features with weight below " + flags.featureDiffThresh + " and retraining...");
+    train=getDataset(train,featuresAboveThreshhold);
+    int tmp=flags.QNsize;
+    flags.QNsize=flags.QNsize2;
+    train(train);
+    flags.QNsize=tmp;
+  }
+  if (flags.doAdaptation && flags.adaptFile != null) {
+    adapt(flags.adaptFile,train,readerAndWriter);
+  }
+  System.err.print("Built this classifier: ");
+  if (classifier instanceof LinearClassifier) {
+    String classString=((LinearClassifier<String,String>)classifier).toString(flags.printClassifier,flags.printClassifierParam);
+    System.err.println(classString);
+  }
+ else {
+    String classString=classifier.toString();
+    System.err.println(classString);
+  }
+}

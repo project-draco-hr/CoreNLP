@@ -1,0 +1,21 @@
+{
+  Annotation document=new Annotation(text);
+  pipeline.annotate(document);
+  int i=0;
+  for (  CoreMap sentence : document.get(CoreAnnotations.SentencesAnnotation.class)) {
+    List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
+    for (    CoreLabel token : tokens) {
+      System.out.println(token.get(CoreAnnotations.TextAnnotation.class) + ": " + token.get(CoreAnnotations.NamedEntityTagAnnotation.class)+ ", "+ token.get(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class));
+    }
+    for (int j=0; j < tokens.size(); j++) {
+      String normalization=tokens.get(j).get(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class);
+      if (normalization != null) {
+        assertEquals(answer_text[i],tokens.get(j).get(CoreAnnotations.OriginalTextAnnotation.class));
+        assertEquals(answer_time[i],normalization);
+        i++;
+      }
+    }
+  }
+  assertEquals(answer_text.length,i);
+  assertEquals(answer_time.length,i);
+}

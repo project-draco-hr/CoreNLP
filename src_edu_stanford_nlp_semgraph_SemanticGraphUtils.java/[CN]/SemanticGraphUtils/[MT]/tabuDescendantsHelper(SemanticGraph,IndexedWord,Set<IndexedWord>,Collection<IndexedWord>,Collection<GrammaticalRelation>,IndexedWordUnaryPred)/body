@@ -1,0 +1,14 @@
+{
+  if (tabu.contains(curr))   return;
+  if (descendantSet.contains(curr)) {
+    return;
+  }
+  descendantSet.add(curr);
+  for (  IndexedWord child : sg.getChildList(curr)) {
+    for (    SemanticGraphEdge edge : sg.getAllEdges(curr,child)) {
+      if (relnsToAvoid != null && relnsToAvoid.contains(edge.getRelation()))       continue;
+      if (tabuTest != null && tabuTest.test(edge.getDependent(),sg))       continue;
+      tabuDescendantsHelper(sg,child,descendantSet,tabu,relnsToAvoid,tabuTest);
+    }
+  }
+}

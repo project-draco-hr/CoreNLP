@@ -1,0 +1,41 @@
+{
+  boolean mergeType=USESUM;
+  boolean prettyPrint=true;
+  boolean debug=false;
+  String parseGram=null;
+  String filename=args[0];
+  for (int i=1; i < args.length; i++) {
+    if (args[i].equalsIgnoreCase("-debug")) {
+      debug=true;
+    }
+ else     if (args[i].equalsIgnoreCase("-useMax")) {
+      mergeType=USEMAX;
+    }
+ else     if (args[i].equalsIgnoreCase("-useSum")) {
+      mergeType=USESUM;
+    }
+ else     if (args[i].equalsIgnoreCase("-noPrettyPrint")) {
+      prettyPrint=false;
+    }
+ else     if (args[i].equalsIgnoreCase("-parser")) {
+      parseGram=args[++i];
+    }
+ else {
+      System.err.println("unrecognized flag: " + args[i]);
+      System.err.println("usage: java LatticeReader <file> [ -debug ] [ -useMax ] [ -useSum ] [ -noPrettyPrint ] [ -parser parserFile ]");
+      System.exit(0);
+    }
+  }
+  HTKLatticeReader lr=new HTKLatticeReader(filename,mergeType,debug,prettyPrint);
+  if (parseGram != null) {
+    Options op=new Options();
+    op.doDep=false;
+    op.testOptions.maxLength=80;
+    op.testOptions.maxSpanForTags=80;
+    LexicalizedParser lp=LexicalizedParser.loadModel(parseGram,op);
+    LexicalizedParserQuery pq=lp.lexicalizedParserQuery();
+    pq.parse(lr);
+    Tree t=pq.getBestParse();
+    t.pennPrint();
+  }
+}

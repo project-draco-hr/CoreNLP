@@ -1,0 +1,32 @@
+{
+  IBMArabicEscaper escaper=new IBMArabicEscaper();
+  boolean printToStdout=false;
+  for (  String arg : args) {
+    if ("-f".equals(arg)) {
+      printToStdout=true;
+      continue;
+    }
+    BufferedReader br=new BufferedReader(new InputStreamReader(new FileInputStream(arg),"UTF-8"));
+    PrintWriter pw;
+    if (printToStdout) {
+      pw=new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out,"UTF-8")));
+    }
+ else {
+      String outFile=arg + ".sent";
+      pw=new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile),"UTF-8")));
+    }
+    for (String line; (line=br.readLine()) != null; ) {
+      String[] words=line.split("\\s+");
+      for (int i=0; i < words.length; i++) {
+        String w=escaper.escapeString(words[i]);
+        pw.print(w);
+        if (i != words.length - 1) {
+          pw.print(" ");
+        }
+      }
+      pw.println();
+    }
+    br.close();
+    pw.close();
+  }
+}

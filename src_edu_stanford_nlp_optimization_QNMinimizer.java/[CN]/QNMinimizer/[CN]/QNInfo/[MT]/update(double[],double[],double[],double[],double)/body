@@ -1,0 +1,24 @@
+{
+  double[] newS, newY;
+  double sy, yy, sg;
+  if (mem > 0 && s.size() == mem || s.size() == maxMem) {
+    newS=s.remove(0);
+    newY=y.remove(0);
+    rho.remove(0);
+  }
+ else {
+    newS=new double[x.length];
+    newY=new double[x.length];
+  }
+  sy=0;
+  yy=0;
+  sg=0;
+  for (int i=0; i < x.length; i++) {
+    newS[i]=newX[i] - x[i];
+    newY[i]=newGrad[i] - grad[i];
+    sy+=newS[i] * newY[i];
+    yy+=newY[i] * newY[i];
+    sg+=newS[i] * newGrad[i];
+  }
+  return update(newS,newY,yy,sy,sg,step);
+}

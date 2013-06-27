@@ -1,0 +1,46 @@
+{
+  double[] xtest=new double[initial.length];
+  double fOpt=0.0;
+  double factor=1.2;
+  double min=Double.POSITIVE_INFINITY;
+  this.maxTime=msPerTest;
+  double prev=Double.POSITIVE_INFINITY;
+  if (!(function instanceof AbstractStochasticCachingDiffFunction)) {
+    throw new UnsupportedOperationException();
+  }
+  AbstractStochasticCachingDiffFunction dfunction=(AbstractStochasticCachingDiffFunction)function;
+  int it=1;
+  boolean toContinue=true;
+  double f=fixedStart;
+  do {
+    System.arraycopy(initial,0,xtest,0,initial.length);
+    System.err.println("");
+    this.fixedGain=f;
+    System.err.println("Testing with batchsize: " + bSize + "    gain:  "+ gain+ "  fixedGain:  "+ nf.format(fixedGain));
+    this.numPasses=10000;
+    this.minimize(function,1e-100,xtest);
+    double result=dfunction.valueAt(xtest);
+    if (it == 1) {
+      f=f / factor;
+    }
+    if (result < min) {
+      min=result;
+      fOpt=this.fixedGain;
+      f=f / factor;
+      prev=result;
+    }
+ else     if (result < prev) {
+      f=f / factor;
+      prev=result;
+    }
+ else     if (result > prev) {
+      toContinue=false;
+    }
+    it+=1;
+    System.err.println("");
+    System.err.println("Final value is: " + nf.format(result));
+    System.err.println("Optimal so far is:  fixedgain: " + fOpt);
+  }
+ while (toContinue);
+  return fOpt;
+}

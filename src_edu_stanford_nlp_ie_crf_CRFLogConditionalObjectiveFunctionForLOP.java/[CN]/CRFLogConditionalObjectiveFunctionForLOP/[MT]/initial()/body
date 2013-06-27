@@ -1,0 +1,25 @@
+{
+  double[] initial=new double[domainDimension()];
+  if (backpropTraining) {
+    learnedParamsMapping=new int[domainDimension()][3];
+    int index=0;
+    for (; index < numLopExpert; index++) {
+      initial[index]=1.0;
+    }
+    for (int i=0; i < numLopExpert; i++) {
+      List<Integer> featureIndicesList=featureIndicesListArray.get(i);
+      double[][] expertWeights2D=lopExpertWeights2D[i];
+      for (      int fIndex : featureIndicesList) {
+        for (int j=0; j < expertWeights2D[fIndex].length; j++) {
+          initial[index]=expertWeights2D[fIndex][j];
+          learnedParamsMapping[index]=new int[]{i,fIndex,j};
+          index++;
+        }
+      }
+    }
+  }
+ else {
+    Arrays.fill(initial,1.0);
+  }
+  return initial;
+}

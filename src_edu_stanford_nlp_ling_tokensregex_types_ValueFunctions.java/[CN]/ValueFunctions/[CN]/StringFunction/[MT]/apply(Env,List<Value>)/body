@@ -1,0 +1,19 @@
+{
+  if (nargs > 0 && in.size() != nargs) {
+    throw new IllegalArgumentException(nargs + " arguments expected, got " + in.size());
+  }
+  String[] strs=new String[in.size()];
+  for (int i=0; i < in.size(); i++) {
+    if (in.get(i).get() instanceof String) {
+      strs[i]=(String)in.get(i).get();
+    }
+ else     if (in.get(i).get() != null) {
+      strs[i]=in.get(i).get().toString();
+    }
+ else {
+      strs[i]=null;
+    }
+  }
+  String res=compute(strs);
+  return new Expressions.PrimitiveValue(resultTypeName,res);
+}

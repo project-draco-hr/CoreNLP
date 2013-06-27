@@ -1,0 +1,12 @@
+{
+  if (mwCounter == null)   throw new RuntimeException("Cannot enable POSSequence features without POS sequence map. Use option -frenchMWMap.");
+  Tree t=m.getMatch();
+  StringBuilder sb=new StringBuilder();
+  for (  Tree kid : t.children()) {
+    if (!kid.isPreTerminal())     throw new RuntimeException("Not POS sequence for tree: " + t.toString());
+    String tag=doBasicCat ? tlp.basicCategory(kid.value()) : kid.value();
+    sb.append(tag).append(" ");
+  }
+  if (mwCounter.getCount(t.value(),sb.toString().trim()) > cutoff)   return annotationMark + sb.toString().replaceAll("\\s+","").toLowerCase();
+ else   return "";
+}

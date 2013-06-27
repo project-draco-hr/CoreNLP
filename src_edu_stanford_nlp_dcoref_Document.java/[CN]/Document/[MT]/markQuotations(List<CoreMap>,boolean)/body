@@ -1,0 +1,24 @@
+{
+  boolean insideQuotation=false;
+  for (  CoreMap m : results) {
+    for (    CoreLabel l : m.get(CoreAnnotations.TokensAnnotation.class)) {
+      String w=l.get(CoreAnnotations.TextAnnotation.class);
+      boolean noSpeakerInfo=!l.containsKey(CoreAnnotations.SpeakerAnnotation.class) || l.get(CoreAnnotations.SpeakerAnnotation.class).equals("") || l.get(CoreAnnotations.SpeakerAnnotation.class).startsWith("PER");
+      if (w.equals("``") || (!insideQuotation && normalQuotationType && w.equals("\""))) {
+        insideQuotation=true;
+        maxUtter++;
+        continue;
+      }
+ else       if (w.equals("''") || (insideQuotation && normalQuotationType && w.equals("\""))) {
+        insideQuotation=false;
+      }
+      if (insideQuotation) {
+        l.set(CoreAnnotations.UtteranceAnnotation.class,maxUtter);
+      }
+      if (noSpeakerInfo) {
+        l.set(CoreAnnotations.SpeakerAnnotation.class,"PER" + l.get(CoreAnnotations.UtteranceAnnotation.class));
+      }
+    }
+  }
+  if (maxUtter == 0 && !normalQuotationType)   markQuotations(results,true);
+}

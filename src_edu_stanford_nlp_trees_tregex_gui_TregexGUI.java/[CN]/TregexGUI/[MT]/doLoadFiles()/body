@@ -1,0 +1,25 @@
+{
+  if (chooser == null) {
+    chooser=createFileChooser();
+  }
+  String approveText=chooser.getApproveButtonText();
+  chooser.setApproveButtonText("Load with file filters");
+  int status=chooser.showOpenDialog(this);
+  chooser.setApproveButtonText(approveText);
+  if (status == JFileChooser.APPROVE_OPTION) {
+    File[] selectedFiles=chooser.getSelectedFiles();
+    boolean haveDirectory=false;
+    for (    File f : selectedFiles) {
+      if (f.isDirectory()) {
+        haveDirectory=true;
+        break;
+      }
+    }
+    if (haveDirectory) {
+      doFileFilters(selectedFiles);
+    }
+ else {
+      startFileLoadingThread(new EnumMap<FilterType,String>(FilterType.class),selectedFiles);
+    }
+  }
+}

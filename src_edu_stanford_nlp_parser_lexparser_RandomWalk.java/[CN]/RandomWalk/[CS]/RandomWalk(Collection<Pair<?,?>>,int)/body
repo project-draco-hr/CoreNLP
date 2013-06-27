@@ -1,0 +1,13 @@
+{
+  train(data);
+  for (Iterator i=seenToHidden.keySet().iterator(); i.hasNext(); ) {
+    Object seen=i.next();
+    if (!model.containsKey(seen)) {
+      model.put(seen,new ClassicCounter());
+    }
+    for (Iterator j=hiddenToSeen.keySet().iterator(); j.hasNext(); ) {
+      Object hidden=j.next();
+      model.get(seen).setCount(hidden,score(seen,hidden,steps));
+    }
+  }
+}

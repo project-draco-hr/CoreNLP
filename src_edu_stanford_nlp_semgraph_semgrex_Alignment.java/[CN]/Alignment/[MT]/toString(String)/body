@@ -1,0 +1,31 @@
+{
+  StringBuilder sb=new StringBuilder();
+  if (format == "readable") {
+    List<IndexedWord> keys=new ArrayList<IndexedWord>(map.keySet());
+    Collections.sort(keys);
+    for (    IndexedWord key : keys) {
+      sb.append(String.format("%-20s ==> %s%n",iwToString(key),iwToString(map.get(key))));
+    }
+    sb.append(String.format("%s %6.3f%n","Alignment score:",score));
+  }
+ else   if (format == "readable-tag-index") {
+    List<IndexedWord> keys=new ArrayList<IndexedWord>(map.keySet());
+    Collections.sort(keys);
+    for (    IndexedWord key : keys) {
+      sb.append(String.format("%-20s ==> %s%n",iwToString(key),iwToString(map.get(key))));
+    }
+    sb.append(String.format("%s %6.3f%n","Alignment score:",score));
+  }
+ else   if (format == "readable-old") {
+    for (    Map.Entry<IndexedWord,IndexedWord> entry : map.entrySet()) {
+      sb.append(String.format("%-20s ==> %s%n",iwToString(entry.getKey()),iwToString(entry.getValue())));
+    }
+    sb.append("Alignment score: ");
+    sb.append(String.format("%6.3f",score));
+    sb.append("\n");
+  }
+ else {
+    sb.append(map.toString());
+  }
+  return sb.toString();
+}

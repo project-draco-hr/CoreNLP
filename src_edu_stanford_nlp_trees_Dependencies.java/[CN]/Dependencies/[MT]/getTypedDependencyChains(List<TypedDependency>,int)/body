@@ -1,0 +1,14 @@
+{
+  Map<TreeGraphNode,List<TypedDependency>> govToDepMap=govToDepMap(deps);
+  Counter<List<TypedDependency>> tdc=new ClassicCounter<List<TypedDependency>>();
+  for (  TreeGraphNode gov : govToDepMap.keySet()) {
+    Set<List<TypedDependency>> maxChains=getGovMaxChains(govToDepMap,gov,maxLength);
+    for (    List<TypedDependency> maxChain : maxChains) {
+      for (int i=1; i <= maxChain.size(); i++) {
+        List<TypedDependency> chain=maxChain.subList(0,i);
+        tdc.incrementCount(chain);
+      }
+    }
+  }
+  return tdc;
+}

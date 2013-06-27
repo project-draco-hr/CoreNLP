@@ -1,0 +1,38 @@
+{
+  logger.finer("DISCOURSE STRUCTURE==============================");
+  logger.finer("doc type: " + document.docType);
+  int previousUtterIndex=-1;
+  String previousSpeaker="";
+  StringBuilder sb=new StringBuilder();
+  for (  CoreMap s : document.annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
+    for (    CoreLabel l : s.get(CoreAnnotations.TokensAnnotation.class)) {
+      int utterIndex=l.get(CoreAnnotations.UtteranceAnnotation.class);
+      String speaker=l.get(CoreAnnotations.SpeakerAnnotation.class);
+      String word=l.get(CoreAnnotations.TextAnnotation.class);
+      if (previousUtterIndex != utterIndex) {
+        try {
+          int previousSpeakerID=Integer.parseInt(previousSpeaker);
+          logger.finer("\n<utter>: " + previousUtterIndex + " <speaker>: "+ document.allPredictedMentions.get(previousSpeakerID).spanToString());
+        }
+ catch (        Exception e) {
+          logger.finer("\n<utter>: " + previousUtterIndex + " <speaker>: "+ previousSpeaker);
+        }
+        logger.finer(sb.toString());
+        sb.setLength(0);
+        previousUtterIndex=utterIndex;
+        previousSpeaker=speaker;
+      }
+      sb.append(" ").append(word);
+    }
+    sb.append("\n");
+  }
+  try {
+    int previousSpeakerID=Integer.parseInt(previousSpeaker);
+    logger.finer("\n<utter>: " + previousUtterIndex + " <speaker>: "+ document.allPredictedMentions.get(previousSpeakerID).spanToString());
+  }
+ catch (  Exception e) {
+    logger.finer("\n<utter>: " + previousUtterIndex + " <speaker>: "+ previousSpeaker);
+  }
+  logger.finer(sb.toString());
+  logger.finer("END OF DISCOURSE STRUCTURE==============================");
+}

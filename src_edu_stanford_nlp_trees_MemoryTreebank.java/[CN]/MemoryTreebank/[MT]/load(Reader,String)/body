@@ -1,0 +1,20 @@
+{
+  try {
+    TreeReader tr=treeReaderFactory().newTreeReader(r);
+    int sentIndex=0;
+    for (Tree pt; (pt=tr.readTree()) != null; ) {
+      if (pt.label() instanceof HasIndex) {
+        HasIndex hi=(HasIndex)pt.label();
+        if (id != null) {
+          hi.setDocID(id);
+        }
+        hi.setSentIndex(sentIndex);
+      }
+      parseTrees.add(pt);
+      sentIndex++;
+    }
+  }
+ catch (  IOException e) {
+    System.err.println("load IO Exception: " + e);
+  }
+}

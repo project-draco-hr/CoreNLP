@@ -1,0 +1,30 @@
+{
+  File file=new File(this.dir,"lines.txt");
+  Iterable<String> iterable;
+  write("abc",file);
+  iterable=IOUtils.readLines(file);
+  Assert.assertEquals("abc",StringUtils.join(iterable,"!"));
+  Assert.assertEquals("abc",StringUtils.join(iterable,"!"));
+  write("abc\ndef\n",file);
+  iterable=IOUtils.readLines(file);
+  Assert.assertEquals("abc!def",StringUtils.join(iterable,"!"));
+  Assert.assertEquals("abc!def",StringUtils.join(iterable,"!"));
+  write("\na\nb\n",file);
+  iterable=IOUtils.readLines(file.getPath());
+  Assert.assertEquals("!a!b",StringUtils.join(iterable,"!"));
+  Assert.assertEquals("!a!b",StringUtils.join(iterable,"!"));
+  write("",file);
+  iterable=IOUtils.readLines(file);
+  Assert.assertFalse(iterable.iterator().hasNext());
+  write("\n",file);
+  iterable=IOUtils.readLines(file.getPath());
+  Iterator<String> iterator=iterable.iterator();
+  Assert.assertTrue(iterator.hasNext());
+  iterator.next();
+  BufferedWriter writer=new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream(file))));
+  writer.write("\nzipped\ntext\n");
+  writer.close();
+  iterable=IOUtils.readLines(file,GZIPInputStream.class);
+  Assert.assertEquals("!zipped!text",StringUtils.join(iterable,"!"));
+  Assert.assertEquals("!zipped!text",StringUtils.join(iterable,"!"));
+}

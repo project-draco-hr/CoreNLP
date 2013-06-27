@@ -1,0 +1,20 @@
+{
+  Character[] puncs={'\u3001','\u3002','\u3003','\u3008','\u3009','\u300a','\u300b','\u300c','\u300d','\u300e','\u300f','\u3010','\u3011','\u3014','\u3015','\u2103'};
+  ans=separatePuncs(puncs,ans);
+  String numPat="[0-9\uff10-\uff19\uff0e\u00b7\u4e00\u5341\u767e]+";
+  if (!keepAllWhitespaces) {
+    ans=processColons(ans,numPat);
+    ans=processPercents(ans,numPat);
+    ans=processDots(ans,numPat);
+    ans=processCommas(ans);
+    String[] puncPatterns={"\u2014" + WHITE + "\u2014"+ WHITE+ "\u2014","\u2026" + WHITE + "\u2026"};
+    String[] correctPunc={"\u2014\u2014\u2014","\u2026\u2026"};
+    for (int i=0; i < puncPatterns.length; i++) {
+      Pattern p=Pattern.compile(WHITE + puncPatterns[i] + WHITE);
+      Matcher m=p.matcher(ans);
+      ans=m.replaceAll(" " + correctPunc[i] + " ");
+    }
+  }
+  ans=ans.trim();
+  return ans;
+}

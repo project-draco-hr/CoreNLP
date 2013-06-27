@@ -1,0 +1,32 @@
+{
+  if (depth == 1) {
+    Set<K> keys=map.keySet();
+    for (    K finalKey : keys) {
+      K[] newKey=ErasureUtils.<K>mkTArray(Object.class,key.length + 1);
+      if (key.length > 0) {
+        System.arraycopy(key,0,newKey,0,key.length);
+      }
+      newKey[key.length]=finalKey;
+      MutableDouble value=(MutableDouble)map.get(finalKey);
+      Double value1=new Double(value.doubleValue());
+      if (useLists) {
+        s.add(new Entry<Object,Double>(Arrays.asList(newKey),value1));
+      }
+ else {
+        s.add(new Entry<Object,Double>(newKey[0],value1));
+      }
+    }
+  }
+ else {
+    Set<K> keys=map.keySet();
+    for (    K o : keys) {
+      Object[] newKey=new Object[key.length + 1];
+      if (key.length > 0) {
+        System.arraycopy(key,0,newKey,0,key.length);
+      }
+      newKey[key.length]=o;
+      conditionalizeHelper(o).entrySet(s,newKey,true);
+    }
+  }
+  return s;
+}

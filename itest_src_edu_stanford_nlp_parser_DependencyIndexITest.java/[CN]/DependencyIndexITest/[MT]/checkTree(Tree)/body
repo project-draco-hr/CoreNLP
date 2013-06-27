@@ -1,0 +1,38 @@
+{
+  List<Tree> leaves=tree.getLeaves();
+  for (  Tree leaf : leaves) {
+    CoreLabel l=null;
+    if (leaf.label() instanceof CoreLabel)     l=(CoreLabel)leaf.label();
+    if (l != null) {
+      int index=l.get(CoreAnnotations.IndexAnnotation.class);
+      String text=l.get(CoreAnnotations.TextAnnotation.class);
+      if (text.equals("Mary"))       assertEquals(1,index);
+ else       if (text.equals("had"))       assertEquals(2,index);
+ else       if (text.equals("a"))       assertEquals(3,index);
+ else       if (text.equals("little"))       assertEquals(4,index);
+ else       if (text.equals("lamb"))       assertEquals(5,index);
+ else       if (text.equals("."))       assertEquals(6,index);
+    }
+ else {
+    }
+  }
+  TreebankLanguagePack tlp=new PennTreebankLanguagePack();
+  GrammaticalStructureFactory gsf=tlp.grammaticalStructureFactory();
+  GrammaticalStructure gs=gsf.newGrammaticalStructure(tree);
+  Collection<TypedDependency> deps=gs.typedDependenciesCCprocessed(true);
+  Set<CoreLabel> nodes=new IdentityHashSet<CoreLabel>();
+  for (  TypedDependency dep : deps) {
+    nodes.add(dep.gov().label());
+    nodes.add(dep.dep().label());
+  }
+  for (  CoreLabel n : nodes) {
+    String text=n.value();
+    int index=n.get(CoreAnnotations.IndexAnnotation.class);
+    if (text.equals("Mary"))     assertEquals(1,index);
+ else     if (text.equals("had"))     assertEquals(2,index);
+ else     if (text.equals("a"))     assertEquals(3,index);
+ else     if (text.equals("little"))     assertEquals(4,index);
+ else     if (text.equals("lamb"))     assertEquals(5,index);
+ else     if (text.equals("."))     assertEquals(6,index);
+  }
+}

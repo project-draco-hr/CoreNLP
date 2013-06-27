@@ -1,0 +1,63 @@
+{
+  if (t == null || t.isLeaf()) {
+    return t;
+  }
+  List<String> annotations=new ArrayList<String>();
+  CoreLabel lab=(CoreLabel)t.label();
+  String word=lab.word();
+  String tag=lab.tag();
+  String cat=lab.value();
+  String baseCat=treebankLanguagePack().basicCategory(cat);
+  if (t.isPhrasal()) {
+    List<String> childBasicCats=childBasicCats(t);
+    if (DEBUG) {
+      if (markZuVP && baseCat.equals("VP")) {
+        System.out.println("child basic cats: " + childBasicCats);
+      }
+    }
+    if (markZuVP && baseCat.equals("VP") && (childBasicCats.contains("VZ") || childBasicCats.contains("VVIZU"))) {
+      if (DEBUG)       System.out.println("Marked zu VP" + t);
+      annotations.add("%ZU");
+    }
+    if (markRC && (t.label() instanceof NegraLabel) && baseCat.equals("S")&& ((NegraLabel)t.label()).getEdge() != null && ((NegraLabel)t.label()).getEdge().equals("RC")) {
+      if (DEBUG) {
+        System.out.println("annotating this guy as RC:");
+        t.pennPrint();
+      }
+      annotations.add("%RC");
+    }
+    if (markContainsV && containsVP(t)) {
+      annotations.add("%vp");
+    }
+    if (markLP && leftPhrasal(t)) {
+      annotations.add("%LP");
+    }
+    if (markKonjParent) {
+      for (      String cCat : childBasicCats) {
+        if (cCat.contains("-KONJ")) {
+          annotations.add("%konjp");
+          break;
+        }
+      }
+    }
+    if (markHDParent) {
+      for (      String cCat : childBasicCats) {
+        if (cCat.contains("-HD")) {
+          annotations.add("%hdp");
+          break;
+        }
+      }
+    }
+  }
+ else {
+    if (markColon && cat.equals("$.") && (word.equals(":") || word.equals(";"))) {
+      annotations.add("-%colon");
+    }
+  }
+  StringBuilder catSB=new StringBuilder(cat);
+  for (  String annotation : annotations) {
+    catSB.append(annotation);
+  }
+  t.setLabel(new CategoryWordTag(catSB.toString(),word,tag));
+  return t;
+}

@@ -1,0 +1,84 @@
+{
+  if (p1 == null)   return p2;
+  if (p2 == null)   return p1;
+  Partial p=p1;
+  for (int i=0; i < p2.size(); i++) {
+    DateTimeFieldType fieldType=p2.getFieldType(i);
+    if (fieldType == DateTimeFieldType.year()) {
+      if (p.isSupported(DateTimeFieldType.yearOfCentury())) {
+        if (!p.isSupported(DateTimeFieldType.centuryOfEra())) {
+          int yoc=p.get(DateTimeFieldType.yearOfCentury());
+          int refYear=p2.getValue(i);
+          int century=refYear / 100;
+          int y2=yoc + century * 100;
+          if (refYear < y2) {
+            y2-=100;
+          }
+          p=p.without(DateTimeFieldType.yearOfCentury());
+          p=p.with(DateTimeFieldType.year(),y2);
+        }
+        continue;
+      }
+ else       if (p.isSupported(DateTimeFieldType.centuryOfEra())) {
+        continue;
+      }
+    }
+ else     if (fieldType == DateTimeFieldType.yearOfCentury()) {
+      if (p.isSupported(DateTimeFieldType.year())) {
+        continue;
+      }
+    }
+ else     if (fieldType == DateTimeFieldType.centuryOfEra()) {
+      if (p.isSupported(DateTimeFieldType.year())) {
+        continue;
+      }
+    }
+    if (!p.isSupported(fieldType)) {
+      p=p.with(fieldType,p2.getValue(i));
+    }
+  }
+  if (!p.isSupported(DateTimeFieldType.year())) {
+    if (p.isSupported(DateTimeFieldType.yearOfCentury()) && p.isSupported(DateTimeFieldType.centuryOfEra())) {
+      int year=p.get(DateTimeFieldType.yearOfCentury()) + p.get(DateTimeFieldType.centuryOfEra()) * 100;
+      p=p.with(DateTimeFieldType.year(),year);
+      p=p.without(DateTimeFieldType.yearOfCentury());
+      p=p.without(DateTimeFieldType.centuryOfEra());
+    }
+  }
+  if (p.isSupported(DateTimeFieldType.halfdayOfDay())) {
+    int hour=-1;
+    if (p.isSupported(DateTimeFieldType.hourOfHalfday())) {
+      hour=p.get(DateTimeFieldType.hourOfHalfday());
+      p=p.without(DateTimeFieldType.hourOfHalfday());
+    }
+ else     if (p.isSupported(DateTimeFieldType.clockhourOfHalfday())) {
+      hour=p.get(DateTimeFieldType.clockhourOfHalfday()) - 1;
+      p=p.without(DateTimeFieldType.clockhourOfHalfday());
+    }
+ else     if (p.isSupported(DateTimeFieldType.clockhourOfDay())) {
+      hour=p.get(DateTimeFieldType.clockhourOfDay()) - 1;
+      p=p.without(DateTimeFieldType.clockhourOfDay());
+    }
+ else     if (p.isSupported(DateTimeFieldType.hourOfDay())) {
+      hour=p.get(DateTimeFieldType.hourOfDay());
+      p=p.without(DateTimeFieldType.hourOfDay());
+    }
+    if (hour >= 0) {
+      if (p.get(DateTimeFieldType.halfdayOfDay()) == SUTime.HALFDAY_PM) {
+        if (hour < 12) {
+          hour=hour + 12;
+        }
+      }
+ else       if (hour == 12) {
+        hour=0;
+      }
+      if (hour < 24) {
+        p=p.with(DateTimeFieldType.hourOfDay(),hour);
+      }
+ else {
+        p=p.with(DateTimeFieldType.clockhourOfDay(),hour);
+      }
+    }
+  }
+  return p;
+}

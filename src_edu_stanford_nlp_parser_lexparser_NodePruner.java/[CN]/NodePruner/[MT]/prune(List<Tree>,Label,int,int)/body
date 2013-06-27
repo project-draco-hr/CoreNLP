@@ -1,0 +1,42 @@
+{
+  if (treeList.size() == 1) {
+    return treeList;
+  }
+  Tree testTree=treeList.get(0).treeFactory().newTreeNode(label,treeList);
+  Tree tempTree=parser.extractBestParse(label.value(),start,end);
+  Tree pcfgTree=debinarizer.transformTree(tempTree);
+  Set<Constituent> pcfgConstituents=pcfgTree.constituents(new LabeledScoredConstituentFactory());
+  List<Tree> prunedChildren=new ArrayList<Tree>();
+  int childStart=0;
+  for (int c=0, numCh=testTree.numChildren(); c < numCh; c++) {
+    Tree child=testTree.getChild(c);
+    boolean isExtra=true;
+    int childEnd=childStart + child.yield().size();
+    Constituent childConstituent=new LabeledScoredConstituent(childStart,childEnd,child.label(),0);
+    if (pcfgConstituents.contains(childConstituent)) {
+      isExtra=false;
+    }
+    if (childConstituent.crosses(pcfgConstituents)) {
+      isExtra=false;
+    }
+    if (child.isLeaf() || child.isPreTerminal()) {
+      isExtra=false;
+    }
+    if (pcfgTree.yield().size() != testTree.yield().size()) {
+      isExtra=false;
+    }
+    if (!label.value().startsWith("NP^NP")) {
+      isExtra=false;
+    }
+    if (isExtra) {
+      System.err.println("Pruning: " + child.label() + " from "+ (childStart + start)+ " to "+ (childEnd + start));
+      System.err.println("Was: " + testTree + " vs "+ pcfgTree);
+      prunedChildren.addAll(child.getChildrenAsList());
+    }
+ else {
+      prunedChildren.add(child);
+    }
+    childStart=childEnd;
+  }
+  return prunedChildren;
+}

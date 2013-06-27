@@ -1,0 +1,112 @@
+{
+  pipeline.annotate(docAnnotation);
+  String docId=docAnnotation.get(CoreAnnotations.DocIDAnnotation.class);
+  String docDate=docAnnotation.get(CoreAnnotations.DocDateAnnotation.class);
+  List<CoreMap> sents=docAnnotation.get(CoreAnnotations.SentencesAnnotation.class);
+  if (timexMap != null) {
+    List<TimexAttributes> golds=updateTimexText(timexMap,docAnnotation);
+    if (attrDebugPwGold != null && golds != null) {
+      for (      TimexAttributes g : golds) {
+        String[] newFields={docId,docDate,String.valueOf(g.sentIndex),String.valueOf(g.tokenStart),String.valueOf(g.tokenEnd),g.type,g.value,g.text,g.context};
+        attrDebugPwGold.println(StringUtils.join(newFields,"\t"));
+      }
+    }
+  }
+  if (attrDebugPw != null) {
+    for (    CoreMap sent : sents) {
+      List<CoreMap> timexes=sent.get(TimeAnnotations.TimexAnnotations.class);
+      if (timexes != null) {
+        for (        CoreMap t : timexes) {
+          Timex timex=t.get(TimeAnnotations.TimexAnnotation.class);
+          int sentIndex=sent.get(CoreAnnotations.SentenceIndexAnnotation.class);
+          int sentTokenStart=sent.get(CoreAnnotations.TokenBeginAnnotation.class);
+          int tokenStart;
+          int tokenEnd;
+          if (t.containsKey(CoreAnnotations.TokenBeginAnnotation.class)) {
+            tokenStart=t.get(CoreAnnotations.TokenBeginAnnotation.class) - sentTokenStart;
+            tokenEnd=t.get(CoreAnnotations.TokenEndAnnotation.class) - sentTokenStart;
+          }
+ else {
+            CoreMap cm=ChunkAnnotationUtils.getAnnotatedChunkUsingCharOffsets(docAnnotation,t.get(CoreAnnotations.CharacterOffsetBeginAnnotation.class),t.get(CoreAnnotations.CharacterOffsetEndAnnotation.class));
+            tokenStart=cm.get(CoreAnnotations.TokenBeginAnnotation.class) - sentTokenStart;
+            tokenEnd=cm.get(CoreAnnotations.TokenEndAnnotation.class) - sentTokenStart;
+          }
+          String context=joinWordTags(sent.get(CoreAnnotations.TokensAnnotation.class)," ",tokenStart - 3,tokenEnd + 3);
+          String[] newFields={docId,docDate,String.valueOf(sentIndex),String.valueOf(tokenStart),String.valueOf(tokenEnd),timex.timexType(),timex.value(),timex.text(),context};
+          attrDebugPw.println(StringUtils.join(newFields,"\t"));
+        }
+      }
+    }
+  }
+  if (debugPw != null) {
+    List<CoreMap> timexes=docAnnotation.get(TimeAnnotations.TimexAnnotations.class);
+    for (    CoreMap t : timexes) {
+      String[] newFields={docId,docDate,t.get(TimeAnnotations.TimexAnnotation.class).toString()};
+      debugPw.println("GOT | " + StringUtils.join(newFields,"|"));
+    }
+  }
+  if (extPw != null || attrPw != null) {
+    for (    CoreMap sent : sents) {
+      int sentTokenBegin=sent.get(CoreAnnotations.TokenBeginAnnotation.class);
+      for (      CoreMap t : sent.get(TimeAnnotations.TimexAnnotations.class)) {
+        Timex tmx=t.get(TimeAnnotations.TimexAnnotation.class);
+        List<CoreLabel> tokens=t.get(CoreAnnotations.TokensAnnotation.class);
+        int tokenIndex=0;
+        if (tokens == null) {
+          CoreMap cm=ChunkAnnotationUtils.getAnnotatedChunkUsingCharOffsets(docAnnotation,t.get(CoreAnnotations.CharacterOffsetBeginAnnotation.class),t.get(CoreAnnotations.CharacterOffsetEndAnnotation.class));
+          tokens=cm.get(CoreAnnotations.TokensAnnotation.class);
+          tokenIndex=cm.get(CoreAnnotations.TokenBeginAnnotation.class);
+        }
+ else {
+          tokenIndex=t.get(CoreAnnotations.TokenBeginAnnotation.class);
+        }
+        tokenIndex=tokenIndex - sentTokenBegin;
+        String sentenceIndex=String.valueOf(sent.get(CoreAnnotations.SentenceIndexAnnotation.class));
+        int tokenCount=0;
+        for (        @SuppressWarnings("unused") CoreLabel token : tokens) {
+          String[] extFields={docId,sentenceIndex,String.valueOf(tokenIndex),"timex3",tmx.tid(),"1"};
+          String extString=StringUtils.join(extFields,"\t");
+          if (extPw != null)           extPw.println(extString);
+          if (attrPw != null) {
+            String[] attrFields={"type",tmx.timexType()};
+            attrPw.println(extString + "\t" + StringUtils.join(attrFields,"\t"));
+            if (tmx.value() != null) {
+              String val=tmx.value();
+              if (useGUTime) {
+                if ("TIME".equals(tmx.timexType())) {
+                  if (val.matches("T\\d{4}")) {
+                    val="T" + val.substring(1,3) + ":"+ val.substring(3,5);
+                  }
+                }
+ else                 if ("DATE".equals(tmx.timexType())) {
+                  if (val.matches("\\d{8}T.*")) {
+                    val=val.substring(0,4) + "-" + val.substring(4,6)+ "-"+ val.substring(6);
+                  }
+ else                   if (val.matches("\\d{8}")) {
+                    val=val.substring(0,4) + "-" + val.substring(4,6)+ "-"+ val.substring(6,8);
+                  }
+ else                   if (val.matches("\\d\\d\\d\\d..")) {
+                    val=val.substring(0,4) + "-" + val.substring(4,6);
+                  }
+ else                   if (val.matches("[0-9X]{4}W[0-9X]{2}.*")) {
+                    if (val.length() > 7) {
+                      val=val.substring(0,4) + "-" + val.substring(4,7)+ "-"+ val.substring(7);
+                    }
+ else {
+                      val=val.substring(0,4) + "-" + val.substring(4,7);
+                    }
+                  }
+                }
+              }
+              attrFields[0]="value";
+              attrFields[1]=val;
+              attrPw.println(extString + "\t" + StringUtils.join(attrFields,"\t"));
+            }
+          }
+          tokenIndex++;
+          tokenCount++;
+        }
+      }
+    }
+  }
+}

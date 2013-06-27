@@ -1,0 +1,29 @@
+{
+  if (markovFactor) {
+    String topCat=t.label().value();
+    Label newLabel=new CategoryWordTag(topCat,head.word(),head.tag());
+    t.setLabel(newLabel);
+    Tree t2;
+    if (insideFactor) {
+      t2=markovInsideBinarizeLocalTreeNew(t,headNum,0,t.numChildren() - 1,true);
+    }
+ else {
+      t2=markovOutsideBinarizeLocalTree(t,head,headNum,topCat,new LinkedList<Tree>(),false);
+    }
+    if (DEBUG) {
+      CategoryWordTag.printWordTag=false;
+      StringBuilder sb1=new StringBuilder();
+      localTreeString(t,sb1,0);
+      StringBuilder sb2=new StringBuilder();
+      localTreeString(t2,sb2,0);
+      System.out.println("Old Local Tree: " + sb1);
+      System.out.println("New Local Tree: " + sb2);
+      CategoryWordTag.printWordTag=true;
+    }
+    return t2;
+  }
+  if (insideFactor) {
+    return insideBinarizeLocalTree(t,headNum,head,0,0);
+  }
+  return outsideBinarizeLocalTree(t,t.label().value(),t.label().value(),headNum,head,0,"",0,"");
+}

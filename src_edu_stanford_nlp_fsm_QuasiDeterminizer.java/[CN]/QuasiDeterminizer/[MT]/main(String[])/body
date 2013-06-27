@@ -1,0 +1,12 @@
+{
+  TransducerGraph.GraphProcessor qd=new QuasiDeterminizer();
+  List pathList=new ArrayList();
+  TransducerGraph graph=TransducerGraph.createRandomGraph(1000,10,1.0,10,pathList);
+  StringBuffer b=new StringBuffer();
+  graph.depthFirstSearch(true,b);
+  System.out.println(b.toString());
+  System.out.println("Done creating random graph");
+  TransducerGraph newGraph=qd.processGraph(graph);
+  System.out.println("Done quasi-determinizing");
+  TransducerGraph.testGraphPaths(graph,newGraph,1000);
+}

@@ -1,0 +1,30 @@
+{
+  String parentString=stateIndex.get(rule.parent);
+  String leftString=stateIndex.get(rule.leftChild);
+  String rightString=stateIndex.get(rule.rightChild);
+  String source, target, input;
+  String bracket=null;
+  if (op.trainOptions.markFinalStates) {
+    bracket=parentString.substring(parentString.length() - 1,parentString.length());
+  }
+  if (isSyntheticState(leftString)) {
+    source=leftString;
+    input=rightString + (bracket == null ? ">" : bracket);
+  }
+ else   if (isSyntheticState(rightString)) {
+    source=rightString;
+    input=leftString + (bracket == null ? "<" : bracket);
+  }
+ else {
+    return false;
+  }
+  target=parentString;
+  Double output=new Double(smartNegate(rule.score()));
+  String topcat=getTopCategoryOfSyntheticState(source);
+  if (topcat == null) {
+    throw new RuntimeException("can't have null topcat");
+  }
+  TransducerGraph graph=getGraphFromMap(graphs,topcat);
+  graph.addArc(source,target,input,output);
+  return true;
+}

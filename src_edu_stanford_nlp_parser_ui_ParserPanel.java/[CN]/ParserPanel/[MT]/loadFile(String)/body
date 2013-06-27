@@ -1,0 +1,43 @@
+{
+  if (filename == null) {
+    return;
+  }
+  File file=new File(filename);
+  String urlOrFile=filename;
+  if (!file.exists() && filename.indexOf("://") == -1) {
+    urlOrFile="http://" + filename;
+  }
+ else   if (filename.indexOf("://") == -1) {
+    urlOrFile="file://" + filename;
+  }
+  Document<Object,Word,Word> doc;
+  try {
+    if (urlOrFile.startsWith("http://") || urlOrFile.endsWith(".htm") || urlOrFile.endsWith(".html")) {
+      Document<Object,Word,Word> docPre=new BasicDocument<Object>().init(new URL(urlOrFile));
+      DocumentProcessor<Word,Word,Object,Word> noTags=new StripTagsProcessor<Object,Word>();
+      doc=noTags.processDocument(docPre);
+    }
+ else {
+      doc=new BasicDocument<Object>(this.getTokenizerFactory()).init(new InputStreamReader(new FileInputStream(filename),encoding));
+    }
+  }
+ catch (  Exception e) {
+    JOptionPane.showMessageDialog(this,"Could not load file " + filename + "\n"+ e,null,JOptionPane.ERROR_MESSAGE);
+    e.printStackTrace();
+    setStatus("Error loading document");
+    return;
+  }
+  StringBuilder docStr=new StringBuilder();
+  for (Iterator<?> it=doc.iterator(); it.hasNext(); ) {
+    if (docStr.length() > 0) {
+      docStr.append(' ');
+    }
+    docStr.append(it.next().toString());
+  }
+  textPane.setText(docStr.toString());
+  dataFileLabel.setText(urlOrFile);
+  highlightSentence(0);
+  forwardButton.setEnabled(endIndex != textPane.getText().length() - 1);
+  textPane.setCaretPosition(0);
+  setStatus("Done");
+}

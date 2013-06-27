@@ -1,0 +1,37 @@
+{
+  if (t == null)   return null;
+  ((HasIndex)t.label()).setIndex(0);
+  final Stack<Tree> treeStack=new Stack<Tree>();
+  treeStack.push(t);
+  final Stack<CoreLabel> labelStack=new Stack<CoreLabel>();
+  CoreLabel rootLabel=new CoreLabel(t.label());
+  rootLabel.setIndex(0);
+  labelStack.push(rootLabel);
+  final List<List<CoreLabel>> lineages=new ArrayList<List<CoreLabel>>();
+  while (!treeStack.isEmpty()) {
+    Tree node=treeStack.pop();
+    int nodeDepth=((HasIndex)node.label()).index();
+    while (!labelStack.isEmpty() && labelStack.peek().index() != nodeDepth - 1)     labelStack.pop();
+    if (node.isPreTerminal()) {
+      List<CoreLabel> lin=new ArrayList<CoreLabel>(labelStack);
+      lineages.add(lin);
+    }
+ else {
+      for (      Tree kid : node.children()) {
+        ((HasIndex)kid.label()).setIndex(nodeDepth + 1);
+        treeStack.push(kid);
+      }
+      CoreLabel nodeLabel=new CoreLabel(node.label());
+      nodeLabel.setIndex(nodeDepth);
+      labelStack.add(nodeLabel);
+    }
+  }
+  if (DEBUG) {
+    System.out.println("Lineages:");
+    for (    List<CoreLabel> lin : lineages) {
+      for (      CoreLabel cl : lin)       System.out.print(cl.value() + " <- ");
+      System.out.println();
+    }
+  }
+  return lineages;
+}

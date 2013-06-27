@@ -1,0 +1,27 @@
+{
+  PrintStream oldOut=System.out;
+  PrintStream oldErr=System.err;
+  ByteArrayOutputStream outStream=new ByteArrayOutputStream();
+  ByteArrayOutputStream errStream=new ByteArrayOutputStream();
+  PrintStream outPrint=new PrintStream(outStream);
+  PrintStream errPrint=new PrintStream(errStream);
+  System.setOut(outPrint);
+  System.setErr(errPrint);
+  TestClassifier tc=new TestClassifier(singleTagger,taggedText);
+  outPrint.flush();
+  errPrint.flush();
+  String singleOutput=outStream.toString();
+  outStream=new ByteArrayOutputStream();
+  errStream=new ByteArrayOutputStream();
+  outPrint=new PrintStream(outStream);
+  errPrint=new PrintStream(errStream);
+  System.setOut(outPrint);
+  System.setErr(errPrint);
+  tc=new TestClassifier(multiTagger,taggedText);
+  outPrint.flush();
+  errPrint.flush();
+  String multiOutput=outStream.toString();
+  assertEquals(singleOutput,multiOutput);
+  System.setOut(oldOut);
+  System.setErr(oldErr);
+}

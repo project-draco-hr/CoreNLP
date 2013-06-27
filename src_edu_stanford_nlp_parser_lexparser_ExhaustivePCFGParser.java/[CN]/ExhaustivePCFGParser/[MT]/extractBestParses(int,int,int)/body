@@ -1,0 +1,53 @@
+{
+  double bestScore=iScore[start][end][goal];
+  String goalStr=stateIndex.get(goal);
+  if (end - start == 1 && tagIndex.contains(goalStr)) {
+    IntTaggedWord tagging=new IntTaggedWord(words[start],tagIndex.indexOf(goalStr));
+    String contextStr=getCoreLabel(start).originalText();
+    float tagScore=lex.score(tagging,start,wordIndex.get(words[start]),contextStr);
+    if (tagScore > Float.NEGATIVE_INFINITY || floodTags) {
+      String wordStr=wordIndex.get(words[start]);
+      Tree wordNode=tf.newLeaf(wordStr);
+      Tree tagNode=tf.newTreeNode(goalStr,Collections.singletonList(wordNode));
+      if (originalTags[start] != null) {
+        tagNode.label().setValue(originalTags[start].tag());
+      }
+      return Collections.singletonList(tagNode);
+    }
+  }
+  List<Tree> bestTrees=new ArrayList<Tree>();
+  for (int split=start + 1; split < end; split++) {
+    for (Iterator<BinaryRule> binaryI=bg.ruleIteratorByParent(goal); binaryI.hasNext(); ) {
+      BinaryRule br=binaryI.next();
+      double score=br.score + iScore[start][split][br.leftChild] + iScore[split][end][br.rightChild];
+      if (matches(score,bestScore)) {
+        List<Tree> leftChildTrees=extractBestParses(br.leftChild,start,split);
+        List<Tree> rightChildTrees=extractBestParses(br.rightChild,split,end);
+        for (        Tree leftChildTree : leftChildTrees) {
+          for (          Tree rightChildTree : rightChildTrees) {
+            List<Tree> children=new ArrayList<Tree>();
+            children.add(leftChildTree);
+            children.add(rightChildTree);
+            Tree result=tf.newTreeNode(goalStr,children);
+            bestTrees.add(result);
+          }
+        }
+      }
+    }
+  }
+  for (Iterator<UnaryRule> unaryI=ug.ruleIteratorByParent(goal); unaryI.hasNext(); ) {
+    UnaryRule ur=unaryI.next();
+    double score=ur.score + iScore[start][end][ur.child];
+    if (ur.child != ur.parent && matches(score,bestScore)) {
+      List<Tree> childTrees=extractBestParses(ur.child,start,end);
+      for (      Tree childTree : childTrees) {
+        Tree result=tf.newTreeNode(goalStr,Collections.singletonList(childTree));
+        bestTrees.add(result);
+      }
+    }
+  }
+  if (bestTrees.isEmpty()) {
+    System.err.println("Warning: no parse found in ExhaustivePCFGParser.extractBestParse: failing on: [" + start + ", "+ end+ "] looking for "+ goalStr);
+  }
+  return bestTrees;
+}

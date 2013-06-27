@@ -1,0 +1,33 @@
+{
+  Map<String,Object> result=Generics.newHashMap();
+  for (int i=0; i < args.length; i++) {
+    String key=args[i];
+    if (key.charAt(0) == '-') {
+      if (i + 1 < args.length) {
+        String value=args[i + 1];
+        if (value.charAt(0) != '-') {
+          if (parseNumbers) {
+            Object numericValue=value;
+            try {
+              numericValue=Double.parseDouble(value);
+            }
+ catch (            NumberFormatException e2) {
+            }
+            result.put(key,numericValue);
+          }
+ else {
+            result.put(key,value);
+          }
+          i++;
+        }
+ else {
+          result.put(key,null);
+        }
+      }
+ else {
+        result.put(key,null);
+      }
+    }
+  }
+  return result;
+}

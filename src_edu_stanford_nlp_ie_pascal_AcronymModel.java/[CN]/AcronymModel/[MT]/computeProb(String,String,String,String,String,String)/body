@@ -1,0 +1,44 @@
+{
+  Set<String> presentFields=Generics.newHashSet();
+  if (wsname != null && !wsname.equals("null") && !wsname.equals(""))   presentFields.add("workshopname");
+  if (wsacronym != null && !wsacronym.equals("null") && !wsacronym.equals(""))   presentFields.add("workshopacronym");
+  if (confname != null && !confname.equals("null") && !confname.equals(""))   presentFields.add("conferencename");
+  if (confacronym != null && !confacronym.equals("null") && !confacronym.equals(""))   presentFields.add("conferenceacronym");
+  if (wsurl != null && !wsurl.equals("null") && !wsurl.equals(""))   presentFields.add("workshophomepage");
+  if (confurl != null && !confurl.equals("null") && !confurl.equals(""))   presentFields.add("conferencehomepage");
+  if (presentFields.contains("conferenceacronym") && presentFields.contains("workshopacronym") && confacronym.equals(wsacronym)) {
+    return 0.0;
+  }
+  double prob=priors.get(presentFields);
+  if (wsname != null && wsacronym != null) {
+    if (DEBUG)     System.err.println("computing similarity for workshop");
+    prob*=similarity(wsname,wsacronym);
+  }
+ else {
+    if (DEBUG)     System.err.println("NOT computing similarity for workshop");
+  }
+  if (confname != null && confacronym != null) {
+    if (DEBUG)     System.err.println("computing similarity for conference");
+    prob*=similarity(confname,confacronym);
+  }
+ else {
+    if (DEBUG)     System.err.println("NOT computing similarity for conference");
+  }
+  if (confacronym != null && confurl != null) {
+    if (acronymMatchesURL(confacronym,confurl)) {
+      prob*=probMatchFromAcronymAndURLMatch;
+    }
+ else {
+      prob*=probMatchFromAcronymAndURLNoMatch;
+    }
+  }
+  if (wsacronym != null && wsurl != null) {
+    if (acronymMatchesURL(wsacronym,wsurl)) {
+      prob*=probMatchFromAcronymAndURLMatch;
+    }
+ else {
+      prob*=probMatchFromAcronymAndURLNoMatch;
+    }
+  }
+  return prob;
+}

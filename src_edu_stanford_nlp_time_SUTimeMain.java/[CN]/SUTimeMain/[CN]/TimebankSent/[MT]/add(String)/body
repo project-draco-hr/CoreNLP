@@ -1,0 +1,30 @@
+{
+  String[] fields=item.split("\\s*\\|\\s*",9);
+  String docId=fields[0];
+  String docFilename=fields[1];
+  String docPubDate=fields[2];
+  String sentId=fields[3];
+  String sent=fields[8];
+  if (initialized) {
+    if (!docId.equals(this.docId) || !sentId.equals(this.sentId)) {
+      return false;
+    }
+  }
+ else {
+    this.docId=docId;
+    this.docFilename=docFilename;
+    this.docPubDate=docPubDate;
+    this.sentId=sentId;
+    this.text=sent;
+    initialized=true;
+  }
+  origItems.add(item);
+  String timexId=fields[4];
+  String timexVal=fields[5];
+  String timexOrigVal=fields[6];
+  String timexStr=fields[7];
+  if (timexId != null && timexId.length() > 0) {
+    timexes.add(new TimebankTimex(timexId,timexVal,timexOrigVal,timexStr));
+  }
+  return true;
+}

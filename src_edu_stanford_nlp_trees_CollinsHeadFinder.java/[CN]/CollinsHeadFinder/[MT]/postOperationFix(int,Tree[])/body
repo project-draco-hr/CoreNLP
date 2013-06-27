@@ -1,0 +1,16 @@
+{
+  if (headIdx >= 2) {
+    String prevLab=tlp.basicCategory(daughterTrees[headIdx - 1].value());
+    if (prevLab.equals("CC") || prevLab.equals("CONJP")) {
+      int newHeadIdx=headIdx - 2;
+      Tree t=daughterTrees[newHeadIdx];
+      while (newHeadIdx >= 0 && t.isPreTerminal() && tlp.isPunctuationTag(t.value())) {
+        newHeadIdx--;
+      }
+      if (newHeadIdx >= 0) {
+        headIdx=newHeadIdx;
+      }
+    }
+  }
+  return headIdx;
+}

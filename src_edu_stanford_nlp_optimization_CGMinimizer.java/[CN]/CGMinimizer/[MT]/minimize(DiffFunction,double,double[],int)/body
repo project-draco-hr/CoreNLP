@@ -1,0 +1,93 @@
+{
+  int dimension=dfunction.domainDimension();
+  double fp=dfunction.valueAt(initial);
+  if (verbose) {
+    System.err.println("Initial: " + fp);
+  }
+  double[] xi=copyArray(dfunction.derivativeAt(initial));
+  if (verbose) {
+    System.err.println("Initial at: " + arrayToString(initial,numToPrint));
+    System.err.println("Initial deriv: " + arrayToString(xi,numToPrint));
+  }
+  double[] g=new double[dimension];
+  double[] h=new double[dimension];
+  double[] p=new double[dimension];
+  for (int j=0; j < dimension; j++) {
+    g[j]=-xi[j];
+    xi[j]=g[j];
+    h[j]=g[j];
+    p[j]=initial[j];
+  }
+  boolean simpleGDStep=false;
+  for (int iterations=1; iterations < maxIterations; iterations++) {
+    if (!silent) {
+      System.err.print("Iter " + iterations + " ");
+    }
+    if (verbose) {
+      System.err.println("Minimizing along " + arrayToString(xi,numToPrint));
+    }
+    double[] p2=lineMinimize(dfunction,p,xi);
+    double fp2=dfunction.valueAt(p2);
+    if (verbose) {
+      System.err.println("Result is " + fp2 + " after "+ iterations);
+      System.err.println("Result at " + arrayToString(p2,numToPrint));
+    }
+    if (!silent) {
+      System.err.printf(" %s (delta: %s)\n",nf.format(fp2),nf.format(fp - fp2));
+    }
+    if (monitor != null) {
+      double monitorReturn=monitor.valueAt(p2);
+      if (monitorReturn < functionTolerance) {
+        return p2;
+      }
+    }
+    if (2.0 * fabs(fp2 - fp) <= functionTolerance * (fabs(fp2) + fabs(fp) + EPS)) {
+      if (!checkSimpleGDConvergence || simpleGDStep || simpleGD) {
+        return p2;
+      }
+      simpleGDStep=true;
+    }
+ else {
+      simpleGDStep=false;
+    }
+    for (int j=0; j < dimension; j++) {
+      xi[j]=p2[j] - p[j];
+      p[j]=p2[j];
+    }
+    fp=fp2;
+    xi=copyArray(dfunction.derivativeAt(p));
+    if (!simpleGDStep && !simpleGD && (iterations % resetFrequency != 0)) {
+      double dgg=0.0;
+      double gg=0.0;
+      for (int j=0; j < dimension; j++) {
+        gg+=g[j] * g[j];
+        dgg+=(xi[j] + g[j]) * xi[j];
+      }
+      if (gg == 0.0) {
+        return p;
+      }
+      double gam=dgg / gg;
+      for (int j=0; j < dimension; j++) {
+        g[j]=-xi[j];
+        h[j]=g[j] + gam * h[j];
+        xi[j]=h[j];
+      }
+    }
+ else {
+      double xixi=0.0;
+      for (int j=0; j < dimension; j++) {
+        xixi+=xi[j] * xi[j];
+      }
+      for (int j=0; j < dimension; j++) {
+        g[j]=-xi[j];
+        xi[j]=g[j];
+        h[j]=g[j];
+      }
+      if (xixi == 0.0) {
+        return p;
+      }
+    }
+  }
+  System.err.println("Warning: exiting minimize because ITER exceeded!");
+  return p;
+}

@@ -1,0 +1,20 @@
+{
+  if (captureGroupId >= 0) {
+    Map<Integer,MatchedGroup> matchedGroups=getMatchedGroups(bid,true);
+    MatchedGroup mg=matchedGroups.get(captureGroupId);
+    int end=curPosition + 1;
+    if (mg != null) {
+      if (mg.matchEnd == -1) {
+        matchedGroups.put(captureGroupId,new MatchedGroup(mg.matchBegin,end,value));
+      }
+ else {
+        if (mg.matchEnd != end) {
+          logger.warning("Cannot set matchEnd=" + end + ": Capture group "+ captureGroupId+ " already ended: "+ mg);
+        }
+      }
+    }
+ else {
+      logger.warning("Cannot set matchEnd=" + end + ": Capture group "+ captureGroupId+ " is null");
+    }
+  }
+}

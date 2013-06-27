@@ -1,0 +1,20 @@
+{
+  List<Record> willReturn=new ArrayList<Record>();
+  boolean isPrinting=internalHandle(signal,willReturn);
+  if (!signal.force()) {
+    if (isPrinting) {
+      current.trackCountPending=PendingType.PRINTING;
+      current.timesPrinted-=1;
+    }
+ else {
+      current.trackCountPending=PendingType.SEEN;
+    }
+    current.timesSeen-=1;
+  }
+  stack.push(current);
+  current=new RepeatedRecordInfo();
+  if (!isPrinting) {
+    current.suppressRecord=true;
+  }
+  return willReturn;
+}

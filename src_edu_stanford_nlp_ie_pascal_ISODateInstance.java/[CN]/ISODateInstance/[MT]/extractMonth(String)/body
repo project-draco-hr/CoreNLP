@@ -1,0 +1,25 @@
+{
+  boolean foundMonth=false;
+  for (int i=0; i < 12; i++) {
+    String extract="";
+    Matcher m=extractorArray[i].matcher(inputDate);
+    if (m.find()) {
+      extract=m.group(0);
+    }
+    if (!"".equals(extract)) {
+      if (!foundMonth) {
+        if (DEBUG) {
+          System.err.println("month extracted: " + extract);
+        }
+        int monthNum=i + 1;
+        if (isoDate.length() != 4) {
+          isoDate="****";
+        }
+        String month=(monthNum < 10) ? "0" + monthNum : String.valueOf(monthNum);
+        isoDate+=month;
+        foundMonth=true;
+      }
+    }
+  }
+  return foundMonth;
+}

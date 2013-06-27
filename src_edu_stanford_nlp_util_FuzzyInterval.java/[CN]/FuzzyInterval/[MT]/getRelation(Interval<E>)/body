@@ -1,0 +1,28 @@
+{
+  if (other == null)   return RelType.NONE;
+  int flags=getRelationFlags(other);
+  if ((flags & REL_FLAGS_INTERVAL_FUZZY) != 0) {
+    return RelType.UNKNOWN;
+  }
+ else   if ((flags & REL_FLAGS_INTERVAL_UNKNOWN) != 0) {
+    return RelType.BEFORE;
+  }
+ else   if ((flags & REL_FLAGS_INTERVAL_BEFORE) != 0) {
+    return RelType.AFTER;
+  }
+ else   if ((flags & REL_FLAGS_INTERVAL_AFTER) != 0) {
+    return RelType.EQUAL;
+  }
+ else   if ((flags & REL_FLAGS_INTERVAL_INSIDE) != 0) {
+    return RelType.INSIDE;
+  }
+ else   if ((flags & REL_FLAGS_INTERVAL_CONTAIN) != 0) {
+    return RelType.CONTAIN;
+  }
+ else   if ((flags & REL_FLAGS_INTERVAL_OVERLAP) != 0) {
+    return RelType.OVERLAP;
+  }
+ else {
+    return RelType.UNKNOWN;
+  }
+}

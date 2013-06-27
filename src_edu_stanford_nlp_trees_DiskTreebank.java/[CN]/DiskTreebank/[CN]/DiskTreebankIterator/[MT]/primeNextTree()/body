@@ -1,0 +1,17 @@
+{
+  Tree t=null;
+  try {
+    t=tr.readTree();
+    if (t == null && primeNextFile())     t=tr.readTree();
+    if (t != null && t.label() != null && t.label() instanceof HasIndex) {
+      HasIndex lab=(HasIndex)t.label();
+      lab.setSentIndex(curLineId++);
+      lab.setDocID(currentFile.getName());
+    }
+  }
+ catch (  IOException e) {
+    System.err.printf("%s: Error reading from file %s:\n%s\n",this.getClass().getName(),currentFile.getPath(),e.toString());
+    throw new RuntimeException(e);
+  }
+  return t;
+}

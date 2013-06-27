@@ -1,0 +1,20 @@
+{
+  if (language < 0 || language > NUM_LANGUAGES) {
+    throw new IllegalArgumentException();
+  }
+  List<Font> fonts=new ArrayList<Font>();
+  Font[] systemFonts=GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts();
+  for (  Font systemFont : systemFonts) {
+    boolean canDisplay=true;
+    for (int j=0; j < unicodeRanges[language].length; j++) {
+      if (systemFont.canDisplayUpTo(unicodeRanges[language][j]) != -1) {
+        canDisplay=false;
+        break;
+      }
+    }
+    if (canDisplay) {
+      fonts.add(systemFont);
+    }
+  }
+  return fonts;
+}

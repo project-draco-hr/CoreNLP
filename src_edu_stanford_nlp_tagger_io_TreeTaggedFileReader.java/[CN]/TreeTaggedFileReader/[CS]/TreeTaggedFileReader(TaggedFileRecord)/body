@@ -1,0 +1,16 @@
+{
+  filename=record.file;
+  trf=new LabeledScoredTreeReaderFactory();
+  transformer=record.treeTransformer;
+  normalizer=record.treeNormalizer;
+  treeFilter=record.treeFilter;
+  treebank=new DiskTreebank(trf,record.encoding);
+  if (record.treeRange != null) {
+    treebank.loadPath(filename,record.treeRange);
+  }
+ else {
+    treebank.loadPath(filename);
+  }
+  treeIterator=treebank.iterator();
+  findNext();
+}

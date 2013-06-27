@@ -1,0 +1,32 @@
+{
+  if (ref == null || ref == TIME_UNKNOWN || ref == TIME_REF) {
+    return this;
+  }
+  if (this == TIME_REF) {
+    return ref;
+  }
+  if (this == TIME_UNKNOWN) {
+    return this;
+  }
+  Partial partialRef=ref.getJodaTimePartial();
+  if (partialRef == null) {
+    throw new UnsupportedOperationException("Cannot resolve if reftime is of class: " + ref.getClass());
+  }
+  DateTimeFieldType mgf=null;
+  if (poy != null)   mgf=JodaTimeUtils.QuarterOfYear;
+ else   if (dow != null)   mgf=DateTimeFieldType.dayOfWeek();
+ else   if (tod != null)   mgf=DateTimeFieldType.halfdayOfDay();
+  Partial p=(base != null) ? JodaTimeUtils.combineMoreGeneralFields(base,partialRef,mgf) : partialRef;
+  if (p.isSupported(DateTimeFieldType.dayOfWeek())) {
+    p=JodaTimeUtils.resolveDowToDay(p,partialRef);
+  }
+ else   if (dow != null) {
+    p=JodaTimeUtils.resolveWeek(p,partialRef);
+  }
+  if (p == base) {
+    return this;
+  }
+ else {
+    return new CompositePartialTime(this,p,poy,dow,tod);
+  }
+}

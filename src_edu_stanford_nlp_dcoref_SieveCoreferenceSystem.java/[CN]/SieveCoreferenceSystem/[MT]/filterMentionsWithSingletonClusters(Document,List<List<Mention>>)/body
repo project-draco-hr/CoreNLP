@@ -1,0 +1,14 @@
+{
+  List<List<Mention>> res=new ArrayList<List<Mention>>(mentions.size());
+  for (  List<Mention> ml : mentions) {
+    List<Mention> filtered=new ArrayList<Mention>();
+    for (    Mention m : ml) {
+      CorefCluster cluster=document.corefClusters.get(m.corefClusterID);
+      if (cluster != null && cluster.getCorefMentions().size() > 1) {
+        filtered.add(m);
+      }
+    }
+    res.add(filtered);
+  }
+  return res;
+}

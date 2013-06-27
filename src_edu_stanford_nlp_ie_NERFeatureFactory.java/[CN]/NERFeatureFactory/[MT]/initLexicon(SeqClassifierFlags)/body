@@ -1,0 +1,36 @@
+{
+  if (flags.distSimLexicon == null) {
+    return;
+  }
+  if (lexicon != null) {
+    return;
+  }
+  Timing.startDoing("Loading distsim lexicon from " + flags.distSimLexicon);
+  lexicon=Generics.newHashMap();
+  boolean terryKoo="terryKoo".equals(flags.distSimFileFormat);
+  for (  String line : ObjectBank.getLineIterator(flags.distSimLexicon,flags.inputEncoding)) {
+    String word;
+    String wordClass;
+    if (terryKoo) {
+      String[] bits=line.split("\\t");
+      word=bits[1];
+      wordClass=bits[0];
+      if (flags.distSimMaxBits > 0 && wordClass.length() > flags.distSimMaxBits) {
+        wordClass=wordClass.substring(0,flags.distSimMaxBits);
+      }
+    }
+ else {
+      String[] bits=line.split("\\s+");
+      word=bits[0];
+      wordClass=bits[1];
+    }
+    if (!flags.casedDistSim) {
+      word=word.toLowerCase();
+    }
+    if (flags.numberEquivalenceDistSim) {
+      word=WordShapeClassifier.wordShape(word,WordShapeClassifier.WORDSHAPEDIGITS);
+    }
+    lexicon.put(word,wordClass);
+  }
+  Timing.endDoing();
+}

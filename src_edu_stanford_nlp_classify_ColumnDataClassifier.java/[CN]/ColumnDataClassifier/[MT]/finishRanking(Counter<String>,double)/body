@@ -1,0 +1,28 @@
+{
+  if (numInGroup > 0) {
+    if (globalFlags.justify) {
+      NumberFormat nf=NumberFormat.getNumberInstance();
+      nf.setMinimumFractionDigits(3);
+      nf.setMaximumFractionDigits(3);
+      System.err.print("Previous group of " + numInGroup + ": ");
+      if (!foundAnswerInGroup) {
+        System.err.print("no correct answer; ");
+      }
+      System.err.print("highest ranked guess was: " + ((currentHighestProbCorrect ? "correct" : "incorrect")));
+      System.err.println(" (sim. = " + nf.format(sim) + ')');
+    }
+    if (currentHighestProbCorrect) {
+      contingency.incrementCount("Ranking|Correct");
+    }
+ else {
+      contingency.incrementCount("Ranking|Error");
+    }
+    if (foundAnswerInGroup) {
+      contingency.incrementCount("Ranking|Covered");
+    }
+ else {
+      contingency.incrementCount("Ranking|Uncovered");
+    }
+    contingency.incrementCount("Ranking|Score",sim);
+  }
+}

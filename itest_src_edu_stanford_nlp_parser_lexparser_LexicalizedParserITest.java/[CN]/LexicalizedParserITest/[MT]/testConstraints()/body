@@ -1,0 +1,16 @@
+{
+  List<CoreLabel> sentence=sampleSausage();
+  ParserQuery pq=englishParser.parserQuery();
+  ParserConstraint constraint=new ParserConstraint(0,2,"SBAR|SBAR[^a-zA-Z].*");
+  List<ParserConstraint> constraints=new ArrayList<ParserConstraint>();
+  constraints.add(constraint);
+  pq.setConstraints(constraints);
+  pq.parse(sentence);
+  StringWriter sw=new StringWriter();
+  pennPrint.printTree(pq.getBestParse(),(new PrintWriter(sw)));
+  String actualOutput=sw.toString().replaceAll("\\s+"," ").trim();
+  String expectedOutput="(ROOT (S (NP (PRP$ My) (NN dog)) (ADVP (RB also)) (VP (VBZ likes) (S (VP (VBG eating) (NP (NN sausage))))) (. .)))";
+  expectedOutput=expectedOutput.replaceAll("\\s+"," ").trim();
+  assertFalse("Tree should not match the original tree any more",expectedOutput.equals(actualOutput));
+  assertTrue("Tree should be forced to contain SBAR",actualOutput.contains("SBAR"));
+}

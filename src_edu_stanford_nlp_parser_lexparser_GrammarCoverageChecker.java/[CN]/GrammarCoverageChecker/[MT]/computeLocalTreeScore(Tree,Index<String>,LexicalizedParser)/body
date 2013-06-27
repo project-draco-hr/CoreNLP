@@ -1,0 +1,44 @@
+{
+  try {
+    String parent=localTree.value();
+    int parentState=stateIndex.indexOf(parent);
+    Tree[] children=localTree.children();
+    String nextChild=children[0].value();
+    String current="@" + parent + "| [ ["+ nextChild+ "] ";
+    int currentState=stateIndex.indexOf(current);
+    List<UnaryRule> rules=pd.ug.rulesByParent(currentState);
+    UnaryRule ur=rules.get(0);
+    double localTreeScore=ur.score();
+    for (int i=1; i < children.length; i++) {
+      nextChild=children[i].value();
+      int childState=stateIndex.indexOf(nextChild);
+      List<BinaryRule> l=pd.bg.ruleListByLeftChild(currentState);
+      BinaryRule foundBR=null;
+      if (i < children.length - 1) {
+        for (        BinaryRule br : l) {
+          if (br.rightChild == childState && br.parent != parentState) {
+            foundBR=br;
+            break;
+          }
+        }
+      }
+ else {
+        for (        BinaryRule br : l) {
+          if (br.rightChild == childState && br.parent == parentState) {
+            foundBR=br;
+            break;
+          }
+        }
+      }
+      if (foundBR == null) {
+        return Double.NEGATIVE_INFINITY;
+      }
+      currentState=foundBR.parent;
+      localTreeScore+=foundBR.score;
+    }
+    return localTreeScore;
+  }
+ catch (  NoSuchElementException e) {
+    return Double.NEGATIVE_INFINITY;
+  }
+}

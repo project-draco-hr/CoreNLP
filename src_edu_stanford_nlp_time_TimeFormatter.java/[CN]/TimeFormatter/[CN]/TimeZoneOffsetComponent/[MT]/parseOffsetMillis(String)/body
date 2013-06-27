@@ -1,0 +1,56 @@
+{
+  int offset=0;
+  if (zeroOffsetParseText != null && str.equalsIgnoreCase(zeroOffsetParseText)) {
+    return offset;
+  }
+  boolean negative=false;
+  if (str.startsWith("+")) {
+  }
+ else   if (str.startsWith("-")) {
+    negative=true;
+  }
+ else {
+    throw new IllegalArgumentException("Invalid date time zone offset " + str);
+  }
+  int pos=1;
+  offset+=DateTimeConstants.MILLIS_PER_HOUR * parseInteger(str,pos,2);
+  pos+=2;
+  if (pos < str.length()) {
+    if (!Character.isDigit(str.charAt(pos))) {
+      pos++;
+    }
+    offset+=DateTimeConstants.MILLIS_PER_MINUTE * parseInteger(str,pos,2);
+    pos+=2;
+    if (pos < str.length()) {
+      if (!Character.isDigit(str.charAt(pos))) {
+        pos++;
+      }
+      offset+=DateTimeConstants.MILLIS_PER_SECOND * parseInteger(str,pos,2);
+      pos+=2;
+      if (pos < str.length()) {
+        if (!Character.isDigit(str.charAt(pos))) {
+          pos++;
+        }
+        int digits=str.length() - pos;
+        if (digits > 0) {
+          if (digits <= 3) {
+            int frac=parseInteger(str,pos,digits);
+            if (digits == 1) {
+              offset+=frac * 100;
+            }
+ else             if (digits == 2) {
+              offset+=frac * 10;
+            }
+ else             if (digits == 3) {
+              offset+=frac;
+            }
+          }
+ else {
+            throw new IllegalArgumentException("Invalid date time zone offset " + str);
+          }
+        }
+      }
+    }
+  }
+  return offset;
+}

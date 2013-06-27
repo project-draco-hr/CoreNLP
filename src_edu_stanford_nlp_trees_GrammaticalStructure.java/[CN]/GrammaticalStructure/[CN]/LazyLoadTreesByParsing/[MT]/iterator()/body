@@ -1,0 +1,65 @@
+{
+  final BufferedReader iReader;
+  if (reader != null) {
+    iReader=new BufferedReader(reader);
+  }
+ else {
+    try {
+      iReader=new BufferedReader(new InputStreamReader(new FileInputStream(filename),encoding));
+    }
+ catch (    IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+  return new Iterator<Tree>(){
+    String line=null;
+    @Override public boolean hasNext(){
+      if (line != null) {
+        return true;
+      }
+ else {
+        try {
+          line=iReader.readLine();
+        }
+ catch (        IOException e) {
+          throw new RuntimeException(e);
+        }
+        if (line == null) {
+          try {
+            if (reader == null)             iReader.close();
+          }
+ catch (          Exception e) {
+            throw new RuntimeException(e);
+          }
+          return false;
+        }
+        return true;
+      }
+    }
+    @Override public Tree next(){
+      if (line == null) {
+        throw new NoSuchElementException();
+      }
+      Reader lineReader=new StringReader(line);
+      line=null;
+      List<Word> words;
+      if (tokenized) {
+        words=WhitespaceTokenizer.newWordWhitespaceTokenizer(lineReader).tokenize();
+      }
+ else {
+        words=PTBTokenizer.newPTBTokenizer(lineReader).tokenize();
+      }
+      if (!words.isEmpty()) {
+        Tree parseTree=lp.apply(words);
+        return parseTree;
+      }
+ else {
+        return new SimpleTree();
+      }
+    }
+    @Override public void remove(){
+      throw new UnsupportedOperationException();
+    }
+  }
+;
+}

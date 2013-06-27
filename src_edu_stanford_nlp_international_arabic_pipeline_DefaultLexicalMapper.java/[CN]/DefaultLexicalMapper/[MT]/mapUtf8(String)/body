@@ -1,0 +1,27 @@
+{
+  Matcher latinPuncOnly=latinPunc.matcher(element);
+  Matcher arbPuncOnly=arabicPunc.matcher(element);
+  if (latinPuncOnly.matches() || arbPuncOnly.matches())   return element;
+  Matcher rmDiacritics=utf8Diacritics.matcher(element);
+  element=rmDiacritics.replaceAll("");
+  if (element.length() > 1) {
+    Matcher rmTatweel=utf8Tatweel.matcher(element);
+    element=rmTatweel.replaceAll("");
+  }
+  Matcher normAlef=utf8Alef.matcher(element);
+  element=normAlef.replaceAll("??");
+  Matcher rmQuran=utf8Quran.matcher(element);
+  element=rmQuran.replaceAll("");
+  Matcher rmProDrop=utf8ProDrop.matcher(element);
+  element=rmProDrop.replaceAll("");
+  if (stripMorphemeMarkersInUTF8) {
+    Matcher rmMorphemeBoundary=morphemeBoundary.matcher(element);
+    String strippedElem=rmMorphemeBoundary.replaceAll("");
+    if (strippedElem.length() > 0)     element=strippedElem;
+  }
+  if (stripSegmentationMarkersInUTF8) {
+    String strippedElem=segmentationMarker.matcher(element).replaceAll("");
+    if (strippedElem.length() > 0)     element=strippedElem;
+  }
+  return element;
+}

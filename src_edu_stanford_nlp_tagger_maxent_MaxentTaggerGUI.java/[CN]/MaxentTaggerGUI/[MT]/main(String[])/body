@@ -1,0 +1,31 @@
+{
+  Thread t=new Thread(){
+    @Override public void run(){
+      String file;
+      try {
+        if (args.length > 0) {
+          file=args[args.length - 1];
+        }
+ else {
+          file=MaxentTagger.DEFAULT_DISTRIBUTION_PATH;
+        }
+        tagger=new MaxentTagger(file);
+      }
+ catch (      Exception e) {
+        try {
+          file=MaxentTagger.DEFAULT_NLP_GROUP_MODEL_PATH;
+          tagger=new MaxentTagger(file);
+        }
+ catch (        Exception e2) {
+          e.printStackTrace();
+        }
+      }
+    }
+  }
+;
+  t.start();
+  MaxentTaggerGUI mainFrame1=new MaxentTaggerGUI();
+  mainFrame1.setPreferredSize(new Dimension(400,200));
+  mainFrame1.pack();
+  mainFrame1.setVisible(true);
+}

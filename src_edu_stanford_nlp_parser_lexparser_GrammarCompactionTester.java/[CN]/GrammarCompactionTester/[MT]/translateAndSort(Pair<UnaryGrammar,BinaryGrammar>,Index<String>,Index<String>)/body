@@ -1,0 +1,31 @@
+{
+  System.out.println("oldIndex.size()" + oldIndex.size() + " newIndex.size()"+ newIndex.size());
+  UnaryGrammar ug=grammar.first;
+  List<UnaryRule> unaryRules=new ArrayList<UnaryRule>();
+  for (  UnaryRule rule : ug.rules()) {
+    rule.parent=translate(rule.parent,oldIndex,newIndex);
+    rule.child=translate(rule.child,oldIndex,newIndex);
+    unaryRules.add(rule);
+  }
+  Collections.sort(unaryRules);
+  UnaryGrammar newUG=new UnaryGrammar(newIndex);
+  for (  UnaryRule unaryRule : unaryRules) {
+    newUG.addRule(unaryRule);
+  }
+  newUG.purgeRules();
+  BinaryGrammar bg=grammar.second;
+  List<BinaryRule> binaryRules=new ArrayList<BinaryRule>();
+  for (  BinaryRule rule : bg.rules()) {
+    rule.parent=translate(rule.parent,oldIndex,newIndex);
+    rule.leftChild=translate(rule.leftChild,oldIndex,newIndex);
+    rule.rightChild=translate(rule.rightChild,oldIndex,newIndex);
+    binaryRules.add(rule);
+  }
+  Collections.sort(unaryRules);
+  BinaryGrammar newBG=new BinaryGrammar(newIndex);
+  for (  BinaryRule binaryRule : binaryRules) {
+    newBG.addRule(binaryRule);
+  }
+  newBG.splitRules();
+  return Generics.newPair(newUG,newBG);
+}

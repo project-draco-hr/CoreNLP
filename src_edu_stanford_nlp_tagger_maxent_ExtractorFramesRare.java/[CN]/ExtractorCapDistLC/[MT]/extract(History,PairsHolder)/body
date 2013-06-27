@@ -1,0 +1,35 @@
+{
+  String word=pH.getWord(h,0);
+  String ret;
+  if (!startsUpperCase(word)) {
+    if (verbose) {
+      System.out.println("did not apply because not start with upper case");
+    }
+    return "0";
+  }
+  if (allUpperCase(word)) {
+    ret="all:";
+  }
+ else {
+    ret="start";
+  }
+  int current=-1;
+  int distance=1;
+  while (true) {
+    String prevWord=pH.getWord(h,current);
+    if (startsLowerCase(prevWord)) {
+      if (verbose) {
+        System.out.println("returning " + (ret + current) + "for "+ word+ ' '+ prevWord);
+      }
+      return ret + distance;
+    }
+    if (prevWord.equals(naTag) || prevWord.equals("``")) {
+      if (verbose) {
+        System.out.println("returning " + ret + "infinity for "+ word+ ' '+ prevWord);
+      }
+      return ret + "infinity";
+    }
+    current--;
+    distance++;
+  }
+}

@@ -1,0 +1,29 @@
+{
+  boolean successful;
+  ParserQuery parserQuery=parser.parserQuery();
+  try {
+    successful=parserQuery.parse(sentence);
+  }
+ catch (  Exception e) {
+    stopProgressMonitor();
+    JOptionPane.showMessageDialog(ParserPanel.this,"Could not parse selected sentence\n(sentence probably too long)",null,JOptionPane.ERROR_MESSAGE);
+    setStatus("Error parsing");
+    return;
+  }
+  stopProgressMonitor();
+  setStatus("Done");
+  if (successful) {
+    Tree tree=parserQuery.getBestParse();
+    treePanel.setTree(tree);
+    clearButton.setEnabled(true);
+  }
+ else {
+    JOptionPane.showMessageDialog(ParserPanel.this,"Could not parse selected sentence",null,JOptionPane.ERROR_MESSAGE);
+    setStatus("Error parsing");
+    treePanel.setTree(null);
+    clearButton.setEnabled(false);
+  }
+  if (scrollWhenDone) {
+    scrollForward();
+  }
+}

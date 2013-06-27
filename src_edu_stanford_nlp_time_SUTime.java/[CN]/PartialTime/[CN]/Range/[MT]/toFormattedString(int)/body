@@ -1,0 +1,33 @@
+{
+  if ((flags & (FORMAT_ISO | FORMAT_TIMEX3_VALUE)) != 0) {
+    if (getTimeLabel() != null) {
+      return getTimeLabel();
+    }
+    String beginStr=(begin != null) ? begin.toFormattedString(flags) : null;
+    String endStr=(end != null) ? end.toFormattedString(flags) : null;
+    String durationStr=(duration != null) ? duration.toFormattedString(flags) : null;
+    if ((flags & FORMAT_ISO) != 0) {
+      if (beginStr != null && endStr != null) {
+        return beginStr + "/" + endStr;
+      }
+ else       if (beginStr != null && durationStr != null) {
+        return beginStr + "/" + durationStr;
+      }
+ else       if (durationStr != null && endStr != null) {
+        return durationStr + "/" + endStr;
+      }
+    }
+    return durationStr;
+  }
+ else {
+    StringBuilder sb=new StringBuilder();
+    sb.append("(");
+    if (begin != null)     sb.append(begin);
+    sb.append(",");
+    if (end != null)     sb.append(end);
+    sb.append(",");
+    if (duration != null)     sb.append(duration);
+    sb.append(")");
+    return sb.toString();
+  }
+}

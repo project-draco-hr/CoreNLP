@@ -1,0 +1,28 @@
+{
+  if (!force) {
+    long time=System.currentTimeMillis();
+    if (time - lastPoll < pollEvery) {
+      return;
+    }
+  }
+  Process p=null;
+  int[] freeLines={2,4};
+  int[] freePositions={4,3};
+  lastPoll=System.currentTimeMillis();
+  try {
+    p=r.exec("free");
+    p.waitFor();
+    BufferedReader bri=new BufferedReader(new InputStreamReader(p.getInputStream()));
+    ArrayList<String> l=parseFields(bri," ",freeLines,freePositions);
+    freeMem=Integer.parseInt(l.get(1));
+    usedSwap=Integer.parseInt(l.get(2));
+  }
+ catch (  Exception e) {
+    System.err.println(e);
+  }
+ finally {
+    if (p != null) {
+      p.destroy();
+    }
+  }
+}

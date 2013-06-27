@@ -1,0 +1,135 @@
+{
+  lr=null;
+  if (sentence != this.sentence) {
+    this.sentence=sentence;
+    floodTags=false;
+  }
+  if (op.testOptions.verbose) {
+    Timing.tick("Starting pcfg parse.");
+  }
+  if (spillGuts) {
+    tick("Starting PCFG parse...");
+  }
+  length=sentence.size();
+  if (length > arraySize) {
+    considerCreatingArrays(length);
+  }
+  int goal=stateIndex.indexOf(goalStr);
+  if (op.testOptions.verbose) {
+    System.err.print("Initializing PCFG...");
+  }
+  words=new int[length];
+  beginOffsets=new int[length];
+  endOffsets=new int[length];
+  originalCoreLabels=new CoreLabel[length];
+  originalTags=new HasTag[length];
+  int unk=0;
+  StringBuilder unkWords=new StringBuilder("[");
+  for (int i=0; i < length; i++) {
+    String s=sentence.get(i).word();
+    if (sentence.get(i) instanceof HasOffset) {
+      HasOffset word=(HasOffset)sentence.get(i);
+      beginOffsets[i]=word.beginPosition();
+      endOffsets[i]=word.endPosition();
+    }
+ else {
+      beginOffsets[i]=((i == 0) ? 0 : endOffsets[i - 1] + 1);
+      endOffsets[i]=beginOffsets[i] + s.length();
+    }
+    if (sentence.get(i) instanceof CoreLabel) {
+      originalCoreLabels[i]=(CoreLabel)sentence.get(i);
+    }
+    if (sentence.get(i) instanceof HasTag) {
+      HasTag tag=(HasTag)sentence.get(i);
+      if (tag.tag() != null) {
+        originalTags[i]=tag;
+      }
+    }
+    if (op.testOptions.verbose && (!wordIndex.contains(s) || !lex.isKnown(wordIndex.indexOf(s)))) {
+      unk++;
+      unkWords.append(' ');
+      unkWords.append(s);
+      unkWords.append(" { ");
+      for (int jj=0; jj < s.length(); jj++) {
+        char ch=s.charAt(jj);
+        unkWords.append(Character.getType(ch)).append(" ");
+      }
+      unkWords.append("}");
+    }
+    words[i]=wordIndex.indexOf(s,true);
+  }
+  if (spillGuts) {
+    tick("Wiping arrays...");
+  }
+  if (Thread.interrupted()) {
+    throw new RuntimeInterruptedException();
+  }
+  for (int start=0; start < length; start++) {
+    for (int end=start + 1; end <= length; end++) {
+      Arrays.fill(iScore[start][end],Float.NEGATIVE_INFINITY);
+      if (op.doDep && !op.testOptions.useFastFactored) {
+        Arrays.fill(oScore[start][end],Float.NEGATIVE_INFINITY);
+      }
+      if (op.testOptions.lengthNormalization) {
+        Arrays.fill(wordsInSpan[start][end],1);
+      }
+    }
+  }
+  if (Thread.interrupted()) {
+    throw new RuntimeInterruptedException();
+  }
+  for (int loc=0; loc <= length; loc++) {
+    Arrays.fill(narrowLExtent[loc],-1);
+    Arrays.fill(wideLExtent[loc],length + 1);
+  }
+  for (int loc=0; loc < length; loc++) {
+    Arrays.fill(narrowRExtent[loc],length + 1);
+    Arrays.fill(wideRExtent[loc],-1);
+  }
+  if (op.testOptions.verbose) {
+    Timing.tick("done.");
+    unkWords.append(" ]");
+    op.tlpParams.pw(System.err).println("Unknown words: " + unk + " "+ unkWords);
+    System.err.print("Starting filters...");
+  }
+  if (Thread.interrupted()) {
+    throw new RuntimeInterruptedException();
+  }
+  if (spillGuts) {
+    tick("Tagging...");
+  }
+  initializeChart(sentence);
+  if (op.testOptions.verbose) {
+    Timing.tick("done.");
+    System.err.print("Starting insides...");
+  }
+  doInsideScores();
+  if (op.testOptions.verbose) {
+    Timing.tick("done.");
+    System.out.println("PCFG parsing " + length + " words (incl. stop): insideScore = "+ iScore[0][length][goal]);
+  }
+  bestScore=iScore[0][length][goal];
+  boolean succeeded=hasParse();
+  if (op.testOptions.doRecovery && !succeeded && !floodTags) {
+    floodTags=true;
+    return parse(sentence);
+  }
+  if (!op.doDep || op.testOptions.useFastFactored) {
+    return succeeded;
+  }
+  if (op.testOptions.verbose) {
+    System.err.print("Starting outsides...");
+  }
+  oScore[0][length][goal]=0.0f;
+  doOutsideScores();
+  if (op.testOptions.verbose) {
+    Timing.tick("done.");
+  }
+  if (op.doDep) {
+    initializePossibles();
+  }
+  if (Thread.interrupted()) {
+    throw new RuntimeInterruptedException();
+  }
+  return succeeded;
+}

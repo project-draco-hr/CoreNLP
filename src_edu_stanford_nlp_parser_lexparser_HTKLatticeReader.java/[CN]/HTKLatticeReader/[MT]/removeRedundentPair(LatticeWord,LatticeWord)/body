@@ -1,0 +1,53 @@
+{
+  if (DEBUG) {
+    System.err.println("trying to remove:");
+    System.err.println(w1);
+    System.err.println(w2);
+  }
+  int w1Start=w1.startNode;
+  int w2Start=w2.startNode;
+  int w1End=w1.endNode;
+  int w2End=w2.endNode;
+  int newStart, oldStart;
+  if (w1Start < w2Start) {
+    newStart=w2Start;
+    oldStart=w1Start;
+  }
+ else {
+    newStart=w1Start;
+    oldStart=w2Start;
+  }
+  int newEnd, oldEnd;
+  if (w1End < w2End) {
+    newEnd=w1End;
+    oldEnd=w2End;
+  }
+ else {
+    newEnd=w2End;
+    oldEnd=w1End;
+  }
+  for (  LatticeWord lw : wordsStartAt[oldStart]) {
+    if (lw.endNode < newStart || ((lw.endNode == newStart) && (lw.endNode != lw.startNode))) {
+      if (DEBUG) {
+        System.err.println("failed");
+      }
+      return false;
+    }
+  }
+  for (  LatticeWord lw : wordsEndAt[oldEnd]) {
+    if (lw.startNode > newEnd || ((lw.startNode == newEnd) && (lw.endNode != lw.startNode))) {
+      if (DEBUG) {
+        System.err.println("failed");
+      }
+      return false;
+    }
+  }
+  changeStartTimes(wordsStartAt[oldEnd],newEnd);
+  changeEndTimes(wordsEndAt[oldStart],newStart);
+  changeStartTimes(wordsStartAt[oldStart],newStart);
+  changeEndTimes(wordsEndAt[oldEnd],newEnd);
+  if (DEBUG) {
+    System.err.println("succeeded");
+  }
+  return true;
+}

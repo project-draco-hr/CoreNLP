@@ -1,0 +1,19 @@
+{
+  Map<ChartIndex,List<Hook>> map;
+  tempIndex.state=hook.subState;
+  tempIndex.head=hook.head;
+  tempIndex.tag=hook.tag;
+  if (hook.isPreHook()) {
+    tempIndex.loc=hook.start;
+    map=registeredPreHooks;
+  }
+ else {
+    tempIndex.loc=hook.end;
+    map=registeredPostHooks;
+  }
+  ChartIndex index=(ChartIndex)interner.intern(tempIndex);
+  insert(map,index,hook);
+  if (index == tempIndex) {
+    tempIndex=new ChartIndex();
+  }
+}

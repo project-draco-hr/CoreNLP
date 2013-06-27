@@ -1,0 +1,83 @@
+{
+  List<List<Mention>> orderedMentionsBySentence=document.getOrderedMentions();
+  Map<Integer,CorefCluster> corefClusters=document.corefClusters;
+  Map<Mention,IntTuple> positions=document.positions;
+  Map<Integer,Mention> golds=document.allGoldMentions;
+  logger.fine("=======ERROR ANALYSIS=========================================================");
+  for (int i=0; i < orderedMentionsBySentence.size(); i++) {
+    List<Mention> orderedMentions=orderedMentionsBySentence.get(i);
+    for (int j=0; j < orderedMentions.size(); j++) {
+      Mention m=orderedMentions.get(j);
+      logger.fine("=========Line: " + i + "\tmention: "+ j+ "=======================================================");
+      logger.fine(m.spanToString() + "\tmentionID: " + m.mentionID+ "\tcorefClusterID: "+ m.corefClusterID+ "\tgoldCorefClusterID: "+ m.goldCorefClusterID);
+      CorefCluster corefCluster=corefClusters.get(m.corefClusterID);
+      if (corefCluster != null) {
+        corefCluster.printCorefCluster(logger);
+      }
+ else {
+        logger.finer("CANNOT find coref cluster for cluster " + m.corefClusterID);
+      }
+      logger.fine("-------------------------------------------------------");
+      boolean oneRecallErrorPrinted=false;
+      boolean onePrecisionErrorPrinted=false;
+      boolean alreadyChoose=false;
+      for (int sentJ=i; sentJ >= 0; sentJ--) {
+        List<Mention> l=(new ExactStringMatch()).getOrderedAntecedents(sentJ,i,orderedMentions,orderedMentionsBySentence,m,j,corefClusters,dictionaries);
+        for (int ii=0; ii < l.size(); ii++) {
+          for (int jj=0; jj < l.size(); jj++) {
+            if (l.get(ii).headString.equals(l.get(jj).headString) && l.get(ii).startIndex == l.get(jj).startIndex && l.get(ii).sameSentence(l.get(jj)) && jj > ii && l.get(ii).spanToString().length() > l.get(jj).spanToString().length()) {
+              logger.finest("FLIPPED: " + l.get(ii).spanToString() + "("+ ii+ "), "+ l.get(jj).spanToString()+ "("+ jj+ ")");
+              l.set(jj,l.set(ii,l.get(jj)));
+            }
+          }
+        }
+        logger.finest("Candidates in sentence #" + sentJ + " for mention: "+ m.spanToString());
+        for (int ii=0; ii < l.size(); ii++) {
+          logger.finest("\tCandidate #" + ii + ": "+ l.get(ii).spanToString());
+        }
+        for (        Mention antecedent : l) {
+          boolean chosen=(m.corefClusterID == antecedent.corefClusterID);
+          IntTuple src=new IntTuple(2);
+          src.set(0,i);
+          src.set(1,j);
+          IntTuple ant=positions.get(antecedent);
+          boolean coreferent=golds.containsKey(m.mentionID) && golds.containsKey(antecedent.mentionID) && (golds.get(m.mentionID).goldCorefClusterID == golds.get(antecedent.mentionID).goldCorefClusterID);
+          boolean correct=(chosen == coreferent);
+          String chosenness=chosen ? "Chosen" : "Not Chosen";
+          String correctness=correct ? "Correct" : "Incorrect";
+          logger.fine("\t" + correctness + "\t\t"+ chosenness+ "\t"+ antecedent.spanToString());
+          CorefCluster mC=corefClusters.get(m.corefClusterID);
+          CorefCluster aC=corefClusters.get(antecedent.corefClusterID);
+          if (chosen && !correct && !onePrecisionErrorPrinted&& !alreadyChoose) {
+            onePrecisionErrorPrinted=true;
+            printLinkWithContext(logger,"\nPRECISION ERROR ",src,ant,document,semantics);
+            logger.fine("END of PRECISION ERROR LOG");
+          }
+          if (!chosen && !correct && !oneRecallErrorPrinted&& (!alreadyChoose || (alreadyChoose && onePrecisionErrorPrinted))) {
+            oneRecallErrorPrinted=true;
+            printLinkWithContext(logger,"\nRECALL ERROR ",src,ant,document,semantics);
+            logger.finer("cluster info: ");
+            if (mC != null) {
+              mC.printCorefCluster(logger);
+            }
+ else {
+              logger.finer("CANNOT find coref cluster for cluster " + m.corefClusterID);
+            }
+            logger.finer("----------------------------------------------------------");
+            if (aC != null) {
+              aC.printCorefCluster(logger);
+            }
+ else {
+              logger.finer("CANNOT find coref cluster for cluster " + m.corefClusterID);
+            }
+            logger.finer("");
+            logger.fine("END of RECALL ERROR LOG");
+          }
+          if (chosen)           alreadyChoose=true;
+        }
+      }
+      logger.fine("\n");
+    }
+  }
+  logger.fine("===============================================================================");
+}

@@ -1,0 +1,10 @@
+{
+  String text=sentence.get(CoreAnnotations.TextAnnotation.class);
+  if (text != null) {
+    return sentence;
+  }
+  CoreMap newSentence=buildSentenceFromTokens(sentence.get(CoreAnnotations.TokensAnnotation.class),sentence.get(CoreAnnotations.CharacterOffsetBeginAnnotation.class),sentence.get(CoreAnnotations.CharacterOffsetEndAnnotation.class));
+  newSentence.set(CoreAnnotations.TokenBeginAnnotation.class,sentence.get(CoreAnnotations.TokenBeginAnnotation.class));
+  newSentence.set(CoreAnnotations.TokenEndAnnotation.class,sentence.get(CoreAnnotations.TokenEndAnnotation.class));
+  return newSentence;
+}

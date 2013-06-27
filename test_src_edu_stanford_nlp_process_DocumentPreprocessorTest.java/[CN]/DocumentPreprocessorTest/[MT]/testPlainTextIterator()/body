@@ -1,0 +1,24 @@
+{
+  String test="This is a one line test . \n";
+  String[] expectedResults={"This","is","a","one","line","test","."};
+  DocumentPreprocessor document=new DocumentPreprocessor(new BufferedReader(new StringReader(test)));
+  document.setTokenizerFactory(null);
+  document.setSentenceDelimiter("\n");
+  Iterator<List<HasWord>> iterator=document.iterator();
+  assertTrue(iterator.hasNext());
+  assertTrue(iterator.hasNext());
+  List<HasWord> words=iterator.next();
+  assertEquals(expectedResults.length,words.size());
+  for (int i=0; i < expectedResults.length; ++i) {
+    assertEquals(expectedResults[i],words.get(i).word());
+  }
+  assertFalse(iterator.hasNext());
+  assertFalse(iterator.hasNext());
+  try {
+    iterator.next();
+    throw new AssertionError("iterator.next() should have blown up");
+  }
+ catch (  NoSuchElementException e) {
+  }
+  assertFalse(iterator.hasNext());
+}

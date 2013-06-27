@@ -1,0 +1,34 @@
+{
+  if (tree.isLeaf()) {
+    return tf.newLeaf(tree.label());
+  }
+  if (tree.isPreTerminal()) {
+    return tf.newTreeNode(tree.label(),Collections.singletonList(tf.newLeaf(tree.children()[0].label())));
+  }
+  List<Tree> children=tree.getChildrenAsList();
+  LinkedList<Tree> newChildren=new LinkedList<Tree>();
+  for (  Tree child : children) {
+    LinkedList<Tree> preTerms=preTerms(child);
+    while (!preTerms.isEmpty() && isPunc(preTerms.getFirst())) {
+      newChildren.add(preTerms.getFirst());
+      preTerms.removeFirst();
+    }
+    Tree newChild=transformNode(child,tf);
+    LinkedList<Tree> temp=new LinkedList<Tree>();
+    if (newChild.children().length > 0) {
+      newChildren.add(newChild);
+    }
+    while (!preTerms.isEmpty() && isPunc(preTerms.getLast())) {
+      temp.addFirst(preTerms.getLast());
+      preTerms.removeLast();
+    }
+    newChildren.addAll(temp);
+  }
+  while (!newChildren.isEmpty() && isPunc(newChildren.getFirst())) {
+    newChildren.removeFirst();
+  }
+  while (!newChildren.isEmpty() && isPunc(newChildren.getLast())) {
+    newChildren.removeLast();
+  }
+  return tf.newTreeNode(tree.label(),newChildren);
+}

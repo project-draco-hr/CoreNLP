@@ -1,0 +1,23 @@
+{
+  if (refTime == null) {
+    return this;
+  }
+  if (isGrounded())   return this;
+  if ((flags & RANGE_RESOLVE_TIME_REF) != 0 && (begin == TIME_REF || end == TIME_REF)) {
+    Time groundedBegin=begin;
+    Duration groundedDuration=duration;
+    if (begin == TIME_REF) {
+      groundedBegin=(Time)begin.resolve(refTime,flags);
+      groundedDuration=(duration != null) ? duration.resolve(refTime,flags | DUR_RESOLVE_FROM_AS_REF) : null;
+    }
+    Time groundedEnd=end;
+    if (end == TIME_REF) {
+      groundedEnd=(Time)end.resolve(refTime,flags);
+      groundedDuration=(duration != null) ? duration.resolve(refTime,flags | DUR_RESOLVE_TO_AS_REF) : null;
+    }
+    return new Range(this,groundedBegin,groundedEnd,groundedDuration);
+  }
+ else {
+    return this;
+  }
+}

@@ -1,0 +1,20 @@
+{
+  Set<String> relKeys=mRelationMentions.keySet();
+  for (  String key : relKeys) {
+    AceRelationMention rm=mRelationMentions.get(key);
+    int sentence=mTokens.get(rm.getArg(0).getHead().getTokenStart()).getSentence();
+    ArrayList<AceRelationMention> sentRels=mSentenceRelationMentions.get(sentence);
+    boolean added=false;
+    for (int i=0; i < sentRels.size(); i++) {
+      AceRelationMention crt=sentRels.get(i);
+      if ((crt.getMinTokenStart() > rm.getMinTokenStart()) || (crt.getMinTokenStart() == rm.getMinTokenStart() && crt.getMaxTokenEnd() > rm.getMaxTokenEnd())) {
+        sentRels.add(i,rm);
+        added=true;
+        break;
+      }
+    }
+    if (!added) {
+      sentRels.add(rm);
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  if (t == null) {
+    return null;
+  }
+  String cat=t.label().value();
+  if (t.isLeaf()) {
+    Label label=new Word(cat);
+    return tf.newLeaf(label);
+  }
+  if (t.isPreTerminal()) {
+    Tree childResult=transformTree(t.getChild(0));
+    String word=childResult.value();
+    List<Tree> newChildren=new ArrayList<Tree>(1);
+    newChildren.add(childResult);
+    return tf.newTreeNode(new CategoryWordTag(cat,word,cat),newChildren);
+  }
+  Tree headChild=hf.determineHead(t);
+  if (headChild == null && !t.label().value().startsWith(tlp.startSymbol())) {
+    System.err.println("### No head found for:");
+    t.pennPrint();
+  }
+  int headNum=-1;
+  Tree[] kids=t.children();
+  List<Tree> newChildren=new ArrayList<Tree>(kids.length);
+  for (int childNum=0; childNum < kids.length; childNum++) {
+    Tree child=kids[childNum];
+    Tree childResult=transformTree(child);
+    if (child == headChild) {
+      headNum=childNum;
+    }
+    newChildren.add(childResult);
+  }
+  Tree result;
+  if (t.label().value().startsWith(tlp.startSymbol())) {
+    CategoryWordTag label=(CategoryWordTag)t.label();
+    result=tf.newTreeNode(label,newChildren);
+  }
+ else {
+    String word=((HasWord)headChild.label()).word();
+    String tag=((HasTag)headChild.label()).tag();
+    Label label=new CategoryWordTag(cat,word,tag);
+    result=tf.newTreeNode(label,newChildren);
+    TaggedWord head=new TaggedWord(word,tag);
+    result=binarizeLocalTree(result,headNum,head);
+  }
+  return result;
+}

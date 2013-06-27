@@ -1,0 +1,12 @@
+{
+  if (given.length != windowSize - 1) {
+    throw new IllegalArgumentException("conditionalLogProbGivenNext requires given one less than clique size (" + windowSize + ") but was "+ Arrays.toString(given));
+  }
+  int[] label=indicesEnd(given);
+  double[] masses=new double[label.length];
+  for (int i=0; i < masses.length; i++) {
+    masses[i]=table[label[i]];
+  }
+  double z=ArrayMath.logSum(masses);
+  return table[indexOf(of,given)] - z;
+}

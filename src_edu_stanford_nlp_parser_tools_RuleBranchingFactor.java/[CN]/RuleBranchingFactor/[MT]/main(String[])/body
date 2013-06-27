@@ -1,0 +1,53 @@
+{
+  if (args.length < minArgs) {
+    System.out.println(usage);
+    System.exit(-1);
+  }
+  Properties options=StringUtils.argsToProperties(args,optionArgDefinitions);
+  String fileName=options.getProperty("");
+  if (fileName == null || fileName.equals("")) {
+    System.out.println(usage);
+    System.exit(-1);
+  }
+  Language language=PropertiesUtils.get(options,"l",Language.English,Language.class);
+  TreebankLangParserParams tlpp=Languages.getLanguageParams(language);
+  String encoding=options.getProperty("e","UTF-8");
+  tlpp.setInputEncoding(encoding);
+  tlpp.setOutputEncoding(encoding);
+  DiskTreebank tb=tlpp.diskTreebank();
+  tb.loadPath(fileName);
+  Counter<String> binaryRuleTypes=new ClassicCounter<String>(20000);
+  List<Integer> branchingFactors=new ArrayList<Integer>(20000);
+  int nTrees=0;
+  int nUnaryRules=0;
+  int nBinaryRules=0;
+  int binaryBranchingFactors=0;
+  PrintWriter pw=tlpp.pw();
+  for (  Tree tree : tb) {
+    if (tree.value().equals("ROOT")) {
+      tree=tree.firstChild();
+    }
+    ++nTrees;
+    for (    Tree subTree : tree) {
+      if (subTree.isPhrasal()) {
+        if (subTree.numChildren() > 1) {
+          ++nBinaryRules;
+          branchingFactors.add(subTree.numChildren());
+          binaryBranchingFactors+=subTree.numChildren();
+          binaryRuleTypes.incrementCount(treeToRuleString(subTree));
+        }
+ else {
+          ++nUnaryRules;
+        }
+      }
+    }
+  }
+  double mean=(double)binaryBranchingFactors / (double)nBinaryRules;
+  System.out.printf("#trees:\t%d%n",nTrees);
+  System.out.printf("#binary:\t%d%n",nBinaryRules);
+  System.out.printf("#binary types:\t%d%n",binaryRuleTypes.keySet().size());
+  System.out.printf("mean branching:\t%.4f%n",mean);
+  System.out.printf("stddev branching:\t%.4f%n",standardDeviation(branchingFactors,mean));
+  System.out.printf("rule entropy:\t%.5f%n",Counters.entropy(binaryRuleTypes));
+  System.out.printf("#unaries:\t%d%n",nUnaryRules);
+}

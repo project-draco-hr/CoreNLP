@@ -1,0 +1,14 @@
+{
+  if (Redwood.depth != 0) {
+    throw new IllegalStateException("Cannot modify Redwood when within a track");
+  }
+  Iterator<RecordHandlerTree> iter=children();
+  while (iter.hasNext()) {
+    LogRecordHandler cand=iter.next().head();
+    if (cand == handler) {
+      iter.remove();
+      return cand;
+    }
+  }
+  return null;
+}

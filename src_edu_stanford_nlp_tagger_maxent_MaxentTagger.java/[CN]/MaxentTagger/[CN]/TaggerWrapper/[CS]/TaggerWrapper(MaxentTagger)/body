@@ -1,0 +1,18 @@
+{
+  this.tagger=tagger;
+  this.config=tagger.config;
+  try {
+    tokenizerFactory=chooseTokenizerFactory(config.getTokenize(),config.getTokenizerFactory(),config.getTokenizerOptions(),config.getTokenizerInvertible());
+  }
+ catch (  Exception e) {
+    System.err.println("Error in tokenizer factory instantiation for class: " + config.getTokenizerFactory());
+    e.printStackTrace();
+    tokenizerFactory=PTBTokenizerFactory.newWordTokenizerFactory(config.getTokenizerOptions());
+  }
+  outputStyle=OutputStyle.fromShortName(config.getOutputFormat());
+  outputVerbosity=config.getOutputVerbosity();
+  outputLemmas=config.getOutputLemmas();
+  morpha=(outputLemmas) ? new Morphology() : null;
+  tokenize=config.getTokenize();
+  tagSeparator=config.getTagSeparator();
+}

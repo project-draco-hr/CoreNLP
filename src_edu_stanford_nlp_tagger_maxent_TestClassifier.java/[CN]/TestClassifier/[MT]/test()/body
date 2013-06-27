@@ -1,0 +1,34 @@
+{
+  numSentences=0;
+  PrintFile pf=null;
+  PrintFile pf1=null;
+  PrintFile pf3=null;
+  if (writeWords)   pf=new PrintFile(saveRoot + ".words");
+  if (writeUnknDict)   pf1=new PrintFile(saveRoot + ".un.dict");
+  if (writeTopWords)   pf3=new PrintFile(saveRoot + ".words.top");
+  boolean verboseResults=config.getVerboseResults();
+  if (config.getNThreads() != 1) {
+    MulticoreWrapper<List<TaggedWord>,TestSentence> wrapper=new MulticoreWrapper<List<TaggedWord>,TestSentence>(config.getNThreads(),new TestSentenceProcessor(maxentTagger));
+    for (    List<TaggedWord> taggedSentence : fileRecord.reader()) {
+      wrapper.put(taggedSentence);
+      while (wrapper.peek()) {
+        processResults(wrapper.poll(),pf,pf1,pf3,verboseResults);
+      }
+    }
+    wrapper.join();
+    while (wrapper.peek()) {
+      processResults(wrapper.poll(),pf,pf1,pf3,verboseResults);
+    }
+  }
+ else {
+    for (    List<TaggedWord> taggedSentence : fileRecord.reader()) {
+      TestSentence testS=new TestSentence(maxentTagger);
+      testS.setCorrectTags(taggedSentence);
+      testS.tagSentence(taggedSentence,false);
+      processResults(testS,pf,pf1,pf3,verboseResults);
+    }
+  }
+  if (pf != null)   pf.close();
+  if (pf1 != null)   pf1.close();
+  if (pf3 != null)   pf3.close();
+}

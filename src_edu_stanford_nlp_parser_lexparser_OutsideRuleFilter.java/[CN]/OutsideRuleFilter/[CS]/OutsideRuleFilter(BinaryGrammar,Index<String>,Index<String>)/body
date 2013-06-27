@@ -1,0 +1,47 @@
+{
+  this.tagIndex=tagIndex;
+  int numStates=stateIndex.size();
+  numTags=tagIndex.size();
+  allocate(numStates);
+  for (int state=0; state < numStates; state++) {
+    String stateStr=stateIndex.get(state);
+    List<String> left=new ArrayList<String>();
+    List<String> right=new ArrayList<String>();
+    if (!bg.isSynthetic(state)) {
+      registerRule(left,right,state);
+      continue;
+    }
+    boolean foundSemi=false;
+    boolean foundDots=false;
+    List<String> array=left;
+    StringBuilder sb=new StringBuilder();
+    for (int c=0; c < stateStr.length(); c++) {
+      if (stateStr.charAt(c) == ':') {
+        foundSemi=true;
+        continue;
+      }
+      if (!foundSemi) {
+        continue;
+      }
+      if (stateStr.charAt(c) == ' ') {
+        if (sb.length() > 0) {
+          String str=sb.toString();
+          if (!tagIndex.contains(str)) {
+            str=null;
+          }
+          array.add(str);
+          sb=new StringBuilder();
+        }
+        continue;
+      }
+      if (!foundDots && stateStr.charAt(c) == '.') {
+        c+=3;
+        foundDots=true;
+        array=right;
+        continue;
+      }
+      sb.append(stateStr.charAt(c));
+    }
+    registerRule(left,right,state);
+  }
+}

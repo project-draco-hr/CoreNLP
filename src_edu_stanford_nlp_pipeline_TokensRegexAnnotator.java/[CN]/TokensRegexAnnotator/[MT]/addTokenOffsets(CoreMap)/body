@@ -1,0 +1,12 @@
+{
+  Integer startTokenOffset=annotation.get(CoreAnnotations.TokenBeginAnnotation.class);
+  if (startTokenOffset == null) {
+    startTokenOffset=0;
+  }
+  int i=0;
+  for (  CoreMap c : annotation.get(CoreAnnotations.TokensAnnotation.class)) {
+    c.set(CoreAnnotations.TokenBeginAnnotation.class,i + startTokenOffset);
+    i++;
+    c.set(CoreAnnotations.TokenEndAnnotation.class,i + startTokenOffset);
+  }
+}

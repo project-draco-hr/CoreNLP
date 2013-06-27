@@ -1,0 +1,21 @@
+{
+  List<TaggedWord> taggedWords=null;
+  List<Label> leaves=null;
+  List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
+  for (int i=0; i < tokens.size(); ++i) {
+    CoreLabel token=tokens.get(i);
+    if (token.tag() == null) {
+      if (taggedWords == null) {
+        taggedWords=tree.taggedYield();
+      }
+      if (leaves == null) {
+        leaves=tree.yield();
+      }
+      token.setTag(taggedWords.get(i).tag());
+      Label leaf=leaves.get(i);
+      if (leaf instanceof HasTag) {
+        ((HasTag)leaf).setTag(taggedWords.get(i).tag());
+      }
+    }
+  }
+}

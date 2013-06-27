@@ -1,0 +1,29 @@
+{
+  List<Tree> newChildren=new ArrayList<Tree>(2);
+  Label label=new CategoryWordTag(labelStr,head.word(),head.tag());
+  if (t.numChildren() - leftProcessed - rightProcessed <= 2) {
+    newChildren.add(t.getChild(leftProcessed));
+    if (t.numChildren() - leftProcessed - rightProcessed == 2) {
+      newChildren.add(t.getChild(leftProcessed + 1));
+    }
+    return tf.newTreeNode(label,newChildren);
+  }
+  if (headNum > leftProcessed) {
+    Tree leftChild=t.getChild(leftProcessed);
+    String childLeftStr=leftStr + " " + leftChild.label().value();
+    String childLabelStr="@" + finalCat + " :"+ childLeftStr+ " ..."+ rightStr;
+    Tree rightChild=outsideBinarizeLocalTree(t,childLabelStr,finalCat,headNum,head,leftProcessed + 1,childLeftStr,rightProcessed,rightStr);
+    newChildren.add(leftChild);
+    newChildren.add(rightChild);
+    return tf.newTreeNode(label,newChildren);
+  }
+ else {
+    Tree rightChild=t.getChild(t.numChildren() - rightProcessed - 1);
+    String childRightStr=" " + rightChild.label().value() + rightStr;
+    String childLabelStr="@" + finalCat + " :"+ leftStr+ " ..."+ childRightStr;
+    Tree leftChild=outsideBinarizeLocalTree(t,childLabelStr,finalCat,headNum,head,leftProcessed,leftStr,rightProcessed + 1,childRightStr);
+    newChildren.add(leftChild);
+    newChildren.add(rightChild);
+    return tf.newTreeNode(label,newChildren);
+  }
+}

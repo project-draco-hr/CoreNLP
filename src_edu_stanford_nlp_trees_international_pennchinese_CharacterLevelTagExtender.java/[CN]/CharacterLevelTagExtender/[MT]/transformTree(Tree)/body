@@ -1,0 +1,45 @@
+{
+  TreeFactory tf=tree.treeFactory();
+  String tag=tree.label().value();
+  if (tree.isPreTerminal()) {
+    String word=tree.firstChild().label().value();
+    List<Tree> newPreterms=new ArrayList<Tree>();
+    for (int i=0, size=word.length(); i < size; i++) {
+      String singleCharLabel=new String(new char[]{word.charAt(i)});
+      Tree newLeaf=tf.newLeaf(singleCharLabel);
+      String suffix;
+      if (useTwoCharTags) {
+        if (word.length() == 1 || i == 0) {
+          suffix="_S";
+        }
+ else {
+          suffix="_M";
+        }
+      }
+ else {
+        if (word.length() == 1) {
+          suffix="_S";
+        }
+ else         if (i == 0) {
+          suffix="_B";
+        }
+ else         if (i == word.length() - 1) {
+          suffix="_E";
+        }
+ else {
+          suffix="_M";
+        }
+      }
+      newPreterms.add(tf.newTreeNode(tag + suffix,Collections.<Tree>singletonList(newLeaf)));
+    }
+    return tf.newTreeNode(tag,newPreterms);
+  }
+ else {
+    List<Tree> newChildren=new ArrayList<Tree>();
+    for (int i=0; i < tree.children().length; i++) {
+      Tree child=tree.children()[i];
+      newChildren.add(transformTree(child));
+    }
+    return tf.newTreeNode(tag,newChildren);
+  }
+}

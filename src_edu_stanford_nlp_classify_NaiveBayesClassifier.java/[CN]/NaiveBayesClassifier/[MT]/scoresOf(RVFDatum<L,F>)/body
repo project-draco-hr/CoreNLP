@@ -1,0 +1,20 @@
+{
+  ClassicCounter<L> scores=new ClassicCounter<L>();
+  Counters.addInPlace(scores,priors);
+  if (addZeroValued) {
+    Counters.addInPlace(scores,priorZero);
+  }
+  for (  L l : labels) {
+    double score=0.0;
+    Counter<F> features=example.asFeaturesCounter();
+    for (    F f : features.keySet()) {
+      int value=(int)features.getCount(f);
+      score+=weight(l,f,Integer.valueOf(value));
+      if (addZeroValued) {
+        score-=weight(l,f,zero);
+      }
+    }
+    scores.incrementCount(l,score);
+  }
+  return scores;
+}

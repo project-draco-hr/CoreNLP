@@ -1,0 +1,28 @@
+{
+  PrintWriter pw=IOUtils.getPrintWriter(propsFile);
+  props.store(pw,null);
+  pw.close();
+  List<String> cmd=new ArrayList<String>();
+  cmd.addAll(Arrays.asList(runDistCmd.split("\\s+")));
+  cmd.add("-props");
+  cmd.add(propsFile);
+  ProcessBuilder pb=new ProcessBuilder(cmd);
+  Map<String,String> curEnv=System.getenv();
+  Map<String,String> pbEnv=pb.environment();
+  pbEnv.putAll(curEnv);
+  logger.info("Running distributed coref:" + StringUtils.join(pb.command()," "));
+  StringWriter outSos=new StringWriter();
+  StringWriter errSos=new StringWriter();
+  PrintWriter out=new PrintWriter(new BufferedWriter(outSos));
+  PrintWriter err=new PrintWriter(new BufferedWriter(errSos));
+  SystemUtils.run(pb,out,err);
+  out.close();
+  err.close();
+  String outStr=outSos.toString();
+  String errStr=errSos.toString();
+  logger.info("Finished distributed coref: " + runDistCmd + ", props="+ propsFile);
+  logger.info("Output: " + outStr);
+  if (errStr.length() > 0) {
+    logger.info("Error: " + errStr);
+  }
+}

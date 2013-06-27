@@ -1,0 +1,15 @@
+{
+  if (minValues == null || maxValues == null)   scaleFeatures();
+  Counter<F> scaledFeatures=new ClassicCounter<F>();
+  for (  F feature : datum.asFeatures()) {
+    int fID=this.featureIndex.indexOf(feature);
+    if (fID >= 0) {
+      double oldVal=datum.asFeaturesCounter().getCount(feature);
+      double newVal;
+      if (minValues[fID] != maxValues[fID])       newVal=(oldVal - minValues[fID]) / (maxValues[fID] - minValues[fID]);
+ else       newVal=oldVal;
+      scaledFeatures.incrementCount(feature,newVal);
+    }
+  }
+  return new RVFDatum<L,F>(scaledFeatures,datum.label());
+}

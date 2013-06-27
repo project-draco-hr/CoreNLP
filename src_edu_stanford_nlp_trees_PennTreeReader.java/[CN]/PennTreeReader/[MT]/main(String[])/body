@@ -1,0 +1,17 @@
+{
+  try {
+    TreeFactory tf=new LabeledScoredTreeFactory();
+    Reader r=new BufferedReader(new InputStreamReader(new FileInputStream(args[0]),"UTF-8"));
+    TreeReader tr=new PennTreeReader(r,tf);
+    Tree t=tr.readTree();
+    while (t != null) {
+      System.out.println(t);
+      System.out.println();
+      t=tr.readTree();
+    }
+    r.close();
+  }
+ catch (  IOException ioe) {
+    ioe.printStackTrace();
+  }
+}

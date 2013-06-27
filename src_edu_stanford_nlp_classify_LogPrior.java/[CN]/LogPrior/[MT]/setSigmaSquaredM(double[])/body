@@ -1,0 +1,16 @@
+{
+  if (type == LogPriorType.ADAPT) {
+    otherPrior.setSigmaSquaredM(sigmaSq);
+  }
+  if (type == LogPriorType.MULTIPLE_QUADRATIC) {
+    this.sigmaSqM=sigmaSq.clone();
+    double[] sigmaQuM=new double[sigmaSq.length];
+    for (int i=0; i < sigmaSq.length; i++) {
+      sigmaQuM[i]=sigmaSqM[i] * sigmaSqM[i];
+    }
+    this.sigmaQuM=sigmaQuM;
+  }
+ else {
+    throw new RuntimeException("LogPrior.getSigmaSquaredM is undefined for any prior but MULTIPLE_QUADRATIC" + this);
+  }
+}

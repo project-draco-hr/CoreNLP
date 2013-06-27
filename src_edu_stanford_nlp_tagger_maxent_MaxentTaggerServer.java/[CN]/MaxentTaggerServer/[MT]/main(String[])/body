@@ -1,0 +1,36 @@
+{
+  if (args.length == 0) {
+    System.err.println(USAGE);
+    return;
+  }
+  Properties props=StringUtils.argsToProperties(args);
+  String client=props.getProperty("client");
+  String portStr=props.getProperty("port");
+  if (portStr == null || portStr.equals("")) {
+    System.err.println(USAGE);
+    return;
+  }
+  int port=0;
+  try {
+    port=Integer.parseInt(portStr);
+  }
+ catch (  NumberFormatException e) {
+    System.err.println("Non-numerical port");
+    System.err.println(USAGE);
+    System.exit(1);
+  }
+  if (client != null && !client.equals("")) {
+    String host=props.getProperty("host");
+    String encoding=props.getProperty("encoding");
+    if (encoding == null || "".equals(encoding)) {
+      encoding="utf-8";
+    }
+    TaggerClient.communicateWithMaxentTaggerServer(host,port,encoding);
+  }
+ else {
+    TaggerConfig config=new TaggerConfig(args);
+    MaxentTagger tagger=new MaxentTagger(config.getModel(),config);
+    MaxentTagger.TaggerWrapper wrapper=new MaxentTagger.TaggerWrapper(tagger);
+    new MaxentTaggerServer(port,wrapper,config.getEncoding()).run();
+  }
+}

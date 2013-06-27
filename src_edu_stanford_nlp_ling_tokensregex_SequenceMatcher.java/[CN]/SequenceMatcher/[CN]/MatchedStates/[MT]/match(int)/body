@@ -1,0 +1,23 @@
+{
+  curPosition=position;
+  boolean matched=false;
+  swapAndClear();
+  for (  State state : oldStates) {
+    if (state.tstate.match(state.bid,this)) {
+      matched=true;
+    }
+  }
+  boolean done=false;
+  while (!done) {
+    swapAndClear();
+    boolean matched0=false;
+    for (    State state : oldStates) {
+      if (state.tstate.match0(state.bid,this)) {
+        matched0=true;
+      }
+    }
+    done=!matched0;
+  }
+  branchStates.condense();
+  return matched;
+}

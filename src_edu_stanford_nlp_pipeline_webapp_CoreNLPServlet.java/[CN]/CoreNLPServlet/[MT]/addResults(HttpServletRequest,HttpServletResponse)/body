@@ -1,0 +1,30 @@
+{
+  String input=request.getParameter("input");
+  if (input == null) {
+    return;
+  }
+  input=input.trim();
+  if (input.equals("")) {
+    return;
+  }
+  PrintWriter out=response.getWriter();
+  if (input.length() > MAXIMUM_QUERY_LENGTH) {
+    out.print("<div>This query is too long.  If you want to run very long queries, please download and use our <a href=\"http://nlp.stanford.edu/software/corenlp.shtml\">publicly released distribution</a>.</div>");
+    return;
+  }
+  Annotation annotation=new Annotation(input);
+  pipeline.annotate(annotation);
+  String outputFormat=request.getParameter("outputFormat");
+  if (outputFormat == null || outputFormat.trim().equals("")) {
+    outputFormat=this.defaultFormat;
+  }
+  if ("xml".equals(outputFormat)) {
+    outputXml(out,annotation);
+  }
+ else   if ("pretty".equals(outputFormat)) {
+    outputPretty(out,annotation);
+  }
+ else {
+    outputVisualise(out,annotation);
+  }
+}

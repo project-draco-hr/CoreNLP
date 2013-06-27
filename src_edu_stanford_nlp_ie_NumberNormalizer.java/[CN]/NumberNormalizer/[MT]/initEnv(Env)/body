@@ -1,0 +1,15 @@
+{
+  env.bind("numtype",CoreAnnotations.NumericTypeAnnotation.class);
+  env.bind("numvalue",CoreAnnotations.NumericValueAnnotation.class);
+  env.bind("numcomptype",CoreAnnotations.NumericCompositeTypeAnnotation.class);
+  env.bind("numcompvalue",CoreAnnotations.NumericCompositeValueAnnotation.class);
+  env.bind("$NUMCOMPTERM"," [ { numcomptype::EXISTS } & !{ numcomptype:NUMBER_RANGE } ] ");
+  env.bind("$NUMTERM"," [ { numtype::EXISTS } & !{ numtype:NUMBER_RANGE } ] ");
+  env.bind("$NUMRANGE"," [ { numtype:NUMBER_RANGE } ] ");
+  env.bind("$INTTERM"," [ { numtype::EXISTS } & !{ numtype:NUMBER_RANGE } & !{ word:/.*\\.\\d+.*/} ] ");
+  env.bind("$POSINTTERM"," [ { numvalue>0 } & !{ word:/.*\\.\\d+.*/} ] ");
+  env.bind("$ORDTERM"," [ { numtype:ORDINAL } ] ");
+  env.bind("$BEFORE_WS"," [ { before:/\\s*/ } | !{ before::EXISTS} ]");
+  env.bind("$AFTER_WS"," [ { after:/\\s*/ } | !{ after::EXISTS} ]");
+  env.bind("$BEFORE_AFTER_WS"," [ $BEFORE_WS & $AFTER_WS ]");
+}

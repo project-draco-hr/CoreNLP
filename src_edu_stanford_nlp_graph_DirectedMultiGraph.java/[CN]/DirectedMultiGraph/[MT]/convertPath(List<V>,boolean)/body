@@ -1,0 +1,24 @@
+{
+  if (nodes == null)   return null;
+  if (nodes.size() <= 1)   return Collections.emptyList();
+  List<E> path=new ArrayList<E>();
+  Iterator<V> nodeIterator=nodes.iterator();
+  V previous=nodeIterator.next();
+  while (nodeIterator.hasNext()) {
+    V next=nodeIterator.next();
+    E connection=null;
+    List<E> edges=getEdges(previous,next);
+    if (edges.size() == 0 && !directionSensitive) {
+      edges=getEdges(next,previous);
+    }
+    if (edges.size() > 0) {
+      connection=edges.get(0);
+    }
+ else {
+      throw new IllegalArgumentException("Path given with missing " + "edge connection");
+    }
+    path.add(connection);
+    previous=next;
+  }
+  return path;
+}

@@ -1,0 +1,27 @@
+{
+  List<RelationMention> relationMentions=(checkExisting ? sentence.get(MachineReadingAnnotations.RelationMentionsAnnotation.class) : null);
+  List<EntityMention> entityMentions=sentence.get(MachineReadingAnnotations.EntityMentionsAnnotation.class);
+  List<RelationMention> nonRelations=new ArrayList<RelationMention>();
+  if (entityMentions != null) {
+    for (int i=0; i < entityMentions.size(); i++) {
+      for (int j=0; j < entityMentions.size(); j++) {
+        if (i == j)         continue;
+        EntityMention arg1=entityMentions.get(i);
+        EntityMention arg2=entityMentions.get(j);
+        boolean match=false;
+        if (relationMentions != null) {
+          for (          RelationMention rel : relationMentions) {
+            if (rel.argsMatch(arg1,arg2)) {
+              match=true;
+              break;
+            }
+          }
+        }
+        if (match == false) {
+          nonRelations.add(RelationMention.createUnrelatedRelation(factory,arg1,arg2));
+        }
+      }
+    }
+  }
+  return nonRelations;
+}

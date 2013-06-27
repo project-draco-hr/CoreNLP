@@ -1,0 +1,146 @@
+{
+  logger.info("=============SIEVE OPTIMIZATION START ====================");
+  logger.info("Optimize sieves using score: " + optimizeScoreType);
+  FileFilter scoreFilesFilter=new FileFilter(){
+    @Override public boolean accept(    File file){
+      return file.getAbsolutePath().endsWith(".score");
+    }
+    public String toString(){
+      return ".score";
+    }
+  }
+;
+  Pattern scoreFilePattern=Pattern.compile(".*sieves\\.(\\d+)\\.(\\d+).score");
+  String runDistributedCmd=props.getProperty(Constants.RUN_DIST_CMD_PROP);
+  String mainWorkDirPath=props.getProperty(Constants.RUN_DIST_CMD_WORK_DIR,"workdir") + "-" + timestamp+ File.separator;
+  DeterministicCorefSieve[] origSieves=sieves;
+  String[] origSieveNames=sieveClassNames;
+  Set<Integer> remainingSieveIndices=Generics.newHashSet();
+  for (int i=0; i < origSieves.length; i++) {
+    remainingSieveIndices.add(i);
+  }
+  List<Integer> optimizedOrdering=new ArrayList<Integer>();
+  while (!remainingSieveIndices.isEmpty()) {
+    int curSievesNumber=optimizedOrdering.size();
+    sieves=new DeterministicCorefSieve[curSievesNumber + 1];
+    sieveClassNames=new String[curSievesNumber + 1];
+    for (int i=0; i < curSievesNumber; i++) {
+      sieves[i]=origSieves[optimizedOrdering.get(i)];
+      sieveClassNames[i]=origSieveNames[optimizedOrdering.get(i)];
+    }
+    logger.info("*** Optimizing Sieve ordering for pass " + curSievesNumber + " ***");
+    Set<Integer> selectableSieveIndices=new TreeSet<Integer>(remainingSieveIndices);
+    if (sievesKeepOrder != null) {
+      for (      Pair<Integer,Integer> ko : sievesKeepOrder) {
+        if (ko.second() < 0) {
+          if (remainingSieveIndices.contains(ko.first())) {
+            logger.info("Restrict selection to " + origSieveNames[ko.first()] + " because of constraint "+ toSieveOrderConstraintString(ko,origSieveNames));
+            selectableSieveIndices=Generics.newHashSet(1);
+            selectableSieveIndices.add(ko.first());
+            break;
+          }
+        }
+ else         if (ko.first() < 0 && remainingSieveIndices.size() > 1) {
+          if (remainingSieveIndices.contains(ko.second())) {
+            logger.info("Remove selection " + origSieveNames[ko.second()] + " because of constraint "+ toSieveOrderConstraintString(ko,origSieveNames));
+            selectableSieveIndices.remove(ko.second());
+          }
+        }
+ else         if (remainingSieveIndices.contains(ko.first())) {
+          if (remainingSieveIndices.contains(ko.second())) {
+            logger.info("Remove selection " + origSieveNames[ko.second()] + " because of constraint "+ toSieveOrderConstraintString(ko,origSieveNames));
+            selectableSieveIndices.remove(ko.second());
+          }
+        }
+      }
+    }
+    if (selectableSieveIndices.isEmpty()) {
+      throw new RuntimeException("Unable to find sieve ordering to satisfy all ordering constraints!!!!");
+    }
+    int selected=-1;
+    if (selectableSieveIndices.size() > 1) {
+      List<Pair<Double,Integer>> scores=new ArrayList<Pair<Double,Integer>>();
+      if (runDistributedCmd != null) {
+        String workDirPath=mainWorkDirPath + curSievesNumber + File.separator;
+        File workDir=new File(workDirPath);
+        workDir.mkdirs();
+        workDirPath=workDir.getAbsolutePath() + File.separator;
+        for (        int potentialSieveIndex : selectableSieveIndices) {
+          String sieveSelectionId=curSievesNumber + "." + potentialSieveIndex;
+          String jobDirPath=workDirPath + sieveSelectionId + File.separator;
+          File jobDir=new File(jobDirPath);
+          jobDir.mkdirs();
+          Properties newProps=new Properties();
+          for (          String key : props.stringPropertyNames()) {
+            String value=props.getProperty(key);
+            value=value.replaceAll("\\$\\{JOBDIR\\}",jobDirPath);
+            newProps.setProperty(key,value);
+          }
+          sieves[curSievesNumber]=origSieves[potentialSieveIndex];
+          sieveClassNames[curSievesNumber]=origSieveNames[potentialSieveIndex];
+          newProps.setProperty(Constants.OPTIMIZE_SIEVES_PROP,"false");
+          newProps.setProperty(Constants.SCORE_PROP,"true");
+          newProps.setProperty(Constants.SIEVES_PROP,StringUtils.join(sieveClassNames,","));
+          newProps.setProperty(Constants.LOG_PROP,jobDirPath + "sieves." + sieveSelectionId+ ".log");
+          newProps.setProperty(Constants.SCORE_FILE_PROP,workDirPath + "sieves." + sieveSelectionId+ ".score");
+          if (Constants.PRINT_CONLL_OUTPUT || replicateCoNLL) {
+            newProps.setProperty(Constants.CONLL_OUTPUT_PROP,jobDirPath + "sieves." + sieveSelectionId+ ".conlloutput");
+          }
+          String distCmd=newProps.getProperty(Constants.RUN_DIST_CMD_PROP,runDistributedCmd);
+          runAndScoreCorefDist(distCmd,newProps,workDirPath + "sieves." + sieveSelectionId+ ".props");
+        }
+        waitForFiles(workDir,scoreFilesFilter,selectableSieveIndices.size());
+        File[] scoreFiles=workDir.listFiles(scoreFilesFilter);
+        for (        File file : scoreFiles) {
+          Matcher m=scoreFilePattern.matcher(file.getName());
+          if (m.matches()) {
+            int potentialSieveIndex=Integer.parseInt(m.group(2));
+            String text=IOUtils.slurpFile(file);
+            double score=Double.parseDouble(text);
+            scores.add(new Pair<Double,Integer>(score,potentialSieveIndex));
+          }
+ else {
+            throw new RuntimeException("Bad score file name: " + file);
+          }
+        }
+      }
+ else {
+        for (        int potentialSieveIndex : selectableSieveIndices) {
+          sieves[curSievesNumber]=origSieves[potentialSieveIndex];
+          sieveClassNames[curSievesNumber]=origSieveNames[potentialSieveIndex];
+          logger.info("Trying sieve " + curSievesNumber + "="+ sieveClassNames[curSievesNumber]+ ": ");
+          logger.info(" Trying sieves: " + StringUtils.join(sieveClassNames,","));
+          double score=runAndScoreCoref(this,mentionExtractor,props,timestamp);
+          scores.add(new Pair<Double,Integer>(score,potentialSieveIndex));
+          logger.info(" Trying sieves: " + StringUtils.join(sieveClassNames,","));
+          logger.info(" Trying sieves score: " + score);
+        }
+      }
+      double bestScore=-1;
+      for (      Pair<Double,Integer> p : scores) {
+        if (selected < 0 || p.first() > bestScore) {
+          bestScore=p.first();
+          selected=p.second();
+        }
+      }
+      Collections.sort(scores);
+      Collections.reverse(scores);
+      logger.info("Ordered sieves");
+      for (      Pair<Double,Integer> p : scores) {
+        logger.info("Sieve optimization pass " + curSievesNumber + " scores: Sieve="+ origSieveNames[p.second()]+ ", score="+ p.first());
+      }
+    }
+ else {
+      logger.info("Only one choice for next sieve");
+      selected=selectableSieveIndices.iterator().next();
+    }
+    sieves[curSievesNumber]=origSieves[selected];
+    sieveClassNames[curSievesNumber]=origSieveNames[selected];
+    logger.info("Adding sieve " + curSievesNumber + "="+ sieveClassNames[curSievesNumber]+ " to existing sieves: ");
+    logger.info(" Current Sieves: " + StringUtils.join(sieveClassNames,","));
+    optimizedOrdering.add(selected);
+    remainingSieveIndices.remove(selected);
+  }
+  logger.info("Final Sieve Ordering: " + StringUtils.join(sieveClassNames,","));
+  logger.info("=============SIEVE OPTIMIZATION DONE ====================");
+}

@@ -1,0 +1,43 @@
+{
+  int wordsSkipped=0;
+  int wordsAligned=0;
+  boolean inWord=false;
+  boolean gotAlignedChar=false;
+  boolean[] isAligned=new boolean[alignment.longForm.length];
+  for (int s=0; s < alignment.pointers.length; ++s) {
+    if (alignment.pointers[s] != -1) {
+      isAligned[alignment.pointers[s]]=true;
+    }
+  }
+  for (int l=0; l < alignment.longForm.length; ++l) {
+    char cur=alignment.longForm[l];
+    if (inWord) {
+      if (!Character.isLetterOrDigit(cur)) {
+        if (gotAlignedChar) {
+          wordsAligned++;
+        }
+ else {
+          wordsSkipped++;
+        }
+        inWord=false;
+      }
+    }
+ else {
+      if (Character.isLetterOrDigit(cur)) {
+        inWord=true;
+        gotAlignedChar=false;
+      }
+    }
+    if (isAligned[l])     gotAlignedChar=true;
+  }
+  if (inWord) {
+    if (gotAlignedChar) {
+      wordsAligned++;
+    }
+ else {
+      wordsSkipped++;
+    }
+  }
+  if (DEBUG)   System.out.println("Words skipped: " + wordsSkipped + "/"+ (wordsSkipped + wordsAligned));
+  return wordsSkipped;
+}

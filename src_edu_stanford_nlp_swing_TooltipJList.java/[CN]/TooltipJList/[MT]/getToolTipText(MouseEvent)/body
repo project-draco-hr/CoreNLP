@@ -1,0 +1,34 @@
+{
+  int index=locationToIndex(evt.getPoint());
+  if (-1 < index) {
+    StringBuilder s=new StringBuilder();
+    String text=getModel().getElementAt(index).toString();
+    s.append("<html>");
+    String textLeft=text;
+    boolean isFirstLine=true;
+    while (textLeft.length() > 0) {
+      String curLine="";
+      if (textLeft.length() > PROBLEM_LINE_LENGTH) {
+        curLine=textLeft.substring(0,PROBLEM_LINE_LENGTH);
+        textLeft=textLeft.substring(PROBLEM_LINE_LENGTH,textLeft.length());
+        while (curLine.charAt(curLine.length() - 1) != ' ' && textLeft.length() > 0) {
+          curLine=curLine + textLeft.substring(0,1);
+          textLeft=textLeft.substring(1,textLeft.length());
+        }
+      }
+ else {
+        curLine=textLeft;
+        textLeft="";
+      }
+      if (!isFirstLine)       s.append("<br>");
+      s.append(curLine);
+      if (!isFirstLine)       s.append("</br>");
+ else       isFirstLine=false;
+    }
+    s.append("</html>");
+    return s.toString();
+  }
+ else {
+    return null;
+  }
+}

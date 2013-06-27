@@ -1,0 +1,63 @@
+{
+  if (args.length != 3) {
+    throw new RuntimeException("args: treebankPath trainNums testNums");
+  }
+  ChineseTreebankParserParams ctpp=new ChineseTreebankParserParams();
+  ctpp.charTags=true;
+  Options op=new Options(ctpp);
+  op.doDep=false;
+  op.testOptions.maxLength=90;
+  LexicalizedParser lp;
+  try {
+    FileFilter trainFilt=new NumberRangesFileFilter(args[1],false);
+    lp=LexicalizedParser.trainFromTreebank(args[0],trainFilt,op);
+    try {
+      String filename="chineseCharTagPCFG.ser.gz";
+      System.err.println("Writing parser in serialized format to file " + filename + " ");
+      System.err.flush();
+      ObjectOutputStream out=IOUtils.writeStreamFromString(filename);
+      out.writeObject(lp);
+      out.close();
+      System.err.println("done.");
+    }
+ catch (    IOException ioe) {
+      ioe.printStackTrace();
+    }
+  }
+ catch (  IllegalArgumentException e) {
+    lp=LexicalizedParser.loadModel(args[1],op);
+  }
+  FileFilter testFilt=new NumberRangesFileFilter(args[2],false);
+  MemoryTreebank testTreebank=ctpp.memoryTreebank();
+  testTreebank.loadPath(new File(args[0]),testFilt);
+  PrintWriter pw=new PrintWriter(new OutputStreamWriter(new FileOutputStream("out.chi"),"GB18030"),true);
+  WordCatEquivalenceClasser eqclass=new WordCatEquivalenceClasser();
+  WordCatEqualityChecker eqcheck=new WordCatEqualityChecker();
+  EquivalenceClassEval eval=new EquivalenceClassEval(eqclass,eqcheck);
+  System.out.println("Testing...");
+  for (  Tree gold : testTreebank) {
+    Tree tree;
+    try {
+      tree=lp.parseTree(gold.yieldHasWord());
+      if (tree == null) {
+        System.out.println("Failed to parse " + gold.yieldHasWord());
+        continue;
+      }
+    }
+ catch (    Exception e) {
+      e.printStackTrace();
+      continue;
+    }
+    gold=gold.firstChild();
+    pw.println(Sentence.listToString(gold.preTerminalYield()));
+    pw.println(Sentence.listToString(gold.yield()));
+    gold.pennPrint(pw);
+    pw.println(tree.preTerminalYield());
+    pw.println(tree.yield());
+    tree.pennPrint(pw);
+    eval.displayLast();
+  }
+  System.out.println();
+  System.out.println();
+  eval.display();
+}

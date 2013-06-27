@@ -1,0 +1,24 @@
+{
+  sb.append('-');
+  boolean digit=true;
+  for (int i=0; i < word.length(); i++) {
+    char c=word.charAt(i);
+    if (!(Character.isDigit(c) || c == '.' || c == ',' || (i == 0 && (c == '-' || c == '+')))) {
+      digit=false;
+    }
+  }
+  digit=false;
+  if (digit) {
+    sb.append("NUMBER");
+  }
+ else {
+    if (distSim == null) {
+      distSim=new DistSimClassifier(wordClassesFile,false,true);
+    }
+    String cluster=distSim.distSimClass(word);
+    if (cluster == null) {
+      cluster="NULL";
+    }
+    sb.append(cluster);
+  }
+}

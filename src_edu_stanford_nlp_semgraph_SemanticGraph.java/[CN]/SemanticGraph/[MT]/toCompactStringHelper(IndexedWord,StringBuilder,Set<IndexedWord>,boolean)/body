@@ -1,0 +1,35 @@
+{
+  used.add(node);
+  try {
+    boolean isntLeaf=(outDegree(node) > 0);
+    if (isntLeaf) {
+      sb.append("[");
+    }
+    sb.append(node.word());
+    if (showTags) {
+      sb.append("/");
+      sb.append(node.tag());
+    }
+    for (    SemanticGraphEdge edge : getOutEdgesSorted(node)) {
+      IndexedWord target=edge.getTarget();
+      sb.append(" ").append(edge.getRelation()).append(":");
+      if (!used.contains(target)) {
+        toCompactStringHelper(target,sb,used,showTags);
+      }
+ else {
+        sb.append(target.word());
+        if (showTags) {
+          sb.append("/");
+          sb.append(target.tag());
+        }
+      }
+    }
+    if (isntLeaf) {
+      sb.append("]");
+    }
+  }
+ catch (  IllegalArgumentException e) {
+    System.err.println("WHOA!  SemanticGraph.toCompactStringHelper() ran into problems at node " + node);
+    throw new IllegalArgumentException(e);
+  }
+}

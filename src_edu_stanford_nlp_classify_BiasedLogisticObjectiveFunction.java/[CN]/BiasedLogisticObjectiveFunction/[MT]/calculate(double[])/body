@@ -1,0 +1,35 @@
+{
+  if (dataValues != null) {
+    throw new RuntimeException();
+  }
+  value=0.0;
+  Arrays.fill(derivative,0.0);
+  for (int d=0; d < data.length; d++) {
+    int[] features=data[d];
+    double sum=0;
+    for (int f=0; f < features.length; f++) {
+      sum+=x[features[f]];
+    }
+    double expSum, derivativeIncrement;
+    if (dataweights != null) {
+      throw new RuntimeException();
+    }
+    if (labels[d] == 1) {
+      expSum=Math.exp(-sum);
+      double g=(1 / (1 + expSum));
+      value-=Math.log(g);
+      derivativeIncrement=(g - 1);
+    }
+ else {
+      expSum=Math.exp(-sum);
+      double g=(1 / (1 + expSum));
+      double e=(1 - probCorrect) * g + (probCorrect) * (1 - g);
+      value-=Math.log(e);
+      derivativeIncrement=-(g * (1 - g) * (1 - 2 * probCorrect)) / (e);
+    }
+    for (int f=0; f < features.length; f++) {
+      derivative[features[f]]+=derivativeIncrement;
+    }
+  }
+  value+=prior.compute(x,derivative);
+}

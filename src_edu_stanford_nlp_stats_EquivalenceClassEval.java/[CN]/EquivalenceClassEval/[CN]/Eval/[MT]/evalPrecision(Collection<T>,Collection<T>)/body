@@ -1,0 +1,24 @@
+{
+  Collection<T> internalGuesses;
+  Collection<T> internalGolds;
+  if (bagEval) {
+    internalGuesses=new ArrayList<T>(guesses.size());
+    internalGolds=new ArrayList<T>(golds.size());
+  }
+ else {
+    internalGuesses=Generics.newHashSet(guesses.size());
+    internalGolds=Generics.newHashSet(golds.size());
+  }
+  internalGuesses.addAll(guesses);
+  internalGolds.addAll(golds);
+  double thisGuessed=0.0;
+  double thisGuessedCorrect=0.0;
+  for (  T o : internalGuesses) {
+    thisGuessed+=1.0;
+    if (checker.contained(o,internalGolds)) {
+      thisGuessedCorrect+=1.0;
+      removeItem(o,internalGolds,checker);
+    }
+  }
+  return thisGuessedCorrect / thisGuessed;
+}

@@ -1,0 +1,18 @@
+{
+  Pair<Integer,String> wT;
+  int general=maxentTagger.extractors.getSize();
+  if (nFeatFrame < general) {
+    wT=new Pair<Integer,String>(nFeatFrame,maxentTagger.extractors.extract(nFeatFrame,history));
+  }
+ else {
+    wT=new Pair<Integer,String>(nFeatFrame,maxentTagger.extractorsRare.extract(nFeatFrame - general,history));
+  }
+  if (tempHash.containsKey(wT)) {
+    (tempHash.get(wT)).inc();
+  }
+ else {
+    ListInstances li=new ListInstances();
+    li.inc();
+    tempHash.put(wT,li);
+  }
+}

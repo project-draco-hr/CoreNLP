@@ -1,0 +1,38 @@
+{
+  if (tree.isLeaf()) {
+    return position;
+  }
+  if (tree.isPreTerminal()) {
+    String tag=tree.label().value();
+    String word=tree.children()[0].label().value();
+    TaggedWord tw=new TaggedWord(word,state(tag,0));
+    lex.train(tw,position,weight);
+    return (position + 1);
+  }
+  if (tree.children().length == 2) {
+    String label=tree.label().value();
+    String leftLabel=tree.getChild(0).label().value();
+    String rightLabel=tree.getChild(1).label().value();
+    if (!binaryBetas.contains(label,leftLabel,rightLabel)) {
+      double[][][] map=new double[1][1][1];
+      map[0][0][0]=0.0;
+      binaryBetas.put(label,leftLabel,rightLabel,map);
+    }
+  }
+ else   if (tree.children().length == 1) {
+    String label=tree.label().value();
+    String childLabel=tree.getChild(0).label().value();
+    if (!unaryBetas.contains(label,childLabel)) {
+      double[][] map=new double[1][1];
+      map[0][0]=0.0;
+      unaryBetas.put(label,childLabel,map);
+    }
+  }
+ else {
+    throw new RuntimeException("Trees should have been binarized, expected 1 or 2 children");
+  }
+  for (  Tree child : tree.children()) {
+    position=initialBetasAndLexicon(child,position,weight);
+  }
+  return position;
+}

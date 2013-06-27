@@ -1,0 +1,56 @@
+{
+  BasicSequenceMatchResult<CoreMap> res=matchResult.toBasicSequenceMatchResult();
+  List<? extends CoreMap> elements=matchResult.elements();
+  List<CoreMap> mergedElements=new ArrayList<CoreMap>();
+  res.elements=mergedElements;
+  int last=0;
+  int mergedGroup=0;
+  int offset=0;
+  List<Integer> orderedGroups=CollectionUtils.asList(groups);
+  Collections.sort(orderedGroups);
+  for (  int group : orderedGroups) {
+    int groupStart=matchResult.start(group);
+    if (groupStart >= last) {
+      mergedElements.addAll(elements.subList(last,groupStart));
+      for (; mergedGroup < group; mergedGroup++) {
+        if (res.matchedGroups[mergedGroup] != null) {
+          res.matchedGroups[mergedGroup].matchBegin-=offset;
+          res.matchedGroups[mergedGroup].matchEnd-=offset;
+        }
+      }
+      int groupEnd=matchResult.end(group);
+      if (groupEnd - groupStart >= 1) {
+        CoreMap merged=aggregator.merge(elements,groupStart,groupEnd);
+        mergedElements.add(merged);
+        last=groupEnd;
+        res.matchedGroups[mergedGroup].matchBegin=mergedElements.size() - 1;
+        res.matchedGroups[mergedGroup].matchEnd=mergedElements.size();
+        mergedGroup++;
+        while (mergedGroup < res.matchedGroups.length) {
+          if (res.matchedGroups[mergedGroup] != null) {
+            if (res.matchedGroups[mergedGroup].matchBegin == matchResult.start(group) && res.matchedGroups[mergedGroup].matchEnd == matchResult.end(group)) {
+              res.matchedGroups[mergedGroup].matchBegin=res.matchedGroups[group].matchBegin;
+              res.matchedGroups[mergedGroup].matchEnd=res.matchedGroups[group].matchEnd;
+            }
+ else             if (res.matchedGroups[mergedGroup].matchEnd <= matchResult.end(group)) {
+              res.matchedGroups[mergedGroup]=null;
+            }
+ else {
+              break;
+            }
+          }
+          mergedGroup++;
+        }
+        offset=matchResult.end(group) - res.matchedGroups[group].matchEnd;
+      }
+    }
+  }
+  mergedElements.addAll(elements.subList(last,elements.size()));
+  for (; mergedGroup < res.matchedGroups.length; mergedGroup++) {
+    if (res.matchedGroups[mergedGroup] != null) {
+      res.matchedGroups[mergedGroup].matchBegin-=offset;
+      res.matchedGroups[mergedGroup].matchEnd-=offset;
+    }
+  }
+  return res;
+}

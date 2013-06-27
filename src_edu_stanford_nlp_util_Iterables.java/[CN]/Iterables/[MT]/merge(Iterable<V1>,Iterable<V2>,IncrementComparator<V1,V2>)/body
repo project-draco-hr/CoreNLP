@@ -1,0 +1,54 @@
+{
+  return new Iterable<Pair<V1,V2>>(){
+    Iterator<V1> iterA=iter1.iterator();
+    Iterator<V2> iterB=iter2.iterator();
+    public Iterator<Pair<V1,V2>> iterator(){
+      return new Iterator<Pair<V1,V2>>(){
+        boolean ready=false;
+        Pair<V1,V2> pending=null;
+        public boolean hasNext(){
+          if (!ready) {
+            pending=nextPair();
+            ready=true;
+          }
+          return pending != null;
+        }
+        public Pair<V1,V2> next(){
+          if (!ready && !hasNext()) {
+            throw new IllegalAccessError("Called next without hasNext");
+          }
+          ready=false;
+          return pending;
+        }
+        public void remove(){
+          throw new UnsupportedOperationException("Cannot remove pairs " + "from a merged iterator");
+        }
+        private Pair<V1,V2> nextPair(){
+          V1 nextA=null;
+          V2 nextB=null;
+          while (iterA.hasNext() && iterB.hasNext()) {
+            if (nextA == null) {
+              nextA=iterA.next();
+            }
+            if (nextB == null) {
+              nextB=iterB.next();
+            }
+            int cmp=comparator.compare(nextA,nextB);
+            if (cmp < 0) {
+              nextA=null;
+            }
+ else             if (cmp > 0) {
+              nextB=null;
+            }
+ else {
+              return new Pair<V1,V2>(nextA,nextB);
+            }
+          }
+          return null;
+        }
+      }
+;
+    }
+  }
+;
+}

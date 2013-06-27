@@ -1,0 +1,14 @@
+{
+  if (MatchesPanel.getInstance().isEmpty())   return;
+  if (firstMouseEvent1 != null) {
+    e.consume();
+    int dx=Math.abs(e.getX() - firstMouseEvent1.getX());
+    int dy=Math.abs(e.getY() - firstMouseEvent1.getY());
+    if (dx > 5 || dy > 5) {
+      JComponent c=(JComponent)e.getSource();
+      TransferHandler handler=c.getTransferHandler();
+      handler.exportAsDrag(c,firstMouseEvent1,TransferHandler.COPY);
+      firstMouseEvent1=null;
+    }
+  }
+}

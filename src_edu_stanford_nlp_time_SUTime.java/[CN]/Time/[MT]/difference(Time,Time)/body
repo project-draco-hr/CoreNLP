@@ -1,0 +1,19 @@
+{
+  if (t1 == null || t2 == null)   return null;
+  Instant i1=t1.getJodaTimeInstant();
+  Instant i2=t2.getJodaTimeInstant();
+  if (i1 == null || i2 == null)   return null;
+  Duration d=new DurationWithMillis(i2.getMillis() - i1.getMillis());
+  Duration g1=t1.getGranularity();
+  Duration g2=t2.getGranularity();
+  Duration g=Duration.max(g1,g2);
+  if (g != null) {
+    Period p=g.getJodaTimePeriod();
+    p=p.normalizedStandard();
+    Period p2=JodaTimeUtils.discardMoreSpecificFields(d.getJodaTimePeriod(),p.getFieldType(p.size() - 1),i1.getChronology());
+    return new DurationWithFields(p2);
+  }
+ else {
+    return d;
+  }
+}

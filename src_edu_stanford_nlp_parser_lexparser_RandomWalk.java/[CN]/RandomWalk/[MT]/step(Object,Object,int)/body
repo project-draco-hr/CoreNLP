@@ -1,0 +1,16 @@
+{
+  if (steps < 1) {
+    return hiddenToSeen.get(hidden).getCount(seen) / hiddenToSeen.get(hidden).totalCount();
+  }
+ else {
+    double total=0;
+    for (    Object seen1 : seenToHidden.keySet()) {
+      for (      Object hidden1 : hiddenToSeen.keySet()) {
+        double subtotal=hiddenToSeen.get(hidden).getCount(seen1) / hiddenToSeen.get(hidden).totalCount() * (seenToHidden.get(seen1).getCount(hidden1) / seenToHidden.get(seen1).totalCount());
+        subtotal+=score(hidden1,seen,steps - 1);
+        total+=subtotal;
+      }
+    }
+    return total;
+  }
+}

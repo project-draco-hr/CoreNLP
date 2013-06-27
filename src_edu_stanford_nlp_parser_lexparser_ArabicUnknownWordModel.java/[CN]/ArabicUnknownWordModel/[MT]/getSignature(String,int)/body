@@ -1,0 +1,118 @@
+{
+  StringBuilder sb=new StringBuilder("UNK");
+switch (unknownLevel) {
+case 10:
+{
+      boolean allDigitPlus=ArabicUnknownWordSignatures.allDigitPlus(word);
+      int leng=word.length();
+      if (allDigitPlus) {
+        sb.append("-NUM");
+      }
+ else       if (word.startsWith("Al") || word.startsWith("\u0627\u0644")) {
+        sb.append("-Al");
+      }
+ else {
+        if (unknownPrefixSize > 0) {
+          int min=leng < unknownPrefixSize ? leng : unknownPrefixSize;
+          sb.append('-').append(word.substring(0,min));
+        }
+      }
+      if (word.length() == 1) {
+        sb.append(Character.getType(word.charAt(0)));
+      }
+      sb.append(ArabicUnknownWordSignatures.likelyAdjectivalSuffix(word));
+      sb.append(ArabicUnknownWordSignatures.pastTenseVerbNumberSuffix(word));
+      sb.append(ArabicUnknownWordSignatures.presentTenseVerbNumberSuffix(word));
+      String ans=ArabicUnknownWordSignatures.abstractionNounSuffix(word);
+      if (!"".equals(ans)) {
+        sb.append(ans);
+      }
+ else {
+        sb.append(ArabicUnknownWordSignatures.taaMarbuuTaSuffix(word));
+      }
+      if (unknownSuffixSize > 0 && !allDigitPlus) {
+        int min=leng < unknownSuffixSize ? leng : unknownSuffixSize;
+        sb.append('-').append(word.substring(word.length() - min));
+      }
+      break;
+    }
+case 9:
+{
+    boolean allDigitPlus=ArabicUnknownWordSignatures.allDigitPlus(word);
+    int leng=word.length();
+    if (allDigitPlus) {
+      sb.append("-NUM");
+    }
+ else     if (word.startsWith("Al") || word.startsWith("\u0627\u0644")) {
+      sb.append("-Al");
+    }
+ else {
+      if (unknownPrefixSize > 0) {
+        int min=leng < unknownPrefixSize ? leng : unknownPrefixSize;
+        sb.append('-').append(word.substring(0,min));
+      }
+    }
+    sb.append(ArabicUnknownWordSignatures.likelyAdjectivalSuffix(word));
+    sb.append(ArabicUnknownWordSignatures.pastTenseVerbNumberSuffix(word));
+    sb.append(ArabicUnknownWordSignatures.presentTenseVerbNumberSuffix(word));
+    String ans=ArabicUnknownWordSignatures.abstractionNounSuffix(word);
+    if (!"".equals(ans)) {
+      sb.append(ans);
+    }
+ else {
+      sb.append(ArabicUnknownWordSignatures.taaMarbuuTaSuffix(word));
+    }
+    if (unknownSuffixSize > 0 && !allDigitPlus) {
+      int min=leng < unknownSuffixSize ? leng : unknownSuffixSize;
+      sb.append('-').append(word.substring(word.length() - min));
+    }
+    break;
+  }
+case 8:
+{
+  if (word.startsWith("Al")) {
+    sb.append("-Al");
+  }
+  boolean allDigitPlus=ArabicUnknownWordSignatures.allDigitPlus(word);
+  if (allDigitPlus) {
+    sb.append("-NUM");
+  }
+ else {
+    sb.append('-').append(word.charAt(0));
+  }
+  sb.append(ArabicUnknownWordSignatures.likelyAdjectivalSuffix(word));
+  sb.append(ArabicUnknownWordSignatures.pastTenseVerbNumberSuffix(word));
+  sb.append(ArabicUnknownWordSignatures.presentTenseVerbNumberSuffix(word));
+  sb.append(ArabicUnknownWordSignatures.taaMarbuuTaSuffix(word));
+  sb.append(ArabicUnknownWordSignatures.abstractionNounSuffix(word));
+  break;
+}
+case 7:
+{
+boolean allDigitPlus=ArabicUnknownWordSignatures.allDigitPlus(word);
+if (allDigitPlus) {
+  sb.append("-NUM");
+}
+ else {
+  sb.append(word.charAt(word.length() - 1));
+}
+break;
+}
+case 6:
+{
+if (word.startsWith("Al")) {
+sb.append("-Al");
+}
+boolean allDigitPlus=ArabicUnknownWordSignatures.allDigitPlus(word);
+if (allDigitPlus) {
+sb.append("-NUM");
+}
+ else {
+sb.append(word.charAt(word.length() - 1));
+}
+break;
+}
+default :
+}
+return sb.toString();
+}

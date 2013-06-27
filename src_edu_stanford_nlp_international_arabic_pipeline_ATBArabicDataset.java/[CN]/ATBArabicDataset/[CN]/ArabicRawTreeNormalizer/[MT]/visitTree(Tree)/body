@@ -1,0 +1,21 @@
+{
+  if (t == null || t.value().equals("X"))   return;
+  if (t.yield().size() > maxLen)   return;
+  t=t.prune(nullFilter,tf);
+  t=arabicAoverAFilter(t);
+  if (customTreeVisitor != null)   customTreeVisitor.visitTree(t);
+  for (  Tree node : t) {
+    if (node.isPreTerminal()) {
+      processPreterminal(node);
+    }
+    if (removeDashTags && !node.isLeaf())     node.setValue(tlp.basicCategory(node.value()));
+  }
+  if (addRoot && t.value() != null && !t.value().equals("ROOT")) {
+    t=tf.newTreeNode("ROOT",Collections.singletonList(t));
+  }
+  outfile.println(t.toString());
+  if (flatFile != null) {
+    String flatString=(removeEscapeTokens) ? ATBTreeUtils.unEscape(ATBTreeUtils.flattenTree(t)) : ATBTreeUtils.flattenTree(t);
+    flatFile.println(flatString);
+  }
+}

@@ -1,0 +1,24 @@
+{
+  String rawTag=node.value();
+  if (rawTag.equals("-NONE-"))   return;
+  String rawWord=node.firstChild().value().trim();
+  Matcher left=leftClitic.matcher(rawWord);
+  boolean hasLeft=left.find();
+  Matcher right=rightClitic.matcher(rawWord);
+  boolean hasRight=right.find();
+  if (rawTag.equals("PUNC") || !(hasRight || hasLeft)) {
+    node.firstChild().setValue("XSEG");
+  }
+ else   if (hasRight && hasLeft) {
+    node.firstChild().setValue("SEGC");
+  }
+ else   if (hasRight) {
+    node.firstChild().setValue("SEGL");
+  }
+ else   if (hasLeft) {
+    node.firstChild().setValue("SEGR");
+  }
+ else {
+    throw new RuntimeException("Messy token: " + rawWord);
+  }
+}

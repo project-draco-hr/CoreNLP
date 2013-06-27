@@ -1,0 +1,26 @@
+{
+  if (candidate == null) {
+    return Integer.MIN_VALUE;
+  }
+ else   if (candidate.equals(target)) {
+    return 0;
+  }
+ else   if (samePrimitive(candidate,target)) {
+    return 0;
+  }
+ else {
+    Class<?> directSuper=candidate.getSuperclass();
+    int superDist=superDistance(directSuper,target);
+    if (superDist >= 0)     return superDist + 1;
+    Class<?>[] interfaces=candidate.getInterfaces();
+    int minDist=Integer.MAX_VALUE;
+    for (    Class<?> i : interfaces) {
+      superDist=superDistance(i,target);
+      if (superDist >= 0) {
+        minDist=Math.min(minDist,superDist);
+      }
+    }
+    if (minDist != Integer.MAX_VALUE)     return minDist + 1;
+ else     return -1;
+  }
+}

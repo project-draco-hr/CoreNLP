@@ -1,0 +1,34 @@
+{
+  try {
+    while (true) {
+      st.nextToken();
+      int nextToken=st.ttype;
+switch (nextToken) {
+case java.io.StreamTokenizer.TT_WORD:
+        if (st.sval.equals(":::") || st.sval.equals(";;")) {
+          do {
+            st.nextToken();
+            nextToken=st.ttype;
+          }
+ while (nextToken != java.io.StreamTokenizer.TT_EOL);
+          continue;
+        }
+ else         return st.sval;
+case java.io.StreamTokenizer.TT_NUMBER:
+      return Double.toString(st.nval);
+case java.io.StreamTokenizer.TT_EOL:
+    continue;
+case java.io.StreamTokenizer.TT_EOF:
+  return null;
+default :
+char[] t={(char)nextToken};
+return new String(t);
+}
+}
+}
+ catch (IOException e) {
+System.err.printf("%s: Unknown exception in input stream\n",this.getClass().getName());
+e.printStackTrace();
+}
+return null;
+}

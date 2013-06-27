@@ -1,0 +1,34 @@
+{
+  int[] indexMap=new int[numStates];
+  int j=0;
+  for (int i=0; i < numStates; i++) {
+    indexMap[i]=j;
+    if (wordsStartAt[i].size() != 0 || wordsEndAt[i].size() != 0) {
+      j++;
+    }
+  }
+  for (  HTKLatticeReader.LatticeWord lw : latticeWords) {
+    wordsStartAt[lw.startNode].remove(lw);
+    wordsEndAt[lw.endNode].remove(lw);
+    for (int i=lw.startNode; i < lw.endNode; i++) {
+      wordsAtTime[i].remove(lw);
+    }
+    lw.startNode=indexMap[lw.startNode];
+    lw.endNode=indexMap[lw.endNode];
+    wordsStartAt[lw.startNode].add(lw);
+    wordsEndAt[lw.endNode].add(lw);
+    for (int i=lw.startNode; i < lw.endNode; i++) {
+      wordsAtTime[i].add(lw);
+    }
+  }
+  numStates=j;
+  ArrayList<LatticeWord>[] tmp=wordsAtTime;
+  wordsAtTime=new ArrayList[numStates];
+  System.arraycopy(tmp,0,wordsAtTime,0,numStates);
+  tmp=wordsStartAt;
+  wordsStartAt=new ArrayList[numStates];
+  System.arraycopy(tmp,0,wordsStartAt,0,numStates);
+  tmp=wordsEndAt;
+  wordsEndAt=new ArrayList[numStates];
+  System.arraycopy(tmp,0,wordsEndAt,0,numStates);
+}

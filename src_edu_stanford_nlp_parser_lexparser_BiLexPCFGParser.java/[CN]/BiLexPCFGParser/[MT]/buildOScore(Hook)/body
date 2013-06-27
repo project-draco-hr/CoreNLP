@@ -1,0 +1,32 @@
+{
+  double bestOScore=Double.NEGATIVE_INFINITY;
+  Edge iTemp=new Edge(op.testOptions.exhaustiveTest);
+  Edge oTemp=new Edge(op.testOptions.exhaustiveTest);
+  iTemp.head=hook.head;
+  iTemp.tag=hook.tag;
+  iTemp.state=hook.subState;
+  oTemp.head=hook.head;
+  oTemp.tag=hook.tag;
+  oTemp.state=hook.state;
+  if (hook.isPreHook()) {
+    iTemp.end=hook.start;
+    oTemp.end=hook.end;
+    for (int start=0; start <= hook.head; start++) {
+      iTemp.start=start;
+      oTemp.start=start;
+      double oScore=scorer.oScore(oTemp) + scorer.iScore(iTemp);
+      bestOScore=SloppyMath.max(bestOScore,oScore);
+    }
+  }
+ else {
+    iTemp.start=hook.end;
+    oTemp.start=hook.start;
+    for (int end=hook.head + 1; end <= length; end++) {
+      iTemp.end=end;
+      oTemp.end=end;
+      double oScore=scorer.oScore(oTemp) + scorer.iScore(iTemp);
+      bestOScore=SloppyMath.max(bestOScore,oScore);
+    }
+  }
+  return bestOScore;
+}

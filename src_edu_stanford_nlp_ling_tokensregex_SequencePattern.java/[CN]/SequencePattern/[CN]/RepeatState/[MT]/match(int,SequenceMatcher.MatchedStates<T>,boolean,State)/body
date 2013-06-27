@@ -1,0 +1,54 @@
+{
+  int matchedCount=matchedStates.getBranchStates().endMatchedCountInc(bid,this);
+  int minMatchLeft=minMatch - matchedCount;
+  if (minMatchLeft < 0) {
+    minMatchLeft=0;
+  }
+  int maxMatchLeft;
+  if (maxMatch < 0) {
+    maxMatchLeft=maxMatch;
+  }
+ else {
+    maxMatchLeft=maxMatch - matchedCount;
+    if (maxMatch < 0) {
+      return false;
+    }
+  }
+  boolean match=false;
+  int totalBranches=0;
+  if (minMatchLeft == 0 && next != null) {
+    totalBranches+=next.size();
+  }
+  if (maxMatchLeft != 0) {
+    totalBranches++;
+  }
+  int i=0;
+  if (minMatchLeft == 0 && next != null) {
+    for (    State s : next) {
+      i++;
+      int pi=(greedyMatch && maxMatchLeft != 0) ? i + 1 : i;
+      int bid2=matchedStates.getBranchStates().getBranchId(bid,pi,totalBranches);
+      matchedStates.getBranchStates().clearMatchedCount(bid2,this);
+      boolean m=s.match(bid2,matchedStates,consume);
+      if (m) {
+        match=true;
+      }
+    }
+  }
+  if (maxMatchLeft != 0) {
+    i++;
+    int pi=greedyMatch ? 1 : i;
+    int bid2=matchedStates.getBranchStates().getBranchId(bid,pi,totalBranches);
+    if (consume) {
+      boolean m=repeatStart.match(bid2,matchedStates,consume);
+      if (m) {
+        match=true;
+        matchedStates.getBranchStates().startMatchedCountInc(bid2,this);
+      }
+    }
+ else {
+      matchedStates.addState(bid2,this);
+    }
+  }
+  return match;
+}

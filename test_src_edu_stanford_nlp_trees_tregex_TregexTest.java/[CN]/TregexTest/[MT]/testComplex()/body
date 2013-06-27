@@ -1,0 +1,22 @@
+{
+  String testPattern="S < (NP=m1 $.. (VP < ((/VB/ < /^(am|are|is|was|were|'m|'re|'s|be)$/) $.. NP=m2)))";
+  String testTree="(S (NP (NP (DT The) (JJ next) (NN stop)) (PP (IN on) (NP (DT the) (NN itinerary)))) (VP (VBD was) (NP (NP (NNP Chad)) (, ,) (SBAR (WHADVP (WRB where)) (S (NP (NNP Chen)) (VP (VBD dined) (PP (IN with) (NP (NP (NNP Chad) (POS \'s)) (NNP President) (NNP Idris) (NNP Debi)))))))) (. .))";
+  runTest(testPattern,"(ROOT " + testTree + ")",testTree);
+  testTree="(S (NP (NNP Chen) (NNP Shui) (HYPH -) (NNP bian)) (VP (VBZ is) (NP (NP (DT the) (JJ first) (NML (NNP ROC) (NN president))) (SBAR (S (ADVP (RB ever)) (VP (TO to) (VP (VB travel) (PP (IN to) (NP (JJ western) (NNP Africa))))))))) (. .))";
+  runTest(testPattern,"(ROOT " + testTree + ")",testTree);
+  testTree="(ROOT (S (NP (PRP$ My) (NN dog)) (VP (VBZ is) (VP (VBG eating) (NP (DT a) (NN sausage)))) (. .)))";
+  runTest(testPattern,testTree);
+  testTree="(ROOT (S (NP (PRP He)) (VP (MD will) (VP (VB be) (ADVP (RB here) (RB soon)))) (. .)))";
+  runTest(testPattern,testTree);
+  testPattern="/^NP(?:-TMP|-ADV)?$/=m1 < (NP=m2 $- /^,$/ $-- NP=m3 !$ CC|CONJP)";
+  testTree="(ROOT (S (NP (NP (NP (NP (DT The) (NNP ROC) (POS \'s)) (NN ambassador)) (PP (IN to) (NP (NNP Nicaragua)))) (, ,) (NP (NNP Antonio) (NNP Tsai)) (, ,)) (ADVP (RB bluntly)) (VP (VBD argued) (PP (IN in) (NP (NP (DT a) (NN briefing)) (PP (IN with) (NP (NNP Chen))))) (SBAR (IN that) (S (NP (NP (NP (NNP Taiwan) (POS \'s)) (JJ foreign) (NN assistance)) (PP (IN to) (NP (NNP Nicaragua)))) (VP (VBD was) (VP (VBG being) (ADJP (JJ misused))))))) (. .)))";
+  String expectedResult="(NP (NP (NP (NP (DT The) (NNP ROC) (POS 's)) (NN ambassador)) (PP (IN to) (NP (NNP Nicaragua)))) (, ,) (NP (NNP Antonio) (NNP Tsai)) (, ,))";
+  runTest(testPattern,testTree,expectedResult);
+  testTree="(ROOT (S (PP (IN In) (NP (NP (DT the) (NN opinion)) (PP (IN of) (NP (NP (NNP Norman) (NNP Hsu)) (, ,) (NP (NP (NN vice) (NN president)) (PP (IN of) (NP (NP (DT a) (NNS foods) (NN company)) (SBAR (WHNP (WHNP (WP$ whose) (NN family)) (PP (IN of) (NP (CD four)))) (S (VP (VBD had) (VP (VBN spent) (NP (QP (DT a) (JJ few)) (NNS years)) (PP (IN in) (NP (NNP New) (NNP Zealand))) (PP (IN before) (S (VP (VBG moving) (PP (IN to) (NP (NNP Dongguan))))))))))))))))) (, ,) (`` \") (NP (NP (DT The) (JJ first) (NN thing)) (VP (TO to) (VP (VB do)))) (VP (VBZ is) (S (VP (VB ask) (NP (DT the) (NNS children)) (NP (PRP$ their) (NN reason)) (PP (IN for) (S (VP (VBG saying) (NP (JJ such) (NNS things)))))))) (. .)))";
+  expectedResult="(NP (NP (NNP Norman) (NNP Hsu)) (, ,) (NP (NP (NN vice) (NN president)) (PP (IN of) (NP (NP (DT a) (NNS foods) (NN company)) (SBAR (WHNP (WHNP (WP$ whose) (NN family)) (PP (IN of) (NP (CD four)))) (S (VP (VBD had) (VP (VBN spent) (NP (QP (DT a) (JJ few)) (NNS years)) (PP (IN in) (NP (NNP New) (NNP Zealand))) (PP (IN before) (S (VP (VBG moving) (PP (IN to) (NP (NNP Dongguan))))))))))))))";
+  runTest(testPattern,testTree,expectedResult);
+  testTree="(ROOT (S (NP (NP (NNP Banana)) (, ,) (NP (NN orange)) (, ,) (CC and) (NP (NN apple))) (VP (VBP are) (NP (NNS fruits))) (. .)))";
+  runTest(testPattern,testTree);
+  testTree="(ROOT (S (NP (PRP He)) (, ,) (ADVP (RB however)) (, ,) (VP (VBZ does) (RB not) (VP (VB look) (ADJP (JJ fine)))) (. .)))";
+  runTest(testPattern,testTree);
+}

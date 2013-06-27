@@ -1,0 +1,16 @@
+{
+  String parentLabel=parent.label().value();
+  String childLabel=child.label().value();
+  double[] parentScores=probOut.get(parent);
+  double[][] betas=unaryBetas.get(parentLabel,childLabel);
+  int parentStates=betas.length;
+  int childStates=betas[0].length;
+  double[] scores=neginfDoubles(childStates);
+  probOut.put(child,scores);
+  for (int i=0; i < parentStates; ++i) {
+    for (int j=0; j < childStates; ++j) {
+      scores[j]=SloppyMath.logAdd(scores[j],betas[i][j] + parentScores[i]);
+    }
+  }
+  recurseOutside(child,probIn,probOut);
+}

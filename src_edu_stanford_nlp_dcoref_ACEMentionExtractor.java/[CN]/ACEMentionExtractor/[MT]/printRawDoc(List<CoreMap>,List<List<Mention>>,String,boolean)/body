@@ -1,0 +1,50 @@
+{
+  StringBuilder doc=new StringBuilder();
+  int previousOffset=0;
+  Counter<Integer> mentionCount=new ClassicCounter<Integer>();
+  for (  List<Mention> l : allMentions) {
+    for (    Mention m : l) {
+      mentionCount.incrementCount(m.goldCorefClusterID);
+    }
+  }
+  for (int i=0; i < sentences.size(); i++) {
+    CoreMap sentence=sentences.get(i);
+    List<Mention> mentions=allMentions.get(i);
+    String[] tokens=sentence.get(CoreAnnotations.TextAnnotation.class).split(" ");
+    String sent="";
+    List<CoreLabel> t=sentence.get(CoreAnnotations.TokensAnnotation.class);
+    if (previousOffset + 2 < t.get(0).get(CoreAnnotations.CharacterOffsetBeginAnnotation.class))     sent+="\n";
+    previousOffset=t.get(t.size() - 1).get(CoreAnnotations.CharacterOffsetEndAnnotation.class);
+    Counter<Integer> startCounts=new ClassicCounter<Integer>();
+    Counter<Integer> endCounts=new ClassicCounter<Integer>();
+    Map<Integer,Set<Integer>> endID=Generics.newHashMap();
+    for (    Mention m : mentions) {
+      startCounts.incrementCount(m.startIndex);
+      endCounts.incrementCount(m.endIndex);
+      if (!endID.containsKey(m.endIndex))       endID.put(m.endIndex,Generics.<Integer>newHashSet());
+      endID.get(m.endIndex).add(m.goldCorefClusterID);
+    }
+    for (int j=0; j < tokens.length; j++) {
+      if (endID.containsKey(j)) {
+        for (        Integer id : endID.get(j)) {
+          if (mentionCount.getCount(id) != 1 && gold)           sent+="]_" + id;
+ else           sent+="]";
+        }
+      }
+      for (int k=0; k < startCounts.getCount(j); k++) {
+        if (!sent.endsWith("["))         sent+=" ";
+        sent+="[";
+      }
+      sent+=" ";
+      sent=sent + tokens[j];
+    }
+    for (int k=0; k < endCounts.getCount(tokens.length); k++) {
+      sent+="]";
+    }
+    sent+="\n";
+    doc.append(sent);
+  }
+  if (gold)   logger.fine("New DOC: (GOLD MENTIONS) ==================================================");
+ else   logger.fine("New DOC: (Predicted Mentions) ==================================================");
+  logger.fine(doc.toString());
+}

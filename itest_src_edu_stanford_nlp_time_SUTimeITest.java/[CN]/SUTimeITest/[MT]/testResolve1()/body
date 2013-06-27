@@ -1,0 +1,16 @@
+{
+  String[] refTimes={"2011-06-03","2010-06-03","2010-05-03","2011-05-03","1988-01-03"};
+  String[] expectedTimexStrsResolved={"<TIMEX3 tid=\"t1\" value=\"2011-05-23\" type=\"DATE\">last Monday</TIMEX3>","<TIMEX3 tid=\"t1\" value=\"2010-05-24\" type=\"DATE\">last Monday</TIMEX3>","<TIMEX3 tid=\"t1\" value=\"2010-04-26\" type=\"DATE\">last Monday</TIMEX3>","<TIMEX3 tid=\"t1\" value=\"2011-04-25\" type=\"DATE\">last Monday</TIMEX3>","<TIMEX3 tid=\"t1\" value=\"1987-12-21\" type=\"DATE\">last Monday</TIMEX3>"};
+  String testText="last Monday";
+  for (int i=0; i < refTimes.length; i++) {
+    String refTime=refTimes[i];
+    String expectedTimexStr=expectedTimexStrsResolved[i];
+    Timex expectedTimex=Timex.fromXml(expectedTimexStr);
+    Annotation documentWithRefTime=createDocument(testText,refTime);
+    TimeAnnotator sutime=getTimeAnnotator();
+    sutime.annotate(documentWithRefTime);
+    List<CoreMap> timexes=documentWithRefTime.get(TimeAnnotations.TimexAnnotations.class);
+    assertEquals(1,timexes.size());
+    testTimex(testText,expectedTimex.text(),expectedTimex,timexes.get(0));
+  }
+}

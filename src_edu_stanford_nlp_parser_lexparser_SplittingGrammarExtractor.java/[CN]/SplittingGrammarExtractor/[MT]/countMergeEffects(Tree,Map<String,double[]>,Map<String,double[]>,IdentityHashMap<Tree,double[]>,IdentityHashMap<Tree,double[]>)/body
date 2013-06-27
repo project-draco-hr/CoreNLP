@@ -1,0 +1,34 @@
+{
+  if (tree.isLeaf()) {
+    return;
+  }
+  if (tree.label().value().equals(Lexicon.BOUNDARY_TAG)) {
+    return;
+  }
+  String label=tree.label().value();
+  double totalMass=0.0;
+  double[] stateMass=totalStateMass.get(label);
+  for (  double mass : stateMass) {
+    totalMass+=mass;
+  }
+  double[] nodeProbIn=probIn.get(tree);
+  double[] nodeProbOut=probOut.get(tree);
+  double[] nodeDelta=deltaAnnotations.get(label);
+  if (nodeDelta == null) {
+    nodeDelta=new double[nodeProbIn.length / 2];
+    deltaAnnotations.put(label,nodeDelta);
+  }
+  for (int i=0; i < nodeProbIn.length / 2; ++i) {
+    double probInMerged=SloppyMath.logAdd(Math.log(stateMass[i * 2] / totalMass) + nodeProbIn[i * 2],Math.log(stateMass[i * 2 + 1] / totalMass) + nodeProbIn[i * 2 + 1]);
+    double probOutMerged=SloppyMath.logAdd(nodeProbOut[i * 2],nodeProbOut[i * 2 + 1]);
+    double probMerged=probInMerged + probOutMerged;
+    double probUnmerged=SloppyMath.logAdd(nodeProbIn[i * 2] + nodeProbOut[i * 2],nodeProbIn[i * 2 + 1] + nodeProbOut[i * 2 + 1]);
+    nodeDelta[i]=nodeDelta[i] + probMerged - probUnmerged;
+  }
+  if (tree.isPreTerminal()) {
+    return;
+  }
+  for (  Tree child : tree.children()) {
+    countMergeEffects(child,totalStateMass,deltaAnnotations,probIn,probOut);
+  }
+}

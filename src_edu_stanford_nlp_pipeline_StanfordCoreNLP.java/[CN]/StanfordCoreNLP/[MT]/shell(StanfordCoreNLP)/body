@@ -1,0 +1,16 @@
+{
+  String encoding=pipeline.getEncoding();
+  BufferedReader r=new BufferedReader(IOUtils.encodedInputStreamReader(System.in,encoding));
+  System.err.println("Entering interactive shell. Type q RETURN or EOF to quit.");
+  while (true) {
+    System.err.print("NLP> ");
+    String line=r.readLine();
+    if (line == null || line.equalsIgnoreCase("q")) {
+      break;
+    }
+    if (line.length() > 0) {
+      Annotation anno=pipeline.process(line);
+      pipeline.prettyPrint(anno,System.out);
+    }
+  }
+}

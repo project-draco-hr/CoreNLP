@@ -1,0 +1,21 @@
+{
+  Pattern pat=Pattern.compile("([12][0-9]{3})[ /-]?([01]?[0-9])[ /-]([0-3]?[0-9])[ \t\r\n\f]*");
+  Matcher m=pat.matcher(inputDate);
+  if (m.matches()) {
+    if (DEBUG) {
+      System.err.println("YYYYMMDD succeeded");
+    }
+    String monthValue=m.group(2);
+    if (monthValue.length() < 2) {
+      monthValue='0' + monthValue;
+    }
+    String dayValue=m.group(3);
+    if (dayValue.length() < 2) {
+      dayValue='0' + dayValue;
+    }
+    String yearString=m.group(1);
+    isoDate=yearString + monthValue + dayValue;
+    return true;
+  }
+  return false;
+}

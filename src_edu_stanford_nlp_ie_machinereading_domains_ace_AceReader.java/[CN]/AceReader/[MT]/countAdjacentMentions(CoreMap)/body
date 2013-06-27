@@ -1,0 +1,13 @@
+{
+  List<EntityMention> mentions=sent.get(MachineReadingAnnotations.EntityMentionsAnnotation.class);
+  if (mentions != null) {
+    for (    EntityMention m1 : mentions) {
+      for (      EntityMention m2 : mentions) {
+        if (m1 == m2)         continue;
+        if (m1.getHeadTokenEnd() == m2.getHeadTokenStart() && m1.getType().equals(m2.getType())) {
+          adjacentEntityMentions.incrementCount(m1.getType());
+        }
+      }
+    }
+  }
+}

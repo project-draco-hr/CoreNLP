@@ -1,0 +1,25 @@
+{
+  double cL=lemmaTag.totalCount(lemmaId);
+  double cLT=lemmaTag.getCount(lemmaId,tagId);
+  double p_L=cL / lemmaTag.totalCount();
+  double cTseen=tagCounter.getCount(tagId);
+  double p_T=cTseen / tagCounter.totalCount();
+  double p_L_T=0.0;
+  if (cL > 0.0) {
+    double p_T_L=0.0;
+    if (cL > 100.0 && cLT > 0.0) {
+      p_T_L=cLT / cL;
+    }
+ else {
+      double cTunseen=lemmaTagUnseen.getCount(tagId);
+      double p_T_U=cTunseen / lemmaTagUnseen.totalCount();
+      p_T_L=(cLT + smooth[1] * p_T_U) / (cL + smooth[1]);
+    }
+    p_L_T=p_T_L * p_L / p_T;
+  }
+ else {
+    double cTunseen=lemmaTagUnseen.getCount(tagId);
+    p_L_T=cTunseen / tagCounter.totalCount();
+  }
+  return p_L_T;
+}

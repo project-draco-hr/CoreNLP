@@ -1,0 +1,52 @@
+{
+  LinkedList queue=new LinkedList();
+  ClassicCounter lambda=new ClassicCounter();
+  ClassicCounter length=new ClassicCounter();
+  Map first=new HashMap();
+  Set nodes=graph.getNodes();
+  for (  Object node : nodes) {
+    lambda.setCount(node,0);
+    length.setCount(node,Double.POSITIVE_INFINITY);
+  }
+  Set endNodes=graph.getEndNodes();
+  for (  Object o : endNodes) {
+    lambda.setCount(o,0);
+    length.setCount(o,0);
+    queue.addLast(o);
+  }
+  Object node=null;
+  try {
+    node=queue.removeFirst();
+  }
+ catch (  NoSuchElementException e) {
+  }
+  while (node != null) {
+    double oldLen=length.getCount(node);
+    Set arcs=graph.getArcsByTarget(node);
+    if (arcs != null) {
+      for (      Object arc1 : arcs) {
+        TransducerGraph.Arc arc=(TransducerGraph.Arc)arc1;
+        Object newNode=arc.getSourceNode();
+        Comparable a=(Comparable)arc.getInput();
+        double k=((Double)arc.getOutput()).doubleValue();
+        double newLen=length.getCount(newNode);
+        if (newLen == Double.POSITIVE_INFINITY) {
+          queue.addLast(newNode);
+        }
+        Comparable f=(Comparable)first.get(newNode);
+        if (newLen == Double.POSITIVE_INFINITY || (newLen == oldLen + 1 && a.compareTo(f) < 0)) {
+          first.put(newNode,a);
+          length.setCount(newNode,oldLen + 1);
+          lambda.setCount(newNode,k + lambda.getCount(node));
+        }
+      }
+    }
+    node=null;
+    try {
+      node=queue.removeFirst();
+    }
+ catch (    NoSuchElementException e) {
+    }
+  }
+  return lambda;
+}

@@ -1,0 +1,37 @@
+{
+  CoreLabel c=cInfo.get(loc);
+  CoreLabel p=cInfo.get(loc - 1);
+  CoreLabel p2=cInfo.get(loc - 2);
+  String cWord=getWord(c);
+  String pWord=getWord(p);
+  String p2Word=getWord(p2);
+  Collection<String> featuresCp2C=new ArrayList<String>();
+  if (flags.useMoreAbbr) {
+    featuresCp2C.add(p2.get(CoreAnnotations.AbbrAnnotation.class) + '-' + c.get(CoreAnnotations.AbbrAnnotation.class)+ "-P2ABBRANS");
+  }
+  if (flags.useMinimalAbbr) {
+    featuresCp2C.add(p2.get(CoreAnnotations.AbbrAnnotation.class) + '-' + c.get(CoreAnnotations.AbbrAnnotation.class)+ "-P2AP2CABB");
+  }
+  if (flags.useMinimalAbbr1) {
+    if (!c.get(CoreAnnotations.AbbrAnnotation.class).equals("XX")) {
+      featuresCp2C.add(p2.get(CoreAnnotations.AbbrAnnotation.class) + '-' + c.get(CoreAnnotations.AbbrAnnotation.class)+ "-P2AP2CABB");
+    }
+  }
+  if (flags.useParenMatching) {
+    if (flags.useReverse) {
+      if (cWord.equals("(") || cWord.equals("[") || cWord.equals("-LRB-")) {
+        if ((p2Word.equals(")") || p2Word.equals("]") || p2Word.equals("-RRB-")) && !(pWord.equals(")") || pWord.equals("]") || pWord.equals("-RRB-"))) {
+          featuresCp2C.add("PAREN-MATCH");
+        }
+      }
+    }
+ else {
+      if (cWord.equals(")") || cWord.equals("]") || cWord.equals("-RRB-")) {
+        if ((p2Word.equals("(") || p2Word.equals("[") || p2Word.equals("-LRB-")) && !(pWord.equals("(") || pWord.equals("[") || pWord.equals("-LRB-"))) {
+          featuresCp2C.add("PAREN-MATCH");
+        }
+      }
+    }
+  }
+  return featuresCp2C;
+}

@@ -1,0 +1,126 @@
+{
+  StringBuilder b=new StringBuilder();
+  String[] content;
+  if (record.content instanceof Throwable) {
+    List<String> lines=new ArrayList<String>();
+    StackTraceElement[] trace=null;
+    StackTraceElement topTraceElement=null;
+    Throwable exception=(Throwable)record.content;
+    lines.add(record.content.toString());
+    trace=exception.getStackTrace();
+    topTraceElement=trace.length > 0 ? trace[0] : null;
+    for (    StackTraceElement e : exception.getStackTrace()) {
+      lines.add(tab + e.toString());
+    }
+    while (exception.getCause() != null) {
+      System.out.println("TOP ELEMENT: " + topTraceElement);
+      exception=exception.getCause();
+      trace=exception.getStackTrace();
+      lines.add("Caused by: " + exception.getClass() + ": "+ exception.getMessage());
+      for (int i=0; i < trace.length; i++) {
+        StackTraceElement e=trace[i];
+        lines.add(tab + e.toString());
+        if (topTraceElement != null && e.getClassName().equals(topTraceElement.getClassName()) && e.getMethodName().equals(topTraceElement.getMethodName())) {
+          lines.add(tab + "..." + (trace.length - i - 1)+ " more");
+          break;
+        }
+      }
+      topTraceElement=trace.length > 0 ? trace[0] : null;
+    }
+    content=new String[lines.size()];
+    content=lines.toArray(content);
+  }
+ else   if (record.content == null) {
+    content=new String[]{"null"};
+  }
+ else {
+    content=record.content.toString().split("\n");
+  }
+  updateTracks(record.depth);
+  if (this.missingOpenBracket) {
+    this.style(b,"{\n",trackColor,trackStyle);
+    this.missingOpenBracket=false;
+  }
+  int cursorPos=0;
+  int contentLinesPrinted=0;
+  Color color=Color.NONE;
+  Style style=Style.NONE;
+  ArrayList<Object> printableChannels=new ArrayList<Object>();
+  for (  Object chan : record.channels()) {
+    if (chan instanceof Color) {
+      color=(Color)chan;
+    }
+ else     if (chan instanceof Style) {
+      style=(Style)chan;
+    }
+ else     if (chan != Redwood.FORCE) {
+      printableChannels.add(chan);
+    }
+  }
+  if (leftMargin > 2) {
+    b.append("[");
+    cursorPos+=1;
+    Object lastChan=null;
+    boolean wasAnyChannelPrinted=false;
+    for (int i=0; i < printableChannels.size(); i++) {
+      Object chan=printableChannels.get(i);
+      if (chan.equals(lastChan)) {
+        continue;
+      }
+      lastChan=chan;
+      String toPrint=chan.toString();
+      if (toPrint.length() > leftMargin - 1) {
+        toPrint=toPrint.substring(0,leftMargin - 2);
+      }
+      if (cursorPos + toPrint.length() >= leftMargin) {
+        while (cursorPos < leftMargin) {
+          b.append(" ");
+          cursorPos+=1;
+        }
+        if (contentLinesPrinted < content.length) {
+          writeContent(record.depth,style(new StringBuilder(),content[contentLinesPrinted],color,style).toString(),b);
+          contentLinesPrinted+=1;
+        }
+        b.append("\n ");
+        cursorPos=1;
+      }
+      boolean wasChannelPrinted=formatChannel(b,toPrint,chan);
+      wasAnyChannelPrinted=wasAnyChannelPrinted || wasChannelPrinted;
+      if (wasChannelPrinted && i < printableChannels.size() - 1) {
+        b.append(channelSeparatorChar);
+        cursorPos+=1;
+      }
+      cursorPos+=toPrint.length();
+    }
+    if (wasAnyChannelPrinted) {
+      b.append("]");
+      cursorPos+=1;
+    }
+ else {
+      b.setLength(b.length() - 1);
+      cursorPos-=1;
+    }
+  }
+  while (contentLinesPrinted < content.length) {
+    while (cursorPos < leftMargin) {
+      b.append(" ");
+      cursorPos+=1;
+    }
+    writeContent(record.depth,style(new StringBuilder(),content[contentLinesPrinted],color,style).toString(),b);
+    contentLinesPrinted+=1;
+    if (contentLinesPrinted < content.length) {
+      b.append("\n");
+      cursorPos=0;
+    }
+  }
+  if (b.length() == 0 || b.charAt(b.length() - 1) != '\n') {
+    b.append("\n");
+  }
+  print(record.channels(),b.toString());
+  if (info != null) {
+    info.numElementsPrinted+=1;
+  }
+  ArrayList<Record> rtn=new ArrayList<Record>();
+  rtn.add(record);
+  return rtn;
+}

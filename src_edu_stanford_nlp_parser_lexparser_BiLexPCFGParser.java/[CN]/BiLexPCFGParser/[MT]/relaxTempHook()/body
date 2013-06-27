@@ -1,0 +1,33 @@
+{
+  relaxHook1++;
+  if (VERBOSE) {
+    System.err.println("Considering: " + tempHook + " iP: "+ scorer.iPossible(tempHook)+ " oP: "+ scorer.oPossible(tempHook));
+  }
+  if (!op.testOptions.exhaustiveTest) {
+    if (!scorer.oPossible(tempHook) || !scorer.iPossible(tempHook)) {
+      return;
+    }
+  }
+  relaxHook2++;
+  Hook resultHook=(Hook)interner.intern(tempHook);
+  if (VERBOSE) {
+    System.err.printf("Formed %s %s %f was %f\n",resultHook,(resultHook == tempHook ? "new" : "old"),tempHook.iScore,resultHook.iScore);
+    if (resultHook.backEdge != null) {
+      System.err.println("  Backtrace: " + resultHook.backEdge);
+    }
+  }
+  if (resultHook == tempHook) {
+    relaxHook3++;
+    tempHook=new Hook(op.testOptions.exhaustiveTest);
+    discoverHook(resultHook);
+  }
+  if (better(tempHook.iScore,resultHook.iScore)) {
+    resultHook.iScore=tempHook.iScore;
+    resultHook.backEdge=tempHook.backEdge;
+    try {
+      agenda.decreaseKey(resultHook);
+    }
+ catch (    NullPointerException e) {
+    }
+  }
+}

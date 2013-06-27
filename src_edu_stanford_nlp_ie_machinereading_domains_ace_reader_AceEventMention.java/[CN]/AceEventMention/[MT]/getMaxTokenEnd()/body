@@ -1,0 +1,11 @@
+{
+  Collection<AceEventMentionArgument> args=getArgs();
+  int latestTokenStart=-1;
+  for (  AceEventMentionArgument arg : args) {
+    int tokenStart=arg.getContent().getHead().getTokenStart();
+    if (latestTokenStart == -1)     latestTokenStart=tokenStart;
+ else     latestTokenStart=Math.max(latestTokenStart,tokenStart);
+  }
+  if (latestTokenStart == -1)   return mExtent.getTokenStart();
+  return latestTokenStart;
+}

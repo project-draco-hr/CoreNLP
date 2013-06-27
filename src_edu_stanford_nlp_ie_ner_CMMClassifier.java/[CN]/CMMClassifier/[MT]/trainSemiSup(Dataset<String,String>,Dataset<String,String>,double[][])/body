@@ -1,0 +1,18 @@
+{
+  int prior=LogPrior.LogPriorType.QUADRATIC.ordinal();
+  if (flags.useHuber) {
+    prior=LogPrior.LogPriorType.HUBER.ordinal();
+  }
+ else   if (flags.useQuartic) {
+    prior=LogPrior.LogPriorType.QUARTIC.ordinal();
+  }
+  LinearClassifierFactory<String,String> lcf;
+  lcf=new LinearClassifierFactory<String,String>(flags.tolerance,flags.useSum,prior,flags.sigma,flags.epsilon,flags.QNsize);
+  if (flags.useQN) {
+    lcf.useQuasiNewton();
+  }
+ else {
+    lcf.useConjugateGradientAscent();
+  }
+  this.classifier=(LinearClassifier<String,String>)lcf.trainClassifierSemiSup(data,biasedData,confusionMatrix,null);
+}

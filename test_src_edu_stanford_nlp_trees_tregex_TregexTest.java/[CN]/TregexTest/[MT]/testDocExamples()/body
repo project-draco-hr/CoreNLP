@@ -1,0 +1,15 @@
+{
+  runTest("S < VP < NP","(S (VP) (NP))","(S (VP) (NP))");
+  runTest("S < VP < NP","(a (S (VP) (NP)) (S (NP) (VP)))","(S (VP) (NP))","(S (NP) (VP))");
+  runTest("S < VP < NP","(S (VP (NP)))");
+  runTest("S < VP & < NP","(S (VP) (NP))","(S (VP) (NP))");
+  runTest("S < VP & < NP","(a (S (VP) (NP)) (S (NP) (VP)))","(S (VP) (NP))","(S (NP) (VP))");
+  runTest("S < VP & < NP","(S (VP (NP)))");
+  runTest("S < VP << NP","(S (VP (NP)))","(S (VP (NP)))");
+  runTest("S < VP << NP","(S (VP) (foo NP))","(S (VP) (foo NP))");
+  runTest("S < (VP < NP)","(S (VP (NP)))","(S (VP (NP)))");
+  runTest("S < (NP $++ VP)","(S (NP) (VP))","(S (NP) (VP))");
+  runTest("S < (NP $++ VP)","(S (NP VP))");
+  runTest("(NP < NN | < NNS)","((NP NN) (NP foo) (NP NNS))","(NP NN)","(NP NNS)");
+  runTest("(NP [< NN | < NNS] & > S)","(foo (S (NP NN) (NP foo) (NP NNS)) (NP NNS))","(NP NN)","(NP NNS)");
+}

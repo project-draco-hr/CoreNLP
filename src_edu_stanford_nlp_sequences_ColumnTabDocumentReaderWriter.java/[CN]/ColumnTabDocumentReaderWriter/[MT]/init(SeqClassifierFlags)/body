@@ -1,0 +1,20 @@
+{
+  if (flags.tokensAnnotationClassName != null) {
+    this.tokensAnnotationClassName=flags.tokensAnnotationClassName;
+  }
+ else {
+    this.tokensAnnotationClassName="edu.stanford.nlp.ling.CoreAnnotations$TokensAnnotation";
+  }
+  if (flags.tokenFactory != null) {
+    try {
+      this.tokenFactory=(CoreTokenFactory<IN>)Class.forName(flags.tokenFactory).newInstance();
+    }
+ catch (    Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+ else {
+    this.tokenFactory=(CoreTokenFactory<IN>)new CoreLabelTokenFactory();
+  }
+  init(flags,this.tokenFactory,this.tokensAnnotationClassName);
+}

@@ -1,0 +1,28 @@
+{
+  means=new double[this.numFeatures()];
+  Arrays.fill(means,0);
+  for (int i=0; i < this.size(); i++) {
+    for (int j=0; j < data[i].length; j++)     means[data[i][j]]+=values[i][j];
+  }
+  ArrayMath.multiplyInPlace(means,1.0 / this.size());
+  stdevs=new double[this.numFeatures()];
+  Arrays.fill(stdevs,0);
+  double[] deltaX=new double[this.numFeatures()];
+  for (int i=0; i < this.size(); i++) {
+    for (int f=0; f < this.numFeatures(); f++)     deltaX[f]=-means[f];
+    for (int j=0; j < data[i].length; j++)     deltaX[data[i][j]]+=values[i][j];
+    for (int f=0; f < this.numFeatures(); f++) {
+      stdevs[f]+=deltaX[f] * deltaX[f];
+    }
+  }
+  for (int f=0; f < this.numFeatures(); f++) {
+    stdevs[f]/=(this.size() - 1);
+    stdevs[f]=Math.sqrt(stdevs[f]);
+  }
+  for (int i=0; i < this.size(); i++) {
+    for (int j=0; j < data[i].length; j++) {
+      int fID=data[i][j];
+      if (stdevs[fID] != 0)       values[i][j]=(values[i][j] - means[fID]) / stdevs[fID];
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  double precision=evalPrecision(guesses,golds);
+  lastPrecision=precision;
+  double recall=evalRecall(guesses,golds);
+  lastRecall=recall;
+  double f1=(2 * precision * recall) / (precision + recall);
+  lastF1=f1;
+  guessed+=guesses.size();
+  guessedCorrect+=(guesses.size() == 0.0 ? 0.0 : precision * guesses.size());
+  gold+=golds.size();
+  goldCorrect+=(golds.size() == 0.0 ? 0.0 : recall * golds.size());
+  pw.println("This example:\tP:\t" + precision + " R:\t"+ recall+ " F1:\t"+ f1);
+  double cumPrecision=guessedCorrect / guessed;
+  double cumRecall=goldCorrect / gold;
+  double cumF1=(2 * cumPrecision * cumRecall) / (cumPrecision + cumRecall);
+  pw.println("Cumulative:\tP:\t" + cumPrecision + " R:\t"+ cumRecall+ " F1:\t"+ cumF1);
+}

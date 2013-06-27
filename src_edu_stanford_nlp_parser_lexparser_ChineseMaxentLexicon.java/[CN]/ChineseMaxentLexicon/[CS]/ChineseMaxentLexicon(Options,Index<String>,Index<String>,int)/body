@@ -1,0 +1,22 @@
+{
+  this.op=op;
+  this.tlpParams=op.tlpParams;
+  this.ctlp=op.tlpParams.treebankLanguagePack();
+  ;
+  this.wordIndex=wordIndex;
+  this.tagIndex=tagIndex;
+  this.featureLevel=featureLevel;
+  if (fixUnkFunctionWords) {
+    String filename="unknown_function_word-simple.gb";
+    try {
+      BufferedReader in=new BufferedReader(new InputStreamReader(new FileInputStream(filename),"GB18030"));
+      for (String line=in.readLine(); line != null; line=in.readLine()) {
+        String[] parts=line.split("\\s+",2);
+        functionWordTags.put(parts[0],parts[1]);
+      }
+    }
+ catch (    IOException e) {
+      throw new RuntimeException("Couldn't read function word file " + filename);
+    }
+  }
+}

@@ -1,0 +1,44 @@
+{
+  if (flags.useReverse) {
+    Collections.reverse(document);
+  }
+  if (flags.lowerNewgeneThreshold) {
+    System.err.println("Using NEWGENE threshold: " + flags.newgeneThreshold);
+    for (int i=0, docSize=document.size(); i < docSize; i++) {
+      CoreLabel wordInfo=document.get(i);
+      Datum<String,String> d=makeDatum(document,i,featureFactory);
+      Counter<String> scores=classifier.scoresOf(d);
+      String answer=flags.backgroundSymbol;
+      if ("NEWGENE".equals(wordInfo.get(CoreAnnotations.GazAnnotation.class))) {
+        for (        String label : scores.keySet()) {
+          if ("G".equals(label)) {
+            System.err.println(wordInfo.word() + ':' + scores.getCount(label));
+            if (scores.getCount(label) > flags.newgeneThreshold) {
+              answer=label;
+            }
+          }
+        }
+      }
+      wordInfo.set(CoreAnnotations.AnswerAnnotation.class,answer);
+    }
+  }
+ else {
+    for (int i=0, listSize=document.size(); i < listSize; i++) {
+      String answer=classOf(document,i);
+      CoreLabel wordInfo=document.get(i);
+      wordInfo.set(CoreAnnotations.AnswerAnnotation.class,answer);
+    }
+    if (flags.justify && (classifier instanceof LinearClassifier)) {
+      LinearClassifier<String,String> lc=(LinearClassifier<String,String>)classifier;
+      for (int i=0, lsize=document.size(); i < lsize; i++) {
+        CoreLabel lineInfo=document.get(i);
+        System.err.print("@@ Position " + i + ": ");
+        System.err.println(lineInfo.word() + " chose " + lineInfo.get(CoreAnnotations.AnswerAnnotation.class));
+        lc.justificationOf(makeDatum(document,i,featureFactory));
+      }
+    }
+  }
+  if (flags.useReverse) {
+    Collections.reverse(document);
+  }
+}

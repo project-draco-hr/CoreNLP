@@ -1,0 +1,19 @@
+{
+  Timing.startTime();
+  TreeTransformer annotator=new TreeAnnotator(tlpParams.headFinder(),tlpParams,op);
+  op.trainOptions.splitters=ParentAnnotationStats.getEnglishSplitCategories(treebankRoot);
+  op.trainOptions.sisterSplitters=Generics.newHashSet(Arrays.asList(op.tlpParams.sisterSplitters()));
+  for (  Tree goldTree : testTreebank) {
+    goldTree=annotator.transformTree(goldTree);
+    for (    Tree localTree : goldTree) {
+      if (localTree.isLeaf() || localTree.isPreTerminal() || localTree.children().length < 2) {
+        continue;
+      }
+      System.out.println(localTreeToRule(localTree));
+      double score=computeLocalTreeScore(localTree,stateIndex,pd);
+      if (score == Double.NEGATIVE_INFINITY) {
+      }
+      System.out.println("score: " + score);
+    }
+  }
+}

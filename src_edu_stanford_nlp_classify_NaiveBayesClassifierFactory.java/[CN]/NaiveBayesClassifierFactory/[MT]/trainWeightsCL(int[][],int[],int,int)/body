@@ -1,0 +1,8 @@
+{
+  LogConditionalEqConstraintFunction objective=new LogConditionalEqConstraintFunction(numFeatures,numClasses,data,labels,prior,sigma,0.0);
+  Minimizer<DiffFunction> min=new QNMinimizer();
+  double[] argmin=min.minimize(objective,1e-4,objective.initial());
+  double[][][] wts=objective.to3D(argmin);
+  double[] priors=objective.priors(argmin);
+  return new NBWeights(priors,wts);
+}

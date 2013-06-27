@@ -1,0 +1,30 @@
+{
+  String origDateString=referenceDate.getStartDate();
+  String monthString=origDateString.substring(4,6);
+  if (monthString.contains("*")) {
+    isoDate=origDateString;
+    return;
+  }
+  Integer monthNum=Integer.parseInt(monthString);
+  if (((monthNum + relation.second()) > 12) || ((monthNum + relation.second) < 1)) {
+    boolean decreasing=((monthNum + relation.second) < 1);
+    int newMonthNum=(monthNum + relation.second()) % 12;
+    if (newMonthNum < 0) {
+      newMonthNum*=-1;
+    }
+    isoDate=makeStringMonthChange(origDateString,newMonthNum);
+    String yearString=origDateString.substring(0,4);
+    if (!yearString.contains("*")) {
+      int numYearsToIncrement=(int)Math.ceil(relation.second() / 12.0);
+      if (decreasing) {
+        isoDate=makeStringYearChange(isoDate,Integer.parseInt(yearString) - numYearsToIncrement);
+      }
+ else {
+        isoDate=makeStringYearChange(isoDate,Integer.parseInt(yearString) + numYearsToIncrement);
+      }
+    }
+  }
+ else {
+    isoDate=makeStringMonthChange(origDateString,(monthNum + relation.second()));
+  }
+}

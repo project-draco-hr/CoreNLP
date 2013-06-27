@@ -1,0 +1,54 @@
+{
+  SemanticGraph h=SemanticGraph.valueOf("[married/VBN nsubjpass:Hughes/NNP auxpass:was/VBD prep_to:Gracia/NNP]");
+  SemanticGraph t=SemanticGraph.valueOf("[loved/VBD\nnsubj:Hughes/NNP\ndobj:[wife/NN poss:his/PRP$ appos:Gracia/NNP]\nconj_and:[obsessed/JJ\ncop:was/VBD\nadvmod:absolutely/RB\nprep_with:[Elicia/NN poss:his/PRP$ amod:little/JJ nn:daughter/NN]]]");
+  String s="(ROOT\n(S\n(NP (DT The) (NN chimney) (NNS sweeps))\n(VP (VBP do) (RB not)\n(VP (VB like)\n(S\n(VP (VBG working)\n(PP (IN on)\n(NP (DT an) (JJ empty) (NN stomach)))))))\n(. .)))";
+  Tree tree=Tree.valueOf(s);
+  SemanticGraph sg=SemanticGraphFactory.allTypedDependencies(tree,true);
+  SemgrexPattern pat=SemgrexPattern.compile("{}=gov ![>det {}] & > {word:/^(?!not).*$/}=dep");
+  sg.prettyPrint();
+  pat.prettyPrint();
+  SemgrexMatcher mat=pat.matcher(sg);
+  while (mat.find()) {
+    String gov=mat.getNode("gov").word();
+    String dep=mat.getNode("dep").word();
+    System.out.println(dep + ' ' + gov);
+  }
+  SemgrexPattern pat2=SemgrexPattern.compile("{} [[>/nn|appos/ ({lemma:/wife|husband|partner/} >/poss/ {}=txtPartner)] | [<poss ({}=txtPartner >/nn|appos/ {lemma:/wife|husband|partner/})]" + "| [<nsubj ({$} >> ({word:/wife|husband|partner/} >poss {word:/his|her/} >/nn|appos/ {}))]]");
+  SemgrexMatcher mat2=pat2.matcher(t);
+  while (mat2.find()) {
+    String match=mat2.getMatch().word();
+    System.out.println(match);
+  }
+  HashMap<IndexedWord,IndexedWord> map=new HashMap<IndexedWord,IndexedWord>();
+  map.put(h.getNodeByWordPattern("Hughes"),t.getNodeByWordPattern("Hughes"));
+  map.put(h.getNodeByWordPattern("Gracia"),t.getNodeByWordPattern("Gracia"));
+  Alignment alignment=new Alignment(map,0,"");
+  SemgrexPattern fullPat=SemgrexPattern.compile("({}=partnerOne [[<prep_to ({word:married} >nsubjpass {}=partnerTwo)] | [<nsubjpass ({word:married} >prep_to {}=partnerTwo)]]) @ ({} [[>/nn|appos/ ({lemma:/wife|husband|partner/} >/poss/ {}=txtPartner)] | [<poss ({}=txtPartner >/nn|appos/ {lemma:/wife|husband|partner/})]" + "| [<nsubj ({$} >> ({word:/wife|husband|partner/} >poss {word:/his|her/} >/nn|appos/ {}=txtPartner))]])");
+  fullPat.prettyPrint();
+  SemgrexMatcher fullMat=fullPat.matcher(h,alignment,t);
+  if (fullMat.find()) {
+    System.out.println("woo: " + fullMat.getMatch().word());
+    System.out.println(fullMat.getNode("txtPartner"));
+    System.out.println(fullMat.getNode("partnerOne"));
+    System.out.println(fullMat.getNode("partnerTwo"));
+  }
+ else {
+    System.out.println("boo");
+  }
+  SemgrexPattern pat3=SemgrexPattern.compile("({word:/LIKE/}=parent >>/aux.*/ {word:/do/}=node)");
+  System.out.println("pattern is ");
+  pat3.prettyPrint();
+  System.out.println("tree is ");
+  sg.prettyPrint();
+  SemgrexMatcher mat3=pat3.matcher(sg,true);
+  if (mat3.find()) {
+    String parent=mat3.getNode("parent").word();
+    String node=mat3.getNode("node").word();
+    System.out.println("Result: parent is " + parent + " and node is "+ node);
+    Assert.assertEquals(parent,"like");
+    Assert.assertEquals(node,"do");
+  }
+ else {
+    Assert.fail();
+  }
+}

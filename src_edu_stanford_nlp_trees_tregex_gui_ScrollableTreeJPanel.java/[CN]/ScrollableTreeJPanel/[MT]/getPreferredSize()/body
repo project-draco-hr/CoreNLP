@@ -1,0 +1,16 @@
+{
+  if (preferredSize != null) {
+    return preferredSize;
+  }
+  if (tree == null) {
+    return super.getSize();
+  }
+  FontMetrics fM=getFontMetrics(new Font(fontName,style,fontSize));
+  double nodeHeight=fM.getHeight();
+  double layerMultiplier=(1.0 + belowLineSkip + aboveLineSkip+ parentSkip);
+  double layerHeight=nodeHeight * layerMultiplier;
+  double layerBuffer=(diffConstituents.size() + 1) * layerHeight;
+  layerBuffer+=20.0;
+  preferredSize=new Dimension((int)width(tree,fM),(int)(height(tree,fM) + layerBuffer));
+  return preferredSize;
+}

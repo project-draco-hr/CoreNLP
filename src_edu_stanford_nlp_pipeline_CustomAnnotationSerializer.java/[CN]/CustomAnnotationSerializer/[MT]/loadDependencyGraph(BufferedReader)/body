@@ -1,0 +1,40 @@
+{
+  IntermediateSemanticGraph graph=new IntermediateSemanticGraph();
+  String line=reader.readLine().trim();
+  if (line.length() > 0) {
+    String[] bits=line.split("\t");
+    if (bits.length < 3)     throw new RuntimeException("ERROR: Invalid dependency node line: " + line);
+    String docId=bits[0];
+    if (docId.equals("-"))     docId="";
+    int sentIndex=Integer.valueOf(bits[1]);
+    for (int i=2; i < bits.length; i++) {
+      String bit=bits[i];
+      String[] bbits=bit.split("-");
+      int copyAnnotation=-1;
+      if (bbits.length > 2) {
+        throw new RuntimeException("ERROR: Invalid format for dependency graph: " + line);
+      }
+ else       if (bbits.length == 2) {
+        copyAnnotation=Integer.valueOf(bbits[1]);
+      }
+      int index=Integer.valueOf(bbits[0]);
+      graph.nodes.add(new IntermediateNode(docId,sentIndex,index,copyAnnotation));
+    }
+  }
+  line=reader.readLine().trim();
+  if (line.length() > 0) {
+    String[] bits=line.split("\t");
+    for (    String bit : bits) {
+      String[] bbits=bit.split(" ");
+      if (bbits.length < 3 || bbits.length > 4) {
+        throw new RuntimeException("ERROR: Invalid format for dependency graph: " + line);
+      }
+      String dep=bbits[0];
+      int source=Integer.valueOf(bbits[1]);
+      int target=Integer.valueOf(bbits[2]);
+      boolean isExtra=(bbits.length == 4) ? Boolean.valueOf(bbits[3]) : false;
+      graph.edges.add(new IntermediateEdge(dep,source,target,isExtra));
+    }
+  }
+  return graph;
+}

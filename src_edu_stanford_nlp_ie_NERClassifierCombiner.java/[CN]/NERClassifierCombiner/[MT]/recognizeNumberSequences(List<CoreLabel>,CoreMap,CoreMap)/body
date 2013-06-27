@@ -1,0 +1,14 @@
+{
+  List<CoreLabel> newWords=NumberSequenceClassifier.copyTokens(words,sentence);
+  nsc.classifyWithGlobalInformation(newWords,document,sentence);
+  for (int i=0, sz=words.size(); i < sz; i++) {
+    CoreLabel origWord=words.get(i);
+    CoreLabel newWord=newWords.get(i);
+    String before=origWord.get(CoreAnnotations.AnswerAnnotation.class);
+    String newGuess=newWord.get(CoreAnnotations.AnswerAnnotation.class);
+    if ((before == null || before.equals(nsc.flags.backgroundSymbol) || before.equals("MISC")) && !newGuess.equals(nsc.flags.backgroundSymbol)) {
+      origWord.set(CoreAnnotations.AnswerAnnotation.class,newGuess);
+    }
+    NumberSequenceClassifier.transferAnnotations(newWord,origWord);
+  }
+}

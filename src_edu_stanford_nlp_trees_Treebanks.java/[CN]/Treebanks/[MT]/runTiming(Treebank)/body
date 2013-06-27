@@ -1,0 +1,24 @@
+{
+  System.out.println();
+  Timing.startTime();
+  int num=0;
+  for (  Tree t : treebank) {
+    num+=t.yield().size();
+  }
+  Timing.endTime("traversing corpus, counting words with iterator");
+  System.err.println("There were " + num + " words in the treebank.");
+  treebank.apply(new TreeVisitor(){
+    int num=0;
+    @Override public void visitTree(    final Tree t){
+      num+=t.yield().size();
+    }
+  }
+);
+  System.err.println();
+  Timing.endTime("traversing corpus, counting words with TreeVisitor");
+  System.err.println("There were " + num + " words in the treebank.");
+  System.err.println();
+  Timing.startTime();
+  System.err.println("This treebank contains " + treebank.size() + " trees.");
+  Timing.endTime("size of corpus");
+}

@@ -1,0 +1,13 @@
+{
+  if (t == null || t.value().equals("X"))   return;
+  t=t.prune(nullFilter,new LabeledScoredTreeFactory());
+  for (  Tree node : t) {
+    if (node.isPreTerminal()) {
+      processPreterminal(node);
+    }
+  }
+  outfile.println(ATBTreeUtils.taggedStringFromTree(t,removeEscapeTokens,wordTagDelim));
+  if (flatFile != null) {
+    flatFile.println(ATBTreeUtils.flattenTree(t));
+  }
+}

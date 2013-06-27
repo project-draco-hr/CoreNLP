@@ -1,0 +1,23 @@
+{
+  StringBuffer out=new StringBuffer();
+  Matcher matcher=MACRO_NAME_PATTERN.matcher(line);
+  int offset=0;
+  while (matcher.find(offset)) {
+    int start=matcher.start();
+    int end=matcher.end();
+    String name=line.substring(start + 2,end - 1);
+    String value=macros.get(name);
+    if (value == null) {
+      throw new RuntimeException("ERROR: Unknown macro \"" + name + "\"!");
+    }
+    if (start > offset) {
+      out.append(line.substring(offset,start));
+    }
+    out.append(value);
+    offset=end;
+  }
+  if (offset < line.length())   out.append(line.substring(offset));
+  String postProcessed=out.toString();
+  if (!postProcessed.equals(line))   System.err.println("Line \"" + line + "\" changed to \""+ postProcessed+ "\"");
+  return postProcessed;
+}

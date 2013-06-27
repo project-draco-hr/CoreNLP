@@ -1,0 +1,39 @@
+{
+  super("relabel",new TsurgeonPattern[]{child});
+  Matcher m1=substPattern.matcher(newLabel);
+  if (m1.matches()) {
+    mode=RelabelMode.REGEX;
+    this.labelRegex=Pattern.compile(m1.group(1));
+    this.replacementString=m1.group(2);
+    replacementPieces=new ArrayList<String>();
+    Matcher generalMatcher=oneGeneralReplacementPattern.matcher(m1.group(2));
+    int lastPosition=0;
+    while (generalMatcher.find()) {
+      if (generalMatcher.start() > lastPosition) {
+        replacementPieces.add(replacementString.substring(lastPosition,generalMatcher.start()));
+      }
+      lastPosition=generalMatcher.end();
+      String piece=generalMatcher.group();
+      if (piece.equals(""))       continue;
+      replacementPieces.add(generalMatcher.group());
+    }
+    if (lastPosition < replacementString.length()) {
+      replacementPieces.add(replacementString.substring(lastPosition));
+    }
+    this.newLabel=null;
+  }
+ else {
+    mode=RelabelMode.FIXED;
+    Matcher m2=regexPattern.matcher(newLabel);
+    if (m2.matches()) {
+      String unescapedLabel=m2.group(1);
+      this.newLabel=removeEscapeSlashes(unescapedLabel);
+    }
+ else {
+      this.newLabel=newLabel;
+    }
+    this.replacementString=null;
+    this.replacementPieces=null;
+    this.labelRegex=null;
+  }
+}

@@ -1,0 +1,31 @@
+{
+  if (!(obj instanceof CoreMap)) {
+    return false;
+  }
+  if (obj instanceof HashableCoreMap) {
+    return obj.equals(this);
+  }
+  if (obj instanceof ArrayCoreMap) {
+    return equals((ArrayCoreMap)obj);
+  }
+  CoreMap other=(CoreMap)obj;
+  if (!this.keySet().equals(other.keySet())) {
+    return false;
+  }
+  for (  Class key : this.keySet()) {
+    if (!other.has(key)) {
+      return false;
+    }
+    Object thisV=this.get(key), otherV=other.get(key);
+    if (thisV == otherV) {
+      continue;
+    }
+    if (thisV == null || otherV == null) {
+      return false;
+    }
+    if (!thisV.equals(otherV)) {
+      return false;
+    }
+  }
+  return true;
+}

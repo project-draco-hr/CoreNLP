@@ -1,0 +1,18 @@
+{
+  ArrayList<Word> newSent=new ArrayList<Word>();
+  for (  Word word : sent) {
+    if (newSent.size() > 0) {
+      String prevWord=newSent.get(newSent.size() - 1).toString();
+      String curWord=word.toString();
+      String prevChar=prevWord.substring(prevWord.length() - 1);
+      String curChar=curWord.substring(0,1);
+      if (!isChinese(prevChar) && !isChinese(curChar)) {
+        Word mergedWord=new Word(prevWord + curWord);
+        newSent.set(newSent.size() - 1,mergedWord);
+        continue;
+      }
+    }
+    newSent.add(word);
+  }
+  return new ArrayList<Word>(newSent);
+}

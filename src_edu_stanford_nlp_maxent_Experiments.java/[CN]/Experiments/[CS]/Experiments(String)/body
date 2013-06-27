@@ -1,0 +1,61 @@
+{
+  try {
+    Exception e1=new Exception("Incorrect data file format");
+    BufferedReader in=new BufferedReader(new FileReader(filename));
+    String head=in.readLine();
+    if (!head.equals("<data>")) {
+      throw e1;
+    }
+    String xLine=in.readLine();
+    if (!xLine.startsWith("<xSize>")) {
+      throw e1;
+    }
+    if (!xLine.endsWith("</xSize>")) {
+      throw e1;
+    }
+    int index1=xLine.indexOf('>');
+    int index2=xLine.lastIndexOf('<');
+    String xSt=xLine.substring(index1 + 1,index2);
+    System.out.println(xSt);
+    xSize=Integer.parseInt(xSt);
+    System.out.println("xSize is " + xSize);
+    String yLine=in.readLine();
+    if (!yLine.startsWith("<ySize>")) {
+      throw e1;
+    }
+    if (!yLine.endsWith("</ySize>")) {
+      throw e1;
+    }
+    index1=yLine.indexOf('>');
+    index2=yLine.lastIndexOf('<');
+    ySize=Integer.parseInt(yLine.substring(index1 + 1,index2));
+    System.out.println("ySize is " + ySize);
+    String nLine=in.readLine();
+    if (!nLine.startsWith("<number>")) {
+      throw e1;
+    }
+    if (!nLine.endsWith("</number>")) {
+      throw e1;
+    }
+    index1=nLine.indexOf('>');
+    index2=nLine.lastIndexOf('<');
+    int number=Integer.parseInt(nLine.substring(index1 + 1,index2));
+    System.out.println("number is " + number);
+    vArray=new int[number][2];
+    int current=0;
+    while (current < number) {
+      String experiment=in.readLine();
+      int index=experiment.indexOf(' ');
+      int x=Integer.parseInt(experiment.substring(0,index));
+      int y=Integer.parseInt(experiment.substring(index + 1));
+      vArray[current][0]=x;
+      vArray[current][1]=y;
+      current++;
+    }
+    ptilde(ySize);
+  }
+ catch (  Exception e) {
+    System.out.println("Incorrect data file format");
+    e.printStackTrace();
+  }
+}

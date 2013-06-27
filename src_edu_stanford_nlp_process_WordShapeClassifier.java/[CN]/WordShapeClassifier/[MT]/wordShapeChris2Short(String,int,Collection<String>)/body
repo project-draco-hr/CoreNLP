@@ -1,0 +1,35 @@
+{
+  int sbLen=(knownLCWords != null) ? len + 1 : len;
+  final StringBuilder sb=new StringBuilder(sbLen);
+  boolean nonLetters=false;
+  for (int i=0; i < len; i++) {
+    char c=s.charAt(i);
+    char m=c;
+    if (Character.isDigit(c)) {
+      m='d';
+    }
+ else     if (Character.isLowerCase(c)) {
+      m='x';
+    }
+ else     if (Character.isUpperCase(c) || Character.isTitleCase(c)) {
+      m='X';
+    }
+    for (    String gr : greek) {
+      if (s.startsWith(gr,i)) {
+        m='g';
+        i+=gr.length() - 1;
+        break;
+      }
+    }
+    if (m != 'x' && m != 'X') {
+      nonLetters=true;
+    }
+    sb.append(m);
+  }
+  if (knownLCWords != null) {
+    if (!nonLetters && knownLCWords.contains(s.toLowerCase())) {
+      sb.append('k');
+    }
+  }
+  return sb.toString();
+}

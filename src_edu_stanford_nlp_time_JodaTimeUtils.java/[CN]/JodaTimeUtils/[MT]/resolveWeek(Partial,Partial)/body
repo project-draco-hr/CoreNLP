@@ -1,0 +1,12 @@
+{
+  if (isCompatible(p1,p2)) {
+    if (!p1.isSupported(DateTimeFieldType.dayOfMonth())) {
+      if (p2.isSupported(DateTimeFieldType.dayOfMonth()) && p2.isSupported(DateTimeFieldType.monthOfYear()) && p2.isSupported(DateTimeFieldType.year())) {
+        Instant t2=getInstant(p2);
+        DateTime t1=p1.toDateTime(t2);
+        return getPartial(t1.toInstant(),p1.without(DateTimeFieldType.dayOfMonth()).without(DateTimeFieldType.monthOfYear()).with(DateTimeFieldType.weekOfWeekyear(),1));
+      }
+    }
+  }
+  return p1;
+}

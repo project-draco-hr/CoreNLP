@@ -1,0 +1,23 @@
+{
+  List<IndexedWord> uncompressedList=Generics.newLinkedList(vertexSet());
+  List<Pair<String,IndexedWord>> specifics=Generics.newArrayList();
+  for (  IndexedWord word : vertexSet()) {
+    for (    SemanticGraphEdge edge : getIncomingEdgesSorted(word)) {
+      GrammaticalRelation relation=edge.getRelation();
+      String specific=relation.getSpecific();
+      if (specific == null) {
+        if (edge.getRelation().equals(EnglishGrammaticalRelations.AGENT)) {
+          specific="by";
+        }
+      }
+      if (specific != null) {
+        Pair<String,IndexedWord> specPair=new Pair<String,IndexedWord>(specific,word);
+        specifics.add(specPair);
+      }
+    }
+  }
+  for (  Pair<String,IndexedWord> tuple : specifics) {
+    insertSpecificIntoList(tuple.first(),tuple.second(),uncompressedList);
+  }
+  return StringUtils.join(uncompressedList," ");
+}

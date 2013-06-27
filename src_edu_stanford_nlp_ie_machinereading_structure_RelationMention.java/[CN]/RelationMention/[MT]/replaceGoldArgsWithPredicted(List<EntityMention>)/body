@@ -1,0 +1,27 @@
+{
+  List<ExtractionObject> newArgs=new ArrayList<ExtractionObject>();
+  for (  ExtractionObject arg : args) {
+    if (!(arg instanceof EntityMention)) {
+      continue;
+    }
+    EntityMention goldEnt=(EntityMention)arg;
+    EntityMention newArg=null;
+    for (    EntityMention pred : predictedMentions) {
+      if (goldEnt.textEquals(pred)) {
+        newArg=pred;
+        break;
+      }
+    }
+    if (newArg != null) {
+      newArgs.add(newArg);
+      logger.info("Replacing relation argument: [" + goldEnt + "] with predicted mention ["+ newArg+ "]");
+    }
+ else {
+      newArgs.add(goldEnt);
+      predictedMentions.add(goldEnt);
+      logger.info("Failed to match relation argument, so keeping gold: " + goldEnt);
+    }
+  }
+  this.args=newArgs;
+  return true;
+}

@@ -1,0 +1,27 @@
+{
+  if (state.isAccepting()) {
+    return;
+  }
+  Set<T> inputs=state.continuingInputs();
+  for (  T input : inputs) {
+    DFSATransition<T,S> transition=state.transition(input);
+    DFSAState<T,S> target=transition.target();
+    Set<T> inputs2=target.continuingInputs();
+    boolean allTerminate=true;
+    for (    T input2 : inputs2) {
+      DFSATransition<T,S> transition2=target.transition(input2);
+      DFSAState<T,S> target2=transition2.target();
+      if (target2.isAccepting()) {
+        w.write(prefix + " --> " + input+ " "+ input2+ "\n");
+      }
+ else {
+        allTerminate=false;
+      }
+    }
+    if (!allTerminate) {
+      String newPrefix=prefix + "_" + input;
+      w.write(prefix + " --> " + input+ " "+ newPrefix+ "\n");
+      printTrieAsRulesHelper(transition.target(),newPrefix,w);
+    }
+  }
+}

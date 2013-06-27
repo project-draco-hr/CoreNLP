@@ -1,0 +1,42 @@
+{
+  logger.severe("GenericDataSetReader: Started pre-processing the corpus...");
+  if (processor != null) {
+    List<CoreMap> sentences=dataset.get(CoreAnnotations.SentencesAnnotation.class);
+    if (sentences.size() > 0 && !sentences.get(0).containsKey(TreeCoreAnnotations.TreeAnnotation.class)) {
+      logger.info("Annotating dataset with " + processor);
+      processor.annotate(dataset);
+    }
+ else {
+      logger.info("Found existing syntactic annotations. Will not use the NLP processor.");
+    }
+  }
+  List<CoreMap> sentences=dataset.get(CoreAnnotations.SentencesAnnotation.class);
+  logger.fine("Extracted " + sentences.size() + " sentences.");
+  for (  CoreMap sentence : sentences) {
+    List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
+    logger.fine("Processing sentence " + tokens);
+    Tree tree=sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+    if (tree == null)     throw new RuntimeException("ERROR: MR requires full syntactic analysis!");
+    convertToCoreLabels(tree);
+    CoreLabel l=(CoreLabel)tree.label();
+    if (forceGenerationOfIndexSpans || (!l.containsKey(CoreAnnotations.BeginIndexAnnotation.class) && !l.containsKey(CoreAnnotations.EndIndexAnnotation.class))) {
+      tree.indexSpans(0);
+      logger.fine("Index spans were generated.");
+    }
+ else {
+      logger.fine("Index spans were NOT generated.");
+    }
+    logger.fine("Parse tree using CoreLabel:\n" + tree.pennString());
+    if (sentence.get(MachineReadingAnnotations.EntityMentionsAnnotation.class) != null) {
+      for (      EntityMention ent : sentence.get(MachineReadingAnnotations.EntityMentionsAnnotation.class)) {
+        logger.fine("Finding head for entity: " + ent);
+        int headPos=assignSyntacticHead(ent,tree,tokens,calculateHeadSpan);
+        logger.fine("Syntactic head of mention \"" + ent + "\" is: "+ tokens.get(headPos).word());
+        assert(ent.getExtent() != null);
+        assert(ent.getHead() != null);
+        assert(ent.getSyntacticHeadTokenPosition() >= 0);
+      }
+    }
+  }
+  logger.severe("GenericDataSetReader: Pre-processing complete.");
+}

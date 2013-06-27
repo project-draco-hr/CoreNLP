@@ -1,0 +1,16 @@
+{
+  Thread pmm=new Thread(new PeakMemoryMonitor());
+  pmm.start();
+  long time=System.currentTimeMillis();
+  MemoryMonitor mm=new MemoryMonitor();
+  long time2=System.currentTimeMillis();
+  System.out.println("Created MemoryMonitor.  Took " + (time2 - time) + " milliseconds.");
+  System.out.println(mm);
+  time=System.currentTimeMillis();
+  mm.pollVMstat(true);
+  time2=System.currentTimeMillis();
+  System.out.println("Second Poll.  Took " + (time2 - time) + " milliseconds.");
+  System.out.println(mm);
+  pmm.interrupt();
+  pmm.join();
+}

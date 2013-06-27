@@ -1,0 +1,34 @@
+{
+  Object obj=variables.get(name);
+  if (obj != null) {
+    if (obj instanceof SequencePattern) {
+      SequencePattern seqPattern=(SequencePattern)obj;
+      if (seqPattern.getPatternExpr() instanceof SequencePattern.NodePatternExpr) {
+        return ((SequencePattern.NodePatternExpr)seqPattern.getPatternExpr()).nodePattern;
+      }
+ else {
+        throw new Error("Invalid node pattern class: " + seqPattern.getPatternExpr().getClass() + " for variable "+ name);
+      }
+    }
+ else     if (obj instanceof SequencePattern.NodePatternExpr) {
+      SequencePattern.NodePatternExpr pe=(SequencePattern.NodePatternExpr)obj;
+      return pe.nodePattern;
+    }
+ else     if (obj instanceof NodePattern) {
+      return (NodePattern)obj;
+    }
+ else     if (obj instanceof String) {
+      try {
+        SequencePattern.NodePatternExpr pe=(SequencePattern.NodePatternExpr)parser.parseNode(this,(String)obj);
+        return pe.nodePattern;
+      }
+ catch (      Exception pex) {
+        throw new RuntimeException("Error parsing " + obj + " to node pattern",pex);
+      }
+    }
+ else {
+      throw new Error("Invalid node pattern variable class: " + obj.getClass() + " for variable "+ name);
+    }
+  }
+  return null;
+}

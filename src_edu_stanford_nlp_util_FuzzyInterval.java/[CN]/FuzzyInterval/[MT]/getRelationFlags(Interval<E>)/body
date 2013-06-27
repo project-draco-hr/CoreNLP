@@ -1,0 +1,42 @@
+{
+  if (other == null)   return 0;
+  int flags=0;
+  boolean hasUnknown=false;
+  if (this.first.isComparable(other.first())) {
+    int comp11=this.first.compareTo(other.first());
+    flags|=toRelFlags(comp11,REL_FLAGS_SS_SHIFT);
+  }
+ else {
+    flags|=REL_FLAGS_SS_UNKNOWN;
+    hasUnknown=true;
+  }
+  if (this.second.isComparable(other.second())) {
+    int comp22=this.second.compareTo(other.second());
+    flags|=toRelFlags(comp22,REL_FLAGS_EE_SHIFT);
+  }
+ else {
+    flags|=REL_FLAGS_EE_UNKNOWN;
+    hasUnknown=true;
+  }
+  if (this.first.isComparable(other.second())) {
+    int comp12=this.first.compareTo(other.second());
+    flags|=toRelFlags(comp12,REL_FLAGS_SE_SHIFT);
+  }
+ else {
+    flags|=REL_FLAGS_SE_UNKNOWN;
+    hasUnknown=true;
+  }
+  if (this.second.isComparable(other.first())) {
+    int comp21=this.second.compareTo(other.first());
+    flags|=toRelFlags(comp21,REL_FLAGS_ES_SHIFT);
+  }
+ else {
+    flags|=REL_FLAGS_ES_UNKNOWN;
+    hasUnknown=true;
+  }
+  if (hasUnknown) {
+    flags=restrictFlags(flags);
+  }
+  flags=addIntervalRelationFlags(flags,hasUnknown);
+  return flags;
+}

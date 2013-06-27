@@ -1,0 +1,106 @@
+{
+  boolean leftHeaded=dependency.leftHeaded && directional;
+  IntTaggedWord unknownHead=new IntTaggedWord(-1,dependency.head.tag);
+  IntTaggedWord unknownArg=new IntTaggedWord(-1,dependency.arg.tag);
+  if (verbose) {
+    System.out.println("Generating " + dependency);
+  }
+  short distance=dependency.distance;
+  int hW=dependency.head.word;
+  int aW=dependency.arg.word;
+  IntTaggedWord aTW=dependency.arg;
+  IntTaggedWord hTW=dependency.head;
+  double pb_stop_hTWds=getStopProb(dependency);
+  boolean isRoot=rootTW(dependency.head);
+  if (dependency.arg.word == -2) {
+    if (isRoot) {
+      return 0.0;
+    }
+    return pb_stop_hTWds;
+  }
+  double pb_go_hTWds=1.0 - pb_stop_hTWds;
+  if (isRoot) {
+    pb_go_hTWds=1.0;
+  }
+  int valenceBinDistance=valenceBin(distance);
+  IntDependency temp=new IntDependency(dependency.head,dependency.arg,leftHeaded,valenceBinDistance);
+  double c_aTW_hTWd=argCounter.getCount(temp);
+  temp=new IntDependency(dependency.head,unknownArg,leftHeaded,valenceBinDistance);
+  double c_aT_hTWd=argCounter.getCount(temp);
+  temp=new IntDependency(dependency.head,wildTW,leftHeaded,valenceBinDistance);
+  double c_hTWd=argCounter.getCount(temp);
+  temp=new IntDependency(unknownHead,dependency.arg,leftHeaded,valenceBinDistance);
+  double c_aTW_hTd=argCounter.getCount(temp);
+  temp=new IntDependency(unknownHead,unknownArg,leftHeaded,valenceBinDistance);
+  double c_aT_hTd=argCounter.getCount(temp);
+  temp=new IntDependency(unknownHead,wildTW,leftHeaded,valenceBinDistance);
+  double c_hTd=argCounter.getCount(temp);
+  temp=new IntDependency(wildTW,dependency.arg,false,-1);
+  double c_aTW=argCounter.getCount(temp);
+  temp=new IntDependency(wildTW,unknownArg,false,-1);
+  double c_aT=argCounter.getCount(temp);
+  double p_aTW_hTd=(c_hTd > 0.0 ? c_aTW_hTd / c_hTd : 0.0);
+  double p_aT_hTd=(c_hTd > 0.0 ? c_aT_hTd / c_hTd : 0.0);
+  double p_aTW_aT=(c_aTW > 0.0 ? c_aTW / c_aT : 1.0);
+  double pb_aTW_hTWd;
+  double pb_aT_hTWd=(c_aT_hTWd + smooth_aT_hTWd * p_aT_hTd) / (c_hTWd + smooth_aT_hTWd);
+  double score;
+  List<Triple<Integer,String,Double>> sim2head=null;
+  List<Triple<Integer,String,Double>> sim2arg=null;
+  sim2arg=simArgMap.get(new Pair<Integer,String>(dependency.arg.word,stringBasicCategory(dependency.arg.tag)));
+  sim2head=simHeadMap.get(new Pair<Integer,String>(dependency.head.word,stringBasicCategory(dependency.head.tag)));
+  List<Integer> simArg=new ArrayList<Integer>();
+  List<Integer> simHead=new ArrayList<Integer>();
+  if (sim2arg != null) {
+    for (    Triple<Integer,String,Double> t : sim2arg) {
+      simArg.add(t.first);
+    }
+  }
+  if (sim2head != null) {
+    for (    Triple<Integer,String,Double> t : sim2head) {
+      simHead.add(t.first);
+    }
+  }
+  double cSim_aTW_hTd=0;
+  double cSim_hTd=0;
+  for (  int h : simHead) {
+    IntTaggedWord hWord=new IntTaggedWord(h,dependency.head.tag);
+    temp=new IntDependency(hWord,dependency.arg,dependency.leftHeaded,dependency.distance);
+    cSim_aTW_hTd+=argCounter.getCount(temp);
+    temp=new IntDependency(hWord,wildTW,dependency.leftHeaded,dependency.distance);
+    cSim_hTd+=argCounter.getCount(temp);
+  }
+  double pSim_aTW_hTd=(cSim_hTd > 0.0 ? cSim_aTW_hTd / cSim_hTd : 0.0);
+  if (debug) {
+    if (pSim_aTW_hTd > 0.0) {
+      System.out.println(dependency + "\t" + pSim_aTW_hTd);
+    }
+  }
+  double smoothSim_aTW_hTWd=17.7;
+  double smooth_aTW_hTWd=17.7 * 2;
+  pb_aTW_hTWd=(c_aTW_hTWd + smoothSim_aTW_hTWd * pSim_aTW_hTd + smooth_aTW_hTWd * p_aTW_hTd) / (c_hTWd + smoothSim_aTW_hTWd + smooth_aTW_hTWd);
+  System.out.println(dependency);
+  System.out.println(c_aTW_hTWd + " + " + smoothSim_aTW_hTWd+ " * "+ pSim_aTW_hTd+ " + "+ smooth_aTW_hTWd+ " * "+ p_aTW_hTd);
+  System.out.println("--------------------------------  = " + pb_aTW_hTWd);
+  System.out.println(c_hTWd + " + " + smoothSim_aTW_hTWd+ " + "+ smooth_aTW_hTWd);
+  System.out.println();
+  score=(interp * pb_aTW_hTWd + (1.0 - interp) * p_aTW_aT * pb_aT_hTWd) * pb_go_hTWds;
+  if (verbose) {
+    NumberFormat nf=NumberFormat.getNumberInstance();
+    nf.setMaximumFractionDigits(2);
+    System.out.println("  c_aTW_hTWd: " + c_aTW_hTWd + "; c_aT_hTWd: "+ c_aT_hTWd+ "; c_hTWd: "+ c_hTWd);
+    System.out.println("  c_aTW_hTd: " + c_aTW_hTd + "; c_aT_hTd: "+ c_aT_hTd+ "; c_hTd: "+ c_hTd);
+    System.out.println("  Generated with pb_go_hTWds: " + nf.format(pb_go_hTWds) + " pb_aTW_hTWd: "+ nf.format(pb_aTW_hTWd)+ " p_aTW_aT: "+ nf.format(p_aTW_aT)+ " pb_aT_hTWd: "+ nf.format(pb_aT_hTWd));
+    System.out.println("  NoDist score: " + score);
+  }
+  if (op.testOptions.prunePunc && pruneTW(aTW)) {
+    return 1.0;
+  }
+  if (Double.isNaN(score)) {
+    score=0.0;
+  }
+  if (score < MIN_PROBABILITY) {
+    score=0.0;
+  }
+  return score;
+}

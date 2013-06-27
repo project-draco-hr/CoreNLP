@@ -1,0 +1,56 @@
+{
+  try {
+    Timing tim=new Timing();
+    System.err.print("Loading parser from text file " + textFileOrUrl + ' ');
+    BufferedReader in=IOUtils.readerFromString(textFileOrUrl);
+    Timing.startTime();
+    String line=in.readLine();
+    confirmBeginBlock(textFileOrUrl,line);
+    op.readData(in);
+    System.err.print(".");
+    line=in.readLine();
+    confirmBeginBlock(textFileOrUrl,line);
+    Index<String> stateIndex=HashIndex.loadFromReader(in);
+    System.err.print(".");
+    line=in.readLine();
+    confirmBeginBlock(textFileOrUrl,line);
+    Index<String> wordIndex=HashIndex.loadFromReader(in);
+    System.err.print(".");
+    line=in.readLine();
+    confirmBeginBlock(textFileOrUrl,line);
+    Index<String> tagIndex=HashIndex.loadFromReader(in);
+    System.err.print(".");
+    line=in.readLine();
+    confirmBeginBlock(textFileOrUrl,line);
+    Lexicon lex=op.tlpParams.lex(op,wordIndex,tagIndex);
+    String uwmClazz=line.split(" +")[2];
+    if (!uwmClazz.equals("null")) {
+      UnknownWordModel model=ReflectionLoading.loadByReflection(uwmClazz,op,lex,wordIndex,tagIndex);
+      lex.setUnknownWordModel(model);
+    }
+    lex.readData(in);
+    System.err.print(".");
+    line=in.readLine();
+    confirmBeginBlock(textFileOrUrl,line);
+    UnaryGrammar ug=new UnaryGrammar(stateIndex);
+    ug.readData(in);
+    System.err.print(".");
+    line=in.readLine();
+    confirmBeginBlock(textFileOrUrl,line);
+    BinaryGrammar bg=new BinaryGrammar(stateIndex);
+    bg.readData(in);
+    System.err.print(".");
+    line=in.readLine();
+    confirmBeginBlock(textFileOrUrl,line);
+    DependencyGrammar dg=new MLEDependencyGrammar(op.tlpParams,op.directional,op.distance,op.coarseDistance,op.trainOptions.basicCategoryTagsInDependencyGrammar,op,wordIndex,tagIndex);
+    dg.readData(in);
+    System.err.print(".");
+    in.close();
+    System.err.println(" done [" + tim.toSecondsString() + " sec].");
+    return new LexicalizedParser(lex,bg,ug,dg,stateIndex,wordIndex,tagIndex,op);
+  }
+ catch (  IOException e) {
+    e.printStackTrace();
+  }
+  return null;
+}

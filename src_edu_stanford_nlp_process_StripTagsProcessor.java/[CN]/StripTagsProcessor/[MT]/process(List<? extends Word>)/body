@@ -1,0 +1,32 @@
+{
+  List<Word> out=new ArrayList<Word>();
+  boolean justInsertedNewline=false;
+  for (  Word w : in) {
+    String ws=w.word();
+    if (ws.startsWith("<") && ws.endsWith(">")) {
+      if (markLineBreaks && !justInsertedNewline) {
+        int tagStartIndex=1;
+        while (tagStartIndex < ws.length() && !Character.isLetter(ws.charAt(tagStartIndex))) {
+          tagStartIndex++;
+        }
+        if (tagStartIndex == ws.length()) {
+          continue;
+        }
+        int tagEndIndex=ws.length() - 1;
+        while (tagEndIndex > tagStartIndex && !Character.isLetterOrDigit(ws.charAt(tagEndIndex))) {
+          tagEndIndex--;
+        }
+        String tagName=ws.substring(tagStartIndex,tagEndIndex + 1).toLowerCase();
+        if (blockTags.contains(tagName)) {
+          out.add(new Word("\n"));
+          justInsertedNewline=true;
+        }
+      }
+    }
+ else {
+      out.add(w);
+      justInsertedNewline=false;
+    }
+  }
+  return out;
+}

@@ -1,0 +1,41 @@
+{
+  List<Label> labels=tree.yield();
+  for (  Label label : labels) {
+    ++nTokens;
+    if (!(label instanceof CoreLabel)) {
+      throw new IllegalArgumentException("Only works with CoreLabels trees");
+    }
+    CoreLabel coreLabel=(CoreLabel)label;
+    String lemma=coreLabel.lemma();
+    if (lemma == null) {
+      lemma=coreLabel.word();
+    }
+ else     if (lemma.equals("(")) {
+      lemma="-LRB-";
+    }
+ else     if (lemma.equals(")")) {
+      lemma="-RRB-";
+    }
+    if (lemmasAsLeaves) {
+      String escapedLemma=lemma;
+      coreLabel.setWord(escapedLemma);
+      coreLabel.setValue(escapedLemma);
+      coreLabel.setLemma(lemma);
+    }
+    if (addMorphoToLeaves) {
+      String morphStr=coreLabel.originalText();
+      if (morphStr == null || morphStr.equals("")) {
+        morphStr=MorphoFeatureSpecification.NO_ANALYSIS;
+      }
+ else {
+        ++nMorphAnalyses;
+      }
+      if (morphStr.startsWith("PONCT")) {
+        morphStr="PUNC";
+      }
+      String newLeaf=String.format("%s%s%s%s%s",coreLabel.value(),MorphoFeatureSpecification.MORPHO_MARK,lemma,MorphoFeatureSpecification.LEMMA_MARK,morphStr);
+      coreLabel.setValue(newLeaf);
+      coreLabel.setWord(newLeaf);
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  List<Vertex> tails=derivation.arc.tails;
+  for (int i=0, sz=derivation.arc.size(); i < sz; i++) {
+    List<Integer> j=new ArrayList<Integer>(derivation.j);
+    j.set(i,j.get(i) + 1);
+    Vertex Ti=tails.get(i);
+    lazyKthBest(Ti,j.get(i),kPrime);
+    LinkedList<Derivation> dHatTi=dHat.get(Ti);
+    if (j.get(i) - 1 >= dHatTi.size()) {
+      continue;
+    }
+    Derivation d=dHatTi.get(j.get(i) - 1);
+    double newScore=derivation.score - derivation.childrenScores.get(i) + d.score;
+    List<Double> childrenScores=new ArrayList<Double>(derivation.childrenScores);
+    childrenScores.set(i,d.score);
+    Derivation newDerivation=new Derivation(derivation.arc,j,newScore,childrenScores);
+    if (!candV.contains(newDerivation) && newScore > Double.NEGATIVE_INFINITY) {
+      candV.add(newDerivation,newScore);
+    }
+  }
+}

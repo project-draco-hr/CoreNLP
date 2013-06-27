@@ -1,0 +1,61 @@
+{
+  while (rootsIndex < roots.length) {
+    while (!fileArrayStack.empty()) {
+      Object obj=fileArrayStack.peek();
+      if (obj instanceof File[]) {
+        File[] files=(File[])obj;
+        Integer index=fileArrayStackIndices.pop();
+        int ind=index.intValue();
+        if (ind < files.length) {
+          index=Integer.valueOf(ind + 1);
+          fileArrayStackIndices.push(index);
+          fileArrayStack.push(files[ind]);
+        }
+ else {
+          fileArrayStack.pop();
+        }
+      }
+ else {
+        fileArrayStack.pop();
+        if (obj instanceof String) {
+          obj=new File((String)obj);
+        }
+        if (!(obj instanceof File)) {
+          throw new IllegalArgumentException("Collection elements must be Files or Strings");
+        }
+        File path=(File)obj;
+        if (path.isDirectory()) {
+          File[] directoryListing=path.listFiles(filt);
+          if (directoryListing == null) {
+            throw new IllegalArgumentException("Directory access problem for: " + path);
+          }
+          if (includeDirs) {
+            if (directoryListing.length > 0) {
+              fileArrayStack.push(directoryListing);
+              fileArrayStackIndices.push(Integer.valueOf(0));
+            }
+            return path;
+          }
+ else {
+            if (directoryListing.length > 0) {
+              fileArrayStack.push(directoryListing);
+              fileArrayStackIndices.push(Integer.valueOf(0));
+            }
+          }
+        }
+ else {
+          if (!path.exists()) {
+            throw new IllegalArgumentException("File doesn't exist: " + path);
+          }
+          return path;
+        }
+      }
+    }
+    rootsIndex++;
+    if (rootsIndex < roots.length) {
+      fileArrayStack.add(roots[rootsIndex]);
+      fileArrayStackIndices.push(Integer.valueOf(0));
+    }
+  }
+  return null;
+}

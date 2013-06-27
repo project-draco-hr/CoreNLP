@@ -1,0 +1,24 @@
+{
+  Object node=this.getStartNode();
+  for (int j=0; j < path.size() - 1; j++) {
+    Object input=path.get(j);
+    Arc arc=this.getArcBySourceAndInput(node,input);
+    if (arc == null) {
+      return true;
+    }
+    node=arc.getTargetNode();
+  }
+  Object input=path.get(path.size() - 1);
+  Arc arc=this.getArcBySourceAndInput(node,input);
+  if (arc == null) {
+    return true;
+  }
+ else {
+    if (getEndNodes().contains(arc.getTargetNode())) {
+      return true;
+    }
+ else {
+      return false;
+    }
+  }
+}

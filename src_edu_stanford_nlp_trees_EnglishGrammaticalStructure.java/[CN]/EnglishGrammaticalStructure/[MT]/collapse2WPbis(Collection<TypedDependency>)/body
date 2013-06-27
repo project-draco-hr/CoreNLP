@@ -1,0 +1,59 @@
+{
+  Collection<TypedDependency> newTypedDeps=new ArrayList<TypedDependency>();
+  for (  String[] mwp : MULTIWORD_PREPS) {
+    TreeGraphNode mwp0=null;
+    TreeGraphNode mwp1=null;
+    TreeGraphNode governor=null;
+    TypedDependency prep=null;
+    TypedDependency dep=null;
+    TypedDependency pobj=null;
+    TypedDependency newtd=null;
+    for (    TypedDependency td : list) {
+      if (td.dep().value().equalsIgnoreCase(mwp[0]) && (td.reln() == PHRASAL_VERB_PARTICLE || td.reln() == ADVERBIAL_MODIFIER || td.reln() == DEPENDENT || td.reln() == MULTI_WORD_EXPRESSION)) {
+        governor=td.gov();
+        mwp0=td.dep();
+        dep=td;
+      }
+    }
+    for (    TypedDependency td1 : list) {
+      if (mwp0 != null && td1.dep().value().equalsIgnoreCase(mwp[1]) && td1.gov() == governor && td1.reln() == PREPOSITIONAL_MODIFIER && Math.abs(td1.dep().index() - mwp0.index()) == 1) {
+        mwp1=td1.dep();
+        prep=td1;
+      }
+    }
+    for (    TypedDependency td2 : list) {
+      if (td2.gov() == mwp1 && td2.reln() == PREPOSITIONAL_OBJECT) {
+        pobj=td2;
+        GrammaticalRelation gr=EnglishGrammaticalRelations.getPrep(mwp[0] + '_' + mwp[1]);
+        if (governor != null) {
+          newtd=new TypedDependency(gr,governor,pobj.dep());
+        }
+      }
+      if (td2.gov() == mwp1 && td2.reln() == PREPOSITIONAL_COMPLEMENT) {
+        pobj=td2;
+        GrammaticalRelation gr=EnglishGrammaticalRelations.getPrepC(mwp[0] + '_' + mwp[1]);
+        if (governor != null) {
+          newtd=new TypedDependency(gr,governor,pobj.dep());
+        }
+      }
+    }
+    if (prep != null && pobj != null && newtd != null) {
+      prep.setReln(KILL);
+      dep.setReln(KILL);
+      pobj.setReln(KILL);
+      newTypedDeps.add(newtd);
+      for (      TypedDependency td1 : list) {
+        if (td1.reln() != KILL) {
+          if (td1.gov() == mwp0 || td1.gov() == mwp1) {
+            td1.setGov(governor);
+          }
+          if (!newTypedDeps.contains(td1)) {
+            newTypedDeps.add(td1);
+          }
+        }
+      }
+      list.clear();
+      list.addAll(newTypedDeps);
+    }
+  }
+}

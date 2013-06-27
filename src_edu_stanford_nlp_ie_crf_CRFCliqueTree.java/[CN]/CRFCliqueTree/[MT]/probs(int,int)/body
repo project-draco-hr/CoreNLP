@@ -1,0 +1,19 @@
+{
+  GeneralizedCounter<E> gc=new GeneralizedCounter<E>(window);
+  int[] labels=new int[window];
+  OUTER:   while (true) {
+    List<E> labelsList=intArrayToListE(labels);
+    gc.incrementCount(labelsList,prob(position,labels));
+    for (int i=0; i < labels.length; i++) {
+      labels[i]++;
+      if (labels[i] < numClasses) {
+        break;
+      }
+      if (i == labels.length - 1) {
+        break OUTER;
+      }
+      labels[i]=0;
+    }
+  }
+  return gc;
+}

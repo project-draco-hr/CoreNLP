@@ -1,0 +1,42 @@
+{
+  if (consume) {
+    HasInterval<Integer> matchedInterval=matchedStates.getBranchStates().getMatchedInterval(bid,this);
+    int cur=matchedStates.curPosition;
+    if (matchedInterval == null) {
+      List<? extends T> nodes=matchedStates.elements();
+      Collection<HasInterval<Integer>> matched=pattern.match(nodes,cur);
+      if (matched != null && matched.size() > 0) {
+        int nBranches=matched.size();
+        int i=0;
+        for (        HasInterval<Integer> interval : matched) {
+          i++;
+          int bid2=matchedStates.getBranchStates().getBranchId(bid,i,nBranches);
+          matchedStates.getBranchStates().setMatchedInterval(bid2,this,interval);
+          if (interval.getInterval().getEnd() - 1 <= cur) {
+            matchedStates.addStates(bid2,next);
+          }
+ else {
+            matchedStates.addState(bid2,this);
+          }
+        }
+        return true;
+      }
+ else {
+        return false;
+      }
+    }
+ else {
+      if (matchedInterval.getInterval().getEnd() - 1 <= cur) {
+        matchedStates.addStates(bid,next);
+      }
+ else {
+        matchedStates.addState(bid,this);
+      }
+      return true;
+    }
+  }
+ else {
+    matchedStates.addState(bid,this);
+    return false;
+  }
+}

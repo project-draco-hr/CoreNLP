@@ -1,0 +1,40 @@
+{
+  if (gold == null || guess == null) {
+    System.err.printf("%s: Cannot compare against a null gold or guess tree!\n",this.getClass().getName());
+    return;
+  }
+  if (DEBUG)   System.out.println("guess:");
+  Map<CollinsRelation,Set<CollinsDependency>> guessDeps=makeCollinsObjects(guess);
+  if (DEBUG)   System.out.println("gold:");
+  Map<CollinsRelation,Set<CollinsDependency>> goldDeps=makeCollinsObjects(gold);
+  Set<CollinsRelation> relations=Generics.newHashSet();
+  relations.addAll(guessDeps.keySet());
+  relations.addAll(goldDeps.keySet());
+  num+=1.0;
+  for (  CollinsRelation rel : relations) {
+    Set<CollinsDependency> thisGuessDeps=guessDeps.get(rel);
+    Set<CollinsDependency> thisGoldDeps=goldDeps.get(rel);
+    if (thisGuessDeps == null)     thisGuessDeps=Generics.newHashSet();
+    if (thisGoldDeps == null)     thisGoldDeps=Generics.newHashSet();
+    double currentPrecision=precision(thisGuessDeps,thisGoldDeps);
+    double currentRecall=precision(thisGoldDeps,thisGuessDeps);
+    double currentF1=(currentPrecision > 0.0 && currentRecall > 0.0 ? 2.0 / (1.0 / currentPrecision + 1.0 / currentRecall) : 0.0);
+    precisions.incrementCount(rel,currentPrecision);
+    recalls.incrementCount(rel,currentRecall);
+    f1s.incrementCount(rel,currentF1);
+    precisions2.incrementCount(rel,thisGuessDeps.size() * currentPrecision);
+    pnums2.incrementCount(rel,thisGuessDeps.size());
+    recalls2.incrementCount(rel,thisGoldDeps.size() * currentRecall);
+    rnums2.incrementCount(rel,thisGoldDeps.size());
+    if (pw != null && runningAverages) {
+      pw.println(rel + "\tP: " + ((int)(currentPrecision * 10000)) / 100.0 + " (sent ave " + ((int)(precisions.getCount(rel) * 10000 / num)) / 100.0 + ") (evalb " + ((int)(precisions2.getCount(rel) * 10000 / pnums2.getCount(rel))) / 100.0 + ")");
+      pw.println("\tR: " + ((int)(currentRecall * 10000)) / 100.0 + " (sent ave " + ((int)(recalls.getCount(rel) * 10000 / num)) / 100.0 + ") (evalb " + ((int)(recalls2.getCount(rel) * 10000 / rnums2.getCount(rel))) / 100.0 + ")");
+      double cF1=2.0 / (rnums2.getCount(rel) / recalls2.getCount(rel) + pnums2.getCount(rel) / precisions2.getCount(rel));
+      String emit=str + " F1: " + ((int)(currentF1 * 10000)) / 100.0 + " (sent ave " + ((int)(10000 * f1s.getCount(rel) / num)) / 100.0 + ", evalb " + ((int)(10000 * cF1)) / 100.0 + ")";
+      pw.println(emit);
+    }
+  }
+  if (pw != null && runningAverages) {
+    pw.println("================================================================================");
+  }
+}

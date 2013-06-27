@@ -1,0 +1,24 @@
+{
+  boolean prompt=false;
+  String defaultEncoding="";
+  String curEncoding=FileTreeModel.getCurEncoding();
+  if (isChinese(headFinder,trf)) {
+    if (!curEncoding.equals(FileTreeModel.DEFAULT_CHINESE_ENCODING)) {
+      prompt=true;
+      defaultEncoding=FileTreeModel.DEFAULT_CHINESE_ENCODING;
+    }
+  }
+ else   if (isNegra(headFinder,trf)) {
+    if (!curEncoding.equals(FileTreeModel.DEFAULT_NEGRA_ENCODING)) {
+      prompt=true;
+      defaultEncoding=FileTreeModel.DEFAULT_NEGRA_ENCODING;
+    }
+  }
+ else   if (!curEncoding.equals(FileTreeModel.DEFAULT_ENCODING)) {
+    prompt=true;
+    defaultEncoding=FileTreeModel.DEFAULT_ENCODING;
+  }
+  if (prompt) {
+    doEncodingPrompt(defaultEncoding,curEncoding);
+  }
+}

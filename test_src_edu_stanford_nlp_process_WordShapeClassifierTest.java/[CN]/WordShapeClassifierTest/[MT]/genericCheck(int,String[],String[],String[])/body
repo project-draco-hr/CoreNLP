@@ -1,0 +1,19 @@
+{
+  assertEquals("WordShapeClassifierTest is bung: array sizes differ",in.length,shape.length);
+  Set<String> knownLCset=null;
+  if (knownLCWords != null) {
+    knownLCset=new HashSet<String>(Arrays.asList(knownLC));
+  }
+  for (int i=0; i < in.length; i++) {
+    assertEquals("WordShape " + wordshape + " for "+ in[i]+ " with "+ (knownLCset == null ? "null" : "non-null")+ " knownLCwords is not correct!",shape[i],WordShapeClassifier.wordShape(in[i],wordshape,knownLCset));
+  }
+  try {
+    WordShapeClassifier.wordShape(null,wordshape);
+    fail("WordShapeClassifier threw no exception on null");
+  }
+ catch (  NullPointerException npe) {
+  }
+catch (  Exception e) {
+    fail("WordShapeClassifier didn't throw NullPointerException on null");
+  }
+}

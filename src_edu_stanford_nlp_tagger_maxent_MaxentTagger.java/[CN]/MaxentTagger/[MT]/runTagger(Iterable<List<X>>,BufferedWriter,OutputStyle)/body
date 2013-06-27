@@ -1,0 +1,44 @@
+{
+  Timing t=new Timing();
+  int numWords=0;
+  int numSentences=0;
+  boolean outputVerbosity=config.getOutputVerbosity();
+  boolean outputLemmas=config.getOutputLemmas();
+  if (outputStyle == OutputStyle.XML || outputStyle == OutputStyle.INLINE_XML) {
+    writer.write("<?xml version=\"1.0\" encoding=\"" + config.getEncoding() + "\"?>\n");
+    writer.write("<pos>\n");
+  }
+  if (config.getNThreads() != 1) {
+    MulticoreWrapper<List<? extends HasWord>,List<? extends HasWord>> wrapper=new MulticoreWrapper<List<? extends HasWord>,List<? extends HasWord>>(config.getNThreads(),new SentenceTaggingProcessor(this,outputLemmas));
+    for (    List<X> sentence : document) {
+      wrapper.put(sentence);
+      while (wrapper.peek()) {
+        List<? extends HasWord> taggedSentence=wrapper.poll();
+        numWords+=taggedSentence.size();
+        outputTaggedSentence(taggedSentence,outputLemmas,outputStyle,outputVerbosity,numSentences,"\n",writer);
+        numSentences++;
+      }
+    }
+    wrapper.join();
+    while (wrapper.peek()) {
+      List<? extends HasWord> taggedSentence=wrapper.poll();
+      numWords+=taggedSentence.size();
+      outputTaggedSentence(taggedSentence,outputLemmas,outputStyle,outputVerbosity,numSentences,"\n",writer);
+      numSentences++;
+    }
+  }
+ else {
+    Morphology morpha=(outputLemmas) ? new Morphology() : null;
+    for (    List<X> sentence : document) {
+      numWords+=sentence.size();
+      tagAndOutputSentence(sentence,outputLemmas,morpha,outputStyle,outputVerbosity,numSentences,"\n",writer);
+      numSentences++;
+    }
+  }
+  if (outputStyle == OutputStyle.XML || outputStyle == OutputStyle.INLINE_XML) {
+    writer.write("</pos>\n");
+  }
+  writer.flush();
+  long millis=t.stop();
+  printErrWordsPerSec(millis,numWords);
+}

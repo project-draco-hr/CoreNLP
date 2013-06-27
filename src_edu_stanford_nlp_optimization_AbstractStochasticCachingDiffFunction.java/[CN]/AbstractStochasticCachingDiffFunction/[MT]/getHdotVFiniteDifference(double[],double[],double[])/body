@@ -1,0 +1,31 @@
+{
+  double h=finiteDifferenceStepSize;
+  double hInv=1 / h;
+  if (gradPerturbed == null) {
+    gradPerturbed=new double[x.length];
+    System.out.println("Setting approximate gradient.");
+  }
+  if (xPerturbed == null) {
+    xPerturbed=new double[x.length];
+    System.out.println("Setting perturbed.");
+  }
+  if (HdotV == null) {
+    HdotV=new double[x.length];
+    System.out.println("Setting H dot V.");
+  }
+  for (int i=0; i < x.length; i++) {
+    xPerturbed[i]=x[i] + h * v[i];
+  }
+  double prevValue=value;
+  recalculatePrevBatch=true;
+  calculateStochastic(xPerturbed,null,thisBatch);
+  for (int i=0; i < x.length; i++) {
+    double tmp=(derivative[i] - curDerivative[i]);
+    HdotV[i]=hInv * (tmp);
+  }
+  System.arraycopy(curDerivative,0,derivative,0,derivative.length);
+  value=prevValue;
+  hasNewVals=false;
+  recalculatePrevBatch=false;
+  returnPreviousValues=false;
+}

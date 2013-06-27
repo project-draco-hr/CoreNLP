@@ -1,0 +1,210 @@
+{
+  boolean train=false;
+  boolean saveToSerializedFile=false;
+  boolean saveToTextFile=false;
+  String serializedInputFileOrUrl=null;
+  String textInputFileOrUrl=null;
+  String serializedOutputFileOrUrl=null;
+  String textOutputFileOrUrl=null;
+  String treebankPath=null;
+  Treebank testTreebank=null;
+  Treebank tuneTreebank=null;
+  String testPath=null;
+  FileFilter testFilter=null;
+  FileFilter trainFilter=null;
+  String encoding=null;
+  TokenizerFactory<Word> tokenizerFactory=null;
+  boolean tokenized=false;
+  Function<List<HasWord>,List<HasWord>> escaper=new ChineseEscaper();
+  int tagDelimiter=-1;
+  String sentenceDelimiter="\n";
+  boolean fromXML=false;
+  int argIndex=0;
+  if (args.length < 1) {
+    System.err.println("usage: java edu.stanford.nlp.parser.lexparser." + "LexicalizedParser parserFileOrUrl filename*");
+    System.exit(1);
+  }
+  Options op=new Options();
+  op.tlpParams=new ChineseTreebankParserParams();
+  while (argIndex < args.length && args[argIndex].charAt(0) == '-') {
+    if (args[argIndex].equalsIgnoreCase("-train")) {
+      train=true;
+      saveToSerializedFile=true;
+      int numSubArgs=numSubArgs(args,argIndex);
+      argIndex++;
+      if (numSubArgs > 1) {
+        treebankPath=args[argIndex];
+        argIndex++;
+      }
+ else {
+        throw new RuntimeException("Error: -train option must have treebankPath as first argument.");
+      }
+      if (numSubArgs == 2) {
+        trainFilter=new NumberRangesFileFilter(args[argIndex++],true);
+      }
+ else       if (numSubArgs >= 3) {
+        try {
+          int low=Integer.parseInt(args[argIndex]);
+          int high=Integer.parseInt(args[argIndex + 1]);
+          trainFilter=new NumberRangeFileFilter(low,high,true);
+          argIndex+=2;
+        }
+ catch (        NumberFormatException e) {
+          trainFilter=new NumberRangesFileFilter(args[argIndex],true);
+          argIndex++;
+        }
+      }
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-encoding")) {
+      encoding=args[argIndex + 1];
+      op.tlpParams.setInputEncoding(encoding);
+      op.tlpParams.setOutputEncoding(encoding);
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-loadFromSerializedFile")) {
+      serializedInputFileOrUrl=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-saveToSerializedFile")) {
+      saveToSerializedFile=true;
+      serializedOutputFileOrUrl=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-saveToTextFile")) {
+      saveToTextFile=true;
+      textOutputFileOrUrl=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-treebank")) {
+      int numSubArgs=numSubArgs(args,argIndex);
+      argIndex++;
+      if (numSubArgs == 1) {
+        testFilter=new NumberRangesFileFilter(args[argIndex++],true);
+      }
+ else       if (numSubArgs > 1) {
+        testPath=args[argIndex++];
+        if (numSubArgs == 2) {
+          testFilter=new NumberRangesFileFilter(args[argIndex++],true);
+        }
+ else         if (numSubArgs >= 3) {
+          try {
+            int low=Integer.parseInt(args[argIndex]);
+            int high=Integer.parseInt(args[argIndex + 1]);
+            testFilter=new NumberRangeFileFilter(low,high,true);
+            argIndex+=2;
+          }
+ catch (          NumberFormatException e) {
+            testFilter=new NumberRangesFileFilter(args[argIndex++],true);
+          }
+        }
+      }
+    }
+ else {
+      int j=op.tlpParams.setOptionFlag(args,argIndex);
+      if (j == argIndex) {
+        System.err.println("Unknown option ignored: " + args[argIndex]);
+        j++;
+      }
+      argIndex=j;
+    }
+  }
+  TreebankLangParserParams tlpParams=op.tlpParams;
+  ChineseLexiconAndWordSegmenter cs=null;
+  if (!train && op.testOptions.verbose) {
+    System.out.println("Currently " + new Date());
+    printArgs(args,System.out);
+  }
+  if (train) {
+    printArgs(args,System.out);
+    if (treebankPath == null) {
+      treebankPath=args[argIndex];
+      argIndex++;
+      if (args.length > argIndex + 1) {
+        try {
+          int low=Integer.parseInt(args[argIndex]);
+          int high=Integer.parseInt(args[argIndex + 1]);
+          trainFilter=new NumberRangeFileFilter(low,high,true);
+          argIndex+=2;
+        }
+ catch (        NumberFormatException e) {
+          trainFilter=new NumberRangesFileFilter(args[argIndex],true);
+          argIndex++;
+        }
+      }
+    }
+    Treebank trainTreebank=makeTreebank(treebankPath,op,trainFilter);
+    Index<String> wordIndex=new HashIndex<String>();
+    Index<String> tagIndex=new HashIndex<String>();
+    cs=new ChineseLexiconAndWordSegmenter(trainTreebank,op,wordIndex,tagIndex);
+  }
+ else   if (textInputFileOrUrl != null) {
+  }
+ else {
+    if (serializedInputFileOrUrl == null) {
+      serializedInputFileOrUrl=args[argIndex];
+      argIndex++;
+    }
+    try {
+      cs=new ChineseLexiconAndWordSegmenter(serializedInputFileOrUrl,op);
+    }
+ catch (    IllegalArgumentException e) {
+      System.err.println("Error loading segmenter, exiting...");
+      System.exit(0);
+    }
+  }
+  TreePrint treePrint=op.testOptions.treePrint(tlpParams);
+  if (testFilter != null) {
+    if (testPath == null) {
+      if (treebankPath == null) {
+        throw new RuntimeException("No test treebank path specified...");
+      }
+ else {
+        System.err.println("No test treebank path specified.  Using train path: \"" + treebankPath + "\"");
+        testPath=treebankPath;
+      }
+    }
+    testTreebank=tlpParams.testMemoryTreebank();
+    testTreebank.loadPath(testPath,testFilter);
+  }
+  op.trainOptions.sisterSplitters=Generics.newHashSet(Arrays.asList(tlpParams.sisterSplitters()));
+  if (op.testOptions.verbose) {
+    System.err.println("Lexicon is " + cs.getClass().getName());
+  }
+  PrintWriter pwOut=tlpParams.pw();
+  PrintWriter pwErr=tlpParams.pw(System.err);
+  if (saveToTextFile) {
+    if (textOutputFileOrUrl != null) {
+      saveSegmenterDataToText(cs,textOutputFileOrUrl);
+    }
+ else {
+      System.err.println("Usage: must specify a text segmenter data output path");
+    }
+  }
+  if (saveToSerializedFile) {
+    if (serializedOutputFileOrUrl == null && argIndex < args.length) {
+      serializedOutputFileOrUrl=args[argIndex];
+      argIndex++;
+    }
+    if (serializedOutputFileOrUrl != null) {
+      saveSegmenterDataToSerialized(cs,serializedOutputFileOrUrl);
+    }
+ else     if (textOutputFileOrUrl == null && testTreebank == null) {
+      System.err.println("usage: " + "java edu.stanford.nlp.parser.lexparser.ChineseLexiconAndWordSegmenter" + "-train trainFilesPath [start stop] serializedParserFilename");
+    }
+  }
+  if (op.testOptions.verbose) {
+  }
+  if (testTreebank != null || (argIndex < args.length && args[argIndex].equalsIgnoreCase("-treebank"))) {
+    if (testTreebank == null) {
+      testTreebank=tlpParams.testMemoryTreebank();
+      if (args.length < argIndex + 4) {
+        testTreebank.loadPath(args[argIndex + 1]);
+      }
+ else {
+        int testlow=Integer.parseInt(args[argIndex + 2]);
+        int testhigh=Integer.parseInt(args[argIndex + 3]);
+        testTreebank.loadPath(args[argIndex + 1],new NumberRangeFileFilter(testlow,testhigh,true));
+      }
+    }
+  }
+}

@@ -1,0 +1,44 @@
+{
+  if (thisBatch == null || thisBatch.length != batchSize) {
+    thisBatch=new int[batchSize];
+  }
+  if (sampleMethod == SamplingMethod.Shuffled) {
+    if (shuffledArray == null) {
+      shuffledArray=ArrayMath.range(0,this.dataDimension());
+    }
+    for (int i=0; i < batchSize; i++) {
+      thisBatch[i]=shuffledArray[(curElement + i) % this.dataDimension()];
+    }
+    curElement=(curElement + batchSize) % this.dataDimension();
+  }
+ else   if (sampleMethod == SamplingMethod.RandomWithReplacement) {
+    for (int i=0; i < batchSize; i++) {
+      thisBatch[i]=randGenerator.nextInt(this.dataDimension());
+    }
+  }
+ else   if (sampleMethod == SamplingMethod.Ordered) {
+    for (int i=0; i < batchSize; i++) {
+      thisBatch[i]=(curElement + i) % this.dataDimension();
+    }
+    curElement=(curElement + batchSize) % this.dataDimension();
+  }
+ else   if (sampleMethod == SamplingMethod.RandomWithoutReplacement) {
+    if (allIndices == null || allIndices.size() != this.dataDimension()) {
+      allIndices=new ArrayList<Integer>();
+      for (int i=0; i < this.dataDimension(); i++) {
+        allIndices.add(i);
+      }
+      Collections.shuffle(allIndices,randGenerator);
+    }
+    for (int i=0; i < batchSize; i++) {
+      thisBatch[i]=allIndices.get((curElement + i) % allIndices.size());
+    }
+    if (curElement + batchSize > this.dataDimension()) {
+      Collections.shuffle(Arrays.asList(allIndices),randGenerator);
+    }
+    curElement=(curElement + batchSize) % allIndices.size();
+  }
+ else {
+    throw new IllegalStateException("NO SAMPLING METHOD SELECTED");
+  }
+}

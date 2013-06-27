@@ -1,0 +1,45 @@
+{
+  for (int i=0, pdSize=processedData.size(); i < pdSize; i++) {
+    int dataIndex=i + offset;
+    List<CRFDatum<Collection<String>,String>> document=processedData.get(i);
+    int dsize=document.size();
+    labels[dataIndex]=new int[dsize];
+    data[dataIndex]=new int[dsize][][];
+    if (featureVals != null)     featureVals[dataIndex]=new double[dsize][][];
+    for (int j=0; j < dsize; j++) {
+      CRFDatum<Collection<String>,String> crfDatum=document.get(j);
+      labels[dataIndex][j]=classIndex.indexOf(crfDatum.label());
+      List<double[]> featureValList=null;
+      if (featureVals != null)       featureValList=crfDatum.asFeatureVals();
+      List<Collection<String>> cliques=crfDatum.asFeatures();
+      int csize=cliques.size();
+      data[dataIndex][j]=new int[csize][];
+      if (featureVals != null)       featureVals[dataIndex][j]=new double[csize][];
+      for (int k=0; k < csize; k++) {
+        Collection<String> features=cliques.get(k);
+        data[dataIndex][j][k]=new int[features.size()];
+        if (featureVals != null)         featureVals[dataIndex][j][k]=featureValList.get(k);
+        int m=0;
+        try {
+          for (          String feature : features) {
+            if (featureIndex == null) {
+              System.out.println("Feature is NULL!");
+            }
+            data[dataIndex][j][k][m]=featureIndex.indexOf(feature);
+            m++;
+          }
+        }
+ catch (        Exception e) {
+          e.printStackTrace();
+          System.err.printf("[index=%d, j=%d, k=%d, m=%d]%n",dataIndex,j,k,m);
+          System.err.println("data.length                    " + data.length);
+          System.err.println("data[dataIndex].length         " + data[dataIndex].length);
+          System.err.println("data[dataIndex][j].length      " + data[dataIndex][j].length);
+          System.err.println("data[dataIndex][j][k].length   " + data[dataIndex][j].length);
+          System.err.println("data[dataIndex][j][k][m]       " + data[dataIndex][j][k][m]);
+          return;
+        }
+      }
+    }
+  }
+}

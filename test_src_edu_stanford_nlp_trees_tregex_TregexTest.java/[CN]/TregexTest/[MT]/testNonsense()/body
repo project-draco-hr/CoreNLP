@@ -1,0 +1,53 @@
+{
+  try {
+    TregexPattern pattern=TregexPattern.compile("foo=a $ bar=a");
+    throw new RuntimeException("Expected a parse exception");
+  }
+ catch (  TregexParseException e) {
+  }
+  try {
+    TregexPattern pattern=TregexPattern.compile("foo=a > bar=b $ ~a=b");
+    throw new RuntimeException("Expected a parse exception");
+  }
+ catch (  TregexParseException e) {
+  }
+  TregexPattern.compile("foo=a > bar=b $ ~a");
+  try {
+    TregexPattern pattern=TregexPattern.compile("~a $- (bar=a $- foo)");
+    throw new RuntimeException("Expected a parse exception");
+  }
+ catch (  TregexParseException e) {
+  }
+  try {
+    TregexPattern pattern=TregexPattern.compile("=a $- (bar=a $- foo)");
+    throw new RuntimeException("Expected a parse exception");
+  }
+ catch (  TregexParseException e) {
+  }
+  try {
+    TregexPattern pattern=TregexPattern.compile("~a=a $- (bar=b $- foo)");
+    throw new RuntimeException("Expected a parse exception");
+  }
+ catch (  TregexParseException e) {
+  }
+  TregexPattern.compile("foo=a : ~a");
+  TregexPattern.compile("a < foo=a | < bar=a");
+  try {
+    TregexPattern.compile("a < foo=a | < ~a");
+    throw new RuntimeException("Expected a parse exception");
+  }
+ catch (  TregexParseException e) {
+  }
+  try {
+    TregexPattern.compile("a < foo=a | < =a");
+    throw new RuntimeException("Expected a parse exception");
+  }
+ catch (  TregexParseException e) {
+  }
+  try {
+    TregexPattern pattern=TregexPattern.compile("__ ! > __=a");
+    throw new RuntimeException("Expected a parse exception");
+  }
+ catch (  TregexParseException e) {
+  }
+}

@@ -1,0 +1,41 @@
+{
+  final String BASE_LABEL="UNK";
+  StringBuilder sb=new StringBuilder(BASE_LABEL);
+switch (unknownLevel) {
+case 1:
+    sb.append(FrenchUnknownWordSignatures.nounSuffix(word));
+  if (sb.toString().equals(BASE_LABEL)) {
+    sb.append(FrenchUnknownWordSignatures.adjSuffix(word));
+    if (sb.toString().equals(BASE_LABEL)) {
+      sb.append(FrenchUnknownWordSignatures.verbSuffix(word));
+      if (sb.toString().equals(BASE_LABEL)) {
+        sb.append(FrenchUnknownWordSignatures.advSuffix(word));
+      }
+    }
+  }
+sb.append(FrenchUnknownWordSignatures.possiblePlural(word));
+String hasDigit=FrenchUnknownWordSignatures.hasDigit(word);
+String isDigit=FrenchUnknownWordSignatures.isDigit(word);
+if (!hasDigit.equals("")) {
+if (isDigit.equals("")) {
+sb.append(hasDigit);
+}
+ else {
+sb.append(isDigit);
+}
+}
+sb.append(FrenchUnknownWordSignatures.hasPunc(word));
+sb.append(FrenchUnknownWordSignatures.isAllCaps(word));
+if (loc > 0) {
+if (FrenchUnknownWordSignatures.isAllCaps(word).equals("")) sb.append(FrenchUnknownWordSignatures.isCapitalized(word));
+}
+if (unknownSuffixSize > 0 && sb.toString().equals(BASE_LABEL)) {
+int min=word.length() < unknownSuffixSize ? word.length() : unknownSuffixSize;
+sb.append('-').append(word.substring(word.length() - min));
+}
+break;
+default :
+System.err.printf("%s: Invalid unknown word signature! (%d)%n",this.getClass().getName(),unknownLevel);
+}
+return sb.toString();
+}

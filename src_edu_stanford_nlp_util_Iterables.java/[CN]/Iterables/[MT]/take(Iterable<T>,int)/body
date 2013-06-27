@@ -1,0 +1,22 @@
+{
+  return new Iterable<T>(){
+    final Iterator<T> iterator=iterable.iterator();
+    public Iterator<T> iterator(){
+      return new Iterator<T>(){
+        int i=0;
+        public boolean hasNext(){
+          return i < max && iterator.hasNext();
+        }
+        public T next(){
+          i++;
+          return iterator.next();
+        }
+        public void remove(){
+          iterator.remove();
+        }
+      }
+;
+    }
+  }
+;
+}

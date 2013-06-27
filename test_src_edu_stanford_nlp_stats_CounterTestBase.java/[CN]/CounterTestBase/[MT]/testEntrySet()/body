@@ -1,0 +1,23 @@
+{
+  c.clear();
+  c.setCount("r",3.0);
+  c.setCount("p",1.0);
+  c.setCount("q",2.0);
+  c.setCount("s",4.0);
+  assertEquals(10.0,c.totalCount());
+  assertEquals(1.0,c.getCount("p"));
+  for (  Map.Entry<String,Double> entry : c.entrySet()) {
+    if (entry.getKey().equals("p")) {
+      assertEquals(1.0,entry.setValue(3.0));
+      assertEquals(3.0,entry.getValue());
+    }
+  }
+  assertEquals(3.0,c.getCount("p"));
+  assertEquals(12.0,c.totalCount());
+  Collection<Double> vals=c.values();
+  double tot=0.0;
+  for (  double d : vals) {
+    tot+=d;
+  }
+  assertEquals("Testing values()",12.0,tot);
+}

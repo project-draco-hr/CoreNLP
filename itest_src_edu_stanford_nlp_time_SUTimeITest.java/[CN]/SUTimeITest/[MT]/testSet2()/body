@@ -1,0 +1,44 @@
+{
+  String[] refModifiers={"","bi","bi-","bi - "};
+  String[] refExprs={"annually","yearly","annual","quarterly","monthly","weekly","daily","nightly","hourly"};
+  String[][] expectedValuesEvery={{"P1Y","P1Y"},{"P1Y","P1Y"},{"P1Y","P1Y"},{"P3M","P3M"},{"P1M","P1M"},{"P1W","P1W"},{"P1D","P1D"},{"TNI","P1D"},{"PT1H","PT1H"}};
+  int[] expectedMultiples={1,2,2,2};
+  final Pattern p=Pattern.compile("(\\D+)(\\d+)(\\D+)");
+  for (int j=0; j < refModifiers.length; j++) {
+    String refTime=null;
+    String refMod=refModifiers[j];
+    StringBuilder sb=new StringBuilder();
+    for (    String s : refExprs) {
+      sb.append("It happens " + refMod + s+ ". ");
+    }
+    String testText=sb.toString();
+    Timex[] expectedTimexes=new Timex[refExprs.length];
+    int m=expectedMultiples[j];
+    for (int k=0; k < refExprs.length; k++) {
+      String v=expectedValuesEvery[k][0];
+      String g=expectedValuesEvery[k][1];
+      boolean updateV=v.equals(g);
+      Matcher matcher=p.matcher(g);
+      if (matcher.matches()) {
+        int mg=Integer.parseInt(matcher.group(2));
+        mg=mg * m;
+        g=matcher.group(1) + mg + matcher.group(3);
+      }
+      if (updateV) {
+        v=g;
+      }
+      String expr=refMod + refExprs[k];
+      expectedTimexes[k]=Timex.fromXml("<TIMEX3 tid=\"t" + (k + 1) + "\" value=\""+ v+ "\" type=\"SET\" quant=\""+ "EVERY"+ "\" freq=\"P1X\" periodicity=\""+ g+ "\">"+ expr+ "</TIMEX3>");
+    }
+    Annotation documentWithRefTime=createDocument(testText,refTime);
+    TimeAnnotator sutime=getTimeAnnotator();
+    sutime.annotate(documentWithRefTime);
+    int k=0;
+    for (    CoreMap timexAnn : documentWithRefTime.get(TimeAnnotations.TimexAnnotations.class)) {
+      Timex expectedTimex=expectedTimexes[k];
+      testTimex(testText,expectedTimex.text(),expectedTimex,timexAnn);
+      k++;
+    }
+    assertEquals(expectedTimexes.length,k);
+  }
+}

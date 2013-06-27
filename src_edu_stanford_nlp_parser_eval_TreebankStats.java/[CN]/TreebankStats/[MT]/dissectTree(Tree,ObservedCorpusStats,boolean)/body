@@ -1,0 +1,30 @@
+{
+  final Stack<Pair<Integer,Tree>> stack=new Stack<Pair<Integer,Tree>>();
+  stack.push(new Pair<Integer,Tree>(0,t));
+  int maxBreadth=0;
+  int maxDepth=-1;
+  if (t == null) {
+    throw new RuntimeException("Null tree passed to dissectTree()");
+  }
+ else {
+    while (!stack.isEmpty()) {
+      Pair<Integer,Tree> depthNode=stack.pop();
+      final int nodeDepth=depthNode.first();
+      final Tree node=depthNode.second();
+      if (nodeDepth != maxDepth) {
+        maxDepth=nodeDepth;
+        if (node.isPhrasal() && stack.size() + 1 > maxBreadth)         maxBreadth=stack.size() + 1;
+      }
+      if (node.isPhrasal()) {
+        ocs.addPhrasalBranch(node.value(),node.children().length);
+      }
+ else       if (node.isPreTerminal())       ocs.posTags.incrementCount(node.value());
+ else       if (node.isLeaf()) {
+        ocs.words.incrementCount(node.value());
+        if (addToVocab)         trainVocab.add(node.value());
+      }
+      for (      Tree kid : node.children())       stack.push(new Pair<Integer,Tree>(nodeDepth + 1,kid));
+    }
+  }
+  return new Pair<Integer,Integer>(maxDepth,maxBreadth);
+}

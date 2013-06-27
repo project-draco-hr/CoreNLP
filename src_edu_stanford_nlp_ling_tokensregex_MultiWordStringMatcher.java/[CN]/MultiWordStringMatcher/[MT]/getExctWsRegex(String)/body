@@ -1,0 +1,19 @@
+{
+  StringBuilder sb=new StringBuilder();
+  String[] fields=whitespacePattern.split(targetString);
+  for (  String field : fields) {
+    if (sb.length() > 0) {
+      sb.append("\\s+");
+    }
+    String tmp=punctWhitespacePattern.matcher(field).replaceAll(" $1 ");
+    tmp=tmp.trim();
+    String[] punctFields=whitespacePattern.split(tmp);
+    for (    String f : punctFields) {
+      if (sb.length() > 0) {
+        sb.append("\\s*");
+      }
+      sb.append(Pattern.quote(f));
+    }
+  }
+  return sb.toString();
+}

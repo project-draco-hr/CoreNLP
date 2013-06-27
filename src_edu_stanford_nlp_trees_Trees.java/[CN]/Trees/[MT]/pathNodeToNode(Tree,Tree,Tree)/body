@@ -1,0 +1,21 @@
+{
+  List<Tree> fromPath=pathFromRoot(from,root);
+  if (fromPath == null)   return null;
+  List<Tree> toPath=pathFromRoot(to,root);
+  if (toPath == null)   return null;
+  int last=0;
+  int min=fromPath.size() <= toPath.size() ? fromPath.size() : toPath.size();
+  Tree lastNode=null;
+  while (last < min && fromPath.get(last).equals(toPath.get(last))) {
+    lastNode=fromPath.get(last);
+    last++;
+  }
+  List<String> totalPath=new ArrayList<String>();
+  for (int i=fromPath.size() - 1; i >= last; i--) {
+    Tree t=fromPath.get(i);
+    totalPath.add("up-" + t.label().value());
+  }
+  if (lastNode != null)   totalPath.add("up-" + lastNode.label().value());
+  for (  Tree t : toPath)   totalPath.add("down-" + t.label().value());
+  return totalPath;
+}

@@ -1,0 +1,20 @@
+{
+  Thread t=new Thread(){
+    @Override public void run(){
+      List<Font> fonts=FontDetector.supportedFonts(FontDetector.CHINESE);
+      String fontName="";
+      if (!fonts.isEmpty()) {
+        fontName=fonts.get(0).getName();
+      }
+ else       if (FontDetector.hasFont("Watanabe Mincho")) {
+        fontName="Watanabe Mincho";
+      }
+      if (!fontName.equals("")) {
+        DisplayMatchesPanel.getInstance().setFontName(fontName);
+        MatchesPanel.getInstance().setFontName(fontName);
+      }
+    }
+  }
+;
+  t.start();
+}

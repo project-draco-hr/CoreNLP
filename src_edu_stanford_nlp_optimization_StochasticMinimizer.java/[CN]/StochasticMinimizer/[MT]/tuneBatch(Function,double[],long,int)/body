@@ -1,0 +1,40 @@
+{
+  double[] xTest=new double[initial.length];
+  int bOpt=0;
+  double min=Double.POSITIVE_INFINITY;
+  this.maxTime=msPerTest;
+  double prev=Double.POSITIVE_INFINITY;
+  if (!(function instanceof AbstractStochasticCachingDiffFunction)) {
+    throw new UnsupportedOperationException();
+  }
+  AbstractStochasticCachingDiffFunction dFunction=(AbstractStochasticCachingDiffFunction)function;
+  int b=bStart;
+  boolean toContinue=true;
+  do {
+    System.arraycopy(initial,0,xTest,0,initial.length);
+    System.err.println("");
+    System.err.println("Testing with batch size:  " + b);
+    bSize=b;
+    shutUp();
+    this.minimize(function,1e-5,xTest);
+    double result=dFunction.valueAt(xTest);
+    if (result < min) {
+      min=result;
+      bOpt=bSize;
+      b*=2;
+      prev=result;
+    }
+ else     if (result < prev) {
+      b*=2;
+      prev=result;
+    }
+ else     if (result > prev) {
+      toContinue=false;
+    }
+    System.err.println("");
+    System.err.println("Final value is: " + nf.format(result));
+    System.err.println("Optimal so far is:  batch size: " + bOpt);
+  }
+ while (toContinue);
+  return bOpt;
+}

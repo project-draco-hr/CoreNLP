@@ -1,0 +1,19 @@
+{
+  String fileName=file.getName();
+  if (isLikelyInvisible(fileName))   return false;
+  if (filters.containsKey(FilterType.hasExtension)) {
+    String ext=filters.get(FilterType.hasExtension);
+    if (!fileName.endsWith(ext)) {
+      return false;
+    }
+  }
+  if (filters.containsKey(FilterType.hasPrefix)) {
+    String pre=filters.get(FilterType.hasPrefix);
+    if (!fileName.startsWith(pre))     return false;
+  }
+  if (filters.containsKey(FilterType.isInRange)) {
+    NumberRangesFileFilter f=new NumberRangesFileFilter(filters.get(FilterType.isInRange),false);
+    if (!f.accept(fileName))     return false;
+  }
+  return true;
+}

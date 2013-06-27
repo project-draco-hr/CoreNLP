@@ -1,0 +1,20 @@
+{
+  List<CoreMap> res=new ArrayList<CoreMap>();
+  int last=0;
+  List<Integer> orderedGroups=CollectionUtils.asList(groups);
+  Collections.sort(orderedGroups);
+  for (  int group : orderedGroups) {
+    int groupStart=start(group);
+    if (groupStart >= last) {
+      res.addAll(elements.subList(last,groupStart));
+      int groupEnd=end(group);
+      if (groupEnd - groupStart >= 1) {
+        CoreMap merged=createMergedChunk(groupStart,groupEnd);
+        res.add(merged);
+        last=groupEnd;
+      }
+    }
+  }
+  res.addAll(elements.subList(last,elements.size()));
+  return res;
+}

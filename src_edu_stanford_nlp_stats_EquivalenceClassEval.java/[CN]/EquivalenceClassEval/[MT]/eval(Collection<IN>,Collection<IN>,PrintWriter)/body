@@ -1,0 +1,18 @@
+{
+  if (verbose) {
+    System.out.println("evaluating precision...");
+  }
+  Pair<ClassicCounter<OUT>,ClassicCounter<OUT>> precision=evalPrecision(guesses,golds);
+  previousGuessed=precision.first();
+  Counters.addInPlace(guessed,previousGuessed);
+  previousGuessedCorrect=precision.second();
+  Counters.addInPlace(guessedCorrect,previousGuessedCorrect);
+  if (verbose) {
+    System.out.println("evaluating recall...");
+  }
+  Pair<ClassicCounter<OUT>,ClassicCounter<OUT>> recall=evalPrecision(golds,guesses);
+  previousGold=recall.first();
+  Counters.addInPlace(gold,previousGold);
+  previousGoldCorrect=recall.second();
+  Counters.addInPlace(goldCorrect,previousGoldCorrect);
+}

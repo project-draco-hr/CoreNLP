@@ -1,0 +1,44 @@
+{
+  String testDirName="FileSystemTest";
+  String testFileName="Pair.java";
+  File testDir=new File(testDirName);
+  testDir.mkdir();
+  try {
+    copyFile(new File(testFileName),new File(testDirName + "/" + testFileName));
+  }
+ catch (  IOException e) {
+    System.err.println("Copy failed");
+    System.exit(-1);
+  }
+  try {
+    Runtime r=Runtime.getRuntime();
+    Process p=r.exec(String.format("tar -cf %s.tar %s",testDirName,testDirName));
+    int ret_val;
+    if ((ret_val=p.waitFor()) != 0) {
+      System.err.printf("tar command returned %d\n",ret_val);
+      System.exit(-1);
+    }
+  }
+ catch (  IOException e) {
+    System.err.println("Tar command failed");
+    System.exit(-1);
+  }
+catch (  InterruptedException e) {
+    System.err.println("Tar command interrupted");
+    e.printStackTrace();
+    System.exit(-1);
+  }
+  try {
+    gzipFile(new File(String.format(testDirName + ".tar")),new File(testDirName + ".tar.gz"));
+  }
+ catch (  IOException e) {
+    System.err.println("gzip command failed");
+    System.exit(-1);
+  }
+  boolean deleteSuccess=deleteDir(new File(testDirName));
+  if (!deleteSuccess) {
+    System.err.println("Could not delete directory");
+    System.exit(-1);
+  }
+  System.out.println("Success!");
+}

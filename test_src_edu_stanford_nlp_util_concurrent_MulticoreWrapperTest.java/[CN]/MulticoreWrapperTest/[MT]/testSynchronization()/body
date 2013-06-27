@@ -1,0 +1,19 @@
+{
+  wrapper=new MulticoreWrapper<Integer,Integer>(nThreads,new DelayedIdentityFunction());
+  int lastReturned=0;
+  final int nItems=1000;
+  for (int i=0; i < nItems; ++i) {
+    wrapper.put(i);
+    while (wrapper.peek()) {
+      int result=wrapper.poll();
+      System.err.printf("Result: %d%n",result);
+      assertEquals(result,lastReturned++);
+    }
+  }
+  wrapper.join();
+  while (wrapper.peek()) {
+    int result=wrapper.poll();
+    System.err.printf("Result2: %d%n",result);
+    assertEquals(result,lastReturned++);
+  }
+}

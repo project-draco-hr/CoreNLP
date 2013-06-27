@@ -1,0 +1,28 @@
+{
+  if (tok != null && tok.hasNext()) {
+    nextObject=tok.next();
+    return;
+  }
+  while (true) {
+    try {
+      if (currReader != null) {
+        currReader.close();
+      }
+    }
+ catch (    IOException e) {
+      throw new RuntimeException(e);
+    }
+    if (readerIterator.hasNext()) {
+      currReader=readerIterator.next();
+      tok=ifrf.getIterator(currReader);
+    }
+ else {
+      nextObject=null;
+      return;
+    }
+    if (tok.hasNext()) {
+      nextObject=tok.next();
+      return;
+    }
+  }
+}

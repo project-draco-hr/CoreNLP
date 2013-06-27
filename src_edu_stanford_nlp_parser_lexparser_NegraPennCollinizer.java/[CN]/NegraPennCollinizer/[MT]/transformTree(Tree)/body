@@ -1,0 +1,32 @@
+{
+  Label l=tree.label();
+  if (tree.isLeaf()) {
+    return tf.newLeaf(l);
+  }
+  String s=l.value();
+  s=tlpp.treebankLanguagePack().basicCategory(s);
+  if (deletePunct) {
+    if (tree.isPreTerminal() && tlpp.treebankLanguagePack().isEvalBIgnoredPunctuationTag(s)) {
+      return null;
+    }
+  }
+  if (tree.children()[0].label().value().equals("TOPP")) {
+    System.err.println("Found a TOPP");
+    tree.setChildren(tree.children()[0].children());
+  }
+  if (tlpp.treebankLanguagePack().isStartSymbol(s) && tree.numChildren() == 1) {
+    return transformTree(tree.getChild(0));
+  }
+  List<Tree> children=new ArrayList<Tree>();
+  for (int cNum=0, numC=tree.numChildren(); cNum < numC; cNum++) {
+    Tree child=tree.getChild(cNum);
+    Tree newChild=transformTree(child);
+    if (newChild != null) {
+      children.add(newChild);
+    }
+  }
+  if (children.isEmpty()) {
+    return null;
+  }
+  return tf.newTreeNode(new StringLabel(s),children);
+}

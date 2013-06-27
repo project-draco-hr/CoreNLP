@@ -1,0 +1,374 @@
+{
+  double prob=0.0;
+  Triple<double[][],double[][],double[][]> allParams=separateWeights(x);
+  double[][] linearWeights=allParams.first();
+  double[][] W=allParams.second();
+  double[][] U=allParams.third();
+  double[][] Y=null;
+  if (flags.softmaxOutputLayer) {
+    Y=new double[U.length][];
+    for (int i=0; i < U.length; i++) {
+      Y[i]=ArrayMath.softmax(U[i]);
+    }
+  }
+  double[][] What=emptyW();
+  double[][] Uhat=emptyU();
+  double[][] E=empty2D();
+  double[][] eW=emptyW();
+  double[][] eU=emptyU();
+  for (int m=0; m < data.length; m++) {
+    int[][][] docData=data[m];
+    int[] docLabels=labels[m];
+    double[][][] featureVal3DArr=null;
+    if (featureVal != null)     featureVal3DArr=featureVal[m];
+    if (DEBUG)     System.err.println("processing doc " + m);
+    NonLinearCliquePotentialFunction cliquePotentialFunction=new NonLinearCliquePotentialFunction(linearWeights,W,U,flags);
+    CRFCliqueTree cliqueTree=CRFCliqueTree.getCalibratedCliqueTree(docData,labelIndices,numClasses,classIndex,backgroundSymbol,cliquePotentialFunction,featureVal3DArr);
+    int[] given=new int[window - 1];
+    if (!gradientsOnly)     Arrays.fill(given,classIndex.indexOf(backgroundSymbol));
+    int[] windowLabels=new int[window];
+    Arrays.fill(windowLabels,classIndex.indexOf(backgroundSymbol));
+    if (docLabels.length > docData.length) {
+      System.arraycopy(docLabels,0,given,0,given.length);
+      System.arraycopy(docLabels,0,windowLabels,0,windowLabels.length);
+      int[] newDocLabels=new int[docData.length];
+      System.arraycopy(docLabels,docLabels.length - newDocLabels.length,newDocLabels,0,newDocLabels.length);
+      docLabels=newDocLabels;
+    }
+    if (!gradientsOnly) {
+      for (int i=0; i < docData.length; i++) {
+        int label=docLabels[i];
+        double p=cliqueTree.condLogProbGivenPrevious(i,label,given);
+        if (VERBOSE) {
+          System.err.println("P(" + label + "|"+ ArrayMath.toString(given)+ ")="+ p);
+        }
+        prob+=p;
+        System.arraycopy(given,1,given,0,given.length - 1);
+        given[given.length - 1]=label;
+      }
+    }
+    for (int i=0; i < docData.length; i++) {
+      System.arraycopy(windowLabels,1,windowLabels,0,window - 1);
+      windowLabels[window - 1]=docLabels[i];
+      for (int j=0; j < docData[i].length; j++) {
+        Index<CRFLabel> labelIndex=labelIndices.get(j);
+        int[] cliqueFeatures=docData[i][j];
+        double[] As=null;
+        double[] fDeriv=null;
+        double[][] yTimesA=null;
+        double[] sumOfYTimesA=null;
+        if (DEBUG)         System.err.print("calculating Ehat[" + i + "]");
+        if (j == 0) {
+          double[] featureValArr=null;
+          if (featureVal3DArr != null)           featureValArr=featureVal3DArr[i][j];
+          As=cliquePotentialFunction.hiddenLayerOutput(W,cliqueFeatures,flags,featureValArr);
+          fDeriv=new double[inputLayerSize];
+          double fD=0;
+          for (int q=0; q < inputLayerSize; q++) {
+            if (useSigmoid) {
+              fD=As[q] * (1 - As[q]);
+            }
+ else {
+              fD=1 - As[q] * As[q];
+            }
+            fDeriv[q]=fD;
+          }
+          if (flags.softmaxOutputLayer) {
+            double val=0;
+            yTimesA=new double[outputLayerSize][numHiddenUnits];
+            for (int ii=0; ii < outputLayerSize; ii++) {
+              yTimesA[ii]=new double[numHiddenUnits];
+            }
+            sumOfYTimesA=new double[outputLayerSize];
+            for (int k=0; k < outputLayerSize; k++) {
+              double[] Yk=null;
+              if (flags.tieOutputLayer) {
+                Yk=Y[0];
+              }
+ else {
+                Yk=Y[k];
+              }
+              double sum=0;
+              for (int q=0; q < inputLayerSize; q++) {
+                if (q % outputLayerSize == k) {
+                  int hiddenUnitNo=q / outputLayerSize;
+                  val=As[q] * Yk[hiddenUnitNo];
+                  yTimesA[k][hiddenUnitNo]=val;
+                  sum+=val;
+                }
+              }
+              sumOfYTimesA[k]=sum;
+            }
+          }
+          int[] cliqueLabel=new int[j + 1];
+          System.arraycopy(windowLabels,window - 1 - j,cliqueLabel,0,j + 1);
+          CRFLabel crfLabel=new CRFLabel(cliqueLabel);
+          int givenLabelIndex=labelIndex.indexOf(crfLabel);
+          double[] Uk=null;
+          double[] UhatK=null;
+          double[] Yk=null;
+          double[] yTimesAK=null;
+          double sumOfYTimesAK=0;
+          if (flags.tieOutputLayer) {
+            Uk=U[0];
+            UhatK=Uhat[0];
+            if (flags.softmaxOutputLayer) {
+              Yk=Y[0];
+            }
+          }
+ else {
+            Uk=U[givenLabelIndex];
+            UhatK=Uhat[givenLabelIndex];
+            if (flags.softmaxOutputLayer) {
+              Yk=Y[givenLabelIndex];
+            }
+          }
+          if (flags.softmaxOutputLayer) {
+            yTimesAK=yTimesA[givenLabelIndex];
+            sumOfYTimesAK=sumOfYTimesA[givenLabelIndex];
+          }
+          for (int k=0; k < inputLayerSize; k++) {
+            double deltaK=1;
+            if (flags.sparseOutputLayer || flags.tieOutputLayer) {
+              if (k % outputLayerSize == givenLabelIndex) {
+                int hiddenUnitNo=k / outputLayerSize;
+                if (flags.softmaxOutputLayer) {
+                  UhatK[hiddenUnitNo]+=(yTimesAK[hiddenUnitNo] - Yk[hiddenUnitNo] * sumOfYTimesAK);
+                  deltaK*=Yk[hiddenUnitNo];
+                }
+ else {
+                  UhatK[hiddenUnitNo]+=As[k];
+                  deltaK*=Uk[hiddenUnitNo];
+                }
+              }
+            }
+ else {
+              UhatK[k]+=As[k];
+              if (useOutputLayer) {
+                deltaK*=Uk[k];
+              }
+            }
+            if (useHiddenLayer)             deltaK*=fDeriv[k];
+            if (useOutputLayer) {
+              if (flags.sparseOutputLayer || flags.tieOutputLayer) {
+                if (k % outputLayerSize == givenLabelIndex) {
+                  double[] WhatK=What[k];
+                  for (int n=0; n < cliqueFeatures.length; n++) {
+                    double fVal=1.0;
+                    if (featureVal3DArr != null)                     fVal=featureVal3DArr[i][j][n];
+                    WhatK[cliqueFeatures[n]]+=deltaK * fVal;
+                  }
+                }
+              }
+ else {
+                double[] WhatK=What[k];
+                double fVal=1.0;
+                for (int n=0; n < cliqueFeatures.length; n++) {
+                  fVal=1.0;
+                  if (featureVal3DArr != null)                   fVal=featureVal3DArr[i][j][n];
+                  WhatK[cliqueFeatures[n]]+=deltaK * fVal;
+                }
+              }
+            }
+ else {
+              if (k == givenLabelIndex) {
+                double[] WhatK=What[k];
+                double fVal=1.0;
+                for (int n=0; n < cliqueFeatures.length; n++) {
+                  fVal=1.0;
+                  if (featureVal3DArr != null)                   fVal=featureVal3DArr[i][j][n];
+                  WhatK[cliqueFeatures[n]]+=deltaK * fVal;
+                }
+              }
+            }
+          }
+        }
+        if (DEBUG)         System.err.println(" done!");
+        if (DEBUG)         System.err.print("calculating E[" + i + "]");
+        for (int k=0; k < labelIndex.size(); k++) {
+          int[] label=labelIndex.get(k).getLabel();
+          double p=cliqueTree.prob(i,label);
+          if (j == 0) {
+            double[] Uk=null;
+            double[] eUK=null;
+            double[] Yk=null;
+            if (flags.tieOutputLayer) {
+              Uk=U[0];
+              eUK=eU[0];
+              if (flags.softmaxOutputLayer) {
+                Yk=Y[0];
+              }
+            }
+ else {
+              Uk=U[k];
+              eUK=eU[k];
+              if (flags.softmaxOutputLayer) {
+                Yk=Y[k];
+              }
+            }
+            if (useOutputLayer) {
+              for (int q=0; q < inputLayerSize; q++) {
+                double deltaQ=1;
+                if (flags.sparseOutputLayer || flags.tieOutputLayer) {
+                  if (q % outputLayerSize == k) {
+                    int hiddenUnitNo=q / outputLayerSize;
+                    if (flags.softmaxOutputLayer) {
+                      eUK[hiddenUnitNo]+=(yTimesA[k][hiddenUnitNo] - Yk[hiddenUnitNo] * sumOfYTimesA[k]) * p;
+                      deltaQ=Yk[hiddenUnitNo];
+                    }
+ else {
+                      eUK[hiddenUnitNo]+=As[q] * p;
+                      deltaQ=Uk[hiddenUnitNo];
+                    }
+                  }
+                }
+ else {
+                  eUK[q]+=As[q] * p;
+                  deltaQ=Uk[q];
+                }
+                if (useHiddenLayer)                 deltaQ*=fDeriv[q];
+                if (flags.sparseOutputLayer || flags.tieOutputLayer) {
+                  if (q % outputLayerSize == k) {
+                    double[] eWq=eW[q];
+                    double fVal=1.0;
+                    for (int n=0; n < cliqueFeatures.length; n++) {
+                      fVal=1.0;
+                      if (featureVal3DArr != null)                       fVal=featureVal3DArr[i][j][n];
+                      eWq[cliqueFeatures[n]]+=deltaQ * p * fVal;
+                    }
+                  }
+                }
+ else {
+                  double[] eWq=eW[q];
+                  double fVal=1.0;
+                  for (int n=0; n < cliqueFeatures.length; n++) {
+                    fVal=1.0;
+                    if (featureVal3DArr != null)                     fVal=featureVal3DArr[i][j][n];
+                    eWq[cliqueFeatures[n]]+=deltaQ * p * fVal;
+                  }
+                }
+              }
+            }
+ else {
+              double deltaK=1;
+              if (useHiddenLayer)               deltaK*=fDeriv[k];
+              double[] eWK=eW[k];
+              double fVal=1.0;
+              for (int n=0; n < cliqueFeatures.length; n++) {
+                fVal=1.0;
+                if (featureVal3DArr != null)                 fVal=featureVal3DArr[i][j][n];
+                eWK[cliqueFeatures[n]]+=deltaK * p * fVal;
+              }
+            }
+          }
+ else {
+            for (int n=0; n < cliqueFeatures.length; n++) {
+              E[cliqueFeatures[n]][k]+=p;
+            }
+          }
+        }
+        if (DEBUG)         System.err.println(" done!");
+      }
+    }
+  }
+  if (Double.isNaN(prob)) {
+    throw new RuntimeException("Got NaN for prob in CRFNonLinearLogConditionalObjectiveFunction.calculate()");
+  }
+  value=-prob;
+  if (VERBOSE) {
+    System.err.println("value is " + value);
+  }
+  if (DEBUG)   System.err.print("calculating derivative ");
+  int index=0;
+  for (int i=0; i < E.length; i++) {
+    for (int j=0; j < E[i].length; j++) {
+      derivative[index++]=(E[i][j] - Ehat[i][j]);
+      if (VERBOSE) {
+        System.err.println("linearWeights deriv(" + i + ","+ j+ ") = "+ E[i][j]+ " - "+ Ehat[i][j]+ " = "+ derivative[index - 1]);
+      }
+    }
+  }
+  if (index != edgeParamCount)   throw new RuntimeException("after edge derivative, index(" + index + ") != edgeParamCount("+ edgeParamCount+ ")");
+  for (int i=0; i < eW.length; i++) {
+    for (int j=0; j < eW[i].length; j++) {
+      derivative[index++]=(eW[i][j] - What[i][j]);
+      if (VERBOSE) {
+        System.err.println("inputLayerWeights deriv(" + i + ","+ j+ ") = "+ eW[i][j]+ " - "+ What[i][j]+ " = "+ derivative[index - 1]);
+      }
+    }
+  }
+  if (index != beforeOutputWeights)   throw new RuntimeException("after W derivative, index(" + index + ") != beforeOutputWeights("+ beforeOutputWeights+ ")");
+  if (useOutputLayer) {
+    for (int i=0; i < eU.length; i++) {
+      for (int j=0; j < eU[i].length; j++) {
+        if (flags.hardcodeSoftmaxOutputWeights)         derivative[index++]=0;
+ else         derivative[index++]=(eU[i][j] - Uhat[i][j]);
+        if (VERBOSE) {
+          System.err.println("outputLayerWeights deriv(" + i + ","+ j+ ") = "+ eU[i][j]+ " - "+ Uhat[i][j]+ " = "+ derivative[index - 1]);
+        }
+      }
+    }
+  }
+  if (index != x.length)   throw new RuntimeException("after W derivative, index(" + index + ") != x.length("+ x.length+ ")");
+  int regSize=x.length;
+  if (flags.skipOutputRegularization || flags.softmaxOutputLayer || flags.hardcodeSoftmaxOutputWeights) {
+    regSize=beforeOutputWeights;
+  }
+  if (DEBUG)   System.err.println("done!");
+  if (DEBUG)   System.err.print("incorporating priors ...");
+  if (prior == QUADRATIC_PRIOR) {
+    double sigmaSq=sigma * sigma;
+    double twoSigmaSq=2.0 * sigmaSq;
+    double w=0;
+    double valueSum=0;
+    for (int i=0; i < regSize; i++) {
+      w=x[i];
+      valueSum+=w * w;
+      derivative[i]+=w / sigmaSq;
+    }
+    value+=valueSum / twoSigmaSq;
+  }
+ else   if (prior == L1_PRIOR) {
+  }
+ else   if (prior == HUBER_PRIOR) {
+    double sigmaSq=sigma * sigma;
+    for (int i=0; i < regSize; i++) {
+      double w=x[i];
+      double wabs=Math.abs(w);
+      if (wabs < epsilon) {
+        value+=w * w / 2.0 / epsilon / sigmaSq;
+        derivative[i]+=w / epsilon / sigmaSq;
+      }
+ else {
+        value+=(wabs - epsilon / 2) / sigmaSq;
+        derivative[i]+=((w < 0.0) ? -1.0 : 1.0) / sigmaSq;
+      }
+    }
+  }
+ else   if (prior == QUARTIC_PRIOR) {
+    double sigmaQu=sigma * sigma * sigma* sigma;
+    for (int i=0; i < regSize; i++) {
+      double k=1.0;
+      double w=x[i];
+      value+=k * w * w* w* w / 2.0 / sigmaQu;
+      derivative[i]+=k * w / sigmaQu;
+    }
+  }
+  if (flags.regularizeSoftmaxTieParam && flags.softmaxOutputLayer && !flags.hardcodeSoftmaxOutputWeights) {
+    double softmaxLambda=flags.softmaxTieLambda;
+    double oneDividedByTwoSigmaSq=softmaxLambda * 2;
+    double y=0;
+    double mean=1.0 / numHiddenUnits;
+    int count=0;
+    for (int i=0; i < U.length; i++) {
+      for (int j=0; j < U[i].length; j++) {
+        y=U[i][j];
+        value+=(y - mean) * (y - mean) * softmaxLambda;
+        double grad=(y - mean) * oneDividedByTwoSigmaSq;
+        derivative[beforeOutputWeights + count]+=grad;
+        count++;
+      }
+    }
+  }
+  if (DEBUG)   System.err.println("done!");
+}

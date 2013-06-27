@@ -1,0 +1,175 @@
+{
+  List<List<CoreLabel>> allWords=new ArrayList<List<CoreLabel>>();
+  List<Tree> allTrees=new ArrayList<Tree>();
+  List<List<Mention>> allGoldMentions=new ArrayList<List<Mention>>();
+  List<List<Mention>> allPredictedMentions;
+  List<CoreMap> allSentences=new ArrayList<CoreMap>();
+  Annotation docAnno=new Annotation("");
+  Pattern docPattern=Pattern.compile("<DOC>(.*?)</DOC>",Pattern.DOTALL + Pattern.CASE_INSENSITIVE);
+  Pattern sentencePattern=Pattern.compile("(<s>|<hl>|<dd>|<DATELINE>)(.*?)(</s>|</hl>|</dd>|</DATELINE>)",Pattern.DOTALL + Pattern.CASE_INSENSITIVE);
+  Matcher docMatcher=docPattern.matcher(fileContents);
+  if (!docMatcher.find(currentOffset))   return null;
+  currentOffset=docMatcher.end();
+  String doc=docMatcher.group(1);
+  Matcher sentenceMatcher=sentencePattern.matcher(doc);
+  String ner=null;
+  Pattern docIDPattern=Pattern.compile("<DOCNO>(.*?)</DOCNO>",Pattern.DOTALL + Pattern.CASE_INSENSITIVE);
+  Matcher docIDMatcher=docIDPattern.matcher(doc);
+  if (docIDMatcher.find())   currentDocumentID=docIDMatcher.group(1);
+ else   currentDocumentID="documentAfter " + currentDocumentID;
+  while (sentenceMatcher.find()) {
+    String sentenceString=sentenceMatcher.group(2);
+    List<CoreLabel> words=tokenizerFactory.getTokenizer(new StringReader(sentenceString)).tokenize();
+    for (int i=0; i < words.size(); i++) {
+      CoreLabel w=words.get(i);
+      if (i > 0 && w.word().equals("$")) {
+        if (!words.get(i - 1).word().endsWith("PRP") && !words.get(i - 1).word().endsWith("WP"))         continue;
+        words.get(i - 1).set(CoreAnnotations.TextAnnotation.class,words.get(i - 1).word() + "$");
+        words.remove(i);
+        i--;
+      }
+ else       if (w.word().equals("\\/")) {
+        if (words.get(i - 1).word().equals("</COREF>"))         continue;
+        w.set(CoreAnnotations.TextAnnotation.class,words.get(i - 1).word() + "\\/" + words.get(i + 1).word());
+        words.remove(i + 1);
+        words.remove(i - 1);
+      }
+    }
+    List<CoreLabel> sentence=new ArrayList<CoreLabel>();
+    Stack<Mention> stack=new Stack<Mention>();
+    List<Mention> mentions=new ArrayList<Mention>();
+    allWords.add(sentence);
+    allGoldMentions.add(mentions);
+    for (    CoreLabel word : words) {
+      String w=word.get(CoreAnnotations.TextAnnotation.class);
+      if (!w.startsWith("<") && w.contains("\\/") && w.lastIndexOf("\\/") != w.length() - 2) {
+        int i=w.lastIndexOf("\\/");
+        String w1=w.substring(0,i);
+        word.set(CoreAnnotations.TextAnnotation.class,w1);
+        word.remove(CoreAnnotations.OriginalTextAnnotation.class);
+        if (Constants.USE_GOLD_NE) {
+          if (ner != null) {
+            word.set(CoreAnnotations.NamedEntityTagAnnotation.class,ner);
+          }
+ else {
+            word.set(CoreAnnotations.NamedEntityTagAnnotation.class,"O");
+          }
+        }
+        sentence.add(word);
+      }
+ else       if (w.startsWith("<") && !w.startsWith("<COREF") && !w.startsWith("</")) {
+        Pattern nerPattern=Pattern.compile("<(.*?)>");
+        Matcher m=nerPattern.matcher(w);
+        m.find();
+        ner=m.group(1);
+      }
+ else       if (w.startsWith("</") && !w.startsWith("</COREF")) {
+        Pattern nerPattern=Pattern.compile("</(.*?)>");
+        Matcher m=nerPattern.matcher(w);
+        m.find();
+        String ner1=m.group(1);
+        if (ner != null && !ner.equals(ner1))         throw new RuntimeException("Unmatched NE labels in MUC file: " + ner + " v. "+ ner1);
+        ner=null;
+      }
+ else       if (w.startsWith("<COREF")) {
+        Mention mention=new Mention();
+        mention.startIndex=sentence.size();
+        Pattern idPattern=Pattern.compile("ID=\"(.*?)\"");
+        Pattern refPattern=Pattern.compile("REF=\"(.*?)\"");
+        Matcher m=idPattern.matcher(w);
+        m.find();
+        mention.mentionID=Integer.valueOf(m.group(1));
+        m=refPattern.matcher(w);
+        if (m.find()) {
+          mention.originalRef=Integer.valueOf(m.group(1));
+        }
+        stack.push(mention);
+      }
+ else       if (w.equals("</COREF>")) {
+        Mention mention=stack.pop();
+        mention.endIndex=sentence.size();
+        mentions.add(mention);
+      }
+ else {
+        word.remove(CoreAnnotations.OriginalTextAnnotation.class);
+        if (Constants.USE_GOLD_NE) {
+          if (ner != null) {
+            word.set(CoreAnnotations.NamedEntityTagAnnotation.class,ner);
+          }
+ else {
+            word.set(CoreAnnotations.NamedEntityTagAnnotation.class,"O");
+          }
+        }
+        sentence.add(word);
+      }
+    }
+    StringBuilder textContent=new StringBuilder();
+    for (int i=0; i < sentence.size(); i++) {
+      CoreLabel w=sentence.get(i);
+      w.set(CoreAnnotations.IndexAnnotation.class,i + 1);
+      w.set(CoreAnnotations.UtteranceAnnotation.class,0);
+      if (i > 0)       textContent.append(" ");
+      textContent.append(w.getString(CoreAnnotations.TextAnnotation.class));
+    }
+    CoreMap sentCoreMap=new Annotation(textContent.toString());
+    allSentences.add(sentCoreMap);
+    sentCoreMap.set(CoreAnnotations.TokensAnnotation.class,sentence);
+  }
+  Map<Integer,Mention> idMention=Generics.newHashMap();
+  for (  List<Mention> goldMentions : allGoldMentions) {
+    for (    Mention m : goldMentions) {
+      idMention.put(m.mentionID,m);
+    }
+  }
+  for (  List<Mention> goldMentions : allGoldMentions) {
+    for (    Mention m : goldMentions) {
+      if (m.goldCorefClusterID == -1) {
+        if (m.originalRef == -1)         m.goldCorefClusterID=m.mentionID;
+ else {
+          int ref=m.originalRef;
+          while (true) {
+            Mention m2=idMention.get(ref);
+            if (m2.goldCorefClusterID != -1) {
+              m.goldCorefClusterID=m2.goldCorefClusterID;
+              break;
+            }
+ else             if (m2.originalRef == -1) {
+              m2.goldCorefClusterID=m2.mentionID;
+              m.goldCorefClusterID=m2.goldCorefClusterID;
+              break;
+            }
+ else {
+              ref=m2.originalRef;
+            }
+          }
+        }
+      }
+    }
+  }
+  docAnno.set(CoreAnnotations.SentencesAnnotation.class,allSentences);
+  stanfordProcessor.annotate(docAnno);
+  if (allSentences.size() != allWords.size())   throw new IllegalStateException("allSentences != allWords");
+  for (int i=0; i < allSentences.size(); i++) {
+    List<CoreLabel> annotatedSent=allSentences.get(i).get(CoreAnnotations.TokensAnnotation.class);
+    List<CoreLabel> unannotatedSent=allWords.get(i);
+    List<Mention> mentionInSent=allGoldMentions.get(i);
+    for (    Mention m : mentionInSent) {
+      m.dependency=allSentences.get(i).get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class);
+    }
+    if (annotatedSent.size() != unannotatedSent.size()) {
+      throw new IllegalStateException("annotatedSent != unannotatedSent");
+    }
+    for (int j=0, sz=annotatedSent.size(); j < sz; j++) {
+      CoreLabel annotatedWord=annotatedSent.get(j);
+      CoreLabel unannotatedWord=unannotatedSent.get(j);
+      if (!annotatedWord.get(CoreAnnotations.TextAnnotation.class).equals(unannotatedWord.get(CoreAnnotations.TextAnnotation.class))) {
+        throw new IllegalStateException("annotatedWord != unannotatedWord");
+      }
+    }
+    allWords.set(i,annotatedSent);
+    allTrees.add(allSentences.get(i).get(TreeCoreAnnotations.TreeAnnotation.class));
+  }
+  if (Constants.USE_GOLD_MENTIONS)   allPredictedMentions=allGoldMentions;
+ else   allPredictedMentions=mentionFinder.extractPredictedMentions(docAnno,maxID,dictionaries);
+  return arrange(docAnno,allWords,allTrees,allPredictedMentions,allGoldMentions,true);
+}

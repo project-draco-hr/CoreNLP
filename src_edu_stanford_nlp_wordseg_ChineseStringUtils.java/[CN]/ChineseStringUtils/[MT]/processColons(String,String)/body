@@ -1,0 +1,33 @@
+{
+  if (colonsPat == null) {
+    colonsPat=new Pattern[colons.length];
+    for (int i=0; i < colons.length; i++) {
+      Character colon=colons[i];
+      colonsPat[i]=Pattern.compile(WHITE + colon + WHITE);
+    }
+  }
+  for (int i=0; i < colons.length; i++) {
+    Character colon=colons[i];
+    Pattern p=colonsPat[i];
+    Matcher m=p.matcher(ans);
+    ans=m.replaceAll(" " + colon + " ");
+  }
+  if (colonsWhitePat == null) {
+    colonsWhitePat=new Pattern[colons.length];
+    for (int i=0; i < colons.length; i++) {
+      Character colon=colons[i];
+      colonsWhitePat[i]=Pattern.compile("(" + numPat + ")"+ WHITEPLUS+ colon+ WHITEPLUS+ "("+ numPat+ ")");
+    }
+  }
+  for (int i=0; i < colons.length; i++) {
+    Character colon=colons[i];
+    Pattern p=colonsWhitePat[i];
+    Matcher m=p.matcher(ans);
+    while (m.find()) {
+      ans=m.replaceAll("$1" + colon + "$2");
+      m=p.matcher(ans);
+    }
+  }
+  ans=ans.trim();
+  return ans;
+}

@@ -1,0 +1,34 @@
+{
+  StringWriter taggedResults=new StringWriter();
+  List<List<HasWord>> sentences;
+  if (tokenize) {
+    sentences=tokenizeText(new StringReader(o),tokenizerFactory);
+  }
+ else {
+    sentences=new ArrayList<List<HasWord>>();
+    sentences.add(Sentence.toWordList(o.split("\\s+")));
+  }
+  if (config.getNThreads() != 1) {
+    MulticoreWrapper<List<? extends HasWord>,List<? extends HasWord>> wrapper=new MulticoreWrapper<List<? extends HasWord>,List<? extends HasWord>>(config.getNThreads(),new SentenceTaggingProcessor(tagger,outputLemmas));
+    for (    List<? extends HasWord> sentence : sentences) {
+      wrapper.put(sentence);
+      while (wrapper.peek()) {
+        List<? extends HasWord> taggedSentence=wrapper.poll();
+        tagger.outputTaggedSentence(taggedSentence,outputLemmas,outputStyle,outputVerbosity,sentNum++," ",taggedResults);
+      }
+    }
+    wrapper.join();
+    while (wrapper.peek()) {
+      List<? extends HasWord> taggedSentence=wrapper.poll();
+      tagger.outputTaggedSentence(taggedSentence,outputLemmas,outputStyle,outputVerbosity,sentNum++," ",taggedResults);
+    }
+  }
+ else {
+    for (    List<? extends HasWord> sent : sentences) {
+      Morphology morpha=(outputLemmas) ? new Morphology() : null;
+      sent=tagger.tagCoreLabelsOrHasWords(sent,morpha,outputLemmas);
+      tagger.outputTaggedSentence(sent,outputLemmas,outputStyle,outputVerbosity,sentNum++," ",taggedResults);
+    }
+  }
+  return taggedResults.toString();
+}

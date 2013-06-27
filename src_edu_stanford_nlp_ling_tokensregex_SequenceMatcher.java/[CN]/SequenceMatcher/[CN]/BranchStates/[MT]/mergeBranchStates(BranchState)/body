@@ -1,0 +1,23 @@
+{
+  if (bs.bidsToCollapse != null && bs.bidsToCollapse.size() > 0) {
+    for (    int cbid : bs.bidsToCollapse) {
+      if (cbid != bs.bid) {
+        BranchState cbs=getBranchState(cbid);
+        if (cbs != null) {
+          bs.addMatchedGroups(cbs.matchedGroups);
+          bs.addMatchedResults(cbs.matchedResults);
+        }
+ else {
+          logger.finest("Unable to find state info for bid=" + cbid);
+        }
+      }
+    }
+    if (bs.collapsedBids == null) {
+      bs.collapsedBids=bs.bidsToCollapse;
+    }
+ else {
+      bs.collapsedBids.addAll(bs.bidsToCollapse);
+    }
+    bs.bidsToCollapse=null;
+  }
+}

@@ -1,0 +1,19 @@
+{
+  if (l.size() != depth) {
+    wrongDepth();
+  }
+  double[] counts=new double[depth + 1];
+  GeneralizedCounter<K> next=this;
+  counts[0]=next.totalCount();
+  Iterator<K> i=l.iterator();
+  int j=1;
+  K o=i.next();
+  while (i.hasNext()) {
+    next=next.conditionalizeHelper(o);
+    counts[j]=next.totalCount();
+    o=i.next();
+    j++;
+  }
+  counts[depth]=next.getCount(o);
+  return counts;
+}

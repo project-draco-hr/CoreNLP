@@ -1,0 +1,21 @@
+{
+  Counter<String> terminal=terminals.get(state);
+  if (terminal != null) {
+    String label=Counters.sample(terminal,random);
+    Tree child=tf.newLeaf(label);
+    List<Tree> children=Collections.singletonList(child);
+    Tree root=tf.newTreeNode(state,children);
+    return root;
+  }
+  Counter<List<String>> nonTerminal=nonTerminals.get(state);
+  if (nonTerminal != null) {
+    List<String> labels=Counters.sample(nonTerminal,random);
+    List<Tree> children=new ArrayList<Tree>();
+    for (    String childLabel : labels) {
+      children.add(produceTree(childLabel));
+    }
+    Tree root=tf.newTreeNode(state,children);
+    return root;
+  }
+  throw new RuntimeException("Unknown state " + state);
+}

@@ -1,0 +1,16 @@
+{
+  if (encoding == null) {
+    encoding=DEFAULT_ENCODING;
+  }
+  if (cachedOutWriter == null || !cachedOutEncoding.equals(encoding)) {
+    try {
+      cachedOutWriter=new PrintWriter(new OutputStreamWriter(System.out,encoding),true);
+      cachedOutEncoding=encoding;
+    }
+ catch (    UnsupportedEncodingException e) {
+      System.err.println("Error " + e + "Printing as default encoding.");
+      cachedOutWriter=new PrintWriter(new OutputStreamWriter(System.out),true);
+      cachedOutEncoding="";
+    }
+  }
+}

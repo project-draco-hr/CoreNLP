@@ -1,0 +1,33 @@
+{
+  if (label == null) {
+    return new LabelTagType(negLabel,defaultNegTag,negLabel);
+  }
+  String type;
+  String tag;
+  Matcher matcher=labelPattern.matcher(label);
+  if (matcher.matches()) {
+    if (ignoreProvidedTag) {
+      type=matcher.group(2);
+      if (negLabel.equals(type)) {
+        tag=defaultNegTag;
+      }
+ else {
+        tag=defaultPosTag;
+      }
+    }
+ else {
+      tag=matcher.group(1);
+      type=matcher.group(2);
+    }
+  }
+ else {
+    type=label;
+    if (negLabel.equals(label)) {
+      tag=defaultNegTag;
+    }
+ else {
+      tag=defaultPosTag;
+    }
+  }
+  return new LabelTagType(label,tag,type);
+}

@@ -1,0 +1,25 @@
+{
+  if (wordThreshold.second > 0) {
+    featureThresholds.add(wordThreshold);
+  }
+  if (featExtractor.chars && charThreshold.second > 0) {
+    featureThresholds.add(charThreshold);
+  }
+  if (featExtractor.bigrams && bigramThreshold.second > 0) {
+    featureThresholds.add(bigramThreshold);
+  }
+  if ((featExtractor.conjunctions || featExtractor.mildConjunctions) && conjThreshold.second > 0) {
+    featureThresholds.add(conjThreshold);
+  }
+  int types=data.numFeatureTypes();
+  if (universalThreshold > 0) {
+    data.applyFeatureCountThreshold(universalThreshold);
+  }
+  if (featureThresholds.size() > 0) {
+    data.applyFeatureCountThreshold(featureThresholds);
+  }
+  int numRemoved=types - data.numFeatureTypes();
+  if (numRemoved > 0) {
+    verbose("Thresholding removed " + numRemoved + " features.");
+  }
+}

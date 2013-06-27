@@ -1,0 +1,36 @@
+{
+  IdentityHashMap<Tree,Object> matchedTrees=new IdentityHashMap<Tree,Object>();
+  TregexMatcher matcher=pattern.matcher(input);
+  for (int i=0; i < expectedOutput.length; ++i) {
+    try {
+      assertTrue(matcher.find());
+    }
+ catch (    junit.framework.AssertionFailedError e) {
+      throw new RuntimeException("Pattern " + pattern + " failed on input "+ input.toString()+ " [expected "+ expectedOutput.length+ " results, got "+ i+ "]",e);
+    }
+    Tree match=matcher.getMatch();
+    String result=match.toString();
+    String expectedResult=expectedOutput[i].toString();
+    try {
+      assertEquals(expectedResult,result);
+    }
+ catch (    junit.framework.AssertionFailedError e) {
+      throw new RuntimeException("Pattern " + pattern + " matched the wrong tree on input "+ input.toString()+ " [expected "+ expectedOutput[i]+ " got "+ matcher.getMatch()+ "]",e);
+    }
+    matchedTrees.put(match,null);
+  }
+  try {
+    assertFalse(matcher.find());
+  }
+ catch (  junit.framework.AssertionFailedError e) {
+    throw new RuntimeException("Pattern " + pattern + " failed on input "+ input.toString()+ " [expected "+ expectedOutput.length+ " results, got more than that]",e);
+  }
+  for (  Tree subtree : input) {
+    if (matchedTrees.containsKey(subtree)) {
+      assertTrue(matcher.matchesAt(subtree));
+    }
+ else {
+      assertFalse(matcher.matchesAt(subtree));
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  StringUtils.printErrInvocationString("CMMClassifier",args);
+  Properties props=StringUtils.argsToProperties(args);
+  CMMClassifier<CoreLabel> cmm=new CMMClassifier<CoreLabel>(props);
+  String testFile=cmm.flags.testFile;
+  String textFile=cmm.flags.textFile;
+  String loadPath=cmm.flags.loadClassifier;
+  String serializeTo=cmm.flags.serializeTo;
+  if (loadPath != null) {
+    cmm.loadClassifierNoExceptions(loadPath,props);
+  }
+ else   if (cmm.flags.loadJarClassifier != null) {
+    cmm.loadJarClassifier(cmm.flags.loadJarClassifier,props);
+  }
+ else   if (cmm.flags.trainFile != null) {
+    if (cmm.flags.biasedTrainFile != null) {
+      cmm.trainSemiSup();
+    }
+ else {
+      cmm.train();
+    }
+  }
+ else {
+    cmm.loadDefaultClassifier();
+  }
+  if (serializeTo != null) {
+    cmm.serializeClassifier(serializeTo);
+  }
+  if (testFile != null) {
+    cmm.classifyAndWriteAnswers(testFile,cmm.makeReaderAndWriter());
+  }
+ else   if (cmm.flags.testFiles != null) {
+    cmm.classifyAndWriteAnswers(cmm.flags.baseTestDir,cmm.flags.testFiles,cmm.makeReaderAndWriter());
+  }
+  if (textFile != null) {
+    DocumentReaderAndWriter<CoreLabel> readerAndWriter=new PlainTextDocumentReaderAndWriter<CoreLabel>();
+    cmm.classifyAndWriteAnswers(textFile,readerAndWriter);
+  }
+}

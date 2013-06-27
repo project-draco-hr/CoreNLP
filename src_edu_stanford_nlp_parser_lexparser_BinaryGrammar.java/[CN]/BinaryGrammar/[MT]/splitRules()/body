@@ -1,0 +1,36 @@
+{
+  int numStates=index.size();
+  synthetic=new boolean[numStates];
+  for (int s=0; s < numStates; s++) {
+    try {
+      synthetic[s]=(index.get(s).charAt(0) == '@');
+    }
+ catch (    NullPointerException e) {
+      synthetic[s]=true;
+    }
+  }
+  splitRulesWithLC=new BinaryRule[numStates][];
+  splitRulesWithRC=new BinaryRule[numStates][];
+  for (int state=0; state < numStates; state++) {
+    if (isSynthetic(state)) {
+      splitRulesWithLC[state]=rulesWithLC[state].toArray(new BinaryRule[rulesWithLC[state].size()]);
+      splitRulesWithRC[state]=rulesWithRC[state].toArray(new BinaryRule[rulesWithRC[state].size()]);
+    }
+ else {
+      List<BinaryRule> ruleList=new ArrayList<BinaryRule>();
+      for (      BinaryRule br : rulesWithLC[state]) {
+        if (!isSynthetic(br.rightChild)) {
+          ruleList.add(br);
+        }
+      }
+      splitRulesWithLC[state]=ruleList.toArray(new BinaryRule[ruleList.size()]);
+      ruleList.clear();
+      for (      BinaryRule br : rulesWithRC[state]) {
+        if (!isSynthetic(br.leftChild)) {
+          ruleList.add(br);
+        }
+      }
+      splitRulesWithRC[state]=ruleList.toArray(new BinaryRule[ruleList.size()]);
+    }
+  }
+}

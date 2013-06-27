@@ -1,0 +1,17 @@
+{
+  List<String> theFeatures=new ArrayList<String>();
+  Collection<String> globalFeatures=Generics.newHashSet();
+  if (globalFlags.useClassFeature) {
+    globalFeatures.add("CLASS");
+  }
+  addAllInterningAndPrefixing(theFeatures,globalFeatures,"");
+  for (int i=0; i < flags.length; i++) {
+    Collection<String> featuresC=Generics.newHashSet();
+    makeDatum(strs[i],flags[i],featuresC,strs[globalFlags.goldAnswerColumn]);
+    addAllInterningAndPrefixing(theFeatures,featuresC,i + "-");
+  }
+  if (globalFlags.printFeatures != null) {
+    printFeatures(strs,theFeatures);
+  }
+  return new BasicDatum<String,String>(theFeatures,strs[globalFlags.goldAnswerColumn]);
+}

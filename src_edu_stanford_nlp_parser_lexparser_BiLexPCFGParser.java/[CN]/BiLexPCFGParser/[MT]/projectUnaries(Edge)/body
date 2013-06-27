@@ -1,0 +1,17 @@
+{
+  for (Iterator rI=ug.ruleIteratorByChild(edge.state); rI.hasNext(); ) {
+    UnaryRule ur=(UnaryRule)rI.next();
+    if (ur.child == ur.parent) {
+      continue;
+    }
+    tempEdge.start=edge.start;
+    tempEdge.end=edge.end;
+    tempEdge.head=edge.head;
+    tempEdge.tag=edge.tag;
+    tempEdge.state=ur.parent;
+    tempEdge.backEdge=edge;
+    tempEdge.backHook=null;
+    tempEdge.iScore=edge.iScore + ur.score;
+    relaxTempEdge();
+  }
+}

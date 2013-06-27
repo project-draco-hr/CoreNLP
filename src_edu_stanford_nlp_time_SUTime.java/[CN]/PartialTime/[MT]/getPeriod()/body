@@ -1,0 +1,19 @@
+{
+  StandardTemporalType tlt=getStandardTemporalType();
+  if (tlt != null) {
+    return tlt.getPeriod();
+  }
+  if (base == null) {
+    return null;
+  }
+  DateTimeFieldType mostGeneral=JodaTimeUtils.getMostGeneral(base);
+  DurationFieldType df=mostGeneral.getRangeDurationType();
+  if (df != null) {
+    try {
+      return new DurationWithFields(new Period().withField(df,1));
+    }
+ catch (    Exception ex) {
+    }
+  }
+  return null;
+}

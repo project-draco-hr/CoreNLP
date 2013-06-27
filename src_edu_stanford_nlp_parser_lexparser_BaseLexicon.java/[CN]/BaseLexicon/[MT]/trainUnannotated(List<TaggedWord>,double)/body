@@ -1,0 +1,22 @@
+{
+  uwModelTrainer.incrementTreesRead(weight);
+  int loc=0;
+  for (  TaggedWord tw : sentence) {
+    String baseTag=op.langpack().basicCategory(tw.tag());
+    Counter<String> counts=baseTagCounts.get(baseTag);
+    if (counts == null) {
+      ++loc;
+      continue;
+    }
+    double totalCount=counts.totalCount();
+    if (totalCount == 0) {
+      ++loc;
+      continue;
+    }
+    for (    String tag : counts.keySet()) {
+      TaggedWord newTW=new TaggedWord(tw.word(),tag);
+      train(newTW,loc,weight * counts.getCount(tag) / totalCount);
+    }
+    ++loc;
+  }
+}

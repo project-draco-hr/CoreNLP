@@ -1,0 +1,20 @@
+{
+  short binDistance=distanceBin(dependency.distance);
+  IntTaggedWord unknownHead=new IntTaggedWord(-1,dependency.head.tag);
+  IntTaggedWord anyHead=new IntTaggedWord(ANY_WORD_INT,dependency.head.tag);
+  IntDependency temp=new IntDependency(dependency.head,stopTW,dependency.leftHeaded,binDistance);
+  double c_stop_hTWds=stopCounter.getCount(temp);
+  temp=new IntDependency(unknownHead,stopTW,dependency.leftHeaded,binDistance);
+  double c_stop_hTds=stopCounter.getCount(temp);
+  temp=new IntDependency(dependency.head,wildTW,dependency.leftHeaded,binDistance);
+  double c_hTWds=stopCounter.getCount(temp);
+  temp=new IntDependency(anyHead,wildTW,dependency.leftHeaded,binDistance);
+  double c_hTds=stopCounter.getCount(temp);
+  double p_stop_hTds=(c_hTds > 0.0 ? c_stop_hTds / c_hTds : 1.0);
+  double pb_stop_hTWds=(c_stop_hTWds + smooth_stop * p_stop_hTds) / (c_hTWds + smooth_stop);
+  if (verbose) {
+    System.out.println("  c_stop_hTWds: " + c_stop_hTWds + "; c_hTWds: "+ c_hTWds+ "; c_stop_hTds: "+ c_stop_hTds+ "; c_hTds: "+ c_hTds);
+    System.out.println("  Generate STOP prob: " + pb_stop_hTWds);
+  }
+  return pb_stop_hTWds;
+}

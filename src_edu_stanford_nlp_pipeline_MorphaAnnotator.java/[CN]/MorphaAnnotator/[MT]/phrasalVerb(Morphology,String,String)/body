@@ -1,0 +1,14 @@
+{
+  assert(word != null);
+  assert(tag != null);
+  if (!tag.startsWith("VB") || !word.contains("_"))   return null;
+  String[] verb=word.split("_");
+  if (verb.length != 2)   return null;
+  String particle=verb[1];
+  if (particles.contains(particle)) {
+    String base=verb[0];
+    String lemma=morpha.lemma(base,tag);
+    return lemma + '_' + particle;
+  }
+  return null;
+}

@@ -1,0 +1,23 @@
+{
+  if (this.current.suppressRecord) {
+    return recordVerdict(record,false,false,willReturn);
+  }
+  if (this.current.lastRecord == null) {
+    return recordVerdict(record,false,true,willReturn);
+  }
+  if (this.repeatSemantics.equals(current.lastRecord,record)) {
+    long currentTime=record.timesstamp;
+    if (currentTime - this.current.timeOfLastPrintedRecord > this.repeatSemantics.maxWaitTimeInMillis()) {
+      return recordVerdict(record,true,true,willReturn);
+    }
+    if (this.current.timesSeen < this.repeatSemantics.numToForcePrint()) {
+      return recordVerdict(record,true,true,willReturn);
+    }
+ else {
+      return recordVerdict(record,true,false,willReturn);
+    }
+  }
+ else {
+    return recordVerdict(record,false,true,willReturn);
+  }
+}

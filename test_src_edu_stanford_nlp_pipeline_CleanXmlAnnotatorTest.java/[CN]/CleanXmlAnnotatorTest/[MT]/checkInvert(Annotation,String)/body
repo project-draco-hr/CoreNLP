@@ -1,0 +1,10 @@
+{
+  List<CoreLabel> annotationLabels=annotation.get(CoreAnnotations.TokensAnnotation.class);
+  StringBuilder original=new StringBuilder();
+  for (  CoreLabel label : annotationLabels) {
+    original.append(label.get(CoreAnnotations.BeforeAnnotation.class));
+    original.append(label.get(CoreAnnotations.OriginalTextAnnotation.class));
+  }
+  original.append(annotationLabels.get(annotationLabels.size() - 1).get(CoreAnnotations.AfterAnnotation.class));
+  assertEquals(gold,original.toString());
+}

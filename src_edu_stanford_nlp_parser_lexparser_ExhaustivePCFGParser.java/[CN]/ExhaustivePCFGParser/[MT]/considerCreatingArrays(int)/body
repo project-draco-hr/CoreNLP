@@ -1,0 +1,26 @@
+{
+  if (length > op.testOptions.maxLength + 1 || length >= myMaxLength) {
+    throw new OutOfMemoryError("Refusal to create such large arrays.");
+  }
+ else {
+    try {
+      createArrays(length + 1);
+    }
+ catch (    OutOfMemoryError e) {
+      myMaxLength=length;
+      if (arraySize > 0) {
+        try {
+          createArrays(arraySize);
+        }
+ catch (        OutOfMemoryError e2) {
+          throw new RuntimeException("CANNOT EVEN CREATE ARRAYS OF ORIGINAL SIZE!!");
+        }
+      }
+      throw e;
+    }
+    arraySize=length + 1;
+    if (op.testOptions.verbose) {
+      System.err.println("Created PCFG parser arrays of size " + arraySize);
+    }
+  }
+}

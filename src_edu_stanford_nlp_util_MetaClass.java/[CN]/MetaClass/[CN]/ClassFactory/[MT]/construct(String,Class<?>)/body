@@ -1,0 +1,50 @@
+{
+  this.classParams=params;
+  try {
+    this.cl=(Class<T>)Class.forName(classname);
+  }
+ catch (  ClassCastException e) {
+    throw new ClassCreationException("Class " + classname + " could not be cast to the correct type");
+  }
+  Constructor<?>[] constructors=cl.getDeclaredConstructors();
+  Constructor<?>[] potentials=new Constructor<?>[constructors.length];
+  Class<?>[][] constructorParams=new Class<?>[constructors.length][];
+  int[] distances=new int[constructors.length];
+  for (int i=0; i < constructors.length; i++) {
+    constructorParams[i]=constructors[i].getParameterTypes();
+    if (params.length == constructorParams[i].length) {
+      potentials[i]=constructors[i];
+      distances[i]=0;
+    }
+ else {
+      potentials[i]=null;
+      distances[i]=-1;
+    }
+  }
+  for (int paramIndex=0; paramIndex < params.length; paramIndex++) {
+    Class<?> target=params[paramIndex];
+    for (int conIndex=0; conIndex < potentials.length; conIndex++) {
+      if (potentials[conIndex] != null) {
+        Class<?> cand=constructorParams[conIndex][paramIndex];
+        int dist=superDistance(target,cand);
+        if (dist >= 0) {
+          distances[conIndex]+=dist;
+        }
+ else {
+          potentials[conIndex]=null;
+          distances[conIndex]=-1;
+        }
+      }
+    }
+  }
+  this.constructor=(Constructor<T>)argmin(potentials,distances,0);
+  if (this.constructor == null) {
+    StringBuilder b=new StringBuilder();
+    b.append(classname).append("(");
+    for (    Class<?> c : params) {
+      b.append(c.getName()).append(", ");
+    }
+    String target=b.substring(0,params.length == 0 ? b.length() : b.length() - 2) + ")";
+    throw new ConstructorNotFoundException("No constructor found to match: " + target);
+  }
+}

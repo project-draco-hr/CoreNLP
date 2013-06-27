@@ -1,0 +1,14 @@
+{
+  String bzip2=System.getProperty("bzip2","bzip2");
+  String cmd=bzip2;
+  ProcessBuilder pb=new ProcessBuilder();
+  pb.command(cmd);
+  this.process=pb.start();
+  this.filename=filename;
+  OutputStream outStream=new FileOutputStream(filename);
+  errWriter=new PrintWriter(new BufferedWriter(new OutputStreamWriter(err)));
+  outGobbler=new ByteStreamGobbler("Output stream gobbler: " + cmd + " "+ filename,process.getInputStream(),outStream);
+  errGobbler=new StreamGobbler(process.getErrorStream(),errWriter);
+  outGobbler.start();
+  errGobbler.start();
+}

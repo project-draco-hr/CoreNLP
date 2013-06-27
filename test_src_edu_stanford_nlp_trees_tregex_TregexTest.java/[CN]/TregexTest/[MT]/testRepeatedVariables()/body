@@ -1,0 +1,12 @@
+{
+  Tree tree=treeFromString("(root (a (foo 1)) (a (bar 2)))");
+  TregexPattern pattern=TregexPattern.compile("a < foo=a | < bar=a");
+  TregexMatcher matcher=pattern.matcher(tree);
+  assertTrue(matcher.find());
+  assertEquals("(a (foo 1))",matcher.getMatch().toString());
+  assertEquals("(foo 1)",matcher.getNode("a").toString());
+  assertTrue(matcher.find());
+  assertEquals("(a (bar 2))",matcher.getMatch().toString());
+  assertEquals("(bar 2)",matcher.getNode("a").toString());
+  assertFalse(matcher.find());
+}

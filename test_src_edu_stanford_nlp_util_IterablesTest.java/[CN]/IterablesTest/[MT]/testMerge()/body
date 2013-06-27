@@ -1,0 +1,15 @@
+{
+  List<String> a=Arrays.asList("a","b","d","e");
+  List<String> b=Arrays.asList("b","c","d","e");
+  Comparator<String> comparator=new Comparator<String>(){
+    public int compare(    String o1,    String o2){
+      return o1.compareTo(o2);
+    }
+  }
+;
+  Iterator<Pair<String,String>> iter=Iterables.merge(a,b,comparator).iterator();
+  assertEquals(iter.next(),new Pair<String,String>("b","b"));
+  assertEquals(iter.next(),new Pair<String,String>("d","d"));
+  assertEquals(iter.next(),new Pair<String,String>("e","e"));
+  assertTrue(!iter.hasNext());
+}

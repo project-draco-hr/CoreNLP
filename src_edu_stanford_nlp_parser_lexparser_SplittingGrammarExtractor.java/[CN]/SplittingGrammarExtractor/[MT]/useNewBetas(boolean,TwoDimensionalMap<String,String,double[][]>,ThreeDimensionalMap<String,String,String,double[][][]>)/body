@@ -1,0 +1,24 @@
+{
+  rescaleTemporaryBetas(tempUnaryBetas,tempBinaryBetas);
+  boolean converged=testConverged && testConvergence(tempUnaryBetas,tempBinaryBetas);
+  unaryBetas=tempUnaryBetas;
+  binaryBetas=tempBinaryBetas;
+  wordIndex=tempWordIndex;
+  tagIndex=tempTagIndex;
+  lex=tempLex;
+  if (DEBUG()) {
+    System.out.println("LEXICON");
+    try {
+      OutputStreamWriter osw=new OutputStreamWriter(System.out,"utf-8");
+      lex.writeData(osw);
+      osw.flush();
+    }
+ catch (    IOException e) {
+      throw new RuntimeIOException(e);
+    }
+  }
+  tempWordIndex=null;
+  tempTagIndex=null;
+  tempLex=null;
+  return converged;
+}

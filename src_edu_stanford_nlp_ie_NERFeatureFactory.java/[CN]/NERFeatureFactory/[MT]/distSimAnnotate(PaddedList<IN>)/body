@@ -1,0 +1,19 @@
+{
+  for (  CoreLabel fl : info) {
+    if (fl.has(CoreAnnotations.DistSimAnnotation.class)) {
+      return;
+    }
+    String word=getWord(fl);
+    if (!flags.casedDistSim) {
+      word=word.toLowerCase();
+    }
+    if (flags.numberEquivalenceDistSim) {
+      word=WordShapeClassifier.wordShape(word,WordShapeClassifier.WORDSHAPEDIGITS);
+    }
+    String distSim=lexicon.get(word);
+    if (distSim == null) {
+      distSim=flags.unknownWordDistSimClass;
+    }
+    fl.set(CoreAnnotations.DistSimAnnotation.class,distSim);
+  }
+}

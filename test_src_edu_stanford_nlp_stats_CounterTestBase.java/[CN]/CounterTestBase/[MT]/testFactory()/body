@@ -1,0 +1,19 @@
+{
+  Factory<Counter<String>> fcs=c.getFactory();
+  Counter<String> c2=fcs.create();
+  c2.incrementCount("fr");
+  c2.incrementCount("de");
+  c2.incrementCount("es",-3);
+  Counter<String> c3=fcs.create();
+  c3.decrementCount("es");
+  Counter<String> c4=fcs.create();
+  c4.incrementCount("fr");
+  c4.setCount("es",-3);
+  c4.setCount("de",1.0);
+  assertEquals("Testing factory and counter equality",c2,c4);
+  assertEquals("Testing factory",c2.totalCount(),-1.0);
+  c3.addAll(c2);
+  assertEquals(c3.keySet().size(),3);
+  assertEquals(c3.size(),3);
+  assertEquals("Testing addAll",-2.0,c3.totalCount());
+}

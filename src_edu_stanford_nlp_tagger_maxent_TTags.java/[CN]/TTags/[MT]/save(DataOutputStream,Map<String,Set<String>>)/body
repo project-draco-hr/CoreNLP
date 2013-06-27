@@ -1,0 +1,17 @@
+{
+  try {
+    file.writeInt(index.size());
+    for (    String item : index) {
+      file.writeUTF(item);
+      if (learnClosedTags) {
+        if (tagTokens.get(item).size() < closedTagThreshold) {
+          markClosed(item);
+        }
+      }
+      file.writeBoolean(isClosed(item));
+    }
+  }
+ catch (  IOException e) {
+    throw new RuntimeIOException(e);
+  }
+}

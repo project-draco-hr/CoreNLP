@@ -1,0 +1,27 @@
+import os
+import re
+import time
+import random
+dataset = 'RTE2_dev'
+score = 0.0
+minScore = 0.6
+memory = '-ms2g -mx7g'
+dataDir = '/u/nlp/rte/data/byformat'
+tmpDir = ('/tmp/rte-regression.%d' % os.getpid())
+os.mkdir(tmpDir)
+rteFile = ('%s/rte/%s.xml' % (dataDir, dataset))
+kbeFile = ('%s/%s.kbe.xml' % (tmpDir, dataset))
+pipelineFile = ('%s/%s.pipeline.info.xml' % (tmpDir, dataset))
+alignFile = ('%s/%s.align.xml' % (tmpDir, dataset))
+logFile = ('%s/%s.log' % (tmpDir, dataset))
+regressionFile = ('%s/regression/%s.regression.log' % (dataDir, dataset))
+makeKBEFile()
+doAnnotation()
+doAlignmentAndInference()
+score = extractScore()
+minScore = max(minScore, getPreviousScore())
+if (score >= minScore):
+    print ('PASS score %.4f >= min %.4f' % (score, minScore))
+else:
+    print ('FAIL score %.4f >= min %.4f, output in %s' % (score, minScore, logFile))
+saveScore(score, minScore, logFile)

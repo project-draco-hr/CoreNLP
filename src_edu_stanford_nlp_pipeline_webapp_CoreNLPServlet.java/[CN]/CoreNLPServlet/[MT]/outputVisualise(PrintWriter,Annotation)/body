@@ -1,0 +1,41 @@
+{
+  out.println("<div id=\"config_error\">");
+  out.println("</div>");
+  final int visualiserDivPxWidth=700;
+  Map<String,String> nameByAbbrv=new LinkedHashMap<String,String>();
+  nameByAbbrv.put("pos","Part-of-Speech");
+  nameByAbbrv.put("ner","Named Entity Recognition");
+  nameByAbbrv.put("coref","Coreference");
+  nameByAbbrv.put("basic_dep","Basic dependencies");
+  nameByAbbrv.put("collapsed_dep","Collapsed dependencies");
+  nameByAbbrv.put("collapsed_ccproc_dep","Collapsed CC-processed dependencies");
+  for (  Map.Entry<String,String> entry : nameByAbbrv.entrySet()) {
+    out.println("<h2>" + entry.getValue() + ":</h2>");
+    out.println("<div id=\"" + entry.getKey() + "\" style=\"width:"+ visualiserDivPxWidth+ "px\">");
+    out.println("    <div id=\"" + entry.getKey() + "_loading\">");
+    out.println("        <p>Loading...</p>");
+    out.println("    </div>");
+    out.println("</div>");
+    out.println("");
+  }
+  StringWriter xmlOutput=new StringWriter();
+  pipeline.xmlPrint(annotation,xmlOutput);
+  xmlOutput.flush();
+  String escapedXml=xmlOutput.toString().replaceAll("\\r\\n|\\r|\\n","").replace("\"","\\\"");
+  out.println("<script type=\"text/javascript\">");
+  out.println("// <![CDATA[");
+  out.println("    stanfordXML = \"" + escapedXml + "\";");
+  out.println("// ]]>");
+  out.println("</script>");
+  final String bratLocation="../brat";
+  out.println("<script type=\"text/javascript\">");
+  out.println("// <![CDATA[");
+  out.println("    bratLocation = \"" + bratLocation + "\";");
+  out.println("// ]]>");
+  out.println("</script>");
+  out.println("<link rel=\"stylesheet\" type=\"text/css\" href=\"" + bratLocation + "/style-vis.css\"/>");
+  out.println("<script type=\"text/javascript\" src=\"" + bratLocation + "/client/lib/head.load.min.js\"></script>");
+  out.println("<script type=\"text/javascript\" src=\"brat.js\"></script>");
+  out.println("<h>Visualisation provided using the " + "<a href=\"http://brat.nlplab.org/\">brat " + "visualisation/annotation software</a>.</h>");
+  out.println("<br/>");
+}

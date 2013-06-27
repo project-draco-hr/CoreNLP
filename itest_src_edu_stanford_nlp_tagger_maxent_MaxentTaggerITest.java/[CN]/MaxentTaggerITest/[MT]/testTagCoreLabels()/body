@@ -1,0 +1,15 @@
+{
+  List<CoreLabel> words=new ArrayList<CoreLabel>();
+  String[] testWords={"I","think","I","'ll","go","to","Boston","."};
+  for (  String word : testWords) {
+    CoreLabel label=new CoreLabel(new Word(word));
+    label.setWord(label.value());
+    words.add(label);
+  }
+  tagger.tagCoreLabels(words);
+  String[] expectedTags={"PRP","VBP","PRP","MD","VB","TO","NNP","."};
+  assertEquals(expectedTags.length,words.size());
+  for (int i=0; i < expectedTags.length; ++i) {
+    assertEquals(expectedTags[i],words.get(i).tag());
+  }
+}

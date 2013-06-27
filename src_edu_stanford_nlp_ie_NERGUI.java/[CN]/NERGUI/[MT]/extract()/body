@@ -1,0 +1,95 @@
+{
+  System.err.println("content type: " + editorPane.getContentType());
+  if (!editorPane.getContentType().equals("text/html")) {
+    DefaultStyledDocument doc=(DefaultStyledDocument)editorPane.getDocument();
+    String text=null;
+    try {
+      text=doc.getText(0,doc.getLength());
+    }
+ catch (    Exception e) {
+      throw new RuntimeException(e);
+    }
+    String labeledText=classifier.classifyWithInlineXML(text);
+    taggedContents=labeledText;
+    untaggedContents=text;
+    Set<String> tags=classifier.labels();
+    String background=classifier.backgroundSymbol();
+    String tagPattern="";
+    for (    String tag : tags) {
+      if (background.equals(tag)) {
+        continue;
+      }
+      if (tagPattern.length() > 0) {
+        tagPattern+="|";
+      }
+      tagPattern+=tag;
+    }
+    Pattern startPattern=Pattern.compile("<(" + tagPattern + ")>");
+    Pattern endPattern=Pattern.compile("</(" + tagPattern + ")>");
+    String finalText=labeledText;
+    Matcher m=startPattern.matcher(finalText);
+    while (m.find()) {
+      int start=m.start();
+      finalText=m.replaceFirst("");
+      m=endPattern.matcher(finalText);
+      if (m.find()) {
+        int end=m.start();
+        String tag=m.group(1);
+        finalText=m.replaceFirst("");
+        AttributeSet attSet=getAttributeSet(tag);
+        try {
+          String entity=finalText.substring(start,end);
+          doc.setCharacterAttributes(start,entity.length(),attSet,false);
+        }
+ catch (        Exception ex) {
+          throw new RuntimeException(ex);
+        }
+        System.err.println(tag + ": " + finalText.substring(start,end));
+      }
+ else {
+      }
+      m=startPattern.matcher(finalText);
+    }
+    editorPane.revalidate();
+    editorPane.repaint();
+  }
+ else {
+    untaggedContents=editorPane.getText();
+    taggedContents=classifier.classifyWithInlineXML(untaggedContents);
+    Set<String> tags=classifier.labels();
+    String background=classifier.backgroundSymbol();
+    String tagPattern="";
+    for (    String tag : tags) {
+      if (background.equals(tag)) {
+        continue;
+      }
+      if (tagPattern.length() > 0) {
+        tagPattern+="|";
+      }
+      tagPattern+=tag;
+    }
+    Pattern startPattern=Pattern.compile("<(" + tagPattern + ")>");
+    Pattern endPattern=Pattern.compile("</(" + tagPattern + ")>");
+    String finalText=taggedContents;
+    Matcher m=startPattern.matcher(finalText);
+    while (m.find()) {
+      String tag=m.group(1);
+      String color=colorToHTML(tagToColorMap.get(tag));
+      String newTag="<span style=\"background-color: " + color + "; color: white\">";
+      finalText=m.replaceFirst(newTag);
+      int start=m.start() + newTag.length();
+      Matcher m1=endPattern.matcher(finalText);
+      m1.find(m.end());
+      String entity=finalText.substring(start,m1.start());
+      System.err.println(tag + ": " + entity);
+      finalText=m1.replaceFirst("</span>");
+      m=startPattern.matcher(finalText);
+    }
+    System.out.println(finalText);
+    editorPane.setText(finalText);
+    editorPane.revalidate();
+    editorPane.repaint();
+    System.err.println(finalText);
+  }
+  saveTaggedAs.setEnabled(true);
+}

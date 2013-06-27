@@ -1,0 +1,33 @@
+{
+  try {
+    computeDir(dir,newGrad);
+  }
+ catch (  SQNMinimizer.SurpriseConvergence s) {
+    clearStuff();
+  }
+  double thisGain=gain * gainSchedule(k,5 * numBatches);
+  for (int i=0; i < x.length; i++) {
+    newX[i]=x[i] + thisGain * dir[i];
+  }
+  say(" A ");
+  if (M > 0 && sList.size() == M || sList.size() == M) {
+    s=sList.remove(0);
+    y=yList.remove(0);
+  }
+ else {
+    s=new double[x.length];
+    y=new double[x.length];
+  }
+  dfunction.recalculatePrevBatch=true;
+  System.arraycopy(dfunction.derivativeAt(newX,bSize),0,y,0,grad.length);
+  ro=0;
+  for (int i=0; i < x.length; i++) {
+    s[i]=newX[i] - x[i];
+    y[i]=y[i] - newGrad[i] + lambda * s[i];
+    ro+=s[i] * y[i];
+  }
+  ro=1.0 / ro;
+  sList.add(s);
+  yList.add(y);
+  roList.add(ro);
+}

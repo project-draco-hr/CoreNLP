@@ -1,0 +1,16 @@
+{
+  ArrayList<Tree> trees=new ArrayList<Tree>();
+  try {
+    TreeReaderFactory trf=new LabeledScoredTreeReaderFactory();
+    TreeReader tr=trf.newTreeReader(new InputStreamReader(new FileInputStream(filename),encoding));
+    Tree next;
+    while ((next=tr.readTree()) != null) {
+      trees.add(next);
+    }
+    System.out.println("Read " + trees.size() + " trees from "+ filename);
+    return trees;
+  }
+ catch (  IOException e) {
+    throw new RuntimeException(e);
+  }
+}

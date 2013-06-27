@@ -1,0 +1,52 @@
+{
+  if (!t.isLeaf() && (doTags || !t.isPreTerminal())) {
+    Map<String,ClassicCounter<List<String>>> nr;
+    Map<List<String>,ClassicCounter<List<String>>> pr;
+    Map<List<String>,ClassicCounter<List<String>>> gpr;
+    if (t.isPreTerminal()) {
+      nr=tagNodeRules;
+      pr=tagPRules;
+      gpr=tagGPRules;
+    }
+ else {
+      nr=nodeRules;
+      pr=pRules;
+      gpr=gPRules;
+    }
+    String n=t.label().value();
+    if (tlp != null) {
+      p=tlp.basicCategory(p);
+      gP=tlp.basicCategory(gP);
+    }
+    List<String> kidn=kidLabels(t);
+    ClassicCounter<List<String>> cntr=nr.get(n);
+    if (cntr == null) {
+      cntr=new ClassicCounter<List<String>>();
+      nr.put(n,cntr);
+    }
+    cntr.incrementCount(kidn);
+    List<String> pairStr=new ArrayList<String>(2);
+    pairStr.add(n);
+    pairStr.add(p);
+    cntr=pr.get(pairStr);
+    if (cntr == null) {
+      cntr=new ClassicCounter<List<String>>();
+      pr.put(pairStr,cntr);
+    }
+    cntr.incrementCount(kidn);
+    List<String> tripleStr=new ArrayList<String>(3);
+    tripleStr.add(n);
+    tripleStr.add(p);
+    tripleStr.add(gP);
+    cntr=gpr.get(tripleStr);
+    if (cntr == null) {
+      cntr=new ClassicCounter<List<String>>();
+      gpr.put(tripleStr,cntr);
+    }
+    cntr.incrementCount(kidn);
+    Tree[] kids=t.children();
+    for (    Tree kid : kids) {
+      processTreeHelper(p,n,kid);
+    }
+  }
+}

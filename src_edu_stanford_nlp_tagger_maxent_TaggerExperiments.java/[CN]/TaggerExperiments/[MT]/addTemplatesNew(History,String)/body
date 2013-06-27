@@ -1,0 +1,26 @@
+{
+  for (int i=0; i < numFeatsGeneral; i++) {
+    String s=maxentTagger.extractors.extract(i,h);
+    if (s.equals(zeroSt)) {
+      continue;
+    }
+    if (maxentTagger.alltags) {
+      int numTags=maxentTagger.tags.getSize();
+      for (int j=0; j < numTags; j++) {
+        String tag1=maxentTagger.tags.getTag(j);
+        FeatureKey key=new FeatureKey(i,s,tag1);
+        if (!maxentTagger.extractors.get(i).precondition(tag1)) {
+          continue;
+        }
+        add(key);
+      }
+    }
+ else {
+      FeatureKey key=new FeatureKey(i,s,tag);
+      if (!maxentTagger.extractors.get(i).precondition(tag)) {
+        continue;
+      }
+      add(key);
+    }
+  }
+}

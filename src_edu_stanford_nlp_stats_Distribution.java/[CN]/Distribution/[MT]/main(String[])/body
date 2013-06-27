@@ -1,0 +1,87 @@
+{
+  Counter<String> c2=new ClassicCounter<String>();
+  c2.incrementCount("p",13);
+  c2.setCount("q",12);
+  c2.setCount("w",5);
+  c2.incrementCount("x",7.5);
+  ClassicCounter<String> c=new ClassicCounter<String>();
+  final double p=1000;
+  String UNK="!*UNKNOWN*!";
+  Set<String> s=Generics.newHashSet();
+  s.add(UNK);
+  for (int rank=1; rank < 2000; rank++) {
+    String i=String.valueOf(rank);
+    c.setCount(i,Math.round(p / rank));
+    s.add(i);
+  }
+  for (int rank=2000; rank <= 4000; rank++) {
+    String i=String.valueOf(rank);
+    s.add(i);
+  }
+  Distribution<String> n=getDistribution(c);
+  Distribution<String> prior=getUniformDistribution(s);
+  Distribution<String> dir1=distributionWithDirichletPrior(c,prior,4000);
+  Distribution<String> dir2=dynamicCounterWithDirichletPrior(c,prior,4000);
+  Distribution<String> add1;
+  Distribution<String> gt;
+  if (true) {
+    add1=laplaceSmoothedDistribution(c,4000);
+    gt=goodTuringSmoothedCounter(c,4000);
+  }
+ else {
+    c.setCount(UNK,45);
+    add1=laplaceWithExplicitUnknown(c,0.5,UNK);
+    gt=goodTuringWithExplicitUnknown(c,UNK);
+  }
+  Distribution<String> sgt=simpleGoodTuring(c,4000);
+  System.out.printf("%10s %10s %10s %10s %10s %10s %10s%n","Freq","Norm","Add1","Dir1","Dir2","GT","SGT");
+  System.out.printf("%10s %10s %10s %10s %10s %10s %10s%n","----------","----------","----------","----------","----------","----------","----------");
+  for (int i=1; i < 5; i++) {
+    System.out.printf("%10d ",Math.round(p / i));
+    String in=String.valueOf(i);
+    System.out.printf("%10.8f ",n.probabilityOf(String.valueOf(in)));
+    System.out.printf("%10.8f ",add1.probabilityOf(in));
+    System.out.printf("%10.8f ",dir1.probabilityOf(in));
+    System.out.printf("%10.8f ",dir2.probabilityOf(in));
+    System.out.printf("%10.8f ",gt.probabilityOf(in));
+    System.out.printf("%10.8f ",sgt.probabilityOf(in));
+    System.out.println();
+  }
+  System.out.printf("%10s %10s %10s %10s %10s %10s %10s%n","----------","----------","----------","----------","----------","----------","----------");
+  System.out.printf("%10d ",1);
+  String last=String.valueOf(1500);
+  System.out.printf("%10.8f ",n.probabilityOf(last));
+  System.out.printf("%10.8f ",add1.probabilityOf(last));
+  System.out.printf("%10.8f ",dir1.probabilityOf(last));
+  System.out.printf("%10.8f ",dir2.probabilityOf(last));
+  System.out.printf("%10.8f ",gt.probabilityOf(last));
+  System.out.printf("%10.8f ",sgt.probabilityOf(last));
+  System.out.println();
+  System.out.printf("%10s %10s %10s %10s %10s %10s %10s%n","----------","----------","----------","----------","----------","----------","----------");
+  System.out.printf("%10s ","UNK");
+  System.out.printf("%10.8f ",n.probabilityOf(UNK));
+  System.out.printf("%10.8f ",add1.probabilityOf(UNK));
+  System.out.printf("%10.8f ",dir1.probabilityOf(UNK));
+  System.out.printf("%10.8f ",dir2.probabilityOf(UNK));
+  System.out.printf("%10.8f ",gt.probabilityOf(UNK));
+  System.out.printf("%10.8f ",sgt.probabilityOf(UNK));
+  System.out.println();
+  System.out.printf("%10s %10s %10s %10s %10s %10s %10s%n","----------","----------","----------","----------","----------","----------","----------");
+  System.out.printf("%10s ","RESERVE");
+  System.out.printf("%10.8f ",n.getReservedMass());
+  System.out.printf("%10.8f ",add1.getReservedMass());
+  System.out.printf("%10.8f ",dir1.getReservedMass());
+  System.out.printf("%10.8f ",dir2.getReservedMass());
+  System.out.printf("%10.8f ",gt.getReservedMass());
+  System.out.printf("%10.8f ",sgt.getReservedMass());
+  System.out.println();
+  System.out.printf("%10s %10s %10s %10s %10s %10s %10s%n","----------","----------","----------","----------","----------","----------","----------");
+  System.out.printf("%10s ","Total");
+  System.out.printf("%10.8f ",n.totalCount());
+  System.out.printf("%10.8f ",add1.totalCount());
+  System.out.printf("%10.8f ",dir1.totalCount());
+  System.out.printf("%10.8f ",dir2.totalCount());
+  System.out.printf("%10.8f ",gt.totalCount());
+  System.out.printf("%10.8f ",sgt.totalCount());
+  System.out.println();
+}

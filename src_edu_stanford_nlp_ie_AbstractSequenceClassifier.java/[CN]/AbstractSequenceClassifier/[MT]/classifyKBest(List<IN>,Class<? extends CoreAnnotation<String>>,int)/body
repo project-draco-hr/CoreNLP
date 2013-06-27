@@ -1,0 +1,25 @@
+{
+  if (doc.isEmpty()) {
+    return new ClassicCounter<List<IN>>();
+  }
+  ObjectBankWrapper<IN> obw=new ObjectBankWrapper<IN>(flags,null,knownLCWords);
+  doc=obw.processDocument(doc);
+  SequenceModel model=getSequenceModel(doc);
+  KBestSequenceFinder tagInference=new KBestSequenceFinder();
+  Counter<int[]> bestSequences=tagInference.kBestSequences(model,k);
+  Counter<List<IN>> kBest=new ClassicCounter<List<IN>>();
+  for (  int[] seq : bestSequences.keySet()) {
+    List<IN> kth=new ArrayList<IN>();
+    int pos=model.leftWindow();
+    for (    IN fi : doc) {
+      IN newFL=tokenFactory.makeToken(fi);
+      String guess=classIndex.get(seq[pos]);
+      fi.remove(CoreAnnotations.AnswerAnnotation.class);
+      newFL.set(answerField,guess);
+      pos++;
+      kth.add(newFL);
+    }
+    kBest.setCount(kth,bestSequences.getCount(seq));
+  }
+  return kBest;
+}

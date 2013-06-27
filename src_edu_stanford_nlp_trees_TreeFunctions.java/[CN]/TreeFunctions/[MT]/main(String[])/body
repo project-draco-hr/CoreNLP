@@ -1,0 +1,17 @@
+{
+  Tree stringyTree=null;
+  try {
+    stringyTree=(new PennTreeReader(new StringReader("(S (VP (VBZ Try) (NP (DT this))) (. .))"),new LabeledScoredTreeFactory(new StringLabelFactory()))).readTree();
+  }
+ catch (  IOException e) {
+  }
+  System.out.println(stringyTree);
+  Function<Tree,Tree> a=getLabeledTreeToCategoryWordTagTreeFunction();
+  Tree adaptyTree=a.apply(stringyTree);
+  System.out.println(adaptyTree);
+  adaptyTree.percolateHeads(new CollinsHeadFinder());
+  System.out.println(adaptyTree);
+  Function<Tree,Tree> b=getLabeledTreeToStringLabeledTreeFunction();
+  Tree stringLabelTree=b.apply(adaptyTree);
+  System.out.println(stringLabelTree);
+}

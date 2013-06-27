@@ -1,0 +1,27 @@
+{
+  for (int i=0; i <= sPos; ++i) {
+    for (int j=0; j <= tPos; ++j) {
+      double bscore=score[i][j];
+      if (bscore != worst())       continue;
+      if (i == 0 && j == 0) {
+        bscore=best();
+      }
+ else {
+        if (i > 0) {
+          bscore=better(bscore,(combine(score[i - 1][j],deleteCost(source[i - 1]))));
+        }
+        if (j > 0) {
+          bscore=better(bscore,(combine(score[i][j - 1],insertCost(target[j - 1]))));
+        }
+        if (i > 0 && j > 0) {
+          bscore=better(bscore,(combine(score[i - 1][j - 1],substituteCost(source[i - 1],target[j - 1]))));
+        }
+        if (i > 1 && j > 1) {
+          bscore=better(bscore,(combine(score[i - 2][j - 2],transposeCost(source[i - 2],source[i - 1],target[j - 2],target[j - 1]))));
+        }
+      }
+      score[i][j]=bscore;
+    }
+  }
+  return score[sPos][tPos];
+}

@@ -1,0 +1,31 @@
+{
+  String lastTag="";
+  for (  IN wi : doc) {
+    String answer=wi.get(CoreAnnotations.AnswerAnnotation.class);
+    if (!flags.backgroundSymbol.equals(answer) && answer != null) {
+      int index=answer.indexOf('-');
+      String prefix;
+      String label;
+      if (index < 0) {
+        prefix="";
+        label=answer;
+      }
+ else {
+        prefix=answer.substring(0,index);
+        label=answer.substring(index + 1);
+      }
+      if (!prefix.equals("B")) {
+        if (!label.equals(lastTag)) {
+          wi.set(CoreAnnotations.AnswerAnnotation.class,"B-" + label);
+        }
+ else {
+          wi.set(CoreAnnotations.AnswerAnnotation.class,"I-" + label);
+        }
+      }
+      lastTag=label;
+    }
+ else {
+      lastTag=answer;
+    }
+  }
+}

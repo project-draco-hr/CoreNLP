@@ -1,0 +1,18 @@
+{
+  if (offset == null) {
+    return null;
+  }
+  Set<DurationFieldType> supported=getSupportedDurationFields(p);
+  Period res=null;
+  for (int i=0; i < offset.size(); i++) {
+    if (!supported.contains(offset.getFieldType(i))) {
+      if (offset.getValue(i) != 0) {
+        if (res == null) {
+          res=new Period();
+        }
+        res=res.withField(offset.getFieldType(i),offset.getValue(i));
+      }
+    }
+  }
+  return res;
+}

@@ -1,0 +1,20 @@
+{
+  if (checkForThrowable) {
+    boolean fromThrowable=false;
+    for (    StackTraceElement e : Thread.currentThread().getStackTrace()) {
+      if (e.getClassName().equals(Throwable.class.getName())) {
+        fromThrowable=true;
+      }
+    }
+    if (fromThrowable) {
+      realStream.println(s);
+    }
+ else {
+      log(s);
+      checkForThrowable=false;
+    }
+  }
+ else {
+    log(s);
+  }
+}

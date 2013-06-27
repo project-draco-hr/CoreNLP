@@ -1,0 +1,52 @@
+{
+  if (args.length < 3) {
+    System.err.println("java BaseLexicon treebankPath fileRange unknownWordModel words*");
+    return;
+  }
+  System.out.print("Training BaseLexicon from " + args[0] + ' '+ args[1]+ " ... ");
+  Treebank tb=new DiskTreebank();
+  tb.loadPath(args[0],new NumberRangesFileFilter(args[1],true));
+  Index<String> wordIndex=new HashIndex<String>();
+  Index<String> tagIndex=new HashIndex<String>();
+  Options op=new Options();
+  op.lexOptions.useUnknownWordSignatures=Integer.parseInt(args[2]);
+  BaseLexicon lex=new BaseLexicon(op,wordIndex,tagIndex);
+  lex.initializeTraining(tb.size());
+  lex.train(tb);
+  lex.finishTraining();
+  System.out.println("done.");
+  System.out.println();
+  NumberFormat nf=NumberFormat.getNumberInstance();
+  nf.setMaximumFractionDigits(4);
+  List<String> impos=new ArrayList<String>();
+  for (int i=3; i < args.length; i++) {
+    if (lex.isKnown(args[i])) {
+      System.out.println(args[i] + " is a known word.  Log probabilities [log P(w|t)] for its taggings are:");
+      for (Iterator<IntTaggedWord> it=lex.ruleIteratorByWord(wordIndex.indexOf(args[i],true),i - 3,null); it.hasNext(); ) {
+        IntTaggedWord iTW=it.next();
+        System.out.println(StringUtils.pad(iTW,24) + nf.format(lex.score(iTW,i - 3,wordIndex.get(iTW.word),null)));
+      }
+    }
+ else {
+      String sig=lex.getUnknownWordModel().getSignature(args[i],i - 3);
+      System.out.println(args[i] + " is an unknown word.  Signature with uwm " + lex.getUnknownWordModel().getUnknownLevel()+ ((i == 3) ? " init" : "non-init")+ " is: "+ sig);
+      impos.clear();
+      List<String> lis=new ArrayList<String>(tagIndex.objectsList());
+      Collections.sort(lis);
+      for (      String tStr : lis) {
+        IntTaggedWord iTW=new IntTaggedWord(args[i],tStr,wordIndex,tagIndex);
+        double score=lex.score(iTW,1,args[i],null);
+        if (score == Float.NEGATIVE_INFINITY) {
+          impos.add(tStr);
+        }
+ else {
+          System.out.println(StringUtils.pad(iTW,24) + nf.format(score));
+        }
+      }
+      if (impos.size() > 0) {
+        System.out.println(args[i] + " impossible tags: " + impos);
+      }
+    }
+    System.out.println();
+  }
+}

@@ -1,0 +1,32 @@
+{
+  String lbegin=c.getString(lbeginFieldName);
+  String lmiddle=c.getString(lmiddleFieldName);
+  String lend=c.getString(lendFieldName);
+  features.add(lbegin + dictSuffix + "-lb");
+  features.add(lmiddle + dictSuffix + "-lm");
+  features.add(lend + dictSuffix + "-le");
+  lbegin=p.getString(lbeginFieldName);
+  lmiddle=p.getString(lmiddleFieldName);
+  lend=p.get(lendFieldName);
+  features.add(lbegin + dictSuffix + "-plb");
+  features.add(lmiddle + dictSuffix + "-plm");
+  features.add(lend + dictSuffix + "-ple");
+  lbegin=c2.getString(lbeginFieldName);
+  lmiddle=c2.getString(lmiddleFieldName);
+  lend=c2.getString(lendFieldName);
+  features.add(lbegin + dictSuffix + "-c2lb");
+  features.add(lmiddle + dictSuffix + "-c2lm");
+  features.add(lend + dictSuffix + "-c2le");
+  if (flags.useDictionaryConjunctions) {
+    String p2Lend=p2.getString(lendFieldName);
+    String pLend=p.getString(lendFieldName);
+    String pLbegin=p.getString(lbeginFieldName);
+    String cLbegin=c.getString(lbeginFieldName);
+    String cLmiddle=c.getString(lmiddleFieldName);
+    if (flags.useDictionaryConjunctions3) {
+      features.add(pLend + cLbegin + cLmiddle+ dictSuffix+ "-pcLconj1");
+    }
+    features.add(p2Lend + pLend + cLbegin+ cLmiddle+ dictSuffix+ "-p2pcLconj1");
+    features.add(p2Lend + pLend + pLbegin+ cLbegin+ cLmiddle+ dictSuffix+ "-p2pcLconj2");
+  }
+}

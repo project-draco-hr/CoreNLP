@@ -1,0 +1,45 @@
+{
+  int inputSize=input.size();
+  LinkedList<HasWord> result=new LinkedList<HasWord>();
+  if (inputSize == 0) {
+    return result;
+  }
+  boolean begin;
+  if (input.get(inputSize - 1).word().equals("\"")) {
+    begin=false;
+    for (int i=inputSize - 1; i >= 0; i--) {
+      HasWord hw=input.get(i);
+      String tok=hw.word();
+      if (tok.equals("\"")) {
+        if (begin) {
+          hw.setWord("``");
+          begin=false;
+        }
+ else {
+          hw.setWord("\'\'");
+          begin=true;
+        }
+      }
+      result.addFirst(hw);
+    }
+  }
+ else {
+    begin=true;
+    for (int i=0; i < inputSize; i++) {
+      HasWord hw=input.get(i);
+      String tok=hw.word();
+      if (tok.equals("\"")) {
+        if (begin) {
+          hw.setWord("``");
+          begin=false;
+        }
+ else {
+          hw.setWord("\'\'");
+          begin=true;
+        }
+      }
+      result.addLast(hw);
+    }
+  }
+  return result;
+}

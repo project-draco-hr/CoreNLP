@@ -1,0 +1,25 @@
+{
+  String text=editorPane.getText();
+  taggedContents=null;
+  untaggedContents=null;
+  if (!editorPane.getContentType().equals("text/html")) {
+    editorPane.setContentType("text/rtf");
+    Document doc=editorPane.getDocument();
+    try {
+      doc.insertString(0,text,defaultAttrSet);
+    }
+ catch (    Exception e) {
+      throw new RuntimeException(e);
+    }
+    editorPane.revalidate();
+    editorPane.repaint();
+    editorPane.setEditable(true);
+    htmlContents=null;
+  }
+ else {
+    editorPane.setEditable(false);
+    htmlContents=editorPane.getText();
+  }
+  saveUntagged.setEnabled(false);
+  saveTaggedAs.setEnabled(false);
+}

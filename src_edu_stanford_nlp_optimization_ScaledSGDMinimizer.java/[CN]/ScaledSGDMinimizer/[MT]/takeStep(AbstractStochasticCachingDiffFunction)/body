@@ -1,0 +1,23 @@
+{
+  for (int i=0; i < x.length; i++) {
+    double thisGain=fixedGain * gainSchedule(k,5 * numBatches) / (diag[i]);
+    newX[i]=x[i] - thisGain * grad[i];
+  }
+  say(" A ");
+  if (pairMem > 0 && sList.size() == pairMem || sList.size() == pairMem) {
+    s=sList.remove(0);
+    y=yList.remove(0);
+  }
+ else {
+    s=new double[x.length];
+    y=new double[x.length];
+  }
+  s=ArrayMath.pairwiseSubtract(newX,x);
+  dfunction.recalculatePrevBatch=true;
+  System.arraycopy(dfunction.derivativeAt(newX,bSize),0,y,0,grad.length);
+  ArrayMath.pairwiseSubtractInPlace(y,newGrad);
+  double[] comp=new double[x.length];
+  sList.add(s);
+  yList.add(y);
+  updateDiag(diag,s,y);
+}

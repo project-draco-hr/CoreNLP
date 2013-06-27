@@ -1,0 +1,17 @@
+{
+  int numMatches=0;
+  TregexMatcher match=p.matcher(t);
+  List<Tree> matchedPartList=null;
+  while (match.find()) {
+    Tree curMatch=match.getMatch();
+    if (matchedPartList == null)     matchedPartList=new ArrayList<Tree>();
+    matchedPartList.add(curMatch);
+    numMatches++;
+  }
+  if (numMatches > 0) {
+    TreeFromFile tff=new TreeFromFile(t,filename);
+    matchedTrees.add(tff);
+    matchedParts.put(tff,matchedPartList);
+    totalMatches+=numMatches;
+  }
+}

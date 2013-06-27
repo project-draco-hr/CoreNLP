@@ -1,0 +1,28 @@
+{
+  matchedExpression.value=valueExtractor.apply(matchedExpression.annotation);
+  if (resultAnnotationField != null) {
+    if (resultAnnotationExtractor != null) {
+      Object result=resultAnnotationExtractor.apply(matchedExpression);
+      setAnnotations(matchedExpression.annotation,resultAnnotationField,result);
+    }
+ else {
+      Value v=matchedExpression.getValue();
+      setAnnotations(matchedExpression.annotation,resultAnnotationField,(v != null) ? v.get() : null);
+    }
+  }
+  if (tokensResultAnnotationField != null) {
+    List<? extends CoreMap> tokens=(List<? extends CoreMap>)matchedExpression.annotation.get(tokensAnnotationField);
+    if (resultAnnotationExtractor != null) {
+      Object result=resultAnnotationExtractor.apply(matchedExpression);
+      for (      CoreMap cm : tokens) {
+        setAnnotations(cm,tokensResultAnnotationField,result);
+      }
+    }
+ else {
+      Value v=matchedExpression.getValue();
+      for (      CoreMap cm : tokens) {
+        setAnnotations(cm,tokensResultAnnotationField,(v != null) ? v.get() : null);
+      }
+    }
+  }
+}

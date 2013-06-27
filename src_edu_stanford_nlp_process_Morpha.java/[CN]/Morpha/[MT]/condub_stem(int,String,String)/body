@@ -1,0 +1,22 @@
+{
+  StringBuilder yytextBuff;
+  if (option(change_case)) {
+    yytextBuff=new StringBuilder(yytext().toLowerCase());
+  }
+ else {
+    yytextBuff=new StringBuilder(yytext());
+  }
+  int stem_length=yylength() - del;
+  char d=yytextBuff.charAt(stem_length - 1);
+  if (del > 0) {
+    yytextBuff.setLength(stem_length - 1);
+  }
+  if (!verbStemSet.contains(yytextBuff.toString().toLowerCase())) {
+    yytextBuff.append(d);
+  }
+  if (option(print_affixes)) {
+    yytextBuff.append('+');
+    yytextBuff.append(affix);
+  }
+  return yytextBuff.toString();
+}

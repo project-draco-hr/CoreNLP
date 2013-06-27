@@ -1,0 +1,24 @@
+{
+  Set<GrammaticalRelation> prepRels=Generics.newHashSet(EnglishGrammaticalRelations.getPreps());
+  prepRels.addAll(EnglishGrammaticalRelations.getPrepsC());
+  for (  TypedDependency td1 : list) {
+    if (prepRels.contains(td1.reln())) {
+      TreeGraphNode gov=td1.gov();
+      TreeGraphNode dep=td1.dep();
+      for (      TypedDependency td2 : list) {
+        if (td2.reln() == DEPENDENT && td2.gov() == gov && td2.dep() == dep) {
+          td2.setReln(KILL);
+        }
+      }
+    }
+  }
+  for (Iterator<TypedDependency> iter=list.iterator(); iter.hasNext(); ) {
+    TypedDependency td=iter.next();
+    if (td.reln() == KILL) {
+      if (DEBUG) {
+        System.err.println("Removing duplicate relation: " + td);
+      }
+      iter.remove();
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  int port=Ports.findAvailable(2000,10000);
+  System.err.println("testThreadedServer: starting on port " + port);
+  startNERServer(port,crf,CHARSET,true);
+  StringReader sin=new StringReader(loadedQueryFile);
+  BufferedReader bin=new BufferedReader(sin);
+  StringWriter sout=new StringWriter();
+  BufferedWriter bout=new BufferedWriter(sout);
+  NERServer.NERClient.communicateWithNERServer("localhost",port,CHARSET,bin,bout,false);
+  bout.flush();
+  String results=sout.toString();
+  System.out.println("Got first results, length " + results.length());
+  assertTrue(results.length() >= loadedQueryFile.length());
+  sin=new StringReader(loadedQueryFile);
+  bin=new BufferedReader(sin);
+  sout=new StringWriter();
+  bout=new BufferedWriter(sout);
+  NERServer.NERClient.communicateWithNERServer("localhost",port,CHARSET,bin,bout,false);
+  bout.flush();
+  results=sout.toString();
+  System.out.println("Reran results, length " + results.length());
+  assertTrue(results.length() >= loadedQueryFile.length());
+  NERClientThread t1=new NERClientThread("localhost",port,CHARSET,loadedQueryFile);
+  NERClientThread t2=new NERClientThread("localhost",port,CHARSET,loadedQueryFile);
+  t1.start();
+  t2.start();
+  t1.join();
+  t2.join();
+  assertEquals(results,t1.results());
+  System.out.println("Results from simul client 1 matched");
+  assertEquals(results,t2.results());
+  System.out.println("Results from simul client 2 matched");
+}

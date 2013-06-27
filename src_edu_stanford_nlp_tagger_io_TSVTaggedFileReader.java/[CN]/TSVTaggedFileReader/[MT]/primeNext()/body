@@ -1,0 +1,33 @@
+{
+  String line="";
+  while (line.trim().equals("")) {
+    try {
+      line=reader.readLine();
+      ++linesRead;
+    }
+ catch (    IOException e) {
+      throw new RuntimeException(e);
+    }
+    if (line == null) {
+      next=null;
+      return;
+    }
+  }
+  next=new ArrayList<TaggedWord>();
+  while (line != null && !line.trim().equals("")) {
+    String[] pieces=line.split("\t");
+    if (pieces.length <= wordColumn || pieces.length <= tagColumn) {
+      throw new IllegalArgumentException("File " + filename + " line #"+ linesRead+ " too short");
+    }
+    String word=pieces[wordColumn];
+    String tag=pieces[tagColumn];
+    next.add(new TaggedWord(word,tag));
+    try {
+      line=reader.readLine();
+      ++linesRead;
+    }
+ catch (    IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+}

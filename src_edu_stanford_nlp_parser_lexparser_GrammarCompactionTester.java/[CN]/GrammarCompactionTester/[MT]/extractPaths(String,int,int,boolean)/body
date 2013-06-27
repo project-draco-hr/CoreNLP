@@ -1,0 +1,31 @@
+{
+  Treebank trainTreebank=op.tlpParams.memoryTreebank();
+  TreebankLanguagePack tlp=op.langpack();
+  trainTreebank.loadPath(path,new NumberRangeFileFilter(low,high,true));
+  if (op.trainOptions.selectiveSplit) {
+    op.trainOptions.splitters=ParentAnnotationStats.getSplitCategories(trainTreebank,op.trainOptions.selectiveSplitCutOff,op.tlpParams.treebankLanguagePack());
+  }
+  if (op.trainOptions.selectivePostSplit) {
+    TreeTransformer myTransformer=new TreeAnnotator(op.tlpParams.headFinder(),op.tlpParams,op);
+    Treebank annotatedTB=trainTreebank.transform(myTransformer);
+    op.trainOptions.postSplitters=ParentAnnotationStats.getSplitCategories(annotatedTB,op.trainOptions.selectivePostSplitCutOff,op.tlpParams.treebankLanguagePack());
+  }
+  List<Tree> trainTrees=new ArrayList<Tree>();
+  HeadFinder hf=null;
+  if (op.trainOptions.leftToRight) {
+    hf=new LeftHeadFinder();
+  }
+ else {
+    hf=op.tlpParams.headFinder();
+  }
+  TreeTransformer annotator=new TreeAnnotator(hf,op.tlpParams,op);
+  for (  Tree tree : trainTreebank) {
+    if (annotate) {
+      tree=annotator.transformTree(tree);
+    }
+    trainTrees.add(tree);
+  }
+  Extractor<Map<String,List<List<String>>>> pExtractor=new PathExtractor(hf,op);
+  Map<String,List<List<String>>> allPaths=pExtractor.extract(trainTrees);
+  return allPaths;
+}

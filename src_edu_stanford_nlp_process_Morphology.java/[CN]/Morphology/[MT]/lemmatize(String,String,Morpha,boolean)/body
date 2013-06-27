@@ -1,0 +1,27 @@
+{
+  boolean wordHasForbiddenChar=word.indexOf('_') >= 0 || word.indexOf(' ') >= 0;
+  String quotedWord=word;
+  if (wordHasForbiddenChar) {
+    quotedWord=quotedWord.replaceAll("_","\u1CF0");
+    quotedWord=quotedWord.replaceAll(" ","\u1CF1");
+  }
+  String wordtag=quotedWord + '_' + tag;
+  if (DEBUG)   System.err.println("Trying to normalize |" + wordtag + "|");
+  try {
+    lexer.setOption(1,lowercase);
+    lexer.yyreset(new StringReader(wordtag));
+    lexer.yybegin(Morpha.scan);
+    String wordRes=lexer.next();
+    lexer.next();
+    if (wordHasForbiddenChar) {
+      if (DEBUG)       System.err.println("Restoring forbidden chars");
+      wordRes=wordRes.replaceAll("\u1CF0","_");
+      wordRes=wordRes.replaceAll("\u1CF1"," ");
+    }
+    return wordRes;
+  }
+ catch (  IOException e) {
+    LOGGER.warning("Morphology.stem() had error on word " + word + "/"+ tag);
+    return word;
+  }
+}

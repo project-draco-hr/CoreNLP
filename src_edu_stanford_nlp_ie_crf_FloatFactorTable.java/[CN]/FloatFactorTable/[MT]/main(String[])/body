@@ -1,0 +1,30 @@
+{
+  FloatFactorTable ft=new FloatFactorTable(6,3);
+  for (int i=0; i < 6; i++) {
+    for (int j=0; j < 6; j++) {
+      for (int k=0; k < 6; k++) {
+        int[] b=new int[]{i,j,k};
+        ft.setValue(b,(i * 4) + (j * 2) + k);
+      }
+    }
+  }
+  FloatFactorTable ft2=new FloatFactorTable(6,2);
+  for (int i=0; i < 6; i++) {
+    for (int j=0; j < 6; j++) {
+      int[] b=new int[]{i,j};
+      ft2.setValue(b,i * 6 + j);
+    }
+  }
+  System.out.println(ft);
+  for (int i=0; i < 6; i++) {
+    for (int j=0; j < 6; j++) {
+      int[] b=new int[]{i,j};
+      float t=0;
+      for (int k=0; k < 6; k++) {
+        t+=Math.exp(ft.conditionalLogProb(b,k));
+        System.err.println(k + "|" + i+ ","+ j+ " : "+ Math.exp(ft.conditionalLogProb(b,k)));
+      }
+      System.out.println(t);
+    }
+  }
+}

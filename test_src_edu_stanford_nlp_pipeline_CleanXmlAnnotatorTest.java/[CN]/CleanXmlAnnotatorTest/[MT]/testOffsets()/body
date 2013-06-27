@@ -1,0 +1,8 @@
+{
+  String testString="<p><p>This text is in a</p>nested tag</p>";
+  Annotation annotation=annotate(testString,ptbInvertible,cleanXmlAllTags,wtsSplitter);
+  checkResult(annotation,"This text is in a nested tag");
+  List<CoreLabel> labels=annotation.get(CoreAnnotations.TokensAnnotation.class);
+  assertEquals(6,labels.get(0).get(CoreAnnotations.CharacterOffsetBeginAnnotation.class).intValue());
+  assertEquals(10,labels.get(0).get(CoreAnnotations.CharacterOffsetEndAnnotation.class).intValue());
+}

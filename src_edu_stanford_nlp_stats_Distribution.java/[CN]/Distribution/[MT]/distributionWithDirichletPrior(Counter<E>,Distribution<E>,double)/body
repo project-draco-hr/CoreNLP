@@ -1,0 +1,11 @@
+{
+  Distribution<E> norm=new Distribution<E>();
+  double totalWeight=c.totalCount() + weight;
+  if (prior instanceof DynamicDistribution) {
+    throw new UnsupportedOperationException("Cannot make normalized counter with Dynamic prior.");
+  }
+  norm.counter=Counters.linearCombination(c,1 / totalWeight,prior.counter,weight / totalWeight);
+  norm.numberOfKeys=prior.numberOfKeys;
+  norm.reservedMass=prior.reservedMass * weight / totalWeight;
+  return norm;
+}

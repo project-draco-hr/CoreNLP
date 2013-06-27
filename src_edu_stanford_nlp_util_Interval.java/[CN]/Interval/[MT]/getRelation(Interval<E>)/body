@@ -1,0 +1,49 @@
+{
+  if (other == null)   return RelType.NONE;
+  int comp11=this.first.compareTo(other.first());
+  int comp22=this.second.compareTo(other.second());
+  if (comp11 == 0) {
+    if (comp22 == 0) {
+      return RelType.EQUAL;
+    }
+    if (comp22 < 0) {
+      return RelType.INSIDE;
+    }
+ else {
+      return RelType.CONTAIN;
+    }
+  }
+ else   if (comp22 == 0) {
+    if (comp11 < 0) {
+      return RelType.CONTAIN;
+    }
+ else {
+      return RelType.INSIDE;
+    }
+  }
+ else   if (comp11 > 0 && comp22 < 0) {
+    return RelType.INSIDE;
+  }
+ else   if (comp11 < 0 && comp22 > 0) {
+    return RelType.CONTAIN;
+  }
+ else {
+    int comp12=this.first.compareTo(other.second());
+    int comp21=this.second.compareTo(other.first());
+    if (comp12 > 0) {
+      return RelType.AFTER;
+    }
+ else     if (comp21 < 0) {
+      return RelType.BEFORE;
+    }
+ else     if (comp12 == 0) {
+      return RelType.BEGIN_MEET_END;
+    }
+ else     if (comp21 == 0) {
+      return RelType.END_MEET_BEGIN;
+    }
+ else {
+      return RelType.OVERLAP;
+    }
+  }
+}

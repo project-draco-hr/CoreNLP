@@ -1,0 +1,16 @@
+{
+  Node cur=head;
+  LinkedList matchingPatterns=new LinkedList();
+  if (cur.pattern != null) {
+    matchingPatterns.add(cur.pattern);
+  }
+  for (int c=startingIdx; cur != null && c < chars.length; ++c) {
+    Character curchar=new Character(chars[c]);
+    Node next=(Node)cur.children.get(curchar);
+    cur=next;
+    if (cur != null && cur.pattern != null) {
+      matchingPatterns.add(cur.pattern);
+    }
+  }
+  return matchingPatterns;
+}

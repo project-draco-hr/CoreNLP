@@ -1,0 +1,25 @@
+{
+  StringBuffer buffer=new StringBuffer();
+  String mentionType=mType;
+  appendOffset(buffer,offset);
+  buffer.append("<entity_mention ID=\"" + getId() + "\" TYPE =\""+ mentionType+ "\" LDCTYPE=\""+ mLdctype+ "\">\n");
+  buffer.append(mExtent.toXml("extent",offset + 2));
+  buffer.append("\n");
+  buffer.append(mHead.toXml("head",offset + 2));
+  buffer.append("\n");
+  appendOffset(buffer,offset);
+  buffer.append("</entity_mention>");
+  if (mentionType.equals("NAM")) {
+    buffer.append("\n");
+    appendOffset(buffer,offset);
+    buffer.append("<entity_attributes>\n");
+    appendOffset(buffer,offset + 2);
+    buffer.append("<name NAME=\"" + mHead.getText() + "\">\n");
+    buffer.append(mHead.toXml(offset + 4) + "\n");
+    appendOffset(buffer,offset + 2);
+    buffer.append("</name>\n");
+    appendOffset(buffer,offset);
+    buffer.append("</entity_attributes>");
+  }
+  return buffer.toString();
+}

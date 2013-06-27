@@ -1,0 +1,46 @@
+{
+  Properties props=StringUtils.argsToProperties(args);
+  String loadFile=props.getProperty("loadClassifier");
+  String loadJarFile=props.getProperty("loadJarClassifier");
+  String client=props.getProperty("client");
+  String portStr=props.getProperty("port");
+  props.remove("port");
+  if (portStr == null || portStr.equals("")) {
+    System.err.println(USAGE);
+    return;
+  }
+  String charset="utf-8";
+  String encoding=props.getProperty("encoding");
+  if (encoding != null && !"".equals(encoding)) {
+    charset=encoding;
+  }
+  int port;
+  try {
+    port=Integer.parseInt(portStr);
+  }
+ catch (  NumberFormatException e) {
+    System.err.println("Non-numerical port");
+    System.err.println(USAGE);
+    return;
+  }
+  if (props.getProperty("outputFormat") == null) {
+    props.setProperty("outputFormat","slashTags");
+  }
+  if (client != null && !client.equals("")) {
+    String host=props.getProperty("host");
+    NERClient.communicateWithNERServer(host,port,charset);
+  }
+ else {
+    AbstractSequenceClassifier asc;
+    if (loadFile != null && !loadFile.equals("")) {
+      asc=CRFClassifier.getClassifier(loadFile,props);
+    }
+ else     if (loadJarFile != null && !loadJarFile.equals("")) {
+      asc=CRFClassifier.getJarClassifier(loadJarFile,props);
+    }
+ else {
+      asc=CRFClassifier.getDefaultClassifier(props);
+    }
+    new NERServer(port,asc,charset).run();
+  }
+}

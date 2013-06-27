@@ -1,0 +1,40 @@
+{
+  List<Mention> goldMentions=new ArrayList<Mention>();
+  allGoldMentions.add(goldMentions);
+  List<EntityMention> goldMentionList=s.get(MachineReadingAnnotations.EntityMentionsAnnotation.class);
+  List<CoreLabel> words=s.get(CoreAnnotations.TokensAnnotation.class);
+  TreeSet<EntityMention> treeForSortGoldMentions=new TreeSet<EntityMention>(comparator);
+  if (goldMentionList != null)   treeForSortGoldMentions.addAll(goldMentionList);
+  if (!treeForSortGoldMentions.isEmpty()) {
+    for (    EntityMention e : treeForSortGoldMentions) {
+      Mention men=new Mention();
+      men.dependency=s.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class);
+      men.startIndex=e.getExtentTokenStart();
+      men.endIndex=e.getExtentTokenEnd();
+      String[] parseID=e.getObjectId().split("-");
+      men.mentionID=Integer.parseInt(parseID[parseID.length - 1]);
+      String[] parseCorefID=e.getCorefID().split("-E");
+      men.goldCorefClusterID=Integer.parseInt(parseCorefID[parseCorefID.length - 1]);
+      men.originalRef=-1;
+      for (int j=allGoldMentions.size() - 1; j >= 0; j--) {
+        List<Mention> l=allGoldMentions.get(j);
+        for (int k=l.size() - 1; k >= 0; k--) {
+          Mention m=l.get(k);
+          if (men.goldCorefClusterID == m.goldCorefClusterID) {
+            men.originalRef=m.mentionID;
+          }
+        }
+      }
+      goldMentions.add(men);
+      if (men.mentionID > maxID)       maxID=men.mentionID;
+      for (int j=e.getExtentTokenStart(); j < e.getExtentTokenEnd(); j++) {
+        CoreLabel word=words.get(j);
+        String ner=e.getType() + "-" + e.getSubType();
+        if (Constants.USE_GOLD_NE) {
+          word.set(CoreAnnotations.EntityTypeAnnotation.class,e.getMentionType());
+          if (e.getMentionType().equals("NAM"))           word.set(CoreAnnotations.NamedEntityTagAnnotation.class,ner);
+        }
+      }
+    }
+  }
+}

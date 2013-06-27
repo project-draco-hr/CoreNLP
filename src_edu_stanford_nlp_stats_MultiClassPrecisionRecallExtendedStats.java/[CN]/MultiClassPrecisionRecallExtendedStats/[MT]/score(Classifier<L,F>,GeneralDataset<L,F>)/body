@@ -1,0 +1,12 @@
+{
+  setLabelIndex(data.labelIndex);
+  clearCounts();
+  int[] labelsArr=data.getLabelsArray();
+  for (int i=0; i < data.size(); i++) {
+    Datum<L,F> d=data.getRVFDatum(i);
+    L guess=classifier.classOf(d);
+    addGuess(guess,labelIndex.get(labelsArr[i]));
+  }
+  finalizeCounts();
+  return getFMeasure();
+}

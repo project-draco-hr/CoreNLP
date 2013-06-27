@@ -1,0 +1,85 @@
+{
+  double[] x=normalize(x1);
+  double[] xExp=new double[x.length];
+  for (int i=0; i < x.length; i++) {
+    xExp[i]=Math.exp(x[i]);
+  }
+  value=0.0;
+  Arrays.fill(derivative,0.0);
+  double[] sums=new double[numClasses];
+  double[] probs=new double[numClasses];
+  double[] counts=new double[numClasses];
+  Arrays.fill(counts,0.0);
+  for (int d=0; d < data.length; d++) {
+    int[] features=data[d];
+    Arrays.fill(sums,0.0);
+    for (int c=0; c < numClasses; c++) {
+      int priorc=indexOf(c);
+      sums[c]+=x[priorc];
+      for (int f=0; f < features.length; f++) {
+        int i=indexOf(f,c,features[f]);
+        sums[c]+=x[i];
+      }
+    }
+    double total=ArrayMath.logSum(sums);
+    for (int c=0; c < numClasses; c++) {
+      probs[c]=Math.exp(sums[c] - total);
+      int priorc=indexOf(c);
+      derivative[priorc]+=probs[c];
+      for (int f=0; f < features.length; f++) {
+        for (int val=0; val < numValues[f]; val++) {
+          int i=indexOf(f,c,val);
+          double thetha=xExp[i];
+          derivative[i]-=probs[c] * thetha;
+          if (labels[d] == c) {
+            derivative[i]+=thetha;
+          }
+        }
+      }
+    }
+    for (int f=0; f < features.length; f++) {
+      int i=indexOf(f,labels[d],features[f]);
+      derivative[i]-=1.0;
+      for (int c=0; c < numClasses; c++) {
+        int i1=indexOf(f,c,features[f]);
+        derivative[i1]+=probs[c];
+      }
+    }
+    value-=sums[labels[d]] - total;
+    int priorc=indexOf(labels[d]);
+    derivative[priorc]-=1;
+  }
+  if (prior == QUADRATIC_PRIOR) {
+    double sigmaSq=sigma * sigma;
+    for (int i=0; i < x1.length; i++) {
+      double k=1.0;
+      double w=x1[i];
+      value+=k * w * w / 2.0 / sigmaSq;
+      derivative[i]+=k * w / sigmaSq;
+    }
+  }
+ else   if (prior == HUBER_PRIOR) {
+    double sigmaSq=sigma * sigma;
+    for (int i=0; i < x1.length; i++) {
+      double w=x1[i];
+      double wabs=Math.abs(w);
+      if (wabs < epsilon) {
+        value+=w * w / 2.0 / epsilon / sigmaSq;
+        derivative[i]+=w / epsilon / sigmaSq;
+      }
+ else {
+        value+=(wabs - epsilon / 2) / sigmaSq;
+        derivative[i]+=((w < 0.0) ? -1.0 : 1.0) / sigmaSq;
+      }
+    }
+  }
+ else   if (prior == QUARTIC_PRIOR) {
+    double sigmaQu=sigma * sigma * sigma* sigma;
+    for (int i=0; i < x.length; i++) {
+      double k=1.0;
+      double w=x1[i];
+      value+=k * w * w* w* w / 2.0 / sigmaQu;
+      derivative[i]+=k * w / sigmaQu;
+    }
+  }
+}

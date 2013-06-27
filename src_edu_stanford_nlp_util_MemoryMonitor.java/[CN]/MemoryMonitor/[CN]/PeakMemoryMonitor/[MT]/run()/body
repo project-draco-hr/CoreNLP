@@ -1,0 +1,18 @@
+{
+  Runtime runtime=Runtime.getRuntime();
+  timer.start();
+  while (true) {
+    peak=Math.max(peak,runtime.totalMemory() - runtime.freeMemory());
+    if (timer.report() > logFrequency) {
+      log();
+      timer.restart();
+    }
+    try {
+      Thread.sleep(pollFrequency);
+    }
+ catch (    InterruptedException e) {
+      log();
+      break;
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  this.flags=flags;
+  this.featureFactory=new MetaClass(flags.featureFactory).createInstance(flags.featureFactoryArgs);
+  if (flags.tokenFactory == null) {
+    tokenFactory=(CoreTokenFactory<IN>)new CoreLabelTokenFactory();
+  }
+ else {
+    this.tokenFactory=new MetaClass(flags.tokenFactory).createInstance(flags.tokenFactoryArgs);
+  }
+  pad=tokenFactory.makeToken();
+  windowSize=flags.maxLeft + 1;
+  reinit();
+}

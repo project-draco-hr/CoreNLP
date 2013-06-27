@@ -1,0 +1,57 @@
+{
+  if (segmented) {
+    contentString=ChineseUtils.normalize(contentString,ChineseUtils.LEAVE,ChineseUtils.ASCII);
+  }
+ else {
+    contentString=ChineseUtils.normalize(contentString,ChineseUtils.FULLWIDTH,ChineseUtils.ASCII);
+  }
+  String sentenceString="";
+  char[] content=contentString.toCharArray();
+  boolean sentenceEnd=false;
+  List<String> sentenceList=new ArrayList<String>();
+  int lastCh=-1;
+  for (  Character c : content) {
+    String newChar=c.toString();
+    if (sentenceEnd == false) {
+      if (segmented && fullStopsSet.contains(c) && (lastCh == -1 || Character.isSpaceChar(lastCh))) {
+        sentenceString+=newChar;
+        sentenceEnd=true;
+      }
+ else       if (!segmented && fullStopsSet.contains(c)) {
+        sentenceString+=newChar;
+        sentenceEnd=true;
+      }
+ else {
+        sentenceString+=newChar;
+      }
+    }
+ else {
+      if (rightMarkSet.contains(c)) {
+        sentenceString+=newChar;
+      }
+ else       if (newChar.matches("\\s")) {
+        sentenceString+=newChar;
+      }
+ else       if (fullStopsSet.contains(c)) {
+        sentenceString+=newChar;
+      }
+ else {
+        if (sentenceString.length() > 0) {
+          sentenceEnd=false;
+        }
+        sentenceString=removeWhitespace(sentenceString,segmented);
+        if (sentenceString.length() > 0) {
+          sentenceList.add(sentenceString);
+        }
+        sentenceString="";
+        sentenceString+=newChar;
+      }
+    }
+    lastCh=c.charValue();
+  }
+  sentenceString=removeWhitespace(sentenceString,segmented);
+  if (sentenceString.length() > 0) {
+    sentenceList.add(sentenceString);
+  }
+  return sentenceList;
+}

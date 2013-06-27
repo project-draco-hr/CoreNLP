@@ -1,0 +1,38 @@
+{
+  inputPrior=computeInputPrior(allTrainPaths);
+  this.stateIndex=originalStateIndex;
+  List<List<String>> trainPaths, testPaths;
+  Set<UnaryRule> unaryRules=Generics.newHashSet();
+  Set<BinaryRule> binaryRules=Generics.newHashSet();
+  Map<String,TransducerGraph> graphs=convertGrammarToGraphs(grammar,unaryRules,binaryRules);
+  compactedGraphs=Generics.newHashSet();
+  if (verbose) {
+    System.out.println("There are " + graphs.size() + " categories to compact.");
+  }
+  int i=0;
+  for (Iterator<Entry<String,TransducerGraph>> graphIter=graphs.entrySet().iterator(); graphIter.hasNext(); ) {
+    Map.Entry<String,TransducerGraph> entry=graphIter.next();
+    String cat=entry.getKey();
+    TransducerGraph graph=entry.getValue();
+    if (verbose) {
+      System.out.println("About to compact grammar for " + cat + " with numNodes="+ graph.getNodes().size());
+    }
+    trainPaths=allTrainPaths.remove(cat);
+    if (trainPaths == null) {
+      trainPaths=new ArrayList<List<String>>();
+    }
+    testPaths=allTestPaths.remove(cat);
+    if (testPaths == null) {
+      testPaths=new ArrayList<List<String>>();
+    }
+    TransducerGraph compactedGraph=doCompaction(graph,trainPaths,testPaths);
+    i++;
+    if (verbose) {
+      System.out.println(i + ". Compacted grammar for " + cat+ " from "+ graph.getArcs().size()+ " arcs to "+ compactedGraph.getArcs().size()+ " arcs.");
+    }
+    graphIter.remove();
+    compactedGraphs.add(compactedGraph);
+  }
+  Pair<UnaryGrammar,BinaryGrammar> ugbg=convertGraphsToGrammar(compactedGraphs,unaryRules,binaryRules);
+  return new Triple<Index<String>,UnaryGrammar,BinaryGrammar>(newStateIndex,ugbg.first(),ugbg.second());
+}

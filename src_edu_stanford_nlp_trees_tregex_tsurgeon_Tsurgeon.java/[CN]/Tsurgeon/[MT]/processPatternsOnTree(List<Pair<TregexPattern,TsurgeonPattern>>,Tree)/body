@@ -1,0 +1,23 @@
+{
+  matchedOnTree=false;
+  for (  Pair<TregexPattern,TsurgeonPattern> op : ops) {
+    try {
+      if (DEBUG) {
+        System.err.println("Running pattern " + op.first());
+      }
+      TregexMatcher m=op.first().matcher(t);
+      while (m.find()) {
+        matchedOnTree=true;
+        t=op.second().evaluate(t,m);
+        if (t == null) {
+          return null;
+        }
+        m=op.first().matcher(t);
+      }
+    }
+ catch (    NullPointerException npe) {
+      throw new RuntimeException("Tsurgeon.processPatternsOnTree failed to match label for pattern: " + op.first() + ", "+ op.second(),npe);
+    }
+  }
+  return t;
+}

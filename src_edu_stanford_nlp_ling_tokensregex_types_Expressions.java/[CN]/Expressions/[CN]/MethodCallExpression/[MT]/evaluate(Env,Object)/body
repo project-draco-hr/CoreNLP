@@ -1,0 +1,60 @@
+{
+  Value evaledObj=object.evaluate(env,args);
+  if (evaledObj == null || evaledObj.get() == null)   return null;
+  Object mainObj=evaledObj.get();
+  Class c=mainObj.getClass();
+  List<Value> evaled=new ArrayList<Value>();
+  for (  Expression param : params) {
+    evaled.add(param.evaluate(env,args));
+  }
+  Class[] paramTypes=new Class[params.size()];
+  Object[] objs=new Object[params.size()];
+  for (int i=0; i < params.size(); i++) {
+    Value v=evaled.get(i);
+    if (v != null) {
+      objs[i]=v.get();
+      if (objs[i] != null) {
+        paramTypes[i]=objs[i].getClass();
+      }
+ else {
+        paramTypes[i]=null;
+      }
+    }
+ else {
+      objs[i]=null;
+      paramTypes[i]=null;
+    }
+  }
+  Method method=null;
+  try {
+    method=c.getMethod(function,paramTypes);
+  }
+ catch (  NoSuchMethodException ex) {
+    Method[] methods=c.getMethods();
+    for (    Method m : methods) {
+      if (m.getName().equals(function)) {
+        Class[] mParamTypes=m.getParameterTypes();
+        if (mParamTypes.length == paramTypes.length) {
+          boolean compatible=isArgTypesCompatible(paramTypes,mParamTypes);
+          if (compatible) {
+            method=m;
+            break;
+          }
+        }
+      }
+    }
+    if (method == null) {
+      throw new RuntimeException("Cannot find method " + function + " on object of class "+ c,ex);
+    }
+  }
+  try {
+    Object res=method.invoke(mainObj,objs);
+    return new PrimitiveValue<Object>(function,res);
+  }
+ catch (  InvocationTargetException ex) {
+    throw new RuntimeException("Cannot evaluate method " + function + " on object "+ mainObj,ex);
+  }
+catch (  IllegalAccessException ex) {
+    throw new RuntimeException("Cannot evaluate method " + function + " on object "+ mainObj,ex);
+  }
+}

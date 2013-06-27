@@ -1,0 +1,13 @@
+{
+  System.err.println(StringUtils.toInvocationString("ColumnDataClassifier",args));
+  ColumnDataClassifier cdc=new ColumnDataClassifier(StringUtils.argsToProperties(args));
+  if (cdc.globalFlags.loadClassifier == null) {
+    if (!cdc.trainClassifier()) {
+      return;
+    }
+  }
+  String testFile=cdc.globalFlags.testFile;
+  if (testFile != null) {
+    cdc.testClassifier(testFile);
+  }
+}

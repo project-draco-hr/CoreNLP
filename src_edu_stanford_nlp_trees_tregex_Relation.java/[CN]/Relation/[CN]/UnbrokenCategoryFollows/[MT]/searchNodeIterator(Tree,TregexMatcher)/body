@@ -1,0 +1,55 @@
+{
+  return new SearchNodeIterator(){
+    IdentityHashSet<Tree> nodesToSearch;
+    Stack<Tree> searchStack;
+    @Override public void initialize(){
+      nodesToSearch=new IdentityHashSet<Tree>();
+      searchStack=new Stack<Tree>();
+      initializeHelper(searchStack,t,matcher.getRoot());
+      advance();
+    }
+    private void initializeHelper(    Stack<Tree> stack,    Tree node,    Tree root){
+      if (node == root) {
+        return;
+      }
+      Tree parent=matcher.getParent(node);
+      int i=parent.objectIndexOf(node);
+      while (i == 0 && parent != root) {
+        node=parent;
+        parent=matcher.getParent(parent);
+        i=parent.objectIndexOf(node);
+      }
+      Tree precedingNode;
+      if (i > 0) {
+        precedingNode=parent.children()[i - 1];
+      }
+ else {
+        precedingNode=null;
+      }
+      while (precedingNode != null) {
+        if (!nodesToSearch.contains(precedingNode)) {
+          stack.add(precedingNode);
+          nodesToSearch.add(precedingNode);
+        }
+        if (pathMatchesNode(precedingNode)) {
+          initializeHelper(stack,precedingNode,root);
+        }
+        if (!precedingNode.isLeaf()) {
+          precedingNode=precedingNode.children()[0];
+        }
+ else {
+          precedingNode=null;
+        }
+      }
+    }
+    @Override void advance(){
+      if (searchStack.isEmpty()) {
+        next=null;
+      }
+ else {
+        next=searchStack.pop();
+      }
+    }
+  }
+;
+}

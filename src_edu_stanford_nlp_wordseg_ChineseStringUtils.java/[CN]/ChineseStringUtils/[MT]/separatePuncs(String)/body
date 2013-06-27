@@ -1,0 +1,20 @@
+{
+  if (puncs == null) {
+    puncs=new Character[]{'\u3001','\u3002','\u3003','\u3008','\u3009','\u300a','\u300b','\u300c','\u300d','\u300e','\u300f','\u3010','\u3011','\u3014','\u3015'};
+  }
+  if (puncsPat == null) {
+    puncsPat=new Pattern[puncs.length];
+    for (int i=0; i < puncs.length; i++) {
+      Character punc=puncs[i];
+      puncsPat[i]=Pattern.compile(WHITE + punc + WHITE);
+    }
+  }
+  for (int i=0; i < puncsPat.length; i++) {
+    Pattern p=puncsPat[i];
+    Character punc=puncs[i];
+    Matcher m=p.matcher(ans);
+    ans=m.replaceAll(" " + punc + " ");
+  }
+  ans=ans.trim();
+  return ans;
+}

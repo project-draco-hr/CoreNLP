@@ -1,0 +1,38 @@
+{
+  boolean alwaysPad=((flags & FORMAT_PAD_UNKNOWN) != 0);
+  boolean hasTime=hasTime();
+  DateTimeFieldType sdft=JodaTimeUtils.getMostSpecific(base);
+  if (hasTime) {
+    builder.appendLiteral("T");
+    if (JodaTimeUtils.hasField(base,DateTimeFieldType.hourOfDay())) {
+      builder.appendHourOfDay(2);
+    }
+ else     if (JodaTimeUtils.hasField(base,DateTimeFieldType.clockhourOfDay())) {
+      builder.appendClockhourOfDay(2);
+    }
+ else {
+      builder.appendLiteral(PAD_FIELD_UNKNOWN2);
+    }
+    if (JodaTimeUtils.hasField(base,DateTimeFieldType.minuteOfHour())) {
+      builder.appendLiteral(":");
+      builder.appendMinuteOfHour(2);
+    }
+ else     if (alwaysPad || JodaTimeUtils.isMoreGeneral(DateTimeFieldType.minuteOfHour(),sdft,base.getChronology())) {
+      builder.appendLiteral(":");
+      builder.appendLiteral(PAD_FIELD_UNKNOWN2);
+    }
+    if (JodaTimeUtils.hasField(base,DateTimeFieldType.secondOfMinute())) {
+      builder.appendLiteral(":");
+      builder.appendSecondOfMinute(2);
+    }
+ else     if (alwaysPad || JodaTimeUtils.isMoreGeneral(DateTimeFieldType.secondOfMinute(),sdft,base.getChronology())) {
+      builder.appendLiteral(":");
+      builder.appendLiteral(PAD_FIELD_UNKNOWN2);
+    }
+    if (JodaTimeUtils.hasField(base,DateTimeFieldType.millisOfSecond())) {
+      builder.appendLiteral(".");
+      builder.appendMillisOfSecond(3);
+    }
+  }
+  return hasTime;
+}

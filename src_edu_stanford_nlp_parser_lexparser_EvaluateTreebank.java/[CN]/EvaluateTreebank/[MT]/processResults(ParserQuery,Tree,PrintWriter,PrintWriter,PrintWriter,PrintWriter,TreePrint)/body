@@ -1,0 +1,231 @@
+{
+  if (pq.saidMemMessage()) {
+    saidMemMessage=true;
+  }
+  Tree tree;
+  List<? extends HasWord> sentence=pq.originalSentence();
+  try {
+    tree=pq.getBestParse();
+  }
+ catch (  NoSuchParseException e) {
+    tree=null;
+  }
+  List<ScoredObject<Tree>> kbestPCFGTrees=null;
+  if (tree != null && kbestPCFG > 0) {
+    kbestPCFGTrees=pq.getKBestPCFGParses(kbestPCFG);
+  }
+  if (op.testOptions.verbose) {
+    pwOut.println("ComboParser best");
+    Tree ot=tree;
+    if (ot != null && !op.tlpParams.treebankLanguagePack().isStartSymbol(ot.value())) {
+      ot=ot.treeFactory().newTreeNode(op.tlpParams.treebankLanguagePack().startSymbol(),Collections.singletonList(ot));
+    }
+    treePrint.printTree(ot,pwOut);
+  }
+ else {
+    treePrint.printTree(tree,pwOut);
+  }
+  if (tree != null) {
+    if (op.testOptions.printAllBestParses) {
+      List<ScoredObject<Tree>> parses=pq.getBestPCFGParses();
+      int sz=parses.size();
+      if (sz > 1) {
+        pwOut.println("There were " + sz + " best PCFG parses with score "+ parses.get(0).score()+ '.');
+        Tree transGoldTree=tc.transformTree(goldTree);
+        int iii=0;
+        for (        ScoredObject<Tree> sot : parses) {
+          iii++;
+          Tree tb=sot.object();
+          Tree tbd=debinarizer.transformTree(tb);
+          tbd=subcategoryStripper.transformTree(tbd);
+          pq.restoreOriginalWords(tbd);
+          pwOut.println("PCFG Parse #" + iii + " with score "+ tbd.score());
+          tbd.pennPrint(pwOut);
+          Tree tbtr=tc.transformTree(tbd);
+          kGoodLB.evaluate(tbtr,transGoldTree,pwErr);
+        }
+      }
+    }
+ else     if (op.testOptions.printPCFGkBest > 0 && op.testOptions.outputkBestEquivocation == null) {
+      List<ScoredObject<Tree>> trees=kbestPCFGTrees.subList(0,op.testOptions.printPCFGkBest);
+      Tree transGoldTree=tc.transformTree(goldTree);
+      int i=0;
+      for (      ScoredObject<Tree> tp : trees) {
+        i++;
+        pwOut.println("PCFG Parse #" + i + " with score "+ tp.score());
+        Tree tbd=tp.object();
+        tbd.pennPrint(pwOut);
+        Tree tbtr=tc.transformTree(tbd);
+        kGoodLB.evaluate(tbtr,transGoldTree,pwErr);
+      }
+    }
+ else     if (op.testOptions.printFactoredKGood > 0 && pq.hasFactoredParse()) {
+      List<ScoredObject<Tree>> trees=pq.getKGoodFactoredParses(op.testOptions.printFactoredKGood);
+      Tree transGoldTree=tc.transformTree(goldTree);
+      int ii=0;
+      for (      ScoredObject<Tree> tp : trees) {
+        ii++;
+        pwOut.println("Factored Parse #" + ii + " with score "+ tp.score());
+        Tree tbd=tp.object();
+        tbd.pennPrint(pwOut);
+        Tree tbtr=tc.transformTree(tbd);
+        kGoodLB.evaluate(tbtr,transGoldTree,pwOut);
+      }
+    }
+ else     if (pwFileOut != null) {
+      pwFileOut.println(tree.toString());
+    }
+    if (op.testOptions.outputkBestEquivocation != null && op.testOptions.printPCFGkBest > 0) {
+      List<ScoredObject<Tree>> trees=kbestPCFGTrees.subList(0,op.testOptions.printPCFGkBest);
+      double[] logScores=new double[trees.size()];
+      int treeId=0;
+      for (      ScoredObject<Tree> kBestTree : trees)       logScores[treeId++]=kBestTree.score();
+      double entropy=0.0;
+      double denom=ArrayMath.logSum(logScores);
+      for (      double logScore : logScores) {
+        double logPr=logScore - denom;
+        entropy+=Math.exp(logPr) * (logPr / Math.log(2));
+      }
+      entropy*=-1;
+      pwStats.printf("%f\t%d\t%d\n",entropy,trees.size(),sentence.size());
+    }
+  }
+  if (tree != null) {
+    tree=subcategoryStripper.transformTree(tree);
+    Tree treeFact=tc.transformTree(tree);
+    if (op.testOptions.verbose) {
+      pwOut.println("Correct parse");
+      treePrint.printTree(goldTree,pwOut);
+    }
+    Tree transGoldTree=tc.transformTree(goldTree);
+    if (transGoldTree != null)     transGoldTree=subcategoryStripper.transformTree(transGoldTree);
+    if (transGoldTree == null) {
+      pwErr.println("Couldn't transform gold tree for evaluation, skipping eval. Gold tree was:");
+      goldTree.pennPrint(pwErr);
+      numSkippedEvals++;
+      return;
+    }
+ else     if (treeFact == null) {
+      pwErr.println("Couldn't transform hypothesis tree for evaluation, skipping eval. Tree was:");
+      tree.pennPrint(pwErr);
+      numSkippedEvals++;
+      return;
+    }
+ else     if (treeFact.yield().size() != transGoldTree.yield().size()) {
+      List<Label> fYield=treeFact.yield();
+      List<Label> gYield=transGoldTree.yield();
+      pwErr.println("WARNING: Evaluation could not be performed due to gold/parsed yield mismatch.");
+      pwErr.printf("  sizes: gold: %d (transf) %d (orig); parsed: %d (transf) %d (orig).%n",gYield.size(),goldTree.yield().size(),fYield.size(),tree.yield().size());
+      pwErr.println("  gold: " + Sentence.listToString(gYield,true));
+      pwErr.println("  pars: " + Sentence.listToString(fYield,true));
+      numSkippedEvals++;
+      return;
+    }
+    if (topKEvals.size() > 0) {
+      List<Tree> transGuesses=new ArrayList<Tree>();
+      int kbest=Math.min(op.testOptions.evalPCFGkBest,kbestPCFGTrees.size());
+      for (      ScoredObject<Tree> guess : kbestPCFGTrees.subList(0,kbest)) {
+        transGuesses.add(tc.transformTree(guess.object()));
+      }
+      for (      BestOfTopKEval eval : topKEvals) {
+        eval.evaluate(transGuesses,transGoldTree,pwErr);
+      }
+    }
+    Tree treePCFG=pq.getBestPCFGParse();
+    if (treePCFG != null) {
+      Tree treePCFGeval=tc.transformTree(treePCFG);
+      if (pcfgLB != null) {
+        pcfgLB.evaluate(treePCFGeval,transGoldTree,pwErr);
+      }
+      if (pcfgChildSpecific != null) {
+        pcfgChildSpecific.evaluate(treePCFGeval,transGoldTree,pwErr);
+      }
+      if (pcfgLA != null) {
+        pcfgLA.evaluate(treePCFGeval,transGoldTree,pwErr);
+      }
+      if (pcfgCB != null) {
+        pcfgCB.evaluate(treePCFGeval,transGoldTree,pwErr);
+      }
+      if (pcfgDA != null) {
+        treePCFGeval.indexLeaves(true);
+        transGoldTree.indexLeaves(true);
+        pcfgDA.evaluate(treePCFGeval,transGoldTree,pwErr);
+      }
+      if (pcfgTA != null) {
+        pcfgTA.evaluate(treePCFGeval,transGoldTree,pwErr);
+      }
+      if (pcfgLL != null && pq.getPCFGParser() != null) {
+        pcfgLL.recordScore(pq.getPCFGParser(),pwErr);
+      }
+      if (pcfgRUO != null) {
+        pcfgRUO.evaluate(treePCFGeval,transGoldTree,pwErr);
+      }
+      if (pcfgCUO != null) {
+        pcfgCUO.evaluate(treePCFGeval,transGoldTree,pwErr);
+      }
+      if (pcfgCatE != null) {
+        pcfgCatE.evaluate(treePCFGeval,transGoldTree,pwErr);
+      }
+    }
+    Tree treeDep=pq.getBestDependencyParse(false);
+    if (treeDep != null) {
+      Tree goldTreeB=binarizerOnly.transformTree(goldTree);
+      Tree goldTreeEval=goldTree.deepCopy();
+      goldTreeEval.indexLeaves(true);
+      goldTreeEval.percolateHeads(op.langpack().headFinder());
+      Tree depDAEval=pq.getBestDependencyParse(true);
+      depDAEval.indexLeaves(true);
+      depDAEval.percolateHeadIndices();
+      if (depDA != null) {
+        depDA.evaluate(depDAEval,goldTreeEval,pwErr);
+      }
+      if (depTA != null) {
+        Tree undoneTree=debinarizer.transformTree(treeDep);
+        undoneTree=subcategoryStripper.transformTree(undoneTree);
+        pq.restoreOriginalWords(undoneTree);
+        depTA.evaluate(undoneTree,goldTree,pwErr);
+      }
+      if (depLL != null && pq.getDependencyParser() != null) {
+        depLL.recordScore(pq.getDependencyParser(),pwErr);
+      }
+      Tree factTreeB;
+      if (pq.hasFactoredParse()) {
+        factTreeB=pq.getBestFactoredParse();
+      }
+ else {
+        factTreeB=treeDep;
+      }
+      if (factDA != null) {
+        factDA.evaluate(factTreeB,goldTreeB,pwErr);
+      }
+    }
+    if (factLB != null) {
+      factLB.evaluate(treeFact,transGoldTree,pwErr);
+    }
+    if (factChildSpecific != null) {
+      factChildSpecific.evaluate(treeFact,transGoldTree,pwErr);
+    }
+    if (factLA != null) {
+      factLA.evaluate(treeFact,transGoldTree,pwErr);
+    }
+    if (factTA != null) {
+      factTA.evaluate(tree,br.transformTree(goldTree),pwErr);
+    }
+    if (factLL != null && pq.getFactoredParser() != null) {
+      factLL.recordScore(pq.getFactoredParser(),pwErr);
+    }
+    if (factCB != null) {
+      factCB.evaluate(treeFact,transGoldTree,pwErr);
+    }
+    if (extraEvals != null) {
+      for (      Eval eval : extraEvals) {
+        eval.evaluate(treeFact,transGoldTree,pwErr);
+      }
+    }
+    if (op.testOptions.evalb) {
+      nanScores(tree);
+      EvalbFormatWriter.writeEVALBline(treeFact,transGoldTree);
+    }
+  }
+  pwErr.println();
+}

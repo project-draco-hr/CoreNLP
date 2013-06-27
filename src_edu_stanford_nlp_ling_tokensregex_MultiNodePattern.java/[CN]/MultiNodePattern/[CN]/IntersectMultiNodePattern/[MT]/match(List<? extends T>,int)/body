@@ -1,0 +1,19 @@
+{
+  Collection<Interval<Integer>> matched=null;
+  for (  MultiNodePattern<T> p : nodePatterns) {
+    Collection<Interval<Integer>> m=p.match(nodes,start);
+    if (m == null || m.size() == 0) {
+      return null;
+    }
+    if (matched == null) {
+      matched=m;
+    }
+ else {
+      matched.retainAll(m);
+      if (m.size() == 0) {
+        return null;
+      }
+    }
+  }
+  return matched;
+}

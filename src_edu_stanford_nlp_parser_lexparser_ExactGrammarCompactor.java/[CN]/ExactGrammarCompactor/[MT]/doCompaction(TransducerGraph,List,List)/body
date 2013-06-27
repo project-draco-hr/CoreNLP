@@ -1,0 +1,15 @@
+{
+  TransducerGraph result=graph;
+  if (saveGraphs) {
+    writeFile(result,"unminimized",(String)result.getEndNodes().iterator().next());
+  }
+  result=quasiDeterminizer.processGraph(result);
+  result=new TransducerGraph(result,ocp);
+  result=minimizer.minimizeFA(result);
+  result=new TransducerGraph(result,ntsp);
+  result=new TransducerGraph(result,isp);
+  if (saveGraphs) {
+    writeFile(result,"exactminimized",(String)result.getEndNodes().iterator().next());
+  }
+  return result;
+}

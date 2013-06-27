@@ -1,0 +1,24 @@
+{
+  makeInitialBlocks();
+  while (hasActivePair()) {
+    Pair<ExactBlock<Arc>,?> activePair=getActivePair();
+    ExactBlock<Arc> activeBlock=activePair.first();
+    Object symbol=activePair.second();
+    Collection<Object> inverseImages=getInverseImages(activeBlock,symbol);
+    Map<ExactBlock<Arc>,Set<Object>> inverseImagesByBlock=sortIntoBlocks(inverseImages);
+    for (    ExactBlock<Arc> block : inverseImagesByBlock.keySet()) {
+      if (block == null) {
+        throw new RuntimeException("block was null");
+      }
+      Collection members=inverseImagesByBlock.get(block);
+      if (members.size() == 0 || members.size() == block.getMembers().size()) {
+        continue;
+      }
+      if (members.size() > block.getMembers().size() - members.size()) {
+        members=difference(block.getMembers(),members);
+      }
+      removeAll(block.getMembers(),members);
+      makeBlock(members);
+    }
+  }
+}

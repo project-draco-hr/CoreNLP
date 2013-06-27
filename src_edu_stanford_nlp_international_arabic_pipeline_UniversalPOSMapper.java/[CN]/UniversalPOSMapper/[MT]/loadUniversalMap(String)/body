@@ -1,0 +1,21 @@
+{
+  LineNumberReader reader=null;
+  try {
+    reader=new LineNumberReader(new FileReader(path));
+    for (String line; (line=reader.readLine()) != null; ) {
+      if (line.trim().equals(""))       continue;
+      String[] toks=line.trim().split("\\s+");
+      if (toks.length != 2)       throw new RuntimeException("Invalid mapping line: " + line);
+      universalMap.put(toks[0],toks[1]);
+    }
+    reader.close();
+  }
+ catch (  FileNotFoundException e) {
+    System.err.printf("%s: File not found %s%n",this.getClass().getName(),path);
+  }
+catch (  IOException e) {
+    int lineId=(reader == null) ? -1 : reader.getLineNumber();
+    System.err.printf("%s: Error at line %d%n",this.getClass().getName(),lineId);
+    e.printStackTrace();
+  }
+}

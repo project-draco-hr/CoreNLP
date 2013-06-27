@@ -1,0 +1,70 @@
+{
+  File inputFile=File.createTempFile("heideltime",".input");
+  PrintWriter inputWriter=new PrintWriter(inputFile);
+  inputWriter.println(document.get(CoreAnnotations.TextAnnotation.class));
+  inputWriter.close();
+  if (!document.has(CoreAnnotations.CalendarAnnotation.class) && !document.has(CoreAnnotations.DocDateAnnotation.class)) {
+    throw new IllegalArgumentException("CoreMap must have either a Calendar or DocDate annotation");
+  }
+  Calendar dateCalendar=document.get(CoreAnnotations.CalendarAnnotation.class);
+  String pubDate=null;
+  if (dateCalendar != null) {
+    pubDate=String.format("%TF",dateCalendar);
+  }
+ else {
+    String s=document.get(CoreAnnotations.DocDateAnnotation.class);
+    if (s != null) {
+      pubDate=s;
+    }
+  }
+  ArrayList<String> args=new ArrayList<String>();
+  args.add("java");
+  args.add("-jar");
+  args.add(this.heideltimePath.getPath() + "/heideltime.jar");
+  args.add("-t");
+  args.add("NEWS");
+  if (pubDate != null) {
+    args.add("-dct");
+    args.add(pubDate);
+  }
+  args.add(inputFile.getPath());
+  ProcessBuilder process=new ProcessBuilder(args);
+  StringWriter outputWriter=new StringWriter();
+  SystemUtils.run(process,outputWriter,null);
+  String output=outputWriter.getBuffer().toString();
+  Pattern docClose=Pattern.compile("</DOC>.*",Pattern.DOTALL);
+  output=docClose.matcher(output).replaceAll("</DOC>").replaceAll("<!DOCTYPE TimeML SYSTEM \"TimeML.dtd\">","");
+  Pattern badNestedTimex=Pattern.compile(Pattern.quote("<T</TIMEX3>IMEX3"));
+  output=badNestedTimex.matcher(output).replaceAll("</TIMEX3><TIMEX3");
+  Pattern badNestedTimex2=Pattern.compile(Pattern.quote("<TI</TIMEX3>MEX3"));
+  output=badNestedTimex2.matcher(output).replaceAll("</TIMEX3><TIMEX3");
+  output=output.replaceAll("\\n\\n<TimeML>\\n\\n","<TimeML>");
+  Element outputXML;
+  try {
+    outputXML=XMLUtils.parseElement(output);
+  }
+ catch (  Exception ex) {
+    throw new RuntimeException(String.format("error:\n%s\ninput:\n%s\noutput:\n%s",ex,IOUtils.slurpFile(inputFile),output),ex);
+  }
+  inputFile.delete();
+  List<CoreMap> timexAnns=toTimexCoreMaps(outputXML,document);
+  document.set(TimeAnnotations.TimexAnnotations.class,timexAnns);
+  if (outputResults) {
+    System.out.println(timexAnns);
+  }
+  int timexIndex=0;
+  for (  CoreMap sentence : document.get(CoreAnnotations.SentencesAnnotation.class)) {
+    int sentBegin=beginOffset(sentence);
+    int sentEnd=endOffset(sentence);
+    while (timexIndex < timexAnns.size() && beginOffset(timexAnns.get(timexIndex)) < sentBegin) {
+      ++timexIndex;
+    }
+    int sublistBegin=timexIndex;
+    int sublistEnd=timexIndex;
+    while (timexIndex < timexAnns.size() && sentBegin <= beginOffset(timexAnns.get(timexIndex)) && endOffset(timexAnns.get(timexIndex)) <= sentEnd) {
+      ++sublistEnd;
+      ++timexIndex;
+    }
+    sentence.set(TimeAnnotations.TimexAnnotations.class,timexAnns.subList(sublistBegin,sublistEnd));
+  }
+}

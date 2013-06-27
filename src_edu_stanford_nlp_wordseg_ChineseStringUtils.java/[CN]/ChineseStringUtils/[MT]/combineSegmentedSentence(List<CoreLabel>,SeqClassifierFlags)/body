@@ -1,0 +1,94 @@
+{
+  int testContentIdx=0;
+  StringBuilder ans=new StringBuilder();
+  StringBuilder unmod_ans=new StringBuilder();
+  StringBuilder unmod_normed_ans=new StringBuilder();
+  CoreLabel wi=null;
+  for (Iterator<CoreLabel> wordIter=doc.iterator(); wordIter.hasNext(); testContentIdx++) {
+    CoreLabel pwi=wi;
+    wi=wordIter.next();
+    boolean originalWhiteSpace="1".equals(wi.get(CoreAnnotations.SpaceBeforeAnnotation.class));
+    if (wi.get(CoreAnnotations.AnswerAnnotation.class).equals("1") && !("0".equals(String.valueOf(wi.get(CoreAnnotations.PositionAnnotation.class))))) {
+      boolean seg=true;
+      if (flags.keepEnglishWhitespaces) {
+        if (testContentIdx > 0) {
+          char prevChar=pwi.get(CoreAnnotations.OriginalCharAnnotation.class).charAt(0);
+          char currChar=wi.get(CoreAnnotations.OriginalCharAnnotation.class).charAt(0);
+          if (isLetterASCII(prevChar) && isLetterASCII(currChar)) {
+            if (!originalWhiteSpace) {
+              seg=false;
+            }
+          }
+        }
+      }
+      if (flags.keepAllWhitespaces && originalWhiteSpace) {
+        seg=true;
+      }
+      if (seg) {
+        if (originalWhiteSpace) {
+          ans.append('\u1924');
+        }
+ else {
+          ans.append(' ');
+        }
+      }
+      unmod_ans.append(' ');
+      unmod_normed_ans.append(' ');
+    }
+ else {
+      boolean seg=false;
+      if (testContentIdx > 0) {
+        char prevChar=pwi.get(CoreAnnotations.OriginalCharAnnotation.class).charAt(0);
+        char currChar=wi.get(CoreAnnotations.OriginalCharAnnotation.class).charAt(0);
+        if ((prevChar < (char)128) != (currChar < (char)128)) {
+          if (ChineseUtils.isNumber(prevChar) && ChineseUtils.isNumber(currChar)) {
+          }
+ else           if (flags.separateASCIIandRange) {
+            seg=true;
+          }
+        }
+      }
+      if (flags.keepEnglishWhitespaces) {
+        if (testContentIdx > 0) {
+          char prevChar=pwi.get(CoreAnnotations.OriginalCharAnnotation.class).charAt(0);
+          char currChar=wi.get(CoreAnnotations.OriginalCharAnnotation.class).charAt(0);
+          if (isLetterASCII(prevChar) && isLetterASCII(currChar) || isLetterASCII(prevChar) && ChineseUtils.isNumber(currChar) || ChineseUtils.isNumber(prevChar) && isLetterASCII(currChar)) {
+            if ("1".equals(wi.get(CoreAnnotations.SpaceBeforeAnnotation.class))) {
+              seg=true;
+            }
+          }
+        }
+      }
+      if (flags.keepAllWhitespaces) {
+        if (!("0".equals(String.valueOf(wi.get(CoreAnnotations.PositionAnnotation.class)))) && "1".equals(wi.get(CoreAnnotations.SpaceBeforeAnnotation.class))) {
+          seg=true;
+        }
+      }
+      if (seg) {
+        if (originalWhiteSpace) {
+          ans.append('\u1924');
+        }
+ else {
+          ans.append(' ');
+        }
+      }
+    }
+    ans.append(wi.get(CoreAnnotations.OriginalCharAnnotation.class));
+    unmod_ans.append(wi.get(CoreAnnotations.OriginalCharAnnotation.class));
+    unmod_normed_ans.append(wi.get(CoreAnnotations.CharAnnotation.class));
+  }
+  String ansStr=ans.toString();
+  if (flags.sighanPostProcessing) {
+    if (!flags.keepAllWhitespaces) {
+      ansStr=ansStr.replaceAll("\u1924"," ");
+    }
+    ansStr=postProcessingAnswer(ansStr,flags);
+  }
+  ansStr=ansStr.replaceAll("\u1924"," ");
+  if (DEBUG) {
+    EncodingPrintWriter.err.println("CLASSIFIER(normed): " + unmod_normed_ans,"UTF-8");
+    EncodingPrintWriter.err.println("CLASSIFIER: " + unmod_ans,"UTF-8");
+    EncodingPrintWriter.err.println("POSTPROCESSED: " + ans,"UTF-8");
+  }
+  return ansStr;
+}

@@ -1,0 +1,17 @@
+{
+  List<T> res=new ArrayList<T>();
+  String text=cm.get(CoreAnnotations.TextAnnotation.class);
+  Matcher m=p.matcher(text);
+  int index=0;
+  while (m.find()) {
+    int start=m.start();
+    int end=m.end();
+    appendCoreMap(res,cm,text,index,start,factory);
+    if (includeMatched) {
+      appendCoreMap(res,cm,text,start,end,factory);
+    }
+    index=end;
+  }
+  appendCoreMap(res,cm,text,index,text.length(),factory);
+  return res;
+}

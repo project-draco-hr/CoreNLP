@@ -1,0 +1,10 @@
+{
+  String treeString="(a (foo 1) (bar 2))";
+  Tree tree=treeFromString(treeString);
+  TregexPattern pattern=TregexPattern.compile("__=a ! > __");
+  TregexMatcher matcher=pattern.matcher(tree);
+  assertTrue(matcher.find());
+  assertEquals(treeString,matcher.getMatch().toString());
+  assertEquals(treeString,matcher.getNode("a").toString());
+  assertFalse(matcher.find());
+}

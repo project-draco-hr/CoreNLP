@@ -1,0 +1,20 @@
+{
+  try {
+    if (crf) {
+      classifier=CRFClassifier.getClassifier(file);
+    }
+ else {
+      classifier=CMMClassifier.getClassifier(file);
+    }
+  }
+ catch (  Exception e) {
+    String message="Error loading " + (crf ? "CRF" : "CMM") + ": "+ file.getAbsolutePath();
+    String title=(crf ? "CRF" : "CMM") + " Load Error";
+    message+="\nMessage: " + e.getMessage();
+    displayError(title,message);
+    return;
+  }
+  removeTags();
+  buildTagPanel();
+  buildExtractButton();
+}

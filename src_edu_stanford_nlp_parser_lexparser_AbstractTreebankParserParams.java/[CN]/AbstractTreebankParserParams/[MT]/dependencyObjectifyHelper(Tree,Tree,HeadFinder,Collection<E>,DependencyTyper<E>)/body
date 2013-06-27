@@ -1,0 +1,12 @@
+{
+  if (t.isLeaf() || t.isPreTerminal()) {
+    return;
+  }
+  Tree headDtr=hf.determineHead(t);
+  for (  Tree child : t.children()) {
+    dependencyObjectifyHelper(child,root,hf,c,typer);
+    if (child != headDtr) {
+      c.add(typer.makeDependency(headDtr,child,root));
+    }
+  }
+}

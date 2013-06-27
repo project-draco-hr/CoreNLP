@@ -1,0 +1,13 @@
+{
+  Counter<F> multParameters=new ClassicCounter<F>();
+  double sum=0.0;
+  for (  F o : parameters.keySet()) {
+    double parameter=Gamma.drawSample(random,parameters.getCount(o));
+    sum+=parameter;
+    multParameters.setCount(o,parameter);
+  }
+  for (  F o : multParameters.keySet()) {
+    multParameters.setCount(o,multParameters.getCount(o) / sum);
+  }
+  return new Multinomial<F>(multParameters);
+}

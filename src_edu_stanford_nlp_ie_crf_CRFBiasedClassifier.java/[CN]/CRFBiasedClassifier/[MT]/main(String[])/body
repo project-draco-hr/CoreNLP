@@ -1,0 +1,46 @@
+{
+  System.err.println("CRFBiasedClassifier invoked at " + new Date() + " with arguments:");
+  for (  String arg : args) {
+    System.err.print(" " + arg);
+  }
+  System.err.println();
+  Properties props=StringUtils.argsToProperties(args);
+  CRFBiasedClassifier<CoreLabel> crf=new CRFBiasedClassifier<CoreLabel>(props);
+  String testFile=crf.flags.testFile;
+  String loadPath=crf.flags.loadClassifier;
+  if (loadPath != null) {
+    crf.loadClassifierNoExceptions(loadPath,props);
+  }
+ else   if (crf.flags.loadJarClassifier != null) {
+    crf.loadJarClassifier(crf.flags.loadJarClassifier,props);
+  }
+ else {
+    crf.loadDefaultClassifier();
+  }
+  if (crf.flags.classBias != null) {
+    StringTokenizer biases=new java.util.StringTokenizer(crf.flags.classBias,",");
+    while (biases.hasMoreTokens()) {
+      StringTokenizer bias=new java.util.StringTokenizer(biases.nextToken(),":");
+      String cname=bias.nextToken();
+      double w=Double.parseDouble(bias.nextToken());
+      crf.setBiasWeight(cname,w);
+      System.err.println("Setting bias for class " + cname + " to "+ w);
+    }
+  }
+  if (testFile != null) {
+    DocumentReaderAndWriter<CoreLabel> readerAndWriter=crf.makeReaderAndWriter();
+    if (crf.flags.printFirstOrderProbs) {
+      crf.printFirstOrderProbs(testFile,readerAndWriter);
+    }
+ else     if (crf.flags.printProbs) {
+      crf.printProbs(testFile,readerAndWriter);
+    }
+ else     if (crf.flags.useKBest) {
+      int k=crf.flags.kBest;
+      crf.classifyAndWriteAnswersKBest(testFile,k,readerAndWriter);
+    }
+ else {
+      crf.classifyAndWriteAnswers(testFile,readerAndWriter);
+    }
+  }
+}

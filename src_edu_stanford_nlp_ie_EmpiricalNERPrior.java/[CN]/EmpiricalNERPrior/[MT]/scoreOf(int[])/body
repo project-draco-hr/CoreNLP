@@ -1,0 +1,174 @@
+{
+  double p=0.0;
+  for (int i=0; i < entities.length; i++) {
+    Entity entity=entities[i];
+    if ((i == 0 || entities[i - 1] != entity) && entity != null) {
+      int length=entity.words.size();
+      String tag1=classIndex.get(entity.type);
+      if (tag1.equals(LOC)) {
+        tag1=LOC;
+      }
+ else       if (tag1.equals(ORG)) {
+        tag1=ORG;
+      }
+ else       if (tag1.equals(PER)) {
+        tag1=PER;
+      }
+ else       if (tag1.equals(MISC)) {
+        tag1=MISC;
+      }
+      int[] other=entities[i].otherOccurrences;
+      for (int j=0; j < other.length; j++) {
+        Entity otherEntity=null;
+        for (int k=other[j]; k < other[j] + length && k < entities.length; k++) {
+          otherEntity=entities[k];
+          if (otherEntity != null) {
+            break;
+          }
+        }
+        if (otherEntity == null) {
+          continue;
+        }
+        int oLength=otherEntity.words.size();
+        String tag2=classIndex.get(otherEntity.type);
+        if (tag2.equals(LOC)) {
+          tag2=LOC;
+        }
+ else         if (tag2.equals(ORG)) {
+          tag2=ORG;
+        }
+ else         if (tag2.equals(PER)) {
+          tag2=PER;
+        }
+ else         if (tag2.equals(MISC)) {
+          tag2=MISC;
+        }
+        boolean exact=false;
+        int[] oOther=otherEntity.otherOccurrences;
+        for (int k=0; k < oOther.length; k++) {
+          if (oOther[k] >= i && oOther[k] <= i + length - 1) {
+            exact=true;
+            break;
+          }
+        }
+        if (exact) {
+          if (length != oLength) {
+            if (tag1 == (tag2)) {
+              p-=Math.abs(oLength - length) * p1;
+            }
+ else             if (!(tag1.equals(ORG) && tag2.equals(LOC)) && !(tag2.equals(LOC) && tag1.equals(ORG))) {
+              p-=(oLength + length) * p1;
+            }
+          }
+          if (tag1 == (LOC)) {
+            if (tag2 == (LOC)) {
+            }
+ else             if (tag2 == (ORG)) {
+              p-=length * p3;
+            }
+ else             if (tag2 == (PER)) {
+              p-=length * p4;
+            }
+ else             if (tag2 == (MISC)) {
+              p-=length * p5;
+            }
+          }
+ else           if (tag1 == (ORG)) {
+            if (tag2 == (LOC)) {
+              p-=length * p6;
+            }
+ else             if (tag2 == (ORG)) {
+            }
+ else             if (tag2 == (PER)) {
+              p-=length * p8;
+            }
+ else             if (tag2 == (MISC)) {
+              p-=length * p9;
+            }
+          }
+ else           if (tag1 == (PER)) {
+            if (tag2 == (LOC)) {
+              p-=length * p10;
+            }
+ else             if (tag2 == (ORG)) {
+              p-=length * p11;
+            }
+ else             if (tag2 == (PER)) {
+            }
+ else             if (tag2 == (MISC)) {
+              p-=length * p13;
+            }
+          }
+ else           if (tag1 == (MISC)) {
+            if (tag2 == (LOC)) {
+              p-=length * p14;
+            }
+ else             if (tag2 == (ORG)) {
+              p-=length * p15;
+            }
+ else             if (tag2 == (PER)) {
+              p-=length * p16;
+            }
+ else             if (tag2 == (MISC)) {
+            }
+          }
+        }
+ else {
+          if (tag1 == (LOC)) {
+            if (tag2 == (LOC)) {
+            }
+ else             if (tag2 == (ORG)) {
+            }
+ else             if (tag2 == (PER)) {
+              p-=length * p20;
+            }
+ else             if (tag2 == (MISC)) {
+              p-=length * p21;
+            }
+          }
+ else           if (tag1 == (ORG)) {
+            if (tag2 == (LOC)) {
+              p-=length * p22;
+            }
+ else             if (tag2 == (ORG)) {
+            }
+ else             if (tag2 == (PER)) {
+              p-=length * p24;
+            }
+ else             if (tag2 == (MISC)) {
+              p-=length * p25;
+            }
+          }
+ else           if (tag1 == (PER)) {
+            if (tag2 == (LOC)) {
+              p-=length * p26;
+            }
+ else             if (tag2 == (ORG)) {
+              p-=length * p27;
+            }
+ else             if (tag2 == (PER)) {
+            }
+ else             if (tag2 == (MISC)) {
+              p-=length * p29;
+            }
+          }
+ else           if (tag1 == (MISC)) {
+            if (tag2 == (LOC)) {
+              p-=length * p30;
+            }
+ else             if (tag2 == (ORG)) {
+              p-=length * p31;
+            }
+ else             if (tag2 == (PER)) {
+              p-=length * p32;
+            }
+ else             if (tag2 == (MISC)) {
+              p-=length * p33;
+            }
+          }
+        }
+      }
+    }
+  }
+  return p;
+}

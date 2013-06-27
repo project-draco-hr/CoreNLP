@@ -1,0 +1,13 @@
+{
+  return new SearchNodeIterator(){
+    @Override void initialize(){
+      if (t != matcher.getRoot()) {
+        next=matcher.getParent(t);
+        if (childNum > 0 && (next.numChildren() < childNum || next.getChild(childNum - 1) != t) || childNum < 0 && (next.numChildren() < -childNum || next.getChild(next.numChildren() + childNum) != t)) {
+          next=null;
+        }
+      }
+    }
+  }
+;
+}

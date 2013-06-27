@@ -1,0 +1,16 @@
+{
+  c1=new ClassicCounter<String>();
+  c1.incrementCount("a",0.9);
+  c1.incrementCount("b",1.0);
+  c1.incrementCount("c",1.5);
+  c1.incrementCount("d",0.0);
+  c1.incrementCount("e",-2.0);
+  Counters.retainTop(c1,3);
+  assertEquals(3,c1.size());
+  assertTrue(c1.containsKey("a"));
+  assertFalse(c1.containsKey("d"));
+  Counters.retainTop(c1,1);
+  assertEquals(1,c1.size());
+  assertTrue(c1.containsKey("c"));
+  assertEquals(1.5,c1.getCount("c"));
+}

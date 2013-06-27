@@ -1,0 +1,82 @@
+{
+  int numClasses=6;
+  final int cliqueSize=3;
+  System.err.printf("Creating factor table with %d classes and window (clique) size %d%n",numClasses,cliqueSize);
+  FactorTable ft=new FactorTable(numClasses,cliqueSize);
+  for (int i=0; i < numClasses; i++) {
+    for (int j=0; j < numClasses; j++) {
+      for (int k=0; k < numClasses; k++) {
+        int[] b={i,j,k};
+        ft.setValue(b,(i * 4) + (j * 2) + k);
+      }
+    }
+  }
+  System.err.println(ft);
+  double normalization=0.0;
+  for (int i=0; i < numClasses; i++) {
+    for (int j=0; j < numClasses; j++) {
+      for (int k=0; k < numClasses; k++) {
+        normalization+=ft.unnormalizedLogProb(new int[]{i,j,k});
+      }
+    }
+  }
+  System.err.println("Normalization Z = " + normalization);
+  System.err.println(ft.sumOutFront());
+  FactorTable ft2=new FactorTable(numClasses,2);
+  for (int i=0; i < numClasses; i++) {
+    for (int j=0; j < numClasses; j++) {
+      int[] b={i,j};
+      ft2.setValue(b,i * numClasses + j);
+    }
+  }
+  System.err.println(ft2);
+  for (int i=0; i < numClasses; i++) {
+    for (int j=0; j < numClasses; j++) {
+      int[] b={i,j};
+      double t=0;
+      for (int k=0; k < numClasses; k++) {
+        t+=Math.exp(ft.conditionalLogProbGivenPrevious(b,k));
+        System.err.println(k + "|" + i+ ","+ j+ " : "+ Math.exp(ft.conditionalLogProbGivenPrevious(b,k)));
+      }
+      System.err.println(t);
+    }
+  }
+  System.err.println("conditionalLogProbGivenFirst");
+  for (int j=0; j < numClasses; j++) {
+    for (int k=0; k < numClasses; k++) {
+      int[] b={j,k};
+      double t=0.0;
+      for (int i=0; i < numClasses; i++) {
+        t+=ft.unnormalizedConditionalLogProbGivenFirst(i,b);
+        System.err.println(i + "|" + j+ ","+ k+ " : "+ ft.unnormalizedConditionalLogProbGivenFirst(i,b));
+      }
+      System.err.println(t);
+    }
+  }
+  System.err.println("conditionalLogProbGivenFirst");
+  for (int i=0; i < numClasses; i++) {
+    for (int j=0; j < numClasses; j++) {
+      int[] b={i,j};
+      double t=0.0;
+      for (int k=0; k < numClasses; k++) {
+        t+=ft.conditionalLogProbGivenNext(b,k);
+        System.err.println(i + "," + j+ "|"+ k+ " : "+ ft.conditionalLogProbGivenNext(b,k));
+      }
+      System.err.println(t);
+    }
+  }
+  numClasses=2;
+  FactorTable ft3=new FactorTable(numClasses,cliqueSize);
+  ft3.setValue(new int[]{0,0,0},Math.log(0.25));
+  ft3.setValue(new int[]{0,0,1},Math.log(0.35));
+  ft3.setValue(new int[]{0,1,0},Math.log(0.05));
+  ft3.setValue(new int[]{0,1,1},Math.log(0.07));
+  ft3.setValue(new int[]{1,0,0},Math.log(0.08));
+  ft3.setValue(new int[]{1,0,1},Math.log(0.16));
+  ft3.setValue(new int[]{1,1,0},Math.log(1e-50));
+  ft3.setValue(new int[]{1,1,1},Math.log(1e-50));
+  FactorTable ft4=ft3.sumOutFront();
+  System.err.println(ft4.toNonLogString());
+  FactorTable ft5=ft3.sumOutEnd();
+  System.err.println(ft5.toNonLogString());
+}

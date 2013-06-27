@@ -1,0 +1,96 @@
+{
+  double regProb=probTB(dep);
+  statsCounter.incrementCount("total");
+  List<Triple<Integer,String,Double>> sim2head=null;
+  List<Triple<Integer,String,Double>> sim2arg=null;
+  sim2arg=simArgMap.get(new Pair<Integer,String>(dep.arg.word,stringBasicCategory(dep.arg.tag)));
+  sim2head=simHeadMap.get(new Pair<Integer,String>(dep.head.word,stringBasicCategory(dep.head.tag)));
+  if (sim2head == null && sim2arg == null) {
+    return regProb;
+  }
+  double sumScores=0, sumWeights=0;
+  if (sim2head == null) {
+    statsCounter.incrementCount("aSim");
+    for (    Triple<Integer,String,Double> simArg : sim2arg) {
+      double weight=Math.exp(-50 * simArg.third);
+      for (int tag=0, numT=tagIndex.size(); tag < numT; tag++) {
+        if (!stringBasicCategory(tag).equals(simArg.second)) {
+          continue;
+        }
+        IntTaggedWord tempArg=new IntTaggedWord(simArg.first,tag);
+        IntDependency tempDep=new IntDependency(dep.head,tempArg,dep.leftHeaded,dep.distance);
+        double probArg=Math.exp(lex.score(tempArg,0,wordIndex.get(tempArg.word),null));
+        if (probArg == 0.0) {
+          continue;
+        }
+        sumScores+=probTB(tempDep) * weight / probArg;
+        sumWeights+=weight;
+      }
+    }
+  }
+ else   if (sim2arg == null) {
+    statsCounter.incrementCount("hSim");
+    for (    Triple<Integer,String,Double> simHead : sim2head) {
+      double weight=Math.exp(-50 * simHead.third);
+      for (int tag=0, numT=tagIndex.size(); tag < numT; tag++) {
+        if (!stringBasicCategory(tag).equals(simHead.second)) {
+          continue;
+        }
+        IntTaggedWord tempHead=new IntTaggedWord(simHead.first,tag);
+        IntDependency tempDep=new IntDependency(tempHead,dep.arg,dep.leftHeaded,dep.distance);
+        sumScores+=probTB(tempDep) * weight;
+        sumWeights+=weight;
+      }
+    }
+  }
+ else {
+    statsCounter.incrementCount("hSim");
+    statsCounter.incrementCount("aSim");
+    statsCounter.incrementCount("aSim&hSim");
+    for (    Triple<Integer,String,Double> simArg : sim2arg) {
+      for (int aTag=0, numT=tagIndex.size(); aTag < numT; aTag++) {
+        if (!stringBasicCategory(aTag).equals(simArg.second)) {
+          continue;
+        }
+        IntTaggedWord tempArg=new IntTaggedWord(simArg.first,aTag);
+        double probArg=Math.exp(lex.score(tempArg,0,wordIndex.get(tempArg.word),null));
+        if (probArg == 0.0) {
+          continue;
+        }
+        for (        Triple<Integer,String,Double> simHead : sim2head) {
+          for (int hTag=0; hTag < numT; hTag++) {
+            if (!stringBasicCategory(hTag).equals(simHead.second)) {
+              continue;
+            }
+            IntTaggedWord tempHead=new IntTaggedWord(simHead.first,aTag);
+            IntDependency tempDep=new IntDependency(tempHead,tempArg,dep.leftHeaded,dep.distance);
+            double weight=Math.exp(-50 * simHead.third) * Math.exp(-50 * simArg.third);
+            sumScores+=probTB(tempDep) * weight / probArg;
+            sumWeights+=weight;
+          }
+        }
+      }
+    }
+  }
+  IntDependency temp=new IntDependency(dep.head,wildTW,dep.leftHeaded,dep.distance);
+  double countHead=argCounter.getCount(temp);
+  double simProb;
+  if (sim2arg == null) {
+    simProb=sumScores / sumWeights;
+  }
+ else {
+    double probArg=Math.exp(lex.score(dep.arg,0,wordIndex.get(dep.arg.word),null));
+    simProb=probArg * sumScores / sumWeights;
+  }
+  if (simProb == 0) {
+    statsCounter.incrementCount("simProbZero");
+  }
+  if (regProb == 0) {
+    statsCounter.incrementCount("regProbZero");
+  }
+  double smoothProb=(countHead * regProb + simSmooth * simProb) / (countHead + simSmooth);
+  if (smoothProb == 0) {
+    statsCounter.incrementCount("smoothProbZero");
+  }
+  return smoothProb;
+}

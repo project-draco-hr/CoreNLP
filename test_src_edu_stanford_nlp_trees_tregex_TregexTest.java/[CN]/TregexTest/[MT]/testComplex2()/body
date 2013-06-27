@@ -1,0 +1,21 @@
+{
+  String[] inputTrees={"(ROOT (S (NP (PRP You)) (VP (VBD did) (VP (VB go) (WHADVP (WRB How) (JJ long)) (PP (IN for)))) (. .)))","(ROOT (S (NP (NNS Raccoons)) (VP (VBP do) (VP (VB come) (WHADVP (WRB When)) (PRT (RP out)))) (. .)))","(ROOT (S (NP (PRP She)) (VP (VBZ is) (VP (WHADVP (WRB Where)) (VBG working))) (. .)))","(ROOT (S (NP (PRP You)) (VP (VBD did) (VP (WHNP (WP What)) (VB do))) (. .)))","(ROOT (S (NP (PRP You)) (VP (VBD did) (VP (VB do) (PP (IN in) (NP (NNP Australia))) (WHNP (WP What)))) (. .)))"};
+  String pattern="WHADVP=whadvp > VP $+ /[A-Z]*/=last ![$++ (PP < NP)]";
+  runTest(pattern,inputTrees[0],"(WHADVP (WRB How) (JJ long))");
+  runTest(pattern,inputTrees[1],"(WHADVP (WRB When))");
+  runTest(pattern,inputTrees[2],"(WHADVP (WRB Where))");
+  runTest(pattern,inputTrees[3]);
+  runTest(pattern,inputTrees[4]);
+  pattern="VP < (/^WH/=wh $++ /^VB/=vb)";
+  runTest(pattern,inputTrees[0]);
+  runTest(pattern,inputTrees[1]);
+  runTest(pattern,inputTrees[2],"(VP (WHADVP (WRB Where)) (VBG working))");
+  runTest(pattern,inputTrees[3],"(VP (WHNP (WP What)) (VB do))");
+  runTest(pattern,inputTrees[4]);
+  pattern="PP=pp > VP $+ WHNP=whnp";
+  runTest(pattern,inputTrees[0]);
+  runTest(pattern,inputTrees[1]);
+  runTest(pattern,inputTrees[2]);
+  runTest(pattern,inputTrees[3]);
+  runTest(pattern,inputTrees[4],"(PP (IN in) (NP (NNP Australia)))");
+}

@@ -1,0 +1,19 @@
+{
+  if (verbose > 0)   System.err.print("Collecting samples");
+  listener.setInitialSequence(initialSequence);
+  List<int[]> result=new ArrayList<int[]>();
+  int[] sequence=initialSequence;
+  for (int i=0; i < numSamples; i++) {
+    sequence=copy(sequence);
+    sampleSequenceRepeatedly(model,sequence,sampleInterval);
+    result.add(sequence);
+    if (verbose > 0)     System.err.print(".");
+    System.err.flush();
+  }
+  if (verbose > 1) {
+    System.err.println();
+    printSamples(result,System.err);
+  }
+  if (verbose > 0)   System.err.println("done.");
+  return result;
+}

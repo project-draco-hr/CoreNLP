@@ -1,0 +1,16 @@
+{
+  if (depth == 1) {
+    for (    Map.Entry<?,Double> e : entrySet()) {
+      Object key=e.getKey();
+      double count=e.getValue();
+      pw.println(buffer + key + "\t"+ count);
+    }
+  }
+ else {
+    for (    K key : topLevelKeySet()) {
+      GeneralizedCounter<K> gc1=conditionalize(Arrays.asList(ErasureUtils.<K[]>uncheckedCast(new Object[]{key})));
+      pw.println(buffer + key + "\t"+ gc1.totalCount());
+      gc1.prettyPrint(pw,buffer + bufferIncrement,bufferIncrement);
+    }
+  }
+}

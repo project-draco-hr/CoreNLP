@@ -1,0 +1,27 @@
+{
+  String mSpeakerStr=m.headWord.get(CoreAnnotations.SpeakerAnnotation.class);
+  if (mSpeakerStr == null) {
+    return false;
+  }
+  String antSpeakerStr=ant.headWord.get(CoreAnnotations.SpeakerAnnotation.class);
+  if (antSpeakerStr == null) {
+    return false;
+  }
+  int mSpeakerID;
+  int antSpeakerID;
+  if (NumberMatchingRegex.isDecimalInteger(mSpeakerStr) && NumberMatchingRegex.isDecimalInteger(antSpeakerStr)) {
+    try {
+      mSpeakerID=Integer.parseInt(mSpeakerStr);
+      antSpeakerID=Integer.parseInt(ant.headWord.get(CoreAnnotations.SpeakerAnnotation.class));
+    }
+ catch (    Exception e) {
+      return (m.headWord.get(CoreAnnotations.SpeakerAnnotation.class).equals(ant.headWord.get(CoreAnnotations.SpeakerAnnotation.class)));
+    }
+  }
+ else {
+    return (m.headWord.get(CoreAnnotations.SpeakerAnnotation.class).equals(ant.headWord.get(CoreAnnotations.SpeakerAnnotation.class)));
+  }
+  int mSpeakerClusterID=document.allPredictedMentions.get(mSpeakerID).corefClusterID;
+  int antSpeakerClusterID=document.allPredictedMentions.get(antSpeakerID).corefClusterID;
+  return (mSpeakerClusterID == antSpeakerClusterID);
+}

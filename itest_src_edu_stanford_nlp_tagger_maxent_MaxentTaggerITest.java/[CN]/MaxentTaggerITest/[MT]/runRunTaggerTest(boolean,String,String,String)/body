@@ -1,0 +1,26 @@
+{
+  StringWriter output=new StringWriter();
+  try {
+    if (emulateStdin) {
+      tagger.runTaggerStdin(new BufferedReader(new StringReader(input)),new BufferedWriter(output),OutputStyle.SLASH_TAGS);
+    }
+ else {
+      tagger.runTagger(new BufferedReader(new StringReader(input)),new BufferedWriter(output),xmlTag,OutputStyle.SLASH_TAGS);
+    }
+  }
+ catch (  Exception e) {
+    throw new RuntimeException(e);
+  }
+  BufferedReader reader=new BufferedReader(new StringReader(output.toString()));
+  ArrayList<String> outputStrings=new ArrayList<String>();
+  try {
+    for (String outputLine; (outputLine=reader.readLine()) != null; ) {
+      outputStrings.add(outputLine);
+      if (emulateStdin)       reader.readLine();
+    }
+  }
+ catch (  IOException e) {
+    throw new RuntimeException(e);
+  }
+  compareResults(expectedOutput,outputStrings);
+}

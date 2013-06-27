@@ -1,0 +1,27 @@
+{
+  Map<BinaryRule,BinaryRule> map1=Generics.newHashMap();
+  for (  BinaryRule o : l1) {
+    map1.put(o,o);
+  }
+  Map<BinaryRule,BinaryRule> map2=Generics.newHashMap();
+  for (  BinaryRule o : l2) {
+    map2.put(o,o);
+  }
+  boolean isEqual=true;
+  for (  BinaryRule rule1 : map1.keySet()) {
+    BinaryRule rule2=map2.get(rule1);
+    if (rule2 == null) {
+      System.out.println("no rule for " + rule1);
+      isEqual=false;
+    }
+ else {
+      map2.remove(rule2);
+      if (rule1.score != rule2.score) {
+        System.out.println(rule1 + " and " + rule2+ " have diff scores");
+        isEqual=false;
+      }
+    }
+  }
+  System.out.println("left over: " + map2.keySet());
+  return isEqual;
+}

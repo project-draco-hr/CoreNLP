@@ -1,0 +1,28 @@
+{
+  String wordString=word.get(CoreAnnotations.TextAnnotation.class);
+  if (word.get(CoreAnnotations.PartOfSpeechAnnotation.class) == null || word.get(CoreAnnotations.PartOfSpeechAnnotation.class).equals("CD")) {
+    if (wordString.length() == 3 && wordString.startsWith("'")) {
+      if (DEBUG) {
+        System.err.println("Found potential two digit year: " + wordString);
+      }
+      wordString=wordString.substring(1);
+      try {
+        Integer.parseInt(wordString);
+        return true;
+      }
+ catch (      Exception e) {
+        return false;
+      }
+    }
+    if (wordString.length() == 4) {
+      try {
+        int num=Integer.parseInt(wordString);
+        if (num < 3000)         return true;
+      }
+ catch (      Exception e) {
+        return false;
+      }
+    }
+  }
+  return false;
+}

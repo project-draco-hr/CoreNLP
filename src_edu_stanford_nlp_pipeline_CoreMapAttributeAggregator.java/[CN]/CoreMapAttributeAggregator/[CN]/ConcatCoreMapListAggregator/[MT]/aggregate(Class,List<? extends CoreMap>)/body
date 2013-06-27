@@ -1,0 +1,18 @@
+{
+  if (in == null)   return null;
+  List<T> res=new ArrayList<T>();
+  for (  CoreMap cm : in) {
+    Object obj=cm.get(key);
+    boolean added=false;
+    if (obj != null) {
+      if (obj instanceof List) {
+        res.addAll((List<T>)obj);
+        added=true;
+      }
+    }
+    if (!added && concatSelf) {
+      res.add((T)cm);
+    }
+  }
+  return res;
+}

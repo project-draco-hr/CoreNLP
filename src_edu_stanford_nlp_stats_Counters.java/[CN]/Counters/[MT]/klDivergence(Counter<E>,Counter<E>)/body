@@ -1,0 +1,20 @@
+{
+  double result=0.0;
+  double tot=(from.totalCount());
+  double tot2=(to.totalCount());
+  for (  E key : from.keySet()) {
+    double num=(from.getCount(key));
+    if (num == 0) {
+      continue;
+    }
+    num/=tot;
+    double num2=(to.getCount(key));
+    num2/=tot2;
+    double logFract=Math.log(num / num2);
+    if (logFract == Double.NEGATIVE_INFINITY) {
+      return Double.NEGATIVE_INFINITY;
+    }
+    result+=num * (logFract / LOG_E_2);
+  }
+  return result;
+}

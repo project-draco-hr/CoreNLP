@@ -1,0 +1,35 @@
+{
+  float logProb;
+  String tagStr=itw.tagString(tagIndex);
+  Label tag=new Tag(tagStr);
+  if (useEnd || useFirst || useFirstCap) {
+    String end=getSignature(word,-1);
+    if (useGT && !seenEnd.contains(end)) {
+      logProb=scoreGT(tagStr);
+    }
+ else {
+      if (!seenEnd.contains(end)) {
+        end=unknown;
+      }
+      ClassicCounter<String> wordProbs=tagHash.get(tag);
+      if (wordProbs == null) {
+        System.err.println("Warning: proposed tag is unseen in training data:\t" + tagStr);
+        logProb=Float.NEGATIVE_INFINITY;
+      }
+ else       if (wordProbs.keySet().contains(end)) {
+        logProb=(float)wordProbs.getCount(end);
+      }
+ else {
+        logProb=(float)wordProbs.getCount(unknown);
+      }
+    }
+  }
+ else   if (useGT) {
+    logProb=scoreGT(tagStr);
+  }
+ else {
+    System.err.println("Warning: no unknown word model in place!\nGiving the combination " + word + ' '+ tagStr+ " zero probability.");
+    logProb=Float.NEGATIVE_INFINITY;
+  }
+  return logProb;
+}

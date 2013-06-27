@@ -1,0 +1,13 @@
+{
+  Integer annoTokenBegin=annotation.get(CoreAnnotations.TokenBeginAnnotation.class);
+  if (annoTokenBegin == null) {
+    annoTokenBegin=0;
+  }
+  List<CoreLabel> tokens=annotation.get(CoreAnnotations.TokensAnnotation.class);
+  Annotation chunk=getAnnotatedChunk(tokens,tokenStartIndex,tokenEndIndex,annoTokenBegin);
+  boolean annotatedTextFromCharOffsets=annotateChunkText(chunk,annotation);
+  if (!annotatedTextFromCharOffsets) {
+    annotateChunkText(chunk,CoreAnnotations.TextAnnotation.class);
+  }
+  return chunk;
+}

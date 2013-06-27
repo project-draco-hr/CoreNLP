@@ -1,0 +1,16 @@
+{
+  if (args.length != 1) {
+    System.exit(-1);
+  }
+  ArabicTreebankParserParams tlpp=new ArabicTreebankParserParams();
+  String[] options={"-arabicFactored"};
+  tlpp.setOptionFlag(options,0);
+  DiskTreebank tb=tlpp.diskTreebank();
+  tb.loadPath(args[0],"txt",false);
+  for (  Tree t : tb) {
+    for (    Tree subtree : t) {
+      tlpp.transformTree(subtree,t);
+    }
+    System.out.println(t.toString());
+  }
+}

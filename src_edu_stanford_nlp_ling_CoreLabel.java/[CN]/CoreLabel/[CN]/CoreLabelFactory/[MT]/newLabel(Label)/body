@@ -1,0 +1,18 @@
+{
+  if (oldLabel instanceof CoreLabel) {
+    return new CoreLabel((CoreLabel)oldLabel);
+  }
+ else {
+    CoreLabel label=new CoreLabel();
+    if (oldLabel instanceof HasWord)     label.setWord(((HasWord)oldLabel).word());
+    if (oldLabel instanceof HasTag)     label.setTag(((HasTag)oldLabel).tag());
+    if (oldLabel instanceof HasOffset) {
+      label.setBeginPosition(((HasOffset)oldLabel).beginPosition());
+      label.setEndPosition(((HasOffset)oldLabel).endPosition());
+    }
+    if (oldLabel instanceof HasCategory)     label.setCategory(((HasCategory)oldLabel).category());
+    if (oldLabel instanceof HasIndex)     label.setIndex(((HasIndex)oldLabel).index());
+    label.setValue(oldLabel.value());
+    return label;
+  }
+}

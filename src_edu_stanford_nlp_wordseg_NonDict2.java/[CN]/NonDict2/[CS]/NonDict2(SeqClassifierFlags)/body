@@ -1,0 +1,26 @@
+{
+  if (cd == null) {
+    if (flags.sighanCorporaDict != null) {
+      corporaDict=flags.sighanCorporaDict;
+    }
+    String path;
+    if (flags.useAs || flags.useHk || flags.useMsr) {
+      throw new RuntimeException("only support settings for CTB and PKU now.");
+    }
+ else     if (flags.usePk) {
+      path=corporaDict + "/dict/pku.non";
+    }
+ else {
+      path=corporaDict + "/dict/ctb.non";
+    }
+    cd=new CorpusDictionary(path);
+    if (flags.useAs || flags.useHk || flags.useMsr) {
+    }
+ else     if (flags.usePk) {
+      System.err.println("INFO: flags.usePk=true | building NonDict2 from " + path);
+    }
+ else {
+      System.err.println("INFO: flags.usePk=false | building NonDict2 from " + path);
+    }
+  }
+}

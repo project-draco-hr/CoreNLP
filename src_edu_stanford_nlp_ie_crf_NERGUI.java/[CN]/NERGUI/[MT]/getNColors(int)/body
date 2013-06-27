@@ -1,0 +1,21 @@
+{
+  Color[] colors=new Color[n];
+  if (n <= basicColors.length) {
+    System.arraycopy(basicColors,0,colors,0,n);
+  }
+ else {
+    int s=255 / (int)Math.ceil(Math.pow(n,(1.0 / 3.0)));
+    int index=0;
+    OUTER:     for (int i=0; i < 256; i+=s) {
+      for (int j=0; j < 256; j+=s) {
+        for (int k=0; k < 256; k+=s) {
+          colors[index++]=new Color(i,j,k);
+          if (index == n) {
+            break OUTER;
+          }
+        }
+      }
+    }
+  }
+  return colors;
+}

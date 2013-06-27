@@ -1,0 +1,20 @@
+{
+  if (matchedExprs == null)   return list;
+  Collections.sort(matchedExprs,EXPR_TOKEN_OFFSET_COMPARATOR);
+  List<CoreMap> merged=new ArrayList<CoreMap>(list.size());
+  int last=0;
+  for (  MatchedExpression expr : matchedExprs) {
+    int start=expr.chunkOffsets.first();
+    int end=expr.chunkOffsets.second();
+    if (start >= last) {
+      merged.addAll(list.subList(last,start));
+      CoreMap m=expr.getAnnotation();
+      merged.add(m);
+      last=end;
+    }
+  }
+  if (last < list.size()) {
+    merged.addAll(list.subList(last,list.size()));
+  }
+  return merged;
+}

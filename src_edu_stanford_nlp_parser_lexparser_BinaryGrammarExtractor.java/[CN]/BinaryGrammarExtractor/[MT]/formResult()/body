@@ -1,0 +1,20 @@
+{
+  stateIndex.indexOf(Lexicon.BOUNDARY_TAG,true);
+  BinaryGrammar bg=new BinaryGrammar(stateIndex);
+  UnaryGrammar ug=new UnaryGrammar(stateIndex);
+  for (  UnaryRule ur : unaryRules) {
+    ur.score=(float)Math.log(unaryRuleCounter.getCount(ur) / symbolCounter.getCount(stateIndex.get(ur.parent)));
+    if (op.trainOptions.compactGrammar() >= 4) {
+      ur.score=(float)unaryRuleCounter.getCount(ur);
+    }
+    ug.addRule(ur);
+  }
+  for (  BinaryRule br : binaryRules) {
+    br.score=(float)Math.log((binaryRuleCounter.getCount(br) - op.trainOptions.ruleDiscount) / symbolCounter.getCount(stateIndex.get(br.parent)));
+    if (op.trainOptions.compactGrammar() >= 4) {
+      br.score=(float)binaryRuleCounter.getCount(br);
+    }
+    bg.addRule(br);
+  }
+  return new Pair<UnaryGrammar,BinaryGrammar>(ug,bg);
+}

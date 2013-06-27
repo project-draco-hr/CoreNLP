@@ -1,0 +1,17 @@
+{
+  Element probs=new Element("probabilities",curNS);
+  if (object.getTypeProbabilities() != null) {
+    List<Pair<String,Double>> sorted=Counters.toDescendingMagnitudeSortedListWithCounts(object.getTypeProbabilities());
+    for (    Pair<String,Double> lv : sorted) {
+      Element prob=new Element("probability",curNS);
+      Element label=new Element("label",curNS);
+      label.appendChild(lv.first);
+      Element value=new Element("value",curNS);
+      value.appendChild(lv.second.toString());
+      prob.appendChild(label);
+      prob.appendChild(value);
+      probs.appendChild(prob);
+    }
+  }
+  return probs;
+}

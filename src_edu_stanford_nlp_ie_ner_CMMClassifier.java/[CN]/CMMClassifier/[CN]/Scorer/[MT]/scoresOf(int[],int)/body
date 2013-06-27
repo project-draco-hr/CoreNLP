@@ -1,0 +1,50 @@
+{
+  if (VERBOSE) {
+    int p=(100 * pos) / length();
+    if (p > percent) {
+      long secs2=System.currentTimeMillis();
+      System.err.println(StringUtils.padLeft(p,3) + "%   " + ((secs2 - secs == 0) ? 0 : (num * 1000 / (secs2 - secs)))+ " hits per sec, position="+ pos+ ", legal="+ ((tot == 0) ? 100 : ((100 * hit) / tot)));
+      percent=p;
+      num=0;
+      secs=secs2;
+    }
+    tot++;
+  }
+  String[] answers=new String[1 + leftWindow() + rightWindow()];
+  String[] pre=new String[leftWindow()];
+  for (int i=0; i < 1 + leftWindow() + rightWindow(); i++) {
+    int absPos=pos - leftWindow() + i;
+    if (absPos < 0) {
+      continue;
+    }
+    answers[i]=tagIndex.get(tags[absPos]);
+    CoreLabel li=lineInfos.get(absPos);
+    li.set(CoreAnnotations.AnswerAnnotation.class,answers[i]);
+    if (i < leftWindow()) {
+      pre[i]=answers[i];
+    }
+  }
+  double[] scores=new double[tagIndex.size()];
+  if (!legalTags.contains(Arrays.asList(pre)) && classifier.flags.useObservedSequencesOnly) {
+    Arrays.fill(scores,-1000);
+    return scores;
+  }
+  num++;
+  hit++;
+  Counter<String> c=classifier.scoresOf(lineInfos,pos);
+  for (  String s : c.keySet()) {
+    int t=tagIndex.indexOf(s);
+    if (t > -1) {
+      int[] tA=getPossibleValues(pos);
+      for (int j=0; j < tA.length; j++) {
+        if (tA[j] == t) {
+          scores[j]=c.getCount(s);
+        }
+      }
+    }
+  }
+  if (classifier.normalize()) {
+    ArrayMath.logNormalize(scores);
+  }
+  return scores;
+}

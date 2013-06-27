@@ -1,0 +1,32 @@
+{
+  if (file.isDirectory()) {
+    return recursively;
+  }
+ else {
+    String filename=file.getName();
+    int k=filename.length() - 1;
+    char c=filename.charAt(k);
+    while (k >= 0 && (c < '0' || c > '9')) {
+      k--;
+      if (k >= 0) {
+        c=filename.charAt(k);
+      }
+    }
+    if (k < 0) {
+      return false;
+    }
+    int j=k;
+    c=filename.charAt(j);
+    while (j >= 0 && (c >= '0' && c <= '9')) {
+      j--;
+      if (j >= 0) {
+        c=filename.charAt(j);
+      }
+    }
+    j++;
+    k++;
+    String theNumber=filename.substring(j,k);
+    int number=Integer.parseInt(theNumber);
+    return (number >= minimum) && (number <= maximum);
+  }
+}

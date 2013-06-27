@@ -1,0 +1,87 @@
+{
+  List<List<IN>> sentences=Generics.newArrayList();
+  List<IN> currentSentence=new ArrayList<IN>();
+  List<IN> lastSentence=null;
+  boolean insideRegion=false;
+  for (  IN o : words) {
+    String word;
+    if (o instanceof HasWord) {
+      HasWord h=(HasWord)o;
+      word=h.word();
+    }
+ else     if (o instanceof String) {
+      word=(String)o;
+    }
+ else     if (o instanceof CoreMap) {
+      word=((CoreMap)o).get(CoreAnnotations.TextAnnotation.class);
+    }
+ else {
+      throw new RuntimeException("Expected token to be either Word or String.");
+    }
+    boolean forcedEnd=false;
+    if (o instanceof CoreMap) {
+      Boolean forcedEndValue=((CoreMap)o).get(CoreAnnotations.ForcedSentenceEndAnnotation.class);
+      if (forcedEndValue != null)       forcedEnd=forcedEndValue;
+    }
+    if (DEBUG) {
+      EncodingPrintWriter.err.println("Word is " + word,"UTF-8");
+    }
+    if (sentenceRegionBeginPattern != null && !insideRegion) {
+      if (sentenceRegionBeginPattern.matcher(word).matches()) {
+        insideRegion=true;
+      }
+      if (DEBUG) {
+        System.err.println("  outside region");
+      }
+      continue;
+    }
+    if (sentenceBoundaryFollowers.contains(word) && lastSentence != null && currentSentence.isEmpty()) {
+      lastSentence.add(o);
+      if (DEBUG) {
+        System.err.println("  added to last");
+      }
+    }
+ else {
+      boolean newSent=false;
+      if (matchesSentenceBoundaryToDiscard(word)) {
+        newSent=true;
+      }
+ else       if (sentenceRegionEndPattern != null && sentenceRegionEndPattern.matcher(word).matches()) {
+        insideRegion=false;
+        newSent=true;
+      }
+ else       if (sentenceBoundaryTokenPattern.matcher(word).matches()) {
+        currentSentence.add(o);
+        if (DEBUG) {
+          System.err.println("  is sentence boundary; added to current");
+        }
+        newSent=true;
+      }
+ else       if (forcedEnd) {
+        currentSentence.add(o);
+        newSent=true;
+        if (DEBUG) {
+          System.err.println("  annotated to be the end of a sentence");
+        }
+      }
+ else {
+        currentSentence.add(o);
+        if (DEBUG) {
+          System.err.println("  added to current");
+        }
+      }
+      if (newSent && (!currentSentence.isEmpty() || allowEmptySentences())) {
+        if (DEBUG) {
+          System.err.println("  beginning new sentence");
+        }
+        sentences.add(currentSentence);
+        lastSentence=currentSentence;
+        currentSentence=new ArrayList<IN>();
+      }
+    }
+  }
+  if (!currentSentence.isEmpty()) {
+    sentences.add(currentSentence);
+  }
+  return sentences;
+}

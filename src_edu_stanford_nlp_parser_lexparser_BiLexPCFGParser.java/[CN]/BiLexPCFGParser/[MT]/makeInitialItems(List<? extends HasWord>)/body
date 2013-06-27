@@ -1,0 +1,44 @@
+{
+  List<Item> itemList=new ArrayList<Item>();
+  int length=wordList.size();
+  int numTags=tagIndex.size();
+  words=new int[length];
+  taggedWordList=new List[length];
+  int terminalCount=0;
+  originalLabels=new CoreLabel[wordList.size()];
+  for (int i=0; i < length; i++) {
+    taggedWordList[i]=new ArrayList<IntTaggedWord>(numTags);
+    HasWord wordObject=wordList.get(i);
+    if (wordObject instanceof CoreLabel) {
+      originalLabels[i]=(CoreLabel)wordObject;
+    }
+    String wordStr=wordObject.word();
+    String wordContextStr=null;
+    if (wordObject instanceof HasContext) {
+      wordContextStr=((HasContext)wordObject).originalText();
+      if ("".equals(wordContextStr))       wordContextStr=null;
+    }
+    if (!wordIndex.contains(wordStr)) {
+      wordStr=Lexicon.UNKNOWN_WORD;
+    }
+    int word=wordIndex.indexOf(wordStr);
+    words[i]=word;
+    for (Iterator<IntTaggedWord> tagI=lex.ruleIteratorByWord(word,i,wordContextStr); tagI.hasNext(); ) {
+      IntTaggedWord tagging=tagI.next();
+      int tag=tagging.tag;
+      int state=stateIndex.indexOf(tagIndex.get(tag));
+      tempEdge.state=state;
+      tempEdge.head=i;
+      tempEdge.start=i;
+      tempEdge.end=i + 1;
+      tempEdge.tag=tag;
+      itemList.add(makeInitialItem(i,tag,state,scorer.iScore(tempEdge)));
+      terminalCount++;
+      taggedWordList[i].add(new IntTaggedWord(word,tag));
+    }
+  }
+  if (op.testOptions.verbose) {
+    System.err.println("Terminals (# of tag edges in chart): " + terminalCount);
+  }
+  return itemList;
+}

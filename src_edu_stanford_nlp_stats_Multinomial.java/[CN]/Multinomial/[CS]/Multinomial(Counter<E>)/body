@@ -1,0 +1,14 @@
+{
+  double totalMass=parameters.totalCount();
+  if (totalMass <= 0.0) {
+    throw new RuntimeException("total mass must be positive!");
+  }
+  this.parameters=new ClassicCounter<E>();
+  for (  E object : parameters.keySet()) {
+    double oldCount=parameters.getCount(object);
+    if (oldCount < 0.0) {
+      throw new RuntimeException("no negative parameters allowed!");
+    }
+    this.parameters.setCount(object,oldCount / totalMass);
+  }
+}

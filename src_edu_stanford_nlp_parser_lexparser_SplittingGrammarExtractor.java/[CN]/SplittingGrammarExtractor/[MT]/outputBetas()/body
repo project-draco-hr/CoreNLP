@@ -1,0 +1,35 @@
+{
+  System.out.println("UNARY:");
+  for (  String parent : unaryBetas.firstKeySet()) {
+    for (    String child : unaryBetas.get(parent).keySet()) {
+      System.out.println("  " + parent + "->"+ child);
+      double[][] betas=unaryBetas.get(parent).get(child);
+      int parentStates=betas.length;
+      int childStates=betas[0].length;
+      for (int i=0; i < parentStates; ++i) {
+        for (int j=0; j < childStates; ++j) {
+          System.out.println("    " + i + "->"+ j+ " "+ betas[i][j]+ " | "+ Math.exp(betas[i][j]));
+        }
+      }
+    }
+  }
+  System.out.println("BINARY:");
+  for (  String parent : binaryBetas.firstKeySet()) {
+    for (    String left : binaryBetas.get(parent).firstKeySet()) {
+      for (      String right : binaryBetas.get(parent).get(left).keySet()) {
+        System.out.println("  " + parent + "->"+ left+ ","+ right);
+        double[][][] betas=binaryBetas.get(parent).get(left).get(right);
+        int parentStates=betas.length;
+        int leftStates=betas[0].length;
+        int rightStates=betas[0][0].length;
+        for (int i=0; i < parentStates; ++i) {
+          for (int j=0; j < leftStates; ++j) {
+            for (int k=0; k < rightStates; ++k) {
+              System.out.println("    " + i + "->"+ j+ ","+ k+ " "+ betas[i][j][k]+ " | "+ Math.exp(betas[i][j][k]));
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  if (getTimeLabel() != null) {
+    return getTimeLabel();
+  }
+  if ((flags & FORMAT_ISO) != 0) {
+    return null;
+  }
+  if ((flags & FORMAT_TIMEX3_VALUE) != 0) {
+    return null;
+  }
+  StringBuilder sb=new StringBuilder();
+  sb.append("~(");
+  if (base != null) {
+    sb.append(base.toFormattedString(flags));
+  }
+  if (duration != null) {
+    sb.append(":");
+    sb.append(duration.toFormattedString(flags));
+  }
+  if (range != null) {
+    sb.append(" IN ");
+    sb.append(range.toFormattedString(flags));
+  }
+  sb.append(")");
+  return sb.toString();
+}

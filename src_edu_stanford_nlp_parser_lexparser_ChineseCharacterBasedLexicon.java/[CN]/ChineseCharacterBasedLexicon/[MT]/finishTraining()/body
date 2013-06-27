@@ -1,0 +1,100 @@
+{
+  Timing.tick("Counting characters...");
+  ClassicCounter<Symbol> charCounter=new ClassicCounter<Symbol>();
+  for (  List<TaggedWord> labels : trainingSentences) {
+    for (int i=0, size=labels.size(); i < size; i++) {
+      String word=labels.get(i).word();
+      if (word.equals(BOUNDARY)) {
+        continue;
+      }
+      for (int j=0, length=word.length(); j < length; j++) {
+        Symbol sym=Symbol.cannonicalSymbol(word.charAt(j));
+        charCounter.incrementCount(sym);
+      }
+      charCounter.incrementCount(Symbol.END_WORD);
+    }
+  }
+  Set<Symbol> singletons=Counters.keysBelow(charCounter,1.5);
+  knownChars=Generics.newHashSet(charCounter.keySet());
+  Timing.tick("Counting nGrams...");
+  GeneralizedCounter[] POSspecificCharNGrams=new GeneralizedCounter[CONTEXT_LENGTH + 1];
+  for (int i=0; i <= CONTEXT_LENGTH; i++) {
+    POSspecificCharNGrams[i]=new GeneralizedCounter(i + 2);
+  }
+  ClassicCounter<String> POSCounter=new ClassicCounter<String>();
+  List<Serializable> context=new ArrayList<Serializable>(CONTEXT_LENGTH + 1);
+  for (  List<TaggedWord> words : trainingSentences) {
+    for (    TaggedWord taggedWord : words) {
+      String word=taggedWord.word();
+      String tag=taggedWord.tag();
+      tagIndex.add(tag);
+      if (word.equals(BOUNDARY)) {
+        continue;
+      }
+      POSCounter.incrementCount(tag);
+      for (int i=0, size=word.length(); i <= size; i++) {
+        Symbol sym;
+        Symbol unknownCharClass=null;
+        context.clear();
+        context.add(tag);
+        if (i < size) {
+          char thisCh=word.charAt(i);
+          sym=Symbol.cannonicalSymbol(thisCh);
+          if (singletons.contains(sym)) {
+            unknownCharClass=unknownCharClass(sym);
+            charCounter.incrementCount(unknownCharClass);
+          }
+        }
+ else {
+          sym=Symbol.END_WORD;
+        }
+        POSspecificCharNGrams[0].incrementCount(context,sym);
+        if (unknownCharClass != null) {
+          POSspecificCharNGrams[0].incrementCount(context,unknownCharClass);
+        }
+        for (int j=1; j <= CONTEXT_LENGTH; j++) {
+          if (i - j < 0) {
+            context.add(Symbol.BEGIN_WORD);
+            POSspecificCharNGrams[j].incrementCount(context,sym);
+            if (unknownCharClass != null) {
+              POSspecificCharNGrams[j].incrementCount(context,unknownCharClass);
+            }
+            break;
+          }
+ else {
+            Symbol prev=Symbol.cannonicalSymbol(word.charAt(i - j));
+            if (singletons.contains(prev)) {
+              context.add(unknownCharClass(prev));
+            }
+ else {
+              context.add(prev);
+            }
+            POSspecificCharNGrams[j].incrementCount(context,sym);
+            if (unknownCharClass != null) {
+              POSspecificCharNGrams[j].incrementCount(context,unknownCharClass);
+            }
+          }
+        }
+      }
+    }
+  }
+  POSDistribution=Distribution.getDistribution(POSCounter);
+  Timing.tick("Creating character prior distribution...");
+  charDistributions=Generics.newHashMap();
+  int numberOfKeys=charCounter.size() + singletons.size();
+  Distribution<Symbol> prior=Distribution.goodTuringSmoothedCounter(charCounter,numberOfKeys);
+  charDistributions.put(Collections.EMPTY_LIST,prior);
+  for (int i=0; i <= CONTEXT_LENGTH; i++) {
+    Set counterEntries=POSspecificCharNGrams[i].lowestLevelCounterEntrySet();
+    Timing.tick("Creating " + counterEntries.size() + " character "+ (i + 1)+ "-gram distributions...");
+    for (Iterator it=counterEntries.iterator(); it.hasNext(); ) {
+      Map.Entry<List,ClassicCounter> entry=(Map.Entry<List,ClassicCounter>)it.next();
+      context=entry.getKey();
+      ClassicCounter<Symbol> c=entry.getValue();
+      Distribution<Symbol> thisPrior=charDistributions.get(context.subList(0,context.size() - 1));
+      double priorWeight=thisPrior.getNumberOfKeys() / 200.0;
+      Distribution<Symbol> newDist=Distribution.dynamicCounterWithDirichletPrior(c,thisPrior,priorWeight);
+      charDistributions.put(context,newDist);
+    }
+  }
+}

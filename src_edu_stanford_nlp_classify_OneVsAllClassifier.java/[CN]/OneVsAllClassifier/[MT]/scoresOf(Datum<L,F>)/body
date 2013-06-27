@@ -1,0 +1,13 @@
+{
+  Counter<L> scores=new ClassicCounter<L>();
+  for (  L label : labelIndex) {
+    Map<L,String> posLabelMap=new ArrayMap<L,String>();
+    posLabelMap.put(label,POS_LABEL);
+    Datum<String,F> binDatum=GeneralDataset.mapDatum(example,posLabelMap,NEG_LABEL);
+    Classifier<String,F> binaryClassifier=getBinaryClassifier(label);
+    Counter<String> binScores=binaryClassifier.scoresOf(binDatum);
+    double score=binScores.getCount(POS_LABEL);
+    scores.setCount(label,score);
+  }
+  return scores;
+}

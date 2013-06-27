@@ -1,0 +1,16 @@
+{
+  String rawTag=posTag.trim();
+  String shortTag=tagsToEscape.contains(rawTag) ? rawTag : tagMap.get(rawTag);
+  if (shortTag == null) {
+    System.err.printf("%s: No LDC shortened tag for %s%n",this.getClass().getName(),rawTag);
+    return rawTag;
+  }
+  String universalTag=universalMap.get(shortTag);
+  if (!universalMap.containsKey(shortTag)) {
+    System.err.printf("%s: No universal tag for LDC tag %s%n",this.getClass().getName(),shortTag);
+    universalTag=shortTag;
+  }
+  MorphoFeatures feats=new MorphoFeatures(morphoSpec.strToFeatures(rawTag));
+  String functionalTag=feats.getTag(universalTag);
+  return functionalTag;
+}

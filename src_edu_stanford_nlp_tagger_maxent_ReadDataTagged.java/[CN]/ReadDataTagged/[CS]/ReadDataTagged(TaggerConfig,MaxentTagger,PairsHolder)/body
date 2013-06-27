@@ -1,0 +1,10 @@
+{
+  this.maxentTagger=maxentTagger;
+  this.pairs=pairs;
+  List<TaggedFileRecord> fileRecords=TaggedFileRecord.createRecords(config,config.getFile());
+  Map<String,IntCounter<String>> wordTagCounts=Generics.newHashMap();
+  for (  TaggedFileRecord record : fileRecords) {
+    loadFile(record.reader(),wordTagCounts);
+  }
+  maxentTagger.dict.fillWordTagCounts(wordTagCounts);
+}

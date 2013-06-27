@@ -1,0 +1,72 @@
+{
+  return new SearchNodeIterator(){
+    List<Stack<Pair<GrammaticalRelation,IndexedWord>>> searchStack;
+    List<Set<IndexedWord>> seenNodes;
+    Set<IndexedWord> returnedNodes;
+    int currentDepth;
+    @Override public void initialize(){
+      if (node.equals(IndexedWord.NO_WORD)) {
+        next=null;
+        return;
+      }
+      searchStack=Generics.newArrayList();
+      for (int i=0; i <= endDepth; ++i) {
+        searchStack.add(new Stack<Pair<GrammaticalRelation,IndexedWord>>());
+      }
+      seenNodes=new ArrayList<Set<IndexedWord>>();
+      for (int i=0; i <= endDepth; ++i) {
+        seenNodes.add(Generics.<IndexedWord>newHashSet());
+      }
+      returnedNodes=Generics.newHashSet();
+      currentDepth=1;
+      List<Pair<GrammaticalRelation,IndexedWord>> children=sg.childPairs(node);
+      for (int i=children.size() - 1; i >= 0; i--) {
+        searchStack.get(1).push(children.get(i));
+      }
+      if (!searchStack.get(1).isEmpty()) {
+        advance();
+      }
+    }
+    @Override void advance(){
+      if (node.equals(IndexedWord.NO_WORD)) {
+        next=null;
+        return;
+      }
+      Pair<GrammaticalRelation,IndexedWord> nextPair;
+      while (currentDepth <= endDepth) {
+        Stack<Pair<GrammaticalRelation,IndexedWord>> thisStack=searchStack.get(currentDepth);
+        Set<IndexedWord> thisSeen=seenNodes.get(currentDepth);
+        Stack<Pair<GrammaticalRelation,IndexedWord>> nextStack;
+        Set<IndexedWord> nextSeen;
+        if (currentDepth < endDepth) {
+          nextStack=searchStack.get(currentDepth + 1);
+          nextSeen=seenNodes.get(currentDepth + 1);
+        }
+ else {
+          nextStack=null;
+          nextSeen=null;
+        }
+        while (!thisStack.isEmpty()) {
+          nextPair=thisStack.pop();
+          if (thisSeen.contains(nextPair.second())) {
+            continue;
+          }
+          thisSeen.add(nextPair.second());
+          List<Pair<GrammaticalRelation,IndexedWord>> children=sg.childPairs(nextPair.second());
+          for (int i=children.size() - 1; i >= 0; i--) {
+            if (nextSeen != null && !nextSeen.contains(children.get(i).second()))             nextStack.push(children.get(i));
+          }
+          if (currentDepth >= startDepth && nextPair.first().toString().matches(type) && !returnedNodes.contains(nextPair.second())) {
+            next=nextPair.second();
+            relation=nextPair.first().toString();
+            returnedNodes.add(nextPair.second());
+            return;
+          }
+        }
+        ++currentDepth;
+      }
+      next=null;
+    }
+  }
+;
+}

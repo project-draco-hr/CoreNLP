@@ -1,0 +1,24 @@
+{
+  return new SearchNodeIterator(){
+    int nextNum;
+    @Override public void advance(){
+      if (node.equals(IndexedWord.NO_WORD)) {
+        next=null;
+        return;
+      }
+      List<Pair<GrammaticalRelation,IndexedWord>> govs=sg.parentPairs(node);
+      while (nextNum < govs.size() && !govs.get(nextNum).first().toString().matches(type)) {
+        nextNum++;
+      }
+      if (nextNum < govs.size()) {
+        next=govs.get(nextNum).second();
+        relation=govs.get(nextNum).first().toString();
+        nextNum++;
+      }
+ else {
+        next=null;
+      }
+    }
+  }
+;
+}

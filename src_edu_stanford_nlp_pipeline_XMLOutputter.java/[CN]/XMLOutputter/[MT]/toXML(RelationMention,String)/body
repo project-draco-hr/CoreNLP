@@ -1,0 +1,20 @@
+{
+  Element top=new Element("relation",curNS);
+  top.addAttribute(new Attribute("id",relation.getObjectId()));
+  Element type=new Element("type",curNS);
+  type.appendChild(relation.getType());
+  top.appendChild(relation.getType());
+  if (relation.getSubType() != null) {
+    Element subtype=new Element("subtype",curNS);
+    subtype.appendChild(relation.getSubType());
+    top.appendChild(relation.getSubType());
+  }
+  List<EntityMention> ents=relation.getEntityMentionArgs();
+  Element args=new Element("arguments",curNS);
+  for (  EntityMention e : ents) {
+    args.appendChild(toXML(e,curNS));
+  }
+  top.appendChild(args);
+  top.appendChild(makeProbabilitiesElement(relation,curNS));
+  return top;
+}

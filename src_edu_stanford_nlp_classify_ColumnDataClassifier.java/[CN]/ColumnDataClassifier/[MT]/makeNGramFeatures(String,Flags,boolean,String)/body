@@ -1,0 +1,57 @@
+{
+  String toNGrams=input;
+  boolean internalNGrams;
+  boolean prefixSuffixNGrams;
+  if (useSplit) {
+    internalNGrams=flags.useSplitNGrams;
+    prefixSuffixNGrams=flags.useSplitPrefixSuffixNGrams;
+  }
+ else {
+    internalNGrams=flags.useNGrams;
+    prefixSuffixNGrams=flags.usePrefixSuffixNGrams;
+  }
+  if (flags.lowercaseNGrams) {
+    toNGrams=toNGrams.toLowerCase();
+  }
+  if (flags.partialNGramRegexp != null) {
+    Matcher m=flags.partialNGramPattern.matcher(toNGrams);
+    if (m.find()) {
+      if (m.groupCount() > 0) {
+        toNGrams=m.group(1);
+      }
+ else {
+        toNGrams=m.group();
+      }
+    }
+  }
+  Collection<String> subs=null;
+  if (flags.cacheNGrams) {
+    subs=wordToSubstrings.get(toNGrams);
+  }
+  if (subs == null) {
+    subs=new ArrayList<String>();
+    String strN=featPrefix + '-';
+    String strB=featPrefix + "B-";
+    String strE=featPrefix + "E-";
+    int wleng=toNGrams.length();
+    for (int i=0; i < wleng; i++) {
+      for (int j=i + flags.minNGramLeng, min=Math.min(wleng,i + flags.maxNGramLeng); j <= min; j++) {
+        if (prefixSuffixNGrams) {
+          if (i == 0) {
+            subs.add(intern(strB + toNGrams.substring(i,j)));
+          }
+          if (j == wleng) {
+            subs.add(intern(strE + toNGrams.substring(i,j)));
+          }
+        }
+        if (internalNGrams) {
+          subs.add(intern(strN + toNGrams.substring(i,j)));
+        }
+      }
+    }
+    if (flags.cacheNGrams) {
+      wordToSubstrings.put(toNGrams,subs);
+    }
+  }
+  return subs;
+}

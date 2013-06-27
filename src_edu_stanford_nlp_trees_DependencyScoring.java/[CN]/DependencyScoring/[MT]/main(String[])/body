@@ -1,0 +1,29 @@
+{
+  Properties props=StringUtils.argsToProperties(args);
+  boolean verbose=Boolean.parseBoolean(props.getProperty("v","False"));
+  boolean conllx=Boolean.parseBoolean(props.getProperty("conllx","False"));
+  boolean jsonOutput=Boolean.parseBoolean(props.getProperty("jsonOutput","False"));
+  boolean ignorePunc=Boolean.parseBoolean(props.getProperty("nopunc","False"));
+  String goldFilename=props.getProperty("g");
+  String systemFilename=props.getProperty("s");
+  if (goldFilename == null || systemFilename == null) {
+    System.err.println("Usage:\n\tjava ...DependencyScoring [-v True/False] [-conllx True/False] [-jsonOutput True/False] [-ignorePunc True/False] -g goldFile -s systemFile\n");
+    System.err.println("\nOptions:\n\t-v verbose output");
+    System.exit(-1);
+  }
+  DependencyScoring goldScorer=new DependencyScoring(goldFilename,conllx,ignorePunc);
+  List<Collection<TypedDependency>> systemDeps;
+  if (conllx) {
+    systemDeps=DependencyScoring.readDepsCoNLLX(systemFilename);
+  }
+ else {
+    systemDeps=DependencyScoring.readDeps(systemFilename);
+  }
+  Score score=goldScorer.score(systemDeps);
+  if (conllx) {
+    System.out.println(score.toStringAttachmentScore(jsonOutput));
+  }
+ else {
+    System.out.println(score.toStringFScore(verbose,jsonOutput));
+  }
+}

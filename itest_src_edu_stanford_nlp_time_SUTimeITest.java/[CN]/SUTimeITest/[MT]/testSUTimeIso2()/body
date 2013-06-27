@@ -1,0 +1,20 @@
+{
+  String testText="ISO date is 6/12/2008, 1988-02-17.\n";
+  Iterator<Timex> expectedTimexes=Arrays.asList(Timex.fromXml("<TIMEX3 tid=\"t1\" value=\"2008-06-12\" type=\"DATE\">6/12/2008</TIMEX3>"),Timex.fromXml("<TIMEX3 tid=\"t2\" value=\"1988-02-17\" type=\"DATE\">1988-02-17</TIMEX3>")).iterator();
+  Iterator<Timex> expectedTimexesResolved=Arrays.asList(Timex.fromXml("<TIMEX3 tid=\"t1\" value=\"2008-06-12\" type=\"DATE\">6/12/2008</TIMEX3>"),Timex.fromXml("<TIMEX3 tid=\"t2\" value=\"1988-02-17\" type=\"DATE\">1988-02-17</TIMEX3>")).iterator();
+  Annotation document=createDocument(testText);
+  TimeAnnotator sutime=getTimeAnnotator();
+  sutime.annotate(document);
+  for (  CoreMap timexAnn : document.get(TimeAnnotations.TimexAnnotations.class)) {
+    Timex expectedTimex=expectedTimexes.next();
+    testTimex(testText,expectedTimex.text(),expectedTimex,timexAnn);
+  }
+  assertFalse(expectedTimexes.hasNext());
+  Annotation documentWithRefTime=createDocument(testText,"20100217");
+  sutime.annotate(documentWithRefTime);
+  for (  CoreMap timexAnn : documentWithRefTime.get(TimeAnnotations.TimexAnnotations.class)) {
+    Timex expectedTimex=expectedTimexesResolved.next();
+    testTimex(testText,expectedTimex.text(),expectedTimex,timexAnn);
+  }
+  assertFalse(expectedTimexes.hasNext());
+}

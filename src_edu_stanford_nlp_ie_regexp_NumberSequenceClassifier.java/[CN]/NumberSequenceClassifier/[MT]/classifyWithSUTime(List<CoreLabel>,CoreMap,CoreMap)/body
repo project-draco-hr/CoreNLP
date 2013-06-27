@@ -1,0 +1,67 @@
+{
+  for (  CoreLabel token : tokenSequence) {
+    if (token.get(CoreAnnotations.AnswerAnnotation.class) == null)     token.set(CoreAnnotations.AnswerAnnotation.class,flags.backgroundSymbol);
+  }
+  CoreMap timeSentence=(sentence != null ? alignSentence(sentence) : buildSentenceFromTokens(tokenSequence));
+  List<CoreMap> timeExpressions=runSUTime(timeSentence,document);
+  List<CoreMap> numbers=timeSentence.get(CoreAnnotations.NumerizedTokensAnnotation.class);
+  if (timeExpressions != null) {
+    for (    CoreMap timeExpression : timeExpressions) {
+      int start=timeExpression.get(CoreAnnotations.TokenBeginAnnotation.class);
+      int end=timeExpression.get(CoreAnnotations.TokenEndAnnotation.class);
+      int offset=0;
+      if (sentence != null && sentence.containsKey(CoreAnnotations.TokenBeginAnnotation.class)) {
+        offset=sentence.get(CoreAnnotations.TokenBeginAnnotation.class);
+      }
+      Timex timex=timeExpression.get(TimeAnnotations.TimexAnnotation.class);
+      if (timex != null) {
+        if (DEBUG) {
+          System.err.println("FOUND DATE/TIME \"" + timeExpression + "\" with offsets "+ start+ " "+ end+ " and value "+ timex);
+          System.err.println("The above CoreMap has the following fields:");
+        }
+        String label=timex.timexType();
+        for (int i=start; i < end; i++) {
+          CoreLabel token=tokenSequence.get(i - offset);
+          if (token.get(CoreAnnotations.AnswerAnnotation.class).equals(flags.backgroundSymbol)) {
+            token.set(CoreAnnotations.AnswerAnnotation.class,label);
+            token.set(TimeAnnotations.TimexAnnotation.class,timex);
+          }
+        }
+      }
+    }
+  }
+  if (numbers != null) {
+    for (    CoreMap number : numbers) {
+      if (number.containsKey(CoreAnnotations.NumericCompositeValueAnnotation.class)) {
+        int start=number.get(CoreAnnotations.TokenBeginAnnotation.class);
+        int end=number.get(CoreAnnotations.TokenEndAnnotation.class);
+        int offset=0;
+        if (sentence != null && sentence.containsKey(CoreAnnotations.TokenBeginAnnotation.class)) {
+          offset=sentence.get(CoreAnnotations.TokenBeginAnnotation.class);
+        }
+        String type=number.get(CoreAnnotations.NumericCompositeTypeAnnotation.class);
+        Number value=number.get(CoreAnnotations.NumericCompositeValueAnnotation.class);
+        if (type != null) {
+          if (DEBUG)           System.err.println("FOUND NUMBER \"" + number + "\" with offsets "+ start+ " "+ end+ " and value "+ value+ " and type "+ type);
+          for (int i=start; i < end; i++) {
+            CoreLabel token=tokenSequence.get(i - offset);
+            if (token.get(CoreAnnotations.AnswerAnnotation.class).equals(flags.backgroundSymbol)) {
+              token.set(CoreAnnotations.AnswerAnnotation.class,type);
+              if (value != null) {
+                token.set(CoreAnnotations.NumericCompositeValueAnnotation.class,value);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  for (  CoreLabel token : tokenSequence) {
+    if (token.tag().equals("CD") && token.get(CoreAnnotations.AnswerAnnotation.class).equals(flags.backgroundSymbol)) {
+      token.set(CoreAnnotations.AnswerAnnotation.class,"NUMBER");
+    }
+  }
+  moneyAndPercentRecognizer(tokenSequence);
+  ordinalRecognizer(tokenSequence);
+  return tokenSequence;
+}

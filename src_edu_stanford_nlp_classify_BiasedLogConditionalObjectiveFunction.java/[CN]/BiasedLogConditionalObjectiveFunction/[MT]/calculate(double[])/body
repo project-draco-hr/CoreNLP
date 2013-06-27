@@ -1,0 +1,43 @@
+{
+  if (derivative == null) {
+    derivative=new double[x.length];
+  }
+ else {
+    Arrays.fill(derivative,0.0);
+  }
+  value=0.0;
+  double[] sums=new double[numClasses];
+  double[] probs=new double[numClasses];
+  double[] weightedProbs=new double[numClasses];
+  for (int d=0; d < data.length; d++) {
+    int[] features=data[d];
+    int observedLabel=labels[d];
+    Arrays.fill(sums,0.0);
+    for (int c=0; c < numClasses; c++) {
+      for (int f=0; f < features.length; f++) {
+        int i=indexOf(features[f],c);
+        sums[c]+=x[i];
+      }
+    }
+    double total=ArrayMath.logSum(sums);
+    double[] weightedSums=new double[numClasses];
+    for (int trueLabel=0; trueLabel < numClasses; trueLabel++) {
+      weightedSums[trueLabel]=Math.log(confusionMatrix[observedLabel][trueLabel]) + sums[trueLabel];
+    }
+    double weightedTotal=ArrayMath.logSum(weightedSums);
+    for (int c=0; c < numClasses; c++) {
+      probs[c]=Math.exp(sums[c] - total);
+      weightedProbs[c]=Math.exp(weightedSums[c] - weightedTotal);
+      for (int f=0; f < features.length; f++) {
+        int i=indexOf(features[f],c);
+        derivative[i]+=probs[c] - weightedProbs[c];
+      }
+    }
+    double tmpValue=0.0;
+    for (int c=0; c < numClasses; c++) {
+      tmpValue+=confusionMatrix[observedLabel][c] * Math.exp(sums[c] - total);
+    }
+    value-=Math.log(tmpValue);
+  }
+  value+=prior.compute(x,derivative);
+}

@@ -1,0 +1,20 @@
+{
+  try {
+    if (crf) {
+      classifier=CRFClassifier.getDefaultClassifier();
+    }
+ else {
+      classifier=CMMClassifier.getDefaultClassifier();
+    }
+  }
+ catch (  Exception e) {
+    String message="Error loading default " + (crf ? "CRF" : "CMM");
+    String title=(crf ? "CRF" : "CMM") + " Load Error";
+    message+="\nMessage: " + e.getMessage();
+    displayError(title,message);
+    return;
+  }
+  removeTags();
+  buildTagPanel();
+  buildExtractButton();
+}

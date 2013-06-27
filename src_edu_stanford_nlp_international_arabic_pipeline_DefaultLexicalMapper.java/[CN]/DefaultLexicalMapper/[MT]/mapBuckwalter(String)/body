@@ -1,0 +1,30 @@
+{
+  Matcher puncOnly=latinPunc.matcher(element);
+  if (puncOnly.matches())   return element;
+  Matcher rmDiacritics=bwDiacritics.matcher(element);
+  element=rmDiacritics.replaceAll("");
+  if (element.length() > 1) {
+    Matcher rmTatweel=bwTatweel.matcher(element);
+    element=rmTatweel.replaceAll("");
+  }
+  Matcher normAlef=bwAlef.matcher(element);
+  element=normAlef.replaceAll(bwAlefChar);
+  Matcher rmQuran=bwQuran.matcher(element);
+  element=rmQuran.replaceAll("");
+  Matcher rmProDrop=bwNullAnaphoraMarker.matcher(element);
+  element=rmProDrop.replaceAll("");
+  if (useATBVocalizedSectionMapping && element.length() > 1) {
+    Matcher rmMorphemeBoundary=morphemeBoundary.matcher(element);
+    element=rmMorphemeBoundary.replaceAll("");
+    Matcher cliticMarker=segmentationMarker.matcher(element);
+    if (cliticMarker.find() && !hasDigit.matcher(element).find()) {
+      String strippedElem=cliticMarker.replaceAll("");
+      if (strippedElem.length() > 0)       element=bwClitics.contains(strippedElem) ? element : strippedElem;
+    }
+  }
+ else   if (element.length() > 1 && !ATBTreeUtils.reservedWords.contains(element)) {
+    Matcher rmCliticMarker=segmentationMarker.matcher(element);
+    element=rmCliticMarker.replaceAll("");
+  }
+  return element;
+}

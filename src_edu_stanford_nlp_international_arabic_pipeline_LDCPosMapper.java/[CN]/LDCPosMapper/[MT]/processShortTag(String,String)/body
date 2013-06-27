@@ -1,0 +1,17 @@
+{
+  if (shortTag == null)   return null;
+  if (shortTag.startsWith("DT+"))   shortTag=LDCdeterminer.matcher(shortTag).replaceAll("");
+  if (longTag.equals("NUMERIC_COMMA"))   shortTag="PUNC";
+  if (addDT && (longTag != null)) {
+    Matcher detInLongTag=determiner.matcher(longTag);
+    Matcher someKindOfNoun=nounBaseTag.matcher(shortTag);
+    Matcher someKindOfAdj=adjBaseTag.matcher(shortTag);
+    if (detInLongTag.find() && (someKindOfNoun.find() || someKindOfAdj.find()))     shortTag="DT" + shortTag.trim();
+  }
+  if (tagMap.containsKey(longTag)) {
+    String existingShortTag=tagMap.get(longTag);
+    if (!existingShortTag.equals(shortTag))     System.err.printf("%s: Union of mapping files will cause overlap for %s (current: %s new: %s)%n",this.getClass().getName(),longTag,existingShortTag,shortTag);
+    return existingShortTag;
+  }
+  return shortTag;
+}

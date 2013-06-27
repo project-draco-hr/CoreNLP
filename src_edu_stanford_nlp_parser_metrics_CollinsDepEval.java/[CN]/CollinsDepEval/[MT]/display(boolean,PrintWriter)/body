@@ -1,0 +1,29 @@
+{
+  final NumberFormat nf=new DecimalFormat("0.00");
+  final Set<CollinsRelation> cats=Generics.newHashSet();
+  final Random rand=new Random();
+  cats.addAll(precisions.keySet());
+  cats.addAll(recalls.keySet());
+  Map<Double,CollinsRelation> f1Map=new TreeMap<Double,CollinsRelation>();
+  for (  CollinsRelation cat : cats) {
+    double pnum2=pnums2.getCount(cat);
+    double rnum2=rnums2.getCount(cat);
+    double prec=precisions2.getCount(cat) / pnum2;
+    double rec=recalls2.getCount(cat) / rnum2;
+    double f1=2.0 / (1.0 / prec + 1.0 / rec);
+    if (new Double(f1).equals(Double.NaN))     f1=-1.0;
+    if (f1Map.containsKey(f1))     f1Map.put(f1 + (rand.nextDouble() / 1000.0),cat);
+ else     f1Map.put(f1,cat);
+  }
+  pw.println(" Abstract Collins Dependencies -- final statistics");
+  pw.println("================================================================================");
+  for (  CollinsRelation cat : f1Map.values()) {
+    double pnum2=pnums2.getCount(cat);
+    double rnum2=rnums2.getCount(cat);
+    double prec=precisions2.getCount(cat) / pnum2;
+    double rec=recalls2.getCount(cat) / rnum2;
+    double f1=2.0 / (1.0 / prec + 1.0 / rec);
+    pw.println(cat + "\tLP: " + ((pnum2 == 0.0) ? " N/A" : nf.format(prec))+ "\tguessed: "+ (int)pnum2+ "\tLR: "+ ((rnum2 == 0.0) ? " N/A" : nf.format(rec))+ "\tgold:  "+ (int)rnum2+ "\tF1: "+ ((pnum2 == 0.0 || rnum2 == 0.0) ? " N/A" : nf.format(f1)));
+  }
+  pw.println("================================================================================");
+}

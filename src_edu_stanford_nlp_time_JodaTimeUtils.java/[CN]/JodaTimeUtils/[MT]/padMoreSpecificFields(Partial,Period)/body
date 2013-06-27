@@ -1,0 +1,53 @@
+{
+  DateTimeFieldType msf=getMostSpecific(p);
+  if (isMoreGeneral(msf,DateTimeFieldType.year(),p.getChronology()) || isMoreGeneral(msf,DateTimeFieldType.yearOfCentury(),p.getChronology())) {
+    if (p.isSupported(DateTimeFieldType.yearOfCentury())) {
+    }
+ else {
+      if (p.isSupported(JodaTimeUtils.DecadeOfCentury)) {
+        if (p.isSupported(DateTimeFieldType.centuryOfEra())) {
+          int year=p.get(DateTimeFieldType.centuryOfEra()) * 100 + p.get(JodaTimeUtils.DecadeOfCentury) * 10;
+          p=p.without(JodaTimeUtils.DecadeOfCentury);
+          p=p.without(DateTimeFieldType.centuryOfEra());
+          p=p.with(DateTimeFieldType.year(),year);
+        }
+ else {
+          int year=p.get(JodaTimeUtils.DecadeOfCentury) * 10;
+          p=p.without(JodaTimeUtils.DecadeOfCentury);
+          p=p.with(DateTimeFieldType.yearOfCentury(),year);
+        }
+      }
+ else {
+        if (p.isSupported(DateTimeFieldType.centuryOfEra())) {
+          int year=p.get(DateTimeFieldType.centuryOfEra()) * 100;
+          p=p.without(DateTimeFieldType.centuryOfEra());
+          p=p.with(DateTimeFieldType.year(),year);
+        }
+      }
+    }
+  }
+  boolean useWeek=false;
+  if (p.isSupported(DateTimeFieldType.weekOfWeekyear())) {
+    if (!p.isSupported(DateTimeFieldType.dayOfMonth()) && !p.isSupported(DateTimeFieldType.dayOfWeek())) {
+      p=p.with(DateTimeFieldType.dayOfWeek(),1);
+      if (p.isSupported(DateTimeFieldType.monthOfYear())) {
+        p=p.without(DateTimeFieldType.monthOfYear());
+      }
+    }
+    useWeek=true;
+  }
+  Partial p2=useWeek ? EMPTY_ISO_WEEK_PARTIAL : EMPTY_ISO_PARTIAL;
+  for (int i=0; i < p2.size(); i++) {
+    DateTimeFieldType fieldType=p2.getFieldType(i);
+    if (msf == null || isMoreSpecific(fieldType,msf,p.getChronology())) {
+      if (!p.isSupported(fieldType)) {
+        p=p.with(fieldType,p2.getValue(i));
+      }
+    }
+  }
+  if (granularity != null) {
+    DurationFieldType mostSpecific=getMostSpecific(granularity);
+    p=discardMoreSpecificFields(p,mostSpecific);
+  }
+  return p;
+}

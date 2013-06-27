@@ -1,0 +1,20 @@
+{
+  if (t == null) {
+    return false;
+  }
+  Tree[] kids=t.children();
+  if (kids == null) {
+    return false;
+  }
+  boolean foundNullSubj=false;
+  for (  Tree kid : kids) {
+    Tree[] kidkids=kid.children();
+    if (NPSbjPattern.matcher(kid.value()).matches()) {
+      kid.setValue("NP");
+      if (kidkids != null && kidkids.length == 1 && kidkids[0].value().equals("-NONE-")) {
+        foundNullSubj=true;
+      }
+    }
+  }
+  return foundNullSubj;
+}

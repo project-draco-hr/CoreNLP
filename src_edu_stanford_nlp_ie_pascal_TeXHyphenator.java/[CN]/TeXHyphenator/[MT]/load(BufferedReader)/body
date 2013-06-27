@@ -1,0 +1,26 @@
+{
+  String line;
+  while ((line=input.readLine()) != null) {
+    if (StringUtils.matches(line,"\\s*(%.*)?")) {
+      System.err.println("Skipping: " + line);
+      continue;
+    }
+    char[] linechars=line.toCharArray();
+    int[] pattern=new int[linechars.length];
+    char[] chars=new char[linechars.length];
+    int c=0;
+    for (int i=0; i < linechars.length; ++i) {
+      if (Character.isDigit(linechars[i])) {
+        pattern[c]=Character.digit(linechars[i],10);
+      }
+ else {
+        chars[c++]=linechars[i];
+      }
+    }
+    char[] shortchars=new char[c];
+    int[] shortpattern=new int[c + 1];
+    System.arraycopy(chars,0,shortchars,0,c);
+    System.arraycopy(pattern,0,shortpattern,0,c + 1);
+    insertHyphPattern(shortchars,shortpattern);
+  }
+}

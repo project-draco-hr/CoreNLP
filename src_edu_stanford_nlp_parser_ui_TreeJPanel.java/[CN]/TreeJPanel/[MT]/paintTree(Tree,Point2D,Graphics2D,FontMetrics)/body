@@ -1,0 +1,37 @@
+{
+  if (t == null) {
+    return 0.0;
+  }
+  String nodeStr=nodeToString(t);
+  double nodeWidth=fM.stringWidth(nodeStr);
+  double nodeHeight=fM.getHeight();
+  double nodeAscent=fM.getAscent();
+  WidthResult wr=widthResult(t,fM);
+  double treeWidth=wr.width;
+  double nodeTab=wr.nodeTab;
+  double childTab=wr.childTab;
+  double nodeCenter=wr.nodeCenter;
+  g2.drawString(nodeStr,(float)(nodeTab + start.getX()),(float)(start.getY() + nodeAscent));
+  if (t.isLeaf()) {
+    return nodeWidth;
+  }
+  double layerMultiplier=(1.0 + belowLineSkip + aboveLineSkip+ parentSkip);
+  double layerHeight=nodeHeight * layerMultiplier;
+  double childStartX=start.getX() + childTab;
+  double childStartY=start.getY() + layerHeight;
+  double lineStartX=start.getX() + nodeCenter;
+  double lineStartY=start.getY() + nodeHeight * (1.0 + belowLineSkip);
+  double lineEndY=lineStartY + nodeHeight * parentSkip;
+  for (int i=0; i < t.children().length; i++) {
+    Tree child=t.children()[i];
+    double cWidth=paintTree(child,new Point2D.Double(childStartX,childStartY),g2,fM);
+    wr=widthResult(child,fM);
+    double lineEndX=childStartX + wr.nodeCenter;
+    g2.draw(new Line2D.Double(lineStartX,lineStartY,lineEndX,lineEndY));
+    childStartX+=cWidth;
+    if (i < t.children().length - 1) {
+      childStartX+=sisterSkip * fM.stringWidth(" ");
+    }
+  }
+  return treeWidth;
+}

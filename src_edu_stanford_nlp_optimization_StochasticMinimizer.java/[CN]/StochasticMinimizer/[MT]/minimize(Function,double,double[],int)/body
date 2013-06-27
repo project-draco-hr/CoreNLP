@@ -1,0 +1,106 @@
+{
+  if (!(function instanceof AbstractStochasticCachingDiffFunction)) {
+    throw new UnsupportedOperationException();
+  }
+  AbstractStochasticCachingDiffFunction dfunction=(AbstractStochasticCachingDiffFunction)function;
+  dfunction.method=StochasticCalculateMethods.GradientOnly;
+  x=initial;
+  grad=new double[x.length];
+  newX=new double[x.length];
+  gradList=new ArrayList<double[]>();
+  numBatches=dfunction.dataDimension() / bSize;
+  outputFrequency=(int)Math.ceil(((double)numBatches) / ((double)outputFrequency));
+  init(dfunction);
+  initFiles();
+  boolean have_max=(maxIterations > 0 || numPasses > 0);
+  if (!have_max) {
+    throw new UnsupportedOperationException("No maximum number of iterations has been specified.");
+  }
+ else {
+    maxIterations=Math.max(maxIterations,numPasses) * numBatches;
+  }
+  sayln("       Batchsize of: " + bSize);
+  sayln("       Data dimension of: " + dfunction.dataDimension());
+  sayln("       Batches per pass through data:  " + numBatches);
+  sayln("       Max iterations is = " + maxIterations);
+  if (outputIterationsToFile) {
+    infoFile.println(function.domainDimension() + "; DomainDimension ");
+    infoFile.println(bSize + "; batchSize ");
+    infoFile.println(maxIterations + "; maxIterations");
+    infoFile.println(numBatches + "; numBatches ");
+    infoFile.println(outputFrequency + "; outputFrequency");
+  }
+  Timing total=new Timing();
+  Timing current=new Timing();
+  total.start();
+  current.start();
+  for (k=0; k < maxIterations; k++) {
+    try {
+      boolean doEval=(k > 0 && evaluateIters > 0 && k % evaluateIters == 0);
+      if (doEval) {
+        doEvaluation(x);
+      }
+      int pass=k / numBatches;
+      int batch=k % numBatches;
+      say("Iter: " + k + " pass "+ pass+ " batch "+ batch);
+      if (k > 0 && gradList.size() >= memory) {
+        newGrad=gradList.remove(0);
+      }
+ else {
+        newGrad=new double[grad.length];
+      }
+      dfunction.hasNewVals=true;
+      System.arraycopy(dfunction.derivativeAt(x,v,bSize),0,newGrad,0,newGrad.length);
+      ArrayMath.assertFinite(newGrad,"newGrad");
+      gradList.add(newGrad);
+      grad=smooth(gradList);
+      takeStep(dfunction);
+      ArrayMath.assertFinite(newX,"newX");
+      if (outputIterationsToFile && (k % outputFrequency == 0) && k != 0) {
+        double curVal=dfunction.valueAt(x);
+        say(" TrueValue{ " + curVal + " } ");
+        file.println(k + " , " + curVal+ " , "+ total.report());
+      }
+      if (k >= maxIterations) {
+        sayln("Stochastic Optimization complete.  Stopped after max iterations");
+        x=newX;
+        break;
+      }
+      if (total.report() >= maxTime) {
+        sayln("Stochastic Optimization complete.  Stopped after max time");
+        x=newX;
+        break;
+      }
+      System.arraycopy(newX,0,x,0,x.length);
+      say("[" + (total.report()) / 1000.0 + " s ");
+      say("{" + (current.restart() / 1000.0) + " s}] ");
+      say(" " + dfunction.lastValue());
+      if (quiet) {
+        System.err.print(".");
+      }
+ else {
+        sayln("");
+      }
+    }
+ catch (    ArrayMath.InvalidElementException e) {
+      System.err.println(e.toString());
+      for (int i=0; i < x.length; i++) {
+        x[i]=Double.NaN;
+      }
+      break;
+    }
+  }
+  if (evaluateIters > 0) {
+    doEvaluation(x);
+  }
+  if (outputIterationsToFile) {
+    infoFile.println(k + "; Iterations");
+    infoFile.println((total.report()) / 1000.0 + "; Completion Time");
+    infoFile.println(dfunction.valueAt(x) + "; Finalvalue");
+    infoFile.close();
+    file.close();
+    System.err.println("Output Files Closed");
+  }
+  say("Completed in: " + (total.report()) / 1000.0 + " s");
+  return x;
+}

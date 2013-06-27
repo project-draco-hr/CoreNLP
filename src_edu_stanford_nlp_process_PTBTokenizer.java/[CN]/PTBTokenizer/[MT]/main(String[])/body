@@ -1,0 +1,63 @@
+{
+  Properties options=StringUtils.argsToProperties(args,optionArgDefs());
+  boolean showHelp=PropertiesUtils.getBool(options,"help",false);
+  showHelp=PropertiesUtils.getBool(options,"h",showHelp);
+  if (showHelp) {
+    System.err.println("Usage: java edu.stanford.nlp.process.PTBTokenizer [options]* filename*");
+    System.err.println("  options: -h|-preserveLines|-lowerCase|-dump|-ioFileList|-encoding|-parseInside|-options");
+    System.exit(0);
+  }
+  StringBuilder optionsSB=new StringBuilder();
+  String tokenizerOptions=options.getProperty("options",null);
+  if (tokenizerOptions != null) {
+    optionsSB.append(tokenizerOptions);
+  }
+  boolean preserveLines=PropertiesUtils.getBool(options,"preserveLines",false);
+  if (preserveLines) {
+    optionsSB.append(",tokenizeNLs");
+  }
+  boolean inputOutputFileList=PropertiesUtils.getBool(options,"ioFileList",false);
+  boolean lowerCase=PropertiesUtils.getBool(options,"lowerCase",false);
+  boolean dump=PropertiesUtils.getBool(options,"dump",false);
+  boolean untok=PropertiesUtils.getBool(options,"untok",false);
+  String charset=options.getProperty("encoding","utf-8");
+  String parseInsideKey=options.getProperty("parseInside",null);
+  Pattern parseInsidePattern=null;
+  if (parseInsideKey != null) {
+    try {
+      parseInsidePattern=Pattern.compile("<(/?)(?:" + parseInsideKey + ")(?:\\s[^>]*?)?>");
+    }
+ catch (    PatternSyntaxException e) {
+    }
+  }
+  String parsedArgStr=options.getProperty("",null);
+  String[] parsedArgs=(parsedArgStr == null) ? null : parsedArgStr.split("\\s+");
+  ArrayList<String> inputFileList=new ArrayList<String>();
+  ArrayList<String> outputFileList=null;
+  if (inputOutputFileList && parsedArgs != null) {
+    outputFileList=new ArrayList<String>();
+    for (    String fileName : parsedArgs) {
+      BufferedReader r=new BufferedReader(new InputStreamReader(new FileInputStream(fileName),charset));
+      for (String inLine; (inLine=r.readLine()) != null; ) {
+        String[] fields=inLine.split("\\s+");
+        inputFileList.add(fields[0]);
+        if (fields.length > 1) {
+          outputFileList.add(fields[1]);
+        }
+ else {
+          outputFileList.add(fields[0] + ".tok");
+        }
+      }
+      r.close();
+    }
+  }
+ else   if (parsedArgs != null) {
+    inputFileList.addAll(Arrays.asList(parsedArgs));
+  }
+  if (untok) {
+    untok(inputFileList,outputFileList,charset);
+  }
+ else {
+    tok(inputFileList,outputFileList,charset,parseInsidePattern,optionsSB.toString(),preserveLines,dump,lowerCase);
+  }
+}

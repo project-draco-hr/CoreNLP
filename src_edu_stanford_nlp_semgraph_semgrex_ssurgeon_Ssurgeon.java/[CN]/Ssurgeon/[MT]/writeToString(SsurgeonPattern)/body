@@ -1,0 +1,23 @@
+{
+  try {
+    List<SsurgeonPattern> patterns=new LinkedList<SsurgeonPattern>();
+    patterns.add(pattern);
+    Document domDoc=createPatternXMLDoc(patterns);
+    if (domDoc != null) {
+      Transformer tformer=TransformerFactory.newInstance().newTransformer();
+      tformer.setOutputProperty(OutputKeys.INDENT,"yes");
+      StringWriter sw=new StringWriter();
+      tformer.transform(new DOMSource(domDoc),new StreamResult(sw));
+      return sw.toString();
+    }
+ else {
+      log.warning("Was not able to create XML document for pattern list.");
+    }
+  }
+ catch (  Exception e) {
+    System.err.println("Error in writeToString, could not process pattern=" + pattern);
+    e.printStackTrace();
+    return null;
+  }
+  return "";
+}

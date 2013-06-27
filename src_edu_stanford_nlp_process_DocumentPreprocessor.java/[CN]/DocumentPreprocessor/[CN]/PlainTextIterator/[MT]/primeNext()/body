@@ -1,0 +1,44 @@
+{
+  nextSent=new ArrayList<HasWord>(nextSentCarryover);
+  nextSentCarryover.clear();
+  boolean seenBoundary=false;
+  while (tokenizer.hasNext()) {
+    HasWord token=tokenizer.next();
+    if (splitTag != null) {
+      String[] toks=splitTag.apply(token.word());
+      token.setWord(toks[0]);
+      if (token instanceof Label) {
+        ((Label)token).setValue(toks[0]);
+      }
+      if (toks.length == 2 && token instanceof HasTag) {
+        ((HasTag)token).setTag(toks[1]);
+      }
+    }
+    if (sentDelims.contains(token.word())) {
+      seenBoundary=true;
+    }
+ else     if (seenBoundary && !delimFollowers.contains(token.word())) {
+      nextSentCarryover.add(token);
+      break;
+    }
+    if (!(wsPattern.matcher(token.word()).matches() || token.word().equals(PTBLexer.NEWLINE_TOKEN))) {
+      nextSent.add(token);
+    }
+    if (seenBoundary && delimFollowers.size() == 0) {
+      if (nextSent.size() > 0) {
+        break;
+      }
+ else {
+        seenBoundary=false;
+      }
+    }
+  }
+  if (nextSent.size() == 0 && nextSentCarryover.size() == 0) {
+    IOUtils.closeIgnoringExceptions(inputReader);
+    inputReader=null;
+    nextSent=null;
+  }
+ else   if (escaper != null) {
+    nextSent=escaper.apply(nextSent);
+  }
+}

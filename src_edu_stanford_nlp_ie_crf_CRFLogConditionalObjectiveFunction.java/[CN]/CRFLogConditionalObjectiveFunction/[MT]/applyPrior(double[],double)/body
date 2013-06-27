@@ -1,0 +1,35 @@
+{
+  if (prior == QUADRATIC_PRIOR) {
+    double sigmaSq=sigma * sigma;
+    double lambda=1 / 2.0 / sigmaSq;
+    for (int i=0; i < x.length; i++) {
+      double w=x[i];
+      value+=batchScale * w * w* lambda;
+      derivative[i]+=batchScale * w / sigmaSq;
+    }
+  }
+ else   if (prior == HUBER_PRIOR) {
+    double sigmaSq=sigma * sigma;
+    for (int i=0; i < x.length; i++) {
+      double w=x[i];
+      double wabs=Math.abs(w);
+      if (wabs < epsilon) {
+        value+=batchScale * w * w / 2.0 / epsilon / sigmaSq;
+        derivative[i]+=batchScale * w / epsilon / sigmaSq;
+      }
+ else {
+        value+=batchScale * (wabs - epsilon / 2) / sigmaSq;
+        derivative[i]+=batchScale * ((w < 0.0) ? -1.0 : 1.0) / sigmaSq;
+      }
+    }
+  }
+ else   if (prior == QUARTIC_PRIOR) {
+    double sigmaQu=sigma * sigma * sigma* sigma;
+    double lambda=1 / 2.0 / sigmaQu;
+    for (int i=0; i < x.length; i++) {
+      double w=x[i];
+      value+=batchScale * w * w* w* w* lambda;
+      derivative[i]+=batchScale * w / sigmaQu;
+    }
+  }
+}

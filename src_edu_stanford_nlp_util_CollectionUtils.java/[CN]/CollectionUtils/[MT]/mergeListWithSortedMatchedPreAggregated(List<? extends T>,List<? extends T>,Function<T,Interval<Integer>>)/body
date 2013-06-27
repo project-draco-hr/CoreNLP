@@ -1,0 +1,18 @@
+{
+  List<T> merged=new ArrayList<T>(list.size());
+  int last=0;
+  for (  T m : matched) {
+    Interval<Integer> interval=toIntervalFunc.apply(m);
+    int start=interval.getBegin();
+    int end=interval.getEnd();
+    if (start >= last) {
+      merged.addAll(list.subList(last,start));
+      merged.add(m);
+      last=end;
+    }
+  }
+  if (last < list.size()) {
+    merged.addAll(list.subList(last,list.size()));
+  }
+  return merged;
+}

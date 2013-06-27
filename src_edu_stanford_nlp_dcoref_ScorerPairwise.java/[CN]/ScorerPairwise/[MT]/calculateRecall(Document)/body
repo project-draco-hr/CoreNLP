@@ -1,0 +1,27 @@
+{
+  int rDen=0;
+  int rNum=0;
+  Map<Integer,Mention> predictedMentions=doc.allPredictedMentions;
+  for (  CorefCluster g : doc.goldCorefClusters.values()) {
+    int clusterSize=g.getCorefMentions().size();
+    rDen+=clusterSize * (clusterSize - 1) / 2;
+    for (    Mention m1 : g.getCorefMentions()) {
+      Mention predictedM1=predictedMentions.get(m1.mentionID);
+      if (predictedM1 == null) {
+        continue;
+      }
+      for (      Mention m2 : g.getCorefMentions()) {
+        if (m1.mentionID >= m2.mentionID)         continue;
+        Mention predictedM2=predictedMentions.get(m2.mentionID);
+        if (predictedM2 == null) {
+          continue;
+        }
+        if (predictedM1.corefClusterID == predictedM2.corefClusterID) {
+          rNum++;
+        }
+      }
+    }
+  }
+  recallDenSum+=rDen;
+  recallNumSum+=rNum;
+}

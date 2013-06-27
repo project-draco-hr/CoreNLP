@@ -1,0 +1,15 @@
+{
+  GeneralDataset<L2,F> newDataset;
+  if (dataset instanceof RVFDataset)   newDataset=new RVFDataset<L2,F>(this.featureIndex,newLabelIndex);
+ else   newDataset=new Dataset<L2,F>(this.featureIndex,newLabelIndex);
+  this.featureIndex.lock();
+  this.labelIndex.lock();
+  for (int i=0; i < dataset.size(); i++) {
+    Datum<L,F> d=dataset.getDatum(i);
+    Datum<L2,F> d2=mapDatum(d,labelMapping,defaultLabel);
+    newDataset.add(d2);
+  }
+  this.featureIndex.unlock();
+  this.labelIndex.unlock();
+  return newDataset;
+}

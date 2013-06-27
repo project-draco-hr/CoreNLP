@@ -1,0 +1,48 @@
+{
+  GeneralDataset<String,String> dataset;
+  List<String[]> lineInfos=null;
+  if ((inTestPhase && Flags.testFromSVMLight) || (!inTestPhase && Flags.trainFromSVMLight)) {
+    List<String> lines=null;
+    if (inTestPhase) {
+      lines=new ArrayList<String>();
+    }
+    if (globalFlags.usesRealValues) {
+      dataset=RVFDataset.readSVMLightFormat(filename,lines);
+    }
+ else {
+      dataset=Dataset.readSVMLightFormat(filename,lines);
+    }
+    if (lines != null) {
+      lineInfos=makeSVMLightLineInfos(lines);
+    }
+  }
+ else {
+    try {
+      if (inTestPhase) {
+        lineInfos=new ArrayList<String[]>();
+      }
+      if (globalFlags.usesRealValues) {
+        dataset=new RVFDataset<String,String>();
+      }
+ else {
+        dataset=new Dataset<String,String>();
+      }
+      int lineNo=0;
+      for (      String line : ObjectBank.getLineIterator(new File(filename),Flags.encoding)) {
+        lineNo++;
+        if (inTestPhase) {
+          String[] wi=makeSimpleLineInfo(line,lineNo);
+          lineInfos.add(wi);
+        }
+        Datum<String,String> d=makeDatumFromLine(line,lineNo);
+        if (d != null) {
+          dataset.add(d);
+        }
+      }
+    }
+ catch (    Exception e) {
+      throw new RuntimeException("Training dataset could not be processed",e);
+    }
+  }
+  return new Pair<GeneralDataset<String,String>,List<String[]>>(dataset,lineInfos);
+}

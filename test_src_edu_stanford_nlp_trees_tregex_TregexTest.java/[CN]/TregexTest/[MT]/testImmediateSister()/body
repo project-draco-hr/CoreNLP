@@ -1,0 +1,23 @@
+{
+  runTest("@NP < (/^,/=comma $+ CC)","((NP NP , NP , NP , CC NP))","(NP NP , NP , NP , CC NP)");
+  runTest("@NP < (/^,/=comma $++ CC)","((NP NP , NP , NP , CC NP))","(NP NP , NP , NP , CC NP)","(NP NP , NP , NP , CC NP)","(NP NP , NP , NP , CC NP)");
+  runTest("@NP < (@/^,/=comma $+ @CC)","((NP NP , NP , NP , CC NP))","(NP NP , NP , NP , CC NP)");
+  TregexPattern pattern=TregexPattern.compile("@NP < (/^,/=comma $+ CC)");
+  String treeString="(NP NP (, 1) NP (, 2) NP (, 3) CC NP)";
+  Tree tree=treeFromString(treeString);
+  TregexMatcher matcher=pattern.matcher(tree);
+  assertTrue(matcher.find());
+  assertEquals(treeString,matcher.getMatch().toString());
+  assertEquals("(, 3)",matcher.getNode("comma").toString());
+  assertFalse(matcher.find());
+  treeString="(NP NP , NP , NP , CC NP)";
+  tree=treeFromString(treeString);
+  matcher=pattern.matcher(tree);
+  assertTrue(matcher.find());
+  assertEquals(treeString,matcher.getMatch().toString());
+  Tree node=matcher.getNode("comma");
+  assertEquals(",",node.toString());
+  assertSame(tree.children()[5],node);
+  assertNotSame(tree.children()[3],node);
+  assertFalse(matcher.find());
+}

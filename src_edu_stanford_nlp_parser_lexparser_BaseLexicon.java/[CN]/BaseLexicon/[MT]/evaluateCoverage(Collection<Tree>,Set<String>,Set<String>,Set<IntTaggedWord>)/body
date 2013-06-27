@@ -1,0 +1,22 @@
+{
+  List<IntTaggedWord> iTW1=new ArrayList<IntTaggedWord>();
+  for (  Tree t : trees) {
+    iTW1.addAll(treeToEvents(t));
+  }
+  int total=0;
+  int unseen=0;
+  for (  IntTaggedWord itw : iTW1) {
+    total++;
+    if (!words.contains(new IntTaggedWord(itw.word(),nullTag))) {
+      missingWords.add(wordIndex.get(itw.word()));
+    }
+    if (!tags.contains(new IntTaggedWord(nullWord,itw.tag()))) {
+      missingTags.add(tagIndex.get(itw.tag()));
+    }
+    if (seenCounter.getCount(itw) == 0.0) {
+      unseen++;
+      missingTW.add(itw);
+    }
+  }
+  return (double)unseen / total;
+}

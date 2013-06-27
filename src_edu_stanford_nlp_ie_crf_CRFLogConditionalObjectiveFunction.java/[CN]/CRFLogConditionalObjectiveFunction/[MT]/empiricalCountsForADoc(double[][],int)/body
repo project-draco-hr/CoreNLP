@@ -1,0 +1,29 @@
+{
+  int[][][] docData=data[docIndex];
+  int[] docLabels=labels[docIndex];
+  int[] windowLabels=new int[window];
+  Arrays.fill(windowLabels,classIndex.indexOf(backgroundSymbol));
+  double[][][] featureValArr=null;
+  if (featureVal != null)   featureValArr=featureVal[docIndex];
+  if (docLabels.length > docData.length) {
+    System.arraycopy(docLabels,0,windowLabels,0,windowLabels.length);
+    int[] newDocLabels=new int[docData.length];
+    System.arraycopy(docLabels,docLabels.length - newDocLabels.length,newDocLabels,0,newDocLabels.length);
+    docLabels=newDocLabels;
+  }
+  for (int i=0; i < docData.length; i++) {
+    System.arraycopy(windowLabels,1,windowLabels,0,window - 1);
+    windowLabels[window - 1]=docLabels[i];
+    for (int j=0; j < docData[i].length; j++) {
+      int[] cliqueLabel=new int[j + 1];
+      System.arraycopy(windowLabels,window - 1 - j,cliqueLabel,0,j + 1);
+      CRFLabel crfLabel=new CRFLabel(cliqueLabel);
+      int labelIndex=labelIndices.get(j).indexOf(crfLabel);
+      for (int n=0; n < docData[i][j].length; n++) {
+        double fVal=1.0;
+        if (featureValArr != null && j == 0)         fVal=featureValArr[i][j][n];
+        eHat[docData[i][j][n]][labelIndex]+=fVal;
+      }
+    }
+  }
+}

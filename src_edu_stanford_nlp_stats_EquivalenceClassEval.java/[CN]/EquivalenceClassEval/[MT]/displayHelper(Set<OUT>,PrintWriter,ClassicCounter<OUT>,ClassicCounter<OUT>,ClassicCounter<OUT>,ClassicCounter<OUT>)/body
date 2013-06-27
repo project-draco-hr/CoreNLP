@@ -1,0 +1,17 @@
+{
+  Map<OUT,String> pads=getPads(keys);
+  for (  OUT key : keys) {
+    double thisGuessed=guessed.getCount(key);
+    double thisGuessedCorrect=guessedCorrect.getCount(key);
+    double precision=(thisGuessed == 0.0) ? 0.0 : thisGuessedCorrect / thisGuessed;
+    lastPrecision.setCount(key,precision);
+    double thisGold=gold.getCount(key);
+    double thisGoldCorrect=goldCorrect.getCount(key);
+    double recall=(thisGold == 0.0) ? 0.0 : thisGoldCorrect / thisGold;
+    lastRecall.setCount(key,recall);
+    double f1=f1(precision,recall);
+    lastF1.setCount(key,f1);
+    String pad=pads.get(key);
+    pw.println(key + pad + "\t"+ "P: "+ formatNumber(precision)+ "\ton "+ formatCount(thisGuessed)+ " objects\tR: "+ formatNumber(recall)+ "\ton "+ formatCount(thisGold)+ " objects\tF1: "+ formatNumber(f1));
+  }
+}

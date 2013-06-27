@@ -1,0 +1,56 @@
+{
+  Tree result;
+  Tree[] children=t.children();
+  if (starting) {
+    if (left == headLoc && right == headLoc) {
+      return t;
+    }
+    if (noRebinarization && children.length == 2) {
+      return t;
+    }
+    if (unaryAtTop) {
+      result=tf.newTreeNode(t.label(),Collections.singletonList(markovInsideBinarizeLocalTreeNew(t,headLoc,left,right,false)));
+      return result;
+    }
+  }
+  List<Tree> newChildren=null;
+  if (left == headLoc && right == headLoc) {
+    newChildren=Collections.singletonList(children[headLoc]);
+  }
+ else   if (left < headLoc) {
+    newChildren=new ArrayList<Tree>(2);
+    newChildren.add(children[left]);
+    newChildren.add(markovInsideBinarizeLocalTreeNew(t,headLoc,left + 1,right,false));
+  }
+ else   if (right > headLoc) {
+    newChildren=new ArrayList<Tree>(2);
+    newChildren.add(markovInsideBinarizeLocalTreeNew(t,headLoc,left,right - 1,false));
+    newChildren.add(children[right]);
+  }
+ else {
+    System.err.println("UHOH, bad parameters passed to markovInsideBinarizeLocalTree");
+  }
+  Label label;
+  if (starting) {
+    label=t.label();
+  }
+ else {
+    label=makeSyntheticLabel(t,left,right,headLoc,markovOrder);
+  }
+  if (doSelectiveSplit) {
+    double stateCount=stateCounter.getCount(label.value());
+    if (stateCount < selectiveSplitThreshold) {
+      if (starting && !unaryAtTop) {
+        label=t.label();
+      }
+ else {
+        label=makeSyntheticLabel(t,left,right,headLoc,markovOrder - 1);
+      }
+    }
+  }
+ else {
+    stateCounter.incrementCount(label.value(),1.0);
+  }
+  result=tf.newTreeNode(label,newChildren);
+  return result;
+}

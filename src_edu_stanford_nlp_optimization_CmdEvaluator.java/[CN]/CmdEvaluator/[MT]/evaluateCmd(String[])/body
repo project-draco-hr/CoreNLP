@@ -1,0 +1,24 @@
+{
+  try {
+    SystemUtils.ProcessOutputStream outputStream;
+    StringWriter outSw=null;
+    StringWriter errSw=null;
+    if (saveOutput) {
+      outSw=new StringWriter();
+      errSw=new StringWriter();
+      outputStream=new SystemUtils.ProcessOutputStream(cmd,outSw,errSw);
+    }
+ else {
+      outputStream=new SystemUtils.ProcessOutputStream(cmd,new PrintWriter(System.err));
+    }
+    outputToCmd(outputStream);
+    outputStream.close();
+    if (saveOutput) {
+      outString=outSw.toString();
+      errString=errSw.toString();
+    }
+  }
+ catch (  IOException ex) {
+    throw new RuntimeException(ex);
+  }
+}

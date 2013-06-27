@@ -1,0 +1,21 @@
+{
+  dfunction.returnPreviousValues=true;
+  System.arraycopy(dfunction.HdotVAt(x,v,grad,bSize),0,Hv,0,Hv.length);
+  for (int i=0; i < x.length; i++) {
+    meta=1 - mu * grad[i] * v[i];
+    if (0.5 > meta) {
+      gains[i]=gains[i] * 0.5;
+    }
+ else {
+      gains[i]=gains[i] * meta;
+    }
+    v[i]=lam * (1 + cPosDef * gains[i]) * v[i] - gains[i] * (grad[i] + lam * Hv[i]);
+    newX[i]=x[i] - gains[i] * grad[i];
+  }
+  if (printMinMax) {
+    say("vMin = " + ArrayMath.min(v) + "  ");
+    say("vMax = " + ArrayMath.max(v) + "  ");
+    say("gainMin = " + ArrayMath.min(gains) + "  ");
+    say("gainMax = " + ArrayMath.max(gains) + "  ");
+  }
+}

@@ -1,0 +1,40 @@
+{
+  assert(!baseClassifiers.isEmpty() && !baseDocuments.isEmpty());
+  for (int i=1; i < baseDocuments.size(); i++)   assert(baseDocuments.get(0).size() == baseDocuments.get(i).size());
+  List<Set<String>> baseLabels=new ArrayList<Set<String>>();
+  Set<String> seenLabels=Generics.newHashSet();
+  for (  AbstractSequenceClassifier<? extends CoreMap> baseClassifier : baseClassifiers) {
+    Set<String> labs=baseClassifier.labels();
+    labs.removeAll(seenLabels);
+    seenLabels.addAll(labs);
+    baseLabels.add(labs);
+  }
+  String background=baseClassifiers.get(0).flags.backgroundSymbol;
+  if (DEBUG) {
+    for (int i=0; i < baseLabels.size(); i++)     System.err.println("mergeDocuments: Using classifier #" + i + " for "+ baseLabels.get(i));
+    System.err.println("mergeDocuments: Background symbol is " + background);
+    System.err.println("Base model outputs:");
+    for (int i=0; i < baseDocuments.size(); i++) {
+      System.err.printf("Output of model #%d:",i);
+      for (      IN l : baseDocuments.get(i)) {
+        System.err.print(' ');
+        System.err.print(l.get(CoreAnnotations.AnswerAnnotation.class));
+      }
+      System.err.println();
+    }
+  }
+  List<IN> mainDocument=baseDocuments.get(0);
+  for (int i=1; i < baseDocuments.size(); i++) {
+    mergeTwoDocuments(mainDocument,baseDocuments.get(i),baseLabels.get(i),background);
+  }
+  if (DEBUG) {
+    System.err.print("Output of combined model:");
+    for (    IN l : mainDocument) {
+      System.err.print(' ');
+      System.err.print(l.get(CoreAnnotations.AnswerAnnotation.class));
+    }
+    System.err.println();
+    System.err.println();
+  }
+  return mainDocument;
+}

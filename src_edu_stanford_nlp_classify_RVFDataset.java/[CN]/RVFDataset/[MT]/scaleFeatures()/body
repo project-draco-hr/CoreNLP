@@ -1,0 +1,23 @@
+{
+  minValues=new double[featureIndex.size()];
+  maxValues=new double[featureIndex.size()];
+  Arrays.fill(minValues,Double.POSITIVE_INFINITY);
+  Arrays.fill(maxValues,Double.NEGATIVE_INFINITY);
+  for (int i=0; i < size(); i++) {
+    for (int j=0; j < data[i].length; j++) {
+      int f=data[i][j];
+      if (values[i][j] < minValues[f])       minValues[f]=values[i][j];
+      if (values[i][j] > maxValues[f])       maxValues[f]=values[i][j];
+    }
+  }
+  for (int f=0; f < featureIndex.size(); f++) {
+    if (minValues[f] == Double.POSITIVE_INFINITY)     throw new RuntimeException("minValue for feature " + f + " not assigned. ");
+    if (maxValues[f] == Double.NEGATIVE_INFINITY)     throw new RuntimeException("maxValue for feature " + f + " not assigned.");
+  }
+  for (int i=0; i < size(); i++) {
+    for (int j=0; j < data[i].length; j++) {
+      int f=data[i][j];
+      if (minValues[f] != maxValues[f])       values[i][j]=(values[i][j] - minValues[f]) / (maxValues[f] - minValues[f]);
+    }
+  }
+}

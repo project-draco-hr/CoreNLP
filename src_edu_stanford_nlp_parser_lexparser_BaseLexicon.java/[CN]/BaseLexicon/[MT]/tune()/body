@@ -1,0 +1,27 @@
+{
+  double bestScore=Double.NEGATIVE_INFINITY;
+  double[] bestSmooth={0.0,0.0};
+  for (smooth[0]=1; smooth[0] <= 1; smooth[0]*=2.0) {
+    for (smooth[1]=0.2; smooth[1] <= 0.2; smooth[1]*=2.0) {
+      double score=0.0;
+      if (testOptions.verbose) {
+        System.err.println("Tuning lexicon: s0 " + smooth[0] + " s1 "+ smooth[1]+ " is "+ score);
+      }
+      if (score > bestScore) {
+        System.arraycopy(smooth,0,bestSmooth,0,smooth.length);
+        bestScore=score;
+      }
+    }
+  }
+  System.arraycopy(bestSmooth,0,smooth,0,bestSmooth.length);
+  if (smartMutation) {
+    smooth[0]=8.0;
+    smooth[1]=0.1;
+  }
+  if (testOptions.unseenSmooth > 0.0) {
+    smooth[0]=testOptions.unseenSmooth;
+  }
+  if (testOptions.verbose) {
+    System.err.println("Tuning selected smoothUnseen " + smooth[0] + " smoothSeen "+ smooth[1]+ " at "+ bestScore);
+  }
+}

@@ -1,0 +1,224 @@
+{
+  Collection<String> features=new ArrayList<String>();
+  CoreLabel c=cInfo.get(loc);
+  CoreLabel c1=cInfo.get(loc + 1);
+  CoreLabel c2=cInfo.get(loc + 2);
+  CoreLabel c3=cInfo.get(loc + 3);
+  CoreLabel p=cInfo.get(loc - 1);
+  CoreLabel p2=cInfo.get(loc - 2);
+  CoreLabel p3=cInfo.get(loc - 3);
+  String charc=c.get(CoreAnnotations.CharAnnotation.class);
+  if (charc == null)   charc="";
+  String charc1=c1.get(CoreAnnotations.CharAnnotation.class);
+  if (charc1 == null)   charc1="";
+  String charc2=c2.get(CoreAnnotations.CharAnnotation.class);
+  if (charc2 == null)   charc2="";
+  String charc3=c3.get(CoreAnnotations.CharAnnotation.class);
+  if (charc3 == null)   charc3="";
+  String charp=p.get(CoreAnnotations.CharAnnotation.class);
+  if (charp == null)   charp="";
+  String charp2=p2.get(CoreAnnotations.CharAnnotation.class);
+  if (charp2 == null)   charp2="";
+  String charp3=p3.get(CoreAnnotations.CharAnnotation.class);
+  if (charp3 == null)   charp3="";
+  if (flags.useWord2) {
+    features.add(charc + "::c");
+    features.add(charc1 + "::c1");
+    features.add(charp + "::p");
+    features.add(charp2 + "::p2");
+    features.add(charc + charc1 + "::cn");
+    features.add(charp + charc + "::pc");
+    features.add(charp + charc1 + "::pn");
+    features.add(charp2 + charp + "::p2p");
+    features.add(charp2 + charc + "::p2c");
+    features.add(charc2 + charc + "::n2c");
+    features.add("|word2");
+  }
+  char rcharc, rcharc1, rcharc2, rcharc3, rcharp, rcharp1, rcharp2, rcharp3;
+  if (charc.length() == 0) {
+    rcharc='n';
+  }
+ else {
+    rcharc=RadicalMap.getRadical(charc.charAt(0));
+  }
+  if (charc1.length() == 0) {
+    rcharc1='n';
+  }
+ else {
+    rcharc1=RadicalMap.getRadical(charc1.charAt(0));
+  }
+  if (charc2.length() == 0) {
+    rcharc2='n';
+  }
+ else {
+    rcharc2=RadicalMap.getRadical(charc2.charAt(0));
+  }
+  if (charc3.length() == 0) {
+    rcharc3='n';
+  }
+ else {
+    rcharc3=RadicalMap.getRadical(charc3.charAt(0));
+  }
+  if (charp.length() == 0) {
+    rcharp='n';
+  }
+ else {
+    rcharp=RadicalMap.getRadical(charp.charAt(0));
+  }
+  if (charp2.length() == 0) {
+    rcharp2='n';
+  }
+ else {
+    rcharp2=RadicalMap.getRadical(charp2.charAt(0));
+  }
+  if (charp3.length() == 0) {
+    rcharp3='n';
+  }
+ else {
+    rcharp3=RadicalMap.getRadical(charp3.charAt(0));
+  }
+  if (flags.useRad2) {
+    features.add(rcharc + "rc");
+    features.add(rcharc1 + "rc1");
+    features.add(rcharp + "rp");
+    features.add(rcharp + rcharc + "rpc");
+    features.add(rcharc + rcharc1 + "rcc1");
+    features.add(rcharp + rcharc + rcharc1+ "rpcc1");
+    features.add("|rad2");
+  }
+  if (flags.useDict2) {
+    NonDict2 nd=new NonDict2(flags);
+    features.add(nd.checkDic(charp + charc,flags) + "nondict");
+    features.add("|useDict2");
+  }
+  if (flags.useOutDict2) {
+    if (outDict == null) {
+      System.err.println("reading " + flags.outDict2 + " as a seen lexicon");
+      outDict=new CorpusDictionary(flags.outDict2);
+    }
+    features.add(outDict.getW(charp + charc) + "outdict");
+    features.add(outDict.getW(charc + charc1) + "outdict");
+    features.add(outDict.getW(charp2 + charp) + "outdict");
+    features.add(outDict.getW(charp2 + charp + charc) + "outdict");
+    features.add(outDict.getW(charp3 + charp2 + charp) + "outdict");
+    features.add(outDict.getW(charp + charc + charc1) + "outdict");
+    features.add(outDict.getW(charc + charc1 + charc2) + "outdict");
+    features.add(outDict.getW(charp + charc + charc1+ charc2) + "outdict");
+  }
+  if (flags.useCTBChar2 || flags.useASBCChar2 || flags.useHKChar2|| flags.usePKChar2|| flags.useMSRChar2) {
+    String[] tagsets;
+    if (flags.useChPos) {
+      if (flags.useCTBChar2) {
+        tagsets=new String[]{"AD","AS","BA","CC","CD","CS","DE","DT","ETC","IJ","JJ","LB","LC","M","NN","NR","NT","OD","P","PN","PU","SB","SP","VA","VC","VE","VV"};
+      }
+ else       if (flags.usePKChar2) {
+        tagsets=new String[]{"2","3","4"};
+      }
+ else {
+        throw new RuntimeException("only support settings for CTB and PK now.");
+      }
+    }
+ else {
+      tagsets=new String[]{"2","3","4"};
+    }
+    if (taDetector == null) {
+      taDetector=new TagAffixDetector(flags);
+    }
+    for (int k=0; k < tagsets.length; k++) {
+      features.add(taDetector.checkDic(tagsets[k] + "p",charp) + taDetector.checkDic(tagsets[k] + "i",charp) + taDetector.checkDic(tagsets[k] + "s",charc)+ taDetector.checkInDic(charp)+ taDetector.checkInDic(charc)+ tagsets[k]+ "prep-sufc");
+    }
+  }
+  if (flags.useRule2) {
+    if (charp.equals(charc)) {
+      features.add("11");
+    }
+    if (charp.equals(charc1)) {
+      features.add("22");
+    }
+    if (!flags.usePk && !flags.useHk) {
+      if (charc.equals(charc2)) {
+        features.add("33");
+      }
+    }
+    char cur1=' ';
+    char cur2=' ';
+    char cur=' ';
+    char pre=' ';
+    if (charc1.length() > 0) {
+      cur1=charc1.charAt(0);
+    }
+    if (charc2.length() > 0) {
+      cur2=charc2.charAt(0);
+    }
+    if (charc.length() > 0) {
+      cur=charc.charAt(0);
+    }
+    if (charp.length() > 0) {
+      pre=charp.charAt(0);
+    }
+    String prer=String.valueOf(rcharp);
+    Pattern E=Pattern.compile("[a-zA-Z]");
+    Pattern N=Pattern.compile("[0-9]");
+    Matcher m=E.matcher(charp);
+    Matcher ce=E.matcher(charc);
+    Matcher pe=E.matcher(charp2);
+    Matcher cn=N.matcher(charc);
+    Matcher pn=N.matcher(charp2);
+    if (cur >= '0' && cur <= '9' && pre >= '0' && pre <= '9') {
+      if (cur == '9' && pre == '1' && cur1 == '9' && cur2 >= '0' && cur2 <= '9') {
+        features.add("YR");
+      }
+ else {
+        features.add("2N");
+      }
+    }
+ else     if (pre >= '0' && pre <= '9') {
+      features.add("1N");
+    }
+ else     if (m.matches()) {
+      features.add("E");
+    }
+ else     if (prer.equals(".") && charp.length() == 1) {
+      if (!flags.useHk && !flags.usePk) {
+        if (ce.matches()) {
+          features.add("PU+E");
+        }
+        if (pe.matches()) {
+          features.add("E+PU");
+        }
+        if (cn.matches()) {
+          features.add("PU+N");
+        }
+        if (pn.matches()) {
+          features.add("N+PU");
+        }
+      }
+      features.add("PU");
+    }
+    String engType=isEnglish(charp,charc);
+    String engPU=isEngPU(charp);
+    if (!engType.equals(""))     features.add(engType);
+    if (!engPU.equals("") && !engType.equals(""))     features.add(engPU + engType);
+  }
+  String origS=c.get(CoreAnnotations.OriginalCharAnnotation.class);
+  char origC=' ';
+  if (origS.length() > 0) {
+    origC=origS.charAt(0);
+  }
+  int type=Character.getType(origC);
+switch (type) {
+case Character.UPPERCASE_LETTER:
+case Character.LOWERCASE_LETTER:
+    features.add("CHARTYPE-LETTER");
+  break;
+case Character.DECIMAL_DIGIT_NUMBER:
+features.add("CHARTYPE-DECIMAL_DIGIT_NUMBER");
+break;
+case Character.OTHER_LETTER:
+features.add("CHARTYPE-OTHER_LETTER");
+break;
+default :
+features.add("CHARTYPE-MISC");
+}
+return features;
+}

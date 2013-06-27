@@ -1,0 +1,39 @@
+{
+  System.out.print("Extracting other paths...");
+  allTrainPaths=extractPaths(path,trainLow,trainHigh,true);
+  TransducerGraph.NodeProcessor ntsp=new TransducerGraph.SetToStringNodeProcessor(new PennTreebankLanguagePack());
+  TransducerGraph.NodeProcessor otsp=new TransducerGraph.ObjectToSetNodeProcessor();
+  TransducerGraph.ArcProcessor isp=new TransducerGraph.InputSplittingProcessor();
+  TransducerGraph.ArcProcessor ocp=new TransducerGraph.OutputCombiningProcessor();
+  TransducerGraph.GraphProcessor normalizer=new TransducerGraph.NormalizingGraphProcessor(false);
+  TransducerGraph.GraphProcessor quasiDeterminizer=new QuasiDeterminizer();
+  AutomatonMinimizer exactMinimizer=new FastExactAutomatonMinimizer();
+  for (  String key : allTrainPaths.keySet()) {
+    System.out.println("creating graph for " + key);
+    List<List<String>> paths=allTrainPaths.get(key);
+    ClassicCounter<List<String>> pathCounter=new ClassicCounter<List<String>>();
+    for (    List<String> o : paths) {
+      pathCounter.incrementCount(o);
+    }
+    ClassicCounter<List<String>> newPathCounter=removeLowCountPaths(pathCounter,2);
+    paths.retainAll(newPathCounter.keySet());
+    TransducerGraph result=TransducerGraph.createGraphFromPaths(newPathCounter,1000);
+    int numArcs=result.getArcs().size();
+    int numNodes=result.getNodes().size();
+    if (numArcs == 0) {
+      continue;
+    }
+    System.out.println("initial graph has " + numArcs + " arcs and "+ numNodes+ " nodes.");
+    GrammarCompactor.writeFile(result,"unminimized",key);
+    result=normalizer.processGraph(result);
+    result=quasiDeterminizer.processGraph(result);
+    result=new TransducerGraph(result,ocp);
+    result=exactMinimizer.minimizeFA(result);
+    result=new TransducerGraph(result,ntsp);
+    result=new TransducerGraph(result,isp);
+    numArcs=result.getArcs().size();
+    numNodes=result.getNodes().size();
+    System.out.println("after exact minimization graph has " + numArcs + " arcs and "+ numNodes+ " nodes.");
+    GrammarCompactor.writeFile(result,"exactminimized",key);
+  }
+}

@@ -1,0 +1,12 @@
+{
+  String label=stateIndex.get(rule.parent());
+  String basicCat=basicCategory(label);
+  double pSum=symWeights.getCount(basicCat);
+  double n=symCounts.getCount(basicCat);
+  double pRule=Math.exp(rule.score());
+  double pSmooth=(1.0 - ALPHA) * pRule;
+  pSmooth+=ALPHA * (pSum / n);
+  pSmooth=Math.log(pSmooth);
+  if (DEBUG)   System.err.printf("%s\t%.4f%n",rule.toString(),pSmooth);
+  return (float)pSmooth;
+}

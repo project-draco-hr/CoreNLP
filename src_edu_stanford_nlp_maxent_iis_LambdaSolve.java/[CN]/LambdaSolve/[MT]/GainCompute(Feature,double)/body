@@ -1,0 +1,18 @@
+{
+  double r=(f.ftilde() > fExpected(f) ? 1.0 : -1.0);
+  f.initHashVals();
+  int iterations=0;
+  double alfa=0.0;
+  GSF(alfa,f);
+  double gsfValNew=0.0;
+  while (iterations < 30) {
+    iterations++;
+    double alfanext=alfa + r * Math.log(1 - r * GSFPrime(alfa,f) / GSFSecond(alfa,f));
+    gsfValNew=GSF(alfanext,f);
+    if (Math.abs(alfanext - alfa) < errorGain) {
+      return gsfValNew;
+    }
+    alfa=alfanext;
+  }
+  return gsfValNew;
+}

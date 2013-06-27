@@ -1,0 +1,27 @@
+{
+  boolean suppressIndent=(parentLabelNull || (firstSibling && isPreTerminal()) || (leftSiblingPreTerminal && isPreTerminal() && (label() == null || !label().value().startsWith("CC"))));
+  if (suppressIndent) {
+    pw.print(" ");
+  }
+ else {
+    if (!topLevel) {
+      pw.println();
+    }
+    for (int i=0; i < indent; i++) {
+      pw.print("  ");
+    }
+  }
+  if (isLeaf() || isPreTerminal()) {
+    String terminalString=toStringBuilder(new StringBuilder(),onlyLabelValue).toString();
+    pw.print(terminalString);
+    pw.flush();
+    return;
+  }
+  pw.print("(");
+  String nodeString=onlyLabelValue ? value() : nodeString();
+  pw.print(nodeString);
+  boolean parentIsNull=label() == null || label().value() == null;
+  displayChildren(children(),indent + 1,parentIsNull,true,pw);
+  pw.print(")");
+  pw.flush();
+}

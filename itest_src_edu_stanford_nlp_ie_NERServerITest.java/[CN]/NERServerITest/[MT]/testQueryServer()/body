@@ -1,0 +1,12 @@
+{
+  int port=Ports.findAvailable(2000,10000);
+  System.err.println("testQueryServer: starting on port " + port);
+  startNERServer(port,crf,CHARSET,true);
+  StringReader sin=new StringReader(QUERY);
+  BufferedReader bin=new BufferedReader(sin);
+  StringWriter sout=new StringWriter();
+  BufferedWriter bout=new BufferedWriter(sout);
+  NERServer.NERClient.communicateWithNERServer("localhost",port,CHARSET,bin,bout,false);
+  bout.flush();
+  assertEquals(EXPECTED_ANSWER,sout.toString().trim());
+}

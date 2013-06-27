@@ -1,0 +1,17 @@
+{
+  if (sentence.size() > 0 && sentence.get(0) instanceof CoreLabel) {
+    List<CoreLabel> coreLabels=castCoreLabels(sentence);
+    tagCoreLabels(coreLabels);
+    if (outputLemmas) {
+      if (morpha == null) {
+        morpha=new Morphology();
+      }
+      lemmatize(coreLabels,morpha);
+    }
+    return coreLabels;
+  }
+ else {
+    ArrayList<TaggedWord> taggedSentence=tagSentence(sentence,false);
+    return taggedSentence;
+  }
+}

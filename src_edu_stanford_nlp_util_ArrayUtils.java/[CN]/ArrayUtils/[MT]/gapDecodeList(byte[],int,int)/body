@@ -1,0 +1,46 @@
+{
+  boolean gettingSize=true;
+  int size=0;
+  List<Integer> ints=new ArrayList<Integer>();
+  int gap=0;
+  int prevNum=0;
+  for (int i=startIndex; i < endIndex; i++) {
+    byte b=gapEncoded[i];
+    for (int index=7; index >= 0; index--) {
+      boolean value=((b >> index) & 1) == 1;
+      if (gettingSize) {
+        if (value) {
+          size++;
+        }
+ else {
+          if (size == 0) {
+            ints.add(prevNum);
+          }
+ else           if (size == 1) {
+            prevNum++;
+            ints.add(prevNum);
+            size=0;
+          }
+ else {
+            gettingSize=false;
+            gap=1;
+            size--;
+          }
+        }
+      }
+ else {
+        gap<<=1;
+        if (value) {
+          gap++;
+        }
+        size--;
+        if (size == 0) {
+          prevNum+=gap;
+          ints.add(prevNum);
+          gettingSize=true;
+        }
+      }
+    }
+  }
+  return ints;
+}

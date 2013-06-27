@@ -1,0 +1,69 @@
+{
+  double s=0;
+  for (int i=0; i < probConds.length; i++) {
+    for (int j=0; j < probConds[i].length; j++) {
+      probConds[i][j]=0;
+    }
+    zlambda[i]=0;
+  }
+  for (int fNo=0, fSize=p.fSize; fNo < fSize; fNo++) {
+    Feature f=p.functions.get(fNo);
+    double fLambda=lambda[fNo];
+    if (Math.abs(fLambda) > 200) {
+      System.err.println("lambda " + fNo + " too big: "+ fLambda);
+    }
+    for (int i=0, length=f.len(); i < length; i++) {
+      int x=f.getX(i);
+      int y=f.getY(i);
+      if (ASSUME_BINARY) {
+        probConds[x][y]+=fLambda;
+      }
+ else {
+        double val=f.getVal(i);
+        probConds[x][y]+=(val * fLambda);
+      }
+    }
+  }
+  sum=new double[probConds.length][];
+  sub=new double[probConds.length][];
+  for (int x=0; x < probConds.length; x++) {
+    sum[x]=new double[probConds[x].length];
+    sub[x]=new double[probConds[x].length];
+    double localloss=0;
+    for (int u=0; u < sum[x].length; u++) {
+      boolean hasgraph=false;
+      for (int v=0; v < sum[x].length; v++) {
+        if (p.data.values[x][u] > p.data.values[x][v]) {
+          hasgraph=true;
+          sum[x][u]+=Math.exp(probConds[x][v] - probConds[x][u]);
+        }
+      }
+      sum[x][u]+=1;
+      double weight=1;
+      if (weightRanks) {
+        weight=p.data.values[x][u];
+      }
+      if (hasgraph) {
+        zlambda[x]+=weight;
+      }
+      localloss+=weight * Math.log(sum[x][u]);
+    }
+    for (int u=0; u < sum[x].length; u++) {
+      for (int v=0; v < sum[x].length; v++) {
+        if (p.data.values[x][u] > p.data.values[x][v]) {
+          double weight=1;
+          if (weightRanks) {
+            weight=p.data.values[x][u];
+          }
+          sub[x][v]+=weight * Math.exp(probConds[x][v] - probConds[x][u]) / sum[x][u];
+        }
+      }
+    }
+    System.err.println(" for x " + x + " number graphs "+ zlambda[x]);
+    if (zlambda[x] > 0) {
+      localloss/=zlambda[x];
+      s+=p.data.ptildeX(x) * p.data.getNumber() * localloss;
+    }
+  }
+  return s;
+}

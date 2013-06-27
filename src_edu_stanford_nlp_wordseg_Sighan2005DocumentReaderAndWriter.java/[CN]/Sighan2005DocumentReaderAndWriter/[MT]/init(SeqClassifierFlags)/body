@@ -1,0 +1,18 @@
+{
+  this.flags=flags;
+  factory=LineIterator.getFactory(new CTBDocumentParser());
+  if (DEBUG)   EncodingPrintWriter.err.println("Sighan2005DocRandW: using normalization file " + flags.normalizationTable,"UTF-8");
+  cdtos=new ChineseDocumentToSentenceProcessor(flags.normalizationTable);
+  if (flags.dictionary != null) {
+    String[] dicts=flags.dictionary.split(",");
+    cdict=new ChineseDictionary(dicts,cdtos,flags.expandMidDot);
+  }
+  if (flags.serializedDictionary != null) {
+    String dict=flags.serializedDictionary;
+    cdict=new ChineseDictionary(dict,cdtos,flags.expandMidDot);
+  }
+  if (flags.dictionary2 != null) {
+    String[] dicts2=flags.dictionary2.split(",");
+    cdict2=new ChineseDictionary(dicts2,cdtos,flags.expandMidDot);
+  }
+}

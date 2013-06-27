@@ -1,0 +1,18 @@
+{
+  int newSize=(int)(p * size());
+  Set<Integer> indicesToKeep=Generics.newHashSet();
+  Random r=new Random(seed);
+  int s=size();
+  while (indicesToKeep.size() < newSize) {
+    indicesToKeep.add(r.nextInt(s));
+  }
+  int[][] newData=new int[newSize][];
+  int[] newLabels=new int[newSize];
+  int i=0;
+  for (  int j : indicesToKeep) {
+    newData[i]=data[j];
+    newLabels[i]=labels[j];
+    i++;
+  }
+  return new Dataset<L,F>(labelIndex,newLabels,featureIndex,newData);
+}

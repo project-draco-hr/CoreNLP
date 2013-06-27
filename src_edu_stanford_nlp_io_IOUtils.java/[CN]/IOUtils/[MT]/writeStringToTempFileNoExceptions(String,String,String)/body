@@ -1,0 +1,21 @@
+{
+  OutputStream writer=null;
+  File tmp=null;
+  try {
+    tmp=File.createTempFile(path,".tmp");
+    if (path.endsWith(".gz")) {
+      writer=new GZIPOutputStream(new FileOutputStream(tmp));
+    }
+ else {
+      writer=new BufferedOutputStream(new FileOutputStream(tmp));
+    }
+    writer.write(contents.getBytes(encoding));
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+  }
+ finally {
+    closeIgnoringExceptions(writer);
+  }
+  return tmp;
+}

@@ -1,0 +1,21 @@
+{
+  if (parserCnt != goldCnt) {
+    throw new RuntimeException(String.format("AttachmentScore cannot be used when count(gold deps:%d) != count(system deps:%d)",parserCnt,goldCnt));
+  }
+  double las=correctAttachment / (double)goldCnt;
+  double uas=correctUnlabeledAttachment / (double)goldCnt;
+  StringBuilder sbuild=new StringBuilder();
+  if (json) {
+    sbuild.append("{");
+    sbuild.append(String.format("'LAS' : %.3f, ",las));
+    sbuild.append(String.format("'UAS' : %.3f, ",uas));
+    sbuild.append("}");
+  }
+ else {
+    sbuild.append(String.format("|| Labeled Attachment Score   ||"));
+    sbuild.append(String.format(" %.3f (%d/%d) ||\n",las,correctAttachment,goldCnt));
+    sbuild.append(String.format("|| Unlabeled Attachment Score ||"));
+    sbuild.append(String.format(" %.3f (%d/%d) ||\n",uas,correctUnlabeledAttachment,goldCnt));
+  }
+  return sbuild.toString();
+}

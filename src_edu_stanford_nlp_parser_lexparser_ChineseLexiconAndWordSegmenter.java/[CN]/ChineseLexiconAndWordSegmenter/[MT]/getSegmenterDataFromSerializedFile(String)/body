@@ -1,0 +1,41 @@
+{
+  ChineseLexiconAndWordSegmenter cs=null;
+  try {
+    System.err.print("Loading segmenter from serialized file " + serializedFileOrUrl + " ...");
+    ObjectInputStream in;
+    InputStream is;
+    if (serializedFileOrUrl.startsWith("http://")) {
+      URL u=new URL(serializedFileOrUrl);
+      URLConnection uc=u.openConnection();
+      is=uc.getInputStream();
+    }
+ else {
+      is=new FileInputStream(serializedFileOrUrl);
+    }
+    if (serializedFileOrUrl.endsWith(".gz")) {
+      in=new ObjectInputStream(new BufferedInputStream(new GZIPInputStream(is)));
+    }
+ else {
+      in=new ObjectInputStream(new BufferedInputStream(is));
+    }
+    cs=(ChineseLexiconAndWordSegmenter)in.readObject();
+    in.close();
+    System.err.println(" done.");
+    return cs;
+  }
+ catch (  InvalidClassException ice) {
+    System.err.println();
+    throw new RuntimeException(ice);
+  }
+catch (  FileNotFoundException fnfe) {
+    System.err.println();
+    throw new RuntimeException(fnfe);
+  }
+catch (  StreamCorruptedException sce) {
+  }
+catch (  Exception e) {
+    System.err.println();
+    e.printStackTrace();
+  }
+  return null;
+}

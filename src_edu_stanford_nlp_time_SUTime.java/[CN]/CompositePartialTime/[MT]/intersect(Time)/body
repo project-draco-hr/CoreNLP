@@ -1,0 +1,26 @@
+{
+  if (t == null || t == TIME_UNKNOWN)   return this;
+  if (base == null)   return t;
+  if (t instanceof PartialTime) {
+    if (!isCompatible((PartialTime)t)) {
+      return null;
+    }
+    Partial p=JodaTimeUtils.combine(this.base,((PartialTime)t).base);
+    if (t instanceof CompositePartialTime) {
+      CompositePartialTime cpt=(CompositePartialTime)t;
+      Time ntod=Time.intersect(tod,cpt.tod);
+      Time ndow=Time.intersect(dow,cpt.dow);
+      Time npoy=Time.intersect(poy,cpt.poy);
+      if (ntod == null && (tod != null || cpt.tod != null))       return null;
+      if (ndow == null && (dow != null || cpt.dow != null))       return null;
+      if (npoy == null && (poy != null || cpt.poy != null))       return null;
+      return new CompositePartialTime(this,p,npoy,ndow,ntod);
+    }
+ else {
+      return new CompositePartialTime(this,p,poy,dow,tod);
+    }
+  }
+ else {
+    return super.intersect(t);
+  }
+}

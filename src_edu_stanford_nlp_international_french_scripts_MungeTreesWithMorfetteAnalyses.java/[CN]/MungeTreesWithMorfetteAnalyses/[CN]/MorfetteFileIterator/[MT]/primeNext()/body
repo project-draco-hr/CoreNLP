@@ -1,0 +1,37 @@
+{
+  try {
+    nextList=new ArrayList<CoreLabel>(40);
+    for (String line; (line=reader.readLine()) != null; ++lineId) {
+      line=line.trim();
+      if (line.equals("")) {
+        ++lineId;
+        break;
+      }
+      String[] toks=line.split("\\s+");
+      if (toks.length != 3) {
+        System.err.println(toks.length);
+        System.err.println(line);
+        System.err.println(lineId);
+        throw new RuntimeException(String.format("line %d: Morfette format is |word lemma tag|: |%s|",lineId,line));
+      }
+      CoreLabel cl=new CoreLabel();
+      String word=toks[0];
+      String lemma=toks[1];
+      String tag=toks[2];
+      cl.setWord(word);
+      cl.setValue(word);
+      cl.setLemma(lemma);
+      cl.setTag(tag);
+      nextList.add(cl);
+    }
+    if (nextList.size() == 0) {
+      reader.close();
+      nextList=null;
+    }
+  }
+ catch (  IOException e) {
+    System.err.printf("Problem reading file at line %d%n",lineId);
+    e.printStackTrace();
+    nextList=null;
+  }
+}

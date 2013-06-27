@@ -1,0 +1,15 @@
+{
+  List<Tree> daughters=new ArrayList<Tree>(s.size());
+  for (  HasWord word : s) {
+    Tree wordNode=new LabeledScoredTreeNode(lf.newLabel(word.word()));
+    if (word instanceof TaggedWord) {
+      TaggedWord taggedWord=(TaggedWord)word;
+      wordNode=new LabeledScoredTreeNode(new StringLabel(taggedWord.tag()),Collections.singletonList(wordNode));
+    }
+ else {
+      wordNode=new LabeledScoredTreeNode(lf.newLabel("WD"),Collections.singletonList(wordNode));
+    }
+    daughters.add(wordNode);
+  }
+  return new LabeledScoredTreeNode(new StringLabel("S"),daughters);
+}

@@ -1,0 +1,81 @@
+{
+  final char[] beginChars=new char[BOUNDARY_SIZE];
+  final char[] endChars=new char[BOUNDARY_SIZE];
+  int beginUpto=0;
+  int endUpto=0;
+  final Set<Character> seenSet=new TreeSet<Character>();
+  boolean nonLetters=false;
+  for (int i=0; i < len; i++) {
+    int iIncr=0;
+    char c=s.charAt(i);
+    char m=c;
+    if (Character.isDigit(c)) {
+      m='d';
+    }
+ else     if (Character.isLowerCase(c)) {
+      m='x';
+    }
+ else     if (Character.isUpperCase(c) || Character.isTitleCase(c)) {
+      m='X';
+    }
+    for (    String gr : greek) {
+      if (s.startsWith(gr,i)) {
+        m='g';
+        iIncr=gr.length() - 1;
+        break;
+      }
+    }
+    if (m != 'x' && m != 'X') {
+      nonLetters=true;
+    }
+    if (i < BOUNDARY_SIZE) {
+      beginChars[beginUpto++]=m;
+    }
+ else     if (i < len - BOUNDARY_SIZE) {
+      seenSet.add(Character.valueOf(m));
+    }
+ else {
+      endChars[endUpto++]=m;
+    }
+    i+=iIncr;
+  }
+  int sbSize=beginUpto + endUpto + seenSet.size();
+  if (knownLCWords != null) {
+    sbSize++;
+  }
+  final StringBuilder sb=new StringBuilder(sbSize);
+  sb.append(beginChars,0,beginUpto);
+  if (omitIfInBoundary) {
+    for (    Character chr : seenSet) {
+      char ch=chr.charValue();
+      boolean insert=true;
+      for (int i=0; i < beginUpto; i++) {
+        if (beginChars[i] == ch) {
+          insert=false;
+          break;
+        }
+      }
+      for (int i=0; i < endUpto; i++) {
+        if (endChars[i] == ch) {
+          insert=false;
+          break;
+        }
+      }
+      if (insert) {
+        sb.append(ch);
+      }
+    }
+  }
+ else {
+    for (    Character chr : seenSet) {
+      sb.append(chr.charValue());
+    }
+  }
+  sb.append(endChars,0,endUpto);
+  if (knownLCWords != null) {
+    if (!nonLetters && knownLCWords.contains(s.toLowerCase())) {
+      sb.append('k');
+    }
+  }
+  return sb.toString();
+}

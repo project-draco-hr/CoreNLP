@@ -1,0 +1,25 @@
+{
+  String rawTag=node.value();
+  String posTag=(posMapper == null) ? rawTag : posMapper.map(rawTag,node.firstChild().value());
+  String rawWord=node.firstChild().value();
+  if (rawWord.equals("F")) {
+    posTag=posTag.equals("NOUN.VN") ? "CONJ" : "CC";
+    rawWord="f";
+  }
+  if (rawWord.startsWith("MERGE_with_previous_token:")) {
+    rawWord=rawWord.replace("MERGE_with_previous_token:","");
+  }
+  if (rawWord.contains("e")) {
+    rawWord=rawWord.replace("e","");
+  }
+  String finalWord=lexMapper.map(rawTag,rawWord);
+  if (lexMapper.canChangeEncoding(rawTag,finalWord))   finalWord=encodingMap.apply(finalWord);
+  node.setValue(posTag);
+  if (morphDelim == null) {
+    node.firstChild().setValue(finalWord);
+    if (node.firstChild().label() instanceof CoreLabel)     ((CoreLabel)node.firstChild().label()).setWord(finalWord);
+  }
+ else {
+    node.firstChild().setValue(finalWord + morphDelim + rawTag);
+  }
+}

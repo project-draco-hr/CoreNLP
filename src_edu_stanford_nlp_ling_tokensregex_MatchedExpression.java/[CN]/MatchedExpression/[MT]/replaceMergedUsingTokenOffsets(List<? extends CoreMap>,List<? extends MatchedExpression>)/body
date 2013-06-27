@@ -1,0 +1,37 @@
+{
+  if (matchedExprs == null)   return list;
+  Map<Integer,Integer> tokenBeginToListIndexMap=Generics.newHashMap();
+  Map<Integer,Integer> tokenEndToListIndexMap=Generics.newHashMap();
+  for (int i=0; i < list.size(); i++) {
+    CoreMap cm=list.get(i);
+    if (cm.has(CoreAnnotations.TokenBeginAnnotation.class) && cm.has(CoreAnnotations.TokenEndAnnotation.class)) {
+      tokenBeginToListIndexMap.put(cm.get(CoreAnnotations.TokenBeginAnnotation.class),i);
+      tokenEndToListIndexMap.put(cm.get(CoreAnnotations.TokenEndAnnotation.class),i + 1);
+    }
+ else {
+      tokenBeginToListIndexMap.put(i,i);
+      tokenEndToListIndexMap.put(i + 1,i + 1);
+    }
+  }
+  Collections.sort(matchedExprs,EXPR_TOKEN_OFFSET_COMPARATOR);
+  List<CoreMap> merged=new ArrayList<CoreMap>(list.size());
+  int last=0;
+  for (  MatchedExpression expr : matchedExprs) {
+    int start=expr.tokenOffsets.first();
+    int end=expr.tokenOffsets.second();
+    Integer istart=tokenBeginToListIndexMap.get(start);
+    Integer iend=tokenEndToListIndexMap.get(end);
+    if (istart != null && iend != null) {
+      if (istart >= last) {
+        merged.addAll(list.subList(last,istart));
+        CoreMap m=expr.getAnnotation();
+        merged.add(m);
+        last=iend;
+      }
+    }
+  }
+  if (last < list.size()) {
+    merged.addAll(list.subList(last,list.size()));
+  }
+  return merged;
+}

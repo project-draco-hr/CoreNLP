@@ -1,0 +1,18 @@
+{
+  position=position + nextLabels.length;
+  if (nextLabels.length + 1 == windowSize) {
+    return factorTables[position].conditionalLogProbGivenNext(nextLabels,label);
+  }
+ else   if (nextLabels.length + 1 < windowSize) {
+    FactorTable ft=factorTables[position].sumOutFront();
+    while (ft.windowSize() > nextLabels.length + 1) {
+      ft=ft.sumOutFront();
+    }
+    return ft.conditionalLogProbGivenPrevious(nextLabels,label);
+  }
+ else {
+    int[] p=new int[windowSize - 1];
+    System.arraycopy(nextLabels,0,p,0,p.length);
+    return factorTables[position].conditionalLogProbGivenPrevious(p,label);
+  }
+}

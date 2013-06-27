@@ -1,0 +1,23 @@
+{
+  List<Object> inverseImages=new ArrayList<Object>();
+  for (  Arc member : block.getMembers()) {
+    Collection<Arc> arcs=null;
+    if (member != SINK_NODE) {
+      arcs=getUnminimizedFA().getArcsByTargetAndInput(member,symbol);
+    }
+ else {
+      arcs=getUnminimizedFA().getArcsByInput(symbol);
+      if (!sparseMode) {
+        arcs=difference(getUnminimizedFA().getArcs(),arcs);
+      }
+    }
+    if (arcs == null) {
+      continue;
+    }
+    for (    Arc arc : arcs) {
+      Object source=arc.getSourceNode();
+      inverseImages.add(source);
+    }
+  }
+  return inverseImages;
+}

@@ -1,0 +1,22 @@
+{
+  s=s.replaceAll("[ \t\n\0\f\r,]","");
+  if (s.startsWith("(") && s.endsWith(")")) {
+    s=s.substring(1,s.length() - 1);
+    if (DEBUG2)     err.println("Deleted (): " + s);
+  }
+  s=s.toLowerCase();
+  if (DEBUG2)   err.println("Looking for ordinal words in |" + s + '|');
+  if (Character.isDigit(s.charAt(0))) {
+    Matcher matcher=numberPattern.matcher(s);
+    matcher.find();
+    return normalizedNumberStringQuiet(matcher.group(),1.0,"",numberFromSUTime);
+  }
+ else   if (ordinalsToValues.containsKey(s)) {
+    return Double.toString(ordinalsToValues.getCount(s));
+  }
+ else {
+    String val=getOneSubstitutionMatch(s,ordinalsToValues.keySet());
+    if (val != null)     return Double.toString(ordinalsToValues.getCount(val));
+ else     return null;
+  }
+}

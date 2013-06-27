@@ -1,0 +1,62 @@
+{
+  String origDateString=referenceDate.getStartDate();
+  String dayString=origDateString.substring(origDateString.length() - 2,origDateString.length());
+  if (dayString.contains("*")) {
+    isoDate=origDateString;
+    return;
+  }
+  Integer dayNum=Integer.parseInt(dayString);
+  String monthString=origDateString.substring(origDateString.length() - 4,origDateString.length() - 2);
+  int numDaysInMonth=30;
+  int monthNum=-1;
+  if (!monthString.contains("*")) {
+    monthNum=Integer.parseInt(monthString);
+    numDaysInMonth=daysPerMonth.get(monthNum);
+  }
+  if (dayNum + relation.second() <= numDaysInMonth && dayNum + relation.second() >= 1) {
+    dayNum+=relation.second();
+    isoDate=makeStringDayChange(origDateString,dayNum);
+    return;
+  }
+  if (monthNum == -1) {
+    isoDate=origDateString;
+    return;
+  }
+  isoDate=origDateString;
+  boolean decreasing=(dayNum + relation.second() < 1);
+  int newMonthNum;
+  if ((monthNum + 1 > 12 && !decreasing) || (monthNum - 1 < 1 && decreasing)) {
+    if (decreasing) {
+      newMonthNum=12;
+    }
+ else {
+      newMonthNum=1;
+    }
+    String yearString=origDateString.substring(0,4);
+    if (!yearString.contains("*")) {
+      if (decreasing) {
+        isoDate=makeStringYearChange(isoDate,Integer.parseInt(yearString) - 1);
+      }
+ else {
+        isoDate=makeStringYearChange(isoDate,Integer.parseInt(yearString) + 1);
+      }
+    }
+  }
+ else {
+    if (decreasing) {
+      newMonthNum=monthNum - 1;
+    }
+ else {
+      newMonthNum=monthNum + 1;
+    }
+  }
+  isoDate=makeStringMonthChange(isoDate,newMonthNum);
+  int newDateNum;
+  if (decreasing) {
+    newDateNum=-relation.second() + daysPerMonth.get(newMonthNum) - dayNum;
+  }
+ else {
+    newDateNum=relation.second() - dayNum + daysPerMonth.get(monthNum);
+  }
+  isoDate=makeStringDayChange(isoDate,newDateNum);
+}

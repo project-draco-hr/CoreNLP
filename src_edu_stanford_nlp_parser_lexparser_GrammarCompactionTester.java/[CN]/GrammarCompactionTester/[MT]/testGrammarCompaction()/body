@@ -1,0 +1,28 @@
+{
+  op=new Options();
+  LexicalizedParser lp=LexicalizedParser.trainFromTreebank(path,new NumberRangeFileFilter(trainLow,trainHigh,true),op);
+  if (compactor != null) {
+    Timing.startTime();
+    System.out.print("Extracting other paths...");
+    allTrainPaths=extractPaths(path,trainLow,trainHigh,true);
+    allTestPaths=extractPaths(path,testLow,testHigh,true);
+    Timing.tick("done");
+    Timing.startTime();
+    System.out.print("Compacting grammars...");
+    Pair<UnaryGrammar,BinaryGrammar> grammar=Generics.newPair(lp.ug,lp.bg);
+    Triple<Index<String>,UnaryGrammar,BinaryGrammar> compactedGrammar=compactor.compactGrammar(grammar,allTrainPaths,allTestPaths,lp.stateIndex);
+    lp.stateIndex=compactedGrammar.first();
+    lp.ug=compactedGrammar.second();
+    lp.bg=compactedGrammar.third();
+    Timing.tick("done.");
+  }
+  if (asciiOutputPath != null) {
+    lp.saveParserToTextFile(asciiOutputPath);
+  }
+  Treebank testTreebank=op.tlpParams.testMemoryTreebank();
+  testTreebank.loadPath(path,new NumberRangeFileFilter(testLow,testHigh,true));
+  System.out.println("Currently " + new Date());
+  EvaluateTreebank evaluator=new EvaluateTreebank(lp);
+  evaluator.testOnTreebank(testTreebank);
+  System.out.println("Currently " + new Date());
+}

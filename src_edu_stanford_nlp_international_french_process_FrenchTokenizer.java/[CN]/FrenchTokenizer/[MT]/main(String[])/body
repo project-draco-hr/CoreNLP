@@ -1,0 +1,38 @@
+{
+  final Properties options=StringUtils.argsToProperties(args,argOptionDefs());
+  if (options.containsKey("help")) {
+    System.err.println(usage());
+    System.exit(-1);
+  }
+  final TokenizerFactory<CoreLabel> tf=options.containsKey("ftb") ? FrenchTokenizer.ftbFactory() : FrenchTokenizer.factory();
+  for (  String option : options.stringPropertyNames()) {
+    tf.setOptions(option);
+  }
+  tf.setOptions("tokenizeNLs");
+  int nLines=0;
+  int nTokens=0;
+  final String encoding=options.getProperty("encoding","UTF-8");
+  final boolean toLower=PropertiesUtils.getBool(options,"lowerCase",false);
+  try {
+    Tokenizer<CoreLabel> tokenizer=tf.getTokenizer(new InputStreamReader(System.in,encoding));
+    boolean printSpace=false;
+    while (tokenizer.hasNext()) {
+      ++nTokens;
+      String word=tokenizer.next().word();
+      if (word.equals(FrenchLexer.NEWLINE_TOKEN)) {
+        ++nLines;
+        printSpace=false;
+        System.out.println();
+      }
+ else {
+        if (printSpace)         System.out.print(" ");
+        System.out.print(toLower ? word.toLowerCase(Locale.FRENCH) : word);
+        printSpace=true;
+      }
+    }
+  }
+ catch (  UnsupportedEncodingException e) {
+    e.printStackTrace();
+  }
+  System.err.printf("Done! Tokenized %d lines (%d tokens)%n",nLines,nTokens);
+}

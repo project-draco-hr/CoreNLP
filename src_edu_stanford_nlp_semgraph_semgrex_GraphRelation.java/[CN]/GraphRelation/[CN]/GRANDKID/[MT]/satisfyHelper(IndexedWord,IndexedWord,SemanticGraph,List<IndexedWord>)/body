@@ -1,0 +1,11 @@
+{
+  List<Pair<GrammaticalRelation,IndexedWord>> govs=sg.parentPairs(child);
+  for (  Pair<GrammaticalRelation,IndexedWord> gov : govs) {
+    if (gov.first().toString().matches(this.type) && gov.second().equals(l2))     return true;
+  }
+  usedNodes.add(child);
+  for (  Pair<GrammaticalRelation,IndexedWord> gov : govs) {
+    if (!usedNodes.contains(gov.second()) && satisfyHelper(gov.second(),l2,sg,usedNodes))     return true;
+  }
+  return false;
+}

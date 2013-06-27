@@ -1,0 +1,16 @@
+{
+  double[] drvs=new double[lambda.length];
+  Experiments exp=p.data;
+  for (int fNo=0; fNo < drvs.length; fNo++) {
+    Feature f=p.functions.get(fNo);
+    for (int index=0, length=f.len(); index < length; index++) {
+      int x=f.getX(index);
+      int y=f.getY(index);
+      double val=f.getVal(index);
+      double mult=val * probConds[x][y] * exp.ptildeX(x)* exp.getNumber();
+      drvs[fNo]-=mult * exp.values[x][y];
+      drvs[fNo]+=mult * aux[x];
+    }
+  }
+  return drvs;
+}

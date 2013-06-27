@@ -1,0 +1,31 @@
+{
+  Set s=null;
+  if (node instanceof Set) {
+    s=(Set)node;
+  }
+ else {
+    if (node instanceof Block) {
+      Block b=(Block)node;
+      s=b.getMembers();
+    }
+ else {
+      throw new RuntimeException("Unexpected node class");
+    }
+  }
+  Object sampleNode=s.iterator().next();
+  if (s.size() == 1) {
+    if (sampleNode instanceof Block) {
+      return processNode(sampleNode);
+    }
+ else {
+      return sampleNode;
+    }
+  }
+  if (sampleNode instanceof String) {
+    String str=(String)sampleNode;
+    if (str.charAt(0) != '@') {
+      return tlp.basicCategory(str) + "-" + s.hashCode();
+    }
+  }
+  return "@NodeSet-" + s.hashCode();
+}

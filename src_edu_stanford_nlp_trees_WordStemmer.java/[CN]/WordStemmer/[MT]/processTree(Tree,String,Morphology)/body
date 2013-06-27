@@ -1,0 +1,13 @@
+{
+  if (t.isPreTerminal()) {
+    tag=t.label().value();
+  }
+  if (t.isLeaf()) {
+    t.label().setValue(morpha.lemma(t.label().value(),tag));
+  }
+ else {
+    for (    Tree kid : t.children()) {
+      processTree(kid,tag,morpha);
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  System.err.println("Loading Chinese dictionaries from " + dicts.length + " files:");
+  for (  String dict : dicts) {
+    System.err.println("  " + dict);
+  }
+  System.err.println();
+  for (int i=0; i <= MAX_LEXICON_LENGTH; i++) {
+    words_[i]=Generics.newHashSet();
+  }
+  this.cdtos_=cdtos;
+  for (  String dict : dicts) {
+    if (dict.endsWith("ser.gz")) {
+      Set<String>[] dictwords=loadDictionary(dict);
+      for (int i=0; i <= MAX_LEXICON_LENGTH; i++) {
+        words_[i].addAll(dictwords[i]);
+        dictwords[i]=null;
+      }
+    }
+ else {
+      addDict(dict,expandMidDot);
+    }
+  }
+  int total=0;
+  for (int i=0; i <= MAX_LEXICON_LENGTH; i++) {
+    total+=words_[i].size();
+  }
+  System.err.println("Done. Unique words in ChineseDictionary is: " + total);
+}

@@ -1,0 +1,16 @@
+{
+  runTest("foo : bar","(a (foo) (bar))","(foo)");
+  runTest("foo : bar","(a (foo))");
+  runTest("(foo << bar) : (foo << baz)","(a (foo (bar 1)) (foo (baz 2)))","(foo (bar 1))");
+  runTest("(foo << bar) : (foo << baz)","(a (foo (bar 1)) (foo (baz 2)))","(foo (bar 1))");
+  runTest("(foo << bar) == (foo << baz)","(a (foo (bar)) (foo (baz)))");
+  runTest("(foo << bar) : (foo << baz)","(a (foo (bar) (baz)))","(foo (bar) (baz))");
+  runTest("(foo << bar) == (foo << baz)","(a (foo (bar) (baz)))","(foo (bar) (baz))");
+  runTest("(foo << bar) : (baz >> a)","(a (foo (bar) (baz)))","(foo (bar) (baz))");
+  runTest("(foo << bar) == (baz >> a)","(a (foo (bar) (baz)))");
+  runTest("foo == foo","(a (foo (bar)))","(foo (bar))");
+  runTest("foo << bar == foo","(a (foo (bar)) (foo (baz)))","(foo (bar))");
+  runTest("foo << bar == foo","(a (foo (bar) (baz)))","(foo (bar) (baz))");
+  runTest("foo << bar == foo << baz","(a (foo (bar) (baz)))","(foo (bar) (baz))");
+  runTest("foo << bar : (foo << baz)","(a (foo (bar)) (foo (baz)))","(foo (bar))");
+}

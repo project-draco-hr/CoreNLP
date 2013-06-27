@@ -1,0 +1,327 @@
+{
+  boolean train=false;
+  boolean saveToSerializedFile=false;
+  boolean saveToTextFile=false;
+  String serializedInputFileOrUrl=null;
+  String textInputFileOrUrl=null;
+  String serializedOutputFileOrUrl=null;
+  String textOutputFileOrUrl=null;
+  String treebankPath=null;
+  Treebank testTreebank=null;
+  Treebank tuneTreebank=null;
+  String testPath=null;
+  FileFilter testFilter=null;
+  String tunePath=null;
+  FileFilter tuneFilter=null;
+  FileFilter trainFilter=null;
+  String secondaryTreebankPath=null;
+  double secondaryTreebankWeight=1.0;
+  FileFilter secondaryTrainFilter=null;
+  TokenizerFactory<? extends HasWord> tokenizerFactory=null;
+  String tokenizerOptions=null;
+  String tokenizerFactoryClass=null;
+  String tokenizerMethod=null;
+  boolean tokenized=false;
+  Function<List<HasWord>,List<HasWord>> escaper=null;
+  String tagDelimiter=null;
+  String sentenceDelimiter=null;
+  String elementDelimiter=null;
+  int argIndex=0;
+  if (args.length < 1) {
+    System.err.println("Basic usage (see Javadoc for more): java edu.stanford.nlp.parser.lexparser.LexicalizedParser parserFileOrUrl filename*");
+    return;
+  }
+  Options op=new Options();
+  List<String> optionArgs=new ArrayList<String>();
+  String encoding=null;
+  while (argIndex < args.length && args[argIndex].charAt(0) == '-') {
+    if (args[argIndex].equalsIgnoreCase("-train") || args[argIndex].equalsIgnoreCase("-trainTreebank")) {
+      train=true;
+      Pair<String,FileFilter> treebankDescription=ArgUtils.getTreebankDescription(args,argIndex,"-test");
+      argIndex=argIndex + ArgUtils.numSubArgs(args,argIndex) + 1;
+      treebankPath=treebankDescription.first();
+      trainFilter=treebankDescription.second();
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-train2")) {
+      int numSubArgs=ArgUtils.numSubArgs(args,argIndex);
+      argIndex++;
+      if (numSubArgs < 2) {
+        throw new RuntimeException("Error: -train2 <treebankPath> [<ranges>] <weight>.");
+      }
+      secondaryTreebankPath=args[argIndex++];
+      secondaryTrainFilter=(numSubArgs == 3) ? new NumberRangesFileFilter(args[argIndex++],true) : null;
+      secondaryTreebankWeight=Double.parseDouble(args[argIndex++]);
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-tLPP") && (argIndex + 1 < args.length)) {
+      try {
+        op.tlpParams=(TreebankLangParserParams)Class.forName(args[argIndex + 1]).newInstance();
+      }
+ catch (      ClassNotFoundException e) {
+        System.err.println("Class not found: " + args[argIndex + 1]);
+        throw new RuntimeException(e);
+      }
+catch (      InstantiationException e) {
+        System.err.println("Couldn't instantiate: " + args[argIndex + 1] + ": "+ e.toString());
+        throw new RuntimeException(e);
+      }
+catch (      IllegalAccessException e) {
+        System.err.println("Illegal access" + e);
+        throw new RuntimeException(e);
+      }
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-encoding")) {
+      encoding=args[argIndex + 1];
+      op.tlpParams.setInputEncoding(encoding);
+      op.tlpParams.setOutputEncoding(encoding);
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-tokenized")) {
+      tokenized=true;
+      argIndex+=1;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-escaper")) {
+      try {
+        escaper=ReflectionLoading.loadByReflection(args[argIndex + 1]);
+      }
+ catch (      Exception e) {
+        System.err.println("Couldn't instantiate escaper " + args[argIndex + 1] + ": "+ e);
+      }
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-tokenizerOptions")) {
+      tokenizerOptions=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-tokenizerFactory")) {
+      tokenizerFactoryClass=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-tokenizerMethod")) {
+      tokenizerMethod=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-sentences")) {
+      sentenceDelimiter=args[argIndex + 1];
+      if (sentenceDelimiter.equalsIgnoreCase("newline")) {
+        sentenceDelimiter="\n";
+      }
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-parseInside")) {
+      elementDelimiter=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-tagSeparator")) {
+      tagDelimiter=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-loadFromSerializedFile") || args[argIndex].equalsIgnoreCase("-model")) {
+      serializedInputFileOrUrl=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-loadFromTextFile")) {
+      textInputFileOrUrl=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-saveToSerializedFile")) {
+      saveToSerializedFile=true;
+      if (ArgUtils.numSubArgs(args,argIndex) < 1) {
+        System.err.println("Missing path: -saveToSerialized filename");
+      }
+ else {
+        serializedOutputFileOrUrl=args[argIndex + 1];
+      }
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-saveToTextFile")) {
+      saveToTextFile=true;
+      textOutputFileOrUrl=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-saveTrainTrees")) {
+      op.trainOptions.trainTreeFile=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-treebank") || args[argIndex].equalsIgnoreCase("-testTreebank") || args[argIndex].equalsIgnoreCase("-test")) {
+      Pair<String,FileFilter> treebankDescription=ArgUtils.getTreebankDescription(args,argIndex,"-test");
+      argIndex=argIndex + ArgUtils.numSubArgs(args,argIndex) + 1;
+      testPath=treebankDescription.first();
+      testFilter=treebankDescription.second();
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-tune")) {
+      Pair<String,FileFilter> treebankDescription=ArgUtils.getTreebankDescription(args,argIndex,"-tune");
+      argIndex=argIndex + ArgUtils.numSubArgs(args,argIndex) + 1;
+      tunePath=treebankDescription.first();
+      tuneFilter=treebankDescription.second();
+    }
+ else {
+      int oldIndex=argIndex;
+      argIndex=op.setOptionOrWarn(args,argIndex);
+      for (int i=oldIndex; i < argIndex; i++) {
+        optionArgs.add(args[i]);
+      }
+    }
+  }
+  if (tokenizerFactoryClass != null || tokenizerOptions != null) {
+    try {
+      if (tokenizerFactoryClass != null) {
+        Class<TokenizerFactory<? extends HasWord>> clazz=ErasureUtils.uncheckedCast(Class.forName(tokenizerFactoryClass));
+        Method factoryMethod;
+        if (tokenizerOptions != null) {
+          factoryMethod=clazz.getMethod(tokenizerMethod != null ? tokenizerMethod : "newWordTokenizerFactory",String.class);
+          tokenizerFactory=ErasureUtils.uncheckedCast(factoryMethod.invoke(null,tokenizerOptions));
+        }
+ else {
+          factoryMethod=clazz.getMethod(tokenizerMethod != null ? tokenizerMethod : "newTokenizerFactory");
+          tokenizerFactory=ErasureUtils.uncheckedCast(factoryMethod.invoke(null));
+        }
+      }
+ else {
+        tokenizerFactory=PTBTokenizer.PTBTokenizerFactory.newWordTokenizerFactory(tokenizerOptions);
+      }
+    }
+ catch (    IllegalAccessException e) {
+      System.err.println("Couldn't instantiate TokenizerFactory " + tokenizerFactoryClass + " with options "+ tokenizerOptions);
+      throw new RuntimeException(e);
+    }
+catch (    NoSuchMethodException e) {
+      System.err.println("Couldn't instantiate TokenizerFactory " + tokenizerFactoryClass + " with options "+ tokenizerOptions);
+      throw new RuntimeException(e);
+    }
+catch (    ClassNotFoundException e) {
+      System.err.println("Couldn't instantiate TokenizerFactory " + tokenizerFactoryClass + " with options "+ tokenizerOptions);
+      throw new RuntimeException(e);
+    }
+catch (    InvocationTargetException e) {
+      System.err.println("Couldn't instantiate TokenizerFactory " + tokenizerFactoryClass + " with options "+ tokenizerOptions);
+      throw new RuntimeException(e);
+    }
+  }
+  if (tuneFilter != null || tunePath != null) {
+    if (tunePath == null) {
+      if (treebankPath == null) {
+        throw new RuntimeException("No tune treebank path specified...");
+      }
+ else {
+        System.err.println("No tune treebank path specified.  Using train path: \"" + treebankPath + '\"');
+        tunePath=treebankPath;
+      }
+    }
+    tuneTreebank=op.tlpParams.testMemoryTreebank();
+    tuneTreebank.loadPath(tunePath,tuneFilter);
+  }
+  if (!train && op.testOptions.verbose) {
+    StringUtils.printErrInvocationString("LexicalizedParser",args);
+  }
+  LexicalizedParser lp;
+  if (train) {
+    StringUtils.printErrInvocationString("LexicalizedParser",args);
+    GrammarCompactor compactor=null;
+    if (op.trainOptions.compactGrammar() == 3) {
+      compactor=new ExactGrammarCompactor(op,false,false);
+    }
+    Treebank trainTreebank=makeTreebank(treebankPath,op,trainFilter);
+    Treebank secondaryTrainTreebank=null;
+    if (secondaryTreebankPath != null) {
+      secondaryTrainTreebank=makeSecondaryTreebank(secondaryTreebankPath,op,secondaryTrainFilter);
+    }
+    List<List<TaggedWord>> extraTaggedWords=null;
+    if (op.trainOptions.taggedFiles != null) {
+      extraTaggedWords=new ArrayList<List<TaggedWord>>();
+      List<TaggedFileRecord> fileRecords=TaggedFileRecord.createRecords(new Properties(),op.trainOptions.taggedFiles);
+      for (      TaggedFileRecord record : fileRecords) {
+        for (        List<TaggedWord> sentence : record.reader()) {
+          extraTaggedWords.add(sentence);
+        }
+      }
+    }
+    lp=getParserFromTreebank(trainTreebank,secondaryTrainTreebank,secondaryTreebankWeight,compactor,op,tuneTreebank,extraTaggedWords);
+  }
+ else   if (textInputFileOrUrl != null) {
+    lp=getParserFromTextFile(textInputFileOrUrl,op);
+  }
+ else {
+    if (serializedInputFileOrUrl == null && argIndex < args.length) {
+      serializedInputFileOrUrl=args[argIndex];
+      argIndex++;
+    }
+    if (serializedInputFileOrUrl == null) {
+      System.err.println("No grammar specified, exiting...");
+      return;
+    }
+    String[] extraArgs=new String[optionArgs.size()];
+    extraArgs=optionArgs.toArray(extraArgs);
+    try {
+      lp=loadModel(serializedInputFileOrUrl,op,extraArgs);
+      op=lp.op;
+    }
+ catch (    IllegalArgumentException e) {
+      System.err.println("Error loading parser, exiting...");
+      throw e;
+    }
+  }
+  if (encoding != null) {
+    op.tlpParams.setInputEncoding(encoding);
+    op.tlpParams.setOutputEncoding(encoding);
+  }
+  if (testFilter != null || testPath != null) {
+    if (testPath == null) {
+      if (treebankPath == null) {
+        throw new RuntimeException("No test treebank path specified...");
+      }
+ else {
+        System.err.println("No test treebank path specified.  Using train path: \"" + treebankPath + '\"');
+        testPath=treebankPath;
+      }
+    }
+    testTreebank=op.tlpParams.testMemoryTreebank();
+    testTreebank.loadPath(testPath,testFilter);
+  }
+  op.trainOptions.sisterSplitters=Generics.newHashSet(Arrays.asList(op.tlpParams.sisterSplitters()));
+  if (saveToTextFile) {
+    if (textOutputFileOrUrl != null) {
+      lp.saveParserToTextFile(textOutputFileOrUrl);
+    }
+ else {
+      System.err.println("Usage: must specify a text grammar output path");
+    }
+  }
+  if (saveToSerializedFile) {
+    if (serializedOutputFileOrUrl != null) {
+      lp.saveParserToSerialized(serializedOutputFileOrUrl);
+    }
+ else     if (textOutputFileOrUrl == null && testTreebank == null) {
+      System.err.println("usage: " + "java edu.stanford.nlp.parser.lexparser.LexicalizedParser " + "-train trainFilesPath [fileRange] -saveToSerializedFile serializedParserFilename");
+    }
+  }
+  if (op.testOptions.verbose || train) {
+    String lexNumRules=lp.lex != null ? Integer.toString(lp.lex.numRules()) : "";
+    System.err.println("Grammar\tStates\tTags\tWords\tUnaryR\tBinaryR\tTaggings");
+    System.err.println("Grammar\t" + lp.stateIndex.size() + '\t'+ lp.tagIndex.size()+ '\t'+ lp.wordIndex.size()+ '\t'+ (lp.ug != null ? lp.ug.numRules() : "")+ '\t'+ (lp.bg != null ? lp.bg.numRules() : "")+ '\t'+ lexNumRules);
+    System.err.println("ParserPack is " + op.tlpParams.getClass().getName());
+    System.err.println("Lexicon is " + lp.lex.getClass().getName());
+    if (op.testOptions.verbose) {
+      System.err.println("Tags are: " + lp.tagIndex);
+    }
+    printOptions(false,op);
+  }
+  if (testTreebank != null) {
+    EvaluateTreebank evaluator=new EvaluateTreebank(lp);
+    evaluator.testOnTreebank(testTreebank);
+  }
+ else   if (argIndex >= args.length) {
+    PrintWriter pwOut=op.tlpParams.pw();
+    PrintWriter pwErr=op.tlpParams.pw(System.err);
+    ParserQuery pq=lp.parserQuery();
+    if (pq.parse(op.tlpParams.defaultTestSentence())) {
+      lp.getTreePrint().printTree(pq.getBestParse(),pwOut);
+    }
+ else {
+      pwErr.println("Error. Can't parse test sentence: " + op.tlpParams.defaultTestSentence());
+    }
+  }
+ else {
+    ParseFiles.parseFiles(args,argIndex,tokenized,tokenizerFactory,elementDelimiter,sentenceDelimiter,escaper,tagDelimiter,op,lp.getTreePrint(),lp);
+  }
+}

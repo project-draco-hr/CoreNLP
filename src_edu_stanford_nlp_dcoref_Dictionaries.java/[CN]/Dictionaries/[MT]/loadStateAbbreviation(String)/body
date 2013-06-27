@@ -1,0 +1,17 @@
+{
+  BufferedReader reader=null;
+  try {
+    reader=IOUtils.readerFromString(statesFile);
+    while (reader.ready()) {
+      String[] tokens=reader.readLine().split("\t");
+      statesAbbreviation.put(tokens[1],tokens[0]);
+      statesAbbreviation.put(tokens[2],tokens[0]);
+    }
+  }
+ catch (  IOException e) {
+    throw new RuntimeIOException(e);
+  }
+ finally {
+    IOUtils.closeIgnoringExceptions(reader);
+  }
+}

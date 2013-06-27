@@ -1,0 +1,30 @@
+{
+  CoreLabel c=cInfo.get(loc);
+  CoreLabel p=cInfo.get(loc - 1);
+  CoreLabel p2=cInfo.get(loc - 2);
+  CoreLabel p3=cInfo.get(loc - 3);
+  CoreLabel p4=cInfo.get(loc - 4);
+  String cWord=getWord(c);
+  String pWord=getWord(p);
+  String p2Word=getWord(p2);
+  String p3Word=getWord(p3);
+  String p4Word=getWord(p4);
+  Collection<String> featuresCp4C=new ArrayList<String>();
+  if (flags.useParenMatching) {
+    if (flags.useReverse) {
+      if (cWord.equals("(") || cWord.equals("[")) {
+        if ((flags.maxLeft >= 4) && (p4Word.equals(")") || p4Word.equals("]")) && !(p3Word.equals(")") || p3Word.equals("]") || p2Word.equals(")")|| p2Word.equals("]")|| pWord.equals(")")|| pWord.equals("]"))) {
+          featuresCp4C.add("PAREN-MATCH");
+        }
+      }
+    }
+ else {
+      if (cWord.equals(")") || cWord.equals("]")) {
+        if ((flags.maxLeft >= 4) && (p4Word.equals("(") || p4Word.equals("[")) && !(p3Word.equals("(") || p3Word.equals("[") || p2Word.equals("(")|| p2Word.equals("[")|| pWord.equals("(")|| pWord.equals("["))) {
+          featuresCp4C.add("PAREN-MATCH");
+        }
+      }
+    }
+  }
+  return featuresCp4C;
+}

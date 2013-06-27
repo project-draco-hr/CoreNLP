@@ -1,0 +1,25 @@
+{
+  List<CoreMap> sentences=annotation.get(CoreAnnotations.SentencesAnnotation.class);
+  Pair<Integer,Integer> beginQuotation=new Pair<Integer,Integer>();
+  Pair<Integer,Integer> endQuotation=new Pair<Integer,Integer>();
+  boolean insideQuotation=false;
+  int utterNum=-1;
+  for (int i=0; i < sentences.size(); i++) {
+    List<CoreLabel> sent=sentences.get(i).get(CoreAnnotations.TokensAnnotation.class);
+    for (int j=0; j < sent.size(); j++) {
+      int utterIndex=sent.get(j).get(CoreAnnotations.UtteranceAnnotation.class);
+      if (utterIndex != 0 && !insideQuotation) {
+        utterNum=utterIndex;
+        insideQuotation=true;
+        beginQuotation.setFirst(i);
+        beginQuotation.setSecond(j);
+      }
+ else       if (utterIndex == 0 && insideQuotation) {
+        insideQuotation=false;
+        endQuotation.setFirst(i);
+        endQuotation.setSecond(j);
+        findQuotationSpeaker(utterNum,sentences,beginQuotation,endQuotation,dict);
+      }
+    }
+  }
+}

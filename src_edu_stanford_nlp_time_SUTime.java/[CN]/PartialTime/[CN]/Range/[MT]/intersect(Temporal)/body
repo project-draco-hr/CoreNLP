@@ -1,0 +1,15 @@
+{
+  if (t instanceof Time) {
+    return new RelativeTime((Time)t,TemporalOp.INTERSECT,this);
+  }
+ else   if (t instanceof Range) {
+    Range rt=(Range)t;
+    Time b=Time.max(begin,rt.begin);
+    Time e=Time.min(end,rt.end);
+    return new Range(b,e);
+  }
+ else   if (t instanceof Duration) {
+    return new InexactTime(null,(Duration)t,this);
+  }
+  return null;
+}

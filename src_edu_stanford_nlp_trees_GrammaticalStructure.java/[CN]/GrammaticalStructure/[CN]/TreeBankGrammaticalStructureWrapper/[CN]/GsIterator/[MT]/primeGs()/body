@@ -1,0 +1,20 @@
+{
+  GrammaticalStructure gs=null;
+  while (gs == null && tbIterator.hasNext()) {
+    Tree t=tbIterator.next();
+    if (t == null) {
+      continue;
+    }
+    try {
+      gs=params.getGrammaticalStructure(t,puncFilter,hf);
+      origTrees.put(gs,t);
+      next=gs;
+      return;
+    }
+ catch (    NullPointerException npe) {
+      System.err.println("Bung (empty?) tree caused below dump. Continuing....");
+      npe.printStackTrace();
+    }
+  }
+  next=null;
+}

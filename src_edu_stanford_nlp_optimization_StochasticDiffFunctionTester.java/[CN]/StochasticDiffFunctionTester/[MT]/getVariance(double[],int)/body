@@ -1,0 +1,44 @@
+{
+  double[] ret=new double[4];
+  double[] fullHx=new double[thisFunc.domainDimension()];
+  double[] thisHx=new double[x.length];
+  double[] thisGrad=new double[x.length];
+  List<double[]> HxList=new ArrayList<double[]>();
+  thisFunc.sampleMethod=AbstractStochasticCachingDiffFunction.SamplingMethod.Ordered;
+  System.arraycopy(thisFunc.derivativeAt(x,x,thisFunc.dataDimension()),0,thisGrad,0,thisGrad.length);
+  System.arraycopy(thisFunc.HdotVAt(x,x,thisGrad,thisFunc.dataDimension()),0,fullHx,0,fullHx.length);
+  double fullNorm=ArrayMath.norm(fullHx);
+  double hessScale=((double)thisFunc.dataDimension()) / ((double)batchSize);
+  thisFunc.sampleMethod=AbstractStochasticCachingDiffFunction.SamplingMethod.RandomWithReplacement;
+  int n=100;
+  double simDelta;
+  double ratDelta;
+  double simMean=0;
+  double ratMean=0;
+  double simS=0;
+  double ratS=0;
+  int k=0;
+  System.err.println(fullHx[4] + "  " + x[4]);
+  for (int i=0; i < n; i++) {
+    System.arraycopy(thisFunc.derivativeAt(x,x,batchSize),0,thisGrad,0,thisGrad.length);
+    System.arraycopy(thisFunc.HdotVAt(x,x,thisGrad,batchSize),0,thisHx,0,thisHx.length);
+    ArrayMath.multiplyInPlace(thisHx,hessScale);
+    double thisNorm=ArrayMath.norm(thisHx);
+    double sim=ArrayMath.innerProduct(thisHx,fullHx) / (thisNorm * fullNorm);
+    double rat=thisNorm / fullNorm;
+    k+=1;
+    simDelta=sim - simMean;
+    simMean+=simDelta / k;
+    simS+=simDelta * (sim - simMean);
+    ratDelta=rat - ratMean;
+    ratMean+=ratDelta / k;
+    ratS+=ratDelta * (rat - ratMean);
+  }
+  double simVar=simS / (k - 1);
+  double ratVar=ratS / (k - 1);
+  ret[0]=simMean;
+  ret[1]=simVar;
+  ret[2]=ratMean;
+  ret[3]=ratVar;
+  return ret;
+}

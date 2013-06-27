@@ -1,0 +1,87 @@
+{
+  String sentText=concatField(sentWords,FIELD_WORD);
+  Annotation sentence=new Annotation(sentText);
+  Tree tree=wordsToParse(sentWords);
+  sentence.set(TreeCoreAnnotations.TreeAnnotation.class,tree);
+  List<Tree> leaves=tree.getLeaves();
+  assert(leaves.size() == sentWords.size());
+  List<CoreLabel> tokens=new ArrayList<CoreLabel>(leaves.size());
+  sentence.set(CoreAnnotations.TokensAnnotation.class,tokens);
+  for (int i=0; i < sentWords.size(); i++) {
+    String[] fields=sentWords.get(i);
+    int wordPos=Integer.parseInt(fields[FIELD_WORD_NO]);
+    assert(wordPos == i);
+    Tree leaf=leaves.get(i);
+    CoreLabel token=(CoreLabel)leaf.label();
+    tokens.add(token);
+    if (options.annotateTokenSpeaker) {
+      String speaker=fields[FIELD_SPEAKER_AUTHOR].replace("_"," ");
+      if (!HYPHEN.equals(speaker)) {
+        token.set(CoreAnnotations.SpeakerAnnotation.class,speaker);
+      }
+    }
+  }
+  if (options.annotateTokenPos) {
+    for (    Tree leaf : leaves) {
+      CoreLabel token=(CoreLabel)leaf.label();
+      token.set(CoreAnnotations.PartOfSpeechAnnotation.class,leaf.parent(tree).value());
+    }
+  }
+  if (options.annotateTokenNer) {
+    List<Triple<Integer,Integer,String>> nerSpans=getNerSpans(sentWords);
+    for (    Triple<Integer,Integer,String> nerSpan : nerSpans) {
+      int startToken=nerSpan.first();
+      int endToken=nerSpan.second();
+      String label=nerSpan.third();
+      for (int i=startToken; i <= endToken; i++) {
+        Tree leaf=leaves.get(i);
+        CoreLabel token=(CoreLabel)leaf.label();
+        String oldLabel=token.get(CoreAnnotations.NamedEntityTagAnnotation.class);
+        if (oldLabel != null) {
+          logger.warning("Replacing old named entity tag " + oldLabel + " with "+ label);
+        }
+        token.set(CoreAnnotations.NamedEntityTagAnnotation.class,label);
+      }
+    }
+    for (    CoreLabel token : tokens) {
+      if (!token.containsKey(CoreAnnotations.NamedEntityTagAnnotation.class)) {
+        token.set(CoreAnnotations.NamedEntityTagAnnotation.class,options.backgroundNerTag);
+      }
+    }
+  }
+  if (options.annotateTokenCoref) {
+    List<Triple<Integer,Integer,String>> corefSpans=getCorefSpans(sentWords);
+    for (    Triple<Integer,Integer,String> corefSpan : corefSpans) {
+      int startToken=corefSpan.first();
+      int endToken=corefSpan.second();
+      String label=corefSpan.third();
+      for (int i=startToken; i <= endToken; i++) {
+        Tree leaf=leaves.get(i);
+        CoreLabel token=(CoreLabel)leaf.label();
+        String curLabel=label;
+        if (options.useCorefBIOESEncoding) {
+          String prefix;
+          if (startToken == endToken) {
+            prefix="S-";
+          }
+ else           if (i == startToken) {
+            prefix="B-";
+          }
+ else           if (i == endToken) {
+            prefix="E-";
+          }
+ else {
+            prefix="I-";
+          }
+          curLabel=prefix + label;
+        }
+        String oldLabel=token.get(CorefCoreAnnotations.CorefAnnotation.class);
+        if (oldLabel != null) {
+          curLabel=oldLabel + "|" + curLabel;
+        }
+        token.set(CorefCoreAnnotations.CorefAnnotation.class,curLabel);
+      }
+    }
+  }
+  return sentence;
+}

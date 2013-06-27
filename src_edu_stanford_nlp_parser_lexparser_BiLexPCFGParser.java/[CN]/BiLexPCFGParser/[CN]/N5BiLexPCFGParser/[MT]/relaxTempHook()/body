@@ -1,0 +1,22 @@
+{
+  relaxHook1++;
+  if (VERBOSE) {
+    System.err.println("Considering: " + tempHook + " iP: "+ scorer.iPossible(tempHook)+ " oP: "+ scorer.oPossible(tempHook));
+  }
+  if (!op.testOptions.exhaustiveTest) {
+    if (!scorer.oPossible(tempHook) || !scorer.iPossible(tempHook)) {
+      return;
+    }
+  }
+  relaxHook2++;
+  Hook resultHook=tempHook;
+  if (VERBOSE) {
+    System.err.println("Formed " + resultHook + " "+ (resultHook == tempHook ? "new" : "old")+ " "+ tempHook.iScore+ " was "+ resultHook.iScore);
+  }
+  if (resultHook == tempHook) {
+    relaxHook3++;
+    tempHook=new Hook(op.testOptions.exhaustiveTest);
+    processHook(resultHook);
+    builtHooks++;
+  }
+}

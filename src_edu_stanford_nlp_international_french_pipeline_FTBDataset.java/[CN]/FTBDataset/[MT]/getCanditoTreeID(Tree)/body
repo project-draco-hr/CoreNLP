@@ -1,0 +1,18 @@
+{
+  String canditoName=null;
+  if (t.label() instanceof CoreLabel) {
+    String fileName=((CoreLabel)t.label()).docID();
+    fileName=fileName.substring(0,fileName.lastIndexOf('.'));
+    String ftbID=((CoreLabel)t.label()).get(CoreAnnotations.SentenceIDAnnotation.class);
+    if (fileName != null && ftbID != null) {
+      canditoName=fileName + "-" + ftbID;
+    }
+ else {
+      throw new NullPointerException("fileName " + fileName + ", ftbID "+ ftbID);
+    }
+  }
+ else {
+    throw new IllegalArgumentException("Trees constructed without CoreLabels! Can't extract metadata!");
+  }
+  return canditoName;
+}

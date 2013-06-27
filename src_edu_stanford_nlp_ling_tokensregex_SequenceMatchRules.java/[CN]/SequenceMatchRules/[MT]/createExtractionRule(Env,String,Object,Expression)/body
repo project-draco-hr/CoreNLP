@@ -1,0 +1,16 @@
+{
+  if (ruleType == null && env != null) {
+    ruleType=(String)env.getDefaults().get("ruleType");
+  }
+  AnnotationExtractRuleCreator ruleCreator=lookupExtractRuleCreator(env,ruleType);
+  if (ruleCreator != null) {
+    Map<String,Object> attributes=Generics.newHashMap();
+    attributes.put("ruleType",ruleType);
+    attributes.put("pattern",pattern);
+    attributes.put("result",result);
+    return ruleCreator.create(env,attributes);
+  }
+ else {
+    throw new IllegalArgumentException("Unknown rule type: " + ruleType);
+  }
+}

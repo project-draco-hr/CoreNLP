@@ -1,0 +1,85 @@
+{
+  decommitVariableGroups();
+  decommitNamedNodes();
+  decommitNamedRelations();
+  finished=true;
+  Matcher m=null;
+  while (nodeMatchCandidateIterator.hasNext()) {
+    if (myNode.reln.getName() != null) {
+      String foundReln=namesToRelations.get(myNode.reln.getName());
+      nextMatchReln=((GraphRelation.SearchNodeIterator)nodeMatchCandidateIterator).getReln();
+      if ((foundReln != null) && (!nextMatchReln.equals(foundReln))) {
+        nextMatch=nodeMatchCandidateIterator.next();
+        continue;
+      }
+    }
+    nextMatch=nodeMatchCandidateIterator.next();
+    if (myNode.descString.equals("{}") && myNode.isLink) {
+      IndexedWord otherNode=namesToNodes.get(myNode.name);
+      if (otherNode != null) {
+        if (otherNode.equals(nextMatch)) {
+          if (myNode.negDesc) {
+            continue;
+          }
+ else {
+            finished=false;
+            break;
+          }
+        }
+ else {
+          if (myNode.negDesc) {
+            finished=false;
+            break;
+          }
+ else {
+            continue;
+          }
+        }
+      }
+ else {
+        boolean found=myNode.nodeAttrMatch(nextMatch,hyp ? sg : sg_aligned,ignoreCase);
+        if (found) {
+          for (          Pair<Integer,String> varGroup : myNode.variableGroups) {
+            String thisVariable=varGroup.second();
+            String thisVarString=variableStrings.getString(thisVariable);
+            if (thisVarString != null && !thisVarString.equals(m.group(varGroup.first()))) {
+              found=false;
+              break;
+            }
+          }
+          finished=false;
+          break;
+        }
+      }
+    }
+ else {
+      boolean found=myNode.nodeAttrMatch(nextMatch,hyp ? sg : sg_aligned,ignoreCase);
+      if (found) {
+        for (        Pair<Integer,String> varGroup : myNode.variableGroups) {
+          String thisVariable=varGroup.second();
+          String thisVarString=variableStrings.getString(thisVariable);
+          if (thisVarString != null && !thisVarString.equals(m.group(varGroup.first()))) {
+            found=false;
+            break;
+          }
+        }
+        finished=false;
+        break;
+      }
+    }
+  }
+  if (!finished) {
+    resetChild();
+    if (myNode.name != null) {
+      if (!namesToNodes.containsKey(myNode.name)) {
+        namedFirst=true;
+      }
+      namesToNodes.put(myNode.name,nextMatch);
+    }
+    if (myNode.reln.getName() != null) {
+      if (!namesToRelations.containsKey(myNode.reln.getName()))       relnNamedFirst=true;
+      namesToRelations.put(myNode.reln.getName(),nextMatchReln);
+    }
+    commitVariableGroups(m);
+  }
+}

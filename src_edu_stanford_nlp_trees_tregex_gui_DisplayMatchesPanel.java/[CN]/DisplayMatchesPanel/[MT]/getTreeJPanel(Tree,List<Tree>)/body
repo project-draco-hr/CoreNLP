@@ -1,0 +1,26 @@
+{
+  final ScrollableTreeJPanel treeJP=new ScrollableTreeJPanel(SwingConstants.CENTER,SwingConstants.TOP);
+  treeJP.setFontName(fontName);
+  treeJP.setFontSize(fontSize);
+  treeJP.setDefaultColor(defaultColor);
+  treeJP.setMatchedColor(matchedColor);
+  treeJP.setTree(t);
+  treeJP.setMatchedParts(matchedParts);
+  treeJP.setBackground(Color.WHITE);
+  treeJP.setFocusable(true);
+  treeJP.addMouseListener(new MouseAdapter(){
+    @Override public void mouseClicked(    MouseEvent e){
+      treeJP.requestFocusInWindow();
+    }
+  }
+);
+  DisplayMouseMotionAdapter d=new DisplayMouseMotionAdapter();
+  treeJP.addMouseMotionListener(d);
+  treeJP.addMouseListener(d);
+  treeJP.setTransferHandler(new DisplayTransferHandler());
+  InputMap imap=treeJP.getInputMap();
+  imap.put(KeyStroke.getKeyStroke("ctrl C"),TransferHandler.getCopyAction().getValue(Action.NAME));
+  ActionMap map=treeJP.getActionMap();
+  map.put(TransferHandler.getCopyAction().getValue(Action.NAME),TransferHandler.getCopyAction());
+  return treeJP;
+}

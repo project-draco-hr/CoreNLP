@@ -1,0 +1,42 @@
+{
+  LineNumberReader infile=null;
+  PrintWriter outfile=null;
+  String currentInfile="";
+  try {
+    outfile=new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFileName),"UTF-8")));
+    for (    File path : pathsToData) {
+      infile=new LineNumberReader(new BufferedReader(new InputStreamReader(new FileInputStream(path),"UTF-8")));
+      currentInfile=path.getPath();
+      while (infile.ready()) {
+        ArrayList<Word> sent=Sentence.toUntaggedList(infile.readLine().split("\\s+"));
+        for (        Word token : sent) {
+          Matcher hasArabic=utf8ArabicChart.matcher(token.word());
+          if (hasArabic.find()) {
+            token.setWord(escaper.apply(token.word()));
+            token.setWord(lexMapper.map(null,token.word()));
+          }
+        }
+        outfile.println(Sentence.listToString(sent));
+      }
+      toStringBuffer.append(String.format(" Read %d input lines from %s",infile.getLineNumber(),path.getPath()));
+    }
+    infile.close();
+  }
+ catch (  UnsupportedEncodingException e) {
+    System.err.printf("%s: Filesystem does not support UTF-8 output\n",this.getClass().getName());
+    e.printStackTrace();
+  }
+catch (  FileNotFoundException e) {
+    System.err.printf("%s: Could not open %s for writing\n",this.getClass().getName(),outFileName);
+  }
+catch (  IOException e) {
+    System.err.printf("%s: Error reading from %s (line %d)\n",this.getClass().getName(),currentInfile,infile.getLineNumber());
+  }
+catch (  RuntimeException e) {
+    System.err.printf("%s: Input sentence from %s contains token mapped to null (line %d)\n",this.getClass().getName(),currentInfile,infile.getLineNumber());
+    e.printStackTrace();
+  }
+ finally {
+    if (outfile != null)     outfile.close();
+  }
+}

@@ -1,0 +1,35 @@
+{
+  double[] scores=new double[maxentTagger.ySize];
+  int szCommon=maxentTagger.extractors.getSize();
+  for (  Pair<Integer,Extractor> e : extractors) {
+    int kf=e.first();
+    Extractor ex=e.second();
+    String val=ex.extract(h);
+    int[] fAssociations=maxentTagger.fAssociations.get(kf).get(val);
+    if (fAssociations != null) {
+      for (int i=0; i < maxentTagger.ySize; i++) {
+        int fNum=fAssociations[i];
+        if (fNum > -1) {
+          scores[i]+=maxentTagger.getLambdaSolve().lambda[fNum];
+        }
+      }
+    }
+  }
+  if (extractorsRare != null) {
+    for (    Pair<Integer,Extractor> e : extractorsRare) {
+      int kf=e.first();
+      Extractor ex=e.second();
+      String val=ex.extract(h);
+      int[] fAssociations=maxentTagger.fAssociations.get(kf + szCommon).get(val);
+      if (fAssociations != null) {
+        for (int i=0; i < maxentTagger.ySize; i++) {
+          int fNum=fAssociations[i];
+          if (fNum > -1) {
+            scores[i]+=maxentTagger.getLambdaSolve().lambda[fNum];
+          }
+        }
+      }
+    }
+  }
+  return scores;
+}

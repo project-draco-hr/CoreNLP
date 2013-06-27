@@ -1,0 +1,73 @@
+{
+  List<CoreMap> timexAnns=anno.get(TimeAnnotations.TimexAnnotations.class);
+  List<String> pieces=new ArrayList<String>();
+  List<Boolean> tagged=new ArrayList<Boolean>();
+  int previousEnd=0;
+  for (  CoreMap timexAnn : timexAnns) {
+    int begin=timexAnn.get(CoreAnnotations.CharacterOffsetBeginAnnotation.class);
+    int end=timexAnn.get(CoreAnnotations.CharacterOffsetEndAnnotation.class);
+    if (begin >= previousEnd) {
+      pieces.add(query.substring(previousEnd,begin));
+      tagged.add(false);
+      pieces.add(query.substring(begin,end));
+      tagged.add(true);
+      previousEnd=end;
+    }
+  }
+  if (previousEnd < query.length()) {
+    pieces.add(query.substring(previousEnd));
+    tagged.add(false);
+  }
+  out.println("<table id='Annotated'><tr><td>");
+  for (int i=0; i < pieces.size(); ++i) {
+    if (tagged.get(i)) {
+      out.print("<span style=\"background-color: #FF8888\">");
+      out.print(StringEscapeUtils.escapeHtml4(pieces.get(i)));
+      out.print("</span>");
+    }
+ else {
+      out.print(StringEscapeUtils.escapeHtml4(pieces.get(i)));
+    }
+  }
+  out.println("</td></tr></table>");
+  out.println("<h3>Temporal Expressions</h3>");
+  if (timexAnns.size() > 0) {
+    out.println("<table>");
+    out.println("<tr><th>Text</th><th>Value</th>");
+    if (includeOffsets) {
+      out.println("<th>Char Begin</th><th>Char End</th><th>Token Begin</th><th>Token End</th>");
+    }
+    out.println("<th>Timex3 Tag</th></tr>");
+    for (    CoreMap timexAnn : timexAnns) {
+      out.println("<tr>");
+      Timex timex=timexAnn.get(TimeAnnotations.TimexAnnotation.class);
+      int begin=timexAnn.get(CoreAnnotations.CharacterOffsetBeginAnnotation.class);
+      int end=timexAnn.get(CoreAnnotations.CharacterOffsetEndAnnotation.class);
+      out.print("<td>" + StringEscapeUtils.escapeHtml4(query.substring(begin,end)) + "</td>");
+      out.print("<td>" + ((timex.value() != null) ? StringEscapeUtils.escapeHtml4(timex.value()) : "") + "</td>");
+      if (includeOffsets) {
+        out.print("<td>" + begin + "</td>");
+        out.print("<td>" + end + "</td>");
+        out.print("<td>" + timexAnn.get(CoreAnnotations.TokenBeginAnnotation.class) + "</td>");
+        out.print("<td>" + timexAnn.get(CoreAnnotations.TokenEndAnnotation.class) + "</td>");
+      }
+      out.print("<td>" + StringEscapeUtils.escapeHtml4(timex.toString()) + "</td>");
+      out.println("</tr>");
+    }
+    out.println("</table>");
+  }
+ else {
+    out.println("<em>No temporal expressions.</em>");
+  }
+  out.println("<h3>POS Tags</h3>");
+  out.println("<table><tr><td>");
+  for (  CoreMap sentence : anno.get(CoreAnnotations.SentencesAnnotation.class)) {
+    List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
+    for (    CoreLabel token : tokens) {
+      String tokenOutput=StringEscapeUtils.escapeHtml4(token.word() + "/" + token.tag());
+      out.print(tokenOutput + " ");
+    }
+    out.println("<br>");
+  }
+  out.println("</td></tr></table>");
+}

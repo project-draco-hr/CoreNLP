@@ -1,0 +1,24 @@
+{
+  BufferedReader reader=null;
+  try {
+    reader=IOUtils.readerFromString(demonymFile);
+    while (reader.ready()) {
+      String[] line=reader.readLine().split("\t");
+      if (line[0].startsWith("#"))       continue;
+      Set<String> set=Generics.newHashSet();
+      for (      String s : line) {
+        set.add(s.toLowerCase());
+        demonymSet.add(s.toLowerCase());
+      }
+      demonyms.put(line[0].toLowerCase(),set);
+    }
+    adjectiveNation.addAll(demonymSet);
+    adjectiveNation.removeAll(demonyms.keySet());
+  }
+ catch (  IOException e) {
+    throw new RuntimeIOException(e);
+  }
+ finally {
+    IOUtils.closeIgnoringExceptions(reader);
+  }
+}

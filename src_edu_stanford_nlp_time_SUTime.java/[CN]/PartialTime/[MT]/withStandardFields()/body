@@ -1,0 +1,13 @@
+{
+  if (base.isSupported(DateTimeFieldType.dayOfWeek())) {
+    base=JodaTimeUtils.resolveDowToDay(base);
+  }
+ else   if (base.isSupported(DateTimeFieldType.monthOfYear()) && base.isSupported(DateTimeFieldType.dayOfMonth())) {
+    if (base.isSupported(DateTimeFieldType.weekOfWeekyear())) {
+      base=base.without(DateTimeFieldType.weekOfWeekyear());
+    }
+    if (base.isSupported(DateTimeFieldType.dayOfWeek())) {
+      base=base.without(DateTimeFieldType.dayOfWeek());
+    }
+  }
+}

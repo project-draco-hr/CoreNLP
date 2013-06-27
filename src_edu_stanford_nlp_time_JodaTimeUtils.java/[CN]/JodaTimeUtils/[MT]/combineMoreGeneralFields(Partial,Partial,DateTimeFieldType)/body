@@ -1,0 +1,64 @@
+{
+  Partial p=p1;
+  Chronology c1=p1.getChronology();
+  Chronology c2=p2.getChronology();
+  if (!c1.equals(c2)) {
+    throw new RuntimeException("Different chronology: c1=" + c1 + ", c2="+ c2);
+  }
+  DateTimeFieldType p1MostGeneralField=null;
+  if (p1.size() > 0) {
+    p1MostGeneralField=p1.getFieldType(0);
+  }
+  if (mgf == null || (p1MostGeneralField != null && isMoreGeneral(p1MostGeneralField,mgf,c1))) {
+    mgf=p1MostGeneralField;
+  }
+  for (int i=0; i < p2.size(); i++) {
+    DateTimeFieldType fieldType=p2.getFieldType(i);
+    if (fieldType == DateTimeFieldType.year()) {
+      if (p.isSupported(DateTimeFieldType.yearOfCentury())) {
+        if (!p.isSupported(DateTimeFieldType.centuryOfEra())) {
+          int yoc=p.get(DateTimeFieldType.yearOfCentury());
+          int refYear=p2.getValue(i);
+          int century=refYear / 100;
+          int y2=yoc + century * 100;
+          if (refYear < y2) {
+            y2-=100;
+          }
+          p=p.without(DateTimeFieldType.yearOfCentury());
+          p=p.with(DateTimeFieldType.year(),y2);
+        }
+        continue;
+      }
+ else       if (p.isSupported(JodaTimeUtils.DecadeOfCentury)) {
+        if (!p.isSupported(DateTimeFieldType.centuryOfEra())) {
+          int decade=p.get(JodaTimeUtils.DecadeOfCentury);
+          int refYear=p2.getValue(i);
+          int century=refYear / 100;
+          int y2=decade * 10 + century * 100;
+          if (refYear < y2) {
+            century--;
+          }
+          p=p.with(DateTimeFieldType.centuryOfEra(),century);
+        }
+        continue;
+      }
+    }
+    if (mgf == null || isMoreGeneral(fieldType,mgf,c1)) {
+      if (!p.isSupported(fieldType)) {
+        p=p.with(fieldType,p2.getValue(i));
+      }
+    }
+ else {
+      break;
+    }
+  }
+  if (!p.isSupported(DateTimeFieldType.year())) {
+    if (p.isSupported(DateTimeFieldType.yearOfCentury()) && p.isSupported(DateTimeFieldType.centuryOfEra())) {
+      int year=p.get(DateTimeFieldType.yearOfCentury()) + p.get(DateTimeFieldType.centuryOfEra()) * 100;
+      p=p.with(DateTimeFieldType.year(),year);
+      p=p.without(DateTimeFieldType.yearOfCentury());
+      p=p.without(DateTimeFieldType.centuryOfEra());
+    }
+  }
+  return p;
+}

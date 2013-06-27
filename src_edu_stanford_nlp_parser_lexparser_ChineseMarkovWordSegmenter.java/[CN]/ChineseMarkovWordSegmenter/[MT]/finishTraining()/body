@@ -1,0 +1,13 @@
+{
+  lex.finishTraining();
+  int numTags=tagIndex.size();
+  POSes=Generics.newHashSet(tagIndex.objectsList());
+  initialPOSDist=Distribution.laplaceSmoothedDistribution(initial,numTags,0.5);
+  markovPOSDists=Generics.newHashMap();
+  Set entries=ruleCounter.lowestLevelCounterEntrySet();
+  for (Iterator iter=entries.iterator(); iter.hasNext(); ) {
+    Map.Entry entry=(Map.Entry)iter.next();
+    Distribution d=Distribution.laplaceSmoothedDistribution((ClassicCounter)entry.getValue(),numTags,0.5);
+    markovPOSDists.put(((List<String>)entry.getKey()).get(0),d);
+  }
+}

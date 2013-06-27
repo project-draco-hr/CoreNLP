@@ -1,0 +1,24 @@
+{
+  CoreMap object=new ArrayCoreMap(0);
+  assertFalse(object.has(StringA.class));
+  object.set(StringA.class,"stem");
+  assertTrue(object.has(StringA.class));
+  assertEquals("stem",object.get(StringA.class));
+  object.set(StringA.class,"hi");
+  assertEquals("hi",object.get(StringA.class));
+  assertEquals(null,object.get(IntegerA.class));
+  object.set(IntegerA.class,4);
+  assertEquals(Integer.valueOf(4),object.get(IntegerA.class));
+  object.set(StringB.class,"Yes");
+  assertEquals("Wrong # objects",3,object.keySet().size());
+  assertEquals("Wrong keyset",new HashSet<Class<?>>(Arrays.asList(StringA.class,IntegerA.class,StringB.class)),object.keySet());
+  assertEquals("Wrong remove value",Integer.valueOf(4),object.remove(IntegerA.class));
+  assertEquals("Wrong # objects",2,object.keySet().size());
+  assertEquals("Wrong keyset",new HashSet<Class<?>>(Arrays.asList(StringA.class,StringB.class)),object.keySet());
+  assertEquals("Wrong value","hi",object.get(StringA.class));
+  assertEquals("Wrong value","Yes",object.get(StringB.class));
+  assertEquals(null,object.set(IntegerA.class,7));
+  assertEquals(Integer.valueOf(7),object.get(IntegerA.class));
+  assertEquals(Integer.valueOf(7),object.set(IntegerA.class,3));
+  assertEquals(Integer.valueOf(3),object.get(IntegerA.class));
+}

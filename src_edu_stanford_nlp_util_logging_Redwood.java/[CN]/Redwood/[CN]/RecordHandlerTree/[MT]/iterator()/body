@@ -1,0 +1,46 @@
+{
+  return new Iterator<LogRecordHandler>(){
+    private boolean seenHead=isRoot;
+    private Iterator<RecordHandlerTree> childrenIter=children();
+    private RecordHandlerTree childOnPrix=childrenIter.hasNext() ? childrenIter.next() : null;
+    private Iterator<LogRecordHandler> childIter=childOnPrix == null ? null : childOnPrix.iterator();
+    private LogRecordHandler lastReturned=null;
+    public boolean hasNext(){
+      while (childIter != null && !childIter.hasNext()) {
+        if (!childrenIter.hasNext()) {
+          break;
+        }
+ else {
+          childIter=childrenIter.next().iterator();
+        }
+      }
+      return !seenHead || (childIter != null && childIter.hasNext());
+    }
+    public LogRecordHandler next(){
+      if (!seenHead) {
+        seenHead=true;
+        return head();
+      }
+      lastReturned=childIter.next();
+      return lastReturned;
+    }
+    public void remove(){
+      if (!seenHead) {
+        throw new IllegalStateException("INTERNAL: this shouldn't happen...");
+      }
+      if (lastReturned == null) {
+        throw new IllegalStateException("Called remove() before any elements returned");
+      }
+      if (childOnPrix != null && lastReturned == childOnPrix.head()) {
+        childrenIter.remove();
+      }
+ else       if (childIter != null) {
+        childIter.remove();
+      }
+ else {
+        throw new IllegalStateException("INTERNAL: not sure what we're removing");
+      }
+    }
+  }
+;
+}

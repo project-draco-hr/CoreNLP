@@ -1,0 +1,39 @@
+{
+  if (position >= factorTables.length)   throw new RuntimeException("Index out of bounds: " + position);
+  double[] probThisGivenPrev=new double[numClasses];
+  double[] probNextGivenThis=new double[numClasses];
+  int prevLength=windowSize - 1;
+  int[] prev=new int[prevLength + 1];
+  int i=0;
+  for (; i < prevLength - position; i++) {
+    prev[i]=classIndex.indexOf(backgroundSymbol);
+  }
+  for (; i < prevLength; i++) {
+    prev[i]=sequence[position - prevLength + i];
+  }
+  for (int label=0; label < numClasses; label++) {
+    prev[prev.length - 1]=label;
+    probThisGivenPrev[label]=factorTables[position].unnormalizedLogProb(prev);
+  }
+  int nextLength=windowSize - 1;
+  if (position + nextLength >= length()) {
+    nextLength=length() - position - 1;
+  }
+  FactorTable nextFactorTable=factorTables[position + nextLength];
+  if (nextLength != windowSize - 1) {
+    for (int j=0; j < windowSize - 1 - nextLength; j++) {
+      nextFactorTable=nextFactorTable.sumOutFront();
+    }
+  }
+  if (nextLength == 0) {
+    Arrays.fill(probNextGivenThis,1.0);
+  }
+ else {
+    int[] next=new int[nextLength];
+    System.arraycopy(sequence,position + 1,next,0,nextLength);
+    for (int label=0; label < numClasses; label++) {
+      probNextGivenThis[label]=nextFactorTable.unnormalizedConditionalLogProbGivenFirst(label,next);
+    }
+  }
+  return ArrayMath.pairwiseAdd(probThisGivenPrev,probNextGivenThis);
+}

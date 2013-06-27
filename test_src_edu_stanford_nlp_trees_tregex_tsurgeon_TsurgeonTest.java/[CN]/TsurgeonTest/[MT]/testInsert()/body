@@ -1,0 +1,22 @@
+{
+  TsurgeonPattern tsurgeon=Tsurgeon.parseOperation("insert (D (E 6)) $+ bar");
+  TregexPattern tregex=TregexPattern.compile("B=bar !$ D");
+  runTest(tregex,tsurgeon,"(A (B 0) (C 1))","(A (D (E 6)) (B 0) (C 1))");
+  tsurgeon=Tsurgeon.parseOperation("insert (D (E 6)) $- bar");
+  runTest(tregex,tsurgeon,"(A (B 0) (C 1))","(A (B 0) (D (E 6)) (C 1))");
+  tsurgeon=Tsurgeon.parseOperation("insert (D (E 6)) >0 bar");
+  tregex=TregexPattern.compile("B=bar !<D");
+  runTest(tregex,tsurgeon,"(A (B 0) (C 1))","(A (B (D (E 6)) 0) (C 1))");
+  tsurgeon=Tsurgeon.parseOperation("insert foo >0 bar");
+  tregex=TregexPattern.compile("B=bar !<C $C=foo");
+  runTest(tregex,tsurgeon,"(A (B 0) (C 1))","(A (B (C 1) 0) (C 1))");
+  tsurgeon=Tsurgeon.parseOperation("insert (D (E=blah 6)) >0 bar");
+  tregex=TregexPattern.compile("B=bar !<D");
+  runTest(tregex,tsurgeon,"(A (B 0) (C 1))","(A (B (D (E 6)) 0) (C 1))");
+  tsurgeon=Tsurgeon.parseOperation("insert (D (E\\=blah 6)) >0 bar");
+  tregex=TregexPattern.compile("B=bar !<D");
+  runTest(tregex,tsurgeon,"(A (B 0) (C 1))","(A (B (D (E=blah 6)) 0) (C 1))");
+  tsurgeon=Tsurgeon.parseOperation("insert (D (E\\\\=blah 6)) >0 bar");
+  tregex=TregexPattern.compile("B=bar !<D");
+  runTest(tregex,tsurgeon,"(A (B 0) (C 1))","(A (B (D (E\\ 6)) 0) (C 1))");
+}

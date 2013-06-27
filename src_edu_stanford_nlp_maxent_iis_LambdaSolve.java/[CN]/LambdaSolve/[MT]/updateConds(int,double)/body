@@ -1,0 +1,19 @@
+{
+  for (int i=0; i < p.functions.get(index).len(); i++) {
+    double s=0;
+    int x=p.functions.get(index).getX(i);
+    int y=p.functions.get(index).getY(i);
+    double val=p.functions.get(index).getVal(i);
+    double zlambdaX=zlambda[x] + pcond(y,x) * zlambda[x] * (Math.exp(deltaL * val) - 1);
+    for (int y1=0; y1 < probConds[x].length; y1++) {
+      probConds[x][y1]=(probConds[x][y1] * zlambda[x]) / zlambdaX;
+      s=s + probConds[x][y1];
+    }
+    s=s - probConds[x][y];
+    probConds[x][y]=probConds[x][y] * Math.exp(deltaL * val);
+    s=s + probConds[x][y];
+    zlambda[x]=zlambdaX;
+    if (Math.abs(s - 1) > 0.001) {
+    }
+  }
+}

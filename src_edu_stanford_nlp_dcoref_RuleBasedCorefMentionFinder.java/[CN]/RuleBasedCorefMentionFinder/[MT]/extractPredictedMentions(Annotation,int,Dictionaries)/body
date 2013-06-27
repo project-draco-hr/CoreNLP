@@ -1,0 +1,17 @@
+{
+  this.maxID=_maxID;
+  List<List<Mention>> predictedMentions=new ArrayList<List<Mention>>();
+  for (  CoreMap s : doc.get(CoreAnnotations.SentencesAnnotation.class)) {
+    List<Mention> mentions=new ArrayList<Mention>();
+    predictedMentions.add(mentions);
+    Set<IntPair> mentionSpanSet=Generics.newHashSet();
+    Set<IntPair> namedEntitySpanSet=Generics.newHashSet();
+    extractNamedEntityMentions(s,mentions,mentionSpanSet,namedEntitySpanSet);
+    extractNPorPRP(s,mentions,mentionSpanSet,namedEntitySpanSet);
+    extractEnumerations(s,mentions,mentionSpanSet,namedEntitySpanSet);
+    findHead(s,mentions);
+    setBarePlural(mentions);
+    removeSpuriousMentions(s,mentions,dict);
+  }
+  return predictedMentions;
+}

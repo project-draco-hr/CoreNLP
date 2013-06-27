@@ -1,0 +1,32 @@
+{
+  try {
+    File tgtFile=new File(file);
+    BufferedWriter out=new BufferedWriter(new FileWriter(tgtFile));
+    labelIndex.saveToWriter(out);
+    featureIndex.saveToWriter(out);
+    int numLabels=labelIndex.size();
+    int numFeatures=featureIndex.size();
+    for (int featIndex=0; featIndex < numFeatures; featIndex++) {
+      for (int labelIndex=0; labelIndex < numLabels; labelIndex++) {
+        out.write(String.valueOf(featIndex));
+        out.write(TEXT_SERIALIZATION_DELIMITER);
+        out.write(String.valueOf(labelIndex));
+        out.write(TEXT_SERIALIZATION_DELIMITER);
+        out.write(String.valueOf(weight(featIndex,labelIndex)));
+        out.write("\n");
+      }
+    }
+    out.write("\n");
+    out.write(String.valueOf(thresholds.length));
+    out.write("\n");
+    for (    double val : thresholds) {
+      out.write(String.valueOf(val));
+      out.write("\n");
+    }
+    out.close();
+  }
+ catch (  Exception e) {
+    System.err.println("Error attempting to save classifier to file=" + file);
+    e.printStackTrace();
+  }
+}

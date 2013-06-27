@@ -1,0 +1,24 @@
+{
+  long[] fctr=new long[64];
+  long n=Math.abs(N);
+  short fctrIndex=0;
+  if (n > 0) {
+    while (n % 2 == 0) {
+      fctr[++fctrIndex]=2;
+      n/=2;
+    }
+    while (n % 3 == 0) {
+      fctr[++fctrIndex]=3;
+      n/=3;
+    }
+    for (int k=5; k * k <= n; k+=6)     for (int dvsr=k; dvsr <= k + 2; dvsr+=2) {
+      while (n % dvsr == 0) {
+        fctr[++fctrIndex]=dvsr;
+        n/=dvsr;
+      }
+    }
+    if (n > 1)     fctr[++fctrIndex]=n;
+  }
+  fctr[0]=fctrIndex;
+  return fctr;
+}

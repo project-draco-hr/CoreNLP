@@ -1,0 +1,40 @@
+{
+  if (charBeginOffset == null)   charBeginOffset=0;
+  List<Node> nodes=new ArrayList<Node>();
+  int previousEnd=0;
+  List<Element> timexElems=new ArrayList<Element>();
+  List<ValuedInterval<CoreMap,Integer>> processed=new ArrayList<ValuedInterval<CoreMap,Integer>>();
+  CollectionValuedMap<Integer,ValuedInterval<CoreMap,Integer>> unprocessed=new CollectionValuedMap<Integer,ValuedInterval<CoreMap,Integer>>(CollectionFactory.<ValuedInterval<CoreMap,Integer>>arrayListFactory());
+  for (  ValuedInterval<CoreMap,Integer> v : timexList) {
+    CoreMap timexAnn=v.getValue();
+    int begin=timexAnn.get(CoreAnnotations.CharacterOffsetBeginAnnotation.class) - charBeginOffset;
+    int end=timexAnn.get(CoreAnnotations.CharacterOffsetEndAnnotation.class) - charBeginOffset;
+    if (begin >= previousEnd) {
+      nodes.add(XMLUtils.createTextNode(str.substring(previousEnd,begin)));
+      Timex timex=timexAnn.get(TimeAnnotations.TimexAnnotation.class);
+      Element timexElem=timex.toXmlElement();
+      nodes.add(timexElem);
+      previousEnd=end;
+      processed.add(v);
+      timexElems.add(timexElem);
+    }
+ else {
+      unprocessed.add(processed.size() - 1,v);
+    }
+  }
+  if (previousEnd < str.length()) {
+    nodes.add(XMLUtils.createTextNode(str.substring(previousEnd)));
+  }
+  for (  Integer i : unprocessed.keySet()) {
+    ValuedInterval<CoreMap,Integer> v=processed.get(i);
+    String elemStr=v.getValue().get(CoreAnnotations.TextAnnotation.class);
+    int charStart=v.getValue().get(CoreAnnotations.CharacterOffsetBeginAnnotation.class);
+    List<Node> innerElems=createTimexNodesPresorted(elemStr,charStart,(List<ValuedInterval<CoreMap,Integer>>)unprocessed.get(i));
+    Element timexElem=timexElems.get(i);
+    XMLUtils.removeChildren(timexElem);
+    for (    Node n : innerElems) {
+      timexElem.appendChild(n);
+    }
+  }
+  return nodes;
+}

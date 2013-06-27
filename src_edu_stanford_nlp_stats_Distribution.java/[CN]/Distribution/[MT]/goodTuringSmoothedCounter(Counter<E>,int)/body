@@ -1,0 +1,30 @@
+{
+  int[] countCounts=getCountCounts(counter);
+  for (int i=1; i <= 10; i++) {
+    if (countCounts[i] < 3) {
+      return laplaceSmoothedDistribution(counter,numberOfKeys,0.5);
+    }
+  }
+  double observedMass=counter.totalCount();
+  double reservedMass=countCounts[1] / observedMass;
+  double[] adjustedFreq=new double[10];
+  for (int freq=1; freq < 10; freq++) {
+    adjustedFreq[freq]=(double)(freq + 1) * (double)countCounts[freq + 1] / countCounts[freq];
+    observedMass-=(freq - adjustedFreq[freq]) * countCounts[freq];
+  }
+  double normFactor=(1.0 - reservedMass) / observedMass;
+  Distribution<E> norm=new Distribution<E>();
+  norm.counter=new ClassicCounter<E>();
+  for (  E key : counter.keySet()) {
+    int origFreq=(int)Math.round(counter.getCount(key));
+    if (origFreq < 10) {
+      norm.counter.setCount(key,adjustedFreq[origFreq] * normFactor);
+    }
+ else {
+      norm.counter.setCount(key,origFreq * normFactor);
+    }
+  }
+  norm.numberOfKeys=numberOfKeys;
+  norm.reservedMass=reservedMass;
+  return norm;
+}

@@ -1,0 +1,47 @@
+{
+  if (args.length < minArgs) {
+    System.out.println(usage);
+    System.exit(-1);
+  }
+  Properties options=StringUtils.argsToProperties(args,optionArgDefinitions);
+  String fileName=options.getProperty("");
+  if (fileName == null || fileName.equals("")) {
+    System.out.println(usage);
+    System.exit(-1);
+  }
+  int maxLen=PropertiesUtils.getInt(options,"y",Integer.MAX_VALUE);
+  boolean printTrees=PropertiesUtils.getBool(options,"p",false);
+  boolean flattenTrees=PropertiesUtils.getBool(options,"f",false);
+  boolean printPOS=PropertiesUtils.getBool(options,"a",false);
+  boolean printTnT=PropertiesUtils.getBool(options,"t",false);
+  Language language=PropertiesUtils.get(options,"l",Language.English,Language.class);
+  TreebankLangParserParams tlpp=Languages.getLanguageParams(language);
+  String encoding=options.getProperty("e","UTF-8");
+  tlpp.setInputEncoding(encoding);
+  tlpp.setOutputEncoding(encoding);
+  DiskTreebank tb=tlpp.diskTreebank();
+  tb.loadPath(fileName);
+  PrintWriter pw=tlpp.pw();
+  int numTrees=0;
+  for (  Tree tree : tb) {
+    if (tree.yield().size() > maxLen)     continue;
+    ++numTrees;
+    if (printTrees) {
+      pw.println(tree.toString());
+    }
+ else     if (flattenTrees) {
+      pw.println(Sentence.listToString(tree.yield()));
+    }
+ else     if (printPOS) {
+      pw.println(Sentence.listToString(tree.preTerminalYield()));
+    }
+ else     if (printTnT) {
+      List<CoreLabel> yield=tree.taggedLabeledYield();
+      for (      CoreLabel label : yield) {
+        pw.printf("%s\t%s%n",label.word(),label.tag());
+      }
+      pw.println();
+    }
+  }
+  System.err.printf("Read %d trees.%n",numTrees);
+}

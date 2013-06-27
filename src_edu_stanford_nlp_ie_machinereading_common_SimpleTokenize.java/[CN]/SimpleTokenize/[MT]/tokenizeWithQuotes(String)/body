@@ -1,0 +1,32 @@
+{
+  ArrayList<String> tokens=new ArrayList<String>();
+  int position=0;
+  while ((position=findNonWhitespace(line,position)) != -1) {
+    int end=-1;
+    if (line.charAt(position) == '\"' && (position == 0 || line.charAt(position - 1) != '\\')) {
+      int current=position;
+      for (; ; ) {
+        if ((end=line.indexOf('\"',current + 1)) == -1) {
+          end=line.length();
+          break;
+        }
+ else {
+          if (line.charAt(end - 1) != '\\') {
+            end++;
+            break;
+          }
+ else {
+            current=end;
+          }
+        }
+      }
+      tokens.add(normalizeQuotes(line.substring(position + 1,end - 1)));
+    }
+ else {
+      if ((end=findWhitespace(line,position + 1)) == -1)       end=line.length();
+      tokens.add(new String(line.substring(position,end)));
+    }
+    position=end;
+  }
+  return tokens;
+}

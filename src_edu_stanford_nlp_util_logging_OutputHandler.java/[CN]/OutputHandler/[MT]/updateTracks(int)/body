@@ -1,0 +1,25 @@
+{
+  while (!queuedTracks.isEmpty()) {
+    Record signal=queuedTracks.removeFirst();
+    if (signal.depth >= untilDepth) {
+      queuedTracks.add(signal);
+      return;
+    }
+    StringBuilder b=new StringBuilder();
+    if (missingOpenBracket) {
+      b.append("{\n");
+    }
+    for (int i=0; i < leftMargin; i++) {
+      b.append(" ");
+    }
+    writeContent(signal.depth,signal.content,b);
+    if (signal.content.toString().length() > 0) {
+      b.append(" ");
+    }
+    print(null,this.style(new StringBuilder(),b.toString(),trackColor,trackStyle).toString());
+    this.missingOpenBracket=true;
+    if (info != null) {
+      info.numElementsPrinted+=1;
+    }
+  }
+}

@@ -1,0 +1,151 @@
+{
+  c.setCount("p",0);
+  c.setCount("q",2);
+  ClassicCounter<String> small_c=new ClassicCounter<String>(c);
+  Counter<String> c7=c.getFactory().create();
+  c7.addAll(c);
+  assertEquals(c.totalCount(),2.0);
+  c.incrementCount("p");
+  assertEquals(c.totalCount(),3.0);
+  c.incrementCount("p",2.0);
+  assertEquals(Counters.min(c),2.0);
+  assertEquals(Counters.argmin(c),"q");
+  c.setCount("w",-5.0);
+  c.setCount("x",-4.5);
+  List<String> biggestKeys=new ArrayList<String>(c.keySet());
+  assertEquals(biggestKeys.size(),4);
+  Collections.sort(biggestKeys,Counters.toComparator(c,false,true));
+  assertEquals("w",biggestKeys.get(0));
+  assertEquals("x",biggestKeys.get(1));
+  assertEquals("p",biggestKeys.get(2));
+  assertEquals("q",biggestKeys.get(3));
+  assertEquals(Counters.min(c),-5.0,TOLERANCE);
+  assertEquals(Counters.argmin(c),"w");
+  assertEquals(Counters.max(c),3.0,TOLERANCE);
+  assertEquals(Counters.argmax(c),"p");
+  if (integral) {
+    assertEquals(Counters.mean(c),-1.0);
+  }
+ else {
+    assertEquals(Counters.mean(c),-1.125,TOLERANCE);
+  }
+  if (!integral) {
+    c.setCount("x",-2.5);
+    ClassicCounter<String> c2=new ClassicCounter<String>(c);
+    assertEquals(3.0,c2.getCount("p"));
+    assertEquals(2.0,c2.getCount("q"));
+    assertEquals(-5.0,c2.getCount("w"));
+    assertEquals(-2.5,c2.getCount("x"));
+    Counter<String> c3=c.getFactory().create();
+    for (    String str : c2.keySet()) {
+      c3.incrementCount(str);
+    }
+    assertEquals(1.0,c3.getCount("p"));
+    assertEquals(1.0,c3.getCount("q"));
+    assertEquals(1.0,c3.getCount("w"));
+    assertEquals(1.0,c3.getCount("x"));
+    Counters.addInPlace(c2,c3,10.0);
+    assertEquals(13.0,c2.getCount("p"));
+    assertEquals(12.0,c2.getCount("q"));
+    assertEquals(5.0,c2.getCount("w"));
+    assertEquals(7.5,c2.getCount("x"));
+    c3.addAll(c);
+    assertEquals(4.0,c3.getCount("p"));
+    assertEquals(3.0,c3.getCount("q"));
+    assertEquals(-4.0,c3.getCount("w"));
+    assertEquals(-1.5,c3.getCount("x"));
+    Counters.subtractInPlace(c3,c);
+    assertEquals(1.0,c3.getCount("p"));
+    assertEquals(1.0,c3.getCount("q"));
+    assertEquals(1.0,c3.getCount("w"));
+    assertEquals(1.0,c3.getCount("x"));
+    for (    String str : c.keySet()) {
+      c3.incrementCount(str);
+    }
+    assertEquals(2.0,c3.getCount("p"));
+    assertEquals(2.0,c3.getCount("q"));
+    assertEquals(2.0,c3.getCount("w"));
+    assertEquals(2.0,c3.getCount("x"));
+    Counters.divideInPlace(c2,c3);
+    assertEquals(6.5,c2.getCount("p"));
+    assertEquals(6.0,c2.getCount("q"));
+    assertEquals(2.5,c2.getCount("w"));
+    assertEquals(3.75,c2.getCount("x"));
+    Counters.divideInPlace(c2,0.5);
+    assertEquals(13.0,c2.getCount("p"));
+    assertEquals(12.0,c2.getCount("q"));
+    assertEquals(5.0,c2.getCount("w"));
+    assertEquals(7.5,c2.getCount("x"));
+    Counters.multiplyInPlace(c2,2.0);
+    assertEquals(26.0,c2.getCount("p"));
+    assertEquals(24.0,c2.getCount("q"));
+    assertEquals(10.0,c2.getCount("w"));
+    assertEquals(15.0,c2.getCount("x"));
+    Counters.divideInPlace(c2,2.0);
+    assertEquals(13.0,c2.getCount("p"));
+    assertEquals(12.0,c2.getCount("q"));
+    assertEquals(5.0,c2.getCount("w"));
+    assertEquals(7.5,c2.getCount("x"));
+    for (    String str : c2.keySet()) {
+      c2.incrementCount(str);
+    }
+    assertEquals(14.0,c2.getCount("p"));
+    assertEquals(13.0,c2.getCount("q"));
+    assertEquals(6.0,c2.getCount("w"));
+    assertEquals(8.5,c2.getCount("x"));
+    for (    String str : c.keySet()) {
+      c2.incrementCount(str);
+    }
+    assertEquals(15.0,c2.getCount("p"));
+    assertEquals(14.0,c2.getCount("q"));
+    assertEquals(7.0,c2.getCount("w"));
+    assertEquals(9.5,c2.getCount("x"));
+    c2.addAll(small_c);
+    assertEquals(15.0,c2.getCount("p"));
+    assertEquals(16.0,c2.getCount("q"));
+    assertEquals(7.0,c2.getCount("w"));
+    assertEquals(9.5,c2.getCount("x"));
+    assertEquals(new HashSet<String>(Arrays.asList("p","q")),Counters.keysAbove(c2,14));
+    assertEquals(new HashSet<String>(Arrays.asList("q")),Counters.keysAt(c2,16));
+    assertEquals(new HashSet<String>(Arrays.asList("x","w")),Counters.keysBelow(c2,9.5));
+    Counters.addInPlace(c2,small_c,-6);
+    assertEquals(15.0,c2.getCount("p"));
+    assertEquals(4.0,c2.getCount("q"));
+    assertEquals(7.0,c2.getCount("w"));
+    assertEquals(9.5,c2.getCount("x"));
+    Counters.subtractInPlace(c2,small_c);
+    Counters.subtractInPlace(c2,small_c);
+    Counters.retainNonZeros(c2);
+    assertEquals(15.0,c2.getCount("p"));
+    assertFalse(c2.containsKey("q"));
+    assertEquals(7.0,c2.getCount("w"));
+    assertEquals(9.5,c2.getCount("x"));
+  }
+  if (c instanceof Serializable) {
+    try {
+      ByteArrayOutputStream baos=new ByteArrayOutputStream();
+      ObjectOutputStream out=new ObjectOutputStream(new BufferedOutputStream(baos));
+      out.writeObject(c);
+      out.close();
+      byte[] bytes=baos.toByteArray();
+      ObjectInputStream in=new ObjectInputStream(new BufferedInputStream(new ByteArrayInputStream(bytes)));
+      c=IOUtils.readObjectFromObjectStream(in);
+      in.close();
+      if (!this.integral) {
+        assertEquals(-2.5,c.totalCount());
+        assertEquals(-5.0,Counters.min(c));
+        assertEquals("w",Counters.argmin(c));
+      }
+      c.clear();
+      if (!this.integral) {
+        assertEquals(0.0,c.totalCount());
+      }
+    }
+ catch (    IOException ioe) {
+      fail("IOException: " + ioe);
+    }
+catch (    ClassNotFoundException cce) {
+      fail("ClassNotFoundException: " + cce);
+    }
+  }
+}

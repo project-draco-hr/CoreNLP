@@ -1,0 +1,25 @@
+{
+  int[] label=new int[window];
+  int numClasses=classIndex.size();
+  Index<CRFLabel> labelIndex=new HashIndex<CRFLabel>();
+  OUTER:   while (true) {
+    CRFLabel l=new CRFLabel(label);
+    labelIndex.add(l);
+    int[] label1=new int[window];
+    System.arraycopy(label,0,label1,0,label.length);
+    label=label1;
+    for (int j=0; j < label.length; j++) {
+      label[j]++;
+      if (label[j] >= numClasses) {
+        label[j]=0;
+        if (j == label.length - 1) {
+          break OUTER;
+        }
+      }
+ else {
+        break;
+      }
+    }
+  }
+  return labelIndex;
+}

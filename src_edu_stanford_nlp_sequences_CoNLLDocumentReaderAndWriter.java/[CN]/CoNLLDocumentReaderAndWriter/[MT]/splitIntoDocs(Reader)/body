@@ -1,0 +1,24 @@
+{
+  if (TREAT_FILE_AS_ONE_DOCUMENT) {
+    return Collections.singleton(IOUtils.slurpReader(r)).iterator();
+  }
+ else {
+    Collection<String> docs=new ArrayList<String>();
+    ObjectBank<String> ob=ObjectBank.getLineIterator(r);
+    StringBuilder current=new StringBuilder();
+    for (    String line : ob) {
+      if (docPattern.matcher(line).lookingAt()) {
+        if (current.length() > 0) {
+          docs.add(current.toString());
+          current=new StringBuilder();
+        }
+      }
+      current.append(line);
+      current.append('\n');
+    }
+    if (current.length() > 0) {
+      docs.add(current.toString());
+    }
+    return docs.iterator();
+  }
+}

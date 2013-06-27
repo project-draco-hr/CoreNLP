@@ -1,0 +1,18 @@
+{
+  if (state.isAccepting()) {
+    return;
+  }
+  Set<T> inputs=state.continuingInputs();
+  for (  T input : inputs) {
+    DFSATransition<T,S> transition=state.transition(input);
+    System.out.print(level);
+    System.out.print(input);
+    for (int i=0; i < level; i++) {
+      System.out.print("   ");
+    }
+    System.out.print(transition.score());
+    System.out.print(" ");
+    System.out.println(input);
+    printTrieDFSAHelper(transition.target(),level + 1);
+  }
+}

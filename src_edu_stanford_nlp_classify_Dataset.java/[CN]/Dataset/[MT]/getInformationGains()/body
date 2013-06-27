@@ -1,0 +1,60 @@
+{
+  data=trimToSize(data);
+  labels=trimToSize(labels);
+  ClassicCounter<F> featureCounter=new ClassicCounter<F>();
+  ClassicCounter<L> labelCounter=new ClassicCounter<L>();
+  TwoDimensionalCounter<F,L> condCounter=new TwoDimensionalCounter<F,L>();
+  for (int i=0; i < labels.length; i++) {
+    labelCounter.incrementCount(labelIndex.get(labels[i]));
+    boolean[] doc=new boolean[featureIndex.size()];
+    for (int j=0; j < data[i].length; j++) {
+      doc[data[i][j]]=true;
+    }
+    for (int j=0; j < doc.length; j++) {
+      if (doc[j]) {
+        featureCounter.incrementCount(featureIndex.get(j));
+        condCounter.incrementCount(featureIndex.get(j),labelIndex.get(labels[i]),1.0);
+      }
+    }
+  }
+  double entropy=0.0;
+  for (int i=0; i < labelIndex.size(); i++) {
+    double labelCount=labelCounter.getCount(labelIndex.get(i));
+    double p=labelCount / size();
+    entropy-=p * (Math.log(p) / Math.log(2));
+  }
+  double[] ig=new double[featureIndex.size()];
+  Arrays.fill(ig,entropy);
+  for (int i=0; i < featureIndex.size(); i++) {
+    F feature=featureIndex.get(i);
+    double featureCount=featureCounter.getCount(feature);
+    double notFeatureCount=size() - featureCount;
+    double pFeature=featureCount / size();
+    double pNotFeature=(1.0 - pFeature);
+    if (featureCount == 0) {
+      ig[i]=0;
+      continue;
+    }
+    if (notFeatureCount == 0) {
+      ig[i]=0;
+      continue;
+    }
+    double sumFeature=0.0;
+    double sumNotFeature=0.0;
+    for (int j=0; j < labelIndex.size(); j++) {
+      L label=labelIndex.get(j);
+      double featureLabelCount=condCounter.getCount(feature,label);
+      double notFeatureLabelCount=size() - featureLabelCount;
+      double p=featureLabelCount / featureCount;
+      double pNot=notFeatureLabelCount / notFeatureCount;
+      if (featureLabelCount != 0) {
+        sumFeature+=p * (Math.log(p) / Math.log(2));
+      }
+      if (notFeatureLabelCount != 0) {
+        sumNotFeature+=pNot * (Math.log(pNot) / Math.log(2));
+      }
+    }
+    ig[i]+=pFeature * sumFeature + pNotFeature * sumNotFeature;
+  }
+  return ig;
+}

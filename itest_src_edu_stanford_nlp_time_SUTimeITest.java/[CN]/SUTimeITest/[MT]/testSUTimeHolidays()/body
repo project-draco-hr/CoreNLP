@@ -1,0 +1,20 @@
+{
+  String testText="When is mother's day 2012?\n" + "When is Christmas 2010?\n" + "When is Easter 2011?\n";
+  Iterator<Timex> expectedTimexes=Arrays.asList(Timex.fromXml("<TIMEX3 tid=\"t1\" value=\"2012-05-13\" type=\"DATE\">mother's day 2012</TIMEX3>"),Timex.fromXml("<TIMEX3 tid=\"t2\" value=\"2010-12-25\" type=\"DATE\">Christmas 2010</TIMEX3>"),Timex.fromXml("<TIMEX3 tid=\"t3\" value=\"2011-04-24\" type=\"DATE\">Easter 2011</TIMEX3>")).iterator();
+  Iterator<Timex> expectedTimexesResolved=Arrays.asList(Timex.fromXml("<TIMEX3 tid=\"t1\" value=\"2012-05-13\" type=\"DATE\">mother's day 2012</TIMEX3>"),Timex.fromXml("<TIMEX3 tid=\"t2\" value=\"2010-12-25\" type=\"DATE\">Christmas 2010</TIMEX3>"),Timex.fromXml("<TIMEX3 tid=\"t3\" value=\"2011-04-24\" type=\"DATE\">Easter 2011</TIMEX3>")).iterator();
+  Annotation document=createDocument(testText);
+  TimeAnnotator sutime=getTimeAnnotator();
+  sutime.annotate(document);
+  for (  CoreMap timexAnn : document.get(TimeAnnotations.TimexAnnotations.class)) {
+    Timex expectedTimex=expectedTimexes.next();
+    testTimex(testText,expectedTimex.text(),expectedTimex,timexAnn);
+  }
+  assertFalse(expectedTimexes.hasNext());
+  Annotation documentWithRefTime=createDocument(testText,"20100217");
+  sutime.annotate(documentWithRefTime);
+  for (  CoreMap timexAnn : documentWithRefTime.get(TimeAnnotations.TimexAnnotations.class)) {
+    Timex expectedTimex=expectedTimexesResolved.next();
+    testTimex(testText,expectedTimex.text(),expectedTimex,timexAnn);
+  }
+  assertFalse(expectedTimexes.hasNext());
+}

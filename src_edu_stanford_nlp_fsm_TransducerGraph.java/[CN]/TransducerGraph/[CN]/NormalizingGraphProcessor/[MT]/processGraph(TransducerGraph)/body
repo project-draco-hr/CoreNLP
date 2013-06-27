@@ -1,0 +1,21 @@
+{
+  g=new TransducerGraph(g);
+  Set nodes=g.getNodes();
+  for (  Object node : nodes) {
+    Set<Arc> myArcs=null;
+    if (forward) {
+      myArcs=g.getArcsBySource(node);
+    }
+ else {
+      myArcs=g.getArcsByTarget(node);
+    }
+    double total=0.0;
+    for (    Arc a : myArcs) {
+      total+=((Double)a.getOutput()).doubleValue();
+    }
+    for (    Arc a : myArcs) {
+      a.setOutput(new Double(Math.log(((Double)a.getOutput()).doubleValue() / total)));
+    }
+  }
+  return g;
+}

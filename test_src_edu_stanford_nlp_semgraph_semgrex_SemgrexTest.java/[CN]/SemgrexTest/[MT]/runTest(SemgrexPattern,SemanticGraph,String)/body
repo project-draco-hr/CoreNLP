@@ -1,0 +1,24 @@
+{
+  IntCounter<String> counts=new IntCounter<String>();
+  for (int i=0; i < expectedMatches.length; ++i) {
+    counts.incrementCount(expectedMatches[i]);
+  }
+  IntCounter<String> originalCounts=new IntCounter<String>(counts);
+  SemgrexMatcher matcher=pattern.matcher(graph);
+  for (int i=0; i < expectedMatches.length; ++i) {
+    if (!matcher.find()) {
+      throw new AssertionFailedError("Expected " + expectedMatches.length + " matches for pattern "+ pattern+ " on "+ graph+ ", only got "+ i);
+    }
+    String match=matcher.getMatch().toString();
+    if (!counts.containsKey(match)) {
+      throw new AssertionFailedError("Unexpected match " + match + " for pattern "+ pattern+ " on "+ graph);
+    }
+    counts.decrementCount(match);
+    if (counts.getCount(match) < 0) {
+      throw new AssertionFailedError("Found too many matches for " + match + " for pattern "+ pattern+ " on "+ graph);
+    }
+  }
+  if (matcher.findNextMatchingNode()) {
+    throw new AssertionFailedError("Found more than " + expectedMatches.length + " matches for pattern "+ pattern+ " on "+ graph+ "... extra match is "+ matcher.getMatch());
+  }
+}

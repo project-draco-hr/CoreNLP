@@ -1,0 +1,36 @@
+{
+  if (alpha <= 0.0) {
+    return 0.0;
+  }
+ else   if (alpha == 1.0) {
+    return -Math.log(Math.random());
+  }
+ else   if (alpha < 1.0) {
+    double cc=1.0 / alpha;
+    double dd=1.0 / (1.0 - alpha);
+    while (true) {
+      double xx=Math.pow(Math.random(),cc);
+      double yy=xx + Math.pow(Math.random(),dd);
+      if (yy <= 1.0) {
+        return -Math.log(Math.random()) * xx / yy;
+      }
+    }
+  }
+ else {
+    double bb=alpha - 1.0;
+    double cc=3.0 * alpha - 0.75;
+    while (true) {
+      double uu=Math.random();
+      double vv=Math.random();
+      double ww=uu * (1.0 - uu);
+      double yy=Math.sqrt(cc / ww) * (uu - 0.5);
+      double xx=bb + yy;
+      if (xx >= 0) {
+        double zz=64.0 * ww * ww* ww* vv* vv;
+        if ((zz <= (1.0 - 2.0 * yy * yy / xx)) || (Math.log(zz) <= 2.0 * (bb * Math.log(xx / bb) - yy))) {
+          return xx;
+        }
+      }
+    }
+  }
+}

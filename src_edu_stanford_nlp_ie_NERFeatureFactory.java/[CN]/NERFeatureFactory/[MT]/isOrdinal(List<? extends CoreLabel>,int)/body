@@ -1,0 +1,43 @@
+{
+  CoreLabel c=wordInfos.get(pos);
+  String cWord=getWord(c);
+  Matcher m=ordinalPattern.matcher(cWord);
+  if (m.matches()) {
+    return true;
+  }
+  m=numberPattern.matcher(cWord);
+  if (m.matches()) {
+    if (pos + 1 < wordInfos.size()) {
+      CoreLabel n=wordInfos.get(pos + 1);
+      m=ordinalEndPattern.matcher(getWord(n));
+      if (m.matches()) {
+        return true;
+      }
+    }
+    return false;
+  }
+  m=ordinalEndPattern.matcher(cWord);
+  if (m.matches()) {
+    if (pos > 0) {
+      CoreLabel p=wordInfos.get(pos - 1);
+      m=numberPattern.matcher(getWord(p));
+      if (m.matches()) {
+        return true;
+      }
+    }
+  }
+  if (cWord.equals("-")) {
+    if (pos + 1 < wordInfos.size() && pos > 0) {
+      CoreLabel p=wordInfos.get(pos - 1);
+      CoreLabel n=wordInfos.get(pos + 1);
+      m=ordinalPattern.matcher(getWord(p));
+      if (m.matches()) {
+        m=ordinalPattern.matcher(getWord(n));
+        if (m.matches()) {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}

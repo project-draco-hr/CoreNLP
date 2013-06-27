@@ -1,0 +1,50 @@
+{
+  BufferedReader br=IOUtils.getBufferedFileReader(in);
+  PrintWriter pw=(out != null) ? IOUtils.getPrintWriter(out) : new PrintWriter(System.out);
+  String line;
+  boolean dataStarted=true;
+  TimebankSent sent=new TimebankSent();
+  String item=null;
+  EvalStats evalStats=new EvalStats();
+  line=br.readLine();
+  while ((line=br.readLine()) != null) {
+    if (line.trim().length() == 0)     continue;
+    if (dataStarted) {
+      if (line.contains("|")) {
+        if (item != null) {
+          boolean addOld=sent.add(item);
+          if (!addOld) {
+            processTimebankCsvSent(pipeline,sent,pw,evalStats);
+            sent=new TimebankSent();
+            sent.add(item);
+          }
+        }
+        item=line;
+      }
+ else {
+        item+=" " + line;
+      }
+    }
+ else {
+      if (line.matches("#+ BEGIN DATA #+")) {
+        dataStarted=true;
+      }
+    }
+  }
+  if (item != null) {
+    boolean addOld=sent.add(item);
+    if (!addOld) {
+      processTimebankCsvSent(pipeline,sent,pw,evalStats);
+      sent=new TimebankSent();
+      sent.add(item);
+    }
+    processTimebankCsvSent(pipeline,sent,pw,evalStats);
+  }
+  br.close();
+  if (out != null) {
+    pw.close();
+  }
+  System.out.println("Estimate: " + evalStats.estPrStats.toString(2));
+  System.out.println("Overall: " + evalStats.prStats.toString(2));
+  System.out.println("Value: " + evalStats.valPrStats.toString(2));
+}

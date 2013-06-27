@@ -1,0 +1,16 @@
+{
+  StringBuffer os=new StringBuffer();
+  List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
+  if (tokens != null) {
+    boolean first=true;
+    for (    CoreLabel token : tokens) {
+      if (!first)       os.append(" ");
+      os.append(token.word());
+      if (token.ner() != null && !token.ner().equals("O")) {
+        os.append("/" + token.ner());
+      }
+      first=false;
+    }
+  }
+  return os.toString();
+}

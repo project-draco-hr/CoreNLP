@@ -1,0 +1,15 @@
+{
+  buildSegmentationLattice(s);
+  ArrayList<Word> sent=maxMatchSegmentation();
+  printlnErr("raw output: " + Sentence.listToString(sent));
+  ArrayList<Word> postProcessedSent=postProcessSentence(sent);
+  printlnErr("processed output: " + Sentence.listToString(postProcessedSent));
+  String postSentString=ChineseStringUtils.postProcessingAnswerCTB(postProcessedSent.toString(),false,false);
+  printlnErr("Sighan2005 output: " + postSentString);
+  String[] postSentArray=postSentString.split("\\s+");
+  ArrayList<Word> postSent=new ArrayList<Word>();
+  for (  String w : postSentArray) {
+    postSent.add(new Word(w));
+  }
+  return new ArrayList<HasWord>(postSent);
+}

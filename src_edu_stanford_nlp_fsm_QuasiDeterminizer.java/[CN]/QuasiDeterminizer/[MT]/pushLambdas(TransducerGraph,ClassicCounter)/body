@@ -1,0 +1,32 @@
+{
+  TransducerGraph result=graph.clone();
+  Set<TransducerGraph.Arc> arcs=result.getArcs();
+  for (  TransducerGraph.Arc arc : arcs) {
+    double sourceLambda=lambda.getCount(arc.getSourceNode());
+    double targetLambda=lambda.getCount(arc.getTargetNode());
+    double oldOutput=((Double)arc.getOutput()).doubleValue();
+    double newOutput=oldOutput + targetLambda - sourceLambda;
+    arc.setOutput(new Double(newOutput));
+  }
+  double startLambda=lambda.getCount(result.getStartNode());
+  if (startLambda != 0.0) {
+    Set<TransducerGraph.Arc> startArcs=result.getArcsBySource(result.getStartNode());
+    for (    TransducerGraph.Arc arc : startArcs) {
+      double oldOutput=((Double)arc.getOutput()).doubleValue();
+      double newOutput=oldOutput + startLambda;
+      arc.setOutput(new Double(newOutput));
+    }
+  }
+  for (  Object o : result.getEndNodes()) {
+    double endLambda=lambda.getCount(o);
+    if (endLambda != 0.0) {
+      Set<TransducerGraph.Arc> endArcs=result.getArcsByTarget(o);
+      for (      TransducerGraph.Arc arc : endArcs) {
+        double oldOutput=((Double)arc.getOutput()).doubleValue();
+        double newOutput=oldOutput - endLambda;
+        arc.setOutput(new Double(newOutput));
+      }
+    }
+  }
+  return result;
+}

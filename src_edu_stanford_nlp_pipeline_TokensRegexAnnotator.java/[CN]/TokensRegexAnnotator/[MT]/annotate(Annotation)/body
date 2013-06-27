@@ -1,0 +1,31 @@
+{
+  if (verbose) {
+    timer.start();
+    Redwood.log(Redwood.DBG,"Adding TokensRegexAnnotator annotation...");
+  }
+  if (options.setTokenOffsets) {
+    addTokenOffsets(annotation);
+  }
+  List<CoreMap> allMatched;
+  if (annotation.containsKey(CoreAnnotations.SentencesAnnotation.class)) {
+    allMatched=new ArrayList<CoreMap>();
+    List<CoreMap> sentences=annotation.get(CoreAnnotations.SentencesAnnotation.class);
+    for (    CoreMap sentence : sentences) {
+      List<CoreMap> matched=extract(sentence);
+      if (matched != null && options.matchedExpressionsAnnotationKey != null) {
+        allMatched.addAll(matched);
+        sentence.set(options.matchedExpressionsAnnotationKey,matched);
+        for (        CoreMap cm : matched) {
+          cm.set(CoreAnnotations.SentenceIndexAnnotation.class,sentence.get(CoreAnnotations.SentenceIndexAnnotation.class));
+        }
+      }
+    }
+  }
+ else {
+    allMatched=extract(annotation);
+  }
+  if (options.matchedExpressionsAnnotationKey != null) {
+    annotation.set(options.matchedExpressionsAnnotationKey,allMatched);
+  }
+  if (verbose)   timer.stop("done.");
+}

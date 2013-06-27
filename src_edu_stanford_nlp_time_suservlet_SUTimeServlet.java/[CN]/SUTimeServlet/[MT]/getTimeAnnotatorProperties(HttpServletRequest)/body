@@ -1,0 +1,35 @@
+{
+  boolean markTimeRanges=parseBoolean(request.getParameter("markTimeRanges"));
+  boolean includeNested=parseBoolean(request.getParameter("includeNested"));
+  boolean includeRange=parseBoolean(request.getParameter("includeRange"));
+  boolean readRules=parseBoolean(request.getParameter("readRules"));
+  String heuristicLevel=request.getParameter("relativeHeuristicLevel");
+  Options.RelativeHeuristicLevel relativeHeuristicLevel=Options.RelativeHeuristicLevel.NONE;
+  if (heuristicLevel != null && !heuristicLevel.equals("")) {
+    relativeHeuristicLevel=Options.RelativeHeuristicLevel.valueOf(heuristicLevel);
+  }
+  String ruleFile=null;
+  if (readRules) {
+    String rules=request.getParameter("rules");
+    if ("English".equalsIgnoreCase(rules)) {
+      ruleFile=getRuleFilepaths("defs.sutime.txt","english.sutime.txt","english.holidays.sutime.txt");
+    }
+  }
+  Properties props=new Properties();
+  if (markTimeRanges) {
+    props.setProperty("sutime.markTimeRanges","true");
+  }
+  if (includeNested) {
+    props.setProperty("sutime.includeNested","true");
+  }
+  if (includeRange) {
+    props.setProperty("sutime.includeRange","true");
+  }
+  if (ruleFile != null) {
+    props.setProperty("sutime.rules",ruleFile);
+    props.setProperty("sutime.binders","1");
+    props.setProperty("sutime.binder.1","edu.stanford.nlp.time.JollyDayHolidays");
+  }
+  props.setProperty("sutime.teRelHeurLevel",relativeHeuristicLevel.toString());
+  return props;
+}

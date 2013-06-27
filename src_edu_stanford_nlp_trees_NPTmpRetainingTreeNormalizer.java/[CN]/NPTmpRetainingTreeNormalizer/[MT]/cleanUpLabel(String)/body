@@ -1,0 +1,39 @@
+{
+  if (label == null) {
+    return "ROOT";
+  }
+ else   if (leaveItAll == 1) {
+    return tlp.categoryAndFunction(label);
+  }
+ else   if (leaveItAll == 2) {
+    return label;
+  }
+ else {
+    boolean nptemp=NPTmpPattern.matcher(label).matches();
+    boolean pptemp=PPTmpPattern.matcher(label).matches();
+    boolean advptemp=ADVPTmpPattern.matcher(label).matches();
+    boolean anytemp=TmpPattern.matcher(label).matches();
+    boolean subj=NPSbjPattern.matcher(label).matches();
+    boolean npadv=NPAdvPattern.matcher(label).matches();
+    label=tlp.basicCategory(label);
+    if (anytemp && temporalAnnotation == TEMPORAL_ANY_TMP_PERCOLATED) {
+      label+="-TMP";
+    }
+ else     if (pptemp && (temporalAnnotation == TEMPORAL_ALL_NP_AND_PP || temporalAnnotation == TEMPORAL_NP_AND_PP_WITH_NP_HEAD || temporalAnnotation == TEMPORAL_ALL_NP_EVEN_UNDER_PP || temporalAnnotation == TEMPORAL_ALL_NP_PP_ADVP || temporalAnnotation == TEMPORAL_9)) {
+      label=label + "-TMP";
+    }
+ else     if (advptemp && (temporalAnnotation == TEMPORAL_ALL_NP_PP_ADVP || temporalAnnotation == TEMPORAL_9)) {
+      label=label + "-TMP";
+    }
+ else     if (temporalAnnotation > 0 && nptemp) {
+      label=label + "-TMP";
+    }
+    if (doAdverbialNP && npadv) {
+      label=label + "-ADV";
+    }
+    if (doSGappedStuff && subj) {
+      label=label + "-SBJ";
+    }
+    return label;
+  }
+}

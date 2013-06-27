@@ -1,0 +1,16 @@
+{
+  if (isPreTerminal()) {
+    CoreLabel taggedWord=new CoreLabel();
+    final String tag=(value() == null) ? "" : value();
+    taggedWord.setValue(tag);
+    taggedWord.setTag(tag);
+    taggedWord.setIndex(termIdx);
+    taggedWord.setWord(firstChild().value());
+    ty.add(taggedWord);
+    return termIdx + 1;
+  }
+ else {
+    for (    Tree kid : getChildrenAsList())     termIdx=kid.taggedLabeledYield(ty,termIdx);
+  }
+  return termIdx;
+}

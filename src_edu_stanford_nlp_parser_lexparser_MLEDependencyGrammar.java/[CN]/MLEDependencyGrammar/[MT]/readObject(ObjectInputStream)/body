@@ -1,0 +1,16 @@
+{
+  stream.defaultReadObject();
+  ClassicCounter<IntDependency> compressedArgC=argCounter;
+  argCounter=new ClassicCounter<IntDependency>();
+  ClassicCounter<IntDependency> compressedStopC=stopCounter;
+  stopCounter=new ClassicCounter<IntDependency>();
+  for (  IntDependency d : compressedArgC.keySet()) {
+    double count=compressedArgC.getCount(d);
+    expandArg(d,d.distance,count);
+  }
+  for (  IntDependency d : compressedStopC.keySet()) {
+    double count=compressedStopC.getCount(d);
+    expandStop(d,d.distance,count,false);
+  }
+  expandDependencyMap=null;
+}

@@ -1,0 +1,24 @@
+{
+  if (end <= start)   return 0;
+  if (end - start == 1) {
+    return numFields[start];
+  }
+  Number highestNum=Double.NEGATIVE_INFINITY;
+  int highestNumIndex=start;
+  for (int i=start; i < end; i++) {
+    Number curNum=numFields[i];
+    if (curNum != null && curNum.doubleValue() >= highestNum.doubleValue()) {
+      highestNum=curNum;
+      highestNumIndex=i;
+    }
+  }
+  Number beforeNum=1;
+  if (highestNumIndex > start) {
+    beforeNum=wordToNumberRecurse(numFields,start,highestNumIndex);
+    if (beforeNum == null)     beforeNum=1;
+  }
+  Number afterNum=wordToNumberRecurse(numFields,highestNumIndex + 1,end);
+  if (afterNum == null)   afterNum=0;
+  Number evaluatedNumber=((beforeNum.doubleValue() * highestNum.doubleValue()) + afterNum.doubleValue());
+  return evaluatedNumber;
+}

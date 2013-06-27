@@ -1,0 +1,19 @@
+{
+  List<List<Mention>> mentions=document.getOrderedMentions();
+  boolean clustersOk=true;
+  for (  List<Mention> mentionCluster : mentions) {
+    for (    Mention m : mentionCluster) {
+      String ms="(" + m.mentionID + ","+ m.originalRef+ ","+ m.corefClusterID+ ",["+ m.startIndex+ ","+ m.endIndex+ "]"+ ") ";
+      CorefCluster cluster=document.corefClusters.get(m.corefClusterID);
+      if (cluster == null) {
+        logger.warning(tag + ": Cluster not found for mention: " + ms);
+        clustersOk=false;
+      }
+ else       if (!cluster.getCorefMentions().contains(m)) {
+        logger.warning(tag + ": Cluster does not contain mention: " + ms);
+        clustersOk=false;
+      }
+    }
+  }
+  return clustersOk;
+}

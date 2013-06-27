@@ -1,0 +1,44 @@
+{
+  String[] xmlInput=config.getXMLInput();
+  if (xmlInput.length > 0) {
+    if (xmlInput.length > 1 || !xmlInput[0].equals("null")) {
+      tagFromXML();
+      return;
+    }
+  }
+  BufferedWriter writer=null;
+  try {
+    String outFile=config.getOutputFile();
+    if (outFile.length() > 0) {
+      writer=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile),config.getEncoding()));
+    }
+ else {
+      writer=new BufferedWriter(new OutputStreamWriter(System.out,config.getEncoding()));
+    }
+    boolean stdin=config.useStdin();
+    BufferedReader br;
+    OutputStyle outputStyle=OutputStyle.fromShortName(config.getOutputFormat());
+    if (!stdin) {
+      String filename=config.getFile();
+      if (formatPattern.matcher(filename).find()) {
+        TaggedFileRecord record=TaggedFileRecord.createRecord(config,filename);
+        runTagger(record.reader(),writer,outputStyle);
+      }
+ else {
+        br=IOUtils.readerFromString(config.getFile(),config.getEncoding());
+        runTagger(br,writer,config.getTagInside(),outputStyle);
+      }
+    }
+ else {
+      System.err.println("Type some text to tag, then EOF.");
+      System.err.println("  (For EOF, use Return, Ctrl-D on Unix; Enter, Ctrl-Z, Enter on Windows.)");
+      br=new BufferedReader(new InputStreamReader(System.in));
+      runTaggerStdin(br,writer,outputStyle);
+    }
+  }
+  finally {
+    if (writer != null) {
+      IOUtils.closeIgnoringExceptions(writer);
+    }
+  }
+}

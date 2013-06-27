@@ -1,0 +1,26 @@
+{
+  PrintStream oldOut=System.out;
+  PrintStream oldErr=System.err;
+  ByteArrayOutputStream outStream=new ByteArrayOutputStream();
+  ByteArrayOutputStream errStream=new ByteArrayOutputStream();
+  PrintStream outPrint=new PrintStream(outStream);
+  PrintStream errPrint=new PrintStream(errStream);
+  System.setOut(outPrint);
+  System.setErr(errPrint);
+  ColumnDataClassifier.main(args);
+  System.setOut(oldOut);
+  System.setErr(oldErr);
+  BufferedReader goldFile=new BufferedReader(new FileReader(goldfile));
+  List<String> lines=new ArrayList<String>();
+  String line;
+  while ((line=goldFile.readLine()) != null) {
+    lines.add(line.trim().replaceAll("\\s+"," "));
+  }
+  String[] result=outStream.toString().trim().split("\n");
+  assertEquals(lines.size(),result.length);
+  for (int i=0; i < result.length; ++i) {
+    String goldLine=lines.get(i);
+    String resultLine=result[i].trim().replaceAll("\\s+"," ");
+    assertEquals(goldLine,resultLine);
+  }
+}

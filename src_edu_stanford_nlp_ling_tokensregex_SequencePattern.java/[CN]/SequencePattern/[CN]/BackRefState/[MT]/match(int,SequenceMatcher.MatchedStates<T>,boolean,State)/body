@@ -1,0 +1,28 @@
+{
+  if (consume) {
+    Pair<SequenceMatcher.MatchedGroup,Integer> backRefState=(Pair<SequenceMatcher.MatchedGroup,Integer>)matchedStates.getBranchStates().getMatchStateInfo(bid,this);
+    if (backRefState == null) {
+      SequenceMatcher.MatchedGroup matchedGroup=matchedStates.getBranchStates().getMatchedGroup(bid,captureGroupId);
+      if (matchedGroup != null) {
+        if (matchedGroup.matchEnd > matchedGroup.matchBegin) {
+          boolean matched=match(bid,matchedStates,matchedGroup,0);
+          return matched;
+        }
+ else {
+          return super.match(bid,matchedStates,consume,prevState);
+        }
+      }
+      return false;
+    }
+ else {
+      SequenceMatcher.MatchedGroup matchedGroup=backRefState.first();
+      int matchedNodes=backRefState.second();
+      boolean matched=match(bid,matchedStates,matchedGroup,matchedNodes);
+      return matched;
+    }
+  }
+ else {
+    matchedStates.addState(bid,this);
+    return false;
+  }
+}

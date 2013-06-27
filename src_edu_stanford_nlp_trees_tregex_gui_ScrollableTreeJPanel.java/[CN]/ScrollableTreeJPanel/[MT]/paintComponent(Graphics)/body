@@ -1,0 +1,41 @@
+{
+  superPaint(g);
+  Graphics2D g2=(Graphics2D)g;
+  g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
+  Font font;
+  if ("".equals(fontName)) {
+    font=g2.getFont();
+    fontName=font.getName();
+    style=font.getStyle();
+  }
+  if (tree != null)   yieldOffsets=new float[tree.yield().size()];
+  font=new Font(fontName,style,this.fontSize);
+  g2.setFont(font);
+  FontMetrics fM=g2.getFontMetrics();
+  Dimension space=getSize();
+  double width=width(tree,fM);
+  double height=height(tree,fM);
+  yieldHeight=height;
+  double startX=0.0;
+  double startY=0.0;
+  if (HORIZONTAL_ALIGN == SwingConstants.CENTER) {
+    startX=(space.getWidth() - width) / 2.0;
+  }
+  if (HORIZONTAL_ALIGN == SwingConstants.RIGHT) {
+    startX=space.getWidth() - width;
+  }
+  if (VERTICAL_ALIGN == SwingConstants.CENTER) {
+    startY=(space.getHeight() - height) / 2.0;
+  }
+  if (VERTICAL_ALIGN == SwingConstants.BOTTOM) {
+    startY=space.getHeight() - height;
+  }
+  leafCtr=0;
+  if (matchedParts != null && matchedParts.contains(tree)) {
+    paintTree(tree,new Point2D.Double(startX,startY),g2,fM,matchedColor);
+  }
+ else {
+    paintTree(tree,new Point2D.Double(startX,startY),g2,fM,defaultColor);
+    renderRows(g2,fM,defaultColor);
+  }
+}

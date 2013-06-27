@@ -1,0 +1,27 @@
+{
+  boolean adjustCharacterOffsets=false;
+  String text=buildText(tokens,CoreAnnotations.OriginalTextAnnotation.class);
+  if (text == null) {
+    text=buildText(tokens,CoreAnnotations.TextAnnotation.class);
+    adjustCharacterOffsets=true;
+    if (text == null) {
+      throw new RuntimeException("ERROR: to use SUTime, sentences must have TextAnnotation set, or the individual tokens must have OriginalTextAnnotation or TextAnnotation set!");
+    }
+  }
+  List<CoreLabel> tokenSequence=copyTokens(tokens,adjustCharacterOffsets,false);
+  Annotation newSentence=new Annotation(text);
+  newSentence.set(CoreAnnotations.TokensAnnotation.class,tokenSequence);
+  if (!adjustCharacterOffsets && characterOffsetStart != null && characterOffsetEnd != null) {
+    newSentence.set(CoreAnnotations.CharacterOffsetBeginAnnotation.class,characterOffsetStart);
+    newSentence.set(CoreAnnotations.CharacterOffsetEndAnnotation.class,characterOffsetEnd);
+  }
+ else {
+    int tokenCharStart=tokenSequence.get(0).get(CoreAnnotations.CharacterOffsetBeginAnnotation.class);
+    int tokenCharEnd=tokenSequence.get(tokenSequence.size() - 1).get(CoreAnnotations.CharacterOffsetEndAnnotation.class);
+    newSentence.set(CoreAnnotations.CharacterOffsetBeginAnnotation.class,tokenCharStart);
+    newSentence.set(CoreAnnotations.CharacterOffsetEndAnnotation.class,tokenCharEnd);
+  }
+  newSentence.set(CoreAnnotations.TokenBeginAnnotation.class,0);
+  newSentence.set(CoreAnnotations.TokenEndAnnotation.class,tokenSequence.size());
+  return newSentence;
+}

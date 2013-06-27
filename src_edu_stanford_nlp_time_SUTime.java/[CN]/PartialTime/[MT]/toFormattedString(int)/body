@@ -1,0 +1,19 @@
+{
+  if (getTimeLabel() != null) {
+    return getTimeLabel();
+  }
+  String s=null;
+  if (base != null) {
+    DateTimeFormatter formatter=getFormatter(flags);
+    s=formatter.print(base);
+  }
+ else {
+    s="XXXX-XX-XX";
+  }
+  if (dateTimeZone != null) {
+    DateTimeFormatter formatter=DateTimeFormat.forPattern("Z");
+    formatter=formatter.withZone(dateTimeZone);
+    s=s + formatter.print(0);
+  }
+  return s;
+}

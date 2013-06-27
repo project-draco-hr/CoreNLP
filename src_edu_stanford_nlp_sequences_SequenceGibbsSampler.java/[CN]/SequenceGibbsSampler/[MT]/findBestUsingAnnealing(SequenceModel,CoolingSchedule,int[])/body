@@ -1,0 +1,51 @@
+{
+  if (verbose > 0)   System.err.println("Doing annealing");
+  listener.setInitialSequence(initialSequence);
+  List result=new ArrayList();
+  int[] sequence=copy(initialSequence);
+  int[] best=null;
+  double bestScore=Double.NEGATIVE_INFINITY;
+  double score=Double.NEGATIVE_INFINITY;
+  Set<Integer> positionsChanged=null;
+  if (speedUpThreshold > 0)   positionsChanged=Generics.newHashSet();
+  for (int i=0; i < schedule.numIterations(); i++) {
+    if (BisequenceEmpiricalNERPrior.DEBUG)     System.err.println("\n\niteration: " + i);
+    double temperature=schedule.getTemperature(i);
+    if (speedUpThreshold <= 0) {
+      score=sampleSequenceForward(model,sequence,temperature,null);
+    }
+ else {
+      if (i < speedUpThreshold) {
+        score=sampleSequenceForward(model,sequence,temperature,null);
+        for (int j=0; j < sequence.length; j++) {
+          if (sequence[j] != initialSequence[j])           positionsChanged.add(j);
+        }
+      }
+ else {
+        score=sampleSequenceForward(model,sequence,temperature,positionsChanged);
+      }
+    }
+    if (BisequenceEmpiricalNERPrior.DEBUG)     System.err.println(priorEn);
+    if (BisequenceEmpiricalNERPrior.DEBUG)     System.err.println(priorCh);
+    result.add(sequence);
+    if (returnLastFoundSequence) {
+      best=sequence;
+    }
+ else {
+      if (score > bestScore) {
+        best=sequence;
+        bestScore=score;
+      }
+    }
+    if (i % 50 == 0) {
+      if (verbose > 1)       System.err.println("itr " + i + ": "+ bestScore+ "\t");
+    }
+    if (verbose > 0)     System.err.print(".");
+  }
+  if (verbose > 1) {
+    System.err.println();
+    printSamples(result,System.err);
+  }
+  if (verbose > 0)   System.err.println("done.");
+  return best;
+}

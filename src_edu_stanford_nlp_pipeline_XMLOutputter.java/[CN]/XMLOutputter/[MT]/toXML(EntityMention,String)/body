@@ -1,0 +1,23 @@
+{
+  Element top=new Element("entity",curNS);
+  top.addAttribute(new Attribute("id",entity.getObjectId()));
+  Element type=new Element("type",curNS);
+  type.appendChild(entity.getType());
+  top.appendChild(entity.getType());
+  if (entity.getNormalizedName() != null) {
+    Element nm=new Element("normalized",curNS);
+    nm.appendChild(entity.getNormalizedName());
+    top.appendChild(nm);
+  }
+  if (entity.getSubType() != null) {
+    Element subtype=new Element("subtype",curNS);
+    subtype.appendChild(entity.getSubType());
+    top.appendChild(subtype);
+  }
+  Element span=new Element("span",curNS);
+  span.addAttribute(new Attribute("start",Integer.toString(entity.getHeadTokenStart())));
+  span.addAttribute(new Attribute("end",Integer.toString(entity.getHeadTokenEnd())));
+  top.appendChild(span);
+  top.appendChild(makeProbabilitiesElement(entity,curNS));
+  return top;
+}

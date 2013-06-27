@@ -1,0 +1,31 @@
+{
+  Timing timer=new Timing();
+  if (!this.pad.equals(crf.pad)) {
+    throw new RuntimeException("Incompatible CRFClassifier: pad does not match");
+  }
+  if (this.windowSize != crf.windowSize) {
+    throw new RuntimeException("Incompatible CRFClassifier: windowSize does not match");
+  }
+  if (this.labelIndices.size() != crf.labelIndices.size()) {
+    throw new RuntimeException("Incompatible CRFClassifier: labelIndices length does not match");
+  }
+  this.classIndex.addAll(crf.classIndex.objectsList());
+  int oldNumFeatures1=this.featureIndex.size();
+  int oldNumFeatures2=crf.featureIndex.size();
+  int oldNumWeights1=this.getNumWeights();
+  int oldNumWeights2=crf.getNumWeights();
+  this.featureIndex.addAll(crf.featureIndex.objectsList());
+  this.knownLCWords.addAll(crf.knownLCWords);
+  assert(weights.length == oldNumFeatures1);
+  for (int i=0; i < labelIndices.size(); i++) {
+    this.labelIndices.get(i).addAll(crf.labelIndices.get(i).objectsList());
+  }
+  System.err.println("Combining weights: will automatically match labelIndices");
+  combineWeights(crf,weight);
+  int numFeatures=featureIndex.size();
+  int numWeights=getNumWeights();
+  long elapsedMs=timer.stop();
+  System.err.println("numFeatures: orig1=" + oldNumFeatures1 + ", orig2="+ oldNumFeatures2+ ", combined="+ numFeatures);
+  System.err.println("numWeights: orig1=" + oldNumWeights1 + ", orig2="+ oldNumWeights2+ ", combined="+ numWeights);
+  System.err.println("Time to combine CRFClassifier: " + Timing.toSecondsString(elapsedMs) + " seconds");
+}

@@ -1,0 +1,35 @@
+{
+  TreebankLangParserParams tlpParams=op.tlpParams;
+  TreebankLanguagePack tlp=tlpParams.treebankLanguagePack();
+  if (VERBOSE)   System.err.println("\n\n" + trainTreebank.textualSummary(tlp));
+  System.err.print("Binarizing trees...");
+  TreeAnnotatorAndBinarizer binarizer=new TreeAnnotatorAndBinarizer(tlpParams,op.forceCNF,!op.trainOptions.outsideFactor(),true,op);
+  Timing.tick("done.");
+  if (op.trainOptions.selectiveSplit) {
+    op.trainOptions.splitters=ParentAnnotationStats.getSplitCategories(trainTreebank,op.trainOptions.tagSelectiveSplit,0,op.trainOptions.selectiveSplitCutOff,op.trainOptions.tagSelectiveSplitCutOff,tlp);
+    removeDeleteSplittersFromSplitters(tlp);
+    if (op.testOptions.verbose) {
+      List<String> list=new ArrayList<String>(op.trainOptions.splitters);
+      Collections.sort(list);
+      System.err.println("Parent split categories: " + list);
+    }
+  }
+  if (op.trainOptions.hSelSplit) {
+    int ptt=op.trainOptions.printTreeTransformations;
+    op.trainOptions.printTreeTransformations=0;
+    binarizer.setDoSelectiveSplit(false);
+    for (    Tree tree : trainTreebank) {
+      binarizer.transformTree(tree);
+    }
+    binarizer.setDoSelectiveSplit(true);
+    op.trainOptions.printTreeTransformations=ptt;
+  }
+  List<Tree> binaryTrainTrees=new ArrayList<Tree>();
+  for (  Tree tree : trainTreebank) {
+    tree=binarizer.transformTree(tree);
+    if (tree.yield().size() - 1 <= trainLengthLimit) {
+      binaryTrainTrees.add(tree);
+    }
+  }
+  return binaryTrainTrees;
+}

@@ -1,0 +1,11 @@
+{
+  List<RelationMention> mentions=sent.get(MachineReadingAnnotations.RelationMentionsAnnotation.class);
+  if (mentions != null) {
+    for (    RelationMention m : mentions) {
+      List<EntityMention> args=m.getEntityMentionArgs();
+      if (args.size() == 2 && args.get(0).getMentionType().equals("NAM") && args.get(1).getMentionType().equals("NAM")) {
+        nameRelationCounts.incrementCount(m.getType() + "." + m.getSubType());
+      }
+    }
+  }
+}

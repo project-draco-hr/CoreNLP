@@ -1,0 +1,22 @@
+{
+  String normalizedString;
+  if (changeNoLabels) {
+    normalizedString=category;
+  }
+ else   if (retainNPTmp && category != null && category.startsWith("NP-TMP")) {
+    normalizedString="NP-TMP";
+  }
+ else   if (retainNPSbj && category != null && category.startsWith("NP-SBJ")) {
+    normalizedString="NP-SBJ";
+  }
+ else   if (retainPPClr && category != null && category.startsWith("PP-CLR")) {
+    normalizedString="PP-CLR";
+  }
+ else   if (markPRDverb && category != null && prdPattern.matcher(category).matches()) {
+    normalizedString=category;
+  }
+ else {
+    normalizedString=super.normalizeNonterminal(category);
+  }
+  return normalizedString.intern();
+}

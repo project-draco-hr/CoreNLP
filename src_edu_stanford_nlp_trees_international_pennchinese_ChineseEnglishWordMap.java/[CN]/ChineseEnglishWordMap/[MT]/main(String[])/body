@@ -1,0 +1,58 @@
+{
+  Map<String,Integer> flagsToNumArgs=Generics.newHashMap();
+  flagsToNumArgs.put("-dictPath",1);
+  flagsToNumArgs.put("-encoding",1);
+  Map<String,String[]> argMap=StringUtils.argsToMap(args,flagsToNumArgs);
+  String[] otherArgs=argMap.get(null);
+  if (otherArgs.length < 1) {
+    System.err.println("usage: ChineseEnglishWordMap [-all] [-dictPath path] [-encoding enc_string] inputFile");
+    System.exit(1);
+  }
+  String filename=otherArgs[0];
+  boolean allTranslations=argMap.containsKey("-all");
+  String charset=defaultCharset;
+  if (argMap.containsKey("-encoding")) {
+    charset=argMap.get("-encoding")[0];
+  }
+  BufferedReader r=new BufferedReader(new InputStreamReader(new FileInputStream(filename),charset));
+  TreebankLanguagePack tlp=new ChineseTreebankLanguagePack();
+  String[] dpString=argMap.get("-dictPath");
+  ChineseEnglishWordMap cewm=(dpString == null) ? new ChineseEnglishWordMap() : new ChineseEnglishWordMap(dpString[0]);
+  int totalWords=0, coveredWords=0;
+  PrintWriter pw=new PrintWriter(new OutputStreamWriter(System.out,charset),true);
+  for (String line=r.readLine(); line != null; line=r.readLine()) {
+    String[] words=line.split("\\s",1000);
+    for (    String word : words) {
+      totalWords++;
+      if (word.length() == 0)       continue;
+      pw.print(StringUtils.pad(word + ':',8));
+      if (tlp.isPunctuationWord(word)) {
+        totalWords--;
+        pw.print(word);
+      }
+ else       if (isDigits(word)) {
+        pw.print(word + " [NUMBER]");
+      }
+ else       if (cewm.containsKey(word)) {
+        coveredWords++;
+        if (allTranslations) {
+          List<String> trans=new ArrayList<String>(cewm.getAllTranslations(word));
+          for (          String s : trans) {
+            pw.print((trans.indexOf(s) > 0 ? "|" : "") + s);
+          }
+        }
+ else {
+          pw.print(cewm.getFirstTranslation(word));
+        }
+      }
+ else {
+        pw.print("[UNK]");
+      }
+      pw.println();
+    }
+    pw.println();
+  }
+  r.close();
+  System.err.print("Finished translating " + totalWords + " words (");
+  System.err.println(coveredWords + " were in dictionary).");
+}

@@ -1,0 +1,20 @@
+{
+  logger.fine("Searching for tree matching " + ent);
+  Tree exactMatch=findTreeWithSpan(root,ent.getExtentTokenStart(),ent.getExtentTokenEnd());
+  if (exactMatch != null) {
+    logger.fine("Mention \"" + ent + "\" mapped to tree: "+ printTree(exactMatch));
+    return safeHead(exactMatch);
+  }
+  List<CoreLabel> extentTokens=new ArrayList<CoreLabel>();
+  for (int i=ent.getExtentTokenStart(); i < ent.getExtentTokenEnd(); i++)   extentTokens.add(tokens.get(i));
+  Tree tree=parse(extentTokens);
+  logger.fine("No exact match found. Local parse:\n" + tree.pennString());
+  convertToCoreLabels(tree);
+  tree.indexSpans(ent.getExtentTokenStart());
+  Tree extentHead=safeHead(tree);
+  assert(extentHead != null);
+  CoreLabel l=(CoreLabel)extentHead.label();
+  Tree realHead=findTreeWithSpan(root,l.get(CoreAnnotations.BeginIndexAnnotation.class),l.get(CoreAnnotations.EndIndexAnnotation.class));
+  assert(realHead != null);
+  return realHead;
+}

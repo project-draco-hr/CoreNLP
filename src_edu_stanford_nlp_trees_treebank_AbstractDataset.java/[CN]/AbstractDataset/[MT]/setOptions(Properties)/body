@@ -1,0 +1,52 @@
+{
+  options=opts;
+  List<String> sortedKeys=new ArrayList<String>(opts.stringPropertyNames());
+  Collections.sort(sortedKeys);
+  for (  String param : sortedKeys) {
+    String value=opts.getProperty(param);
+    configuredOptions.add(param);
+    Matcher pathMatcher=ConfigParser.matchPath.matcher(param);
+    Matcher mapMatcher=ConfigParser.matchMapping.matcher(param);
+    if (pathMatcher.lookingAt()) {
+      pathsToData.add(new File(value));
+      configuredOptions.add(ConfigParser.paramPath);
+    }
+ else     if (mapMatcher.lookingAt()) {
+      pathsToMappings.add(new File(value));
+      configuredOptions.add(ConfigParser.paramMapping);
+    }
+ else     if (param.equals(ConfigParser.paramEncode))     encoding=Encoding.valueOf(value);
+ else     if (param.equals(ConfigParser.paramName)) {
+      Matcher inThisFilename=fileNameNormalizer.matcher(value.trim());
+      outFileName=inThisFilename.replaceAll("-");
+      toStringBuffer.append(String.format("Dataset Name: %s\n",value.trim()));
+    }
+ else     if (param.equals(ConfigParser.paramDT))     addDeterminer=Boolean.parseBoolean(value);
+ else     if (param.equals(ConfigParser.paramSplit)) {
+      Set<String> sm=buildSplitMap(value);
+      splitFilter=new SplitFilter(sm);
+    }
+ else     if (param.equals(ConfigParser.paramFlat) && Boolean.parseBoolean(value))     makeFlatFile=true;
+ else     if (param.equals(ConfigParser.paramFileExt))     treeFileExtension=value;
+ else     if (param.equals(ConfigParser.paramLexMapper))     lexMapper=loadMapper(value);
+ else     if (param.equals(ConfigParser.paramNoDashTags))     removeDashTags=Boolean.parseBoolean(value);
+ else     if (param.equals(ConfigParser.paramAddRoot))     addRoot=Boolean.parseBoolean(value);
+ else     if (param.equals(ConfigParser.paramUnEscape))     removeEscapeTokens=true;
+ else     if (param.equals(ConfigParser.paramLexMapOptions))     lexMapOptions=value;
+ else     if (param.equals(ConfigParser.paramPosMapper))     posMapper=loadMapper(value);
+ else     if (param.equals(ConfigParser.paramPosMapOptions))     posMapOptions=value;
+ else     if (param.equals(ConfigParser.paramMaxLen))     maxLen=Integer.parseInt(value);
+ else     if (param.equals(ConfigParser.paramMorph))     morphDelim=value;
+ else     if (param.equals(ConfigParser.paramTransform))     customTreeVisitor=loadTreeVistor(value);
+  }
+  if (!configuredOptions.containsAll(requiredOptions))   return false;
+  if (encoding == Encoding.UTF8)   outFileName+=".utf8";
+ else   outFileName+=".bw";
+  String outputPath=opts.getProperty(ConfigParser.paramOutputPath);
+  if (outputPath != null) {
+    outFileName=outputPath + File.separator + outFileName;
+  }
+  if (makeFlatFile)   flatFileName=outFileName + ".flat.txt";
+  outFileName+=".txt";
+  return true;
+}

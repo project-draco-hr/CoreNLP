@@ -1,0 +1,14 @@
+{
+  AnnotationExtractRule r=super.create(env,attributes);
+  if (r.annotationField == null) {
+    r.annotationField=EnvLookup.getDefaultTextAnnotationKey(env);
+  }
+  if (r.ruleType == null) {
+    r.ruleType=TEXT_PATTERN_RULE_TYPE;
+  }
+  String expr=(String)Expressions.asObject(env,attributes.get("pattern"));
+  Expression action=Expressions.asExpression(env,attributes.get("action"));
+  Expression result=Expressions.asExpression(env,attributes.get("result"));
+  updateExtractRule(r,env,expr,action,result);
+  return r;
+}

@@ -1,0 +1,42 @@
+{
+  boolean outputLowercase=true;
+  for (  String arg : args) {
+    if (arg.equalsIgnoreCase("-noLowercase")) {
+      outputLowercase=false;
+      continue;
+    }
+    BufferedReader in=new BufferedReader(new FileReader(arg));
+    for (String line; (line=in.readLine()) != null; ) {
+      String[] toks=line.split(" ");
+      for (      String tok : toks) {
+        String lctok=tok.toLowerCase();
+        Counter<String> counter=map.get(lctok);
+        if (counter == null) {
+          counter=new ClassicCounter<String>();
+          map.put(lctok,counter);
+        }
+        counter.incrementCount(tok);
+      }
+    }
+  }
+  for (  String k : map.keySet()) {
+    Counter<String> counter=map.get(k);
+    String maxstr="";
+    int maxcount=-1;
+    for (    String str : counter.keySet()) {
+      int count=(int)counter.getCount(str);
+      if (count > maxcount) {
+        maxstr=str;
+        maxcount=count;
+      }
+    }
+    highest.put(k,maxstr);
+  }
+  for (  String k : highest.keySet()) {
+    String cased=highest.get(k);
+    if (!outputLowercase && k.equals(cased)) {
+      continue;
+    }
+    System.out.printf("%s\t%s\n",k,cased);
+  }
+}

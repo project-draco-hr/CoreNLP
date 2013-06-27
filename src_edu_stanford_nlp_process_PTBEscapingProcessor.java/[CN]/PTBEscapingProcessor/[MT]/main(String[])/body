@@ -1,0 +1,26 @@
+{
+  if (args.length != 1) {
+    System.out.println("usage: java edu.stanford.nlp.process.PTBEscapingProcessor fileOrUrl");
+    return;
+  }
+  String filename=args[0];
+  try {
+    Document<String,Word,Word> d;
+    if (filename.startsWith("http://")) {
+      Document<String,Word,Word> dpre=new BasicDocument<String>(WhitespaceTokenizer.factory()).init(new URL(filename));
+      DocumentProcessor<Word,Word,String,Word> notags=new StripTagsProcessor<String,Word>();
+      d=notags.processDocument(dpre);
+    }
+ else {
+      d=new BasicDocument<String>(WhitespaceTokenizer.factory()).init(new File(filename));
+    }
+    DocumentProcessor<Word,HasWord,String,Word> proc=new PTBEscapingProcessor<Word,String,Word>();
+    Document<String,Word,HasWord> newD=proc.processDocument(d);
+    for (    HasWord word : newD) {
+      System.out.println(word);
+    }
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+  }
+}

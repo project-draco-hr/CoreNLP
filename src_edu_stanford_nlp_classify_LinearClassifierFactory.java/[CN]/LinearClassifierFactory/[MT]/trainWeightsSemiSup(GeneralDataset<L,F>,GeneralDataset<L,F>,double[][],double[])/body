@@ -1,0 +1,11 @@
+{
+  Minimizer<DiffFunction> minimizer=minimizerCreator.create();
+  LogConditionalObjectiveFunction<L,F> objective=new LogConditionalObjectiveFunction<L,F>(data,new LogPrior(LogPrior.LogPriorType.NULL));
+  BiasedLogConditionalObjectiveFunction biasedObjective=new BiasedLogConditionalObjectiveFunction(biasedData,confusionMatrix,new LogPrior(LogPrior.LogPriorType.NULL));
+  SemiSupervisedLogConditionalObjectiveFunction semiSupObjective=new SemiSupervisedLogConditionalObjectiveFunction(objective,biasedObjective,logPrior);
+  if (initial == null) {
+    initial=objective.initial();
+  }
+  double[] weights=minimizer.minimize(semiSupObjective,TOL,initial);
+  return objective.to2D(weights);
+}

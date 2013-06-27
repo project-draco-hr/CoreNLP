@@ -1,0 +1,15 @@
+{
+  List<String> a=Arrays.asList("a","b","d","e");
+  List<String> b=Arrays.asList("b","c","d","e");
+  List<String> c=Arrays.asList("a","b","c","e","f");
+  Comparator<String> comparator=new Comparator<String>(){
+    public int compare(    String o1,    String o2){
+      return o1.compareTo(o2);
+    }
+  }
+;
+  Iterator<Triple<String,String,String>> iter=Iterables.merge(a,b,c,comparator).iterator();
+  assertEquals(iter.next(),new Triple<String,String,String>("b","b","b"));
+  assertEquals(iter.next(),new Triple<String,String,String>("e","e","e"));
+  assertTrue(!iter.hasNext());
+}

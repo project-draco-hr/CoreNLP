@@ -1,0 +1,17 @@
+{
+  CategoryWordTag.printWordTag=false;
+  String path=args[0];
+  List<Tree> trees=TreebankAnnotator.getTrees(path,200,219,0,10);
+  List<Tree> annotatedTrees=new TreebankAnnotator(new Options(),path).annotateTrees(trees);
+  for (  Tree tree : annotatedTrees) {
+    System.out.println("ORIGINAL:\n");
+    tree.pennPrint();
+    System.out.println("CNFed:\n");
+    Tree cnfTree=new ToCNFTransformer().transformTree(tree);
+    cnfTree.pennPrint();
+    System.out.println("UnCNFed:\n");
+    Tree unCNFTree=new FromCNFTransformer().transformTree(cnfTree);
+    unCNFTree.pennPrint();
+    System.out.println("\n\n");
+  }
+}

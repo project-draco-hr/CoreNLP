@@ -1,0 +1,53 @@
+{
+  String line, value;
+  lexOptions.readData(in);
+  line=in.readLine();
+  value=line.substring(line.indexOf(' ') + 1);
+  try {
+    tlpParams=(TreebankLangParserParams)Class.forName(value).newInstance();
+  }
+ catch (  Exception e) {
+    IOException ioe=new IOException("Problem instantiating parserParams: " + line);
+    ioe.initCause(e);
+    throw ioe;
+  }
+  line=in.readLine();
+  if (line.matches("^forceCNF.*")) {
+    value=line.substring(line.indexOf(' ') + 1);
+    forceCNF=Boolean.parseBoolean(value);
+    line=in.readLine();
+  }
+  value=line.substring(line.indexOf(' ') + 1);
+  doPCFG=Boolean.parseBoolean(value);
+  line=in.readLine();
+  value=line.substring(line.indexOf(' ') + 1);
+  doDep=Boolean.parseBoolean(value);
+  line=in.readLine();
+  value=line.substring(line.indexOf(' ') + 1);
+  freeDependencies=Boolean.parseBoolean(value);
+  line=in.readLine();
+  value=line.substring(line.indexOf(' ') + 1);
+  directional=Boolean.parseBoolean(value);
+  line=in.readLine();
+  value=line.substring(line.indexOf(' ') + 1);
+  genStop=Boolean.parseBoolean(value);
+  line=in.readLine();
+  value=line.substring(line.indexOf(' ') + 1);
+  distance=Boolean.parseBoolean(value);
+  line=in.readLine();
+  value=line.substring(line.indexOf(' ') + 1);
+  coarseDistance=Boolean.parseBoolean(value);
+  line=in.readLine();
+  value=line.substring(line.indexOf(' ') + 1);
+  dcTags=Boolean.parseBoolean(value);
+  line=in.readLine();
+  if (!line.matches("^nPrune.*")) {
+    throw new RuntimeException("Expected nPrune, found: " + line);
+  }
+  value=line.substring(line.indexOf(' ') + 1);
+  nodePrune=Boolean.parseBoolean(value);
+  line=in.readLine();
+  if (line.length() != 0) {
+    throw new RuntimeException("Expected blank line, found: " + line);
+  }
+}

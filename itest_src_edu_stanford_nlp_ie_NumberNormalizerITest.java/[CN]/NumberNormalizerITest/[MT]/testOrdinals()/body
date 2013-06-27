@@ -1,0 +1,19 @@
+{
+  String testText="0th, 1st, 2nd, 3rd, 4th, 5th, 6th, 7th, 8th, 9th, 10th\n" + "zeroth, first, second, third, fourth, fifth, sixth, seventh, eighth, ninth, tenth\n" + "11th, 12th, 13th, 14th, 15th, 16th, 17th, 18th, 19th, 20th\n"+ "Eleventh, twelfth, thirteenth, Fourteenth, fifteenth, Sixteenth, seventeenth, eighteenth, nineteenth, twentieth\n"+ "Twenty-first, twenty first, twenty second, twenty third, twenty fourth\n"+ "thirtieth, thirty first, thirty-second,"+ "fortieth, one hundredth, two hundredth, one hundred and fifty first, one hundred fifty first";
+  Iterator<? extends Number> expectedNumbers=Arrays.asList(0,1,2,3,4,5,6,7,8,9,10,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,11,12,13,14,15,16,17,18,19,20,21.0,21.0,22.0,23.0,24.0,30,31.0,32.0,40,100.0,200.0,151.0,151.0).iterator();
+  Iterator<String> expectedTexts=Arrays.asList(testText.split("\\s*[,\\n]+\\s*")).iterator();
+  Annotation document=createDocument(testText);
+  NumberNormalizer.findAndAnnotateNumericExpressions(document);
+  for (  CoreMap num : document.get(CoreAnnotations.NumerizedTokensAnnotation.class)) {
+    if (num.has(CoreAnnotations.NumericCompositeTypeAnnotation.class)) {
+      Number expectedNumber=expectedNumbers.next();
+      String expectedType="ORDINAL";
+      String expectedText=expectedTexts.next();
+      String text=document.get(CoreAnnotations.TextAnnotation.class).substring(num.get(CoreAnnotations.CharacterOffsetBeginAnnotation.class),num.get(CoreAnnotations.CharacterOffsetEndAnnotation.class));
+      assertEquals(expectedText,text);
+      assertEquals("Type for " + expectedText,expectedType,num.get(CoreAnnotations.NumericCompositeTypeAnnotation.class));
+      assertEquals(expectedNumber.toString(),num.get(CoreAnnotations.NumericCompositeValueAnnotation.class).toString());
+    }
+  }
+  assertFalse(expectedNumbers.hasNext());
+}

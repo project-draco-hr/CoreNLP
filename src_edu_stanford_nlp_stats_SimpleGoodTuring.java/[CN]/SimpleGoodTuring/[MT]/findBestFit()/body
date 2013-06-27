@@ -1,0 +1,17 @@
+{
+  double XYs, Xsquares, meanX, meanY;
+  int i;
+  XYs=Xsquares=meanX=meanY=0.0;
+  for (i=0; i < rows; ++i) {
+    meanX+=logR[i];
+    meanY+=logZ[i];
+  }
+  meanX/=rows;
+  meanY/=rows;
+  for (i=0; i < rows; ++i) {
+    XYs+=(logR[i] - meanX) * (logZ[i] - meanY);
+    Xsquares+=sq(logR[i] - meanX);
+  }
+  slope=XYs / Xsquares;
+  intercept=meanY - slope * meanX;
+}

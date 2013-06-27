@@ -1,0 +1,41 @@
+{
+  if (line.endsWith("\n")) {
+    line=line.substring(0,line.length() - 1);
+  }
+  if (shouldLogChannels()) {
+    ChannelEquivalent channel=null;
+    if (channels == null) {
+      channel=defaultChannel;
+    }
+ else {
+      for (      Object candidate : channels) {
+        if (channel == null) {
+          channel=channelMapping.get(candidate);
+        }
+      }
+      if (channel == null) {
+        channel=this.defaultChannel;
+      }
+    }
+    try {
+      this.loggingMethod.invoke(this.logger,channel,line);
+    }
+ catch (    IllegalAccessException e) {
+      throw new IllegalStateException(e);
+    }
+catch (    InvocationTargetException e) {
+      throw new IllegalStateException(e.getCause());
+    }
+  }
+ else {
+    try {
+      this.loggingMethod.invoke(this.logger,line);
+    }
+ catch (    IllegalAccessException e) {
+      throw new IllegalStateException(e);
+    }
+catch (    InvocationTargetException e) {
+      throw new IllegalStateException(e.getCause());
+    }
+  }
+}

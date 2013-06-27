@@ -1,0 +1,51 @@
+{
+  final String background=flags.backgroundSymbol;
+  String prevTag=background;
+  boolean first=true;
+  for (Iterator<IN> wordIter=doc.iterator(); wordIter.hasNext(); ) {
+    IN wi=wordIter.next();
+    String tag=StringUtils.getNotNullString(wi.get(CoreAnnotations.AnswerAnnotation.class));
+    if (!tag.equals(prevTag)) {
+      if (!prevTag.equals(background) && !tag.equals(background)) {
+        out.print("</");
+        out.print(prevTag);
+        out.print("> <");
+        out.print(tag);
+        out.print('>');
+      }
+ else       if (!prevTag.equals(background)) {
+        out.print("</");
+        out.print(prevTag);
+        out.print("> ");
+      }
+ else       if (!tag.equals(background)) {
+        if (!first) {
+          out.print(' ');
+        }
+        out.print('<');
+        out.print(tag);
+        out.print('>');
+      }
+    }
+ else {
+      if (!first) {
+        out.print(' ');
+      }
+    }
+    first=false;
+    out.print(StringUtils.getNotNullString(wi.get(CoreAnnotations.OriginalTextAnnotation.class)));
+    if (!wordIter.hasNext()) {
+      if (!tag.equals(background)) {
+        out.print("</");
+        out.print(tag);
+        out.print('>');
+      }
+      out.print(' ');
+      prevTag=background;
+    }
+ else {
+      prevTag=tag;
+    }
+  }
+  out.println();
+}

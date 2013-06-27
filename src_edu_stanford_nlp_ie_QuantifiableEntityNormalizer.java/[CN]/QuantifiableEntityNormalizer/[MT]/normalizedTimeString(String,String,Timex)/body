@@ -1,0 +1,96 @@
+{
+  if (timexFromSUTime != null) {
+    if (timexFromSUTime.value() != null) {
+      return timexFromSUTime.value();
+    }
+ else {
+      return timexFromSUTime.altVal();
+    }
+  }
+  if (DEBUG2)   err.println("normalizingTime: " + s);
+  s=s.replaceAll("[ \t\n\0\f\r]","");
+  Matcher m=timePattern.matcher(s);
+  if (s.equalsIgnoreCase("noon")) {
+    return "12:00pm";
+  }
+ else   if (s.equalsIgnoreCase("midnight")) {
+    return "00:00am";
+  }
+ else   if (s.equalsIgnoreCase("morning")) {
+    return "M";
+  }
+ else   if (s.equalsIgnoreCase("afternoon")) {
+    return "A";
+  }
+ else   if (s.equalsIgnoreCase("evening")) {
+    return "EN";
+  }
+ else   if (s.equalsIgnoreCase("night")) {
+    return "N";
+  }
+ else   if (s.equalsIgnoreCase("day")) {
+    return "D";
+  }
+ else   if (s.equalsIgnoreCase("suppertime")) {
+    return "EN";
+  }
+ else   if (s.equalsIgnoreCase("lunchtime")) {
+    return "MD";
+  }
+ else   if (s.equalsIgnoreCase("midday")) {
+    return "MD";
+  }
+ else   if (s.equalsIgnoreCase("teatime")) {
+    return "A";
+  }
+ else   if (s.equalsIgnoreCase("dinnertime")) {
+    return "EN";
+  }
+ else   if (s.equalsIgnoreCase("dawn")) {
+    return "EM";
+  }
+ else   if (s.equalsIgnoreCase("dusk")) {
+    return "EN";
+  }
+ else   if (s.equalsIgnoreCase("sundown")) {
+    return "EN";
+  }
+ else   if (s.equalsIgnoreCase("sunup")) {
+    return "EM";
+  }
+ else   if (s.equalsIgnoreCase("daybreak")) {
+    return "EM";
+  }
+ else   if (m.matches()) {
+    if (DEBUG2) {
+      err.printf("timePattern matched groups: |%s| |%s| |%s| |%s|\n",m.group(0),m.group(1),m.group(2),m.group(3));
+    }
+    StringBuilder sb=new StringBuilder();
+    sb.append(m.group(1));
+    if (m.group(2) == null || "".equals(m.group(2))) {
+      sb.append(":00");
+    }
+ else {
+      sb.append(m.group(2));
+    }
+    if (m.group(3) != null) {
+      String suffix=m.group(3);
+      suffix=suffix.replaceAll("\\.","");
+      suffix=suffix.toLowerCase();
+      sb.append(suffix);
+    }
+ else     if (ampm != null) {
+      sb.append(ampm);
+    }
+ else {
+    }
+    if (DEBUG2) {
+      err.println("normalizedTimeString new str: " + sb.toString());
+    }
+    return sb.toString();
+  }
+ else   if (DEBUG) {
+    err.println("Quantifiable: couldn't normalize " + s);
+  }
+  return null;
+}

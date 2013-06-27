@@ -1,0 +1,21 @@
+{
+  if (getTimeLabel() != null) {
+    return getTimeLabel();
+  }
+  Period p=getJodaTimePeriod();
+  String s=(p != null) ? p.toString() : "PXX";
+  if ((flags & (FORMAT_ISO | FORMAT_TIMEX3_VALUE)) == 0) {
+    String m=getMod();
+    if (m != null) {
+      try {
+        TimexMod tm=TimexMod.valueOf(m);
+        if (tm.getSymbol() != null) {
+          s=tm.getSymbol() + s;
+        }
+      }
+ catch (      Exception ex) {
+      }
+    }
+  }
+  return s;
+}

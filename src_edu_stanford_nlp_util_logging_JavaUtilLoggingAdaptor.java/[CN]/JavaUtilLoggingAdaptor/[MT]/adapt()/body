@@ -1,0 +1,20 @@
+{
+  Logger topLogger=Logger.getLogger("");
+  Handler oldConsoleHandler=null;
+  for (  Handler handler : topLogger.getHandlers()) {
+    if (handler instanceof ConsoleHandler && !(handler instanceof RedwoodHandler)) {
+      oldConsoleHandler=handler;
+      break;
+    }
+  }
+  if (oldConsoleHandler != null) {
+    topLogger.removeHandler(oldConsoleHandler);
+  }
+  if (!addedRedwoodHandler) {
+    Handler redwoodHandler=new JavaUtilLoggingAdaptor.RedwoodHandler();
+    topLogger.addHandler(redwoodHandler);
+    addedRedwoodHandler=true;
+  }
+  Redwood.addLoggingClass(JavaUtilLoggingAdaptor.class.getCanonicalName());
+  Redwood.addLoggingClass("java.util.logging");
+}

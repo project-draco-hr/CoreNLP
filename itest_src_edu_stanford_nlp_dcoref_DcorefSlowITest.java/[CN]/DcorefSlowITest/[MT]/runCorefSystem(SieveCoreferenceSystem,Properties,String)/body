@@ -1,0 +1,18 @@
+{
+  String conllOutputMentionGoldFile=WORK_DIR + File.separator + "conlloutput.gold.txt";
+  String conllOutputMentionCorefPredictedFile=WORK_DIR + File.separator + "conlloutput.coref.predicted.txt";
+  PrintWriter writerGold=new PrintWriter(new FileOutputStream(conllOutputMentionGoldFile));
+  PrintWriter writerPredictedCoref=new PrintWriter(new FileOutputStream(conllOutputMentionCorefPredictedFile));
+  MentionExtractor mentionExtractor=new CoNLLMentionExtractor(corefSystem.dictionaries(),props,corefSystem.semantics());
+  Document document;
+  while ((document=mentionExtractor.nextDoc()) != null) {
+    document.extractGoldCorefClusters();
+    SieveCoreferenceSystem.printConllOutput(document,writerGold,true);
+    corefSystem.coref(document);
+    SieveCoreferenceSystem.printConllOutput(document,writerPredictedCoref,false,true);
+  }
+  writerGold.close();
+  writerPredictedCoref.close();
+  String summary=SieveCoreferenceSystem.getConllEvalSummary(corefSystem.conllMentionEvalScript,conllOutputMentionGoldFile,conllOutputMentionCorefPredictedFile);
+  return summary;
+}

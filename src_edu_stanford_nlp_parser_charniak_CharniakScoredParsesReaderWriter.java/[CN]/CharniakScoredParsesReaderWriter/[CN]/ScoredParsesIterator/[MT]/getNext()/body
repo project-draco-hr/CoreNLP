@@ -1,0 +1,53 @@
+{
+  try {
+    String line;
+    int parsesExpected=0;
+    int sentenceId=lastSentenceId;
+    ScoredObject<Tree> curParse=null;
+    List<ScoredObject<Tree>> curParses=null;
+    while ((line=br.readLine()) != null) {
+      line=line.trim();
+      if (line.length() > 0) {
+        if (parsesExpected == 0) {
+          String[] fields=wsDelimiter.split(line,2);
+          parsesExpected=Integer.parseInt(fields[0]);
+          sentenceId=Integer.parseInt(fields[1]);
+          if (expectConsecutiveSentenceIds) {
+            if (sentenceId != lastSentenceId + 1) {
+              if (lastSentenceId < sentenceId) {
+                StringBuilder sb=new StringBuilder("Missing sentences");
+                for (int i=lastSentenceId + 1; i < sentenceId; i++) {
+                  sb.append(" ").append(i);
+                }
+                logger.warning(sb.toString());
+              }
+ else {
+                logger.warning("sentenceIds are not increasing (last=" + lastSentenceId + ", curr="+ sentenceId+ ")");
+              }
+            }
+          }
+          lastSentenceId=sentenceId;
+          curParses=new ArrayList<ScoredObject<Tree>>(parsesExpected);
+        }
+ else {
+          if (curParse == null) {
+            double score=Double.parseDouble(line);
+            curParses.add(curParse=new ScoredObject<Tree>(null,score));
+          }
+ else {
+            curParse.setObject(Trees.readTree(line));
+            curParse=null;
+            parsesExpected--;
+            if (parsesExpected == 0) {
+              return curParses;
+            }
+          }
+        }
+      }
+    }
+  }
+ catch (  IOException ex) {
+    throw new RuntimeException(ex);
+  }
+  return null;
+}

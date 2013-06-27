@@ -1,0 +1,43 @@
+{
+  if (!useNewHeadFinder) {
+    return originalFindSyntacticHead(ent,root,tokens);
+  }
+  logger.fine("Searching for tree matching " + ent);
+  Tree exactMatch=findTreeWithSpan(root,ent.getExtentTokenStart(),ent.getExtentTokenEnd());
+  if (exactMatch != null) {
+    logger.fine("Mention \"" + ent + "\" mapped to tree: "+ printTree(exactMatch));
+    return safeHead(exactMatch);
+  }
+  int approximateness=0;
+  List<CoreLabel> extentTokens=new ArrayList<CoreLabel>();
+  extentTokens.add(initCoreLabel("It"));
+  extentTokens.add(initCoreLabel("was"));
+  final int ADDED_WORDS=2;
+  for (int i=ent.getExtentTokenStart(); i < ent.getExtentTokenEnd(); i++) {
+    CoreLabel label=tokens.get(i);
+    if (!"-".equals(label.word())) {
+      extentTokens.add(tokens.get(i));
+    }
+ else {
+      approximateness++;
+    }
+  }
+  extentTokens.add(initCoreLabel("."));
+  ParserConstraint constraint=new ParserConstraint();
+  constraint.start=ADDED_WORDS;
+  constraint.end=extentTokens.size() - 1;
+  constraint.state=Pattern.compile(".*");
+  List<ParserConstraint> constraints=Collections.singletonList(constraint);
+  Tree tree=parse(extentTokens,constraints);
+  logger.fine("No exact match found. Local parse:\n" + tree.pennString());
+  convertToCoreLabels(tree);
+  tree.indexSpans(ent.getExtentTokenStart() - ADDED_WORDS);
+  Tree subtree=findPartialSpan(tree,ent.getExtentTokenStart());
+  Tree extentHead=safeHead(subtree);
+  logger.fine("Head is: " + extentHead);
+  assert(extentHead != null);
+  CoreLabel l=(CoreLabel)extentHead.label();
+  Tree realHead=funkyFindLeafWithApproximateSpan(root,l.value(),l.get(CoreAnnotations.BeginIndexAnnotation.class),approximateness);
+  if (realHead != null)   logger.fine("Chosen head: " + realHead);
+  return realHead;
+}

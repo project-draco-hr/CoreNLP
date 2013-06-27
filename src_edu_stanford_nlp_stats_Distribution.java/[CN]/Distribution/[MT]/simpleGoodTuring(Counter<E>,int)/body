@@ -1,0 +1,24 @@
+{
+  validateCounter(counter);
+  int numUnseen=numberOfKeys - counter.size();
+  if (numUnseen < 1)   throw new IllegalArgumentException(String.format("ERROR: numberOfKeys %d must be > size of counter %d!",numberOfKeys,counter.size()));
+  int[][] cc=countCounts2IntArrays(collectCountCounts(counter));
+  int[] r=cc[0];
+  int[] n=cc[1];
+  SimpleGoodTuring sgt=new SimpleGoodTuring(r,n);
+  Counter<Integer> probsByCount=new ClassicCounter<Integer>();
+  double[] probs=sgt.getProbabilities();
+  for (int i=0; i < probs.length; i++) {
+    probsByCount.setCount(r[i],probs[i]);
+  }
+  Distribution<E> dist=new Distribution<E>();
+  dist.counter=new ClassicCounter<E>();
+  for (  Map.Entry<E,Double> entry : counter.entrySet()) {
+    E item=entry.getKey();
+    Integer count=(int)Math.round(entry.getValue());
+    dist.counter.setCount(item,probsByCount.getCount(count));
+  }
+  dist.numberOfKeys=numberOfKeys;
+  dist.reservedMass=sgt.getProbabilityForUnseen();
+  return dist;
+}

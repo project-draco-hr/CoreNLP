@@ -1,0 +1,51 @@
+{
+  if (counts.length == 0 || counts[0].length == 0)   return "";
+  int[] rowTotals=new int[counts.length];
+  int[] colTotals=new int[counts[0].length];
+  int total=0;
+  for (int i=0; i < counts.length; i++) {
+    for (int j=0; j < counts[i].length; j++) {
+      rowTotals[i]+=counts[i][j];
+      colTotals[j]+=counts[i][j];
+      total+=counts[i][j];
+    }
+  }
+  StringBuilder result=new StringBuilder();
+  if (colLabels != null) {
+    result.append(StringUtils.padLeft("",labelSize));
+    for (int j=0; j < counts[0].length; j++) {
+      String s=(colLabels[j] == null ? "null" : colLabels[j].toString());
+      if (s.length() > cellSize - 1) {
+        s=s.substring(0,cellSize - 1);
+      }
+      s=StringUtils.padLeft(s,cellSize);
+      result.append(s);
+    }
+    if (printTotals) {
+      result.append(StringUtils.padLeftOrTrim("Total",cellSize));
+    }
+    result.append('\n');
+  }
+  for (int i=0; i < counts.length; i++) {
+    if (rowLabels != null) {
+      String s=(rowLabels[i] == null ? "null" : rowLabels[i].toString());
+      s=StringUtils.padOrTrim(s,labelSize);
+      result.append(s);
+    }
+    for (int j=0; j < counts[i].length; j++) {
+      result.append(StringUtils.padLeft(nf.format(counts[i][j]),cellSize));
+    }
+    if (printTotals) {
+      result.append(StringUtils.padLeft(nf.format(rowTotals[i]),cellSize));
+    }
+    result.append('\n');
+  }
+  if (printTotals) {
+    result.append(StringUtils.pad("Total",labelSize));
+    for (    int colTotal : colTotals) {
+      result.append(StringUtils.padLeft(nf.format(colTotal),cellSize));
+    }
+    result.append(StringUtils.padLeft(nf.format(total),cellSize));
+  }
+  return result.toString();
+}

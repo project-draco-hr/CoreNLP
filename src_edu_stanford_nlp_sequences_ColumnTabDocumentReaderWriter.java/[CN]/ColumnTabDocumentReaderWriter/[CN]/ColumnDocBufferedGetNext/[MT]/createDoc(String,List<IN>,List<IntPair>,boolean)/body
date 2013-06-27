@@ -1,0 +1,46 @@
+{
+  try {
+    String docText=includeText ? join(tokens,CoreAnnotations.TextAnnotation.class," ") : null;
+    Annotation doc=new Annotation(docText);
+    doc.set(CoreAnnotations.DocIDAnnotation.class,docId);
+    Class tokensClass=Class.forName(tokensAnnotationClassName);
+    doc.set(tokensClass,tokens);
+    boolean setTokenCharOffsets=includeText;
+    if (setTokenCharOffsets) {
+      int i=0;
+      for (      IN token : tokens) {
+        String tokenText=token.get(CoreAnnotations.TextAnnotation.class);
+        token.set(CoreAnnotations.CharacterOffsetBeginAnnotation.class,i);
+        i+=tokenText.length();
+        token.set(CoreAnnotations.CharacterOffsetEndAnnotation.class,i);
+        assert(i <= docText.length());
+        i++;
+      }
+    }
+    if (sentenceBoundaries != null) {
+      List<CoreMap> sentences=new ArrayList<CoreMap>(sentenceBoundaries.size());
+      for (      IntPair p : sentenceBoundaries) {
+        List<IN> sentenceTokens=new ArrayList<IN>(tokens.subList(p.getSource(),p.getTarget() + 1));
+        Integer begin=sentenceTokens.get(0).get(CoreAnnotations.CharacterOffsetBeginAnnotation.class);
+        int last=sentenceTokens.size() - 1;
+        Integer end=sentenceTokens.get(last).get(CoreAnnotations.CharacterOffsetEndAnnotation.class);
+        String sentenceText=includeText ? join(sentenceTokens,CoreAnnotations.TextAnnotation.class," ") : null;
+        Annotation sentence=new Annotation(sentenceText);
+        sentence.set(CoreAnnotations.CharacterOffsetBeginAnnotation.class,begin);
+        sentence.set(CoreAnnotations.CharacterOffsetEndAnnotation.class,end);
+        sentence.set(tokensClass,sentenceTokens);
+        sentence.set(CoreAnnotations.TokenBeginAnnotation.class,p.getSource());
+        sentence.set(CoreAnnotations.TokenEndAnnotation.class,p.getTarget() + 1);
+        int sentenceIndex=sentences.size();
+        sentence.set(CoreAnnotations.SentenceIndexAnnotation.class,sentenceIndex);
+        sentences.add(sentence);
+      }
+      doc.set(CoreAnnotations.SentencesAnnotation.class,sentences);
+    }
+    return doc;
+  }
+ catch (  ClassNotFoundException e) {
+    e.printStackTrace(System.err);
+  }
+  return null;
+}

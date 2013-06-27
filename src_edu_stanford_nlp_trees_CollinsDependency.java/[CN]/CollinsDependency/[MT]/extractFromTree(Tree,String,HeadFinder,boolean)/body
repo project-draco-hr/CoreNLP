@@ -1,0 +1,43 @@
+{
+  if (t == null || startSymbol.equals("") || hf == null)   return null;
+  final Set<CollinsDependency> deps=Generics.newHashSet();
+  if (t.value().equals(startSymbol))   t=t.firstChild();
+  boolean mustProcessRoot=true;
+  for (  final Tree node : t) {
+    if (node.isLeaf() || node.numChildren() < 2)     continue;
+    final Tree headDaughter=hf.determineHead(node);
+    final Tree head=node.headTerminal(hf);
+    if (headDaughter == null || head == null) {
+      System.err.println("WARNING: CollinsDependency.extractFromTree() could not find root for:\n" + node.pennString());
+    }
+ else {
+      if (mustProcessRoot) {
+        mustProcessRoot=false;
+        final CoreLabel startLabel=makeStartLabel(startSymbol);
+        deps.add(new CollinsDependency(new CoreLabel(head.label()),startLabel,new CollinsRelation(startSymbol,startSymbol,node.value(),Direction.Right)));
+      }
+      Direction dir=Direction.Left;
+      for (      final Tree daughter : node.children()) {
+        if (daughter.equals(headDaughter)) {
+          dir=Direction.Right;
+        }
+ else {
+          final Tree headOfDaughter=daughter.headTerminal(hf);
+          final String relParent=(normPOS && node.isPreTerminal()) ? normPOSLabel : node.value();
+          final String relHead=(normPOS && headDaughter.isPreTerminal()) ? normPOSLabel : headDaughter.value();
+          final String relModifier=(normPOS && daughter.isPreTerminal()) ? normPOSLabel : daughter.value();
+          final CollinsDependency newDep=new CollinsDependency(new CoreLabel(headOfDaughter.label()),new CoreLabel(head.label()),new CollinsRelation(relParent,relHead,relModifier,dir));
+          deps.add(newDep);
+        }
+      }
+    }
+  }
+  if (t.yield().size() != deps.size()) {
+    System.err.printf("WARNING: Number of extracted dependencies (%d) does not match yield (%d):\n",deps.size(),t.yield().size());
+    System.err.println(t.pennString());
+    System.err.println();
+    int num=0;
+    for (    CollinsDependency dep : deps)     System.err.println(num++ + ": " + dep.toString());
+  }
+  return deps;
+}

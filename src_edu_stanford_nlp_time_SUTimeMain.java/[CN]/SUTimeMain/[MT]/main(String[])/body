@@ -1,0 +1,31 @@
+{
+  Properties props=StringUtils.argsToProperties(args);
+  String in=props.getProperty("i");
+  String date=props.getProperty("date");
+  String dct=props.getProperty("tempeval2.dct");
+  String out=props.getProperty("o");
+  String inputTypeStr=props.getProperty("in.type",TIMEBANK_CSV.name());
+  String eval=props.getProperty("eval");
+  InputType inputType=InputType.valueOf(inputTypeStr);
+  AnnotationPipeline pipeline;
+switch (inputType) {
+case TEXT:
+    pipeline=getPipeline(props,true);
+  processText(pipeline,in,out,date);
+break;
+case TEXTFILE:
+pipeline=getPipeline(props,true);
+processTextFile(pipeline,in,out,date);
+break;
+case TIMEBANK_CSV:
+configLogger(out);
+pipeline=getPipeline(props,true);
+processTimebankCsv(pipeline,in,out,eval);
+break;
+case TEMPEVAL2:
+configLogger(out);
+pipeline=getPipeline(props,false);
+processTempEval2(pipeline,in,out,eval,dct);
+break;
+}
+}

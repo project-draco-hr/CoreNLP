@@ -1,0 +1,18 @@
+{
+  String sentenceDelimiter=config.getSentenceDelimiter();
+  if (sentenceDelimiter != null && sentenceDelimiter.equals("newline")) {
+    sentenceDelimiter="\n";
+  }
+  final TokenizerFactory<? extends HasWord> tokenizerFactory=chooseTokenizerFactory();
+  final DocumentPreprocessor docProcessor;
+  if (tagInside.length() > 0) {
+    docProcessor=new DocumentPreprocessor(reader,DocumentPreprocessor.DocType.XML);
+    docProcessor.setElementDelimiter(tagInside);
+  }
+ else {
+    docProcessor=new DocumentPreprocessor(reader);
+    docProcessor.setSentenceDelimiter(sentenceDelimiter);
+  }
+  docProcessor.setTokenizerFactory(tokenizerFactory);
+  runTagger(docProcessor,writer,outputStyle);
+}

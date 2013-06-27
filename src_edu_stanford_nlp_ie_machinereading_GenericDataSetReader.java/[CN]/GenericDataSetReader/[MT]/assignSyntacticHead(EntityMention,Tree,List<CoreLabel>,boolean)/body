@@ -1,0 +1,33 @@
+{
+  if (ent.getSyntacticHeadTokenPosition() != -1) {
+    return ent.getSyntacticHeadTokenPosition();
+  }
+  logger.finest("Finding syntactic head for entity: " + ent + " in tree: "+ tree.toString());
+  logger.finest("Flat sentence is: " + tokens);
+  Tree sh=null;
+  try {
+    sh=findSyntacticHead(ent,tree,tokens);
+  }
+ catch (  Exception e) {
+    logger.severe("WARNING: failed to parse sentence. Will continue with the right-most head heuristic: " + sentenceToString(tokens));
+    e.printStackTrace();
+  }
+catch (  AssertionError e) {
+    logger.severe("WARNING: failed to parse sentence. Will continue with the right-most head heuristic: " + sentenceToString(tokens));
+    e.printStackTrace();
+  }
+  int headPos=ent.getExtentTokenEnd() - 1;
+  if (sh != null) {
+    CoreLabel label=(CoreLabel)sh.label();
+    headPos=label.get(CoreAnnotations.BeginIndexAnnotation.class);
+  }
+ else {
+    logger.fine("WARNING: failed to find syntactic head for entity: " + ent + " in tree: "+ tree);
+    logger.fine("Fallback strategy: will set head to last token in mention: " + tokens.get(headPos));
+  }
+  ent.setHeadTokenPosition(headPos);
+  if (setHeadSpan) {
+    ent.setHeadTokenSpan(new Span(headPos,headPos + 1));
+  }
+  return headPos;
+}

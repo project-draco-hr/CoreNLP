@@ -1,0 +1,18 @@
+{
+  this.options=options;
+  if (options.verbose) {
+    logger.setLevel(Level.FINE);
+  }
+ else {
+    logger.setLevel(Level.SEVERE);
+  }
+  NumberNormalizer.setVerbose(options.verbose);
+  if (options.grammarFilename != null) {
+    timexPatterns=new GenericTimeExpressionPatterns(options);
+  }
+ else {
+    timexPatterns=new EnglishTimeExpressionPatterns(options);
+  }
+  this.expressionExtractor=timexPatterns.createExtractor();
+  this.expressionExtractor.setLogger(logger);
+}

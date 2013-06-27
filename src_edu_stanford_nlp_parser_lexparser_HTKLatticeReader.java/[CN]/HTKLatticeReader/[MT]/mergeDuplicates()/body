@@ -1,0 +1,24 @@
+{
+  int numMerged=0;
+  for (int i=0; i < latticeWords.size() - 1; i++) {
+    LatticeWord first=latticeWords.get(i);
+    for (int j=i + 1; j < latticeWords.size(); j++) {
+      LatticeWord second=latticeWords.get(j);
+      if (first.equals(second)) {
+        if (DEBUG) {
+          System.err.println("removed duplicate");
+        }
+        first.merge(second);
+        latticeWords.remove(j);
+        wordsStartAt[second.startNode].remove(second);
+        wordsEndAt[second.endNode].remove(second);
+        for (int k=second.startNode; k <= second.endNode; k++) {
+          wordsAtTime[k].remove(second);
+        }
+        numMerged++;
+        j--;
+      }
+    }
+  }
+  return numMerged;
+}

@@ -1,0 +1,12 @@
+{
+  System.err.print("Deserializing classifier from " + loadPath + "...");
+  try {
+    ObjectInputStream ois=IOUtils.readStreamFromString(loadPath);
+    LinearClassifier<L,F> classifier=ErasureUtils.<LinearClassifier<L,F>>uncheckedCast(ois.readObject());
+    ois.close();
+    return classifier;
+  }
+ catch (  Exception e) {
+    throw new RuntimeException("Deserialization failed: " + e.getMessage(),e);
+  }
+}

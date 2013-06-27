@@ -1,0 +1,27 @@
+{
+  this.fieldType=fieldType;
+  this.locale=locale;
+  this.isShort=isShort;
+  MutableDateTime dt=new MutableDateTime(0L,DateTimeZone.UTC);
+  MutableDateTime.Property property=dt.property(fieldType);
+  minValue=property.getMinimumValueOverall();
+  maxValue=property.getMaximumValueOverall();
+  this.validValues=new ArrayList<String>(maxValue - minValue + 1);
+  this.valueMapping=Generics.newHashMap();
+  for (int i=minValue; i <= maxValue; i++) {
+    property.set(i);
+    if (isShort != null) {
+      if (isShort) {
+        addValue(property.getAsShortText(locale),i);
+      }
+ else {
+        addValue(property.getAsText(locale),i);
+      }
+    }
+ else {
+      addValue(property.getAsShortText(locale),i);
+      addValue(property.getAsText(locale),i);
+    }
+  }
+  Collections.sort(validValues,STRING_LENGTH_REV_COMPARATOR);
+}

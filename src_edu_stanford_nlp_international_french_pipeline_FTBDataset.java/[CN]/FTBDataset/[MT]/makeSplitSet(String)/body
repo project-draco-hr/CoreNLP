@@ -1,0 +1,20 @@
+{
+  splitFileName=DataFilePaths.convert(splitFileName);
+  Set<String> splitSet=Generics.newHashSet();
+  LineNumberReader reader=null;
+  try {
+    reader=new LineNumberReader(new FileReader(splitFileName));
+    for (String line; (line=reader.readLine()) != null; ) {
+      splitSet.add(line.trim());
+    }
+    reader.close();
+  }
+ catch (  FileNotFoundException e) {
+    e.printStackTrace();
+  }
+catch (  IOException e) {
+    System.err.printf("%s: Error reading %s (line %d)%n",this.getClass().getName(),splitFileName,reader.getLineNumber());
+    e.printStackTrace();
+  }
+  return splitSet;
+}

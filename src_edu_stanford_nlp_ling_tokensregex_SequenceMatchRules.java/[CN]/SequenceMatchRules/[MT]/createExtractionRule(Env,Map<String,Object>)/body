@@ -1,0 +1,13 @@
+{
+  String ruleType=(String)Expressions.asObject(env,attributes.get("ruleType"));
+  if (ruleType == null && env != null) {
+    ruleType=(String)env.getDefaults().get("ruleType");
+  }
+  AnnotationExtractRuleCreator ruleCreator=lookupExtractRuleCreator(env,ruleType);
+  if (ruleCreator != null) {
+    return ruleCreator.create(env,attributes);
+  }
+ else {
+    throw new IllegalArgumentException("Unknown rule type: " + ruleType);
+  }
+}

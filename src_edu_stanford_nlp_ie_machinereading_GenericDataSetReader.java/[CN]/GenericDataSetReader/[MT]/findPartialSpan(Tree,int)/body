@@ -1,0 +1,17 @@
+{
+  CoreLabel label=(CoreLabel)current.label();
+  int startIndex=label.get(CoreAnnotations.BeginIndexAnnotation.class);
+  if (startIndex == start) {
+    logger.fine("findPartialSpan: Returning " + current);
+    return current;
+  }
+  for (  Tree kid : current.children()) {
+    CoreLabel kidLabel=(CoreLabel)kid.label();
+    int kidStart=kidLabel.get(CoreAnnotations.BeginIndexAnnotation.class);
+    int kidEnd=kidLabel.get(CoreAnnotations.EndIndexAnnotation.class);
+    if (kidStart <= start && kidEnd > start) {
+      return findPartialSpan(kid,start);
+    }
+  }
+  throw new RuntimeException("Shouldn't happen: " + start + " "+ current);
+}

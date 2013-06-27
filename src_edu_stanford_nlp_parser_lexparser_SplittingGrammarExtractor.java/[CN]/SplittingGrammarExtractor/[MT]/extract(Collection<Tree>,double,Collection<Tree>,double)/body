@@ -1,0 +1,25 @@
+{
+  saveTrees(trees1,weight1,trees2,weight2);
+  countOriginalStates();
+  initialBetasAndLexicon();
+  for (int cycle=0; cycle < op.trainOptions.splitCount; ++cycle) {
+    splitStateCounts();
+    recalculateBetas(true);
+    iteration=0;
+    boolean converged=false;
+    while (!converged && iteration < MAX_ITERATIONS) {
+      if (DEBUG()) {
+        System.out.println();
+        System.out.println();
+        System.out.println("-------------------");
+        System.out.println("Iteration " + iteration);
+      }
+      converged=recalculateBetas(false);
+      ++iteration;
+    }
+    System.err.println("Converged for cycle " + cycle + " in "+ iteration+ " iterations");
+    mergeStates();
+  }
+  buildStateIndex();
+  buildGrammars();
+}

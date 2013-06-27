@@ -1,0 +1,15 @@
+{
+  StanfordCoreNLP pipeline=new StanfordCoreNLP();
+  Annotation document=new Annotation("Stanford University is located in California. It is a great university.");
+  pipeline.annotate(document);
+  CoreMap sentence=document.get(CoreAnnotations.SentencesAnnotation.class).get(0);
+  SemanticGraph g=sentence.get(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class);
+  processSerialization(g);
+  processSerialization(sentence.get(TreeCoreAnnotations.TreeAnnotation.class));
+  processSerialization(sentence.get(CoreAnnotations.TokensAnnotation.class));
+  processSerialization(sentence.get(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class));
+  processSerialization(sentence);
+  Object newDocument=processSerialization(document);
+  assertTrue(newDocument instanceof Annotation);
+  assertTrue(document.equals(newDocument));
+}

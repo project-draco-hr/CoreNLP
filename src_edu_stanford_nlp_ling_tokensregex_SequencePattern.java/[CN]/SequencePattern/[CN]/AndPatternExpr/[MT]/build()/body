@@ -1,0 +1,13 @@
+{
+  ConjStartState conjStart=new ConjStartState(patterns.size());
+  Frag frag=new Frag();
+  frag.start=conjStart;
+  for (int i=0; i < patterns.size(); i++) {
+    PatternExpr pattern=patterns.get(i);
+    Frag f=pattern.build();
+    frag.start.add(f.start);
+    f.connect(new ConjEndState(conjStart,i));
+    frag.add(f.out);
+  }
+  return frag;
+}

@@ -1,0 +1,34 @@
+{
+  int f11=extractRelationSubflags(flags,REL_FLAGS_SS_SHIFT);
+  int f22=extractRelationSubflags(flags,REL_FLAGS_EE_SHIFT);
+  int f12=extractRelationSubflags(flags,REL_FLAGS_SE_SHIFT);
+  int f21=extractRelationSubflags(flags,REL_FLAGS_ES_SHIFT);
+  if (checkFuzzy) {
+    boolean isFuzzy=checkMultipleBitSet(f11) || checkMultipleBitSet(f12) || checkMultipleBitSet(f21)|| checkMultipleBitSet(f22);
+    if (isFuzzy) {
+      flags|=REL_FLAGS_INTERVAL_FUZZY;
+    }
+  }
+  if (((f11 & REL_FLAGS_SAME) != 0) && ((f22 & REL_FLAGS_SAME) != 0)) {
+    flags|=REL_FLAGS_INTERVAL_SAME;
+  }
+  if (((f21 & REL_FLAGS_BEFORE) != 0)) {
+    flags|=REL_FLAGS_INTERVAL_BEFORE;
+  }
+  if (((f12 & REL_FLAGS_AFTER) != 0)) {
+    flags|=REL_FLAGS_INTERVAL_AFTER;
+  }
+  if (((f11 & (REL_FLAGS_SAME | REL_FLAGS_AFTER)) != 0) && ((f12 & (REL_FLAGS_SAME | REL_FLAGS_BEFORE)) != 0)) {
+    flags|=REL_FLAGS_INTERVAL_OVERLAP;
+  }
+  if (((f11 & (REL_FLAGS_SAME | REL_FLAGS_BEFORE)) != 0) && ((f21 & (REL_FLAGS_SAME | REL_FLAGS_AFTER)) != 0)) {
+    flags|=REL_FLAGS_INTERVAL_OVERLAP;
+  }
+  if (((f11 & (REL_FLAGS_SAME | REL_FLAGS_AFTER)) != 0) && ((f22 & (REL_FLAGS_SAME | REL_FLAGS_BEFORE)) != 0)) {
+    flags|=REL_FLAGS_INTERVAL_INSIDE;
+  }
+  if (((f11 & (REL_FLAGS_SAME | REL_FLAGS_BEFORE)) != 0) && ((f22 & (REL_FLAGS_SAME | REL_FLAGS_AFTER)) != 0)) {
+    flags|=REL_FLAGS_INTERVAL_CONTAIN;
+  }
+  return flags;
+}

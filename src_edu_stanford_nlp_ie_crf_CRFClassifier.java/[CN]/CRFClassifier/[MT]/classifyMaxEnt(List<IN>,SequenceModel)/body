@@ -1,0 +1,31 @@
+{
+  if (document.isEmpty()) {
+    return document;
+  }
+  if (flags.inferenceType == null) {
+    flags.inferenceType="Viterbi";
+  }
+  BestSequenceFinder tagInference;
+  if (flags.inferenceType.equalsIgnoreCase("Viterbi")) {
+    tagInference=new ExactBestSequenceFinder();
+  }
+ else   if (flags.inferenceType.equalsIgnoreCase("Beam")) {
+    tagInference=new BeamBestSequenceFinder(flags.beamSize);
+  }
+ else {
+    throw new RuntimeException("Unknown inference type: " + flags.inferenceType + ". Your options are Viterbi|Beam.");
+  }
+  int[] bestSequence=tagInference.bestSequence(model);
+  if (flags.useReverse) {
+    Collections.reverse(document);
+  }
+  for (int j=0, docSize=document.size(); j < docSize; j++) {
+    IN wi=document.get(j);
+    String guess=classIndex.get(bestSequence[j + windowSize - 1]);
+    wi.set(CoreAnnotations.AnswerAnnotation.class,guess);
+  }
+  if (flags.useReverse) {
+    Collections.reverse(document);
+  }
+  return document;
+}

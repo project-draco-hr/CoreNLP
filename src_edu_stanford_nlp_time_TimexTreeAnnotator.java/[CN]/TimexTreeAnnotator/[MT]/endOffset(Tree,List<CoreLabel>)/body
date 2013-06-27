@@ -1,0 +1,9 @@
+{
+  CoreMap label=(CoreMap)tree.label();
+  int endToken=label.get(CoreAnnotations.EndIndexAnnotation.class);
+  if (endToken > tokens.size()) {
+    String msg="no token %d in tree:\n%s\ntokens:\n%s";
+    throw new RuntimeException(String.format(msg,endToken - 1,tree,tokens));
+  }
+  return endOffset(tokens.get(endToken - 1));
+}

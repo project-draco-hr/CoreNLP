@@ -1,0 +1,17 @@
+{
+  for (  Entry entry : entries) {
+    int start=0;
+    while (true) {
+      start=findStartIndex(entry,document,start,myLabels);
+      if (start < 0)       break;
+      if (containsValidPos(document,start,start + entry.regex.size())) {
+        for (int i=start; i < start + entry.regex.size(); i++) {
+          CoreLabel token=document.get(i);
+          token.set(CoreAnnotations.AnswerAnnotation.class,entry.type);
+        }
+      }
+      start++;
+    }
+  }
+  return document;
+}

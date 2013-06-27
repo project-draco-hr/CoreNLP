@@ -1,0 +1,25 @@
+{
+  int numHooks=0;
+  int numEdges=0;
+  int numUnmatchedHooks=0;
+  int total=agenda.size();
+  int done=0;
+  while (!agenda.isEmpty()) {
+    Item item=agenda.extractMin();
+    done++;
+    if (item.isEdge()) {
+      numEdges++;
+    }
+ else {
+      numHooks++;
+      Collection edges=chart.getEdges((Hook)item);
+      if (edges.size() == 0) {
+        numUnmatchedHooks++;
+      }
+    }
+  }
+  System.err.println("--- Agenda Post-Mortem ---");
+  System.err.println("Edges:           " + numEdges);
+  System.err.println("Hooks:           " + numHooks);
+  System.err.println("Unmatched Hooks: " + numUnmatchedHooks);
+}

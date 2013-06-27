@@ -1,0 +1,16 @@
+{
+  boolean ret=super.setOptions(opts);
+  if (opts.containsKey(ConfigParser.paramSplit)) {
+    String splitFileName=opts.getProperty(ConfigParser.paramSplit);
+    splitSet=makeSplitSet(splitFileName);
+  }
+  if (lexMapper == null) {
+    lexMapper=new DefaultMapper();
+    lexMapper.setup(null,lexMapOptions.split(","));
+  }
+  if (pathsToMappings.size() != 0) {
+    if (posMapper == null)     posMapper=new DefaultMapper();
+    for (    File path : pathsToMappings)     posMapper.setup(path);
+  }
+  return ret;
+}

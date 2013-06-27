@@ -1,0 +1,63 @@
+{
+  List<CoreMap> sentences=document.annotation.get(CoreAnnotations.SentencesAnnotation.class);
+  List<List<Mention>> allMentions;
+  if (gold) {
+    allMentions=document.goldOrderedMentionsBySentence;
+  }
+ else {
+    allMentions=document.predictedOrderedMentionsBySentence;
+  }
+  StringBuilder doc=new StringBuilder();
+  int previousOffset=0;
+  for (int i=0; i < sentences.size(); i++) {
+    CoreMap sentence=sentences.get(i);
+    List<Mention> mentions=allMentions.get(i);
+    List<CoreLabel> t=sentence.get(CoreAnnotations.TokensAnnotation.class);
+    String[] tokens=new String[t.size()];
+    for (    CoreLabel c : t) {
+      tokens[c.index() - 1]=c.word();
+    }
+    if (previousOffset + 2 < t.get(0).get(CoreAnnotations.CharacterOffsetBeginAnnotation.class)) {
+      doc.append("\n");
+    }
+    previousOffset=t.get(t.size() - 1).get(CoreAnnotations.CharacterOffsetEndAnnotation.class);
+    Counter<Integer> startCounts=new ClassicCounter<Integer>();
+    Counter<Integer> endCounts=new ClassicCounter<Integer>();
+    Map<Integer,Set<Mention>> endMentions=Generics.newHashMap();
+    for (    Mention m : mentions) {
+      startCounts.incrementCount(m.startIndex);
+      endCounts.incrementCount(m.endIndex);
+      if (!endMentions.containsKey(m.endIndex))       endMentions.put(m.endIndex,Generics.<Mention>newHashSet());
+      endMentions.get(m.endIndex).add(m);
+    }
+    for (int j=0; j < tokens.length; j++) {
+      if (endMentions.containsKey(j)) {
+        for (        Mention m : endMentions.get(j)) {
+          int corefChainId=(gold) ? m.goldCorefClusterID : m.corefClusterID;
+          doc.append("]_").append(corefChainId);
+        }
+      }
+      for (int k=0; k < startCounts.getCount(j); k++) {
+        if (doc.length() > 0 && doc.charAt(doc.length() - 1) != '[')         doc.append(" ");
+        doc.append("[");
+      }
+      if (doc.length() > 0 && doc.charAt(doc.length() - 1) != '[')       doc.append(" ");
+      doc.append(tokens[j]);
+    }
+    if (endMentions.containsKey(tokens.length)) {
+      for (      Mention m : endMentions.get(tokens.length)) {
+        int corefChainId=(gold) ? m.goldCorefClusterID : m.corefClusterID;
+        doc.append("]_").append(corefChainId);
+      }
+    }
+    doc.append("\n");
+  }
+  logger.fine(document.annotation.get(CoreAnnotations.DocIDAnnotation.class));
+  if (gold) {
+    logger.fine("New DOC: (GOLD MENTIONS) ==================================================");
+  }
+ else {
+    logger.fine("New DOC: (Predicted Mentions) ==================================================");
+  }
+  logger.fine(doc.toString());
+}

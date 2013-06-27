@@ -1,0 +1,14 @@
+{
+  ObservedCorpusStats ocs=new ObservedCorpusStats(name);
+  if (makeVocab)   trainVocab=Generics.newHashSet();
+  System.out.println("Reading treebank:");
+  for (  Tree t : tb) {
+    Pair<Integer,Integer> treeFacts=dissectTree(t,ocs,makeVocab);
+    ocs.addStatsForTree(t.yield().size(),treeFacts.first(),treeFacts.second());
+    if (ocs.numTrees % 100 == 0)     System.out.print(".");
+ else     if (ocs.numTrees % 8001 == 0)     System.out.println();
+  }
+  ocs.computeFinalValues();
+  System.out.println("done!");
+  return ocs;
+}

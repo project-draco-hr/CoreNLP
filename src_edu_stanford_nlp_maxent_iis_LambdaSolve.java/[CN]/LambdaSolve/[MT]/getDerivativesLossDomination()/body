@@ -1,0 +1,22 @@
+{
+  double[] drvs=new double[lambda.length];
+  for (int fNo=0; fNo < drvs.length; fNo++) {
+    Feature f=p.functions.get(fNo);
+    for (int index=0, length=f.len(); index < length; index++) {
+      int x=f.getX(index);
+      int y=f.getY(index);
+      double val=f.getVal(index);
+      if (zlambda[x] == 0) {
+        continue;
+      }
+      double mult=val * p.data.ptildeX(x) * p.data.getNumber()* (1 / zlambda[x]);
+      double weight=1;
+      if (weightRanks) {
+        weight=p.data.values[x][y];
+      }
+      drvs[fNo]+=mult * sub[x][y];
+      drvs[fNo]-=mult * weight * (sum[x][y] - 1) / sum[x][y];
+    }
+  }
+  return drvs;
+}

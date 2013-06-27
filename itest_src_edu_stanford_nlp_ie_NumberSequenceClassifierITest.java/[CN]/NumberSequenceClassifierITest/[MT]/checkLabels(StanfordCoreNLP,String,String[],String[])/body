@@ -1,0 +1,43 @@
+{
+  Annotation doc=new Annotation(text);
+  pipe.annotate(doc);
+  assertTrue(doc.get(CoreAnnotations.SentencesAnnotation.class) != null);
+  assertTrue(doc.get(CoreAnnotations.SentencesAnnotation.class).size() > 0);
+  CoreMap sent=doc.get(CoreAnnotations.SentencesAnnotation.class).get(0);
+  assertTrue(sent.get(CoreAnnotations.TokensAnnotation.class) != null);
+  List<CoreLabel> tokens=sent.get(CoreAnnotations.TokensAnnotation.class);
+  if (VERBOSE) {
+    for (    CoreLabel token : tokens) {
+      System.out.println("\t" + token.word() + " "+ token.tag()+ " "+ token.ner()+ " "+ (token.containsKey(CoreAnnotations.NumericCompositeTypeAnnotation.class) ? token.get(CoreAnnotations.NumericCompositeValueAnnotation.class) + " " : "")+ (token.containsKey(TimeAnnotations.TimexAnnotation.class) ? token.get(TimeAnnotations.TimexAnnotation.class) + " " : ""));
+    }
+  }
+  assertTrue(tokens.size() == labels.length);
+  for (int i=0; i < labels.length; i++) {
+    if (labels[i] == null) {
+      assertTrue(tokens.get(i).ner() == null);
+    }
+ else {
+      Pattern p=Pattern.compile(labels[i]);
+      System.err.println("COMPARING NER " + labels[i] + " with "+ tokens.get(i).ner());
+      System.err.flush();
+      assertTrue(tokens.get(i).ner() != null);
+      assertTrue(p.matcher(tokens.get(i).ner()).matches());
+    }
+  }
+  if (normed != null) {
+    assertTrue(tokens.size() == normed.length);
+    for (int i=0; i < normed.length; i++) {
+      if (normed[i] == null) {
+        assertTrue(tokens.get(i).get(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class) == null);
+      }
+ else {
+        Pattern p=Pattern.compile(normed[i]);
+        String n=tokens.get(i).get(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class);
+        System.err.println("COMPARING NORMED \"" + normed[i] + "\" with \""+ n+ "\"");
+        System.err.flush();
+        assertTrue(n != null);
+        assertTrue(p.matcher(n).matches());
+      }
+    }
+  }
+}

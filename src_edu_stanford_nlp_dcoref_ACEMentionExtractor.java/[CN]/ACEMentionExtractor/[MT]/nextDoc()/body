@@ -1,0 +1,46 @@
+{
+  List<List<CoreLabel>> allWords=new ArrayList<List<CoreLabel>>();
+  List<List<Mention>> allGoldMentions=new ArrayList<List<Mention>>();
+  List<List<Mention>> allPredictedMentions;
+  List<Tree> allTrees=new ArrayList<Tree>();
+  Annotation anno;
+  try {
+    String filename="";
+    while (files.length > fileIndex) {
+      if (files[fileIndex].contains("apf.xml")) {
+        filename=files[fileIndex];
+        fileIndex++;
+        break;
+      }
+ else {
+        fileIndex++;
+        filename="";
+      }
+    }
+    if (files.length <= fileIndex && filename.equals(""))     return null;
+    anno=aceReader.parse(corpusPath + filename);
+    stanfordProcessor.annotate(anno);
+    List<CoreMap> sentences=anno.get(CoreAnnotations.SentencesAnnotation.class);
+    for (    CoreMap s : sentences) {
+      int i=1;
+      for (      CoreLabel w : s.get(CoreAnnotations.TokensAnnotation.class)) {
+        w.set(CoreAnnotations.IndexAnnotation.class,i++);
+        if (!w.containsKey(CoreAnnotations.UtteranceAnnotation.class)) {
+          w.set(CoreAnnotations.UtteranceAnnotation.class,0);
+        }
+      }
+      allTrees.add(s.get(TreeCoreAnnotations.TreeAnnotation.class));
+      allWords.add(s.get(CoreAnnotations.TokensAnnotation.class));
+      EntityComparator comparator=new EntityComparator();
+      extractGoldMentions(s,allGoldMentions,comparator);
+    }
+    if (Constants.USE_GOLD_MENTIONS)     allPredictedMentions=allGoldMentions;
+ else     allPredictedMentions=mentionFinder.extractPredictedMentions(anno,maxID,dictionaries);
+    printRawDoc(sentences,allGoldMentions,filename,true);
+    printRawDoc(sentences,allPredictedMentions,filename,false);
+  }
+ catch (  IOException e) {
+    throw new RuntimeIOException(e);
+  }
+  return arrange(anno,allWords,allTrees,allPredictedMentions,allGoldMentions,true);
+}

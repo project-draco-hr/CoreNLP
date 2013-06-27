@@ -1,0 +1,24 @@
+{
+  double sDs=0.0;
+  double sy=0.0;
+  for (int i=0; i < s.length; i++) {
+    sDs+=s[i] * diag[i] * s[i];
+    sy+=s[i] * y[i];
+  }
+  say("B");
+  double[] newDiag=new double[s.length];
+  boolean updateDiag=true;
+  for (int i=0; i < s.length; i++) {
+    newDiag[i]=(1 - diag[i] * s[i] * s[i] / sDs) * diag[i] + y[i] * y[i] / sy;
+    if (newDiag[i] < 0) {
+      updateDiag=false;
+      break;
+    }
+  }
+  if (updateDiag) {
+    System.arraycopy(newDiag,0,diag,0,s.length);
+  }
+ else {
+    say("!");
+  }
+}

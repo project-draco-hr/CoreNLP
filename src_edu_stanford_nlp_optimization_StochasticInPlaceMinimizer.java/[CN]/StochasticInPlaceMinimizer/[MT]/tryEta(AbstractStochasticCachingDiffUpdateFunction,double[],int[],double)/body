@@ -1,0 +1,19 @@
+{
+  int numBatches=sample.length / bSize;
+  double[] w=new double[initial.length];
+  double wscale=1;
+  System.arraycopy(initial,0,w,0,w.length);
+  int[] sampleBatch=new int[bSize];
+  int sampleIndex=0;
+  for (int batch=0; batch < numBatches; batch++) {
+    for (int i=0; i < bSize; i++) {
+      sampleBatch[i]=sample[(sampleIndex + i) % sample.length];
+    }
+    sampleIndex+=bSize;
+    double gain=eta / wscale;
+    function.calculateStochasticUpdate(w,wscale,sampleBatch,gain);
+    wscale*=(1 - eta * lambda * bSize);
+  }
+  double obj=getObjective(function,w,wscale,sample);
+  return obj;
+}

@@ -1,0 +1,37 @@
+{
+  if (queue == null)   System.err.println("Queue was not initialized properly");
+  try {
+    final PrintWriter guessPw=new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePrefix + ".kworst.guess"),"UTF-8")));
+    final PrintWriter goldPw=new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePrefix + ".kworst.gold"),"UTF-8")));
+    final ConstituentFactory cFact=new LabeledScoredConstituentFactory();
+    final PrintWriter guessDepPw=new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePrefix + ".kworst.guess.deps"),"UTF-8")));
+    final PrintWriter goldDepPw=new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePrefix + ".kworst.gold.deps"),"UTF-8")));
+    System.out.printf("F1s of %d worst trees:\n",worstKTreesToEmit);
+    for (int i=0; queue.peek() != null && i < worstKTreesToEmit; i++) {
+      final Triple<Double,Tree,Tree> trees=queue.poll();
+      System.out.println(trees.first());
+      goldPw.println(trees.second().toString());
+      guessPw.println(trees.third().toString());
+      Set<Constituent> goldDeps=Generics.newHashSet();
+      goldDeps.addAll(trees.second().constituents(cFact));
+      goldDeps.removeAll(trees.third().constituents(cFact));
+      for (      Constituent c : goldDeps)       goldDepPw.print(c.toString() + "  ");
+      goldDepPw.println();
+      Set<Constituent> guessDeps=Generics.newHashSet();
+      guessDeps.addAll(trees.third().constituents(cFact));
+      guessDeps.removeAll(trees.second().constituents(cFact));
+      for (      Constituent c : guessDeps)       guessDepPw.print(c.toString() + "  ");
+      guessDepPw.println();
+    }
+    guessPw.close();
+    goldPw.close();
+    goldDepPw.close();
+    guessDepPw.close();
+  }
+ catch (  UnsupportedEncodingException e) {
+    e.printStackTrace();
+  }
+catch (  FileNotFoundException e) {
+    e.printStackTrace();
+  }
+}

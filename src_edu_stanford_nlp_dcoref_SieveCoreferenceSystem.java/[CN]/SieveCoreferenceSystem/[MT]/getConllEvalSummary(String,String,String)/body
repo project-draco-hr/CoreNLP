@@ -1,0 +1,16 @@
+{
+  ProcessBuilder process=new ProcessBuilder(conllMentionEvalScript,"all",goldFile,predictFile,"none");
+  StringOutputStream errSos=new StringOutputStream();
+  StringOutputStream outSos=new StringOutputStream();
+  PrintWriter out=new PrintWriter(outSos);
+  PrintWriter err=new PrintWriter(errSos);
+  SystemUtils.run(process,out,err);
+  out.close();
+  err.close();
+  String summary=outSos.toString();
+  String errStr=errSos.toString();
+  if (errStr.length() > 0) {
+    summary+="\nERROR: " + errStr;
+  }
+  return summary;
+}

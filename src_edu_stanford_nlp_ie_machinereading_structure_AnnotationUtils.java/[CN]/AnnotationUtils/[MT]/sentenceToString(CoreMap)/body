@@ -1,0 +1,14 @@
+{
+  StringBuilder sb=new StringBuilder(512);
+  List<CoreLabel> tokens=sent.get(CoreAnnotations.TokensAnnotation.class);
+  sb.append("\"" + StringUtils.join(tokens," ") + "\"");
+  sb.append("\n");
+  List<RelationMention> relationMentions=sent.get(MachineReadingAnnotations.RelationMentionsAnnotation.class);
+  if (relationMentions != null) {
+    for (    RelationMention rel : relationMentions) {
+      sb.append("\n");
+      sb.append(rel);
+    }
+  }
+  return sb.toString();
+}

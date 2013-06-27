@@ -1,0 +1,25 @@
+{
+  int numRules=0;
+  UnaryGrammar ug=grammar.first;
+  BinaryGrammar bg=grammar.second;
+  Map<String,TransducerGraph> graphs=Generics.newHashMap();
+  for (  BinaryRule rule : bg) {
+    numRules++;
+    boolean wasAdded=addOneBinaryRule(rule,graphs);
+    if (!wasAdded) {
+      binaryRules.add(rule);
+    }
+  }
+  for (  UnaryRule rule : ug) {
+    numRules++;
+    boolean wasAdded=addOneUnaryRule(rule,graphs);
+    if (!wasAdded) {
+      unaryRules.add(rule);
+    }
+  }
+  if (verbose) {
+    System.out.println("Number of raw rules: " + numRules);
+    System.out.println("Number of raw states: " + stateIndex.size());
+  }
+  return graphs;
+}

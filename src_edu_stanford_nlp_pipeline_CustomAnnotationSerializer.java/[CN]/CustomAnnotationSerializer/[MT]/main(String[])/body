@@ -1,0 +1,26 @@
+{
+  Properties props=StringUtils.argsToProperties(args);
+  StanfordCoreNLP pipeline=new StanfordCoreNLP(props);
+  String file=props.getProperty("file");
+  String loadFile=props.getProperty("loadFile");
+  if (loadFile != null && !loadFile.equals("")) {
+    CustomAnnotationSerializer ser=new CustomAnnotationSerializer(false,false);
+    InputStream is=new FileInputStream(loadFile);
+    Annotation anno=ser.load(is);
+    System.out.println(anno.toShorterString(new String[0]));
+    is.close();
+  }
+ else   if (file != null && !file.equals("")) {
+    String text=edu.stanford.nlp.io.IOUtils.slurpFile(file);
+    Annotation doc=new Annotation(text);
+    pipeline.annotate(doc);
+    CustomAnnotationSerializer ser=new CustomAnnotationSerializer(false,false);
+    PrintStream os=new PrintStream(new FileOutputStream(file + ".ser"));
+    ser.save(doc,os);
+    os.close();
+    System.err.println("Serialized annotation saved in " + file + ".ser");
+  }
+ else {
+    System.err.println("usage: CustomAnnotationSerializer [-file file] [-loadFile file]");
+  }
+}

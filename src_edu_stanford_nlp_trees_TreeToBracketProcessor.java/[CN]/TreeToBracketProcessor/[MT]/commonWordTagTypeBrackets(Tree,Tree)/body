@@ -1,0 +1,26 @@
+{
+  root1=ext.transformTree(root1);
+  root2=ext.transformTree(root2);
+  List<Tree> firstPreTerms=new ArrayList<Tree>();
+  for (Iterator<Tree> iterator=root1.iterator(); iterator.hasNext(); ) {
+    Tree tree=iterator.next();
+    if (tree.isPrePreTerminal()) {
+      firstPreTerms.add(tree);
+    }
+  }
+  List<WordCatConstituent> brackets=new ArrayList<WordCatConstituent>();
+  for (Iterator<Tree> pretermIter=firstPreTerms.iterator(); pretermIter.hasNext(); ) {
+    Tree preTerm=pretermIter.next();
+    for (Iterator<Tree> iter=root2.iterator(); iter.hasNext(); ) {
+      Tree tree=iter.next();
+      if (!tree.isPrePreTerminal()) {
+        continue;
+      }
+      if (Trees.leftEdge(tree,root2) == Trees.leftEdge(preTerm,root1) && Trees.rightEdge(tree,root2) == Trees.rightEdge(preTerm,root1)) {
+        brackets.add(new WordCatConstituent(preTerm,root1,WordCatConstituent.goodWordTagType));
+        break;
+      }
+    }
+  }
+  return brackets;
+}

@@ -1,0 +1,33 @@
+{
+  int k=str.length() - 1;
+  char c=str.charAt(k);
+  while (k >= 0 && !Character.isDigit(c)) {
+    k--;
+    if (k >= 0) {
+      c=str.charAt(k);
+    }
+  }
+  if (k < 0) {
+    return false;
+  }
+  int j=k;
+  c=str.charAt(j);
+  while (j >= 0 && Character.isDigit(c)) {
+    j--;
+    if (j >= 0) {
+      c=str.charAt(j);
+    }
+  }
+  j++;
+  k++;
+  String theNumber=str.substring(j,k);
+  int number=Integer.parseInt(theNumber);
+  for (  Pair<Integer,Integer> p : ranges) {
+    int low=p.first().intValue();
+    int high=p.second().intValue();
+    if (number >= low && number <= high) {
+      return true;
+    }
+  }
+  return false;
+}

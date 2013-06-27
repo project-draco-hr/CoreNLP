@@ -1,0 +1,21 @@
+{
+  TreeFactory tf=tree.treeFactory();
+  if (tree.isPrePreTerminal()) {
+    if (tree.firstChild().label().value().matches(".*_.")) {
+      StringBuilder word=new StringBuilder();
+      for (int i=0; i < tree.children().length; i++) {
+        Tree child=tree.children()[i];
+        word.append(child.firstChild().label().value());
+      }
+      Tree newChild=tf.newLeaf(word.toString());
+      tree.setChildren(Collections.singletonList(newChild));
+    }
+  }
+ else {
+    for (int i=0; i < tree.children().length; i++) {
+      Tree child=tree.children()[i];
+      untransformTree(child);
+    }
+  }
+  return tree;
+}

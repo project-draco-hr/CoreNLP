@@ -1,0 +1,20 @@
+{
+  File jarFile=new File(filename);
+  if (!jarFile.exists()) {
+    JOptionPane.showMessageDialog(panel,"Filename " + jarFile + " does not exist",null,JOptionPane.ERROR_MESSAGE);
+    return null;
+  }
+  List<String> files;
+  try {
+    files=getFiles(jarFile);
+  }
+ catch (  Exception e) {
+    JOptionPane.showMessageDialog(panel,"Filename " + jarFile + " had an error:\n"+ e,null,JOptionPane.ERROR_MESSAGE);
+    return null;
+  }
+  if (files.size() == 0) {
+    JOptionPane.showMessageDialog(panel,"Filename " + jarFile + " does not contain any models",null,JOptionPane.ERROR_MESSAGE);
+    return null;
+  }
+  return showListSelectionDialog(files,location);
+}

@@ -1,0 +1,19 @@
+{
+  JList list=(JList)c;
+  Object[] values=list.getSelectedValues();
+  StringBuilder sb=new StringBuilder();
+  for (int i=0; i < values.length; i++) {
+    TreeFromFile val=(TreeFromFile)values[i];
+    Highlighter h=val.getLabel().getHighlighter();
+    Highlight[] highlights=h.getHighlights();
+    if (highlights == null || highlights.length == 0) {
+      sb.append(val.getLabel().getText());
+    }
+ else {
+      for (int j=0; i < highlights.length; i++) {
+        sb.append(val.getLabel().getText().substring(highlights[j].getStartOffset(),highlights[j].getEndOffset()));
+      }
+    }
+  }
+  return sb.toString();
+}

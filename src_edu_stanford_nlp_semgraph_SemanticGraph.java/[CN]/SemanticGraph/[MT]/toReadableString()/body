@@ -1,0 +1,12 @@
+{
+  StringBuilder buf=new StringBuilder();
+  buf.append(String.format("%-20s%-20s%-20s%n","dep","reln","gov"));
+  buf.append(String.format("%-20s%-20s%-20s%n","---","----","---"));
+  for (  IndexedWord root : getRoots()) {
+    buf.append(String.format("%-20s%-20s%-20s%n",toDepStyle(root),"root","root"));
+  }
+  for (  SemanticGraphEdge edge : this.edgeListSorted()) {
+    buf.append(String.format("%-20s%-20s%-20s%n",toDepStyle(edge.getTarget()),edge.getRelation().toString(),toDepStyle(edge.getSource())));
+  }
+  return buf.toString();
+}

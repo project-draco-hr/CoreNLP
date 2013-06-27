@@ -1,0 +1,11 @@
+{
+  SemanticGraph graph=SemanticGraph.valueOf("[ate subj:Bill dobj:[muffins nn:blueberry]]");
+  Set<IndexedWord> words=graph.vertexSet();
+  SemgrexPattern pattern=SemgrexPattern.compile("{}");
+  SemgrexMatcher matcher=pattern.matcher(graph);
+  String[] expectedMatches={"ate","Bill","muffins","blueberry"};
+  for (int i=0; i < expectedMatches.length; ++i) {
+    assertTrue(matcher.findNextMatchingNode());
+  }
+  assertFalse(matcher.findNextMatchingNode());
+}

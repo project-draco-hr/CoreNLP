@@ -1,0 +1,55 @@
+{
+  List<Record> toPassOn=null;
+  if (head != null) {
+switch (type) {
+case SIMPLE:
+      toPassOn=head.handle(toPass);
+    break;
+case START_TRACK:
+  toPassOn=head.signalStartTrack(toPass);
+break;
+case END_TRACK:
+toPassOn=head.signalEndTrack(newDepth,timestamp);
+break;
+case SHUTDOWN:
+toPassOn=head.signalShutdown();
+break;
+default :
+throw new IllegalStateException("MessageType was non-exhaustive: " + type);
+}
+}
+ else {
+toPassOn=new ArrayList<Record>();
+switch (type) {
+case SIMPLE:
+toPassOn=append(toPassOn,toPass);
+break;
+case START_TRACK:
+break;
+case END_TRACK:
+break;
+case SHUTDOWN:
+break;
+default :
+throw new IllegalStateException("MessageType was non-exhaustive: " + type);
+}
+}
+Iterator<RecordHandlerTree> iter=children();
+while (iter.hasNext()) {
+RecordHandlerTree child=iter.next();
+for (Record r : toPassOn) {
+child.process(r,MessageType.SIMPLE,newDepth,timestamp);
+}
+switch (type) {
+case START_TRACK:
+case END_TRACK:
+case SHUTDOWN:
+child.process(toPass,type,newDepth,timestamp);
+break;
+case SIMPLE:
+break;
+default :
+throw new IllegalStateException("MessageType was non-exhaustive: " + type);
+}
+}
+}

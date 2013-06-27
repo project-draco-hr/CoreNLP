@@ -1,0 +1,27 @@
+{
+  try {
+    System.err.print("Writing parser in text grammar format to file " + filename);
+    OutputStream os;
+    if (filename.endsWith(".gz")) {
+      os=new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(filename)));
+    }
+ else {
+      os=new BufferedOutputStream(new FileOutputStream(filename));
+    }
+    PrintWriter out=new PrintWriter(os);
+    String prefix="BEGIN ";
+    out.println(prefix + "LEXICON");
+    if (cs != null) {
+      cs.writeData(out);
+    }
+    out.println();
+    System.err.print(".");
+    out.flush();
+    out.close();
+    System.err.println("done.");
+  }
+ catch (  IOException e) {
+    System.err.println("Trouble saving segmenter data to ASCII format.");
+    e.printStackTrace();
+  }
+}

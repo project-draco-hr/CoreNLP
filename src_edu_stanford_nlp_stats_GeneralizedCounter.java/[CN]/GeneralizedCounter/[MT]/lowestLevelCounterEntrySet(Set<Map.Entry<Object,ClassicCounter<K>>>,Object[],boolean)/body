@@ -1,0 +1,30 @@
+{
+  Set<K> keys=map.keySet();
+  if (depth == 2) {
+    for (    K finalKey : keys) {
+      K[] newKey=ErasureUtils.<K>mkTArray(Object.class,key.length + 1);
+      if (key.length > 0) {
+        System.arraycopy(key,0,newKey,0,key.length);
+      }
+      newKey[key.length]=finalKey;
+      ClassicCounter<K> c=conditionalizeHelper(finalKey).oneDimensionalCounterView();
+      if (useLists) {
+        s.add(new Entry<Object,ClassicCounter<K>>(Arrays.asList(newKey),c));
+      }
+ else {
+        s.add(new Entry<Object,ClassicCounter<K>>(newKey[0],c));
+      }
+    }
+  }
+ else {
+    for (    K o : keys) {
+      Object[] newKey=new Object[key.length + 1];
+      if (key.length > 0) {
+        System.arraycopy(key,0,newKey,0,key.length);
+      }
+      newKey[key.length]=o;
+      conditionalizeHelper(o).lowestLevelCounterEntrySet(s,newKey,true);
+    }
+  }
+  return s;
+}

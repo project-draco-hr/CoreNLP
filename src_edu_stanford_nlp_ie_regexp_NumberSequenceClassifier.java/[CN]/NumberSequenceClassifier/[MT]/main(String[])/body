@@ -1,0 +1,26 @@
+{
+  Properties props=StringUtils.argsToProperties(args);
+  NumberSequenceClassifier nsc=new NumberSequenceClassifier(props,true,props);
+  String trainFile=nsc.flags.trainFile;
+  String testFile=nsc.flags.testFile;
+  String textFile=nsc.flags.textFile;
+  String loadPath=nsc.flags.loadClassifier;
+  String serializeTo=nsc.flags.serializeTo;
+  if (loadPath != null) {
+    nsc.loadClassifierNoExceptions(loadPath);
+    nsc.flags.setProperties(props);
+  }
+ else   if (trainFile != null) {
+    nsc.train(trainFile);
+  }
+  if (serializeTo != null) {
+    nsc.serializeClassifier(serializeTo);
+  }
+  if (testFile != null) {
+    nsc.classifyAndWriteAnswers(testFile,nsc.makeReaderAndWriter());
+  }
+  if (textFile != null) {
+    DocumentReaderAndWriter readerAndWriter=new PlainTextDocumentReaderAndWriter();
+    nsc.classifyAndWriteAnswers(textFile,readerAndWriter);
+  }
+}

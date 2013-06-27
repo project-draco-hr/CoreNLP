@@ -1,0 +1,106 @@
+{
+  double prob=0.0;
+  double[][][] E=empty2D();
+  double[] eScales=new double[numLopExpert];
+  double[] rawScales=separateLopScales(x);
+  double[] scales=ArrayMath.softmax(rawScales);
+  double[][][] learnedLopExpertWeights2D=lopExpertWeights2D;
+  if (backpropTraining) {
+    learnedLopExpertWeights2D=separateLopExpertWeights2D(x);
+    logPotential(learnedLopExpertWeights2D);
+  }
+  double[][] combinedWeights2D=combineAndScaleLopWeights2D(numLopExpert,learnedLopExpertWeights2D,scales);
+  for (int m=0; m < data.length; m++) {
+    int[][][] docData=data[m];
+    int[] docLabels=labels[m];
+    double[][][][] sumOfELPm=sumOfExpectedLogPotential[m];
+    CliquePotentialFunction cliquePotentialFunc=new LinearCliquePotentialFunction(combinedWeights2D);
+    CRFCliqueTree cliqueTree=CRFCliqueTree.getCalibratedCliqueTree(docData,labelIndices,numClasses,classIndex,backgroundSymbol,cliquePotentialFunc,null);
+    int[] given=new int[window - 1];
+    Arrays.fill(given,classIndex.indexOf(backgroundSymbol));
+    if (docLabels.length > docData.length) {
+      System.arraycopy(docLabels,0,given,0,given.length);
+      int[] newDocLabels=new int[docData.length];
+      System.arraycopy(docLabels,docLabels.length - newDocLabels.length,newDocLabels,0,newDocLabels.length);
+      docLabels=newDocLabels;
+    }
+    for (int i=0; i < docData.length; i++) {
+      int label=docLabels[i];
+      double p=cliqueTree.condLogProbGivenPrevious(i,label,given);
+      if (VERBOSE) {
+        System.err.println("P(" + label + "|"+ ArrayMath.toString(given)+ ")="+ p);
+      }
+      prob+=p;
+      System.arraycopy(given,1,given,0,given.length - 1);
+      given[given.length - 1]=label;
+    }
+    for (int i=0; i < docData.length; i++) {
+      double[][][] sumOfELPmi=sumOfELPm[i];
+      for (int j=0; j < docData[i].length; j++) {
+        double[][] sumOfELPmij=sumOfELPmi[j];
+        Index<CRFLabel> labelIndex=labelIndices.get(j);
+        for (int l=0; l < labelIndex.size(); l++) {
+          int[] label=labelIndex.get(l).getLabel();
+          double p=cliqueTree.prob(i,label);
+          for (int lopIter=0; lopIter < numLopExpert; lopIter++) {
+            Set<Integer> indicesSet=featureIndicesSetArray.get(lopIter);
+            double scale=scales[lopIter];
+            double expected=sumOfELPmij[lopIter][l];
+            for (int innerLopIter=0; innerLopIter < numLopExpert; innerLopIter++) {
+              expected-=scales[innerLopIter] * sumOfELPmij[innerLopIter][l];
+            }
+            expected*=scale;
+            eScales[lopIter]+=(p * expected);
+            double[][] eOfIter=E[lopIter];
+            if (backpropTraining) {
+              for (int k=0; k < docData[i][j].length; k++) {
+                int featureIdx=docData[i][j][k];
+                if (indicesSet.contains(featureIdx)) {
+                  eOfIter[featureIdx][l]+=p;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (Double.isNaN(prob)) {
+    throw new RuntimeException("Got NaN for prob in CRFLogConditionalObjectiveFunctionForLOP.calculate()");
+  }
+  value=-prob;
+  if (VERBOSE) {
+    System.err.println("value is " + value);
+  }
+  for (int lopIter=0; lopIter < numLopExpert; lopIter++) {
+    double scale=scales[lopIter];
+    double observed=sumOfObservedLogPotential[lopIter];
+    for (int j=0; j < numLopExpert; j++) {
+      observed-=scales[j] * sumOfObservedLogPotential[j];
+    }
+    observed*=scale;
+    double expected=eScales[lopIter];
+    derivative[lopIter]=(expected - observed);
+    if (VERBOSE) {
+      System.err.println("deriv(" + lopIter + ") = "+ expected+ " - "+ observed+ " = "+ derivative[lopIter]);
+    }
+  }
+  if (backpropTraining) {
+    int dIndex=numLopExpert;
+    for (int lopIter=0; lopIter < numLopExpert; lopIter++) {
+      double scale=scales[lopIter];
+      double[][] eOfExpert=E[lopIter];
+      double[][] ehatOfExpert=Ehat[lopIter];
+      List<Integer> featureIndicesList=featureIndicesListArray.get(lopIter);
+      for (      int fIndex : featureIndicesList) {
+        for (int j=0; j < eOfExpert[fIndex].length; j++) {
+          derivative[dIndex++]=scale * (eOfExpert[fIndex][j] - ehatOfExpert[fIndex][j]);
+          if (VERBOSE) {
+            System.err.println("deriv[" + lopIter + "]("+ fIndex+ ","+ j+ ") = "+ scale+ " * ("+ eOfExpert[fIndex][j]+ " - "+ ehatOfExpert[fIndex][j]+ ") = "+ derivative[dIndex - 1]);
+          }
+        }
+      }
+    }
+    assert(dIndex == domainDimension());
+  }
+}

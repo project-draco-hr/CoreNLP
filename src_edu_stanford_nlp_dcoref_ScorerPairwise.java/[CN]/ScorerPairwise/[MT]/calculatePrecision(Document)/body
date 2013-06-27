@@ -1,0 +1,27 @@
+{
+  int pDen=0;
+  int pNum=0;
+  Map<Integer,Mention> goldMentions=doc.allGoldMentions;
+  for (  CorefCluster c : doc.corefClusters.values()) {
+    int clusterSize=c.getCorefMentions().size();
+    pDen+=clusterSize * (clusterSize - 1) / 2;
+    for (    Mention m1 : c.getCorefMentions()) {
+      Mention goldM1=goldMentions.get(m1.mentionID);
+      if (goldM1 == null) {
+        continue;
+      }
+      for (      Mention m2 : c.getCorefMentions()) {
+        if (m1.mentionID >= m2.mentionID)         continue;
+        Mention goldM2=goldMentions.get(m2.mentionID);
+        if (goldM2 == null) {
+          continue;
+        }
+        if (goldM1.goldCorefClusterID == goldM2.goldCorefClusterID) {
+          pNum++;
+        }
+      }
+    }
+  }
+  precisionDenSum+=pDen;
+  precisionNumSum+=pNum;
+}

@@ -1,0 +1,14 @@
+{
+  List<Mention> orderedAntecedents=new ArrayList<Mention>();
+  if (antecedentSentence == mySentence) {
+    orderedAntecedents.addAll(orderedMentions.subList(0,m1Position));
+    if (flags.DO_PRONOUN && corefClusters.get(m1.corefClusterID).isSinglePronounCluster(dict)) {
+      orderedAntecedents=sortMentionsForPronoun(orderedAntecedents,m1,true);
+    }
+    if (dict.relativePronouns.contains(m1.spanToString()))     Collections.reverse(orderedAntecedents);
+  }
+ else {
+    orderedAntecedents.addAll(orderedMentionsBySentence.get(antecedentSentence));
+  }
+  return orderedAntecedents;
+}

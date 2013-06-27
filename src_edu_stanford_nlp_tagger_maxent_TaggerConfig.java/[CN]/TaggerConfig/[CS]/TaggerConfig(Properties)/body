@@ -1,0 +1,17 @@
+{
+  this();
+  TaggerConfig oldConfig=new TaggerConfig();
+  if (!props.containsKey("trainFile")) {
+    try {
+      System.err.println("Loading default properties from tagger " + props.getProperty("model"));
+      DataInputStream in=new DataInputStream(IOUtils.getInputStreamFromURLOrClasspathOrFileSystem(props.getProperty("model")));
+      this.putAll(TaggerConfig.readConfig(in));
+      in.close();
+    }
+ catch (    Exception e) {
+      System.err.println("Error: No such trained tagger config file found.");
+      e.printStackTrace();
+    }
+  }
+  setProperties(props);
+}

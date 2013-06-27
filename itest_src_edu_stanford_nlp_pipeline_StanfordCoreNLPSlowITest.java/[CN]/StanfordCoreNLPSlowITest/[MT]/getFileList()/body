@@ -1,0 +1,21 @@
+{
+  List<File> files=new ArrayList<File>();
+  File pathFile=new File("/u/nlp/ACE2005/" + "ACE2005_Multilingual_LDC2006T06/data/English");
+  for (  File subFile : pathFile.listFiles()) {
+    if (!subFile.isDirectory()) {
+      continue;
+    }
+    for (    File subSubFile : subFile.listFiles()) {
+      if (!subSubFile.isDirectory() || !subSubFile.getName().equals("timex2norm")) {
+        continue;
+      }
+      for (      File sgmlFile : subSubFile.listFiles()) {
+        if (sgmlFile.isDirectory() || !sgmlFile.getName().endsWith(".sgm")) {
+          continue;
+        }
+        files.add(sgmlFile);
+      }
+    }
+  }
+  return files;
+}

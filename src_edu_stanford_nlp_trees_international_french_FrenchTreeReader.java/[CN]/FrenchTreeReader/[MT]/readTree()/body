@@ -1,0 +1,15 @@
+{
+  Tree t=null;
+  while (t == null && sentences != null && sentIdx < sentences.getLength()) {
+    Node sentRoot=sentences.item(sentIdx++);
+    t=getTreeFromXML(sentRoot);
+    if (t != null) {
+      t=treeNormalizer.normalizeWholeTree(t,treeFactory);
+      if (t.label() instanceof CoreLabel) {
+        String ftbId=((Element)sentRoot).getAttribute(ATTR_NUMBER);
+        ((CoreLabel)t.label()).set(CoreAnnotations.SentenceIDAnnotation.class,ftbId);
+      }
+    }
+  }
+  return t;
+}

@@ -1,0 +1,64 @@
+{
+  System.out.println("Currently " + new Date());
+  Timing.startTime();
+  TreebankLangParserParams tlpParams=op.tlpParams;
+  if (op.testOptions.verbose) {
+    System.out.print("Training ");
+    System.out.println(trainTreebank.textualSummary());
+  }
+  System.out.print("Binarizing trees...");
+  TreeAnnotatorAndBinarizer binarizer;
+  if (!op.trainOptions.leftToRight) {
+    binarizer=new TreeAnnotatorAndBinarizer(tlpParams,op.forceCNF,!op.trainOptions.outsideFactor(),true,op);
+  }
+ else {
+    binarizer=new TreeAnnotatorAndBinarizer(tlpParams.headFinder(),new LeftHeadFinder(),tlpParams,op.forceCNF,!op.trainOptions.outsideFactor(),true,op);
+  }
+  CollinsPuncTransformer collinsPuncTransformer=null;
+  if (op.trainOptions.collinsPunc) {
+    collinsPuncTransformer=new CollinsPuncTransformer(tlpParams.treebankLanguagePack());
+  }
+  List<Tree> binaryTrainTrees=new ArrayList<Tree>();
+  if (op.trainOptions.selectiveSplit) {
+    op.trainOptions.splitters=ParentAnnotationStats.getSplitCategories(trainTreebank,true,0,op.trainOptions.selectiveSplitCutOff,op.trainOptions.tagSelectiveSplitCutOff,tlpParams.treebankLanguagePack());
+    if (op.testOptions.verbose) {
+      System.err.println("Parent split categories: " + op.trainOptions.splitters);
+    }
+  }
+  if (op.trainOptions.selectivePostSplit) {
+    TreeTransformer myTransformer=new TreeAnnotator(tlpParams.headFinder(),tlpParams,op);
+    Treebank annotatedTB=trainTreebank.transform(myTransformer);
+    op.trainOptions.postSplitters=ParentAnnotationStats.getSplitCategories(annotatedTB,true,0,op.trainOptions.selectivePostSplitCutOff,op.trainOptions.tagSelectivePostSplitCutOff,tlpParams.treebankLanguagePack());
+    if (op.testOptions.verbose) {
+      System.err.println("Parent post annotation split categories: " + op.trainOptions.postSplitters);
+    }
+  }
+  if (op.trainOptions.hSelSplit) {
+    binarizer.setDoSelectiveSplit(false);
+    for (    Tree tree : trainTreebank) {
+      if (op.trainOptions.collinsPunc) {
+        tree=collinsPuncTransformer.transformTree(tree);
+      }
+      tree=binarizer.transformTree(tree);
+    }
+    binarizer.setDoSelectiveSplit(true);
+  }
+  for (  Tree tree : trainTreebank) {
+    if (op.trainOptions.collinsPunc) {
+      tree=collinsPuncTransformer.transformTree(tree);
+    }
+    tree=binarizer.transformTree(tree);
+    binaryTrainTrees.add(tree);
+  }
+  Timing.tick("done.");
+  if (op.testOptions.verbose) {
+    binarizer.dumpStats();
+  }
+  System.out.print("Extracting Lexicon...");
+  ChineseLexiconAndWordSegmenter clex=(ChineseLexiconAndWordSegmenter)op.tlpParams.lex(op,wordIndex,tagIndex);
+  clex.initializeTraining(binaryTrainTrees.size());
+  clex.train(binaryTrainTrees);
+  clex.finishTraining();
+  Timing.tick("done.");
+  return clex;
+}

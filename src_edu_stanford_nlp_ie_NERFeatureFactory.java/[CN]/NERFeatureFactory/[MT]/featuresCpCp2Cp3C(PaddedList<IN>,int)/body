@@ -1,0 +1,34 @@
+{
+  CoreLabel c=cInfo.get(loc);
+  CoreLabel p=cInfo.get(loc - 1);
+  CoreLabel p2=cInfo.get(loc - 2);
+  CoreLabel p3=cInfo.get(loc - 3);
+  Collection<String> featuresCpCp2Cp3C=new ArrayList<String>();
+  if (flags.useTaggySequences) {
+    if (flags.useTags) {
+      if (flags.maxLeft >= 3 && !flags.dontExtendTaggy) {
+        featuresCpCp2Cp3C.add(p3.getString(CoreAnnotations.PartOfSpeechAnnotation.class) + '-' + p2.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ '-'+ p.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ '-'+ c.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ "-TTTS");
+        if (flags.useTaggySequencesShapeInteraction) {
+          featuresCpCp2Cp3C.add(p3.getString(CoreAnnotations.PartOfSpeechAnnotation.class) + '-' + p2.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ '-'+ p.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ '-'+ c.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ '-'+ c.get(CoreAnnotations.ShapeAnnotation.class)+ "-TTTS-CS");
+        }
+      }
+    }
+    if (flags.useDistSim) {
+      if (flags.maxLeft >= 3 && !flags.dontExtendTaggy) {
+        featuresCpCp2Cp3C.add(p3.get(CoreAnnotations.DistSimAnnotation.class) + '-' + p2.get(CoreAnnotations.DistSimAnnotation.class)+ '-'+ p.get(CoreAnnotations.DistSimAnnotation.class)+ '-'+ c.get(CoreAnnotations.DistSimAnnotation.class)+ "-DISTSIM_TTTS1");
+        if (flags.useTaggySequencesShapeInteraction) {
+          featuresCpCp2Cp3C.add(p3.get(CoreAnnotations.DistSimAnnotation.class) + '-' + p2.get(CoreAnnotations.DistSimAnnotation.class)+ '-'+ p.get(CoreAnnotations.DistSimAnnotation.class)+ '-'+ c.get(CoreAnnotations.DistSimAnnotation.class)+ '-'+ c.get(CoreAnnotations.ShapeAnnotation.class)+ "-DISTSIM_TTTS1-CS");
+        }
+      }
+    }
+  }
+  if (flags.maxLeft >= 3) {
+    if (flags.useLongSequences) {
+      featuresCpCp2Cp3C.add("PPPSEQ");
+    }
+    if (flags.useBoundarySequences && getWord(p).equals(CoNLLDocumentReaderAndWriter.BOUNDARY)) {
+      featuresCpCp2Cp3C.add("BNDRY-SPAN-PPPSEQ");
+    }
+  }
+  return featuresCpCp2Cp3C;
+}

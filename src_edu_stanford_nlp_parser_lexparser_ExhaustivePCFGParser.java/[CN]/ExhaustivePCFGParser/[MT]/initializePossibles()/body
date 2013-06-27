@@ -1,0 +1,22 @@
+{
+  for (int loc=0; loc < length; loc++) {
+    Arrays.fill(iPossibleByL[loc],false);
+    Arrays.fill(oPossibleByL[loc],false);
+  }
+  for (int loc=0; loc <= length; loc++) {
+    Arrays.fill(iPossibleByR[loc],false);
+    Arrays.fill(oPossibleByR[loc],false);
+  }
+  for (int start=0; start < length; start++) {
+    for (int end=start + 1; end <= length; end++) {
+      for (int state=0; state < numStates; state++) {
+        if (iScore[start][end][state] > Float.NEGATIVE_INFINITY && oScore[start][end][state] > Float.NEGATIVE_INFINITY) {
+          iPossibleByL[start][state]=true;
+          iPossibleByR[end][state]=true;
+          oPossibleByL[start][state]=true;
+          oPossibleByR[end][state]=true;
+        }
+      }
+    }
+  }
+}

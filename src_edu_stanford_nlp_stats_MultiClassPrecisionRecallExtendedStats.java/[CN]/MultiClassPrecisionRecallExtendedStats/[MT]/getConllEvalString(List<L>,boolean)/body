@@ -1,0 +1,23 @@
+{
+  StringBuilder sb=new StringBuilder();
+  int correctPhrases=getCorrect() - getCorrect(negLabel);
+  Triple<Double,Integer,Integer> accuracyInfo=getAccuracyInfo();
+  int totalCount=accuracyInfo.second() + accuracyInfo.third();
+  sb.append("processed " + totalCount + " tokens with "+ getRelevant()+ " phrases; ");
+  sb.append("found: " + getRetrieved() + " phrases; correct: "+ correctPhrases+ "\n");
+  Formatter formatter=new Formatter(sb,Locale.US);
+  formatter.format("accuracy: %6.2f%%; ",accuracyInfo.first() * 100);
+  formatter.format("precision: %6.2f%%; ",getPrecision() * 100);
+  formatter.format("recall: %6.2f%%; ",getRecall() * 100);
+  formatter.format("FB1: %6.2f\n",getFMeasure() * 100);
+  for (  L label : orderedLabels) {
+    if (ignoreNegLabel && label.equals(negLabel)) {
+      continue;
+    }
+    formatter.format("%17s: ",label);
+    formatter.format("precision: %6.2f%%; ",getPrecision(label) * 100);
+    formatter.format("recall: %6.2f%%; ",getRecall(label) * 100);
+    formatter.format("FB1: %6.2f  %d\n",getFMeasure(label) * 100,getRetrieved(label));
+  }
+  return sb.toString();
+}

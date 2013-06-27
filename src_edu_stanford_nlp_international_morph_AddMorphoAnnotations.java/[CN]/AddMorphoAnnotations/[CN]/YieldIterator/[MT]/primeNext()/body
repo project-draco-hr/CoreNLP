@@ -1,0 +1,30 @@
+{
+  try {
+    if (treeReader != null) {
+      Tree tree=treeReader.readTree();
+      if (tree == null) {
+        nextYield=null;
+      }
+ else {
+        List<CoreLabel> mLabeledLeaves=tree.taggedLabeledYield();
+        nextYield=new ArrayList<String>(mLabeledLeaves.size());
+        for (        CoreLabel label : mLabeledLeaves) {
+          nextYield.add(label.tag());
+        }
+      }
+    }
+ else {
+      String line=fileReader.readLine();
+      if (line == null) {
+        nextYield=null;
+      }
+ else {
+        nextYield=Arrays.asList(line.split("\\s+"));
+      }
+    }
+  }
+ catch (  IOException e) {
+    nextYield=null;
+    e.printStackTrace();
+  }
+}

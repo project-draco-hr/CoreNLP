@@ -1,0 +1,106 @@
+{
+  if (args.length < 1) {
+    System.err.println("usage: DocumentPreprocessor OPT* filename");
+    System.err.println("    OPT = -xml|-encoding ENC|-tokenizerOptions opts|-tag delim|...");
+    return;
+  }
+  String encoding="utf-8";
+  boolean printSentenceLengths=false;
+  DocType docType=DocType.Plain;
+  String xmlElementDelimiter=null;
+  TokenizerFactory<? extends HasWord> tf=PTBTokenizer.factory(new CoreLabelTokenFactory(),"");
+  String sentenceDelimiter=null;
+  String tagDelimiter=null;
+  boolean printOriginalText=false;
+  String[] sentenceDelims=null;
+  int i=0;
+  for (; i < args.length; i++) {
+    if (args[i].length() == 0 || !args[i].startsWith("-")) {
+      break;
+    }
+    if (args[i].equals("-xml")) {
+      docType=DocType.XML;
+      i++;
+      xmlElementDelimiter=args[i];
+    }
+ else     if (args[i].equals("-encoding") && i + 1 < args.length) {
+      i++;
+      encoding=args[i];
+    }
+ else     if (args[i].equals("-printSentenceLengths")) {
+      printSentenceLengths=true;
+    }
+ else     if (args[i].equals("-suppressEscaping")) {
+      tf=PTBTokenizer.factory(new CoreLabelTokenFactory(),"ptb3Escaping=false");
+    }
+ else     if (args[i].equals("-tokenizerOptions") && i + 1 < args.length) {
+      i++;
+      tf=PTBTokenizer.factory(new CoreLabelTokenFactory(),args[i]);
+    }
+ else     if (args[i].equals("-noTokenization")) {
+      tf=null;
+      sentenceDelimiter=System.getProperty("line.separator");
+    }
+ else     if (args[i].equals("-whitespaceTokenization")) {
+      tf=null;
+      List<String> whitespaceDelims=new ArrayList<String>(Arrays.asList(DocumentPreprocessor.DEFAULT_SENTENCE_DELIMS));
+      whitespaceDelims.add(WhitespaceLexer.NEWLINE);
+      sentenceDelims=whitespaceDelims.toArray(new String[whitespaceDelims.size()]);
+    }
+ else     if (args[i].equals("-tag")) {
+      i++;
+      tagDelimiter=args[i];
+    }
+ else     if (args[i].equals("-printOriginalText")) {
+      printOriginalText=true;
+      tf=PTBTokenizer.factory(new CoreLabelTokenFactory(),"invertible=true");
+    }
+ else {
+      System.err.println("Unknown option: " + args[i]);
+    }
+  }
+  int numSents=0;
+  PrintWriter pw=new PrintWriter(new OutputStreamWriter(System.out,encoding),true);
+  for (; i < args.length; i++) {
+    DocumentPreprocessor docPreprocessor=new DocumentPreprocessor(args[i],docType,encoding);
+    if (docType == DocType.XML) {
+      docPreprocessor.setElementDelimiter(xmlElementDelimiter);
+    }
+    docPreprocessor.setTokenizerFactory(tf);
+    if (sentenceDelimiter != null) {
+      docPreprocessor.setSentenceDelimiter(sentenceDelimiter);
+    }
+    if (tagDelimiter != null) {
+      docPreprocessor.setTagDelimiter(args[++i]);
+    }
+    if (sentenceDelims != null) {
+      docPreprocessor.setSentenceFinalPuncWords(sentenceDelims);
+    }
+    for (    List<HasWord> sentence : docPreprocessor) {
+      numSents++;
+      if (printSentenceLengths) {
+        System.err.println("Length:\t" + sentence.size());
+      }
+      boolean printSpace=false;
+      for (      HasWord word : sentence) {
+        if (printOriginalText) {
+          CoreLabel cl=(CoreLabel)word;
+          if (!printSpace) {
+            pw.print(cl.get(CoreAnnotations.BeforeAnnotation.class));
+            printSpace=true;
+          }
+          pw.print(cl.get(CoreAnnotations.OriginalTextAnnotation.class));
+          pw.print(cl.get(CoreAnnotations.AfterAnnotation.class));
+        }
+ else {
+          if (printSpace)           pw.print(" ");
+          printSpace=true;
+          pw.print(word.word());
+        }
+      }
+      pw.println();
+    }
+  }
+  pw.close();
+  System.err.println("Read in " + numSents + " sentences.");
+}

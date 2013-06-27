@@ -1,0 +1,83 @@
+{
+  List<List<Mention>> orderedMentionsBySentence=document.getOrderedMentions();
+  Map<Integer,CorefCluster> corefClusters=document.corefClusters;
+  Set<Mention> roleSet=document.roleSet;
+  logger.finest("ROLE SET (Skip exact string match): ------------------");
+  for (  Mention m : roleSet) {
+    logger.finest("\t" + m.spanToString());
+  }
+  logger.finest("-------------------------------------------------------");
+  additionalCorrectLinksCount=0;
+  additionalLinksCount=0;
+  for (int sentI=0; sentI < orderedMentionsBySentence.size(); sentI++) {
+    List<Mention> orderedMentions=orderedMentionsBySentence.get(sentI);
+    for (int mentionI=0; mentionI < orderedMentions.size(); mentionI++) {
+      Mention m1=orderedMentions.get(mentionI);
+      if (sieve.skipThisMention(document,m1,corefClusters.get(m1.corefClusterID),dictionaries)) {
+        continue;
+      }
+      LOOP:       for (int sentJ=sentI; sentJ >= 0; sentJ--) {
+        List<Mention> l=sieve.getOrderedAntecedents(sentJ,sentI,orderedMentions,orderedMentionsBySentence,m1,mentionI,corefClusters,dictionaries);
+        if (maxSentDist != -1 && sentI - sentJ > maxSentDist)         continue;
+        for (int i=0; i < l.size(); i++) {
+          for (int j=0; j < l.size(); j++) {
+            if (l.get(i).headString.equals(l.get(j).headString) && l.get(i).startIndex == l.get(j).startIndex && l.get(i).sameSentence(l.get(j)) && j > i && l.get(i).spanToString().length() > l.get(j).spanToString().length()) {
+              logger.finest("FLIPPED: " + l.get(i).spanToString() + "("+ i+ "), "+ l.get(j).spanToString()+ "("+ j+ ")");
+              l.set(j,l.set(i,l.get(j)));
+            }
+          }
+        }
+        for (        Mention m2 : l) {
+          if (m1.isSingleton && m2.isSingleton)           continue;
+          if (m1.corefClusterID == m2.corefClusterID)           continue;
+          CorefCluster c1=corefClusters.get(m1.corefClusterID);
+          CorefCluster c2=corefClusters.get(m2.corefClusterID);
+          if (c2 == null) {
+            logger.warning("NO corefcluster id " + m2.corefClusterID);
+          }
+          assert(c1 != null);
+          assert(c2 != null);
+          if (sieve.useRoleSkip()) {
+            if (m1.isRoleAppositive(m2,dictionaries)) {
+              roleSet.add(m1);
+            }
+ else             if (m2.isRoleAppositive(m1,dictionaries)) {
+              roleSet.add(m2);
+            }
+            continue;
+          }
+          if (sieve.coreferent(document,c1,c2,m1,m2,dictionaries,roleSet,semantics)) {
+            if (doScore()) {
+              printLogs(c1,c2,m1,m2,document,currentSieve);
+            }
+            int removeID=c1.clusterID;
+            CorefCluster.mergeClusters(c2,c1);
+            corefClusters.remove(removeID);
+            break LOOP;
+          }
+        }
+      }
+    }
+  }
+  if (doScore()) {
+    scoreMUC.get(currentSieve).calculateScore(document);
+    scoreBcubed.get(currentSieve).calculateScore(document);
+    scorePairwise.get(currentSieve).calculateScore(document);
+    if (currentSieve == 0) {
+      scoreSingleDoc=new ArrayList<CorefScorer>();
+      scoreSingleDoc.add(new ScorerPairwise());
+      scoreSingleDoc.get(currentSieve).calculateScore(document);
+      additionalCorrectLinksCount=(int)scoreSingleDoc.get(currentSieve).precisionNumSum;
+      additionalLinksCount=(int)scoreSingleDoc.get(currentSieve).precisionDenSum;
+    }
+ else {
+      scoreSingleDoc.add(new ScorerPairwise());
+      scoreSingleDoc.get(currentSieve).calculateScore(document);
+      additionalCorrectLinksCount=(int)(scoreSingleDoc.get(currentSieve).precisionNumSum - scoreSingleDoc.get(currentSieve - 1).precisionNumSum);
+      additionalLinksCount=(int)(scoreSingleDoc.get(currentSieve).precisionDenSum - scoreSingleDoc.get(currentSieve - 1).precisionDenSum);
+    }
+    linksCountInPass.get(currentSieve).setFirst(linksCountInPass.get(currentSieve).first() + additionalCorrectLinksCount);
+    linksCountInPass.get(currentSieve).setSecond(linksCountInPass.get(currentSieve).second() + additionalLinksCount);
+    printSieveScore(document,sieve);
+  }
+}

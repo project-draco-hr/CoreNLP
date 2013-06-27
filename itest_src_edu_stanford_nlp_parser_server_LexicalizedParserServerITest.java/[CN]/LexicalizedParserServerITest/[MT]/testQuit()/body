@@ -1,0 +1,14 @@
+{
+  int port=Ports.findAvailable(2000,10000);
+  System.err.println("testQuit: starting on port " + port);
+  Thread serverThread=startLPServer(port,false);
+  LexicalizedParserClient client=new LexicalizedParserClient("localhost",port);
+  client.sendQuit();
+  try {
+    serverThread.join(5000);
+  }
+ catch (  InterruptedException e) {
+    throw new RuntimeException(e);
+  }
+  assertEquals(Thread.State.TERMINATED,serverThread.getState());
+}

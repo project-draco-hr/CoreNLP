@@ -1,0 +1,61 @@
+{
+  boolean gettingSize1=true;
+  boolean gettingSize2=false;
+  int size1=0;
+  List<Integer> ints=new ArrayList<Integer>();
+  int gap=0;
+  int size2=0;
+  int prevNum=0;
+  for (int i=startIndex; i < endIndex; i++) {
+    byte b=deltaEncoded[i];
+    for (int index=7; index >= 0; index--) {
+      boolean value=((b >> index) & 1) == 1;
+      if (gettingSize1) {
+        if (value) {
+          size1++;
+        }
+ else {
+          if (size1 == 0) {
+            ints.add(prevNum);
+          }
+ else           if (size1 == 1) {
+            prevNum++;
+            ints.add(prevNum);
+            size1=0;
+          }
+ else {
+            gettingSize1=false;
+            gettingSize2=true;
+            size2=1;
+            size1--;
+          }
+        }
+      }
+ else       if (gettingSize2) {
+        size2<<=1;
+        if (value) {
+          size2++;
+        }
+        size1--;
+        if (size1 == 0) {
+          gettingSize2=false;
+          gap=1;
+          size2--;
+        }
+      }
+ else {
+        gap<<=1;
+        if (value) {
+          gap++;
+        }
+        size2--;
+        if (size2 == 0) {
+          prevNum+=gap;
+          ints.add(prevNum);
+          gettingSize1=true;
+        }
+      }
+    }
+  }
+  return ints;
+}

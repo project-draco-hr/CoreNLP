@@ -1,0 +1,19 @@
+{
+  if (originalCoreLabels[labelIndex] != null) {
+    CoreLabel terminalLabel=originalCoreLabels[labelIndex];
+    if (terminalLabel.value() == null && terminalLabel.word() != null) {
+      terminalLabel.setValue(terminalLabel.word());
+    }
+    return terminalLabel;
+  }
+  String wordStr=wordIndex.get(words[labelIndex]);
+  CoreLabel terminalLabel=new CoreLabel();
+  terminalLabel.setValue(wordStr);
+  terminalLabel.setWord(wordStr);
+  terminalLabel.setBeginPosition(beginOffsets[labelIndex]);
+  terminalLabel.setEndPosition(endOffsets[labelIndex]);
+  if (originalTags[labelIndex] != null) {
+    terminalLabel.setTag(originalTags[labelIndex].tag());
+  }
+  return terminalLabel;
+}

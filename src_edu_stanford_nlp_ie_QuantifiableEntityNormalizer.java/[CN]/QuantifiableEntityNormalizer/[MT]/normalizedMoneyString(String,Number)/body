@@ -1,0 +1,29 @@
+{
+  s=convertToAmerican(s);
+  s=s.replaceAll("[ \t\n\0\f\r,]","");
+  s=s.toLowerCase();
+  if (DEBUG2) {
+    err.println("normalizedMoneyString: Normalizing " + s);
+  }
+  double multiplier=1.0;
+  char currencySign='$';
+  for (  String currencyWord : currencyWords.keySet()) {
+    if (StringUtils.find(s,currencyWord)) {
+      if (DEBUG2) {
+        err.println("Found units: " + currencyWord);
+      }
+      if (currencyWord.equals("pence|penny") || currencyWord.equals("cents?") || currencyWord.equals("\u00A2")) {
+        multiplier*=0.01;
+      }
+      s=s.replaceAll(currencyWord,"");
+      currencySign=currencyWords.get(currencyWord);
+    }
+  }
+  String value=normalizedNumberStringQuiet(s,multiplier,"",numberFromSUTime);
+  if (value == null) {
+    return null;
+  }
+ else {
+    return currencySign + value;
+  }
+}

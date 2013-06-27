@@ -1,0 +1,18 @@
+{
+  List rewrite=kidLabels(t);
+  List left=leftSisterLabels(t,p);
+  List right=rightSisterLabels(t,p);
+  String label=t.label().value();
+  if (!nodeRules.containsKey(label)) {
+    nodeRules.put(label,new ClassicCounter());
+  }
+  if (!rightRules.containsKey(label)) {
+    rightRules.put(label,new HashMap());
+  }
+  if (!leftRules.containsKey(label)) {
+    leftRules.put(label,new HashMap());
+  }
+  ((ClassicCounter)nodeRules.get(label)).incrementCount(rewrite);
+  sideCounters(label,rewrite,left,leftRules);
+  sideCounters(label,rewrite,right,rightRules);
+}

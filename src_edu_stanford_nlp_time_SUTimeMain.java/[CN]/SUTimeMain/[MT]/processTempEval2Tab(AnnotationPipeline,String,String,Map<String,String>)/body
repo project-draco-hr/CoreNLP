@@ -1,0 +1,53 @@
+{
+  Map<String,List<TimexAttributes>> timexMap=readTimexAttrExts(in + "/timex-extents.tab",in + "/timex-attributes.tab");
+  BufferedReader br=IOUtils.getBufferedFileReader(in + "/base-segmentation.tab");
+  PrintWriter debugPw=IOUtils.getPrintWriter(out + "/timex-debug.out");
+  PrintWriter attrPw=IOUtils.getPrintWriter(out + "/timex-attrs.res.tab");
+  PrintWriter extPw=IOUtils.getPrintWriter(out + "/timex-extents.res.tab");
+  PrintWriter attrDebugPwGold=IOUtils.getPrintWriter(out + "/timex-attrs.debug.gold.tab");
+  PrintWriter attrDebugPw=IOUtils.getPrintWriter(out + "/timex-attrs.debug.res.tab");
+  String line;
+  String curDocName=null;
+  int curSentNo=-1;
+  List<String> tokens=null;
+  List<CoreMap> sentences=null;
+  while ((line=br.readLine()) != null) {
+    if (line.trim().length() == 0)     continue;
+    String[] fields=line.split("\t");
+    String docName=fields[0];
+    int sentNo=Integer.parseInt(fields[1]);
+    String tokenText=fields[3];
+    if (!docName.equals(curDocName)) {
+      if (curDocName != null) {
+        CoreMap lastSentence=wordsToSentence(tokens);
+        sentences.add(lastSentence);
+        Annotation docAnnotation=sentencesToDocument(curDocName,docDates.get(curDocName),sentences);
+        processTempEval2Doc(pipeline,docAnnotation,timexMap,extPw,attrPw,debugPw,attrDebugPwGold,attrDebugPw);
+        curDocName=null;
+      }
+      tokens=new ArrayList<String>();
+      sentences=new ArrayList<CoreMap>();
+    }
+ else     if (curSentNo != sentNo) {
+      CoreMap lastSentence=wordsToSentence(tokens);
+      sentences.add(lastSentence);
+      tokens=new ArrayList<String>();
+    }
+    tokens.add(tokenText);
+    curDocName=docName;
+    curSentNo=sentNo;
+  }
+  if (curDocName != null) {
+    CoreMap lastSentence=wordsToSentence(tokens);
+    sentences.add(lastSentence);
+    Annotation docAnnotation=sentencesToDocument(curDocName,docDates.get(curDocName),sentences);
+    processTempEval2Doc(pipeline,docAnnotation,timexMap,extPw,attrPw,debugPw,attrDebugPwGold,attrDebugPw);
+    curDocName=null;
+  }
+  br.close();
+  extPw.close();
+  attrPw.close();
+  debugPw.close();
+  attrDebugPwGold.close();
+  attrDebugPw.close();
+}

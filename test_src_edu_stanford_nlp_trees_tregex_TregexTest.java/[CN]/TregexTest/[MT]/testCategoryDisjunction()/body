@@ -1,0 +1,36 @@
+{
+  Function<String,String> abCategory=new Function<String,String>(){
+    public String apply(    String label){
+      if (label == null) {
+        return label;
+      }
+      if (label.startsWith("a")) {
+        return "aaa";
+      }
+      if (label.startsWith("b")) {
+        return "bbb";
+      }
+      return label;
+    }
+  }
+;
+  TregexPatternCompiler abCompiler=new TregexPatternCompiler(abCategory);
+  TregexPattern aaaTregex=abCompiler.compile("foo > @aaa");
+  runTest(aaaTregex,"(aaa (foo 0))","(foo 0)");
+  runTest(aaaTregex,"(abc (foo 0))","(foo 0)");
+  runTest(aaaTregex,"(bbb (foo 0))");
+  runTest(aaaTregex,"(bcd (foo 0))");
+  runTest(aaaTregex,"(ccc (foo 0))");
+  TregexPattern bbbTregex=abCompiler.compile("foo > @bbb");
+  runTest(bbbTregex,"(aaa (foo 0))");
+  runTest(bbbTregex,"(abc (foo 0))");
+  runTest(bbbTregex,"(bbb (foo 0))","(foo 0)");
+  runTest(bbbTregex,"(bcd (foo 0))","(foo 0)");
+  runTest(bbbTregex,"(ccc (foo 0))");
+  TregexPattern bothTregex=abCompiler.compile("foo > @aaa|bbb");
+  runTest(bothTregex,"(aaa (foo 0))","(foo 0)");
+  runTest(bothTregex,"(abc (foo 0))","(foo 0)");
+  runTest(bothTregex,"(bbb (foo 0))","(foo 0)");
+  runTest(bothTregex,"(bcd (foo 0))","(foo 0)");
+  runTest(bothTregex,"(ccc (foo 0))");
+}

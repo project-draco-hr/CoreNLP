@@ -1,0 +1,38 @@
+{
+  Properties props=StringUtils.argsToProperties(args);
+  System.err.println(props.toString());
+  MaxMatchSegmenter seg=new MaxMatchSegmenter();
+  String lexiconFile=props.getProperty("lexicon");
+  if (lexiconFile != null) {
+    seg.addLexicon(lexiconFile);
+  }
+ else {
+    System.err.println("Error: no lexicon file!");
+    System.exit(1);
+  }
+  BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
+  int lineNb=0;
+  for (; ; ) {
+    ++lineNb;
+    System.err.println("line: " + lineNb);
+    try {
+      String line=br.readLine();
+      if (line == null)       break;
+      if (props.getProperty("greedy") != null) {
+        ArrayList<Word> sentence=seg.greedilySegmentWords(line);
+        System.out.println(Sentence.listToString(sentence));
+      }
+ else       if (props.getProperty("maxwords") != null) {
+        seg.buildSegmentationLattice(line);
+        System.out.println(Sentence.listToString(seg.segmentWords(MatchHeuristic.MAXWORDS)));
+      }
+ else {
+        seg.buildSegmentationLattice(line);
+        System.out.println(Sentence.listToString(seg.maxMatchSegmentation()));
+      }
+    }
+ catch (    IOException e) {
+      break;
+    }
+  }
+}

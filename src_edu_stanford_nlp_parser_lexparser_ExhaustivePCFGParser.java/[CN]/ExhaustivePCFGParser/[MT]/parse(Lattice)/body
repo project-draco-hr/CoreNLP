@@ -1,0 +1,48 @@
+{
+  sentence=null;
+  if (lr != this.lr) {
+    this.lr=lr;
+    floodTags=false;
+  }
+  if (op.testOptions.verbose)   Timing.tick("Doing lattice PCFG parse...");
+  length=lr.getNumNodes() - 1;
+  if (length > arraySize)   considerCreatingArrays(length);
+  int goal=stateIndex.indexOf(goalStr);
+  for (int start=0; start < length; start++) {
+    for (int end=start + 1; end <= length; end++) {
+      Arrays.fill(iScore[start][end],Float.NEGATIVE_INFINITY);
+      if (op.doDep)       Arrays.fill(oScore[start][end],Float.NEGATIVE_INFINITY);
+    }
+  }
+  for (int loc=0; loc <= length; loc++) {
+    Arrays.fill(narrowLExtent[loc],-1);
+    Arrays.fill(wideLExtent[loc],length + 1);
+  }
+  for (int loc=0; loc < length; loc++) {
+    Arrays.fill(narrowRExtent[loc],length + 1);
+    Arrays.fill(wideRExtent[loc],-1);
+  }
+  initializeChart(lr);
+  doInsideScores();
+  bestScore=iScore[0][length][goal];
+  if (op.testOptions.verbose) {
+    Timing.tick("done.");
+    System.err.println("PCFG " + length + " words (incl. stop) iScore "+ bestScore);
+  }
+  boolean succeeded=hasParse();
+  if (!succeeded && op.testOptions.doRecovery && !floodTags) {
+    floodTags=true;
+    System.err.printf(this.getClass().getName() + ": Parse failed. Trying recovery parse...");
+    succeeded=parse(lr);
+    if (!succeeded)     return false;
+  }
+  oScore[0][length][goal]=0.0f;
+  doOutsideScores();
+  if (op.testOptions.verbose) {
+    Timing.tick("done.");
+  }
+  if (op.doDep) {
+    initializePossibles();
+  }
+  return succeeded;
+}

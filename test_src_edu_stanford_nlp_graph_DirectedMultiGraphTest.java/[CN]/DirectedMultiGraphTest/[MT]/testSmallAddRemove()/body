@@ -1,0 +1,24 @@
+{
+  DirectedMultiGraph<Integer,String> g=new DirectedMultiGraph<Integer,String>();
+  g.addVertex(1);
+  g.addVertex(2);
+  g.add(1,2,"foo");
+  assertEquals(2,g.getNumVertices());
+  assertEquals(1,g.getNumEdges());
+  assertTrue(g.isEdge(1,2));
+  g.removeEdge(1,2,"foo");
+  assertFalse(g.isEdge(1,2));
+  g.add(1,2,"foo");
+  g.add(1,2,"bar");
+  assertTrue(g.isEdge(1,2));
+  assertEquals(2,g.getNumVertices());
+  assertEquals(2,g.getNumEdges());
+  g.removeEdge(1,2,"foo");
+  assertTrue(g.isEdge(1,2));
+  assertEquals(2,g.getNumVertices());
+  assertEquals(1,g.getNumEdges());
+  g.removeEdge(1,2,"bar");
+  assertFalse(g.isEdge(1,2));
+  assertEquals(2,g.getNumVertices());
+  assertEquals(0,g.getNumEdges());
+}

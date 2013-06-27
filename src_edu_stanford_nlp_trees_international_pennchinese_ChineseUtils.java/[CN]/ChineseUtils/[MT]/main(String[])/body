@@ -1,0 +1,22 @@
+{
+  if (args.length < 3) {
+    System.err.println("usage: ChineseUtils ascii space midDot word*");
+    System.err.println("  First 3 args are int flags; a filter or maps args as words; assumes UTF-8");
+    return;
+  }
+  int i=Integer.parseInt(args[0]);
+  int j=Integer.parseInt(args[1]);
+  int midDot=Integer.parseInt(args[2]);
+  if (args.length > 3) {
+    for (int k=3; k < args.length; k++) {
+      EncodingPrintWriter.out.println(normalize(args[k],i,j,midDot));
+    }
+  }
+ else {
+    BufferedReader r=new BufferedReader(new InputStreamReader(System.in,"UTF-8"));
+    String line;
+    while ((line=r.readLine()) != null) {
+      EncodingPrintWriter.out.println(normalize(line,i,j,midDot));
+    }
+  }
+}

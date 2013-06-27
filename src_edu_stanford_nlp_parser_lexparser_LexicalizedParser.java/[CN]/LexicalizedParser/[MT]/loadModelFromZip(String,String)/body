@@ -1,0 +1,28 @@
+{
+  LexicalizedParser parser=null;
+  try {
+    File file=new File(zipFilename);
+    if (file.exists()) {
+      ZipFile zin=new ZipFile(file);
+      ZipEntry zentry=zin.getEntry(modelName);
+      if (zentry != null) {
+        InputStream in=zin.getInputStream(zentry);
+        if (modelName.endsWith(".gz")) {
+          in=new GZIPInputStream(in);
+        }
+        ObjectInputStream ois=new ObjectInputStream(in);
+        parser=loadModel(ois);
+        ois.close();
+        in.close();
+      }
+      zin.close();
+    }
+ else {
+      throw new FileNotFoundException("Could not find " + modelName + " inside "+ zipFilename);
+    }
+  }
+ catch (  IOException e) {
+    throw new RuntimeIOException(e);
+  }
+  return parser;
+}

@@ -1,0 +1,66 @@
+{
+  String annoText=annotation.get(CoreAnnotations.TextAnnotation.class);
+  List<CoreMap> chunks=new ArrayList<CoreMap>(charOffsets.size());
+  List<CoreLabel> annoTokens=annotation.get(CoreAnnotations.TokensAnnotation.class);
+  Integer annoCharBegin=annotation.get(CoreAnnotations.CharacterOffsetBeginAnnotation.class);
+  if (annoCharBegin == null) {
+    annoCharBegin=0;
+  }
+  Integer annoTokenBegin=annotation.get(CoreAnnotations.TokenBeginAnnotation.class);
+  if (annoTokenBegin == null) {
+    annoTokenBegin=0;
+  }
+  int i=0;
+  for (  IntPair p : charOffsets) {
+    int beginRelCharOffset=charOffsetIsRelative ? p.getSource() : p.getSource() - annoCharBegin;
+    int endRelCharOffset=charOffsetIsRelative ? p.getTarget() : p.getTarget() - annoCharBegin;
+    int beginCharOffset=beginRelCharOffset + annoCharBegin;
+    int endCharOffset=endRelCharOffset + annoCharBegin;
+    if (beginRelCharOffset >= annoText.length()) {
+      break;
+    }
+    if (endRelCharOffset > annoText.length()) {
+      endRelCharOffset=annoText.length();
+    }
+    if (allowPartialTokens) {
+      while (i < annoTokens.size() && annoTokens.get(i).endPosition() <= beginCharOffset) {
+        i++;
+      }
+    }
+ else {
+      while (i < annoTokens.size() && annoTokens.get(i).beginPosition() < beginCharOffset) {
+        i++;
+      }
+    }
+    if (i >= annoTokens.size())     break;
+    int tokenBegin=i;
+    int j=i;
+    if (allowPartialTokens) {
+      while (j < annoTokens.size() && annoTokens.get(j).beginPosition() < endCharOffset) {
+        j++;
+      }
+    }
+ else {
+      while (j < annoTokens.size() && annoTokens.get(j).endPosition() <= endCharOffset) {
+        assert(annoTokens.get(j).beginPosition() >= beginCharOffset);
+        j++;
+      }
+    }
+    int tokenEnd=j;
+    List<CoreLabel> chunkTokens=new ArrayList<CoreLabel>(annoTokens.subList(tokenBegin,tokenEnd));
+    String chunkText=annoText.substring(beginRelCharOffset,endRelCharOffset);
+    Annotation chunk=new Annotation(chunkText);
+    chunk.set(CoreAnnotations.CharacterOffsetBeginAnnotation.class,beginCharOffset);
+    chunk.set(CoreAnnotations.CharacterOffsetEndAnnotation.class,endCharOffset);
+    chunk.set(CoreAnnotations.TokensAnnotation.class,chunkTokens);
+    chunk.set(CoreAnnotations.TokenBeginAnnotation.class,tokenBegin + annoTokenBegin);
+    chunk.set(CoreAnnotations.TokenEndAnnotation.class,tokenEnd + annoTokenBegin);
+    annotateChunkTokens(chunk,tokenChunkKey,tokenLabelKey);
+    chunks.add(chunk);
+    if (j >= annoTokens.size())     break;
+  }
+  if (chunks.size() != charOffsets.size()) {
+    logger.warning("WARNING: Only " + chunks.size() + "/"+ charOffsets.size()+ " chunks found.  Check if offsets are sorted/nonoverlapping");
+  }
+  return chunks;
+}

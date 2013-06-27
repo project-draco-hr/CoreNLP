@@ -1,0 +1,19 @@
+{
+  Tree t=null;
+  while (tokenizer.hasNext() && t == null) {
+    this.currentTree=null;
+    this.stack=new ArrayList<Tree>();
+    try {
+      t=getTreeFromInputStream();
+    }
+ catch (    NoSuchElementException e) {
+      throw new IOException("End of token stream encountered before parsing could complete.");
+    }
+    if (t != null) {
+      if (treeNormalizer != null && treeFactory != null) {
+        t=treeNormalizer.normalizeWholeTree(t,treeFactory);
+      }
+    }
+  }
+  return t;
+}

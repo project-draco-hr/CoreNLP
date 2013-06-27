@@ -1,0 +1,15 @@
+{
+  Partial res=new Partial();
+  for (int i=0; i < p.size(); i++) {
+    DateTimeFieldType fieldType=p.getFieldType(i);
+    if (fieldType.equals(d) || isMoreGeneral(fieldType,d,p.getChronology())) {
+      res=res.with(fieldType,p.getValue(i));
+    }
+  }
+  if (res.isSupported(JodaTimeUtils.DecadeOfCentury) && !res.isSupported(DateTimeFieldType.centuryOfEra())) {
+    if (p.isSupported(DateTimeFieldType.year())) {
+      res=res.with(DateTimeFieldType.centuryOfEra(),p.get(DateTimeFieldType.year()) / 100);
+    }
+  }
+  return res;
+}

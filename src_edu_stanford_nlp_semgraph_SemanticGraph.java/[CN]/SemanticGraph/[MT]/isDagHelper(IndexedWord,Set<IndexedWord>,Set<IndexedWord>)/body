@@ -1,0 +1,18 @@
+{
+  if (trail.contains(current)) {
+    return true;
+  }
+ else   if (!unused.contains(current)) {
+    return false;
+  }
+  unused.remove(current);
+  trail.add(current);
+  for (  IndexedWord child : getChildList(current)) {
+    boolean result=isDagHelper(child,unused,trail);
+    if (result) {
+      return true;
+    }
+  }
+  trail.remove(current);
+  return false;
+}

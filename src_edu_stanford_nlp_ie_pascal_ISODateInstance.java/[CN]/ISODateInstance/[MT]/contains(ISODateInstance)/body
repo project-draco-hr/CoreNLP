@@ -1,0 +1,30 @@
+{
+  if (this.isUnparseable() || other.isUnparseable()) {
+    return this.isoDate.equals(other.isoDate);
+  }
+  String start=this.getStartDate();
+  if (!start.equals("")) {
+    String startOther=other.getStartDate();
+    if (startOther.equals("")) {
+      return false;
+    }
+ else {
+      if (!isAfter(startOther,start)) {
+        return false;
+      }
+    }
+  }
+  String end=this.getEndDate();
+  if (!end.equals("")) {
+    String endOther=other.getEndDate();
+    if (endOther.equals("")) {
+      return false;
+    }
+ else {
+      if (!isAfter(end,endOther)) {
+        return false;
+      }
+    }
+  }
+  return true;
+}

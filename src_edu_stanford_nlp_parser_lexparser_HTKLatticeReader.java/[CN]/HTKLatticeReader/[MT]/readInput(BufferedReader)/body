@@ -1,0 +1,57 @@
+{
+  String line=in.readLine();
+  while (line.trim().startsWith("#")) {
+    line=in.readLine();
+  }
+  latticeWords=new ArrayList<HTKLatticeReader.LatticeWord>();
+  Pattern wordLinePattern=Pattern.compile("(\\d+)\\s+(\\d+)\\s+lm=(-?\\d+\\.\\d+),am=(-?\\d+\\.\\d+)\\s+([^( ]+)(?:\\((\\d+)\\))?.*");
+  Matcher wordLineMatcher=wordLinePattern.matcher(line);
+  while (wordLineMatcher.matches()) {
+    int startNode=Integer.parseInt(wordLineMatcher.group(1)) - 1;
+    int endNode=Integer.parseInt(wordLineMatcher.group(2)) - 1;
+    double lm=Double.parseDouble(wordLineMatcher.group(3));
+    double am=Double.parseDouble(wordLineMatcher.group(4));
+    String word=wordLineMatcher.group(5).toLowerCase();
+    String pronun=wordLineMatcher.group(6);
+    if (word.equalsIgnoreCase("<s>")) {
+      line=in.readLine();
+      wordLineMatcher=wordLinePattern.matcher(line);
+      continue;
+    }
+    if (word.equalsIgnoreCase("</s>")) {
+      word=Lexicon.BOUNDARY;
+    }
+    int pronunciation;
+    if (pronun == null) {
+      pronunciation=0;
+    }
+ else {
+      pronunciation=Integer.parseInt(pronun);
+    }
+    LatticeWord lw=new LatticeWord(word,startNode,endNode,lm,am,pronunciation,mergeType);
+    if (DEBUG) {
+      System.err.println(lw);
+    }
+    latticeWords.add(lw);
+    line=in.readLine();
+    wordLineMatcher=wordLinePattern.matcher(line);
+  }
+  numStates=Integer.parseInt(line.trim());
+  if (DEBUG) {
+    System.err.println(numStates);
+  }
+  nodeTimes=new int[numStates];
+  Pattern nodeTimePattern=Pattern.compile("(\\d+)\\s+t=(\\d+)\\s*");
+  Matcher nodeTimeMatcher;
+  for (int i=0; i < numStates; i++) {
+    nodeTimeMatcher=nodeTimePattern.matcher(in.readLine());
+    if (!nodeTimeMatcher.matches()) {
+      System.err.println("Input File Error");
+      System.exit(1);
+    }
+    nodeTimes[i]=Integer.parseInt(nodeTimeMatcher.group(2));
+    if (DEBUG) {
+      System.err.println(i + "\tt=" + nodeTimes[i]);
+    }
+  }
+}

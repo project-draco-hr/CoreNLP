@@ -1,0 +1,38 @@
+{
+  boolean isPrinting=false;
+  if (record.force()) {
+    isPrinting=true;
+  }
+ else {
+switch (this.defaultState) {
+case HIDE_ALL:
+      for (      Object tag : record.channels()) {
+        if (this.deltaPool.contains(tag)) {
+          isPrinting=true;
+          break;
+        }
+      }
+    break;
+case SHOW_ALL:
+  boolean somethingSeen=false;
+for (Object tag : record.channels()) {
+  if (this.deltaPool.contains(tag)) {
+    somethingSeen=true;
+    break;
+  }
+}
+isPrinting=!somethingSeen;
+break;
+default :
+throw new IllegalStateException("Unknown default state setting: " + this.defaultState);
+}
+}
+if (isPrinting) {
+ArrayList<Record> retVal=new ArrayList<Record>();
+retVal.add(record);
+return retVal;
+}
+ else {
+return EMPTY;
+}
+}

@@ -1,0 +1,18 @@
+{
+  logger.info("Waiting until we see " + howMany + " "+ fileFilter+ " files in directory "+ workDir+ "...");
+  int seconds=0;
+  while (true) {
+    File[] checkFiles=workDir.listFiles(fileFilter);
+    if (checkFiles != null && checkFiles.length >= howMany) {
+      logger.info("Found " + checkFiles.length + " "+ fileFilter+ " files. Continuing execution.");
+      break;
+    }
+    Thread.sleep(Constants.MONITOR_DIST_CMD_FINISHED_WAIT_MILLIS);
+    seconds+=Constants.MONITOR_DIST_CMD_FINISHED_WAIT_MILLIS / 1000;
+    if (seconds % 600 == 0) {
+      double minutes=seconds / 60;
+      logger.info("Still waiting... " + minutes + " minutes have passed.");
+    }
+  }
+  return true;
+}

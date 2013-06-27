@@ -1,0 +1,23 @@
+{
+  int byteOff=0;
+  int byteCount=0;
+  for (int i=off; i < (off + length); i++) {
+    if (s[i] != null) {
+      byteCount+=s[i].length();
+    }
+  }
+  byte[] b=new byte[byteCount + 4 * s.length];
+  for (int i=off; i < (off + length); i++) {
+    if (s[i] != null) {
+      writeIntToByteArr(b,byteOff,s[i].length());
+      byteOff+=4;
+      writeAStringToByteArr(b,byteOff,s[i]);
+      byteOff+=s[i].length();
+    }
+ else {
+      writeIntToByteArr(b,byteOff,0);
+      byteOff+=4;
+    }
+  }
+  return b;
+}

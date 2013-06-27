@@ -1,0 +1,33 @@
+{
+  IntCounter<String> tagCounter=new IntCounter<String>();
+  WeightedDataset data=new WeightedDataset(datumCounter.size());
+  for (Iterator<TaggedWord> it=datumCounter.keySet().iterator(); it.hasNext(); ) {
+    TaggedWord word=it.next();
+    int count=datumCounter.getIntCount(word);
+    if (trainOnLowCount && count > trainCountThreshold) {
+      continue;
+    }
+    if (functionWordTags.containsKey(word.word())) {
+      continue;
+    }
+    tagCounter.incrementCount(word.tag());
+    if (trainByType) {
+      count=1;
+    }
+    data.add(new BasicDatum(featExtractor.makeFeatures(word.word()),word.tag()),count);
+  }
+  datumCounter=null;
+  tagDist=Distribution.laplaceSmoothedDistribution(tagCounter,tagCounter.size(),0.5);
+  tagCounter=null;
+  applyThresholds(data);
+  verbose("Making classifier...");
+  QNMinimizer minim=new QNMinimizer();
+  LinearClassifierFactory factory=new LinearClassifierFactory(minim);
+  factory.setTol(tol);
+  factory.setSigma(sigma);
+  if (tuneSigma) {
+    factory.setTuneSigmaHeldOut();
+  }
+  scorer=factory.trainClassifier(data);
+  verbose("Done training.");
+}

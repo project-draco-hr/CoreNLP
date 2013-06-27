@@ -1,0 +1,17 @@
+{
+  List<Record> willReturn=new ArrayList<Record>();
+  boolean trackWasNonempty=current.somethingPrinted;
+  flush(current,willReturn);
+  current=stack.pop();
+  if (trackWasNonempty) {
+    if (current.trackCountPending == PendingType.PRINTING) {
+      current.timesPrinted+=1;
+    }
+    if (current.trackCountPending != PendingType.NONE) {
+      current.timesSeen+=1;
+    }
+    current.somethingPrinted=true;
+  }
+  current.trackCountPending=PendingType.NONE;
+  return willReturn;
+}

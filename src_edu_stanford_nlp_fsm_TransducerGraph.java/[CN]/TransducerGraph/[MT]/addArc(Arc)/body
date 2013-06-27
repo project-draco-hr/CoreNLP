@@ -1,0 +1,23 @@
+{
+  Object source=a.getSourceNode();
+  Object target=a.getTargetNode();
+  Object input=a.getInput();
+  if (source == null || target == null || input == null) {
+    return false;
+  }
+  if (arcs.contains(a)) {
+    return false;
+  }
+  Pair p=Generics.newPair(source,input);
+  if (arcsBySourceAndInput.containsKey(p) && checkDeterminism) {
+    throw new RuntimeException("Creating nondeterminism while inserting arc " + a + " because it already has arc "+ arcsBySourceAndInput.get(p)+ checkDeterminism);
+  }
+  arcsBySourceAndInput.put(p,a);
+  Maps.putIntoValueHashSet(arcsBySource,source,a);
+  p=Generics.newPair(target,input);
+  Maps.putIntoValueHashSet(arcsByTargetAndInput,p,a);
+  Maps.putIntoValueHashSet(arcsByTarget,target,a);
+  Maps.putIntoValueHashSet(arcsByInput,input,a);
+  arcs.add(a);
+  return true;
+}

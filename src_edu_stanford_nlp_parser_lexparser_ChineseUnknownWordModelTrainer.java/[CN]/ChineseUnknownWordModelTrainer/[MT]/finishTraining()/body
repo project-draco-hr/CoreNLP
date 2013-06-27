@@ -1,0 +1,20 @@
+{
+  Map<String,Float> unknownGT=null;
+  if (useGT) {
+    unknownGTTrainer.finishTraining();
+    unknownGT=unknownGTTrainer.unknownGT;
+  }
+  for (  Label tagLab : c.keySet()) {
+    ClassicCounter<String> wc=c.get(tagLab);
+    if (!tagHash.containsKey(tagLab)) {
+      tagHash.put(tagLab,new ClassicCounter<String>());
+    }
+    tc.incrementCount(tagLab);
+    wc.setCount(unknown,1.0);
+    for (    String first : wc.keySet()) {
+      double prob=Math.log(((wc.getCount(first))) / tc.getCount(tagLab));
+      tagHash.get(tagLab).setCount(first,prob);
+    }
+  }
+  return model;
+}

@@ -1,0 +1,36 @@
+{
+  String model=props.getProperty(annotatorName + ".model",LexicalizedParser.DEFAULT_PARSER_LOC);
+  if (model == null) {
+    throw new IllegalArgumentException("No model specified for " + "Parser annotator " + annotatorName);
+  }
+  this.VERBOSE=PropertiesUtils.getBool(props,annotatorName + ".debug",false);
+  String[] flags=convertFlagsToArray(props.getProperty(annotatorName + ".flags"));
+  this.parser=loadModel(model,VERBOSE,flags);
+  this.maxSentenceLength=PropertiesUtils.getInt(props,annotatorName + ".maxlen",-1);
+  String treeMapClass=props.getProperty(annotatorName + ".treemap");
+  if (treeMapClass == null) {
+    this.treeMap=null;
+  }
+ else {
+    this.treeMap=ReflectionLoading.loadByReflection(treeMapClass,props);
+  }
+  this.maxParseTime=PropertiesUtils.getLong(props,annotatorName + ".maxtime",0);
+  String buildGraphsProperty=annotatorName + ".buildgraphs";
+  if (!this.parser.getTLPParams().supportsBasicDependencies()) {
+    if (props.getProperty(buildGraphsProperty) != null && PropertiesUtils.getBool(props,buildGraphsProperty)) {
+      System.err.println("WARNING: " + buildGraphsProperty + " set to true, but "+ this.parser.getTLPParams().getClass()+ " does not support dependencies");
+    }
+    this.BUILD_GRAPHS=false;
+  }
+ else {
+    this.BUILD_GRAPHS=PropertiesUtils.getBool(props,buildGraphsProperty,true);
+  }
+  if (this.BUILD_GRAPHS) {
+    TreebankLanguagePack tlp=parser.getTLPParams().treebankLanguagePack();
+    this.gsf=tlp.grammaticalStructureFactory(tlp.punctuationWordRejectFilter(),tlp.typedDependencyHeadFinder());
+  }
+ else {
+    this.gsf=null;
+  }
+  this.nThreads=PropertiesUtils.getInt(props,annotatorName + ".nthreads",PropertiesUtils.getInt(props,"nthreads",1));
+}

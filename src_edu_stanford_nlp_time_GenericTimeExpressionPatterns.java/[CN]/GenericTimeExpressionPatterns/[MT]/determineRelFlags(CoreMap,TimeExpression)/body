@@ -1,0 +1,17 @@
+{
+  int flags=0;
+  boolean flagsSet=false;
+  if (te.value.getTags() != null) {
+    Value v=te.value.getTags().getTag("resolveTo");
+    if (v != null && v.get() instanceof Number) {
+      flags=((Number)v.get()).intValue();
+      flagsSet=true;
+    }
+  }
+  if (!flagsSet) {
+    if (te.getTemporal() instanceof SUTime.PartialTime) {
+      flags=SUTime.RESOLVE_TO_CLOSEST;
+    }
+  }
+  return flags;
+}

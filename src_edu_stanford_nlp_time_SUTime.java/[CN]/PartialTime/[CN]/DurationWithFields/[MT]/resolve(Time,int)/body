@@ -1,0 +1,12 @@
+{
+  Instant instant=(refTime != null) ? refTime.getJodaTimeInstant() : null;
+  if (instant != null) {
+    if ((flags & DUR_RESOLVE_FROM_AS_REF) != 0) {
+      return new DurationWithMillis(this,period.toPeriod().toDurationFrom(instant));
+    }
+ else     if ((flags & DUR_RESOLVE_TO_AS_REF) != 0) {
+      return new DurationWithMillis(this,period.toPeriod().toDurationTo(instant));
+    }
+  }
+  return this;
+}

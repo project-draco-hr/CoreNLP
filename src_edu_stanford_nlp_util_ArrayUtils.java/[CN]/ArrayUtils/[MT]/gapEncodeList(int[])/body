@@ -1,0 +1,54 @@
+{
+  for (int i=1; i < orig.length; i++) {
+    if (orig[i] < orig[i - 1]) {
+      throw new IllegalArgumentException("Array must be sorted!");
+    }
+  }
+  List<Byte> bytes=new ArrayList<Byte>();
+  int index=0;
+  int prevNum=0;
+  byte currByte=0 << 8;
+  for (  int f : orig) {
+    String n=(f == prevNum ? "" : Integer.toString(f - prevNum,2));
+    for (int ii=0; ii < n.length(); ii++) {
+      if (index == 8) {
+        bytes.add(currByte);
+        currByte=0 << 8;
+        index=0;
+      }
+      currByte<<=1;
+      currByte++;
+      index++;
+    }
+    if (index == 8) {
+      bytes.add(currByte);
+      currByte=0 << 8;
+      index=0;
+    }
+    currByte<<=1;
+    index++;
+    for (int i=1; i < n.length(); i++) {
+      if (index == 8) {
+        bytes.add(currByte);
+        currByte=0 << 8;
+        index=0;
+      }
+      currByte<<=1;
+      if (n.charAt(i) == '1') {
+        currByte++;
+      }
+      index++;
+    }
+    prevNum=f;
+  }
+  while (index > 0 && index < 9) {
+    if (index == 8) {
+      bytes.add(currByte);
+      break;
+    }
+    currByte<<=1;
+    currByte++;
+    index++;
+  }
+  return bytes;
+}

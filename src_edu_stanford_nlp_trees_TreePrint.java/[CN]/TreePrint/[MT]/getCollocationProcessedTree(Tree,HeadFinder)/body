@@ -1,0 +1,21 @@
+{
+  if (wnc == null) {
+    try {
+      Class<?> cl=Class.forName("edu.stanford.nlp.trees.WordNetInstance");
+      wnc=(WordNetConnection)cl.newInstance();
+    }
+ catch (    Exception e) {
+      System.err.println("Couldn't open WordNet Connection.  Aborting collocation detection.");
+      e.printStackTrace();
+      wnc=null;
+    }
+  }
+  if (wnc != null) {
+    CollocationFinder cf=new CollocationFinder(tree,wnc,hf);
+    tree=cf.getMangledTree();
+  }
+ else {
+    System.err.println("ERROR: WordNetConnection unavailable for collocations.");
+  }
+  return tree;
+}

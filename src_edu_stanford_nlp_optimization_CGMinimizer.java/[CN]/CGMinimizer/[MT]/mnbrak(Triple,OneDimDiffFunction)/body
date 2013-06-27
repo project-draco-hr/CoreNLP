@@ -1,0 +1,60 @@
+{
+  double ax=abc.a;
+  double fa=function.valueAt(ax);
+  double bx=abc.b;
+  double fb=function.valueAt(bx);
+  if (fb > fa) {
+    double temp=fa;
+    fa=fb;
+    fb=temp;
+    temp=ax;
+    ax=bx;
+    bx=temp;
+  }
+  double cx=bx + GOLD * (bx - ax);
+  double fc=function.valueAt(cx);
+  while (fb > fc) {
+    double r=(bx - ax) * (fb - fc);
+    double q=(bx - cx) * (fb - fa);
+    double u=bx - ((bx - cx) * q - (bx - ax) * r) / (2.0 * sign(fmax(fabs(q - r),TINY),q - r));
+    double fu;
+    double ulim=bx + GLIMIT * (cx - bx);
+    if ((bx - u) * (u - cx) > 0.0) {
+      fu=function.valueAt(u);
+      if (fu < fc) {
+        return new Triple(bx,u,cx);
+      }
+ else       if (fu > fb) {
+        return new Triple(ax,bx,u);
+      }
+      u=cx + GOLD * (cx - bx);
+      fu=function.valueAt(u);
+    }
+ else     if ((cx - u) * (u - ulim) > 0.0) {
+      fu=function.valueAt(u);
+      if (fu < fc) {
+        bx=cx;
+        cx=u;
+        u=cx + GOLD * (cx - bx);
+        fb=fc;
+        fc=fu;
+        fu=function.valueAt(u);
+      }
+    }
+ else     if ((u - ulim) * (ulim - cx) >= 0.0) {
+      u=ulim;
+      fu=function.valueAt(u);
+    }
+ else {
+      u=cx + GOLD * (cx - bx);
+      fu=function.valueAt(u);
+    }
+    ax=bx;
+    bx=cx;
+    cx=u;
+    fa=fb;
+    fb=fc;
+    fc=fu;
+  }
+  return new Triple(ax,bx,cx);
+}

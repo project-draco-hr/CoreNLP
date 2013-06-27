@@ -1,0 +1,32 @@
+{
+  StringBuffer sb=new StringBuffer();
+  if (isNegated()) {
+    sb.append('!');
+  }
+  if (isOptional()) {
+    sb.append('?');
+  }
+  sb.append(' ');
+  if (reln != null) {
+    sb.append(reln.toString());
+    sb.append(' ');
+  }
+  if (!hasPrecedence && addChild && child != null) {
+    sb.append("(");
+  }
+  if (negDesc) {
+    sb.append('!');
+  }
+  sb.append(descString);
+  if (name != null) {
+    sb.append("=" + name.toString());
+  }
+  if (addChild && child != null) {
+    sb.append(" ");
+    sb.append(child.toString(false));
+    if (!hasPrecedence) {
+      sb.append(")");
+    }
+  }
+  return sb.toString();
+}

@@ -1,0 +1,14 @@
+{
+  Collection<V> deltaC=deltaMap.get(key);
+  if (deltaC == null) {
+    Collection<V> originalC=originalMap.get(key);
+    if (originalC != null && originalC.contains(value)) {
+      deltaC=cf.newCollection();
+      deltaC.addAll(originalC);
+      deltaMap.put(key,deltaC);
+    }
+  }
+  if (deltaC != null) {
+    deltaC.remove(value);
+  }
+}

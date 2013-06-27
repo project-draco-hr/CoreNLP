@@ -1,0 +1,28 @@
+{
+  out.append(LPAREN);
+  out.append(formatLabel(node));
+  if (smartIndent) {
+    spaces+=1;
+  }
+ else {
+    spaces+=indent;
+  }
+  for (  SemanticGraphEdge depcy : sg.getOutEdgesSorted(node)) {
+    IndexedWord dep=depcy.getDependent();
+    out.append("\n");
+    out.append(StringUtils.repeat(SPACE,spaces));
+    int sp=spaces;
+    if (showRelns) {
+      String reln=depcy.getRelation().toString();
+      out.append(reln);
+      out.append(COLON);
+      if (smartIndent) {
+        sp+=(reln.length() + 1);
+      }
+    }
+    if (!used.contains(dep)) {
+      formatSGNode(sg,dep,sp);
+    }
+  }
+  out.append(RPAREN);
+}

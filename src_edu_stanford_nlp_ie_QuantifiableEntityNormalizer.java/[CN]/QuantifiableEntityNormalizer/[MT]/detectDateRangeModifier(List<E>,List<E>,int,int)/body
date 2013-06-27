@@ -1,0 +1,43 @@
+{
+  E prev=(beforeIndex >= 0) ? list.get(beforeIndex) : null;
+  int sz=list.size();
+  E next=(afterIndex < sz) ? list.get(afterIndex) : null;
+  E next2=(afterIndex + 1 < sz) ? list.get(afterIndex + 1) : null;
+  E next3=(afterIndex + 2 < sz) ? list.get(afterIndex + 2) : null;
+  if (DEBUG) {
+    err.println("DateRange: previous: " + prev);
+    err.println("Quantifiable: next: " + next + ' '+ next2+ ' '+ next3);
+  }
+  if (next != null && isYear(next)) {
+    date.add(next);
+    next.set(CoreAnnotations.NamedEntityTagAnnotation.class,"DATE");
+    afterIndex++;
+  }
+  if (next2 != null && isYear(next2)) {
+    date.add(next);
+    assert(next != null);
+    next.set(CoreAnnotations.NamedEntityTagAnnotation.class,"DATE");
+    date.add(next2);
+    next2.set(CoreAnnotations.NamedEntityTagAnnotation.class,"DATE");
+    afterIndex+=2;
+  }
+  if (next != null && next.get(CoreAnnotations.TextAnnotation.class).matches(datePrepositionAfterWord)) {
+    if (next2 != null && (isYear(next2))) {
+      date.add(next);
+      date.add(next2);
+      afterIndex+=2;
+    }
+  }
+  if (prev != null) {
+    String prevWord=prev.get(CoreAnnotations.TextAnnotation.class).toLowerCase();
+    if (prevWord.matches(dateRangeBeforeOneWord)) {
+      prev.set(CoreAnnotations.PartOfSpeechAnnotation.class,"DATE_MOD");
+      return ISODateInstance.OPEN_RANGE_BEFORE;
+    }
+ else     if (prevWord.matches(dateRangeAfterOneWord)) {
+      prev.set(CoreAnnotations.PartOfSpeechAnnotation.class,"DATE_MOD");
+      return ISODateInstance.OPEN_RANGE_AFTER;
+    }
+  }
+  return ISODateInstance.NO_RANGE;
+}

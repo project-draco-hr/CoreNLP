@@ -1,0 +1,21 @@
+{
+  if (tree.value() == null)   tree=fixNonUnaryRoot(tree,tf);
+ else   if (!tree.value().equals(tlp.startSymbol()))   tree=tf.newTreeNode(tlp.startSymbol(),Collections.singletonList(tree));
+  tree=tree.prune(emptyFilter,tf).spliceOut(aOverAFilter,tf);
+  if (insertNPinPP) {
+    insertNPinPPall(tree);
+  }
+  for (  Tree t : tree) {
+    if (t.isLeaf() || t.isPreTerminal())     continue;
+    if (t.value() == null || t.value().equals(""))     t.setValue("DUMMY");
+    if (t.value().matches("--.*"))     continue;
+    String cat=t.value();
+    if (cat == null || cat.equals("")) {
+      if (t.numChildren() == 3 && t.firstChild().label().value().equals("NN") && t.getChild(1).label().value().equals("$.")) {
+        System.err.println("Correcting treebank error: giving phrase label DL to " + t);
+        t.label().setValue("DL");
+      }
+    }
+  }
+  return tree;
+}

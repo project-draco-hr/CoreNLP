@@ -1,0 +1,13 @@
+{
+  TreebankLanguagePack tlp=new PennTreebankLanguagePack();
+  GrammaticalStructureFactory gsf=tlp.grammaticalStructureFactory();
+  for (  List<HasWord> sentence : new DocumentPreprocessor(filename)) {
+    Tree parse=lp.apply(sentence);
+    parse.pennPrint();
+    System.out.println();
+    GrammaticalStructure gs=gsf.newGrammaticalStructure(parse);
+    Collection tdl=gs.typedDependenciesCCprocessed();
+    System.out.println(tdl);
+    System.out.println();
+  }
+}

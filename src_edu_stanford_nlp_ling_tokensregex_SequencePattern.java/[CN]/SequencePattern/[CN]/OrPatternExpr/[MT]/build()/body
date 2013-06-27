@@ -1,0 +1,13 @@
+{
+  Frag frag=new Frag();
+  frag.start=new State();
+  for (  PatternExpr pattern : patterns) {
+    Frag f=pattern.build();
+    if (pattern.value() != null) {
+      f.connect(new ValueState(pattern.value()));
+    }
+    frag.start.add(f.start);
+    frag.add(f.out);
+  }
+  return frag;
+}

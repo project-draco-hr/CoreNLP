@@ -1,0 +1,23 @@
+{
+  List<K1> firstKeys=new ArrayList<K1>(firstKeySet());
+  List<K2> secondKeys=new ArrayList<K2>(secondKeySet());
+  Collections.sort((List<? extends Comparable>)firstKeys);
+  Collections.sort((List<? extends Comparable>)secondKeys);
+  StringBuilder b=new StringBuilder();
+  String[] headerRow=new String[secondKeys.size() + 1];
+  headerRow[0]="";
+  for (int j=0; j < secondKeys.size(); j++) {
+    headerRow[j + 1]=secondKeys.get(j).toString();
+  }
+  b.append(StringUtils.toCSVString(headerRow)).append("\n");
+  for (  K1 rowLabel : firstKeys) {
+    String[] row=new String[secondKeys.size() + 1];
+    row[0]=rowLabel.toString();
+    for (int j=0; j < secondKeys.size(); j++) {
+      K2 colLabel=secondKeys.get(j);
+      row[j + 1]=nf.format(getCount(rowLabel,colLabel));
+    }
+    b.append(StringUtils.toCSVString(row)).append("\n");
+  }
+  return b.toString();
+}

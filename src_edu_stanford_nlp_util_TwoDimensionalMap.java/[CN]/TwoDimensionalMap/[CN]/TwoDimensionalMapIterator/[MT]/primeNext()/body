@@ -1,0 +1,17 @@
+{
+  K1 k1=null;
+  if (next != null) {
+    k1=next.getFirstKey();
+  }
+  while (innerIterator == null || !innerIterator.hasNext()) {
+    if (!outerIterator.hasNext()) {
+      next=null;
+      return;
+    }
+    Map.Entry<K1,Map<K2,V>> outerEntry=outerIterator.next();
+    k1=outerEntry.getKey();
+    innerIterator=outerEntry.getValue().entrySet().iterator();
+  }
+  Map.Entry<K2,V> innerEntry=innerIterator.next();
+  next=new Entry<K1,K2,V>(k1,innerEntry.getKey(),innerEntry.getValue());
+}

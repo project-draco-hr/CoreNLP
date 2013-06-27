@@ -1,0 +1,21 @@
+{
+  StringBuilder result=new StringBuilder();
+  Reader r=new StringReader(s);
+  try {
+    do {
+      String text=readUntilTag(r);
+      result.append(escapeXML(text));
+      XMLTag tag=readAndParseTag(r);
+      if (tag == null) {
+        break;
+      }
+      result.append(tag.toString());
+    }
+ while (true);
+  }
+ catch (  IOException e) {
+    System.err.println("Error reading string");
+    e.printStackTrace();
+  }
+  return result.toString();
+}

@@ -1,0 +1,27 @@
+{
+  ALPHA=trainOptions.ruleSmoothingAlpha;
+  Counter<String> symWeights=new ClassicCounter<String>();
+  Counter<String> symCounts=new ClassicCounter<String>();
+  for (  UnaryRule rule : bgug.first()) {
+    if (!tagIndex.contains(rule.parent)) {
+      updateCounters(rule,symWeights,symCounts);
+    }
+  }
+  for (  BinaryRule rule : bgug.second()) {
+    updateCounters(rule,symWeights,symCounts);
+  }
+  for (  UnaryRule rule : bgug.first()) {
+    if (!tagIndex.contains(rule.parent)) {
+      rule.score=smoothRuleWeight(rule,symWeights,symCounts);
+    }
+  }
+  for (  BinaryRule rule : bgug.second()) {
+    rule.score=smoothRuleWeight(rule,symWeights,symCounts);
+  }
+  if (DEBUG) {
+    System.err.printf("%s: %d basic symbols in the grammar%n",this.getClass().getName(),symWeights.keySet().size());
+    for (    String s : symWeights.keySet())     System.err.print(s + ",");
+    System.err.println();
+  }
+  return bgug;
+}

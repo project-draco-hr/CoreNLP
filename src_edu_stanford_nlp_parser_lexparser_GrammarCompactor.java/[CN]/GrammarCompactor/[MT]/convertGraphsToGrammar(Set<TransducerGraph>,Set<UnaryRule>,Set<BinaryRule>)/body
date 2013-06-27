@@ -1,0 +1,87 @@
+{
+  newStateIndex=new HashIndex<String>();
+  for (  UnaryRule rule : unaryRules) {
+    String parent=stateIndex.get(rule.parent);
+    rule.parent=newStateIndex.indexOf(parent,true);
+    String child=stateIndex.get(rule.child);
+    rule.child=newStateIndex.indexOf(child,true);
+  }
+  for (  BinaryRule rule : binaryRules) {
+    String parent=stateIndex.get(rule.parent);
+    rule.parent=newStateIndex.indexOf(parent,true);
+    String leftChild=stateIndex.get(rule.leftChild);
+    rule.leftChild=newStateIndex.indexOf(leftChild,true);
+    String rightChild=stateIndex.get(rule.rightChild);
+    rule.rightChild=newStateIndex.indexOf(rightChild,true);
+  }
+  for (  TransducerGraph graph : graphs) {
+    Object startNode=graph.getStartNode();
+    for (    Arc arc : graph.getArcs()) {
+      String source=arc.getSourceNode().toString();
+      String target=arc.getTargetNode().toString();
+      Object input=arc.getInput();
+      String inputString=input.toString();
+      double output=((Double)arc.getOutput()).doubleValue();
+      if (source.equals(startNode)) {
+        UnaryRule ur=new UnaryRule(newStateIndex.indexOf(target,true),newStateIndex.indexOf(inputString,true),smartNegate(output));
+        unaryRules.add(ur);
+      }
+ else       if (inputString.equals(END) || inputString.equals(EPSILON)) {
+        UnaryRule ur=new UnaryRule(newStateIndex.indexOf(target,true),newStateIndex.indexOf(source,true),smartNegate(output));
+        unaryRules.add(ur);
+      }
+ else {
+        int length=inputString.length();
+        char leftOrRight=inputString.charAt(length - 1);
+        inputString=inputString.substring(0,length - 1);
+        BinaryRule br;
+        if (leftOrRight == '<' || leftOrRight == '[') {
+          br=new BinaryRule(newStateIndex.indexOf(target,true),newStateIndex.indexOf(inputString,true),newStateIndex.indexOf(source,true),smartNegate(output));
+        }
+ else         if (leftOrRight == '>' || leftOrRight == ']') {
+          br=new BinaryRule(newStateIndex.indexOf(target,true),newStateIndex.indexOf(source,true),newStateIndex.indexOf(inputString,true),smartNegate(output));
+        }
+ else {
+          throw new RuntimeException("Arc input is in unexpected format: " + arc);
+        }
+        binaryRules.add(br);
+      }
+    }
+  }
+  ClassicCounter<String> symbolCounter=new ClassicCounter<String>();
+  if (outputType == RAW_COUNTS) {
+    for (    UnaryRule rule : unaryRules) {
+      symbolCounter.incrementCount(newStateIndex.get(rule.parent),rule.score);
+    }
+    for (    BinaryRule rule : binaryRules) {
+      symbolCounter.incrementCount(newStateIndex.get(rule.parent),rule.score);
+    }
+  }
+  int numStates=newStateIndex.size();
+  int numRules=0;
+  UnaryGrammar ug=new UnaryGrammar(newStateIndex);
+  BinaryGrammar bg=new BinaryGrammar(newStateIndex);
+  for (  UnaryRule rule : unaryRules) {
+    if (outputType == RAW_COUNTS) {
+      double count=symbolCounter.getCount(newStateIndex.get(rule.parent));
+      rule.score=(float)Math.log(rule.score / count);
+    }
+    ug.addRule(rule);
+    numRules++;
+  }
+  for (  BinaryRule rule : binaryRules) {
+    if (outputType == RAW_COUNTS) {
+      double count=symbolCounter.getCount(newStateIndex.get(rule.parent));
+      rule.score=(float)Math.log((rule.score - op.trainOptions.ruleDiscount) / count);
+    }
+    bg.addRule(rule);
+    numRules++;
+  }
+  if (verbose) {
+    System.out.println("Number of minimized rules: " + numRules);
+    System.out.println("Number of minimized states: " + newStateIndex.size());
+  }
+  ug.purgeRules();
+  bg.splitRules();
+  return new Pair<UnaryGrammar,BinaryGrammar>(ug,bg);
+}

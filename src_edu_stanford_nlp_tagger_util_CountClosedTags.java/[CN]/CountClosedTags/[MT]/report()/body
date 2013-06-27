@@ -1,0 +1,32 @@
+{
+  List<String> successfulTags=new ArrayList<String>();
+  Set<String> tags=new TreeSet<String>();
+  tags.addAll(allWords.keySet());
+  tags.addAll(trainingWords.keySet());
+  if (closedTags != null)   tags.addAll(closedTags);
+  for (  String tag : tags) {
+    int numTraining=(trainingWords.containsKey(tag) ? trainingWords.get(tag).size() : 0);
+    int numTotal=(allWords.containsKey(tag) ? allWords.get(tag).size() : 0);
+    if (numTraining == numTotal && numTraining > 0)     successfulTags.add(tag);
+    System.out.println(tag + " " + numTraining+ " "+ numTotal);
+    if (printWords) {
+      Set<String> trainingSet=trainingWords.get(tag);
+      if (trainingSet == null)       trainingSet=Collections.emptySet();
+      Set<String> allSet=allWords.get(tag);
+      for (      String word : trainingSet) {
+        System.out.print(" " + word);
+      }
+      if (trainingSet.size() < allSet.size()) {
+        System.out.println();
+        System.out.print(" *");
+        for (        String word : allWords.get(tag)) {
+          if (!trainingSet.contains(word)) {
+            System.out.print(" " + word);
+          }
+        }
+      }
+      System.out.println();
+    }
+  }
+  System.out.println(successfulTags);
+}

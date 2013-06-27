@@ -1,0 +1,16 @@
+{
+  List<Pair<GrammaticalRelation,IndexedWord>> deps=sg.childPairs(parent);
+  if (depth + 1 > endDepth) {
+    return false;
+  }
+  if (depth + 1 >= startDepth) {
+    for (    Pair<GrammaticalRelation,IndexedWord> dep : deps) {
+      if (dep.first().toString().matches(this.type) && dep.second().equals(l2))       return true;
+    }
+  }
+  usedNodes.get(depth).add(parent);
+  for (  Pair<GrammaticalRelation,IndexedWord> dep : deps) {
+    if ((usedNodes.size() < depth + 1 || !usedNodes.get(depth + 1).contains(dep.second())) && satisfyHelper(dep.second(),l2,sg,depth + 1,usedNodes))     return true;
+  }
+  return false;
+}

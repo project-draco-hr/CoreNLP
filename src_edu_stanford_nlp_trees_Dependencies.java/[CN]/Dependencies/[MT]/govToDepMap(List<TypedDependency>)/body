@@ -1,0 +1,13 @@
+{
+  Map<TreeGraphNode,List<TypedDependency>> govToDepMap=Generics.newHashMap();
+  for (  TypedDependency dep : deps) {
+    TreeGraphNode gov=dep.gov();
+    List<TypedDependency> depList=govToDepMap.get(gov);
+    if (depList == null) {
+      depList=new ArrayList<TypedDependency>();
+      govToDepMap.put(gov,depList);
+    }
+    depList.add(dep);
+  }
+  return govToDepMap;
+}

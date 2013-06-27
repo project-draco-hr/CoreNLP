@@ -1,0 +1,18 @@
+{
+  if (p.size() > 0) {
+    DateTimeFieldType dtType=p.getFieldType(p.size() - 1);
+    DurationFieldType dType=dtType.getDurationType();
+    Period period=new Period();
+    if (period.isSupported(dType)) {
+      return period.withField(dType,1);
+    }
+ else {
+      DurationField df=dType.getField(p.getChronology());
+      if (df instanceof ScaledDurationField) {
+        ScaledDurationField sdf=(ScaledDurationField)df;
+        return period.withField(sdf.getWrappedField().getType(),sdf.getScalar());
+      }
+    }
+  }
+  return null;
+}

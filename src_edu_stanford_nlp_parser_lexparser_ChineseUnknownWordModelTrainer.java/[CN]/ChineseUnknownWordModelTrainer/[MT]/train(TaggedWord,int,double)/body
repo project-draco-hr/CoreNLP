@@ -1,0 +1,31 @@
+{
+  if (useGT) {
+    unknownGTTrainer.train(tw,weight);
+  }
+  String word=tw.word();
+  Label tagL=new Tag(tw.tag());
+  String first=word.substring(0,1);
+  if (useUnicodeType) {
+    char ch=word.charAt(0);
+    int type=Character.getType(ch);
+    if (type != Character.OTHER_LETTER) {
+      first=Integer.toString(type);
+    }
+  }
+  String tag=tw.tag();
+  if (!c.containsKey(tagL)) {
+    c.put(tagL,new ClassicCounter<String>());
+  }
+  c.get(tagL).incrementCount(first,weight);
+  tc.incrementCount(tagL,weight);
+  seenFirst.add(first);
+  IntTaggedWord iW=new IntTaggedWord(word,IntTaggedWord.ANY,wordIndex,tagIndex);
+  seenCounter.incrementCount(iW,weight);
+  if (treesRead > indexToStartUnkCounting) {
+    if (seenCounter.getCount(iW) < 2) {
+      IntTaggedWord iT=new IntTaggedWord(IntTaggedWord.ANY,tag,wordIndex,tagIndex);
+      unSeenCounter.incrementCount(iT,weight);
+      unSeenCounter.incrementCount(iTotal,weight);
+    }
+  }
+}

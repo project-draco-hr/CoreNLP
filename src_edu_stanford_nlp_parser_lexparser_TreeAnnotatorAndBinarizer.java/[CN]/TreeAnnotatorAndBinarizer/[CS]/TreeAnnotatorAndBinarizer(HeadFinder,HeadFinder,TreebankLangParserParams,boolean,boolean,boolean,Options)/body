@@ -1,0 +1,22 @@
+{
+  this.trainOptions=op.trainOptions;
+  if (doSubcategorization) {
+    annotator=new TreeAnnotator(annotationHF,tlpParams,op);
+  }
+ else {
+    annotator=new TreeNullAnnotator(annotationHF);
+  }
+  binarizer=new TreeBinarizer(binarizationHF,tlpParams.treebankLanguagePack(),insideFactor,trainOptions.markovFactor,trainOptions.markovOrder,trainOptions.compactGrammar() > 0,trainOptions.compactGrammar() > 1,trainOptions.HSEL_CUT,trainOptions.markFinalStates,trainOptions.simpleBinarizedLabels,trainOptions.noRebinarization);
+  if (trainOptions.selectivePostSplit) {
+    postSplitter=new PostSplitter(tlpParams,op);
+  }
+  this.tf=new LabeledScoredTreeFactory(new CategoryWordTagFactory());
+  this.tlp=tlpParams.treebankLanguagePack();
+  this.forceCNF=forceCNF;
+  if (trainOptions.printAnnotatedRuleCounts) {
+    annotatedRuleCounts=new ClassicCounter<Tree>();
+  }
+  if (trainOptions.printAnnotatedStateCounts) {
+    annotatedStateCounts=new ClassicCounter<String>();
+  }
+}

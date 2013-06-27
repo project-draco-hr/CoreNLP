@@ -1,0 +1,40 @@
+{
+  Token tok=null;
+switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
+case IDENTIFIER:
+    tok=jj_consume_token(IDENTIFIER);
+{
+    if (true)     return new Expressions.VarExpression(tok.image);
+  }
+break;
+case REGEXVAR:
+tok=jj_consume_token(REGEXVAR);
+{
+if (true) return new Expressions.RegexMatchVarExpression(tok.image);
+}
+break;
+case REGEXGROUP:
+tok=jj_consume_token(REGEXGROUP);
+{
+if (true) return new Expressions.RegexMatchVarExpression(Integer.valueOf(tok.image.substring(1)));
+}
+break;
+case REGEXMRVAR:
+tok=jj_consume_token(REGEXMRVAR);
+{
+if (true) return new Expressions.RegexMatchResultVarExpression(tok.image.substring(1));
+}
+break;
+case REGEXMRGROUP:
+tok=jj_consume_token(REGEXMRGROUP);
+{
+if (true) return new Expressions.RegexMatchResultVarExpression(Integer.valueOf(tok.image.substring(2)));
+}
+break;
+default :
+jj_la1[9]=jj_gen;
+jj_consume_token(-1);
+throw new ParseException();
+}
+throw new Error("Missing return statement in function");
+}

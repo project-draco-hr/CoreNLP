@@ -1,0 +1,39 @@
+{
+  for (  SequenceMatchRules.Rule r : rules) {
+    if (r instanceof SequenceMatchRules.AssignmentRule) {
+      ((SequenceMatchRules.AssignmentRule)r).evaluate(env);
+    }
+ else     if (r instanceof SequenceMatchRules.AnnotationExtractRule) {
+      SequenceMatchRules.AnnotationExtractRule aer=(SequenceMatchRules.AnnotationExtractRule)r;
+      Stage<T> stage=stages.get(aer.stage);
+      if (stage == null) {
+        stages.put(aer.stage,stage=new Stage<T>());
+        stage.stageId=aer.stage;
+        Boolean clearMatched=(Boolean)env.getDefaults().get("stage.clearMatched");
+        if (clearMatched != null) {
+          stage.clearMatched=clearMatched;
+        }
+        Integer limitIters=(Integer)env.getDefaults().get("stage.limitIters");
+        if (limitIters != null) {
+          stage.limitIters=limitIters;
+        }
+      }
+      if (aer.active) {
+        if (SequenceMatchRules.FILTER_RULE_TYPE.equals(aer.ruleType)) {
+          stage.addFilterRule(aer);
+        }
+ else {
+          if (aer.isComposite) {
+            stage.addCompositeRule(aer);
+          }
+ else {
+            stage.addBasicRule(aer);
+          }
+        }
+      }
+ else {
+        logger.log(Level.INFO,"Ignoring inactive rule: " + aer.name);
+      }
+    }
+  }
+}

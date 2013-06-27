@@ -1,0 +1,24 @@
+{
+  double[] linearWeights=new double[edgeParamCount];
+  System.arraycopy(x,0,linearWeights,0,edgeParamCount);
+  double[][] linearWeights2D=to2D(linearWeights);
+  int index=edgeParamCount;
+  double[][] inputLayerWeights=emptyW();
+  for (int i=0; i < inputLayerWeights.length; i++) {
+    for (int j=0; j < inputLayerWeights[i].length; j++) {
+      inputLayerWeights[i][j]=x[index++];
+    }
+  }
+  double[][] outputLayerWeights=emptyU();
+  for (int i=0; i < outputLayerWeights.length; i++) {
+    for (int j=0; j < outputLayerWeights[i].length; j++) {
+      if (useOutputLayer) {
+        if (flags.hardcodeSoftmaxOutputWeights)         outputLayerWeights[i][j]=1.0 / numHiddenUnits;
+ else         outputLayerWeights[i][j]=x[index++];
+      }
+ else       outputLayerWeights[i][j]=1;
+    }
+  }
+  assert(index == x.length);
+  return new Triple<double[][],double[][],double[][]>(linearWeights2D,inputLayerWeights,outputLayerWeights);
+}

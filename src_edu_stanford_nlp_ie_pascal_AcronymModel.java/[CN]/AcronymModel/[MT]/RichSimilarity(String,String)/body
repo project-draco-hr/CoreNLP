@@ -1,0 +1,19 @@
+{
+  AlignmentFactory fact=new AlignmentFactory(name.toCharArray(),stripAcronym(acronym));
+  double maxprob=0.0;
+  Iterator iter=fact.getAlignments();
+  while (iter.hasNext()) {
+    Alignment align=(Alignment)iter.next();
+    double[] featureVals=new double[features.length];
+    for (int f=0; f < features.length; ++f) {
+      featureVals[f]=features[f].value(align);
+    }
+    double dotprod=dotproduct(weights,featureVals) + intercept;
+    double exp=Math.exp(dotprod);
+    double prob=exp / (1 + exp);
+    if (prob > maxprob) {
+      maxprob=prob;
+    }
+  }
+  return maxprob;
+}

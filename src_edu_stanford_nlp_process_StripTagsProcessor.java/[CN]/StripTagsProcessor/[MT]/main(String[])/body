@@ -1,0 +1,12 @@
+{
+  new BasicDocument<String>();
+  Document<String,Word,Word> htmlDoc=BasicDocument.init("top text <h1>HEADING text</h1> this is <p>new paragraph<br>next line<br/>xhtml break etc.");
+  System.out.println("Before:");
+  System.out.println(htmlDoc);
+  Document<String,Word,Word> txtDoc=new StripTagsProcessor<String,Word>(true).processDocument(htmlDoc);
+  System.out.println("After:");
+  System.out.println(txtDoc);
+  Document<String,Word,List<Word>> sentences=new WordToSentenceProcessor<Word>().processDocument(txtDoc);
+  System.out.println("Sentences:");
+  System.out.println(sentences);
+}

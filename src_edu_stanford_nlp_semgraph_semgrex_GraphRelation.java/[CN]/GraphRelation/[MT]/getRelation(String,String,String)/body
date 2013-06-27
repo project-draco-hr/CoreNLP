@@ -1,0 +1,12 @@
+{
+  if (reln == null && type == null)   return null;
+  if (!isKnownRelation(reln)) {
+    throw new ParseException("Unknown relation " + reln);
+  }
+  if (reln.equals(">"))   return new GOVERNER(type,name);
+ else   if (reln.equals("<"))   return new DEPENDENT(type,name);
+ else   if (reln.equals(">>"))   return new GRANDPARENT(type,name);
+ else   if (reln.equals("<<"))   return new GRANDKID(type,name);
+ else   if (reln.equals("@"))   return new ALIGNMENT();
+ else   throw new ParseException("Relation " + reln + " not handled by getRelation");
+}

@@ -1,0 +1,35 @@
+{
+  int i, j, next_n;
+  double k, x, y;
+  boolean indiffValsSeen=false;
+  z=new double[rows];
+  logR=new double[rows];
+  logZ=new double[rows];
+  rStar=new double[rows];
+  p=new double[rows];
+  for (j=0; j < rows; ++j)   bigN+=r[j] * n[j];
+  next_n=row(1);
+  pZero=(next_n < 0) ? 0 : n[next_n] / (double)bigN;
+  for (j=0; j < rows; ++j) {
+    i=(j == 0 ? 0 : r[j - 1]);
+    if (j == rows - 1)     k=(double)(2 * r[j] - i);
+ else     k=(double)r[j + 1];
+    z[j]=2 * n[j] / (k - i);
+    logR[j]=Math.log(r[j]);
+    logZ[j]=Math.log(z[j]);
+  }
+  findBestFit();
+  for (j=0; j < rows; ++j) {
+    y=(r[j] + 1) * smoothed(r[j] + 1) / smoothed(r[j]);
+    if (row(r[j] + 1) < 0)     indiffValsSeen=true;
+    if (!indiffValsSeen) {
+      x=(r[j] + 1) * (next_n=n[row(r[j] + 1)]) / (double)n[j];
+      if (Math.abs(x - y) <= CONFID_FACTOR * Math.sqrt(sq(r[j] + 1.0) * next_n / (sq((double)n[j])) * (1 + next_n / (double)n[j])))       indiffValsSeen=true;
+ else       rStar[j]=x;
+    }
+    if (indiffValsSeen)     rStar[j]=y;
+  }
+  bigNPrime=0.0;
+  for (j=0; j < rows; ++j)   bigNPrime+=n[j] * rStar[j];
+  for (j=0; j < rows; ++j)   p[j]=(1 - pZero) * rStar[j] / bigNPrime;
+}

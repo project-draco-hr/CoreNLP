@@ -1,0 +1,42 @@
+{
+  Duration d=getDuration();
+  if (d != null) {
+    int padType=(flags & RANGE_FLAGS_PAD_MASK);
+    Time start=this;
+    Duration granularity=inputGranularity;
+switch (padType) {
+case RANGE_FLAGS_PAD_NONE:
+      start=this;
+    break;
+case RANGE_FLAGS_PAD_AUTO:
+  if (hasTime()) {
+    granularity=SUTime.MILLIS;
+  }
+ else {
+    granularity=SUTime.DAY;
+  }
+start=padMoreSpecificFields(granularity);
+break;
+case RANGE_FLAGS_PAD_FINEST:
+granularity=SUTime.MILLIS;
+start=padMoreSpecificFields(granularity);
+break;
+case RANGE_FLAGS_PAD_SPECIFIED:
+start=padMoreSpecificFields(granularity);
+break;
+default :
+throw new UnsupportedOperationException("Unsupported pad type for getRange: " + flags);
+}
+if (start instanceof PartialTime) {
+((PartialTime)start).withStandardFields();
+}
+Time end=start.add(d);
+if (granularity != null) {
+end=end.subtract(granularity);
+}
+return new Range(start,end,d);
+}
+ else {
+return new Range(this,this);
+}
+}

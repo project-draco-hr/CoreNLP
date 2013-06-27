@@ -1,0 +1,34 @@
+{
+  Temporal groundedBase=null;
+  if (base == TIME_REF) {
+    groundedBase=refTime;
+  }
+ else   if (base != null) {
+    groundedBase=base.resolve(refTime,flags);
+  }
+  if (tempOp != null) {
+    Temporal t=tempOp.apply(groundedBase,tempArg,opFlags);
+    if (t != null) {
+      t=t.addModApprox(mod,approx);
+      return t;
+    }
+ else {
+      t=tempOp.apply(base,tempArg,opFlags);
+      if (t != null) {
+        t=t.addModApprox(mod,approx);
+        if (!this.equals(t)) {
+          return t.resolve(refTime,flags);
+        }
+ else {
+          return this;
+        }
+      }
+ else {
+        return null;
+      }
+    }
+  }
+ else {
+    return (groundedBase != null) ? groundedBase.addModApprox(mod,approx) : null;
+  }
+}

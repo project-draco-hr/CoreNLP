@@ -1,0 +1,24 @@
+{
+  do {
+    if (plainItr != null && plainItr.hasNext()) {
+      nextSent=plainItr.next();
+    }
+ else     if (xmlItr.hasNext()) {
+      String block=xmlItr.next();
+      inputReader=new BufferedReader(new StringReader(block));
+      plainItr=new PlainTextIterator();
+      if (plainItr.hasNext()) {
+        nextSent=plainItr.next();
+      }
+ else {
+        nextSent=null;
+      }
+    }
+ else {
+      IOUtils.closeIgnoringExceptions(originalDocReader);
+      nextSent=null;
+      break;
+    }
+  }
+ while (nextSent == null);
+}

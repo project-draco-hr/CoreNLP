@@ -1,0 +1,30 @@
+{
+  if (!force) {
+    long time=System.currentTimeMillis();
+    if (time - lastPoll < pollEvery) {
+      return;
+    }
+  }
+  Process p=null;
+  int[] lines={4,4,4,4};
+  int[] positions={3,4,7,8};
+  try {
+    p=r.exec("vmstat 1 2");
+    p.waitFor();
+    long time=System.currentTimeMillis();
+    BufferedReader bri=new BufferedReader(new InputStreamReader(p.getInputStream()));
+    ArrayList<String> l=parseFields(bri," ",lines,positions);
+    usedSwap=Integer.parseInt(l.get(0));
+    freeMem=Integer.parseInt(l.get(1));
+    swaps=Integer.parseInt(l.get(2)) + Integer.parseInt(l.get(3));
+    lastPoll=time;
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+  }
+ finally {
+    if (p != null) {
+      p.destroy();
+    }
+  }
+}

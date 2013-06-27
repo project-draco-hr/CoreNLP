@@ -1,0 +1,17 @@
+{
+  XMLUtils.XMLTag foo=new XMLUtils.XMLTag("<br />");
+  assertEquals("br",foo.name);
+  assertTrue(foo.isSingleTag);
+  foo=new XMLUtils.XMLTag("<List  name  =   \"Fruit List\"    >");
+  assertEquals("List",foo.name);
+  assertFalse(foo.isSingleTag);
+  assertFalse(foo.isEndTag);
+  assertEquals("Fruit List",foo.attributes.get("name"));
+  foo=new XMLUtils.XMLTag("</life  >");
+  assertEquals("life",foo.name);
+  assertTrue(foo.isEndTag);
+  assertFalse(foo.isSingleTag);
+  assertTrue(foo.attributes.isEmpty());
+  foo=new XMLUtils.XMLTag("<P>");
+  assertEquals("P",foo.name);
+}

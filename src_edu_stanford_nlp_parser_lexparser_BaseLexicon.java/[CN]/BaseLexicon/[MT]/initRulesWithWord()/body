@@ -1,0 +1,46 @@
+{
+  if (testOptions.verbose || DEBUG_LEXICON) {
+    System.err.print("\nInitializing lexicon scores ... ");
+  }
+  int unkWord=wordIndex.indexOf(UNKNOWN_WORD,true);
+  int numWords=wordIndex.size();
+  rulesWithWord=new List[numWords];
+  for (int w=0; w < numWords; w++) {
+    rulesWithWord[w]=new ArrayList<IntTaggedWord>(1);
+  }
+  tags=Generics.newHashSet();
+  for (  IntTaggedWord iTW : seenCounter.keySet()) {
+    if (iTW.word() == nullWord && iTW.tag() != nullTag) {
+      tags.add(iTW);
+    }
+  }
+  if (DEBUG_LEXICON) {
+    System.err.println("Lexicon initializing tags for UNKNOWN WORD (" + Lexicon.UNKNOWN_WORD + ", "+ unkWord+ ')');
+  }
+  if (DEBUG_LEXICON)   System.err.println("unSeenCounter is: " + uwModel.unSeenCounter());
+  if (DEBUG_LEXICON)   System.err.println("Train.openClassTypesThreshold is " + trainOptions.openClassTypesThreshold);
+  for (  IntTaggedWord iT : tags) {
+    if (DEBUG_LEXICON)     System.err.println("Entry for " + iT + " is "+ uwModel.unSeenCounter().getCount(iT));
+    double types=uwModel.unSeenCounter().getCount(iT);
+    if (types > trainOptions.openClassTypesThreshold) {
+      IntTaggedWord iTW=new IntTaggedWord(unkWord,iT.tag);
+      rulesWithWord[iTW.word].add(iTW);
+    }
+  }
+  if (testOptions.verbose || DEBUG_LEXICON) {
+    System.err.print("The " + rulesWithWord[unkWord].size() + " open class tags are: [");
+    for (    IntTaggedWord item : rulesWithWord[unkWord]) {
+      System.err.print(" " + tagIndex.get(item.tag()));
+      if (DEBUG_LEXICON) {
+        IntTaggedWord iTprint=new IntTaggedWord(nullWord,item.tag);
+        System.err.print(" (tag " + item.tag() + ", type count is "+ uwModel.unSeenCounter().getCount(iTprint)+ ')');
+      }
+    }
+    System.err.println(" ] ");
+  }
+  for (  IntTaggedWord iTW : seenCounter.keySet()) {
+    if (iTW.tag() != nullTag && iTW.word() != nullWord) {
+      rulesWithWord[iTW.word].add(iTW);
+    }
+  }
+}

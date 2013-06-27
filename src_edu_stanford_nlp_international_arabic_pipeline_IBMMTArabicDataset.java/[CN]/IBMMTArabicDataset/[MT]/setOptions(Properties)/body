@@ -1,0 +1,24 @@
+{
+  for (  String opt : opts.stringPropertyNames()) {
+    String value=opts.getProperty(opt);
+    if (value == null) {
+      System.err.printf("%s: Read parameter with null value (%s)\n",this.getClass().getName(),opt);
+      continue;
+    }
+    configuredOptions.add(opt);
+    Matcher pathMatcher=ConfigParser.matchPath.matcher(opt);
+    if (pathMatcher.lookingAt()) {
+      pathsToData.add(new File(value));
+      configuredOptions.add(ConfigParser.paramPath);
+    }
+ else     if (opt.equals(ConfigParser.paramName)) {
+      Matcher inThisFilename=fileNameNormalizer.matcher(value.trim());
+      outFileName=inThisFilename.replaceAll("-");
+      toStringBuffer.append(String.format("Dataset Name: %s\n",value.trim()));
+    }
+  }
+  if (!configuredOptions.containsAll(requiredOptions))   return false;
+  outFileName+=".txt";
+  lexMapper=new DefaultLexicalMapper();
+  return true;
+}

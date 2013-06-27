@@ -1,0 +1,22 @@
+{
+  for (  File f : files) {
+    if (f.isDirectory()) {
+      if (isLikelyInvisible(f.getName()))       continue;
+      FileTreeNode newParent=createNode(f,parent);
+      treeStructure.put(newParent,new ArrayList<FileTreeNode>());
+      findLoadableFiles(filters,f.listFiles(),newFiles,newParent);
+      if (!treeStructure.get(newParent).isEmpty()) {
+        List<FileTreeNode> value=treeStructure.get(parent);
+        value.add(newParent);
+      }
+    }
+ else {
+      boolean loadFile=checkFile(filters,f);
+      if (loadFile) {
+        FileTreeNode newFile=addToMap(f,parent);
+        if (TregexGUI.getInstance().isTdiffEnabled() && FilePanel.getInstance().getActiveTreebanks().size() > TregexGUI.MAX_TDIFF_TREEBANKS)         newFile.setActive(false);
+        newFiles.add(newFile);
+      }
+    }
+  }
+}

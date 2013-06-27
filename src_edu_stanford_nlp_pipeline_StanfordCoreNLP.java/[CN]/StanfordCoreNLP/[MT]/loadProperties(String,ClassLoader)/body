@@ -1,0 +1,22 @@
+{
+  if (name.endsWith(PROPS_SUFFIX))   name=name.substring(0,name.length() - PROPS_SUFFIX.length());
+  name=name.replace('.','/');
+  name+=PROPS_SUFFIX;
+  Properties result=null;
+  System.err.println("Searching for resource: " + name);
+  InputStream in=loader.getResourceAsStream(name);
+  try {
+    if (in != null) {
+      InputStreamReader reader=new InputStreamReader(in,"utf-8");
+      result=new Properties();
+      result.load(reader);
+    }
+  }
+ catch (  IOException e) {
+    result=null;
+  }
+ finally {
+    IOUtils.closeIgnoringExceptions(in);
+  }
+  return result;
+}

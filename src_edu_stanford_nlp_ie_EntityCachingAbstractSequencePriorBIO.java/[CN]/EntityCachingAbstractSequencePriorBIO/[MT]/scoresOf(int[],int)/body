@@ -1,0 +1,17 @@
+{
+  double[] probs=new double[numClasses];
+  int origClass=sequence[position];
+  int oldVal=origClass;
+  for (int label=0; label < numClasses; label++) {
+    if (label != origClass) {
+      sequence[position]=label;
+      updateSequenceElement(sequence,position,oldVal);
+      probs[label]=scoreOf(sequence);
+      oldVal=label;
+    }
+  }
+  sequence[position]=origClass;
+  updateSequenceElement(sequence,position,oldVal);
+  probs[origClass]=scoreOf(sequence);
+  return probs;
+}

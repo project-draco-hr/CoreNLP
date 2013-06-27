@@ -1,0 +1,18 @@
+{
+  File path=new File(baseDir);
+  FileFilter filter=new RegExFileFilter(Pattern.compile(filePattern));
+  File[] origFiles=path.listFiles(filter);
+  Collection<File> files=new ArrayList<File>();
+  for (  File file : origFiles) {
+    if (file.isFile()) {
+      if (flags.announceObjectBankEntries) {
+        System.err.println("Getting data from " + file + " ("+ flags.inputEncoding+ " encoding)");
+      }
+      files.add(file);
+    }
+  }
+  if (files.isEmpty()) {
+    throw new RuntimeException("No matching files: " + baseDir + '\t'+ filePattern);
+  }
+  return new ObjectBankWrapper<IN>(flags,new ObjectBank<List<IN>>(new ResettableReaderIteratorFactory(files,flags.inputEncoding),readerAndWriter),knownLCWords);
+}

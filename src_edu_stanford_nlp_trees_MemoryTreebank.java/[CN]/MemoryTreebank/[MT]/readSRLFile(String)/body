@@ -1,0 +1,15 @@
+{
+  srlMap=Generics.newHashMap();
+  for (  String line : ObjectBank.getLineIterator(new File(srlFile))) {
+    String[] bits=line.split("\\s+",3);
+    String filename=bits[0];
+    int treeNum=Integer.parseInt(bits[1]);
+    String info=bits[2];
+    CollectionValuedMap<Integer,String> cvm=srlMap.get(filename);
+    if (cvm == null) {
+      cvm=new CollectionValuedMap<Integer,String>();
+      srlMap.put(filename,cvm);
+    }
+    cvm.add(treeNum,info);
+  }
+}

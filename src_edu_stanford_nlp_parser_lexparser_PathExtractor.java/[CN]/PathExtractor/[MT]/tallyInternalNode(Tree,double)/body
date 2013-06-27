@@ -1,0 +1,44 @@
+{
+  Tree[] children=lt.children();
+  Tree headChild=hf.determineHead(lt);
+  if (children.length == 1) {
+    return;
+  }
+  List<String> path=new ArrayList<String>();
+  int headLoc=-1;
+  for (int i=0; i < children.length; i++) {
+    if (children[i] == headChild) {
+      headLoc=i;
+    }
+  }
+  path.add(children[headLoc].label().value());
+  if (headLoc == 0) {
+    for (int i=headLoc + 1; i < children.length - 1; i++) {
+      path.add(children[i].label().value() + ">");
+    }
+    if (op.trainOptions.markFinalStates) {
+      path.add(children[children.length - 1].label().value() + "]");
+    }
+ else {
+      path.add(children[children.length - 1].label().value() + ">");
+    }
+  }
+ else {
+    for (int i=headLoc + 1; i < children.length; i++) {
+      path.add(children[i].label().value() + ">");
+    }
+    for (int i=headLoc - 1; i > 0; i--) {
+      path.add(children[i].label().value() + "<");
+    }
+    if (op.trainOptions.markFinalStates) {
+      path.add(children[0].label().value() + "[");
+    }
+ else {
+      path.add(children[0].label().value() + "<");
+    }
+  }
+  path.add(END);
+  String label=lt.label().value();
+  List<List<String>> l=getList(label);
+  l.add(path);
+}

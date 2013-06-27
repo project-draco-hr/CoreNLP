@@ -1,0 +1,21 @@
+{
+  Queue<DFSAState<T,S>> q=new LinkedList<DFSAState<T,S>>();
+  Set<DFSAState<T,S>> visited=Generics.newHashSet();
+  q.offer(initialState);
+  while (q.peek() != null) {
+    DFSAState<T,S> state=q.poll();
+    if (state == null || visited.contains(state))     continue;
+    visited.add(state);
+    if (state.isAccepting()) {
+      w.write(state.toString() + "\t" + state.score()+ "\n");
+      continue;
+    }
+    TreeSet<T> inputs=new TreeSet<T>(state.continuingInputs());
+    for (    T input : inputs) {
+      DFSATransition<T,S> transition=state.transition(input);
+      DFSAState<T,S> target=transition.target();
+      if (!visited.contains(target))       q.add(target);
+      w.write(state.toString() + "\t" + target.toString()+ "\t"+ transition.getInput()+ "\t"+ transition.score()+ "\n");
+    }
+  }
+}

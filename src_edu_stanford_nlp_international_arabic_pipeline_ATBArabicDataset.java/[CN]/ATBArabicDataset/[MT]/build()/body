@@ -1,0 +1,33 @@
+{
+  for (  File path : pathsToData) {
+    if (splitFilter == null) {
+      treebank.loadPath(path,treeFileExtension,false);
+    }
+ else {
+      treebank.loadPath(path,splitFilter);
+    }
+  }
+  PrintWriter outfile=null;
+  PrintWriter flatFile=null;
+  try {
+    outfile=new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFileName),"UTF-8")));
+    flatFile=(makeFlatFile) ? new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(flatFileName),"UTF-8"))) : null;
+    treebank.apply(new ArabicRawTreeNormalizer(outfile,flatFile));
+    outputFileList.add(outFileName);
+    if (makeFlatFile) {
+      outputFileList.add(flatFileName);
+      toStringBuffer.append(" Made flat files\n");
+    }
+  }
+ catch (  UnsupportedEncodingException e) {
+    System.err.printf("%s: Filesystem does not support UTF-8 output\n",this.getClass().getName());
+    e.printStackTrace();
+  }
+catch (  FileNotFoundException e) {
+    System.err.printf("%s: Could not open %s for writing\n",this.getClass().getName(),outFileName);
+  }
+ finally {
+    if (outfile != null)     outfile.close();
+    if (flatFile != null)     flatFile.close();
+  }
+}

@@ -1,0 +1,18 @@
+{
+  if (normalizationTable == null) {
+    return inputString;
+  }
+  Pattern replacePattern=Pattern.compile(WHITEPLUS);
+  Matcher replaceMatcher=replacePattern.matcher(inputString);
+  inputString=replaceMatcher.replaceAll(" ");
+  for (  Pair<String,String> p : normalizationTable) {
+    replacePattern=Pattern.compile(p.first(),Pattern.LITERAL);
+    replaceMatcher=replacePattern.matcher(inputString);
+    String escape=p.second();
+    if (escape.equals("$")) {
+      escape="\\$";
+    }
+    inputString=replaceMatcher.replaceAll(escape);
+  }
+  return inputString;
+}

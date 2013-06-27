@@ -1,0 +1,16 @@
+{
+  List<MatchedExpression> toDiscard=new ArrayList<MatchedExpression>();
+  for (  MatchedExpression te : expressions) {
+    try {
+      boolean extrackOkay=te.extractAnnotation(env,chunks);
+      if (!extrackOkay) {
+        toDiscard.add(te);
+        logger.log(Level.WARNING,"Error extracting annotation from " + te);
+      }
+    }
+ catch (    Exception ex) {
+      logger.log(Level.WARNING,"Error extracting annotation from " + te,ex);
+    }
+  }
+  expressions.removeAll(toDiscard);
+}

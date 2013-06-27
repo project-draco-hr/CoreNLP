@@ -1,0 +1,40 @@
+{
+  StringUtils.printErrInvocationString("MultiClassChunkEvalStats",args);
+  Properties props=StringUtils.argsToProperties(args);
+  String boundary=props.getProperty("b","-X-");
+  String delimiter=props.getProperty("d","\t");
+  String defaultPosTag=props.getProperty("t","I");
+  boolean raw=Boolean.valueOf(props.getProperty("r","false"));
+  boolean ignoreProvidedTag=Boolean.valueOf(props.getProperty("ignoreProvidedTag","false"));
+  String format=props.getProperty("format","conll");
+  String filename=props.getProperty("i");
+  String backgroundLabel=props.getProperty("k","O");
+  try {
+    MultiClassPrecisionRecallExtendedStats stats;
+    if (raw) {
+      stats=new MultiClassStringLabelStats(backgroundLabel);
+    }
+ else {
+      MultiClassChunkEvalStats mstats=new MultiClassChunkEvalStats(backgroundLabel);
+      mstats.getChunker().setDefaultPosTag(defaultPosTag);
+      mstats.getChunker().setIgnoreProvidedTag(ignoreProvidedTag);
+      stats=mstats;
+    }
+    if (filename != null) {
+      stats.score(filename,delimiter,boundary);
+    }
+ else {
+      stats.score(new BufferedReader(new InputStreamReader(System.in)),delimiter,boundary);
+    }
+    if ("conll".equalsIgnoreCase(format)) {
+      System.out.println(stats.getConllEvalString());
+    }
+ else {
+      System.out.println(stats.getDescription(6));
+    }
+  }
+ catch (  IOException ex) {
+    System.err.println("Error processing file: " + ex.toString());
+    ex.printStackTrace(System.err);
+  }
+}

@@ -1,0 +1,18 @@
+{
+  if (useGT) {
+    unknownGTTrainer.finishTraining();
+  }
+  for (  Label tag : c.keySet()) {
+    ClassicCounter<String> wc=c.get(tag);
+    if (!tagHash.containsKey(tag)) {
+      tagHash.put(tag,new ClassicCounter<String>());
+    }
+    tc.incrementCount(tag);
+    wc.setCount(unknown,1.0);
+    for (    String end : wc.keySet()) {
+      double prob=Math.log((wc.getCount(end)) / (tc.getCount(tag)));
+      tagHash.get(tag).setCount(end,prob);
+    }
+  }
+  return model;
+}

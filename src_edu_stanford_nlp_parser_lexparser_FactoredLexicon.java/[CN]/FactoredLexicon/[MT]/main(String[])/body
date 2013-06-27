@@ -1,0 +1,98 @@
+{
+  if (args.length != 4) {
+    System.err.printf("Usage: java %s language features train_file dev_file%n",FactoredLexicon.class.getName());
+    System.exit(-1);
+  }
+  Language language=Language.valueOf(args[0]);
+  TreebankLangParserParams tlpp=Languages.getLanguageParams(language);
+  Treebank trainTreebank=tlpp.diskTreebank();
+  trainTreebank.loadPath(args[2]);
+  Treebank devTreebank=tlpp.diskTreebank();
+  devTreebank.loadPath(args[3]);
+  MorphoFeatureSpecification morphoSpec;
+  Options options=getOptions(language);
+  if (language.equals(Language.Arabic)) {
+    morphoSpec=new ArabicMorphoFeatureSpecification();
+    String[] languageOptions={"-arabicFactored"};
+    tlpp.setOptionFlag(languageOptions,0);
+  }
+ else   if (language.equals(Language.French)) {
+    morphoSpec=new FrenchMorphoFeatureSpecification();
+    String[] languageOptions={"-frenchFactored"};
+    tlpp.setOptionFlag(languageOptions,0);
+  }
+ else {
+    throw new UnsupportedOperationException();
+  }
+  String featureList=args[1];
+  String[] features=featureList.trim().split(",");
+  for (  String feature : features) {
+    morphoSpec.activate(MorphoFeatureType.valueOf(feature));
+  }
+  System.out.println("Language: " + language.toString());
+  System.out.println("Features: " + args[1]);
+  System.out.print("Loading training trees...");
+  List<Tree> trainTrees=new ArrayList<Tree>(19000);
+  Index<String> wordIndex=new HashIndex<String>();
+  Index<String> tagIndex=new HashIndex<String>();
+  for (  Tree tree : trainTreebank) {
+    for (    Tree subTree : tree) {
+      if (!subTree.isLeaf()) {
+        tlpp.transformTree(subTree,tree);
+      }
+    }
+    trainTrees.add(tree);
+  }
+  System.out.printf("Done! (%d trees)%n",trainTrees.size());
+  System.out.print("Collecting sufficient statistics for lexicon...");
+  FactoredLexicon lexicon=new FactoredLexicon(options,morphoSpec,wordIndex,tagIndex);
+  lexicon.initializeTraining(trainTrees.size());
+  lexicon.train(trainTrees,null);
+  lexicon.finishTraining();
+  System.out.println("Done!");
+  trainTrees=null;
+  System.out.print("Loading tuning set...");
+  List<FactoredLexiconEvent> tuningSet=getTuningSet(devTreebank,lexicon,tlpp);
+  System.out.printf("...Done! (%d events)%n",tuningSet.size());
+  int nCorrect=0;
+  Counter<String> errors=new ClassicCounter<String>();
+  for (  FactoredLexiconEvent event : tuningSet) {
+    Iterator<IntTaggedWord> itr=lexicon.ruleIteratorByWord(event.word(),event.getLoc(),event.featureStr());
+    Counter<Integer> logScores=new ClassicCounter<Integer>();
+    boolean noRules=true;
+    int goldTagId=-1;
+    while (itr.hasNext()) {
+      noRules=false;
+      IntTaggedWord iTW=itr.next();
+      if (iTW.tag() == event.tagId()) {
+        System.err.print("GOLD-");
+        goldTagId=iTW.tag();
+      }
+      float tagScore=lexicon.score(iTW,event.getLoc(),event.word(),event.featureStr());
+      logScores.incrementCount(iTW.tag(),tagScore);
+    }
+    if (noRules) {
+      System.err.printf("NO TAGGINGS: %s %s%n",event.word(),event.featureStr());
+    }
+ else {
+      int hypTagId=Counters.argmax(logScores);
+      if (hypTagId == goldTagId) {
+        ++nCorrect;
+      }
+ else {
+        String goldTag=goldTagId < 0 ? "UNSEEN" : lexicon.tagIndex.get(goldTagId);
+        errors.incrementCount(goldTag);
+      }
+    }
+    System.err.println();
+  }
+  double acc=(double)nCorrect / (double)tuningSet.size();
+  System.err.printf("%n%nACCURACY: %.2f%n%n",acc * 100.0);
+  System.err.println("% of errors by type:");
+  List<String> biggestKeys=new ArrayList<String>(errors.keySet());
+  Collections.sort(biggestKeys,Counters.toComparator(errors,false,true));
+  Counters.normalize(errors);
+  for (  String key : biggestKeys) {
+    System.err.printf("%s\t%.2f%n",key,errors.getCount(key) * 100.0);
+  }
+}

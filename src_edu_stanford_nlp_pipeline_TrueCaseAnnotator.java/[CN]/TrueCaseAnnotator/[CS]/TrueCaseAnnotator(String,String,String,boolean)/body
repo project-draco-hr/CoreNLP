@@ -1,0 +1,25 @@
+{
+  this.VERBOSE=verbose;
+  Properties props=new Properties();
+  props.setProperty("loadClassifier",modelLoc);
+  props.setProperty("mixedCaseMapFile",mixedCaseFileName);
+  props.setProperty("classBias",classBias);
+  trueCaser=new CRFBiasedClassifier(props);
+  if (modelLoc != null) {
+    trueCaser.loadClassifierNoExceptions(modelLoc,props);
+  }
+ else {
+    throw new RuntimeException("Model location not specified for true-case classifier!");
+  }
+  if (classBias != null) {
+    StringTokenizer biases=new java.util.StringTokenizer(classBias,",");
+    while (biases.hasMoreTokens()) {
+      StringTokenizer bias=new java.util.StringTokenizer(biases.nextToken(),":");
+      String cname=bias.nextToken();
+      double w=Double.parseDouble(bias.nextToken());
+      trueCaser.setBiasWeight(cname,w);
+      if (VERBOSE)       System.err.println("Setting bias for class " + cname + " to "+ w);
+    }
+  }
+  mixedCaseMap=loadMixedCaseMap(mixedCaseFileName);
+}

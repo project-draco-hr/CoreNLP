@@ -1,0 +1,111 @@
+{
+  Set<String> speakers=Generics.newHashSet();
+  Set<String> locations=Generics.newHashSet();
+  Set<String> stimes=Generics.newHashSet();
+  Set<String> etimes=Generics.newHashSet();
+  List<Entity> speakersL=new ArrayList<Entity>();
+  List<Entity> locationsL=new ArrayList<Entity>();
+  List<Entity> stimesL=new ArrayList<Entity>();
+  List<Entity> etimesL=new ArrayList<Entity>();
+  double p=0.0;
+  for (int i=0; i < entities.length; i++) {
+    Entity entity=entities[i];
+    if ((i == 0 || entities[i - 1] != entity) && entity != null) {
+      String type=classIndex.get(entity.type);
+      String phrase=StringUtils.join(entity.words," ").toLowerCase();
+      if (type.equalsIgnoreCase("SPEAKER")) {
+        speakers.add(phrase);
+        speakersL.add(entity);
+      }
+ else       if (type.equalsIgnoreCase("LOCATION")) {
+        locations.add(phrase);
+        locationsL.add(entity);
+      }
+ else       if (type.equals("STIME")) {
+        stimes.add(phrase);
+        stimesL.add(entity);
+      }
+ else       if (type.equals("ETIME")) {
+        etimes.add(phrase);
+        etimesL.add(entity);
+      }
+ else {
+        System.err.println("unknown entity type: " + type);
+        System.exit(0);
+      }
+    }
+  }
+  for (  Entity stimeE : stimesL) {
+    if (stimes.size() == 1) {
+      break;
+    }
+    String stime=StringUtils.join(stimeE.words," ");
+    String time="";
+    for (    char c : stime.toCharArray()) {
+      if (c >= '0' && c <= '9') {
+        time+=c;
+      }
+    }
+    if (time.length() == 1 || time.length() == 2) {
+      time=time + "00";
+    }
+    boolean match=false;
+    for (    String stime1 : stimes) {
+      String time1="";
+      for (      char c : stime1.toCharArray()) {
+        if (c >= '0' && c <= '9') {
+          time1+=c;
+        }
+      }
+      if (time1.length() == 1 || time1.length() == 2) {
+        time1=time1 + "00";
+      }
+      if (!time.equals(time1)) {
+        p-=stimeE.words.size() * penalty;
+      }
+    }
+  }
+  for (  Entity etimeE : etimesL) {
+    if (etimes.size() == 1) {
+      break;
+    }
+    String etime=StringUtils.join(etimeE.words," ");
+    String time="";
+    for (    char c : etime.toCharArray()) {
+      if (c >= '0' && c <= '9') {
+        time+=c;
+      }
+    }
+    if (time.length() == 1 || time.length() == 2) {
+      time=time + "00";
+    }
+    boolean match=false;
+    for (    String etime1 : etimes) {
+      String time1="";
+      for (      char c : etime1.toCharArray()) {
+        if (c >= '0' && c <= '9') {
+          time1+=c;
+        }
+      }
+      if (time1.length() == 1 || time1.length() == 2) {
+        time1=time1 + "00";
+      }
+      if (!time.equals(time1)) {
+        p-=etimeE.words.size() * penalty;
+      }
+    }
+  }
+  int speakerIndex=classIndex.indexOf("SPEAKER");
+  for (  Entity speakerE : speakersL) {
+    String lastName=interned[speakerE.startPosition + speakerE.words.size() - 1];
+    for (int i=0; i < interned.length; i++) {
+      String w=interned[i];
+      if (w == lastName) {
+        if (sequence[i] != speakerIndex) {
+          p-=penalty;
+        }
+      }
+    }
+  }
+  return p;
+}

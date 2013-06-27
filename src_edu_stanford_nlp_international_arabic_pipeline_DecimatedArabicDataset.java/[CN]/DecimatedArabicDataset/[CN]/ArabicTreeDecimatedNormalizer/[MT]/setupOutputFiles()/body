@@ -1,0 +1,20 @@
+{
+  PrintWriter outfile=null;
+  String curOutFileName="";
+  try {
+    outFiles=Generics.newHashMap();
+    for (    String keyForFile : outFilenames.keySet()) {
+      curOutFileName=outFilenames.get(keyForFile);
+      if (!makeFlatFile && curOutFileName.contains(flatExtension))       continue;
+      outfile=new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(curOutFileName),"UTF-8")));
+      outFiles.put(keyForFile,outfile);
+    }
+  }
+ catch (  UnsupportedEncodingException e) {
+    System.err.printf("%s: Filesystem does not support UTF-8 output\n",this.getClass().getName());
+    e.printStackTrace();
+  }
+catch (  FileNotFoundException e) {
+    System.err.printf("%s: Could not open %s for writing\n",this.getClass().getName(),curOutFileName);
+  }
+}

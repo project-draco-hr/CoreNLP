@@ -1,0 +1,29 @@
+{
+  double[] xtest=new double[initial.length];
+  int bOpt=0;
+  double gOpt=0.0;
+  double min=Double.POSITIVE_INFINITY;
+  double[][] results=new double[batchSizes.size()][gains.size()];
+  this.maxTime=msPerTest;
+  for (int b=0; b < batchSizes.size(); b++) {
+    for (int g=0; g < gains.size(); g++) {
+      System.arraycopy(initial,0,xtest,0,initial.length);
+      bSize=batchSizes.get(b);
+      gain=gains.get(g);
+      System.err.println("");
+      System.err.println("Testing with batch size: " + bSize + "    gain:  "+ nf.format(gain));
+      this.quiet=true;
+      this.minimize(function,1e-100,xtest);
+      results[b][g]=function.valueAt(xtest);
+      if (results[b][g] < min) {
+        min=results[b][g];
+        bOpt=bSize;
+        gOpt=gain;
+      }
+      System.err.println("");
+      System.err.println("Final value is: " + nf.format(results[b][g]));
+      System.err.println("Optimal so far is:  batch size: " + bOpt + "   gain:  "+ nf.format(gOpt));
+    }
+  }
+  return new Pair<Integer,Double>(bOpt,gOpt);
+}

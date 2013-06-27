@@ -1,0 +1,37 @@
+{
+  if (t == null) {
+  }
+ else {
+    String cat=t.label().value();
+    if (t.isLeaf()) {
+      Label label=new Word(cat);
+      t.setLabel(label);
+    }
+ else {
+      Tree[] kids=t.children();
+      for (      Tree child : kids) {
+        transformTreeHelper(child);
+      }
+      Tree headChild=hf.determineHead(t);
+      String tag;
+      String word;
+      if (headChild == null) {
+        System.err.println("ERROR: null head for tree\n" + t.toString());
+        word=null;
+        tag=null;
+      }
+ else       if (headChild.isLeaf()) {
+        tag=cat;
+        word=headChild.label().value();
+      }
+ else {
+        CategoryWordTag headLabel=(CategoryWordTag)headChild.label();
+        word=headLabel.word();
+        tag=headLabel.tag();
+      }
+      Label label=new CategoryWordTag(cat,word,tag);
+      t.setLabel(label);
+    }
+  }
+  return t;
+}

@@ -1,0 +1,45 @@
+{
+  String year="";
+  if (inputDate.toLowerCase().contains("century")) {
+    if (inputDate.endsWith("A.D. ")) {
+      inputDate=inputDate.substring(0,inputDate.length() - 5);
+      if (DEBUG) {
+        System.out.println("inputDate: |" + inputDate + "|");
+      }
+    }
+    if (inputDate.startsWith("late")) {
+      inputDate=inputDate.substring(5,inputDate.length());
+      if (DEBUG) {
+        System.out.println("inputDate: |" + inputDate + "|");
+      }
+    }
+    if (inputDate.startsWith("early")) {
+      inputDate=inputDate.substring(6,inputDate.length());
+      if (DEBUG) {
+        System.out.println("inputDate: |" + inputDate + "|");
+      }
+    }
+    if (Character.isDigit(inputDate.charAt(0))) {
+      year=QuantifiableEntityNormalizer.normalizedNumberStringQuiet(inputDate.substring(0,inputDate.length() - 2),1,"",null);
+      if (year.contains(".")) {
+        year=year.substring(0,year.indexOf('.'));
+      }
+      while (year.length() < 4) {
+        year=year + '*';
+      }
+    }
+ else     if (QuantifiableEntityNormalizer.ordinalsToValues.containsKey(inputDate)) {
+      year=Double.toString(QuantifiableEntityNormalizer.ordinalsToValues.getCount(inputDate));
+      while (year.length() < 4) {
+        year=year + '*';
+      }
+    }
+ else {
+      if (DEBUG) {
+        System.out.println("ISODateInstance: Couldn't parse probable century: " + inputDate);
+      }
+      year="";
+    }
+  }
+  return year;
+}

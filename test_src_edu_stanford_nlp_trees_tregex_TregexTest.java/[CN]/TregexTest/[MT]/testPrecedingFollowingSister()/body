@@ -1,0 +1,28 @@
+{
+  TregexPattern preceding=TregexPattern.compile("/.*/ $.. baz");
+  runTest(preceding,"(a (foo 1) (bar 2) (baz 3))","(foo 1)","(bar 2)");
+  runTest(preceding,"(root (b (foo 1)) (a (foo 1) (bar 2) (baz 3)))","(foo 1)","(bar 2)");
+  runTest(preceding,"(root (a (foo 1) (bar 2) (baz 3)) (b (foo 1)))","(foo 1)","(bar 2)");
+  runTest(preceding,"(a (foo 1) (baz 2) (bar 3))","(foo 1)");
+  runTest(preceding,"(a (baz 1) (foo 2) (bar 3))");
+  TregexPattern impreceding=TregexPattern.compile("/.*/ $. baz");
+  runTest(impreceding,"(a (foo 1) (bar 2) (baz 3))","(bar 2)");
+  runTest(impreceding,"(root (b (foo 1)) (a (foo 1) (bar 2) (baz 3)))","(bar 2)");
+  runTest(impreceding,"(root (a (foo 1) (bar 2) (baz 3)) (b (foo 1)))","(bar 2)");
+  runTest(impreceding,"(a (foo 1) (baz 2) (bar 3))","(foo 1)");
+  runTest(impreceding,"(a (baz 1) (foo 2) (bar 3))");
+  TregexPattern following=TregexPattern.compile("/.*/ $,, baz");
+  runTest(following,"(a (foo 1) (bar 2) (baz 3))");
+  runTest(following,"(root (b (foo 1)) (a (foo 1) (bar 2) (baz 3)))");
+  runTest(following,"(root (a (foo 1) (bar 2) (baz 3)) (b (foo 1)))");
+  runTest(following,"(root (a (baz 1) (bar 2) (foo 3)) (b (foo 1)))","(bar 2)","(foo 3)");
+  runTest(following,"(a (foo 1) (baz 2) (bar 3))","(bar 3)");
+  runTest(following,"(a (baz 1) (foo 2) (bar 3))","(foo 2)","(bar 3)");
+  TregexPattern imfollowing=TregexPattern.compile("/.*/ $, baz");
+  runTest(imfollowing,"(a (foo 1) (bar 2) (baz 3))");
+  runTest(imfollowing,"(root (b (foo 1)) (a (foo 1) (bar 2) (baz 3)))");
+  runTest(imfollowing,"(root (a (foo 1) (bar 2) (baz 3)) (b (foo 1)))");
+  runTest(imfollowing,"(root (a (baz 1) (bar 2) (foo 3)) (b (foo 1)))","(bar 2)");
+  runTest(imfollowing,"(a (foo 1) (baz 2) (bar 3))","(bar 3)");
+  runTest(imfollowing,"(a (baz 1) (foo 2) (bar 3))","(foo 2)");
+}

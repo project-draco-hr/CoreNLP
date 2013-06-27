@@ -1,0 +1,15 @@
+{
+  try {
+    ByteArrayOutputStream bout=new ByteArrayOutputStream();
+    ObjectOutputStream oout=new ObjectOutputStream(bout);
+    oout.writeObject(c1);
+    byte[] bleh=bout.toByteArray();
+    ByteArrayInputStream bin=new ByteArrayInputStream(bleh);
+    ObjectInputStream oin=new ObjectInputStream(bin);
+    ClassicCounter<String> c3=(ClassicCounter<String>)oin.readObject();
+    assertEquals(c3,c1);
+  }
+ catch (  Exception e) {
+    Assert.fail(e.getMessage());
+  }
+}

@@ -1,0 +1,30 @@
+{
+  if (domainDimension < 0) {
+    domainDimension=0;
+    edgeParamCount=numEdgeFeatures * labelIndices.get(1).size();
+    originalFeatureCount=0;
+    for (int i=0; i < map.length; i++) {
+      int s=labelIndices.get(map[i]).size();
+      originalFeatureCount+=s;
+    }
+    domainDimension+=edgeParamCount;
+    domainDimension+=inputLayerSize * numNodeFeatures;
+    beforeOutputWeights=domainDimension;
+    if (useOutputLayer) {
+      if (flags.sparseOutputLayer) {
+        domainDimension+=outputLayerSize * numHiddenUnits;
+      }
+ else       if (flags.tieOutputLayer) {
+        domainDimension+=1 * numHiddenUnits;
+      }
+ else {
+        domainDimension+=outputLayerSize * inputLayerSize;
+      }
+    }
+    System.err.println("edgeParamCount: " + edgeParamCount);
+    System.err.println("originalFeatureCount: " + originalFeatureCount);
+    System.err.println("beforeOutputWeights: " + beforeOutputWeights);
+    System.err.println("domainDimension: " + domainDimension);
+  }
+  return domainDimension;
+}

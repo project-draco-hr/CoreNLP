@@ -1,0 +1,19 @@
+{
+  if (MatchesPanel.getInstance().isEmpty())   return;
+  if (firstMouseEvent == null) {
+    firstMouseEvent=e;
+  }
+  e.consume();
+  if (((e.getModifiersEx()) & InputEvent.SHIFT_DOWN_MASK) == InputEvent.SHIFT_DOWN_MASK) {
+    addHighlight(textField,firstMouseEvent,e);
+  }
+ else   if (!HighlightUtils.isInHighlight(e,textField,textField.getHighlighter())) {
+    textField.getHighlighter().removeAllHighlights();
+    firstMouseEvent=e;
+    dragNDrop=false;
+    textField.repaint();
+  }
+ else {
+    dragNDrop=true;
+  }
+}

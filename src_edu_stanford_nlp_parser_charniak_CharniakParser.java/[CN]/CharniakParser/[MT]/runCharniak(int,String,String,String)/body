@@ -1,0 +1,24 @@
+{
+  try {
+    if (n == 1)     n++;
+    List<String> args=new ArrayList<String>();
+    args.add(parserExecutable);
+    args.add("-l" + maxSentenceLength);
+    args.add("-K");
+    args.add("-N" + n);
+    if (beamSize > 0) {
+      args.add("-T" + beamSize);
+    }
+    args.add(parserModel);
+    args.add(infile);
+    ProcessBuilder process=new ProcessBuilder(args);
+    PrintWriter out=IOUtils.getPrintWriter(outfile);
+    PrintWriter err=IOUtils.getPrintWriter(errfile);
+    SystemUtils.run(process,out,err);
+    out.close();
+    err.close();
+  }
+ catch (  IOException ex) {
+    throw new RuntimeException(ex);
+  }
+}

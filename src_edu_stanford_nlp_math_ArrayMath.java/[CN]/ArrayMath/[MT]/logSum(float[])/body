@@ -1,0 +1,29 @@
+{
+  int leng=logInputs.length;
+  if (leng == 0) {
+    throw new IllegalArgumentException();
+  }
+  int maxIdx=0;
+  float max=logInputs[0];
+  for (int i=1; i < leng; i++) {
+    if (logInputs[i] > max) {
+      maxIdx=i;
+      max=logInputs[i];
+    }
+  }
+  boolean haveTerms=false;
+  double intermediate=0.0f;
+  float cutoff=max - SloppyMath.LOGTOLERANCE_F;
+  for (int i=0; i < leng; i++) {
+    if (i != maxIdx && logInputs[i] > cutoff) {
+      haveTerms=true;
+      intermediate+=Math.exp(logInputs[i] - max);
+    }
+  }
+  if (haveTerms) {
+    return max + (float)Math.log(1.0 + intermediate);
+  }
+ else {
+    return max;
+  }
+}

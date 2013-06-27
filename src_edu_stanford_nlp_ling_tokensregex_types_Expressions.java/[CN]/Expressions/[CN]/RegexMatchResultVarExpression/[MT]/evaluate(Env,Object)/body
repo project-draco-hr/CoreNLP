@@ -1,0 +1,18 @@
+{
+  if (args != null && args.length > 0) {
+    if (args[0] instanceof SequenceMatchResult) {
+      SequenceMatchResult mr=(SequenceMatchResult)args[0];
+      Object v=get();
+      if (v instanceof String) {
+        return new PrimitiveValue("MATCHED_GROUP_INFO",mr.groupInfo((String)v));
+      }
+ else       if (v instanceof Integer) {
+        return new PrimitiveValue("MATCHED_GROUP_INFO",mr.groupInfo((Integer)v));
+      }
+ else {
+        throw new UnsupportedOperationException("String match result must be referred to by group id");
+      }
+    }
+  }
+  return null;
+}

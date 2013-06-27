@@ -1,0 +1,50 @@
+{
+  if (!validateCommandLine(args)) {
+    System.err.println(usage);
+    System.exit(-1);
+  }
+  final TreebankLangParserParams tlpp=Languages.getLanguageParams(LANGUAGE);
+  final PrintWriter pwOut=tlpp.pw();
+  final Treebank guessTreebank=tlpp.diskTreebank();
+  guessTreebank.loadPath(guessFile);
+  pwOut.println("GUESS TREEBANK:");
+  pwOut.println(guessTreebank.textualSummary());
+  final Treebank goldTreebank=tlpp.diskTreebank();
+  goldTreebank.loadPath(goldFile);
+  pwOut.println("GOLD TREEBANK:");
+  pwOut.println(goldTreebank.textualSummary());
+  final LeafAncestorEval metric=new LeafAncestorEval("LeafAncestor");
+  final TreeTransformer tc=tlpp.collinizer();
+  final Iterator<Tree> goldItr=goldTreebank.iterator();
+  final Iterator<Tree> guessItr=guessTreebank.iterator();
+  int goldLineId=0;
+  int guessLineId=0;
+  int skippedGuessTrees=0;
+  while (guessItr.hasNext() && goldItr.hasNext()) {
+    Tree guessTree=guessItr.next();
+    List<Label> guessYield=guessTree.yield();
+    guessLineId++;
+    Tree goldTree=goldItr.next();
+    List<Label> goldYield=goldTree.yield();
+    goldLineId++;
+    if (goldYield.size() > MAX_GOLD_YIELD) {
+      skippedGuessTrees++;
+      continue;
+    }
+    if (goldYield.size() != guessYield.size()) {
+      pwOut.printf("Yield mismatch gold: %d tokens vs. guess: %d tokens (lines: gold %d guess %d)%n",goldYield.size(),guessYield.size(),goldLineId,guessLineId);
+      skippedGuessTrees++;
+      continue;
+    }
+    final Tree evalGuess=tc.transformTree(guessTree);
+    final Tree evalGold=tc.transformTree(goldTree);
+    metric.evaluate(evalGuess,evalGold,((VERBOSE) ? pwOut : null));
+  }
+  if (guessItr.hasNext() || goldItr.hasNext()) {
+    System.err.printf("Guess/gold files do not have equal lengths (guess: %d gold: %d)%n.",guessLineId,goldLineId);
+  }
+  pwOut.println("================================================================================");
+  if (skippedGuessTrees != 0)   pwOut.printf("%s %d guess trees\n","Unable to evaluate",skippedGuessTrees);
+  metric.display(true,pwOut);
+  pwOut.close();
+}

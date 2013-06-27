@@ -1,0 +1,16 @@
+{
+  List<Tree> kids=t.getChildrenAsList();
+  if (kids.size() == 2 && t.firstChild().isPhrasal() && tlp.isSentenceFinalPunctuationTag(t.lastChild().value())) {
+    List<Tree> grandKids=t.firstChild().getChildrenAsList();
+    grandKids.add(t.lastChild());
+    t.firstChild().setChildren(grandKids);
+    kids.remove(kids.size() - 1);
+    t.setChildren(kids);
+    t.setValue(tlp.startSymbol());
+  }
+ else {
+    t.setValue(nonUnaryRoot);
+    t=tf.newTreeNode(tlp.startSymbol(),Collections.singletonList(t));
+  }
+  return t;
+}

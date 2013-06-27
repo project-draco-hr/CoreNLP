@@ -1,0 +1,49 @@
+{
+  double epsilon=1e-10;
+  double diffThreshold=0.001;
+  double diffPctThreshold=0.1;
+  double twoEpsilon=epsilon * 2;
+  int xLen=x.length;
+  derivativeAt(x);
+  double[] savedDeriv=new double[xLen];
+  System.arraycopy(derivative,0,savedDeriv,0,derivative.length);
+  double oldX, plusVal, minusVal, appDeriv, calcDeriv, diff, pct=0;
+  int interval=Math.max(1,x.length / numOfChecks);
+  List<Integer> indicesToCheck=new ArrayList<Integer>();
+  for (int paramIndex=0; paramIndex < xLen; paramIndex+=interval) {
+    indicesToCheck.add(paramIndex);
+  }
+  for (int i=xLen - 1; i >= 0 && i > xLen - numOfChecks; i--) {
+    indicesToCheck.add(i);
+  }
+  for (int i=1; i < xLen && i < numOfChecks; i++) {
+    indicesToCheck.add(i);
+  }
+  for (int i=0; i < numOfRandomChecks; i++) {
+    indicesToCheck.add(generator.nextInt(xLen));
+  }
+  boolean returnVal=true;
+  for (  int paramIndex : indicesToCheck) {
+    oldX=x[paramIndex];
+    x[paramIndex]=oldX + epsilon;
+    plusVal=valueAt(x);
+    x[paramIndex]=oldX - epsilon;
+    minusVal=valueAt(x);
+    appDeriv=(plusVal - minusVal) / twoEpsilon;
+    calcDeriv=savedDeriv[paramIndex];
+    diff=Math.abs(appDeriv - calcDeriv);
+    pct=diff / Math.min(Math.abs(appDeriv),Math.abs(calcDeriv));
+    if (diff > diffThreshold && pct > diffPctThreshold) {
+      System.err.printf("Grad fail at %2d, appGrad=%9.7f, calcGrad=%9.7f, diff=%9.7f, pct=%9.7f\n",paramIndex,appDeriv,calcDeriv,diff,pct);
+      returnVal=false;
+    }
+ else {
+      System.err.printf("Grad good at %2d, appGrad=%9.7f, calcGrad=%9.7f, diff=%9.7f, pct=%9.7f\n",paramIndex,appDeriv,calcDeriv,diff,pct);
+    }
+    x[paramIndex]=oldX;
+  }
+  if (returnVal) {
+    System.err.printf("ALL gradients passed. Yay!\n");
+  }
+  return returnVal;
+}

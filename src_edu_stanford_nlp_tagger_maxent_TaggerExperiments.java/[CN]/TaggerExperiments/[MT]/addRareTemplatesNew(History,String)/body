@@ -1,0 +1,30 @@
+{
+  if (!(maxentTagger.isRare(ExtractorFrames.cWord.extract(h)))) {
+    return;
+  }
+  int start=numFeatsGeneral;
+  for (int i=start; i < numFeatsAll; i++) {
+    String s=maxentTagger.extractorsRare.extract(i - start,h);
+    if (s.equals(zeroSt)) {
+      continue;
+    }
+    if (maxentTagger.alltags) {
+      int numTags=maxentTagger.tags.getSize();
+      for (int j=0; j < numTags; j++) {
+        String tag1=maxentTagger.tags.getTag(j);
+        FeatureKey key=new FeatureKey(i,s,tag1);
+        if (!maxentTagger.extractorsRare.get(i - start).precondition(tag1)) {
+          continue;
+        }
+        add(key);
+      }
+    }
+ else {
+      FeatureKey key=new FeatureKey(i,s,tag);
+      if (!maxentTagger.extractorsRare.get(i - start).precondition(tag)) {
+        continue;
+      }
+      add(key);
+    }
+  }
+}

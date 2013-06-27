@@ -1,0 +1,49 @@
+{
+  String line=reader.readLine().trim();
+  if (line.length() == 0)   return null;
+  int clusterCount=Integer.valueOf(line);
+  Map<Integer,CorefChain> chains=Generics.newHashMap();
+  for (int c=0; c < clusterCount; c++) {
+    line=reader.readLine().trim();
+    String[] bits=line.split("\\s");
+    int cid=Integer.valueOf(bits[0]);
+    int mentionCount=Integer.valueOf(bits[1]);
+    Map<IntPair,Set<CorefChain.CorefMention>> mentionMap=Generics.newHashMap();
+    CorefChain.CorefMention representative=null;
+    for (int m=0; m < mentionCount; m++) {
+      line=reader.readLine();
+      bits=line.split("\\s");
+      IntPair key=new IntPair(Integer.valueOf(bits[0]),Integer.valueOf(bits[1]));
+      boolean rep=bits[2].equals("1");
+      Dictionaries.MentionType mentionType=parseMentionType(bits[3]);
+      Dictionaries.Number number=parseNumber(bits[4]);
+      Dictionaries.Gender gender=parseGender(bits[5]);
+      Dictionaries.Animacy animacy=parseAnimacy(bits[6]);
+      int startIndex=Integer.valueOf(bits[7]);
+      int endIndex=Integer.valueOf(bits[8]);
+      int headIndex=Integer.valueOf(bits[9]);
+      int clusterID=Integer.valueOf(bits[10]);
+      int mentionID=Integer.valueOf(bits[11]);
+      int sentNum=Integer.valueOf(bits[12]);
+      int posLen=Integer.valueOf(bits[13]);
+      int[] posElems=new int[posLen];
+      for (int i=0; i < posLen; i++) {
+        posElems[i]=Integer.valueOf(bits[14 + i]);
+      }
+      IntTuple position=new IntTuple(posElems);
+      String span=unescapeSpace(bits[14 + posLen]);
+      CorefChain.CorefMention mention=new CorefChain.CorefMention(mentionType,number,gender,animacy,startIndex,endIndex,headIndex,clusterID,mentionID,sentNum,position,span);
+      Set<CorefChain.CorefMention> mentionsWithThisHead=mentionMap.get(key);
+      if (mentionsWithThisHead == null) {
+        mentionsWithThisHead=Generics.newHashSet();
+        mentionMap.put(key,mentionsWithThisHead);
+      }
+      mentionsWithThisHead.add(mention);
+      if (rep)       representative=mention;
+    }
+    CorefChain chain=new CorefChain(cid,mentionMap,representative);
+    chains.put(cid,chain);
+  }
+  reader.readLine();
+  return chains;
+}

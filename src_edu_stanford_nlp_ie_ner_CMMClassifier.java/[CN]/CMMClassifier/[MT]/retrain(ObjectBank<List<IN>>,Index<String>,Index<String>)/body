@@ -1,0 +1,24 @@
+{
+  int fs=featureIndex.size();
+  int ls=labelIndex.size();
+  Dataset<String,String> adapt=getDataset(featureLabels,featureIndex,labelIndex);
+  int prior=LogPrior.LogPriorType.QUADRATIC.ordinal();
+  LinearClassifier<String,String> lc=(LinearClassifier<String,String>)classifier;
+  LinearClassifierFactory<String,String> lcf=new LinearClassifierFactory<String,String>(flags.tolerance,flags.useSum,prior,flags.sigma,flags.epsilon,flags.QNsize);
+  double[][] weights=lc.weights();
+  Index<String> newF=adapt.featureIndex;
+  Index<String> newL=adapt.labelIndex;
+  int newFS=newF.size();
+  int newLS=newL.size();
+  double[] x=new double[newFS * newLS];
+  for (int i=0; i < fs; i++) {
+    for (int j=0; j < ls; j++) {
+      String f=featureIndex.get(i);
+      String l=labelIndex.get(j);
+      int newi=newF.indexOf(f) * newLS + newL.indexOf(l);
+      x[newi]=weights[i][j];
+    }
+  }
+  weights=lcf.trainWeights(adapt,x);
+  lc.setWeights(weights);
+}

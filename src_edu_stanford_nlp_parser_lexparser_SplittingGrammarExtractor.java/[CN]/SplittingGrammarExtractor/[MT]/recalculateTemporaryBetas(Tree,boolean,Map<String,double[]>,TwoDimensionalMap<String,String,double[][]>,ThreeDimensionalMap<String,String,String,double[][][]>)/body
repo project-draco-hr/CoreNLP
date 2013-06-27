@@ -1,0 +1,14 @@
+{
+  if (DEBUG()) {
+    System.out.println("Recalculating temporary betas for tree " + tree);
+  }
+  double[] stateWeights={Math.log(treeWeights.getCount(tree))};
+  IdentityHashMap<Tree,double[][]> unaryTransitions=new IdentityHashMap<Tree,double[][]>();
+  IdentityHashMap<Tree,double[][][]> binaryTransitions=new IdentityHashMap<Tree,double[][][]>();
+  recountTree(tree,splitStates,unaryTransitions,binaryTransitions);
+  if (DEBUG()) {
+    System.out.println("  Transitions:");
+    outputTransitions(tree,unaryTransitions,binaryTransitions);
+  }
+  recalculateTemporaryBetas(tree,stateWeights,0,unaryTransitions,binaryTransitions,totalStateMass,tempUnaryBetas,tempBinaryBetas);
+}

@@ -1,0 +1,11 @@
+{
+  featureIndex=trainSet.featureIndex;
+  labelIndex=trainSet.labelIndex;
+  Timing timer=new Timing();
+  NegativeScorer negativeScorer=new NegativeScorer(trainSet,devSet,scorer,timer);
+  timer.start();
+  double bestSigma=minimizer.minimize(negativeScorer);
+  System.err.println("##best sigma: " + bestSigma);
+  setSigma(bestSigma);
+  return ArrayUtils.flatten(trainWeights(trainSet,negativeScorer.weights,true));
+}

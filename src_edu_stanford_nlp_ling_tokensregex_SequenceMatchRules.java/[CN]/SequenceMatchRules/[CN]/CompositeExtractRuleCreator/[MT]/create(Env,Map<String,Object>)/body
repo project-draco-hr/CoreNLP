@@ -1,0 +1,18 @@
+{
+  AnnotationExtractRule r=super.create(env,attributes);
+  r.isComposite=true;
+  if (r.annotationField == null) {
+    r.annotationField=r.resultNestedAnnotationField;
+  }
+  if (r.annotationField == null) {
+    throw new IllegalArgumentException("Error creating composite rule: no annotation field");
+  }
+  if (r.ruleType == null) {
+    r.ruleType=TOKEN_PATTERN_RULE_TYPE;
+  }
+  TokenSequencePattern expr=(TokenSequencePattern)Expressions.asObject(env,attributes.get("pattern"));
+  Expression action=Expressions.asExpression(env,attributes.get("action"));
+  Expression result=Expressions.asExpression(env,attributes.get("result"));
+  updateExtractRule(r,env,expr,action,result);
+  return r;
+}

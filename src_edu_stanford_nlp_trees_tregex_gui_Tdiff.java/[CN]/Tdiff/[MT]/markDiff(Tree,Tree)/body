@@ -1,0 +1,20 @@
+{
+  Set<Constituent> t1Labels=(t1 == null) ? Generics.<Constituent>newHashSet() : t1.constituents(cf);
+  if (t2 != null) {
+    t2.setSpans();
+    for (    Tree subTree : t2) {
+      if (subTree.isPhrasal()) {
+        IntPair span=subTree.getSpan();
+        Constituent c=cf.newConstituent(span.getSource(),span.getTarget(),subTree.label(),0.0);
+        if (t1Labels.contains(c)) {
+          t1Labels.remove(c);
+          ((CoreLabel)subTree.label()).set(CoreAnnotations.DoAnnotation.class,false);
+        }
+ else {
+          ((CoreLabel)subTree.label()).set(CoreAnnotations.DoAnnotation.class,true);
+        }
+      }
+    }
+  }
+  return t1Labels;
+}

@@ -1,0 +1,32 @@
+{
+  DateTimeFormatterBuilder builder=new DateTimeFormatterBuilder();
+  boolean hasDate=appendDateFormats(builder,flags);
+  if (poy != null) {
+    if (!JodaTimeUtils.hasField(base,DateTimeFieldType.monthOfYear())) {
+      builder.appendLiteral("-");
+      builder.appendLiteral(poy.toISOString());
+      hasDate=true;
+    }
+  }
+  if (dow != null) {
+    if (!JodaTimeUtils.hasField(base,DateTimeFieldType.monthOfYear()) && !JodaTimeUtils.hasField(base,DateTimeFieldType.dayOfWeek())) {
+      builder.appendLiteral("-");
+      builder.appendLiteral(dow.toISOString());
+      hasDate=true;
+    }
+  }
+  if (hasTime()) {
+    if (!hasDate) {
+      builder.clear();
+    }
+    appendTimeFormats(builder,flags);
+  }
+ else   if (tod != null) {
+    if (!hasDate) {
+      builder.clear();
+    }
+    builder.appendLiteral("T");
+    builder.appendLiteral(tod.toISOString());
+  }
+  return builder.toFormatter();
+}

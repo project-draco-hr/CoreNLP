@@ -1,0 +1,28 @@
+{
+  double low=0.0;
+  double high=0.0;
+  for (int i=0; i < s.length; i++) {
+    double tmp=s[i] * (y[i] - diag[i]);
+    high+=tmp * tmp;
+  }
+  say("M");
+  double alpha=Math.sqrt((ArrayMath.norm(y) / ArrayMath.norm(s))) * Math.sqrt((50.0 / (50.0 + k)));
+  alpha=alpha * Math.sqrt(ArrayMath.average(diag));
+  say(" alpha " + nf.format(alpha));
+  high=Math.sqrt(high) / (2 * alpha);
+  Function<Double,Double> func=new lagrange(s,y,diag,alpha);
+  double lamStar;
+  if (func.apply(low) > 0) {
+    lamStar=getRoot(func,low,high);
+  }
+ else {
+    lamStar=0.0;
+    say(" * ");
+  }
+  for (int i=0; i < s.length; i++) {
+    diag[i]=(Math.abs(y[i] * s[i]) + 2 * lamStar * diag[i]) / (s[i] * s[i] + 1e-8 + 2 * lamStar);
+    if (diag[i] <= 1.0 / aMax) {
+      diag[i]=1.0 / gain;
+    }
+  }
+}

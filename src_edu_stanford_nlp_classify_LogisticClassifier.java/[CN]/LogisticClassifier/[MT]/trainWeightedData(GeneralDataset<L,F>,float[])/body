@@ -1,0 +1,14 @@
+{
+  if (data.labelIndex.size() != 2) {
+    throw new RuntimeException("LogisticClassifier is only for binary classification!");
+  }
+  Minimizer<DiffFunction> minim;
+  LogisticObjectiveFunction lof=null;
+  if (data instanceof Dataset<?,?>)   lof=new LogisticObjectiveFunction(data.numFeatureTypes(),data.getDataArray(),data.getLabelsArray(),prior,dataWeights);
+ else   if (data instanceof RVFDataset<?,?>)   lof=new LogisticObjectiveFunction(data.numFeatureTypes(),data.getDataArray(),data.getValuesArray(),data.getLabelsArray(),prior,dataWeights);
+  minim=new QNMinimizer(lof);
+  weights=minim.minimize(lof,1e-4,new double[data.numFeatureTypes()]);
+  featureIndex=data.featureIndex;
+  classes[0]=data.labelIndex.get(0);
+  classes[1]=data.labelIndex.get(1);
+}

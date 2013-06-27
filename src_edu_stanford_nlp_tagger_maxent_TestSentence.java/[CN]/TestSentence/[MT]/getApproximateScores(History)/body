@@ -1,0 +1,10 @@
+{
+  String[] tags=stringTagsAt(h.current - h.start + leftWindow());
+  double[] scores=getHistories(tags,h);
+  int nDefault=maxentTagger.ySize - tags.length;
+  double logScore=ArrayMath.logSum(scores);
+  double logScoreInactiveTags=maxentTagger.getInactiveTagDefaultScore(nDefault);
+  double logTotal=SloppyMath.logAdd(logScore,logScoreInactiveTags);
+  ArrayMath.addInPlace(scores,-logTotal);
+  return scores;
+}

@@ -1,0 +1,17 @@
+{
+  try {
+    TreeReader tr=new PennTreeReader(new StringReader("(S (NP (NNP Sam)) (VP (VBD died) (NP (NN today))))"),new LabeledScoredTreeFactory());
+    Tree t=tr.readTree();
+    System.out.println(t);
+    TreeGraphNode tgn=new TreeGraphNode(t,(TreeGraphNode)null);
+    System.out.println(tgn.toPrettyString(0));
+    tgn.indexNodes();
+    System.out.println(tgn.toPrettyString(0));
+    tgn.percolateHeads(new SemanticHeadFinder());
+    System.out.println(tgn.toPrettyString(0));
+  }
+ catch (  Exception e) {
+    System.err.println("Horrible error: " + e);
+    e.printStackTrace();
+  }
+}

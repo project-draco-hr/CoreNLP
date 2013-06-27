@@ -1,0 +1,30 @@
+{
+  if (args.length != 1) {
+    System.err.printf("Usage: java %s atb_tree_file > atb_tree_file.out%n",MWETreeVisitorExternal.class.getName());
+    System.exit(-1);
+  }
+  TreeReaderFactory trf=new ArabicTreeReaderFactory();
+  try {
+    TreeReader tr=trf.newTreeReader(new BufferedReader(new InputStreamReader(new FileInputStream(args[0]),"UTF-8")));
+    TreeVisitor visitor=new MWETreeVisitorExternal();
+    int treeId=0;
+    for (Tree tree; (tree=tr.readTree()) != null; ++treeId) {
+      if (tree.value().equals("ROOT")) {
+        tree=tree.firstChild();
+      }
+      visitor.visitTree(tree);
+      System.out.println(tree.toString());
+    }
+    tr.close();
+    System.err.printf("Processed %d trees.%n",treeId);
+  }
+ catch (  UnsupportedEncodingException e) {
+    e.printStackTrace();
+  }
+catch (  FileNotFoundException e) {
+    e.printStackTrace();
+  }
+catch (  IOException e) {
+    e.printStackTrace();
+  }
+}

@@ -1,0 +1,22 @@
+{
+  CoreLabel dst=new CoreLabel();
+  dst.setWord(src.word());
+  dst.setTag(src.tag());
+  if (src.containsKey(CoreAnnotations.OriginalTextAnnotation.class)) {
+    dst.set(CoreAnnotations.OriginalTextAnnotation.class,src.get(CoreAnnotations.OriginalTextAnnotation.class));
+  }
+  if (startOffset == null) {
+    dst.set(CoreAnnotations.CharacterOffsetBeginAnnotation.class,src.get(CoreAnnotations.CharacterOffsetBeginAnnotation.class));
+  }
+ else {
+    dst.set(CoreAnnotations.CharacterOffsetBeginAnnotation.class,startOffset);
+  }
+  if (endOffset == null) {
+    dst.set(CoreAnnotations.CharacterOffsetEndAnnotation.class,src.get(CoreAnnotations.CharacterOffsetEndAnnotation.class));
+  }
+ else {
+    dst.set(CoreAnnotations.CharacterOffsetEndAnnotation.class,endOffset);
+  }
+  transferAnnotations(src,dst);
+  return dst;
+}

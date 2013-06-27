@@ -1,0 +1,26 @@
+{
+  pw.println(cid + " " + countMentions(cluster));
+  Map<IntPair,Set<CorefChain.CorefMention>> mentionMap=cluster.getMentionMap();
+  for (  IntPair mid : mentionMap.keySet()) {
+    Set<CorefChain.CorefMention> mentions=mentionMap.get(mid);
+    for (    CorefChain.CorefMention mention : mentions) {
+      pw.print(mid.getSource() + " " + mid.getTarget());
+      if (mention == cluster.getRepresentativeMention())       pw.print(" " + 1);
+ else       pw.print(" " + 0);
+      pw.print(" " + mention.mentionType);
+      pw.print(" " + mention.number);
+      pw.print(" " + mention.gender);
+      pw.print(" " + mention.animacy);
+      pw.print(" " + mention.startIndex);
+      pw.print(" " + mention.endIndex);
+      pw.print(" " + mention.headIndex);
+      pw.print(" " + mention.corefClusterID);
+      pw.print(" " + mention.mentionID);
+      pw.print(" " + mention.sentNum);
+      pw.print(" " + mention.position.length());
+      for (int i=0; i < mention.position.length(); i++)       pw.print(" " + mention.position.get(i));
+      pw.print(" " + escapeSpace(mention.mentionSpan));
+      pw.println();
+    }
+  }
+}

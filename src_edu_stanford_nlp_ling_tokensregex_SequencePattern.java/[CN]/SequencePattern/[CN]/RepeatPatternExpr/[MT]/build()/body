@@ -1,0 +1,38 @@
+{
+  Frag f=pattern.build();
+  if (minMatch == 1 && maxMatch == 1) {
+    return f;
+  }
+ else   if (minMatch <= 5 && maxMatch <= 5 && greedyMatch) {
+    if (minMatch > 0) {
+      for (int i=0; i < minMatch - 1; i++) {
+        Frag f2=pattern.build();
+        f.connect(f2);
+      }
+    }
+ else {
+      f=new Frag(new State());
+    }
+    if (maxMatch < 0) {
+      Set<State> curOut=f.out;
+      Frag f2=pattern.build();
+      f2.connect(f2);
+      f.connect(f2);
+      f.add(curOut);
+    }
+ else {
+      for (int i=minMatch; i < maxMatch; i++) {
+        Set<State> curOut=f.out;
+        Frag f2=pattern.build();
+        f.connect(f2);
+        f.add(curOut);
+      }
+    }
+    return f;
+  }
+ else {
+    State s=new RepeatState(f.start,minMatch,maxMatch,greedyMatch);
+    f.connect(s);
+    return new Frag(s);
+  }
+}

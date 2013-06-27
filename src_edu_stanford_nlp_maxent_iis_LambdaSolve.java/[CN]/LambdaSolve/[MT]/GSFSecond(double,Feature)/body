@@ -1,0 +1,15 @@
+{
+  double s=0.0;
+  for (int x=0; x < p.data.xSize; x++) {
+    double s1=0.0;
+    double psff=0.0;
+    for (int y1=0; y1 < p.data.ySize; y1++) {
+      psff=psff + pcondFAlfa(alfa,x,y1,f) * f.getVal(x,y1);
+    }
+    for (int y=0; y < probConds[x].length; y++) {
+      s1=s1 + pcondFAlfa(alfa,x,y,f) * (f.getVal(x,y) - psff) * (f.getVal(x,y) - psff);
+    }
+    s=s - s1 * p.data.ptildeX(x);
+  }
+  return s;
+}

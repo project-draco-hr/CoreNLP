@@ -1,0 +1,15 @@
+{
+  String numPat="[0-9\uff10-\uff19]";
+  String nonNumPat="[^0-9\uff10-\uff19]";
+  String commas=",";
+  ans=ans.replaceAll(","," , ");
+  ans=ans.replaceAll("  "," ");
+  if (DEBUG)   EncodingPrintWriter.err.println("ANS (before comma norm): " + ans,"UTF-8");
+  Pattern p=Pattern.compile("(" + numPat + ")"+ WHITE+ "("+ commas+ ")"+ WHITE+ "("+ numPat+ "{3}"+ nonNumPat+ ")");
+  Matcher m=p.matcher(ans);
+  if (m.find()) {
+    ans=m.replaceAll("$1$2$3");
+  }
+  ans=ans.trim();
+  return ans;
+}

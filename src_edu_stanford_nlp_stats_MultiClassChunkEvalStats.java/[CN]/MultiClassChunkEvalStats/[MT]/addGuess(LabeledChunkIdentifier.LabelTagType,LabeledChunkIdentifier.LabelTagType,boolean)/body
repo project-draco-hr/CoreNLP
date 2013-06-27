@@ -1,0 +1,44 @@
+{
+  if (addUnknownLabels) {
+    if (labelIndex == null) {
+      labelIndex=new HashIndex<String>();
+    }
+    labelIndex.add(getTypeLabel(guess));
+    labelIndex.add(getTypeLabel(correct));
+  }
+  if (inCorrect) {
+    boolean prevCorrectEnded=chunker.isEndOfChunk(prevCorrect,correct);
+    boolean prevGuessEnded=chunker.isEndOfChunk(prevGuess,guess);
+    if (prevCorrectEnded && prevGuessEnded && prevGuess.typeMatches(prevCorrect)) {
+      inCorrect=false;
+      correctGuesses.incrementCount(getTypeLabel(prevCorrect));
+    }
+ else     if (prevCorrectEnded != prevGuessEnded || !guess.typeMatches(correct)) {
+      inCorrect=false;
+    }
+  }
+  boolean correctStarted=chunker.isStartOfChunk(prevCorrect,correct);
+  boolean guessStarted=chunker.isStartOfChunk(prevGuess,guess);
+  if (correctStarted && guessStarted && guess.typeMatches(correct)) {
+    inCorrect=true;
+  }
+  if (correctStarted) {
+    foundCorrect.incrementCount(getTypeLabel(correct));
+  }
+  if (guessStarted) {
+    foundGuessed.incrementCount(getTypeLabel(guess));
+  }
+  if (chunker.isIgnoreProvidedTag()) {
+    if (guess.typeMatches(correct)) {
+      tokensCorrect++;
+    }
+  }
+ else {
+    if (guess.label.equals(correct.label)) {
+      tokensCorrect++;
+    }
+  }
+  tokensCount++;
+  prevGuess=guess;
+  prevCorrect=correct;
+}

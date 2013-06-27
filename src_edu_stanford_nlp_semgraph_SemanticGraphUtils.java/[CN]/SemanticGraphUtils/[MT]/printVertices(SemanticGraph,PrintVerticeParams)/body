@@ -1,0 +1,28 @@
+{
+  StringWriter buf=new StringWriter();
+  int count=0;
+  for (  IndexedWord word : sg.vertexListSorted()) {
+    count++;
+    if (count % params.wrapAt == 0) {
+      buf.write("\n\t");
+    }
+    if (params.showIndex) {
+      buf.write(String.valueOf(word.index()));
+      buf.write(":");
+    }
+    if (params.showSentIndex) {
+      buf.write("s");
+      buf.write(String.valueOf(word.sentIndex()));
+      buf.write("/");
+    }
+    if (params.showPOS) {
+      buf.write(word.tag());
+      buf.write("/");
+    }
+    if (params.showWord) {
+      buf.write(word.word());
+    }
+    buf.write(" ");
+  }
+  return buf.toString();
+}

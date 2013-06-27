@@ -1,0 +1,25 @@
+{
+  if (useCharacterBasedLexicon) {
+    return lex=new ChineseCharacterBasedLexicon(this,wordIndex,tagIndex);
+  }
+  if (op.lexOptions.uwModelTrainer == null) {
+    op.lexOptions.uwModelTrainer="edu.stanford.nlp.parser.lexparser.ChineseUnknownWordModelTrainer";
+  }
+  ChineseLexicon clex=new ChineseLexicon(op,this,wordIndex,tagIndex);
+  if (segmenterClass != null) {
+    try {
+      segmenter=ReflectionLoading.loadByReflection(segmenterClass,this,wordIndex,tagIndex);
+    }
+ catch (    ReflectionLoading.ReflectionLoadingException e) {
+      segmenter=ReflectionLoading.loadByReflection(segmenterClass);
+    }
+  }
+  if (segmenter != null) {
+    lex=new ChineseLexiconAndWordSegmenter(clex,segmenter);
+    ctlp.setTokenizerFactory(WordSegmentingTokenizer.factory(segmenter));
+  }
+ else {
+    lex=clex;
+  }
+  return lex;
+}

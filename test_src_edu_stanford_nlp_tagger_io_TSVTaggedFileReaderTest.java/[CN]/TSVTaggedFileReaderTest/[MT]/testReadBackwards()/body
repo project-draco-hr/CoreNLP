@@ -1,0 +1,22 @@
+{
+  File file=createTestFile();
+  TaggedFileRecord record=createRecord(file,"tagColumn=0,wordColumn=1,");
+  List<List<TaggedWord>> sentences=new ArrayList<List<TaggedWord>>();
+  for (  List<TaggedWord> sentence : record.reader()) {
+    sentences.add(sentence);
+  }
+  assertEquals(3,sentences.size());
+  assertEquals(3,sentences.get(0).size());
+  assertEquals("A",sentences.get(0).get(0).tag());
+  assertEquals("B",sentences.get(0).get(1).tag());
+  assertEquals("C",sentences.get(0).get(2).tag());
+  assertEquals("D",sentences.get(1).get(0).tag());
+  assertEquals("E",sentences.get(1).get(1).tag());
+  assertEquals("F",sentences.get(2).get(0).tag());
+  assertEquals("1",sentences.get(0).get(0).word());
+  assertEquals("2",sentences.get(0).get(1).word());
+  assertEquals("3",sentences.get(0).get(2).word());
+  assertEquals("4",sentences.get(1).get(0).word());
+  assertEquals("5",sentences.get(1).get(1).word());
+  assertEquals("6",sentences.get(2).get(0).word());
+}

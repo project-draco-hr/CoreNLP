@@ -1,0 +1,18 @@
+{
+  StringBuffer buf=new StringBuffer();
+  boolean doPrint=false;
+  buf.append("...");
+  for (int i=0; i < mTokens.size(); i++) {
+    if (doPrint == false && mTokens.get(i).getByteOffset().start() > start - 20 && mTokens.get(i).getByteOffset().end() < end) {
+      doPrint=true;
+    }
+ else     if (doPrint == true && mTokens.get(i).getByteOffset().start() > end + 20) {
+      doPrint=false;
+    }
+    if (doPrint) {
+      buf.append(" " + mTokens.get(i).display());
+    }
+  }
+  buf.append("...");
+  return buf.toString();
+}

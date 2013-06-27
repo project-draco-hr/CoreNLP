@@ -1,0 +1,18 @@
+{
+  if (tree.isPhrasal()) {
+    if (tree.isPrePreTerminal() && tree.value().startsWith("NP")) {
+      return false;
+    }
+    Tree[] kids=tree.children();
+    for (    Tree t : kids) {
+      if (hasClausalV(t)) {
+        return true;
+      }
+    }
+    return false;
+  }
+ else {
+    String str=tree.value();
+    return str.startsWith("VB") || str.startsWith("MD");
+  }
+}

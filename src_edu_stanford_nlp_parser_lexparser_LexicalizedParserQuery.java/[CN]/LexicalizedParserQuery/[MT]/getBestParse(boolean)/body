@@ -1,0 +1,27 @@
+{
+  if (parseSkipped) {
+    return null;
+  }
+  if (bparser != null && parseSucceeded) {
+    Tree binaryTree=bparser.getBestParse();
+    Tree tree=debinarizer.transformTree(binaryTree);
+    if (op.nodePrune) {
+      NodePruner np=new NodePruner(pparser,debinarizer);
+      tree=np.prune(tree);
+    }
+    if (stripSubcat) {
+      tree=subcategoryStripper.transformTree(tree);
+    }
+    restoreOriginalWords(tree);
+    return tree;
+  }
+ else   if (pparser != null && pparser.hasParse() && fallbackToPCFG) {
+    return getBestPCFGParse();
+  }
+ else   if (dparser != null && dparser.hasParse()) {
+    return getBestDependencyParse(true);
+  }
+ else {
+    throw new NoSuchParseException();
+  }
+}

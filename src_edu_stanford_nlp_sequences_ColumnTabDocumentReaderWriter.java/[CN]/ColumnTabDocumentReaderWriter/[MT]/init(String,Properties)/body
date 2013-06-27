@@ -1,0 +1,23 @@
+{
+  String prefix=(name == null) ? "" : name + ".";
+  String delimiterRegex=props.getProperty(prefix + "delimiter");
+  if (delimiterRegex != null) {
+    delimiterPattern=Pattern.compile(delimiterRegex);
+  }
+  replaceWhitespace=PropertiesUtils.getBool(props,prefix + "replaceWhitespace",replaceWhitespace);
+  String mapString=props.getProperty(prefix + "columns");
+  tokensAnnotationClassName=props.getProperty(prefix + "tokens","edu.stanford.nlp.ling.CoreAnnotations$TokensAnnotation");
+  String tokenFactoryClassName=props.getProperty(prefix + "tokenFactory");
+  if (tokenFactoryClassName != null) {
+    try {
+      this.tokenFactory=(CoreTokenFactory<IN>)Class.forName(tokenFactoryClassName).newInstance();
+    }
+ catch (    Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+ else {
+    this.tokenFactory=(CoreTokenFactory<IN>)new CoreLabelTokenFactory();
+  }
+  init(mapString,this.tokenFactory,this.tokensAnnotationClassName);
+}

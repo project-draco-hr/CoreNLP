@@ -1,0 +1,26 @@
+{
+  String query=request.getParameter("q");
+  String dateString=request.getParameter("d");
+  boolean dateError=!pipeline.isDateOkay(dateString);
+  boolean includeOffsets=parseBoolean(request.getParameter("includeOffsets"));
+  PrintWriter out=response.getWriter();
+  if (dateError) {
+    out.println("<br><br>Warning: unparseable date " + StringEscapeUtils.escapeHtml4(dateString));
+  }
+  if (query != null && !query.equals("")) {
+    Properties props=getTimeAnnotatorProperties(request);
+    String annotatorType=request.getParameter("annotator");
+    if (annotatorType == null) {
+      annotatorType="sutime";
+    }
+    Annotator timeAnnotator=pipeline.getTimeAnnotator(annotatorType,props);
+    if (timeAnnotator != null) {
+      Annotation anno=pipeline.process(query,dateString,timeAnnotator);
+      out.println("<h3>Annotated Text</h3> <em>(tagged using " + annotatorType + "</em>)");
+      displayAnnotation(out,query,anno,includeOffsets);
+    }
+ else {
+      out.println("<br><br>Error creating annotator for " + annotatorType);
+    }
+  }
+}

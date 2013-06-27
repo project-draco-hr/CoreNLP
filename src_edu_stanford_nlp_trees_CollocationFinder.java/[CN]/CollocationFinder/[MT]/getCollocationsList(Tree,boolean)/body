@@ -1,0 +1,66 @@
+{
+  int leftMostLeaf=Trees.leftEdge(t,qTree);
+  if (t.isPreTerminal())   return;
+  List<Tree> children=t.getChildrenAsList();
+  if (children.isEmpty())   return;
+  Label headLabel=hf.determineHead(t).label();
+  StringBuffer testString=null;
+  Integer leftSistersBuffer=0;
+  for (int i=0; i < children.size(); i++) {
+    ArrayList<Integer> childConstituents=new ArrayList<Integer>();
+    childConstituents.add(i);
+    Tree subtree=children.get(i);
+    Integer currWindowLength=0;
+    getCollocationsList(subtree,threadSafe);
+    testString=new StringBuffer(160);
+    testString.append(treeAsStemmedCollocation(subtree,threadSafe));
+    testString.append("_");
+    Integer thisSubtreeLength=subtree.yield().size();
+    currWindowLength+=thisSubtreeLength;
+    StringBuffer testStringNonStemmed=new StringBuffer(160);
+    testStringNonStemmed.append(treeAsNonStemmedCollocation(subtree));
+    testStringNonStemmed.append("_");
+    for (int j=i + 1; j < children.size(); j++) {
+      Tree sisterNode=children.get(j);
+      childConstituents.add(j);
+      testString.append(treeAsStemmedCollocation(sisterNode,threadSafe));
+      testStringNonStemmed.append(treeAsNonStemmedCollocation(sisterNode));
+      currWindowLength+=sisterNode.yield().size();
+      if (DEBUG) {
+      }
+      if (StringUtils.lookingAt(testString.toString(),"(?:[Tt]he|THE|[Aa][Nn]?)[ _]")) {
+        if (false) {
+          err.println("CollocationFinder: Not collapsing the/a word: " + testString);
+        }
+      }
+ else       if (wordNetContains(testString.toString())) {
+        Pair<Integer,Integer> c=new Pair<Integer,Integer>(leftMostLeaf + leftSistersBuffer,leftMostLeaf + leftSistersBuffer + currWindowLength - 1);
+        ArrayList<Integer> childConstituentsClone=new ArrayList<Integer>(childConstituents);
+        Collocation col=new Collocation(c,t,childConstituentsClone,testString.toString(),headLabel);
+        collocationCollector.add(col);
+        if (DEBUG) {
+          err.println("Found collocation in wordnet: " + testString.toString());
+          err.println("  Span of collocation is: " + c + "; childConstituents is: "+ c);
+        }
+      }
+      testString.append("_");
+      if (StringUtils.lookingAt(testStringNonStemmed.toString(),"(?:[Tt]he|THE|[Aa][Nn]?)[ _]")) {
+        if (false) {
+          err.println("CollocationFinder: Not collapsing the/a word: " + testStringNonStemmed);
+        }
+      }
+ else       if (wordNetContains(testStringNonStemmed.toString())) {
+        Pair<Integer,Integer> c=new Pair<Integer,Integer>(leftMostLeaf + leftSistersBuffer,leftMostLeaf + leftSistersBuffer + currWindowLength - 1);
+        ArrayList<Integer> childConstituentsClone=new ArrayList<Integer>(childConstituents);
+        Collocation col=new Collocation(c,t,childConstituentsClone,testStringNonStemmed.toString(),headLabel);
+        collocationCollector.add(col);
+        if (DEBUG) {
+          err.println("Found collocation in wordnet: " + testStringNonStemmed.toString());
+          err.println("  Span of collocation is: " + c + "; childConstituents is: "+ c);
+        }
+      }
+      testStringNonStemmed.append("_");
+    }
+    leftSistersBuffer+=thisSubtreeLength;
+  }
+}

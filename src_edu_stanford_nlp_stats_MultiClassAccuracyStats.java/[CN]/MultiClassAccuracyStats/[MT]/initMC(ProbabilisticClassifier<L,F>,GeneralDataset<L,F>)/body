@@ -1,0 +1,31 @@
+{
+  PriorityQueue<Pair<Integer,Pair<Double,Boolean>>> q=new BinaryHeapPriorityQueue<Pair<Integer,Pair<Double,Boolean>>>();
+  total=0;
+  correct=0;
+  logLikelihood=0.0;
+  for (int i=0; i < data.size(); i++) {
+    Datum<L,F> d=data.getRVFDatum(i);
+    Counter<L> scores=classifier.logProbabilityOf(d);
+    L guess=Counters.argmax(scores);
+    L correctLab=d.label();
+    double guessScore=scores.getCount(guess);
+    double correctScore=scores.getCount(correctLab);
+    int guessInd=data.labelIndex().indexOf(guess);
+    int correctInd=data.labelIndex().indexOf(correctLab);
+    total++;
+    if (guessInd == correctInd) {
+      correct++;
+    }
+    logLikelihood+=correctScore;
+    q.add(new Pair<Integer,Pair<Double,Boolean>>(Integer.valueOf(i),new Pair<Double,Boolean>(new Double(guessScore),Boolean.valueOf(guessInd == correctInd))),-guessScore);
+  }
+  accuracy=(double)correct / (double)total;
+  List<Pair<Integer,Pair<Double,Boolean>>> sorted=q.toSortedList();
+  scores=new double[sorted.size()];
+  isCorrect=new boolean[sorted.size()];
+  for (int i=0; i < sorted.size(); i++) {
+    Pair<Double,Boolean> next=sorted.get(i).second();
+    scores[i]=next.first().doubleValue();
+    isCorrect[i]=next.second().booleanValue();
+  }
+}

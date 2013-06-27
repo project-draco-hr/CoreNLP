@@ -1,0 +1,107 @@
+{
+  Object funcValue=ValueFunctions.lookupFunctionObject(env,function);
+  if (funcValue == null) {
+    throw new RuntimeException("Unknown function " + function);
+  }
+  if (funcValue instanceof Value) {
+    funcValue=((Value)funcValue).evaluate(env,args).get();
+  }
+  if (funcValue instanceof ValueFunction) {
+    ValueFunction f=(ValueFunction)funcValue;
+    List<Value> evaled=new ArrayList<Value>();
+    for (    Expression param : params) {
+      evaled.add(param.evaluate(env,args));
+    }
+    return f.apply(env,evaled);
+  }
+ else   if (funcValue instanceof Collection) {
+    List<Value> evaled=new ArrayList<Value>();
+    for (    Expression param : params) {
+      evaled.add(param.evaluate(env,args));
+    }
+    Collection<ValueFunction> fs=(Collection<ValueFunction>)funcValue;
+    for (    ValueFunction f : fs) {
+      if (f.checkArgs(evaled)) {
+        return f.apply(env,evaled);
+      }
+    }
+    StringBuilder sb=new StringBuilder();
+    sb.append("Cannot find function matching args: " + function + NEWLINE);
+    sb.append("Args are: " + StringUtils.join(evaled,",") + NEWLINE);
+    if (fs.size() > 0) {
+      sb.append("Options are:\n" + StringUtils.join(fs,NEWLINE));
+    }
+ else {
+      sb.append("No options");
+    }
+    throw new RuntimeException(sb.toString());
+  }
+ else   if (funcValue instanceof Class) {
+    Class c=(Class)funcValue;
+    List<Value> evaled=new ArrayList<Value>();
+    for (    Expression param : params) {
+      evaled.add(param.evaluate(env,args));
+    }
+    Class[] paramTypes=new Class[params.size()];
+    Object[] objs=new Object[params.size()];
+    boolean paramsNotNull=true;
+    for (int i=0; i < params.size(); i++) {
+      Value v=evaled.get(i);
+      if (v != null) {
+        objs[i]=v.get();
+        if (objs[i] != null) {
+          paramTypes[i]=objs[i].getClass();
+        }
+ else {
+          paramTypes[i]=null;
+          paramsNotNull=false;
+        }
+      }
+ else {
+        objs[i]=null;
+        paramTypes[i]=null;
+        paramsNotNull=false;
+      }
+    }
+    if (paramsNotNull) {
+      Object obj=MetaClass.create(c).createInstance(objs);
+      if (obj != null) {
+        return new PrimitiveValue<Object>(function,obj);
+      }
+    }
+    try {
+      Constructor constructor=null;
+      try {
+        constructor=c.getConstructor(paramTypes);
+      }
+ catch (      NoSuchMethodException ex) {
+        Constructor[] constructors=c.getConstructors();
+        for (        Constructor cons : constructors) {
+          Class[] consParamTypes=cons.getParameterTypes();
+          boolean compatible=isArgTypesCompatible(paramTypes,consParamTypes);
+          if (compatible) {
+            constructor=cons;
+            break;
+          }
+        }
+        if (constructor == null) {
+          throw new RuntimeException("Cannot instantiate " + c,ex);
+        }
+      }
+      Object obj=constructor.newInstance(objs);
+      return new PrimitiveValue<Object>(function,obj);
+    }
+ catch (    InvocationTargetException ex) {
+      throw new RuntimeException("Cannot instantiate " + c,ex);
+    }
+catch (    InstantiationException ex) {
+      throw new RuntimeException("Cannot instantiate " + c,ex);
+    }
+catch (    IllegalAccessException ex) {
+      throw new RuntimeException("Cannot instantiate " + c,ex);
+    }
+  }
+ else {
+    throw new UnsupportedOperationException("Unsupported function value " + funcValue);
+  }
+}

@@ -1,0 +1,58 @@
+{
+  this.op=parser.getOp();
+  BinaryGrammar bg=parser.bg;
+  UnaryGrammar ug=parser.ug;
+  Lexicon lex=parser.lex;
+  DependencyGrammar dg=parser.dg;
+  Index<String> stateIndex=parser.stateIndex;
+  Index<String> wordIndex=new DeltaIndex<String>(parser.wordIndex);
+  Index<String> tagIndex=parser.tagIndex;
+  this.debinarizer=new Debinarizer(op.forceCNF);
+  this.boundaryRemover=new BoundaryRemover();
+  if (op.doPCFG) {
+    if (op.testOptions.iterativeCKY) {
+      pparser=new IterativeCKYPCFGParser(bg,ug,lex,op,stateIndex,wordIndex,tagIndex);
+    }
+ else {
+      pparser=new ExhaustivePCFGParser(bg,ug,lex,op,stateIndex,wordIndex,tagIndex);
+    }
+  }
+ else {
+    pparser=null;
+  }
+  if (op.doDep) {
+    dg.setLexicon(lex);
+    if (!op.testOptions.useFastFactored) {
+      dparser=new ExhaustiveDependencyParser(dg,lex,op,wordIndex,tagIndex);
+    }
+ else {
+      dparser=null;
+    }
+  }
+ else {
+    dparser=null;
+  }
+  if (op.doDep && op.doPCFG) {
+    if (op.testOptions.useFastFactored) {
+      MLEDependencyGrammar mledg=(MLEDependencyGrammar)dg;
+      int numToFind=1;
+      if (op.testOptions.printFactoredKGood > 0) {
+        numToFind=op.testOptions.printFactoredKGood;
+      }
+      bparser=new FastFactoredParser(pparser,mledg,op,numToFind,wordIndex,tagIndex);
+    }
+ else {
+      Scorer scorer=new TwinScorer(pparser,dparser);
+      if (op.testOptions.useN5) {
+        bparser=new BiLexPCFGParser.N5BiLexPCFGParser(scorer,pparser,dparser,bg,ug,dg,lex,op,stateIndex,wordIndex,tagIndex);
+      }
+ else {
+        bparser=new BiLexPCFGParser(scorer,pparser,dparser,bg,ug,dg,lex,op,stateIndex,wordIndex,tagIndex);
+      }
+    }
+  }
+ else {
+    bparser=null;
+  }
+  subcategoryStripper=op.tlpParams.subcategoryStripper();
+}

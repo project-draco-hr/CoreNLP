@@ -1,0 +1,130 @@
+{
+  this.sequence=sequence;
+  if (sequence[position] == oldVal)   return;
+  if (VERBOSE)   System.err.println("changing position " + position + " from "+ classIndex.get(oldVal)+ " to "+ classIndex.get(sequence[position]));
+  if (sequence[position] == backgroundSymbol) {
+    String oldRawTag=classIndex.get(oldVal);
+    String[] oldParts=oldRawTag.split("-");
+    if (oldParts[0].equals("B")) {
+      EntityBIO entity=entities[position];
+      if (entity == null)       throw new RuntimeException("oldTag starts with B, entity at position should not be null");
+      for (int i=0; i < entity.words.size(); i++) {
+        entities[position + i]=null;
+      }
+    }
+ else {
+      if (entities[position] != null) {
+        if (VERBOSE)         System.err.println("splitting off prev entity");
+        EntityBIO oldEntity=entities[position];
+        int oldLen=oldEntity.words.size();
+        int offset=position - oldEntity.startPosition;
+        List<String> newWords=new ArrayList<String>();
+        for (int i=0; i < offset; i++) {
+          newWords.add(oldEntity.words.get(i));
+        }
+        oldEntity.words=newWords;
+        oldEntity.otherOccurrences=otherOccurrences(oldEntity);
+        for (int i=0; i < oldLen - offset; i++) {
+          entities[position + i]=null;
+        }
+        if (VERBOSE && position > 0)         System.err.println("position:" + position + ", entities[position-1] = "+ entities[position - 1].toString(tagIndex));
+      }
+    }
+  }
+ else {
+    String rawTag=classIndex.get(sequence[position]);
+    String[] parts=rawTag.split("-");
+    if (parts[0].equals("B")) {
+      if (oldVal == backgroundSymbol) {
+        EntityBIO entity=extractEntity(sequence,position,parts[1]);
+        addEntityToEntitiesArray(entity);
+      }
+ else {
+        String oldRawTag=classIndex.get(oldVal);
+        String[] oldParts=oldRawTag.split("-");
+        if (oldParts[0].equals("B")) {
+          EntityBIO oldEntity=entities[position];
+          if (oldEntity.words.size() > 1) {
+            for (int i=0; i < oldEntity.words.size(); i++)             entities[position + i]=null;
+            EntityBIO entity=extractEntity(sequence,position,parts[1]);
+            addEntityToEntitiesArray(entity);
+          }
+ else {
+            EntityBIO entity=extractEntity(sequence,position,parts[1]);
+            addEntityToEntitiesArray(entity);
+          }
+        }
+ else {
+          EntityBIO oldEntity=entities[position];
+          if (oldEntity != null) {
+            int oldLen=oldEntity.words.size();
+            int offset=position - oldEntity.startPosition;
+            List<String> newWords=new ArrayList<String>();
+            for (int i=0; i < offset; i++) {
+              newWords.add(oldEntity.words.get(i));
+            }
+            oldEntity.words=newWords;
+            oldEntity.otherOccurrences=otherOccurrences(oldEntity);
+            for (int i=0; i < oldLen - offset; i++) {
+              entities[position + i]=null;
+            }
+          }
+          EntityBIO entity=extractEntity(sequence,position,parts[1]);
+          addEntityToEntitiesArray(entity);
+        }
+      }
+    }
+ else {
+      if (oldVal == backgroundSymbol) {
+        if (position > 0) {
+          if (entities[position - 1] != null) {
+            String oldTag=tagIndex.get(entities[position - 1].type);
+            EntityBIO entity=extractEntity(sequence,position - 1 - entities[position - 1].words.size() + 1,oldTag);
+            addEntityToEntitiesArray(entity);
+          }
+        }
+      }
+ else {
+        String oldRawTag=classIndex.get(oldVal);
+        String[] oldParts=oldRawTag.split("-");
+        if (oldParts[0].equals("B")) {
+          EntityBIO oldEntity=entities[position];
+          for (int i=0; i < oldEntity.words.size(); i++)           entities[position + i]=null;
+          if (position > 0) {
+            if (entities[position - 1] != null) {
+              String oldTag=tagIndex.get(entities[position - 1].type);
+              if (VERBOSE)               System.err.println("position:" + position + ", entities[position-1] = "+ entities[position - 1].toString(tagIndex));
+              EntityBIO entity=extractEntity(sequence,position - 1 - entities[position - 1].words.size() + 1,oldTag);
+              addEntityToEntitiesArray(entity);
+            }
+          }
+        }
+ else {
+          if (entities[position] != null) {
+            EntityBIO oldEntity=entities[position];
+            int oldLen=oldEntity.words.size();
+            int offset=position - oldEntity.startPosition;
+            List<String> newWords=new ArrayList<String>();
+            for (int i=0; i < offset; i++) {
+              newWords.add(oldEntity.words.get(i));
+            }
+            oldEntity.words=newWords;
+            oldEntity.otherOccurrences=otherOccurrences(oldEntity);
+            for (int i=0; i < oldLen - offset; i++) {
+              entities[position + i]=null;
+            }
+          }
+ else {
+            if (position > 0) {
+              if (entities[position - 1] != null) {
+                String oldTag=tagIndex.get(entities[position - 1].type);
+                EntityBIO entity=extractEntity(sequence,position - 1 - entities[position - 1].words.size() + 1,oldTag);
+                addEntityToEntitiesArray(entity);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

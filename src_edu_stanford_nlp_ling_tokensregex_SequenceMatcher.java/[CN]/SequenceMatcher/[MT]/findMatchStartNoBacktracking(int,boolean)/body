@@ -1,0 +1,19 @@
+{
+  boolean matchAll=true;
+  MatchedStates cStates=getStartStates();
+  curMatchStates=cStates;
+  for (int i=start; i < regionEnd; i++) {
+    boolean match=cStates.match(i);
+    if (cStates == null || cStates.size() == 0) {
+      break;
+    }
+    if (!matchAllTokens) {
+      if ((matchAll && cStates.isAllMatch()) || (!matchAll && cStates.isMatch())) {
+        cStates.completeMatch();
+        return true;
+      }
+    }
+  }
+  cStates.completeMatch();
+  return cStates.isMatch();
+}

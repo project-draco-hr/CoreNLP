@@ -1,0 +1,20 @@
+{
+  Font font=g2.getFont();
+  String fontName=font.getName();
+  int style=font.getStyle();
+  for (int size=maxFontSize; size > minFontSize; size--) {
+    font=new Font(fontName,style,size);
+    g2.setFont(font);
+    FontMetrics fontMetrics=g2.getFontMetrics();
+    if (height(tree,fontMetrics) > space.getHeight()) {
+      continue;
+    }
+    if (width(tree,fontMetrics) > space.getWidth()) {
+      continue;
+    }
+    return fontMetrics;
+  }
+  font=new Font(fontName,style,minFontSize);
+  g2.setFont(font);
+  return g2.getFontMetrics();
+}

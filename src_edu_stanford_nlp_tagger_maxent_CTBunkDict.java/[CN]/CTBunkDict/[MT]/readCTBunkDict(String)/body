@@ -1,0 +1,22 @@
+{
+  CTBunk_dict=Generics.newHashMap();
+  try {
+    BufferedReader CTBunkDetectorReader=new BufferedReader(new InputStreamReader(new FileInputStream(filename),"GB18030"));
+    for (String CTBunkDetectorLine; (CTBunkDetectorLine=CTBunkDetectorReader.readLine()) != null; ) {
+      String[] fields=CTBunkDetectorLine.split(" ");
+      String tag=fields[1];
+      Set<String> words=CTBunk_dict.get(tag);
+      if (words == null) {
+        words=Generics.newHashSet();
+        CTBunk_dict.put(tag,words);
+      }
+      words.add(fields[0]);
+    }
+  }
+ catch (  FileNotFoundException e) {
+    throw new RuntimeIOException("CTBunk file not found: " + filename,e);
+  }
+catch (  IOException e) {
+    throw new RuntimeIOException("CTBunk I/O error: " + filename,e);
+  }
+}

@@ -1,0 +1,13 @@
+{
+  ObjectBank<List<IN>> docs=makeObjectBankFromString(sentence,readerAndWriter);
+  StringWriter stringWriter=new StringWriter();
+  PrintWriter stringPrintWriter=new PrintWriter(stringWriter);
+  for (  List<IN> doc : docs) {
+    classify(doc);
+    readerAndWriter.printAnswers(doc,stringPrintWriter);
+    stringPrintWriter.println();
+  }
+  stringPrintWriter.close();
+  String segmented=stringWriter.toString();
+  return Arrays.asList(segmented.split("\\s"));
+}

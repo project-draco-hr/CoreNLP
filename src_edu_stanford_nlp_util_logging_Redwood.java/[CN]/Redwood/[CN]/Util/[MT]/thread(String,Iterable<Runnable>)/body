@@ -1,0 +1,48 @@
+{
+  final AtomicBoolean haveStarted=new AtomicBoolean(false);
+  final ReentrantLock metaInfoLock=new ReentrantLock();
+  int count=0;
+  Iterator<Runnable> iterableRunnables=runnables.iterator();
+  while (iterableRunnables.hasNext()) {
+    count++;
+    iterableRunnables.next();
+  }
+  final int numToRun=count;
+  ArrayList<Runnable> rtn=new ArrayList<Runnable>(numToRun);
+  final AtomicInteger runnablesSeen=new AtomicInteger(0);
+  for (  final Runnable runnable : runnables) {
+    rtn.add(new Runnable(){
+      public void run(){
+        try {
+          metaInfoLock.lock();
+          if (!haveStarted.getAndSet(true)) {
+            startThreads(title);
+          }
+          metaInfoLock.unlock();
+          try {
+            runnable.run();
+          }
+ catch (          Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+          }
+catch (          AssertionError e) {
+            e.printStackTrace();
+            System.exit(1);
+          }
+          finishThread();
+          int seen=runnablesSeen.getAndIncrement() + 1;
+          if (seen == numToRun) {
+            endThreads(title);
+          }
+        }
+ catch (        Throwable t) {
+          t.printStackTrace();
+          System.exit(1);
+        }
+      }
+    }
+);
+  }
+  return rtn;
+}

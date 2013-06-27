@@ -1,0 +1,320 @@
+{
+  final boolean lengthNormalization=op.testOptions.lengthNormalization;
+  if (spillGuts) {
+    tick("Binaries for span " + diff + " start "+ start+ " ...");
+  }
+  int end=start + diff;
+  final List<ParserConstraint> constraints=getConstraints();
+  if (constraints != null) {
+    for (    ParserConstraint c : constraints) {
+      if ((start > c.start && start < c.end && end > c.end) || (end > c.start && end < c.end && start < c.start)) {
+        return;
+      }
+    }
+  }
+  int[] narrowRExtent_start=narrowRExtent[start];
+  int[] wideRExtent_start=wideRExtent[start];
+  int[] narrowLExtent_end=narrowLExtent[end];
+  int[] wideLExtent_end=wideLExtent[end];
+  float[][] iScore_start=iScore[start];
+  float[] iScore_start_end=iScore_start[end];
+  for (int leftState=0; leftState < numStates; leftState++) {
+    int narrowR=narrowRExtent_start[leftState];
+    if (narrowR >= end) {
+      continue;
+    }
+    BinaryRule[] leftRules=bg.splitRulesWithLC(leftState);
+    for (    BinaryRule rule : leftRules) {
+      int rightChild=rule.rightChild;
+      int narrowL=narrowLExtent_end[rightChild];
+      if (narrowL < narrowR) {
+        continue;
+      }
+      int min2=wideLExtent_end[rightChild];
+      int min=(narrowR > min2 ? narrowR : min2);
+      int max1=wideRExtent_start[leftState];
+      int max=(max1 < narrowL ? max1 : narrowL);
+      if (min > max) {
+        continue;
+      }
+      float pS=rule.score;
+      int parentState=rule.parent;
+      float oldIScore=iScore_start_end[parentState];
+      float bestIScore=oldIScore;
+      boolean foundBetter;
+      if (!lengthNormalization) {
+        for (int split=min; split <= max; split++) {
+          if (constraints != null) {
+            boolean skip=false;
+            for (            ParserConstraint c : constraints) {
+              if (((start < c.start && end >= c.end) || (start <= c.start && end > c.end)) && split > c.start && split < c.end) {
+                skip=true;
+                break;
+              }
+              if ((start == c.start && split == c.end)) {
+                String tag=stateIndex.get(leftState);
+                Matcher m=c.state.matcher(tag);
+                if (!m.matches()) {
+                  skip=true;
+                  break;
+                }
+              }
+              if ((split == c.start && end == c.end)) {
+                String tag=stateIndex.get(rightChild);
+                Matcher m=c.state.matcher(tag);
+                if (!m.matches()) {
+                  skip=true;
+                  break;
+                }
+              }
+            }
+            if (skip) {
+              continue;
+            }
+          }
+          float lS=iScore_start[split][leftState];
+          if (lS == Float.NEGATIVE_INFINITY) {
+            continue;
+          }
+          float rS=iScore[split][end][rightChild];
+          if (rS == Float.NEGATIVE_INFINITY) {
+            continue;
+          }
+          float tot=pS + lS + rS;
+          if (spillGuts) {
+            System.err.println("Rule " + rule + " over ["+ start+ ","+ end+ ") has log score "+ tot+ " from L["+ stateIndex.get(leftState)+ "="+ leftState+ "] = "+ lS+ " R["+ stateIndex.get(rightChild)+ "="+ rightChild+ "] =  "+ rS);
+          }
+          if (tot > bestIScore) {
+            bestIScore=tot;
+          }
+        }
+        foundBetter=bestIScore > oldIScore;
+      }
+ else {
+        int bestWordsInSpan=wordsInSpan[start][end][parentState];
+        float oldNormIScore=oldIScore / bestWordsInSpan;
+        float bestNormIScore=oldNormIScore;
+        for (int split=min; split <= max; split++) {
+          float lS=iScore_start[split][leftState];
+          if (lS == Float.NEGATIVE_INFINITY) {
+            continue;
+          }
+          float rS=iScore[split][end][rightChild];
+          if (rS == Float.NEGATIVE_INFINITY) {
+            continue;
+          }
+          float tot=pS + lS + rS;
+          int newWordsInSpan=wordsInSpan[start][split][leftState] + wordsInSpan[split][end][rightChild];
+          float normTot=tot / newWordsInSpan;
+          if (normTot > bestNormIScore) {
+            bestIScore=tot;
+            bestNormIScore=normTot;
+            bestWordsInSpan=newWordsInSpan;
+          }
+        }
+        foundBetter=bestNormIScore > oldNormIScore;
+        if (foundBetter) {
+          wordsInSpan[start][end][parentState]=bestWordsInSpan;
+        }
+      }
+      if (foundBetter) {
+        iScore_start_end[parentState]=bestIScore;
+        if (spillGuts)         System.err.println("Could build " + stateIndex.get(parentState) + " from "+ start+ " to "+ end+ " score "+ bestIScore);
+        if (oldIScore == Float.NEGATIVE_INFINITY) {
+          if (start > narrowLExtent_end[parentState]) {
+            narrowLExtent_end[parentState]=wideLExtent_end[parentState]=start;
+          }
+ else           if (start < wideLExtent_end[parentState]) {
+            wideLExtent_end[parentState]=start;
+          }
+          if (end < narrowRExtent_start[parentState]) {
+            narrowRExtent_start[parentState]=wideRExtent_start[parentState]=end;
+          }
+ else           if (end > wideRExtent_start[parentState]) {
+            wideRExtent_start[parentState]=end;
+          }
+        }
+      }
+    }
+  }
+  for (int rightState=0; rightState < numStates; rightState++) {
+    int narrowL=narrowLExtent_end[rightState];
+    if (narrowL <= start) {
+      continue;
+    }
+    BinaryRule[] rightRules=bg.splitRulesWithRC(rightState);
+    for (    BinaryRule rule : rightRules) {
+      int leftChild=rule.leftChild;
+      int narrowR=narrowRExtent_start[leftChild];
+      if (narrowR > narrowL) {
+        continue;
+      }
+      int min2=wideLExtent_end[rightState];
+      int min=(narrowR > min2 ? narrowR : min2);
+      int max1=wideRExtent_start[leftChild];
+      int max=(max1 < narrowL ? max1 : narrowL);
+      if (min > max) {
+        continue;
+      }
+      float pS=rule.score;
+      int parentState=rule.parent;
+      float oldIScore=iScore_start_end[parentState];
+      float bestIScore=oldIScore;
+      boolean foundBetter;
+      if (!lengthNormalization) {
+        for (int split=min; split <= max; split++) {
+          if (constraints != null) {
+            boolean skip=false;
+            for (            ParserConstraint c : constraints) {
+              if (((start < c.start && end >= c.end) || (start <= c.start && end > c.end)) && split > c.start && split < c.end) {
+                skip=true;
+                break;
+              }
+              if ((start == c.start && split == c.end)) {
+                String tag=stateIndex.get(leftChild);
+                Matcher m=c.state.matcher(tag);
+                if (!m.matches()) {
+                  skip=true;
+                  break;
+                }
+              }
+              if ((split == c.start && end == c.end)) {
+                String tag=stateIndex.get(rightState);
+                Matcher m=c.state.matcher(tag);
+                if (!m.matches()) {
+                  skip=true;
+                  break;
+                }
+              }
+            }
+            if (skip) {
+              continue;
+            }
+          }
+          float lS=iScore_start[split][leftChild];
+          if (lS == Float.NEGATIVE_INFINITY) {
+            continue;
+          }
+          float rS=iScore[split][end][rightState];
+          if (rS == Float.NEGATIVE_INFINITY) {
+            continue;
+          }
+          float tot=pS + lS + rS;
+          if (tot > bestIScore) {
+            bestIScore=tot;
+          }
+        }
+        foundBetter=bestIScore > oldIScore;
+      }
+ else {
+        int bestWordsInSpan=wordsInSpan[start][end][parentState];
+        float oldNormIScore=oldIScore / bestWordsInSpan;
+        float bestNormIScore=oldNormIScore;
+        for (int split=min; split <= max; split++) {
+          float lS=iScore_start[split][leftChild];
+          if (lS == Float.NEGATIVE_INFINITY) {
+            continue;
+          }
+          float rS=iScore[split][end][rightState];
+          if (rS == Float.NEGATIVE_INFINITY) {
+            continue;
+          }
+          float tot=pS + lS + rS;
+          int newWordsInSpan=wordsInSpan[start][split][leftChild] + wordsInSpan[split][end][rightState];
+          float normTot=tot / newWordsInSpan;
+          if (normTot > bestNormIScore) {
+            bestIScore=tot;
+            bestNormIScore=normTot;
+            bestWordsInSpan=newWordsInSpan;
+          }
+        }
+        foundBetter=bestNormIScore > oldNormIScore;
+        if (foundBetter) {
+          wordsInSpan[start][end][parentState]=bestWordsInSpan;
+        }
+      }
+      if (foundBetter) {
+        iScore_start_end[parentState]=bestIScore;
+        if (spillGuts)         System.err.println("Could build " + stateIndex.get(parentState) + " from "+ start+ " to "+ end+ " with score "+ bestIScore);
+        if (oldIScore == Float.NEGATIVE_INFINITY) {
+          if (start > narrowLExtent_end[parentState]) {
+            narrowLExtent_end[parentState]=wideLExtent_end[parentState]=start;
+          }
+ else           if (start < wideLExtent_end[parentState]) {
+            wideLExtent_end[parentState]=start;
+          }
+          if (end < narrowRExtent_start[parentState]) {
+            narrowRExtent_start[parentState]=wideRExtent_start[parentState]=end;
+          }
+ else           if (end > wideRExtent_start[parentState]) {
+            wideRExtent_start[parentState]=end;
+          }
+        }
+      }
+    }
+  }
+  if (spillGuts) {
+    tick("Unaries for span " + diff + "...");
+  }
+  for (int state=0; state < numStates; state++) {
+    float iS=iScore_start_end[state];
+    if (iS == Float.NEGATIVE_INFINITY) {
+      continue;
+    }
+    UnaryRule[] unaries=ug.closedRulesByChild(state);
+    for (    UnaryRule ur : unaries) {
+      if (constraints != null) {
+        boolean skip=false;
+        for (        ParserConstraint c : constraints) {
+          if ((start == c.start && end == c.end)) {
+            String tag=stateIndex.get(ur.parent);
+            Matcher m=c.state.matcher(tag);
+            if (!m.matches()) {
+              skip=true;
+              break;
+            }
+          }
+        }
+        if (skip) {
+          continue;
+        }
+      }
+      int parentState=ur.parent;
+      float pS=ur.score;
+      float tot=iS + pS;
+      float cur=iScore_start_end[parentState];
+      boolean foundBetter;
+      if (lengthNormalization) {
+        int totWordsInSpan=wordsInSpan[start][end][state];
+        float normTot=tot / totWordsInSpan;
+        int curWordsInSpan=wordsInSpan[start][end][parentState];
+        float normCur=cur / curWordsInSpan;
+        foundBetter=normTot > normCur;
+        if (foundBetter) {
+          wordsInSpan[start][end][parentState]=wordsInSpan[start][end][state];
+        }
+      }
+ else {
+        foundBetter=(tot > cur);
+      }
+      if (foundBetter) {
+        if (spillGuts)         System.err.println("Could build " + stateIndex.get(parentState) + " from "+ start+ " to "+ end+ " with score "+ tot);
+        iScore_start_end[parentState]=tot;
+        if (cur == Float.NEGATIVE_INFINITY) {
+          if (start > narrowLExtent_end[parentState]) {
+            narrowLExtent_end[parentState]=wideLExtent_end[parentState]=start;
+          }
+ else           if (start < wideLExtent_end[parentState]) {
+            wideLExtent_end[parentState]=start;
+          }
+          if (end < narrowRExtent_start[parentState]) {
+            narrowRExtent_start[parentState]=wideRExtent_start[parentState]=end;
+          }
+ else           if (end > wideRExtent_start[parentState]) {
+            wideRExtent_start[parentState]=end;
+          }
+        }
+      }
+    }
+  }
+}

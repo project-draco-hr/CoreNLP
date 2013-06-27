@@ -1,0 +1,28 @@
+{
+  value=0.0;
+  int batchSize=batch.length;
+  double[] sums=new double[numClasses];
+  for (int d=0; d < batchSize; d++) {
+    int m=batch[d];
+    int[] features=data[m];
+    Arrays.fill(sums,0.0);
+    for (int c=0; c < numClasses; c++) {
+      for (int f=0; f < features.length; f++) {
+        int i=indexOf(features[f],c);
+        if (values != null) {
+          sums[c]+=x[i] * xscale * values[m][f];
+        }
+ else {
+          sums[c]+=x[i] * xscale;
+        }
+      }
+    }
+    double total=ArrayMath.logSum(sums);
+    double dV=sums[labels[m]] - total;
+    if (dataweights != null) {
+      dV*=dataweights[m];
+    }
+    value-=dV;
+  }
+  return value;
+}

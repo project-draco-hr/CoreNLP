@@ -1,0 +1,21 @@
+{
+  Pair<Integer,String> wT;
+  int general=maxentTagger.extractors.getSize();
+  if (nFeatFrame < general) {
+    wT=new Pair<Integer,String>(nFeatFrame,maxentTagger.extractors.extract(nFeatFrame,history));
+  }
+ else {
+    wT=new Pair<Integer,String>(nFeatFrame,maxentTagger.extractorsRare.extract(nFeatFrame - general,history));
+  }
+  if (tempHash.containsKey(wT)) {
+    ListInstances li=tempHash.get(wT);
+    if (TaggerExperiments.isPopulated(nFeatFrame,li.getNum(),maxentTagger)) {
+      li.add(number);
+    }
+  }
+ else {
+    ListInstances li=new ListInstances();
+    li.add(number);
+    tempHash.put(wT,li);
+  }
+}

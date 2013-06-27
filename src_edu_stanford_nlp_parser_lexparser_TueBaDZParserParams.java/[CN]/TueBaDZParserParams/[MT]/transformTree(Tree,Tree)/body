@@ -1,0 +1,51 @@
+{
+  if (t == null || t.isLeaf()) {
+    return t;
+  }
+  List<String> annotations=new ArrayList<String>();
+  CategoryWordTag lab=(CategoryWordTag)t.label();
+  String word=lab.word();
+  String tag=lab.tag();
+  String cat=lab.value();
+  Tree parent=t.parent(root);
+  if (t.isPhrasal()) {
+    List<String> childBasicCats=childBasicCats(t);
+    if (markZu && cat.startsWith("V") && (childBasicCats.contains("PTKZU") || childBasicCats.contains("PTKZU-HD") || childBasicCats.contains("VVIZU")|| childBasicCats.contains("VVIZU-HD"))) {
+      annotations.add("%ZU");
+    }
+    if (markContainsV && containsV(t)) {
+      annotations.add("%vp");
+    }
+    if (markKonjParent) {
+      for (      String cCat : childBasicCats) {
+        if (cCat.contains("-KONJ")) {
+          annotations.add("%konjp");
+          break;
+        }
+      }
+    }
+    if (markHDParent) {
+      for (      String cCat : childBasicCats) {
+        if (cCat.contains("-HD")) {
+          annotations.add("%hdp");
+          break;
+        }
+      }
+    }
+  }
+ else {
+    if (markColons && cat.equals("$.") && (word.equals(":") || word.equals(";"))) {
+      annotations.add("-%colon");
+    }
+    if (leftPhrasal && leftPhrasal(t)) {
+      annotations.add("%LP");
+    }
+    ;
+  }
+  StringBuilder catSB=new StringBuilder(cat);
+  for (  String annotation : annotations) {
+    catSB.append(annotation);
+  }
+  t.setLabel(new CategoryWordTag(catSB.toString(),word,tag));
+  return t;
+}

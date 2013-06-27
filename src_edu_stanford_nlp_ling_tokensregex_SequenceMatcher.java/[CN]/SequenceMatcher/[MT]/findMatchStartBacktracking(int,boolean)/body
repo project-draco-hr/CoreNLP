@@ -1,0 +1,33 @@
+{
+  boolean matchAll=true;
+  Stack<MatchedStates> todo=new Stack<MatchedStates>();
+  MatchedStates cStates=getStartStates();
+  cStates.curPosition=start - 1;
+  todo.push(cStates);
+  while (!todo.empty()) {
+    cStates=todo.pop();
+    int s=cStates.curPosition + 1;
+    for (int i=s; i < regionEnd; i++) {
+      boolean match=cStates.match(i);
+      if (cStates == null || cStates.size() == 0) {
+        break;
+      }
+      if (!matchAllTokens) {
+        if ((matchAll && cStates.isAllMatch()) || (!matchAll && cStates.isMatch())) {
+          cStates.completeMatch();
+          return true;
+        }
+      }
+      if (branchLimit >= 0 && cStates.branchSize() > branchLimit) {
+        MatchedStates s2=cStates.split(branchLimit);
+        todo.push(s2);
+      }
+    }
+    if (cStates.isMatch()) {
+      cStates.completeMatch();
+      return true;
+    }
+    cStates.clean();
+  }
+  return false;
+}

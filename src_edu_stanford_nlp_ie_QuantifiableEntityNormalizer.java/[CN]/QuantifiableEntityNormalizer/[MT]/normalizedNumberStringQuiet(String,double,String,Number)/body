@@ -1,0 +1,109 @@
+{
+  if (numberFromSUTime != null) {
+    double v=Double.valueOf(numberFromSUTime.toString());
+    return Double.toString(v * multiplier);
+  }
+  String origSClean=s.replaceAll("[\t\n\0\f\r]","");
+  if (allSpaces.matcher(origSClean).matches()) {
+    return s;
+  }
+  String[] origSSplit=origSClean.split(" ");
+  s=s.replaceAll("[ \t\n\0\f\r]","");
+  s=convertToAmerican(s);
+  if (s.startsWith("(") && s.endsWith(")")) {
+    s=s.substring(1,s.length() - 1);
+    if (DEBUG2)     err.println("Deleted (): " + s);
+  }
+  s=s.toLowerCase();
+  boolean foundMultiplier=false;
+  for (  String moneyTag : moneyMultipliers.keySet()) {
+    if (s.contains(moneyTag)) {
+      if (moneyTag.equals("m") && (nextWord.equals("high") || nextWord.equals("long")))       continue;
+      s=s.replaceAll(moneyTag,"");
+      multiplier*=moneyMultipliers.get(moneyTag);
+      foundMultiplier=true;
+    }
+  }
+  for (  String moneyTag : moneyMultipliers2.keySet()) {
+    Matcher m=Pattern.compile(moneyTag).matcher(s);
+    if (m.find()) {
+      multiplier*=moneyMultipliers2.get(moneyTag);
+      foundMultiplier=true;
+      int start=m.start(1);
+      int end=m.end(1);
+      s=s.substring(0,start) + s.substring(end);
+    }
+  }
+  if (!foundMultiplier) {
+    EditDistance ed=new EditDistance();
+    for (    String moneyTag : moneyMultipliers.keySet()) {
+      if (isOneSubstitutionMatch(origSSplit[origSSplit.length - 1],moneyTag,ed)) {
+        s=s.replaceAll(moneyTag,"");
+        multiplier*=moneyMultipliers.get(moneyTag);
+      }
+    }
+  }
+  if (DEBUG2)   err.println("Looking for number words in |" + s + "|; multiplier is "+ multiplier);
+  String[] parts=s.split("[ -]");
+  boolean processed=false;
+  double dd=0.0;
+  for (  String part : parts) {
+    if (wordsToValues.containsKey(part)) {
+      dd+=wordsToValues.getCount(part);
+      processed=true;
+    }
+ else {
+      String partMatch=getOneSubstitutionMatch(part,wordsToValues.keySet());
+      if (partMatch != null) {
+        dd+=wordsToValues.getCount(partMatch);
+        processed=true;
+      }
+    }
+  }
+  if (processed) {
+    dd*=multiplier;
+    return Double.toString(dd);
+  }
+  s=s.replaceAll("[A-Za-z]","");
+  Matcher m2=scorePattern.matcher(s);
+  if (m2.matches()) {
+    double d1=Double.parseDouble(m2.group(1));
+    double d2=Double.parseDouble(m2.group(2));
+    return Double.toString(d1) + " - " + Double.toString(d2);
+  }
+  if (s.endsWith("-")) {
+    s=s.substring(0,s.length() - 1);
+  }
+  Matcher m=moneyPattern.matcher(s);
+  if (m.matches()) {
+    if (DEBUG2) {
+      err.println("Number matched with |" + m.group(2) + "| |"+ m.group(3)+ '|');
+    }
+    try {
+      double d=0.0;
+      if (m.group(2) != null && !m.group(2).equals("")) {
+        d=Double.parseDouble(m.group(2));
+      }
+      if (m.group(3) != null && !m.group(3).equals("")) {
+        d+=Double.parseDouble(m.group(3));
+      }
+      if (d == 0.0 && multiplier != 1.0) {
+        d=1.0;
+      }
+      d*=multiplier;
+      return Double.toString(d);
+    }
+ catch (    Exception e) {
+      if (DEBUG2) {
+        e.printStackTrace();
+      }
+      return null;
+    }
+  }
+ else   if (multiplier != 1.0) {
+    return Double.toString(multiplier);
+  }
+ else {
+    return null;
+  }
+}

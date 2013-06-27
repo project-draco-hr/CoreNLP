@@ -1,0 +1,38 @@
+{
+  TrackInfo childInfo=this.info;
+  if (childInfo == null) {
+    throw new IllegalStateException("OutputHandler received endTrack() without matching startTrack() --" + "are your handlers mis-configured?");
+  }
+  if (trackStack.empty()) {
+    this.info=null;
+  }
+ else {
+    this.info=this.trackStack.pop();
+    this.info.numElementsPrinted+=childInfo.numElementsPrinted;
+  }
+  if (this.queuedTracks.isEmpty()) {
+    StringBuilder b=new StringBuilder();
+    if (!this.missingOpenBracket) {
+      for (int i=0; i < this.leftMargin; i++) {
+        b.append(" ");
+      }
+      writeContent(newDepth,"",b);
+      b.append("} ");
+    }
+    this.missingOpenBracket=false;
+    if (childInfo != null && childInfo.numElementsPrinted > this.minLineCountForTrackNameReminder) {
+      b.append("<< ").append(childInfo.name).append(" ");
+    }
+    if (childInfo != null && timeOfEnd - childInfo.beginTime > 100) {
+      b.append("[");
+      Redwood.formatTimeDifference(timeOfEnd - childInfo.beginTime,b);
+      b.append("]");
+    }
+    b.append("\n");
+    print(null,this.style(new StringBuilder(),b.toString(),trackColor,trackStyle).toString());
+  }
+ else {
+    this.queuedTracks.removeLast();
+  }
+  return EMPTY;
+}

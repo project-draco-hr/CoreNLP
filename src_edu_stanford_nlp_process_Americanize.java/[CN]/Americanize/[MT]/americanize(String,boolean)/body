@@ -1,0 +1,37 @@
+{
+  int length=str.length();
+  if (length < MINIMUM_LENGTH_CHANGED) {
+    return str;
+  }
+  String result;
+  if (capitalizeTimex) {
+    result=timexMapping.get(str);
+    if (result != null) {
+      return result;
+    }
+  }
+  result=mapping.get(str);
+  if (result != null) {
+    return result;
+  }
+  if (length < MINIMUM_LENGTH_PATTERN_MATCH) {
+    return str;
+  }
+  if (!disjunctivePattern.matcher(str).find()) {
+    return str;
+  }
+  for (int i=0; i < pats.length; i++) {
+    Matcher m=pats[i].matcher(str);
+    if (m.find()) {
+      Pattern ex=excepts[i];
+      if (ex != null) {
+        Matcher me=ex.matcher(str);
+        if (me.find()) {
+          continue;
+        }
+      }
+      return m.replaceAll(reps[i]);
+    }
+  }
+  return str;
+}

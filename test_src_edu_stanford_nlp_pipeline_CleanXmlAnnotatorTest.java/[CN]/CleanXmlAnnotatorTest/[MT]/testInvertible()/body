@@ -1,0 +1,14 @@
+{
+  String testNoTags="This sentence should be invertible.";
+  String testTags="  <xml>  This sentence should  be  invertible.  </xml>  ";
+  String testManyTags=" <xml>   <foo>       <bar>This sentence should  " + "   </bar>be invertible.   </foo>   </xml> ";
+  Annotation annotation=annotate(testNoTags,ptbInvertible,cleanXmlAllTags,wtsSplitter);
+  checkResult(annotation,testNoTags);
+  checkInvert(annotation,testNoTags);
+  annotation=annotate(testTags,ptbInvertible,cleanXmlAllTags,wtsSplitter);
+  checkResult(annotation,testNoTags);
+  checkInvert(annotation,testTags);
+  annotation=annotate(testManyTags,ptbInvertible,cleanXmlAllTags,wtsSplitter);
+  checkResult(annotation,testNoTags);
+  checkInvert(annotation,testManyTags);
+}

@@ -1,0 +1,17 @@
+{
+  if (pparser == null) {
+    return null;
+  }
+  List<ScoredObject<Tree>> binaryTrees=pparser.getKBestParses(k);
+  if (binaryTrees == null) {
+    return null;
+  }
+  List<ScoredObject<Tree>> trees=new ArrayList<ScoredObject<Tree>>(k);
+  for (  ScoredObject<Tree> p : binaryTrees) {
+    Tree t=debinarizer.transformTree(p.object());
+    t=subcategoryStripper.transformTree(t);
+    restoreOriginalWords(t);
+    trees.add(new ScoredObject<Tree>(t,p.score()));
+  }
+  return trees;
+}

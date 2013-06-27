@@ -1,0 +1,44 @@
+{
+  SequenceMatchRules.AnnotationExtractRule r=super.create(env,attributes);
+  if (r.ruleType == null) {
+    r.ruleType="time";
+  }
+  String expr=(String)Expressions.asObject(env,attributes.get("pattern"));
+  String formatter=(String)Expressions.asObject(env,attributes.get("formatter"));
+  if (formatter == null) {
+    if (r.annotationField == null) {
+      r.annotationField=EnvLookup.getDefaultTextAnnotationKey(env);
+    }
+    CustomDateFormatExtractor formatExtractor=new CustomDateFormatExtractor(expr);
+    updateExtractRule(r,env,formatExtractor.getTextPattern(),formatExtractor);
+  }
+ else   if ("org.joda.time.format.DateTimeFormat".equals(formatter)) {
+    if (r.annotationField == null) {
+      r.annotationField=r.tokensAnnotationField;
+    }
+    updateExtractRule(r,env,new JodaDateTimeFormatExtractor(expr));
+  }
+ else   if ("org.joda.time.format.ISODateTimeFormat".equals(formatter)) {
+    if (r.annotationField == null) {
+      r.annotationField=r.tokensAnnotationField;
+    }
+    try {
+      Method m=ISODateTimeFormat.class.getMethod(expr);
+      DateTimeFormatter dtf=(DateTimeFormatter)m.invoke(null);
+      updateExtractRule(r,env,new JodaDateTimeFormatExtractor(expr));
+    }
+ catch (    Exception ex) {
+      throw new RuntimeException("Error creating DateTimeFormatter",ex);
+    }
+  }
+ else   if ("java.text.SimpleDateFormat".equals(formatter)) {
+    if (r.annotationField == null) {
+      r.annotationField=r.tokensAnnotationField;
+    }
+    updateExtractRule(r,env,new JavaDateFormatExtractor(expr));
+  }
+ else {
+    throw new IllegalArgumentException("Unsupported formatter: " + formatter);
+  }
+  return r;
+}

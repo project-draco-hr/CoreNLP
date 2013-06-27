@@ -1,0 +1,22 @@
+{
+  Ehat=empty2D();
+  for (int m=0; m < data.length; m++) {
+    int[][][] dataDoc=data[m];
+    int[] labelsDoc=labels[m];
+    int[] label=new int[window];
+    Arrays.fill(label,classIndex.indexOf(backgroundSymbol));
+    for (int i=0; i < dataDoc.length; i++) {
+      System.arraycopy(label,1,label,0,window - 1);
+      label[window - 1]=labelsDoc[i];
+      for (int j=0; j < dataDoc[i].length; j++) {
+        int[] cliqueLabel=new int[j + 1];
+        System.arraycopy(label,window - 1 - j,cliqueLabel,0,j + 1);
+        CRFLabel crfLabel=new CRFLabel(cliqueLabel);
+        int labelIndex=labelIndices.get(j).indexOf(crfLabel);
+        for (int k=0; k < dataDoc[i][j].length; k++) {
+          Ehat[dataDoc[i][j][k]][labelIndex]++;
+        }
+      }
+    }
+  }
+}

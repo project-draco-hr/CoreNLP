@@ -1,0 +1,25 @@
+{
+  if (in.size() != nargs) {
+    return false;
+  }
+  for (int i=0; i < in.size(); i++) {
+    Value v=in.get(i);
+    ParamInfo p=paramInfos.get(i);
+    if (v == null) {
+      if (!p.nullable) {
+        return false;
+      }
+    }
+ else {
+      if (p.typeName != null && !p.typeName.equals(v.getType())) {
+        return false;
+      }
+      if (v.get() != null) {
+        if (p.className != null && !(p.className.isAssignableFrom(v.get().getClass()))) {
+          return false;
+        }
+      }
+    }
+  }
+  return true;
+}

@@ -1,0 +1,28 @@
+{
+  Object obj=variables.get(name);
+  if (obj != null) {
+    if (obj instanceof SequencePattern) {
+      SequencePattern seqPattern=(SequencePattern)obj;
+      return seqPattern.getPatternExpr();
+    }
+ else     if (obj instanceof SequencePattern.PatternExpr) {
+      SequencePattern.PatternExpr pe=(SequencePattern.PatternExpr)obj;
+      return (copy) ? pe.copy() : pe;
+    }
+ else     if (obj instanceof NodePattern) {
+      return new SequencePattern.NodePatternExpr((NodePattern)obj);
+    }
+ else     if (obj instanceof String) {
+      try {
+        return parser.parseSequence(this,(String)obj);
+      }
+ catch (      Exception pex) {
+        throw new RuntimeException("Error parsing " + obj + " to sequence pattern",pex);
+      }
+    }
+ else {
+      throw new Error("Invalid sequence pattern variable class: " + obj.getClass());
+    }
+  }
+  return null;
+}

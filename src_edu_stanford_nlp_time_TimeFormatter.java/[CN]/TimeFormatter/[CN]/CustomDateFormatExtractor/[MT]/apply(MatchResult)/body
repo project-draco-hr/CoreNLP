@@ -1,0 +1,18 @@
+{
+  SUTime.Temporal t=new SUTime.PartialTime();
+  for (  FormatComponent fc : builder.pieces) {
+    int group=fc.getGroup();
+    if (group > 0) {
+      String fieldValueStr=m.group(group);
+      if (fieldValueStr != null) {
+        try {
+          t=fc.updateTemporal(t,fieldValueStr);
+        }
+ catch (        IllegalArgumentException ex) {
+          return null;
+        }
+      }
+    }
+  }
+  return new Expressions.PrimitiveValue("Temporal",t);
+}

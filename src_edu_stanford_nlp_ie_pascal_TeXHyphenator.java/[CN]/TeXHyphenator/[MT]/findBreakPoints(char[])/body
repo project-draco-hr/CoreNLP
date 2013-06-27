@@ -1,0 +1,20 @@
+{
+  boolean[] breakPoints=new boolean[lcphrase.length];
+  boolean inWord=false;
+  int wordStart=0;
+  int c=0;
+  for (; c < lcphrase.length; ++c) {
+    if (!inWord && Character.isLetter(lcphrase[c])) {
+      wordStart=c;
+      inWord=true;
+    }
+ else     if (inWord && !Character.isLetter(lcphrase[c])) {
+      inWord=false;
+      labelWordBreakPoints(lcphrase,wordStart,c,breakPoints);
+    }
+  }
+  if (inWord) {
+    labelWordBreakPoints(lcphrase,wordStart,c,breakPoints);
+  }
+  return breakPoints;
+}

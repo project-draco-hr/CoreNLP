@@ -1,0 +1,19 @@
+{
+  if (options.containsKey(ConfigParser.paramSplit)) {
+    System.err.printf("%s: Ignoring split parameter for this dataset type\n",this.getClass().getName());
+  }
+ else   if (options.containsKey(ConfigParser.paramTagDelim)) {
+    wordTagDelim=options.getProperty(ConfigParser.paramTagDelim);
+    taggedOutput=true;
+  }
+  for (  File path : pathsToData) {
+    int prevSize=treebank.size();
+    treebank.loadPath(path,treeFileExtension,false);
+    toStringBuffer.append(String.format(" Loaded %d trees from %s\n",treebank.size() - prevSize,path.getPath()));
+    prevSize=treebank.size();
+  }
+  ArabicTreeDecimatedNormalizer tv=new ArabicTreeDecimatedNormalizer(outFileName,makeFlatFile,taggedOutput);
+  treebank.apply(tv);
+  outputFileList.addAll(tv.getFilenames());
+  tv.closeOutputFiles();
+}

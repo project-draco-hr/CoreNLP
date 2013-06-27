@@ -1,0 +1,66 @@
+{
+  if (args.length == 0) {
+    System.out.println("usage: RadicalMap [-rebuild <dict_file>] [-infile <file>] [-encoding <encoding>] [char]+");
+  }
+  Map<String,Integer> flagsToNumArgs=Generics.newHashMap();
+  flagsToNumArgs.put("-infile",1);
+  flagsToNumArgs.put("-encoding",1);
+  flagsToNumArgs.put("-rebuild",1);
+  Map<String,String[]> argMap=StringUtils.argsToMap(args,flagsToNumArgs);
+  String encoding="UTF-8";
+  if (argMap.containsKey("-encoding")) {
+    String[] encArgs=argMap.get("-encoding");
+    if (encArgs.length == 0) {
+      System.out.println("usage: RadicalMap [-rebuild <dict_file>] [-infile <file>] [-encoding <encoding>] [char]+");
+    }
+    encoding=encArgs[0];
+  }
+  PrintWriter out=new PrintWriter(new OutputStreamWriter(System.out,encoding),true);
+  if (argMap.containsKey("-rebuild")) {
+    String[] rebuildArgs=argMap.get("-rebuild");
+    if (rebuildArgs.length == 0) {
+      System.out.println("usage: RadicalMap [-rebuild dictFile] [-infile file] [-encoding encoding] char+");
+    }
+    String dictFile=rebuildArgs[0];
+    BufferedReader in=new BufferedReader(new InputStreamReader(new FileInputStream(dictFile),encoding));
+    String line;
+    System.out.println("String[] radLists = new String[] {");
+    while ((line=in.readLine()) != null) {
+      StringTokenizer st=new StringTokenizer(line);
+      st.nextToken();
+      char rad=st.nextToken().charAt(0);
+      System.out.print("\"\\u" + Integer.toHexString((int)rad));
+      String chars=st.nextToken();
+      for (int i=0; i < chars.length(); i++) {
+        char ch=chars.charAt(i);
+        charsToRads.put(ch,rad);
+        System.out.print("\\u" + Integer.toHexString((int)ch));
+      }
+      System.out.println("\",");
+    }
+    System.out.println("};");
+    return;
+  }
+ else   if (argMap.containsKey("-infile")) {
+    String[] infileArgs=argMap.get("-infile");
+    if (infileArgs.length == 0) {
+      out.println("usage: RadicalMap -infile file");
+    }
+    String filename=infileArgs[0];
+    BufferedReader in=new BufferedReader(new InputStreamReader(new FileInputStream(filename),encoding));
+    String line;
+    while ((line=in.readLine()) != null) {
+      for (int i=0; i < line.length(); i++) {
+        char ch=line.charAt(i);
+        if (!(Character.isWhitespace(ch) || Character.isSpaceChar(ch))) {
+          out.println(ch + " : " + getRadical(ch));
+        }
+      }
+    }
+  }
+  String[] otherArgs=argMap.get(null);
+  for (  String s : otherArgs) {
+    char ch=s.charAt(0);
+    out.println(ch + " : " + getRadical(ch));
+  }
+}

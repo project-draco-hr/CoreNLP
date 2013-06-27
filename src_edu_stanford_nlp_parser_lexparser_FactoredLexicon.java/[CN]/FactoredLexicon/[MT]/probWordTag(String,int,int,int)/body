@@ -1,0 +1,26 @@
+{
+  double cW=wordTag.totalCount(wordId);
+  double cWT=wordTag.getCount(wordId,tagId);
+  double p_W=cW / wordTag.totalCount();
+  double cTseen=tagCounter.getCount(tagId);
+  double p_T=cTseen / tagCounter.totalCount();
+  double p_W_T=0.0;
+  if (cW > 0.0) {
+    double p_T_W=0.0;
+    if (cW > 100.0 && cWT > 0.0) {
+      p_T_W=cWT / cW;
+    }
+ else {
+      double cTunseen=wordTagUnseen.getCount(tagId);
+      double p_T_U=cTunseen / wordTagUnseen.totalCount();
+      p_T_W=(cWT + smooth[1] * p_T_U) / (cW + smooth[1]);
+    }
+    p_W_T=p_T_W * p_W / p_T;
+  }
+ else {
+    IntTaggedWord iTW=new IntTaggedWord(wordId,tagId);
+    double c_T=tagCounter.getCount(tagId);
+    p_W_T=Math.exp(getUnknownWordModel().score(iTW,loc,c_T,tagCounter.totalCount(),smooth[0],word));
+  }
+  return p_W_T;
+}

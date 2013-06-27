@@ -1,0 +1,20 @@
+{
+  if (nodes.size() == 1) {
+    SemanticGraph retSg=new SemanticGraph();
+    for (    IndexedWord node : nodes)     retSg.addVertex(node);
+    return retSg;
+  }
+  if (nodes.isEmpty()) {
+    return null;
+  }
+  List<SemanticGraphEdge> edges=new ArrayList<SemanticGraphEdge>();
+  for (  IndexedWord nodeG : nodes) {
+    for (    IndexedWord nodeD : nodes) {
+      Collection<SemanticGraphEdge> existingEdges=srcGraph.getAllEdges(nodeG,nodeD);
+      if (existingEdges != null) {
+        edges.addAll(existingEdges);
+      }
+    }
+  }
+  return SemanticGraphFactory.makeFromEdges(edges);
+}

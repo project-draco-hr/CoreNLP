@@ -1,0 +1,78 @@
+{
+  List<BinaryRule> ruleList=bg.ruleListByLeftChild(edge.state);
+  for (int r=0, rsz=ruleList.size(); r < rsz; r++) {
+    BinaryRule br=ruleList.get(r);
+    if (scorer instanceof LatticeScorer) {
+      LatticeScorer lscorer=(LatticeScorer)scorer;
+      Edge latEdge=(Edge)lscorer.convertItemSpan(new Edge(edge));
+      if (!fscorer.oPossibleL(project(br.parent),latEdge.start) || !fscorer.iPossibleL(project(br.rightChild),latEdge.end)) {
+        if (!op.testOptions.exhaustiveTest) {
+          continue;
+        }
+      }
+    }
+ else {
+      if (!fscorer.oPossibleL(project(br.parent),edge.start) || !fscorer.iPossibleL(project(br.rightChild),edge.end)) {
+        if (!op.testOptions.exhaustiveTest) {
+          continue;
+        }
+      }
+    }
+    for (int head=edge.end; head < length; head++) {
+      for (int hdi=0, sz=taggedWordList[head].size(); hdi < sz; hdi++) {
+        IntTaggedWord iTW=taggedWordList[head].get(hdi);
+        int tag=iTW.tag;
+        tempHook.start=edge.start;
+        tempHook.end=edge.end;
+        tempHook.head=head;
+        tempHook.tag=tag;
+        tempHook.state=br.parent;
+        tempHook.subState=br.rightChild;
+        if (!chart.isBuiltL(tempHook.subState,tempHook.end,tempHook.head,tempHook.tag)) {
+          continue;
+        }
+        tempHook.iScore=edge.iScore + br.score + dparser.headScore[dparser.binDistance[head][edge.end]][head][dg.tagBin(tag)][edge.head][dg.tagBin(edge.tag)]+ dparser.headStop[edge.head][dg.tagBin(edge.tag)][edge.start]+ dparser.headStop[edge.head][dg.tagBin(edge.tag)][edge.end];
+        tempHook.backEdge=edge;
+        relaxTempHook();
+      }
+    }
+  }
+  ruleList=bg.ruleListByRightChild(edge.state);
+  for (int r=0, rlSize=ruleList.size(); r < rlSize; r++) {
+    BinaryRule br=ruleList.get(r);
+    if (scorer instanceof LatticeScorer) {
+      LatticeScorer lscorer=(LatticeScorer)scorer;
+      Edge latEdge=(Edge)lscorer.convertItemSpan(new Edge(edge));
+      if (!fscorer.oPossibleR(project(br.parent),latEdge.end) || !fscorer.iPossibleR(project(br.leftChild),latEdge.start)) {
+        if (!op.testOptions.exhaustiveTest) {
+          continue;
+        }
+      }
+    }
+ else {
+      if (!fscorer.oPossibleR(project(br.parent),edge.end) || !fscorer.iPossibleR(project(br.leftChild),edge.start)) {
+        if (!op.testOptions.exhaustiveTest) {
+          continue;
+        }
+      }
+    }
+    for (int head=0; head < edge.start; head++) {
+      for (int hdi=0, sz=taggedWordList[head].size(); hdi < sz; hdi++) {
+        IntTaggedWord iTW=taggedWordList[head].get(hdi);
+        int tag=iTW.tag;
+        tempHook.start=edge.start;
+        tempHook.end=edge.end;
+        tempHook.head=head;
+        tempHook.tag=tag;
+        tempHook.state=br.parent;
+        tempHook.subState=br.leftChild;
+        if (!chart.isBuiltR(tempHook.subState,tempHook.start,tempHook.head,tempHook.tag)) {
+          continue;
+        }
+        tempHook.iScore=edge.iScore + br.score + dparser.headScore[dparser.binDistance[head][edge.start]][head][dg.tagBin(tag)][edge.head][dg.tagBin(edge.tag)]+ dparser.headStop[edge.head][dg.tagBin(edge.tag)][edge.start]+ dparser.headStop[edge.head][dg.tagBin(edge.tag)][edge.end];
+        tempHook.backEdge=edge;
+        relaxTempHook();
+      }
+    }
+  }
+}

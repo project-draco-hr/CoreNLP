@@ -1,0 +1,12 @@
+{
+  List<Tree> leaves=root.getLeaves();
+  for (  Tree leaf : leaves) {
+    CoreLabel label=CoreLabel.class.cast(leaf.label());
+    int ind=label.get(CoreAnnotations.IndexAnnotation.class) - 1;
+    if (token.equals(leaf.value()) && ind >= index && ind <= index + approximateness) {
+      return leaf;
+    }
+  }
+  System.err.println("RuleBasedCorefMentionFinder: ERROR: Failed to find head token");
+  return leaves.get(leaves.size() - 1);
+}

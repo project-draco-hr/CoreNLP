@@ -1,0 +1,25 @@
+{
+  if (useGT) {
+    unknownGTTrainer.train(tw,weight);
+  }
+  String word=tw.word();
+  String subString=model.getSignature(word,loc);
+  Label tag=new Tag(tw.tag());
+  ;
+  if (!c.containsKey(tag)) {
+    c.put(tag,new ClassicCounter<String>());
+  }
+  c.get(tag).incrementCount(subString,weight);
+  tc.incrementCount(tag,weight);
+  seenEnd.add(subString);
+  String tagStr=tw.tag();
+  IntTaggedWord iW=new IntTaggedWord(word,IntTaggedWord.ANY,wordIndex,tagIndex);
+  seenCounter.incrementCount(iW,weight);
+  if (treesRead > indexToStartUnkCounting) {
+    if (seenCounter.getCount(iW) < 2) {
+      IntTaggedWord iT=new IntTaggedWord(IntTaggedWord.ANY,tagStr,wordIndex,tagIndex);
+      unSeenCounter.incrementCount(iT,weight);
+      unSeenCounter.incrementCount(NULL_ITW,weight);
+    }
+  }
+}

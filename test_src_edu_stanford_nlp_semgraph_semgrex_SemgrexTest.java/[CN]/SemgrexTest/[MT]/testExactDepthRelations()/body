@@ -1,0 +1,13 @@
+{
+  SemanticGraph graph=makeComplicatedGraph();
+  runTest("{} 2,3<< {word:A}",graph,"E","F","G","I");
+  runTest("{} 2,2<< {word:A}",graph,"E");
+  runTest("{} 1,2<< {word:A}",graph,"B","C","D","E");
+  runTest("{} 0,2<< {word:A}",graph,"B","C","D","E");
+  runTest("{} 0,10<< {word:A}",graph,"B","C","D","E","F","G","H","I","J");
+  runTest("{} 0,10>> {word:J}",graph,"A","B","C","D","E","F","G","H","I");
+  runTest("{} 2,3>> {word:J}",graph,"B","C","D","E","F","G","H");
+  runTest("{} 2,2>> {word:J}",graph,"E","H");
+  runTest(SemgrexPattern.compile("{} 2>> {word:J}"),graph,"E","H");
+  runTest("{} 1,2>> {word:J}",graph,"E","H","I");
+}

@@ -1,0 +1,12 @@
+{
+  double totalWeight=c.totalCount() + weight;
+  Distribution<E> norm=new DynamicDistribution<E>(prior,weight / totalWeight);
+  norm.counter=new ClassicCounter<E>();
+  for (  E key : c.keySet()) {
+    double count=c.getCount(key) / totalWeight;
+    prior.addToKeySet(key);
+    norm.counter.setCount(key,count);
+  }
+  norm.numberOfKeys=prior.numberOfKeys;
+  return norm;
+}

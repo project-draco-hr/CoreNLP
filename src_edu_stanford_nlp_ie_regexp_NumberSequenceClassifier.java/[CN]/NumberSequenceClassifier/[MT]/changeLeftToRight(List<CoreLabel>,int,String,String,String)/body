@@ -1,0 +1,14 @@
+{
+  while (start < tokens.size()) {
+    CoreLabel crt=tokens.get(start);
+    if (!oldTag.equals(flags.backgroundSymbol) && !crt.get(CoreAnnotations.AnswerAnnotation.class).equals(oldTag)) {
+      break;
+    }
+    if (oldTag.equals(flags.backgroundSymbol) && !crt.tag().equals(posTag)) {
+      break;
+    }
+    crt.set(CoreAnnotations.AnswerAnnotation.class,newTag);
+    start++;
+  }
+  return start;
+}

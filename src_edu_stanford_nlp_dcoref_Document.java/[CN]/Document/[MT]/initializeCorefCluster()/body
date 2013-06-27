@@ -1,0 +1,27 @@
+{
+  for (int i=0; i < predictedOrderedMentionsBySentence.size(); i++) {
+    for (int j=0; j < predictedOrderedMentionsBySentence.get(i).size(); j++) {
+      Mention m=predictedOrderedMentionsBySentence.get(i).get(j);
+      if (allPredictedMentions.containsKey(m.mentionID)) {
+        SieveCoreferenceSystem.logger.warning("WARNING: Already contain mention " + m.mentionID);
+        Mention m1=allPredictedMentions.get(m.mentionID);
+        SieveCoreferenceSystem.logger.warning("OLD mention: " + m1.spanToString() + "["+ m1.startIndex+ ","+ m1.endIndex+ "]");
+        SieveCoreferenceSystem.logger.warning("NEW mention: " + m.spanToString() + "["+ m.startIndex+ ","+ m.endIndex+ "]");
+      }
+      assert(!allPredictedMentions.containsKey(m.mentionID));
+      allPredictedMentions.put(m.mentionID,m);
+      IntTuple pos=new IntTuple(2);
+      pos.set(0,i);
+      pos.set(1,j);
+      positions.put(m,pos);
+      m.sentNum=i;
+      assert(!corefClusters.containsKey(m.mentionID));
+      corefClusters.put(m.mentionID,new CorefCluster(m.mentionID,Generics.newHashSet(Arrays.asList(m))));
+      m.corefClusterID=m.mentionID;
+      IntTuple headPosition=new IntTuple(2);
+      headPosition.set(0,i);
+      headPosition.set(1,m.headIndex);
+      mentionheadPositions.put(headPosition,m);
+    }
+  }
+}

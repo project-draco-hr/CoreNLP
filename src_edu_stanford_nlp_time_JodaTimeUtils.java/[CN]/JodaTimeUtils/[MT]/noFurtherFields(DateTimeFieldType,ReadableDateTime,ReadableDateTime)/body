@@ -1,0 +1,41 @@
+{
+  int indexInStandard=-1;
+  for (int i=0; i < standardISOFields.length; i++) {
+    if (standardISOFields[i] == smallestFieldSet) {
+      indexInStandard=i + 1;
+    }
+  }
+  int indexInWeek=-1;
+  for (int i=0; i < standardISOWeekFields.length; i++) {
+    if (standardISOWeekFields[i] == smallestFieldSet) {
+      indexInWeek=i + 1;
+    }
+  }
+  if (smallestFieldSet == QuarterOfYear) {
+    for (int i=0; i < standardISOFields.length; i++) {
+      if (standardISOFields[i] == monthOfYear()) {
+        indexInStandard=i;
+      }
+    }
+  }
+  int index=-1;
+  DateTimeFieldType[] toCheck=null;
+  if (indexInStandard >= 0) {
+    index=indexInStandard;
+    toCheck=standardISOFields;
+  }
+ else   if (indexInWeek >= 0) {
+    index=indexInWeek;
+    toCheck=standardISOWeekFields;
+  }
+ else {
+    throw new IllegalArgumentException("Field is not in my list of fields: " + smallestFieldSet);
+  }
+  for (int i=index; i < toCheck.length; i++) {
+    int minValue=minimumValue(toCheck[i],begin);
+    if (begin.get(toCheck[i]) != minValue || end.get(toCheck[i]) != minValue) {
+      return false;
+    }
+  }
+  return true;
+}

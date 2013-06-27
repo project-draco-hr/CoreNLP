@@ -1,0 +1,25 @@
+{
+  if (getTimeLabel() != null) {
+    return getTimeLabel();
+  }
+  if ((flags & FORMAT_ISO) != 0) {
+    return null;
+  }
+  if ((flags & FORMAT_TIMEX3_VALUE) != 0) {
+    return null;
+  }
+  StringBuilder sb=new StringBuilder();
+  if (base != null && base != TIME_REF) {
+    sb.append(base.toFormattedString(flags));
+  }
+  if (tempOp != null) {
+    if (sb.length() > 0) {
+      sb.append(" ");
+    }
+    sb.append(tempOp);
+    if (tempArg != null) {
+      sb.append(" ").append(tempArg.toFormattedString(flags));
+    }
+  }
+  return sb.toString();
+}

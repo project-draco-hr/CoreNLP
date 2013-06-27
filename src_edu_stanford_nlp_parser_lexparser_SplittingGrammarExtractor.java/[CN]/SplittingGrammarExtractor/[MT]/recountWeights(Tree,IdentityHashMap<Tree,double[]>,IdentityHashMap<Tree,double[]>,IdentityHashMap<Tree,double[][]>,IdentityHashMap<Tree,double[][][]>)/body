@@ -1,0 +1,88 @@
+{
+  if (tree.isLeaf() || tree.isPreTerminal()) {
+    return;
+  }
+  if (tree.children().length == 1) {
+    Tree child=tree.children()[0];
+    String parentLabel=tree.label().value();
+    String childLabel=child.label().value();
+    double[][] betas=unaryBetas.get(parentLabel,childLabel);
+    double[] childInside=probIn.get(child);
+    double[] parentOutside=probOut.get(tree);
+    int parentStates=betas.length;
+    int childStates=betas[0].length;
+    double[][] transitions=new double[parentStates][childStates];
+    unaryTransitions.put(tree,transitions);
+    for (int i=0; i < parentStates; ++i) {
+      for (int j=0; j < childStates; ++j) {
+        transitions[i][j]=parentOutside[i] + childInside[j] + betas[i][j];
+      }
+    }
+    for (int i=0; i < parentStates; ++i) {
+      double total=Double.NEGATIVE_INFINITY;
+      for (int j=0; j < childStates; ++j) {
+        total=SloppyMath.logAdd(total,transitions[i][j]);
+      }
+      if (Double.isInfinite(total)) {
+        double transition=-Math.log(childStates);
+        for (int j=0; j < childStates; ++j) {
+          transitions[i][j]=transition;
+        }
+      }
+ else {
+        for (int j=0; j < childStates; ++j) {
+          transitions[i][j]=transitions[i][j] - total;
+        }
+      }
+    }
+    recountWeights(child,probIn,probOut,unaryTransitions,binaryTransitions);
+  }
+ else {
+    Tree left=tree.children()[0];
+    Tree right=tree.children()[1];
+    String parentLabel=tree.label().value();
+    String leftLabel=left.label().value();
+    String rightLabel=right.label().value();
+    double[][][] betas=binaryBetas.get(parentLabel,leftLabel,rightLabel);
+    double[] leftInside=probIn.get(left);
+    double[] rightInside=probIn.get(right);
+    double[] parentOutside=probOut.get(tree);
+    int parentStates=betas.length;
+    int leftStates=betas[0].length;
+    int rightStates=betas[0][0].length;
+    double[][][] transitions=new double[parentStates][leftStates][rightStates];
+    binaryTransitions.put(tree,transitions);
+    for (int i=0; i < parentStates; ++i) {
+      for (int j=0; j < leftStates; ++j) {
+        for (int k=0; k < rightStates; ++k) {
+          transitions[i][j][k]=parentOutside[i] + leftInside[j] + rightInside[k]+ betas[i][j][k];
+        }
+      }
+    }
+    for (int i=0; i < parentStates; ++i) {
+      double total=Double.NEGATIVE_INFINITY;
+      for (int j=0; j < leftStates; ++j) {
+        for (int k=0; k < rightStates; ++k) {
+          total=SloppyMath.logAdd(total,transitions[i][j][k]);
+        }
+      }
+      if (Double.isInfinite(total)) {
+        double transition=-Math.log(leftStates * rightStates);
+        for (int j=0; j < leftStates; ++j) {
+          for (int k=0; k < rightStates; ++k) {
+            transitions[i][j][k]=transition;
+          }
+        }
+      }
+ else {
+        for (int j=0; j < leftStates; ++j) {
+          for (int k=0; k < rightStates; ++k) {
+            transitions[i][j][k]=transitions[i][j][k] - total;
+          }
+        }
+      }
+    }
+    recountWeights(left,probIn,probOut,unaryTransitions,binaryTransitions);
+    recountWeights(right,probIn,probOut,unaryTransitions,binaryTransitions);
+  }
+}

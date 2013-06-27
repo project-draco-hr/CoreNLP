@@ -1,0 +1,26 @@
+{
+  String parentLabel=parent.label().value();
+  String leftLabel=left.label().value();
+  String rightLabel=right.label().value();
+  double[] leftInsideScores=probIn.get(left);
+  double[] rightInsideScores=probIn.get(right);
+  double[] parentScores=probOut.get(parent);
+  double[][][] betas=binaryBetas.get(parentLabel,leftLabel,rightLabel);
+  int parentStates=betas.length;
+  int leftStates=betas[0].length;
+  int rightStates=betas[0][0].length;
+  double[] leftScores=neginfDoubles(leftStates);
+  probOut.put(left,leftScores);
+  double[] rightScores=neginfDoubles(rightStates);
+  probOut.put(right,rightScores);
+  for (int i=0; i < parentStates; ++i) {
+    for (int j=0; j < leftStates; ++j) {
+      for (int k=0; k < rightStates; ++k) {
+        leftScores[j]=SloppyMath.logAdd(leftScores[j],betas[i][j][k] + parentScores[i] + rightInsideScores[k]);
+        rightScores[k]=SloppyMath.logAdd(rightScores[k],betas[i][j][k] + parentScores[i] + leftInsideScores[j]);
+      }
+    }
+  }
+  recurseOutside(left,probIn,probOut);
+  recurseOutside(right,probIn,probOut);
+}

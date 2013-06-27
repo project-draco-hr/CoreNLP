@@ -1,0 +1,40 @@
+{
+  if (mapBack != null) {
+    mapBack.clear();
+  }
+  StringBuilder result=new StringBuilder();
+  String text;
+  String tag;
+  int position=0;
+  try {
+    do {
+      text=XMLUtils.readUntilTag(r);
+      if (text.length() > 0) {
+        for (int i=0; i < text.length(); i++) {
+          result.append(text.charAt(i));
+          if (mapBack != null) {
+            mapBack.add(Integer.valueOf(position + i));
+          }
+        }
+        position+=text.length();
+      }
+      tag=XMLUtils.readTag(r);
+      if (tag == null) {
+        break;
+      }
+      if (markLineBreaks && XMLUtils.isBreaking(parseTag(tag))) {
+        result.append("\n");
+        if (mapBack != null) {
+          mapBack.add(Integer.valueOf(-position));
+        }
+      }
+      position+=tag.length();
+    }
+ while (true);
+  }
+ catch (  IOException e) {
+    System.err.println("Error reading string");
+    e.printStackTrace();
+  }
+  return result.toString();
+}

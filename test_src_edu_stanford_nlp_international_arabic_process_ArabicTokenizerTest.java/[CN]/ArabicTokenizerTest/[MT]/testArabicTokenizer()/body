@@ -1,0 +1,15 @@
+{
+  assert(untokInputs.length == tokReferences.length);
+  TokenizerFactory<CoreLabel> tf=ArabicTokenizer.atbFactory();
+  tf.setOptions("removeProMarker");
+  tf.setOptions("removeSegMarker");
+  tf.setOptions("removeMorphMarker");
+  for (int i=0; i < untokInputs.length; ++i) {
+    String line=untokInputs[i];
+    Tokenizer<CoreLabel> tokenizer=tf.getTokenizer(new StringReader(line));
+    List<CoreLabel> tokens=tokenizer.tokenize();
+    String tokenizedLine=Sentence.listToString(tokens);
+    String reference=tokReferences[i];
+    assertEquals("Tokenization deviates from reference",reference,tokenizedLine);
+  }
+}

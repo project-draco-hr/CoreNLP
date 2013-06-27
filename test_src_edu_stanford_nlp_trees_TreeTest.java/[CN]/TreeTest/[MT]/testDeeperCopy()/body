@@ -1,0 +1,19 @@
+{
+  Tree t1=null;
+  try {
+    t1=Tree.valueOf("(ROOT (S (NP I) (VP ran)))");
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+  }
+  if (t1 == null) {
+    fail("testDeeperCopy failed to construct tree");
+  }
+  Tree t2=t1.deepCopy();
+  assertEquals(t1,t2);
+  assertTrue(t1 != t2);
+  Label l1=t1.firstChild().firstChild().firstChild().label();
+  Label l2=t2.firstChild().firstChild().firstChild().label();
+  assertEquals(l1,l2);
+  assertTrue(l1 != l2);
+}

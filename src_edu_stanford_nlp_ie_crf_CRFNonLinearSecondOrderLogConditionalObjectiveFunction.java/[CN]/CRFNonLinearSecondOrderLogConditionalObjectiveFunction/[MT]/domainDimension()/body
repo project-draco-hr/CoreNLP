@@ -1,0 +1,31 @@
+{
+  if (domainDimension < 0) {
+    originalFeatureCount=0;
+    for (int i=0; i < map.length; i++) {
+      int s=labelIndices.get(map[i]).size();
+      originalFeatureCount+=s;
+    }
+    domainDimension=0;
+    domainDimension+=inputLayerSize4Edge * numEdgeFeatures;
+    domainDimension+=inputLayerSize * numNodeFeatures;
+    beforeOutputWeights=domainDimension;
+    if (useOutputLayer) {
+      if (flags.sparseOutputLayer) {
+        domainDimension+=outputLayerSize4Edge * numHiddenUnits;
+        domainDimension+=outputLayerSize * numHiddenUnits;
+      }
+ else       if (flags.tieOutputLayer) {
+        domainDimension+=1 * numHiddenUnits;
+        domainDimension+=1 * numHiddenUnits;
+      }
+ else {
+        domainDimension+=outputLayerSize4Edge * inputLayerSize4Edge;
+        domainDimension+=outputLayerSize * inputLayerSize;
+      }
+    }
+    System.err.println("originalFeatureCount: " + originalFeatureCount);
+    System.err.println("beforeOutputWeights: " + beforeOutputWeights);
+    System.err.println("domainDimension: " + domainDimension);
+  }
+  return domainDimension;
+}

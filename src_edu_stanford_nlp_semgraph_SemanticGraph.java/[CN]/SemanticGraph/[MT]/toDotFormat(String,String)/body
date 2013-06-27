@@ -1,0 +1,12 @@
+{
+  StringBuilder output=new StringBuilder();
+  output.append("digraph " + graphname + " {\n");
+  for (  IndexedWord word : graph.getAllVertices()) {
+    output.append("  N_" + word.index() + " [label=\""+ word.toString(indexedWordFormat)+ "\"];\n");
+  }
+  for (  SemanticGraphEdge edge : graph.edgeIterable()) {
+    output.append("  N_" + edge.getSource().index() + " -> N_"+ edge.getTarget().index()+ " [label=\""+ edge.getRelation()+ "\"];\n");
+  }
+  output.append("}\n");
+  return output.toString();
+}

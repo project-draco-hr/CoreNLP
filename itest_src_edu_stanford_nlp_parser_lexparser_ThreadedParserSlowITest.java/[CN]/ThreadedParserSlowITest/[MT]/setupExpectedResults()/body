@@ -1,0 +1,35 @@
+{
+  expectedResults=new HashMap<String,List<Tree>>();
+  inputTrees=new HashMap<String,List<Tree>>();
+  List<Tree> input=readTrees(englishTrees,englishEncoding);
+  inputTrees.put(englishPCFG,input);
+  inputTrees.put(englishFactored,input);
+  input=readTrees(germanTrees,germanEncoding);
+  inputTrees.put(germanPCFG,input);
+  inputTrees.put(germanFactored,input);
+  input=readTrees(frenchTrees,frenchEncoding);
+  inputTrees.put(frenchFactored,input);
+  input=readTrees(arabicTrees,arabicEncoding);
+  inputTrees.put(arabicFactored,input);
+  input=readTrees(chineseTrees,chineseEncoding);
+  inputTrees.put(chinesePCFG,input);
+  inputTrees.put(chineseFactored,input);
+  LexicalizedParser parser=LexicalizedParser.loadModel(englishPCFG);
+  List<Tree> results=processFile(parser,inputTrees.get(englishPCFG));
+  expectedResults.put(englishPCFG,results);
+  parser=LexicalizedParser.loadModel(englishFactored);
+  results=processFile(parser,inputTrees.get(englishFactored));
+  expectedResults.put(englishFactored,results);
+  parser=LexicalizedParser.loadModel(germanPCFG);
+  results=processFile(parser,inputTrees.get(germanPCFG));
+  expectedResults.put(germanPCFG,results);
+  parser=LexicalizedParser.loadModel(germanFactored);
+  results=processFile(parser,inputTrees.get(germanFactored));
+  expectedResults.put(germanFactored,results);
+  parser=LexicalizedParser.loadModel(frenchFactored);
+  parser=LexicalizedParser.loadModel(arabicFactored);
+  parser=LexicalizedParser.loadModel(chinesePCFG);
+  results=processFile(parser,inputTrees.get(chinesePCFG));
+  expectedResults.put(chinesePCFG,results);
+  parser=LexicalizedParser.loadModel(chineseFactored);
+}

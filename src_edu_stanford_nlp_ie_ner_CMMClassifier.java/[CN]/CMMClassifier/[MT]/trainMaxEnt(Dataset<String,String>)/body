@@ -1,0 +1,39 @@
+{
+  int prior=LogPrior.LogPriorType.QUADRATIC.ordinal();
+  if (flags.useHuber) {
+    prior=LogPrior.LogPriorType.HUBER.ordinal();
+  }
+ else   if (flags.useQuartic) {
+    prior=LogPrior.LogPriorType.QUARTIC.ordinal();
+  }
+  LinearClassifier<String,String> lc;
+  if (flags.useNB) {
+    lc=new NBLinearClassifierFactory<String,String>(flags.sigma).trainClassifier(train);
+  }
+ else {
+    LinearClassifierFactory<String,String> lcf=new LinearClassifierFactory<String,String>(flags.tolerance,flags.useSum,prior,flags.sigma,flags.epsilon,flags.QNsize);
+    if (flags.useQN) {
+      lcf.useQuasiNewton(flags.useRobustQN);
+    }
+ else     if (flags.useStochasticQN) {
+      lcf.useStochasticQN(flags.initialGain,flags.stochasticBatchSize);
+    }
+ else     if (flags.useSMD) {
+      lcf.useStochasticMetaDescent(flags.initialGain,flags.stochasticBatchSize,flags.stochasticMethod,flags.SGDPasses);
+    }
+ else     if (flags.useSGD) {
+      lcf.useStochasticGradientDescent(flags.gainSGD,flags.stochasticBatchSize);
+    }
+ else     if (flags.useSGDtoQN) {
+      lcf.useStochasticGradientDescentToQuasiNewton(flags.initialGain,flags.stochasticBatchSize,flags.SGDPasses,flags.QNPasses,flags.SGD2QNhessSamples,flags.QNsize,flags.outputIterationsToFile);
+    }
+ else     if (flags.useHybrid) {
+      lcf.useHybridMinimizer(flags.initialGain,flags.stochasticBatchSize,flags.stochasticMethod,flags.hybridCutoffIteration);
+    }
+ else {
+      lcf.useConjugateGradientAscent();
+    }
+    lc=lcf.trainClassifier(train);
+  }
+  this.classifier=lc;
+}

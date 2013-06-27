@@ -1,0 +1,31 @@
+{
+  for (  CoreMap line : doc) {
+    String gold=line.get(CoreAnnotations.GoldAnswerAnnotation.class);
+    String guess=line.get(CoreAnnotations.AnswerAnnotation.class);
+    if (gold == null) {
+      System.err.println("Blank gold answer");
+      return false;
+    }
+    if (guess == null) {
+      System.err.println("Blank guess");
+      return false;
+    }
+    if (!gold.equals(background) && !gold.startsWith("B-") && !gold.startsWith("I-")) {
+      System.err.println("Unexpected gold answer " + gold);
+      return false;
+    }
+    if (!guess.equals(background) && !guess.startsWith("B-") && !guess.startsWith("I-")) {
+      System.err.println("Unexpected guess " + guess);
+      return false;
+    }
+  }
+  int index=0;
+  while (index < doc.size()) {
+    index=tallyOneEntityIOB(doc,index,CoreAnnotations.GoldAnswerAnnotation.class,CoreAnnotations.AnswerAnnotation.class,entityTP,entityFN,background);
+  }
+  index=0;
+  while (index < doc.size()) {
+    index=tallyOneEntityIOB(doc,index,CoreAnnotations.AnswerAnnotation.class,CoreAnnotations.GoldAnswerAnnotation.class,null,entityFP,background);
+  }
+  return true;
+}

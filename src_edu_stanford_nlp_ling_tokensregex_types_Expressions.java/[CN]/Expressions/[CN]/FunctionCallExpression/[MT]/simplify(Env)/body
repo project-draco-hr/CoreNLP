@@ -1,0 +1,18 @@
+{
+  boolean paramsAllHasValue=true;
+  List<Expression> simplifiedParams=new ArrayList<Expression>(params.size());
+  for (  Expression param : params) {
+    Expression simplified=param.simplify(env);
+    simplifiedParams.add(simplified);
+    if (!(simplified.hasValue())) {
+      paramsAllHasValue=false;
+    }
+  }
+  Expression res=new FunctionCallExpression(function,simplifiedParams);
+  if (paramsAllHasValue) {
+    return res.evaluate(env);
+  }
+ else {
+    return res;
+  }
+}

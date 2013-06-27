@@ -1,0 +1,13 @@
+{
+  List<String> vals1=StringUtils.valueSplit("arg(a,b),foo(d,e,f)","[a-z]*(?:\\([^)]*\\))?","\\s*,\\s*");
+  List<String> ans1=Arrays.asList("arg(a,b)","foo(d,e,f)");
+  assertEquals("Split failed",ans1,vals1);
+  vals1=StringUtils.valueSplit("arg(a,b) , foo(d,e,f) , ","[a-z]*(?:\\([^)]*\\))?","\\s*,\\s*");
+  assertEquals("Split failed",ans1,vals1);
+  vals1=StringUtils.valueSplit(",arg(a,b),foo(d,e,f)","[a-z]*(?:\\([^)]*\\))?","\\s*,\\s*");
+  List<String> ans2=Arrays.asList("","arg(a,b)","foo(d,e,f)");
+  assertEquals("Split failed",ans2,vals1);
+  List<String> vals3=StringUtils.valueSplit("\"quoted,comma\",\"with \\\"\\\" quote\" , \"stuff\",or not,quoted,","\"(?:[^\"\\\\]+|\\\\\")*\"|[^,\"]+","\\s*,\\s*");
+  List<String> ans3=Arrays.asList("\"quoted,comma\"","\"with \\\"\\\" quote\"","\"stuff\"","or not","quoted");
+  assertEquals("Split failed",ans3,vals3);
+}

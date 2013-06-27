@@ -1,0 +1,60 @@
+{
+  Document document=readDocument(f);
+  Node docElement=document.getElementsByTagName("document").item(0);
+  AceDocument aceDoc=new AceDocument(getAttributeValue(docElement,"DOCID"));
+  NodeList entities=document.getElementsByTagName("entity");
+  int entityCount=0;
+  for (int i=0; i < entities.getLength(); i++) {
+    Node node=entities.item(i);
+    String id=getAttributeValue(node,"ID");
+    String type=getAttributeValue(node,"TYPE");
+    String subtype=getAttributeValue(node,"SUBTYPE");
+    String cls=getAttributeValue(node,"CLASS");
+    AceEntity entity=new AceEntity(id,type,subtype,cls);
+    aceDoc.addEntity(entity);
+    List<Node> mentions=getChildrenByName(node,"entity_mention");
+    for (    Node mention1 : mentions) {
+      AceEntityMention mention=parseEntityMention(mention1);
+      entity.addMention(mention);
+      aceDoc.addEntityMention(mention);
+    }
+    entityCount++;
+  }
+  NodeList relations=document.getElementsByTagName("relation");
+  for (int i=0; i < relations.getLength(); i++) {
+    Node node=relations.item(i);
+    String id=getAttributeValue(node,"ID");
+    String type=getAttributeValue(node,"TYPE");
+    String subtype=getAttributeValue(node,"SUBTYPE");
+    String modality=getAttributeValue(node,"MODALITY");
+    String tense=getAttributeValue(node,"TENSE");
+    AceRelation relation=new AceRelation(id,type,subtype,modality,tense);
+    aceDoc.addRelation(relation);
+    List<Node> mentions=getChildrenByName(node,"relation_mention");
+    for (    Node mention1 : mentions) {
+      AceRelationMention mention=parseRelationMention(mention1,aceDoc);
+      relation.addMention(mention);
+      aceDoc.addRelationMention(mention);
+    }
+  }
+  NodeList events=document.getElementsByTagName("event");
+  for (int i=0; i < events.getLength(); i++) {
+    Node node=events.item(i);
+    String id=getAttributeValue(node,"ID");
+    String type=getAttributeValue(node,"TYPE");
+    String subtype=getAttributeValue(node,"SUBTYPE");
+    String modality=getAttributeValue(node,"MODALITY");
+    String polarity=getAttributeValue(node,"POLARITY");
+    String genericity=getAttributeValue(node,"GENERICITY");
+    String tense=getAttributeValue(node,"TENSE");
+    AceEvent event=new AceEvent(id,type,subtype,modality,polarity,genericity,tense);
+    aceDoc.addEvent(event);
+    List<Node> mentions=getChildrenByName(node,"event_mention");
+    for (    Node mention1 : mentions) {
+      AceEventMention mention=parseEventMention(mention1,aceDoc);
+      event.addMention(mention);
+      aceDoc.addEventMention(mention);
+    }
+  }
+  return aceDoc;
+}

@@ -1,0 +1,20 @@
+{
+  assertEquals(type + " does not have value it was constructed with",lab.value(),val);
+  String newVal="feijoa";
+  lab.setValue(newVal);
+  assertEquals(type + " does not have value set with setValue",newVal,lab.value());
+  lab.setValue(val);
+  String out=lab.toString();
+  Label lab3=lab.labelFactory().newLabel(val);
+  assertEquals(type + " made by label factory has diferent value",lab.value(),lab3.value());
+  lab3=lab.labelFactory().newLabel(lab);
+  assertEquals(type + " made from label factory is not equal",lab,lab3);
+  try {
+    Label lab2=lab.labelFactory().newLabelFromString(out);
+    assertEquals(type + " factory fromString and toString are not inverses",lab,lab2);
+    lab3.setFromString(out);
+    assertEquals(type + " setFromString and toString are not inverses",lab,lab3);
+  }
+ catch (  UnsupportedOperationException uoe) {
+  }
+}

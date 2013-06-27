@@ -1,0 +1,24 @@
+{
+  AnnotationPipeline pipeline=new AnnotationPipeline();
+  if (tokenize) {
+    pipeline.addAnnotator(new PTBTokenizerAnnotator(false));
+    pipeline.addAnnotator(new WordsToSentencesAnnotator(false));
+  }
+  pipeline.addAnnotator(new POSTaggerAnnotator(false));
+  String timeAnnotator=props.getProperty("timeAnnotator","sutime");
+  if ("gutime".equals(timeAnnotator)) {
+    useGUTime=true;
+    pipeline.addAnnotator(new GUTimeAnnotator());
+  }
+ else   if ("heideltime".equals(timeAnnotator)) {
+    requiredDocDateFormat="yyyy-MM-dd";
+    pipeline.addAnnotator(new HeidelTimeAnnotator("heideltime",props));
+  }
+ else   if ("sutime".equals(timeAnnotator)) {
+    pipeline.addAnnotator(new TimeAnnotator("sutime",props));
+  }
+ else {
+    throw new IllegalArgumentException("Unknown timeAnnotator: " + timeAnnotator);
+  }
+  return pipeline;
+}

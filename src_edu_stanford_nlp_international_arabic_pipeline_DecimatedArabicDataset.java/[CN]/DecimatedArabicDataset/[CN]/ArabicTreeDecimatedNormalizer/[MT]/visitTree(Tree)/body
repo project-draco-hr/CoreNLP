@@ -1,0 +1,19 @@
+{
+  if (t == null || t.value().equals("X"))   return;
+  t=t.prune(nullFilter,new LabeledScoredTreeFactory());
+  for (  Tree node : t)   if (node.isPreTerminal())   processPreterminal(node);
+  treesVisited++;
+  String flatString=(makeFlatFile) ? ATBTreeUtils.flattenTree(t) : null;
+  if (treesVisited % 9 == 0) {
+    write(t,outFiles.get(devExtension));
+    if (makeFlatFile)     outFiles.get(devExtension + flatExtension).println(flatString);
+  }
+ else   if (treesVisited % 10 == 0) {
+    write(t,outFiles.get(testExtension));
+    if (makeFlatFile)     outFiles.get(testExtension + flatExtension).println(flatString);
+  }
+ else {
+    write(t,outFiles.get(trainExtension));
+    if (makeFlatFile)     outFiles.get(trainExtension + flatExtension).println(flatString);
+  }
+}

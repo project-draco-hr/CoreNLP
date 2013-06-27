@@ -1,0 +1,33 @@
+{
+  double lp=correctAttachment / (double)parserCnt;
+  double lr=correctAttachment / (double)goldCnt;
+  double lf=2.0 * (lp * lr) / (lp + lr);
+  double ulp=correctUnlabeledAttachment / (double)parserUnlabeledCnt;
+  double ulr=correctUnlabeledAttachment / (double)goldUnlabeledCnt;
+  double ulf=2.0 * (ulp * ulr) / (ulp + ulr);
+  StringBuilder sbuild=new StringBuilder();
+  if (json) {
+    sbuild.append("{");
+    sbuild.append(String.format("'LF1' : %.3f, ",lf));
+    sbuild.append(String.format("'LP' : %.3f, ",lp));
+    sbuild.append(String.format("'LR' : %.3f, ",lr));
+    sbuild.append(String.format("'UF1' : %.3f, ",ulf));
+    sbuild.append(String.format("'UP' : %.3f, ",ulp));
+    sbuild.append(String.format("'UR' : %.3f, ",ulr));
+    sbuild.append("}");
+  }
+ else {
+    sbuild.append(String.format("|| Labeled Attachment   || F ||  P ||  R ||\n"));
+    sbuild.append(String.format("||                      || %.3f || %.3f (%d/%d) || %.3f (%d/%d)||\n",lf,lp,correctAttachment,parserCnt,lr,correctAttachment,goldCnt));
+    sbuild.append(String.format("|| Unlabeled Attachment || F ||  P ||  R ||\n"));
+    sbuild.append(String.format("||                     || %.3f || %.3f (%d/%d) || %.3f (%d/%d)||\n",ulf,ulp,correctUnlabeledAttachment,parserCnt,ulr,correctUnlabeledAttachment,goldCnt));
+    if (verbose) {
+      sbuild.append("\nLabeled Attachment Error Counts\n");
+      sbuild.append(Counters.toSortedString(labeledErrorCounts,Integer.MAX_VALUE,"\t%2$f\t%1$s","\n"));
+      sbuild.append("\n");
+      sbuild.append("\nUnlabeled Attachment Error Counts\n");
+      sbuild.append(Counters.toSortedString(unlabeledErrorCounts,Integer.MAX_VALUE,"\t%2$f\t%1$s","\n"));
+    }
+  }
+  return sbuild.toString();
+}

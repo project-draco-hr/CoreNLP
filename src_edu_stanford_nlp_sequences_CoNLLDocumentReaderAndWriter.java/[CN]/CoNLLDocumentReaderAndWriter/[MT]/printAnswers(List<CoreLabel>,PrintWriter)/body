@@ -1,0 +1,19 @@
+{
+  if (!"iob1".equalsIgnoreCase(flags.entitySubclassification)) {
+    deEndify(doc);
+  }
+  for (  CoreLabel fl : doc) {
+    String word=fl.word();
+    if (word == BOUNDARY) {
+      out.println();
+    }
+ else {
+      String gold=fl.get(CoreAnnotations.OriginalAnswerAnnotation.class);
+      if (gold == null)       gold="";
+      String guess=fl.get(CoreAnnotations.AnswerAnnotation.class);
+      String pos=fl.tag();
+      String chunk=(fl.get(CoreAnnotations.ChunkAnnotation.class) == null ? "" : fl.get(CoreAnnotations.ChunkAnnotation.class));
+      out.println(fl.word() + '\t' + pos+ '\t'+ chunk+ '\t'+ gold+ '\t'+ guess);
+    }
+  }
+}

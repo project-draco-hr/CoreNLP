@@ -1,0 +1,95 @@
+{
+  if (tree.isLeaf()) {
+    return position;
+  }
+  if (totalStateMass != null) {
+    double[] stateTotal=totalStateMass.get(tree.label().value());
+    if (stateTotal == null) {
+      stateTotal=new double[stateWeights.length];
+      totalStateMass.put(tree.label().value(),stateTotal);
+    }
+    for (int i=0; i < stateWeights.length; ++i) {
+      stateTotal[i]+=Math.exp(stateWeights[i]);
+    }
+  }
+  if (tree.isPreTerminal()) {
+    String tag=tree.label().value();
+    String word=tree.children()[0].label().value();
+    double total=0.0;
+    for (int state=0; state < stateWeights.length; ++state) {
+      total+=Math.exp(stateWeights[state]);
+    }
+    if (total <= 0.0) {
+      return position + 1;
+    }
+    double scale=1.0 / (1.0 + LEX_SMOOTH);
+    double smoothing=total * LEX_SMOOTH / stateWeights.length;
+    for (int state=0; state < stateWeights.length; ++state) {
+      TaggedWord tw=new TaggedWord(word,state(tag,state));
+      tempLex.train(tw,position,(Math.exp(stateWeights[state]) + smoothing) * scale);
+    }
+    return position + 1;
+  }
+  if (tree.children().length == 1) {
+    String parentLabel=tree.label().value();
+    String childLabel=tree.children()[0].label().value();
+    double[][] transitions=unaryTransitions.get(tree);
+    int parentStates=transitions.length;
+    int childStates=transitions[0].length;
+    double[][] betas=tempUnaryBetas.get(parentLabel,childLabel);
+    if (betas == null) {
+      betas=new double[parentStates][childStates];
+      for (int i=0; i < parentStates; ++i) {
+        for (int j=0; j < childStates; ++j) {
+          betas[i][j]=Double.NEGATIVE_INFINITY;
+        }
+      }
+      tempUnaryBetas.put(parentLabel,childLabel,betas);
+    }
+    double[] childWeights=neginfDoubles(childStates);
+    for (int i=0; i < parentStates; ++i) {
+      for (int j=0; j < childStates; ++j) {
+        double weight=transitions[i][j];
+        betas[i][j]=SloppyMath.logAdd(betas[i][j],weight + stateWeights[i]);
+        childWeights[j]=SloppyMath.logAdd(childWeights[j],weight + stateWeights[i]);
+      }
+    }
+    position=recalculateTemporaryBetas(tree.children()[0],childWeights,position,unaryTransitions,binaryTransitions,totalStateMass,tempUnaryBetas,tempBinaryBetas);
+  }
+ else {
+    String parentLabel=tree.label().value();
+    String leftLabel=tree.children()[0].label().value();
+    String rightLabel=tree.children()[1].label().value();
+    double[][][] transitions=binaryTransitions.get(tree);
+    int parentStates=transitions.length;
+    int leftStates=transitions[0].length;
+    int rightStates=transitions[0][0].length;
+    double[][][] betas=tempBinaryBetas.get(parentLabel,leftLabel,rightLabel);
+    if (betas == null) {
+      betas=new double[parentStates][leftStates][rightStates];
+      for (int i=0; i < parentStates; ++i) {
+        for (int j=0; j < leftStates; ++j) {
+          for (int k=0; k < rightStates; ++k) {
+            betas[i][j][k]=Double.NEGATIVE_INFINITY;
+          }
+        }
+      }
+      tempBinaryBetas.put(parentLabel,leftLabel,rightLabel,betas);
+    }
+    double[] leftWeights=neginfDoubles(leftStates);
+    double[] rightWeights=neginfDoubles(rightStates);
+    for (int i=0; i < parentStates; ++i) {
+      for (int j=0; j < leftStates; ++j) {
+        for (int k=0; k < rightStates; ++k) {
+          double weight=transitions[i][j][k];
+          betas[i][j][k]=SloppyMath.logAdd(betas[i][j][k],weight + stateWeights[i]);
+          leftWeights[j]=SloppyMath.logAdd(leftWeights[j],weight + stateWeights[i]);
+          rightWeights[k]=SloppyMath.logAdd(rightWeights[k],weight + stateWeights[i]);
+        }
+      }
+    }
+    position=recalculateTemporaryBetas(tree.children()[0],leftWeights,position,unaryTransitions,binaryTransitions,totalStateMass,tempUnaryBetas,tempBinaryBetas);
+    position=recalculateTemporaryBetas(tree.children()[1],rightWeights,position,unaryTransitions,binaryTransitions,totalStateMass,tempUnaryBetas,tempBinaryBetas);
+  }
+  return position;
+}

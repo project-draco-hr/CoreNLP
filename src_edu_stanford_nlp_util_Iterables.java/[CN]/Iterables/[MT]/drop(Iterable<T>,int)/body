@@ -1,0 +1,29 @@
+{
+  return new Iterable<T>(){
+    final Iterator<T> iterator=iterable.iterator();
+    public Iterator<T> iterator(){
+      return new Iterator<T>(){
+        int skipped=0;
+        public boolean hasNext(){
+          while (skipped < toDrop && iterator.hasNext()) {
+            iterator.next();
+            skipped+=1;
+          }
+          return iterator.hasNext();
+        }
+        public T next(){
+          while (skipped < toDrop && iterator.hasNext()) {
+            iterator.next();
+            skipped+=1;
+          }
+          return iterator.next();
+        }
+        public void remove(){
+          iterator.remove();
+        }
+      }
+;
+    }
+  }
+;
+}

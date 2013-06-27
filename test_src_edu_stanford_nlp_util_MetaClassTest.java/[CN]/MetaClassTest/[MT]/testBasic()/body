@@ -1,0 +1,18 @@
+{
+  MetaClass.create("java.lang.String");
+  assertEquals(MetaClass.create("java.lang.String").createInstance("hello"),"hello");
+  try {
+    MetaClass.create(CLASS + "$SomethingWrapper").createInstance("hello");
+  }
+ catch (  MetaClass.ClassCreationException e) {
+    assertTrue("Should not instantiate Super with String",true);
+  }
+  MetaClass.create(CLASS + "$ManyConstructors").createInstance(new Something(),new Something(),new Something());
+  assertEquals(((ManyConstructors)MetaClass.create(CLASS + "$ManyConstructors").createInstance(new Something())).constructorInvoked(),new ManyConstructors(new Something()).constructorInvoked());
+  assertEquals(((ManyConstructors)MetaClass.create(CLASS + "$ManyConstructors").createInstance(new Something(),new Something())).constructorInvoked(),new ManyConstructors(new Something(),new Something()).constructorInvoked());
+  assertEquals(((ManyConstructors)MetaClass.create(CLASS + "$ManyConstructors").createInstance(new Something(),new Something(),new Something())).constructorInvoked(),new ManyConstructors(new Something(),new Something(),new Something()).constructorInvoked());
+  assertEquals(new ManyConstructors(new String("hi")),MetaClass.create(CLASS + "$ManyConstructors").createInstance(new String("hi")));
+  assertEquals(new ManyConstructors(new Something()),MetaClass.create(CLASS + "$ManyConstructors").createInstance(new Something()));
+  assertEquals(new ManyConstructors(new SSomething()),MetaClass.create(CLASS + "$ManyConstructors").createInstance(new SSomething()));
+  assertEquals(new ManyConstructors(new SubSSomething()),MetaClass.create(CLASS + "$ManyConstructors").createInstance(new SubSSomething()));
+}

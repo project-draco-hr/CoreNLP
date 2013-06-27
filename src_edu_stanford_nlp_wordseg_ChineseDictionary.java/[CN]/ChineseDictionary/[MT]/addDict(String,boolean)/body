@@ -1,0 +1,18 @@
+{
+  String content=IOUtils.slurpFileNoExceptions(dict,"utf-8");
+  String[] lines=content.split("\n");
+  System.err.println("  " + dict + ": "+ lines.length+ " entries");
+  for (  String line : lines) {
+    line=line.trim();
+    if (expandMidDot) {
+      line=line.replaceAll(ChineseUtils.MID_DOT_REGEX_STR,"\u00B7");
+    }
+    addOneDict(line);
+    if (DEBUG)     EncodingPrintWriter.err.println("ORIG: " + line,"UTF-8");
+    if (expandMidDot && midDot.matcher(line).find()) {
+      line=line.replaceAll(ChineseUtils.MID_DOT_REGEX_STR,"");
+      if (DEBUG)       EncodingPrintWriter.err.println("ALSO: " + line,"UTF-8");
+      addOneDict(line);
+    }
+  }
+}

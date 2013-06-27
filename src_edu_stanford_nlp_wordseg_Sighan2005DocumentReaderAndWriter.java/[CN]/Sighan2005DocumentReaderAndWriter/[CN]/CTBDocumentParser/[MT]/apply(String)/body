@@ -1,0 +1,63 @@
+{
+  if (line == null) {
+    return null;
+  }
+  line=line.trim();
+  List<CoreLabel> lwi=new ArrayList<CoreLabel>();
+  String origLine=line;
+  if (DEBUG)   EncodingPrintWriter.err.println("ORIG: " + line,"UTF-8");
+  line=cdtos.normalization(origLine);
+  if (DEBUG)   EncodingPrintWriter.err.println("NORM: " + line,"UTF-8");
+  int origIndex=0;
+  int position=0;
+  StringBuilder nonspaceLineSB=new StringBuilder();
+  for (int index=0, len=line.length(); index < len; index++) {
+    char ch=line.charAt(index);
+    CoreLabel wi=new CoreLabel();
+    String wordString=Character.toString(ch);
+    if (!Character.isWhitespace(ch) && !Character.isISOControl(ch)) {
+      wi.set(CoreAnnotations.CharAnnotation.class,intern(wordString));
+      nonspaceLineSB.append(wordString);
+      while (Character.isWhitespace(origLine.charAt(origIndex)) || Character.isISOControl(origLine.charAt(origIndex)) || (origLine.charAt(origIndex) == '\u00A0')) {
+        origIndex++;
+      }
+      wordString=Character.toString(origLine.charAt(origIndex));
+      wi.set(CoreAnnotations.OriginalCharAnnotation.class,intern(wordString));
+      if (flags.useShapeStrings) {
+        wi.set(CoreAnnotations.ShapeAnnotation.class,shapeOf(wordString));
+      }
+      if (flags.useUnicodeType || flags.useUnicodeType4gram || flags.useUnicodeType5gram) {
+        wi.set(CoreAnnotations.UTypeAnnotation.class,Character.getType(ch));
+      }
+      if (flags.useUnicodeBlock) {
+        wi.set(CoreAnnotations.UBlockAnnotation.class,Characters.unicodeBlockStringOf(ch));
+      }
+      origIndex++;
+      if (index == 0) {
+        wi.set(CoreAnnotations.AnswerAnnotation.class,"1");
+        wi.set(CoreAnnotations.SpaceBeforeAnnotation.class,"1");
+      }
+ else       if (Character.isWhitespace(line.charAt(index - 1)) || Character.isISOControl(line.charAt(index - 1))) {
+        wi.set(CoreAnnotations.AnswerAnnotation.class,"1");
+        wi.set(CoreAnnotations.SpaceBeforeAnnotation.class,"1");
+      }
+ else {
+        wi.set(CoreAnnotations.AnswerAnnotation.class,"0");
+        wi.set(CoreAnnotations.SpaceBeforeAnnotation.class,"0");
+      }
+      wi.set(CoreAnnotations.PositionAnnotation.class,intern(String.valueOf((position))));
+      position++;
+      if (DEBUG_MORE)       EncodingPrintWriter.err.println(wi.toString(),"UTF-8");
+      lwi.add(wi);
+    }
+  }
+  if (flags.dictionary != null || flags.serializedDictionary != null) {
+    String nonspaceLine=nonspaceLineSB.toString();
+    addDictionaryFeatures(cdict,CoreAnnotations.LBeginAnnotation.class,CoreAnnotations.LMiddleAnnotation.class,CoreAnnotations.LEndAnnotation.class,nonspaceLine,lwi);
+  }
+  if (flags.dictionary2 != null) {
+    String nonspaceLine=nonspaceLineSB.toString();
+    addDictionaryFeatures(cdict2,CoreAnnotations.D2_LBeginAnnotation.class,CoreAnnotations.D2_LMiddleAnnotation.class,CoreAnnotations.D2_LEndAnnotation.class,nonspaceLine,lwi);
+  }
+  return lwi;
+}

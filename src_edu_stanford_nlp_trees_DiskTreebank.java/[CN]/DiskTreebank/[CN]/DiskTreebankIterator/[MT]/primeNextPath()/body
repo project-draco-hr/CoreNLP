@@ -1,0 +1,26 @@
+{
+  while (fileListPtr < localPathList.size() && fileListPtr < localFilterList.size()) {
+    final File nextPath=localPathList.get(fileListPtr);
+    final FileFilter nextFilter=localFilterList.get(fileListPtr);
+    fileListPtr++;
+    final List<File> pathListing=((nextPath.isDirectory()) ? Arrays.asList(nextPath.listFiles(nextFilter)) : Collections.singletonList(nextPath));
+    if (pathListing != null) {
+      if (pathListing.size() > 1)       Collections.sort(pathListing);
+      curFileList=new ArrayList<File>();
+      for (      File path : pathListing) {
+        if (path.isDirectory()) {
+          localPathList.add(path);
+          localFilterList.add(nextFilter);
+        }
+ else {
+          curFileList.add(path);
+        }
+      }
+      if (curFileList.size() != 0) {
+        curPathIter=curFileList.iterator();
+        return true;
+      }
+    }
+  }
+  return false;
+}

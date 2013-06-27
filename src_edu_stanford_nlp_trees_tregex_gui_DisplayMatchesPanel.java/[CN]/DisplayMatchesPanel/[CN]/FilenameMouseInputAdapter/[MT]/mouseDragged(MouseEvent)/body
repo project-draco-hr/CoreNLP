@@ -1,0 +1,15 @@
+{
+  if (MatchesPanel.getInstance().isEmpty())   return;
+  if (firstMouseEvent != null) {
+    e.consume();
+    if (dragNDrop) {
+      if (textField == null)       return;
+      if (Point2D.distanceSq(e.getX(),e.getY(),firstMouseEvent.getX(),firstMouseEvent.getY()) > 25) {
+        textField.getTransferHandler().exportAsDrag((JComponent)e.getSource(),firstMouseEvent,TransferHandler.COPY);
+      }
+    }
+ else {
+      addHighlight(textField,firstMouseEvent,e);
+    }
+  }
+}

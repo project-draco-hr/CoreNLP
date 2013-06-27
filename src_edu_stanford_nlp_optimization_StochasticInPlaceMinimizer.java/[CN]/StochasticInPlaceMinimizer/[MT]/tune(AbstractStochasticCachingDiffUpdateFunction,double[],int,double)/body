@@ -1,0 +1,40 @@
+{
+  Timing timer=new Timing();
+  int[] sample=function.getSample(sampleSize);
+  double sobj=getObjective(function,initial,1,sample);
+  double besteta=1;
+  double bestobj=sobj;
+  double eta=seta;
+  int totest=10;
+  double factor=2;
+  boolean phase2=false;
+  while (totest > 0 || !phase2) {
+    double obj=tryEta(function,initial,sample,eta);
+    boolean okay=(obj < sobj);
+    sayln("  Trying eta=" + eta + "  obj="+ obj+ ((okay) ? "(possible)" : "(too large)"));
+    if (okay) {
+      totest-=1;
+      if (obj < bestobj) {
+        bestobj=obj;
+        besteta=eta;
+      }
+    }
+    if (!phase2) {
+      if (okay) {
+        eta=eta * factor;
+      }
+ else {
+        phase2=true;
+        eta=seta;
+      }
+    }
+    if (phase2) {
+      eta=eta / factor;
+    }
+  }
+  besteta/=factor;
+  t0=(int)(1 / (besteta * lambda));
+  sayln("  Taking eta=" + besteta + " t0="+ t0);
+  sayln("  Tuning completed in: " + Timing.toSecondsString(timer.report()) + " s");
+  return besteta;
+}

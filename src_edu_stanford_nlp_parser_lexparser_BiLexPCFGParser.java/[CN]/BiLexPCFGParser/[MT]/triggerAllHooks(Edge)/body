@@ -1,0 +1,51 @@
+{
+  boolean newL=!chart.isBuiltL(edge.state,edge.start,edge.head,edge.tag);
+  boolean newR=!chart.isBuiltR(edge.state,edge.end,edge.head,edge.tag);
+  if (VERY_VERBOSE) {
+    if (newL) {
+      System.err.println("Triggering on L: " + edge);
+    }
+    if (newR) {
+      System.err.println("Triggering on R: " + edge);
+    }
+  }
+  chart.registerEdgeIndexes(edge);
+  if (newR) {
+    for (Iterator<BinaryRule> rI=bg.ruleIteratorByLeftChild(edge.state); rI.hasNext(); ) {
+      BinaryRule br=rI.next();
+      Collection<Edge> edges=chart.getRealEdgesWithL(br.rightChild,edge.end);
+      for (      Edge real : edges) {
+        tempHook.start=real.start;
+        tempHook.end=real.end;
+        tempHook.state=br.parent;
+        tempHook.subState=br.leftChild;
+        tempHook.head=edge.head;
+        tempHook.tag=edge.tag;
+        tempHook.backEdge=real;
+        tempHook.iScore=real.iScore + br.score + dparser.headScore[dparser.binDistance[edge.head][edge.end]][edge.head][dg.tagBin(edge.tag)][real.head][dg.tagBin(real.tag)]+ dparser.headStop[real.head][dg.tagBin(real.tag)][real.start]+ dparser.headStop[real.head][dg.tagBin(real.tag)][real.end];
+        relaxTempHook();
+      }
+    }
+  }
+  if (newL) {
+    for (Iterator rI=bg.ruleIteratorByRightChild(edge.state); rI.hasNext(); ) {
+      BinaryRule br=(BinaryRule)rI.next();
+      Collection<Edge> edges=chart.getRealEdgesWithR(br.leftChild,edge.start);
+      if (VERBOSE) {
+        System.err.println("Looking for: " + stateIndex.get(br.leftChild) + " ending at "+ edge.start);
+        System.err.println("Found: " + edges);
+      }
+      for (      Edge real : edges) {
+        tempHook.start=real.start;
+        tempHook.end=real.end;
+        tempHook.state=br.parent;
+        tempHook.subState=br.rightChild;
+        tempHook.head=edge.head;
+        tempHook.tag=edge.tag;
+        tempHook.backEdge=real;
+        tempHook.iScore=real.iScore + br.score + dparser.headScore[dparser.binDistance[edge.head][edge.start]][edge.head][dg.tagBin(edge.tag)][real.head][dg.tagBin(real.tag)]+ dparser.headStop[real.head][dg.tagBin(real.tag)][real.start]+ dparser.headStop[real.head][dg.tagBin(real.tag)][real.end];
+        relaxTempHook();
+      }
+    }
+  }
+}

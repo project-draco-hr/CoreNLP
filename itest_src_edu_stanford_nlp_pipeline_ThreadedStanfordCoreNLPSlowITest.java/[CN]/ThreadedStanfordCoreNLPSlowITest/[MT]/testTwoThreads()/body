@@ -1,0 +1,20 @@
+{
+  StanfordCoreNLP pipeline=new StanfordCoreNLP();
+  List<File> files=StanfordCoreNLPSlowITest.getFileList();
+  files=files.subList(0,numDocs);
+  List<String> baseline=getAnnotations(files,pipeline);
+  CoreNLPThread[] threads=new CoreNLPThread[numThreads];
+  for (int i=0; i < numThreads; ++i) {
+    threads[i]=new CoreNLPThread(files,pipeline);
+    threads[i].start();
+  }
+  for (int i=0; i < numThreads; ++i) {
+    threads[i].join();
+    assertEquals("Thread " + i + " did not produce "+ baseline.size()+ " results",baseline.size(),threads[i].annotations.size());
+  }
+  for (int i=0; i < files.size(); ++i) {
+    for (int j=0; j < numThreads; ++j) {
+      assertEquals("Thread " + j + " produced annotation "+ i+ " differently than the baseline",baseline.get(i),threads[j].annotations.get(i));
+    }
+  }
+}

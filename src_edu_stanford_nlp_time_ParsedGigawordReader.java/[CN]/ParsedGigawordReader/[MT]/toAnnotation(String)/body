@@ -1,0 +1,60 @@
+{
+  Element docElem;
+  try {
+    Builder parser=new Builder();
+    StringReader in=new StringReader(xml);
+    docElem=parser.build(in).getRootElement();
+  }
+ catch (  ParsingException e) {
+    throw new RuntimeException(String.format("error:\n%s\ninput:\n%s",e,xml));
+  }
+catch (  IOException e) {
+    throw new RuntimeException(String.format("error:\n%s\ninput:\n%s",e,xml));
+  }
+  Element textElem=docElem.getFirstChildElement("TEXT");
+  StringBuilder text=new StringBuilder();
+  int offset=0;
+  List<CoreMap> sentences=new ArrayList<CoreMap>();
+  Elements sentenceElements=textElem.getChildElements("SENT");
+  for (int crtsent=0; crtsent < sentenceElements.size(); crtsent++) {
+    Element sentElem=sentenceElements.get(crtsent);
+    CoreMap sentence=new ArrayCoreMap();
+    sentence.set(CoreAnnotations.CharacterOffsetBeginAnnotation.class,offset);
+    Tree tree=Tree.valueOf(sentElem.getChild(0).getValue());
+    List<CoreLabel> tokens=new ArrayList<CoreLabel>();
+    List<Tree> preTerminals=preTerminals(tree);
+    for (    Tree preTerminal : preTerminals) {
+      String posTag=preTerminal.value();
+      for (      Tree wordTree : preTerminal.children()) {
+        String word=wordTree.value();
+        CoreLabel token=new CoreLabel();
+        token.set(CoreAnnotations.TextAnnotation.class,word);
+        token.set(CoreAnnotations.TextAnnotation.class,word);
+        token.set(CoreAnnotations.PartOfSpeechAnnotation.class,posTag);
+        token.set(CoreAnnotations.CharacterOffsetBeginAnnotation.class,offset);
+        offset+=word.length();
+        token.set(CoreAnnotations.CharacterOffsetEndAnnotation.class,offset);
+        text.append(word);
+        text.append(' ');
+        offset+=1;
+        tokens.add(token);
+      }
+    }
+    if (preTerminals.size() > 0) {
+      text.setCharAt(text.length() - 1,'\n');
+    }
+    sentence.set(CoreAnnotations.CharacterOffsetEndAnnotation.class,offset - 1);
+    sentence.set(CoreAnnotations.TokensAnnotation.class,tokens);
+    sentence.set(TreeCoreAnnotations.TreeAnnotation.class,tree);
+    sentences.add(sentence);
+  }
+  String docID=docElem.getAttributeValue("id");
+  Matcher matcher=datePattern.matcher(docID);
+  matcher.find();
+  Calendar docDate=new Timex("DATE",matcher.group(1)).getDate();
+  Annotation document=new Annotation(text.toString());
+  document.set(CoreAnnotations.DocIDAnnotation.class,docID);
+  document.set(CoreAnnotations.CalendarAnnotation.class,docDate);
+  document.set(CoreAnnotations.SentencesAnnotation.class,sentences);
+  return document;
+}

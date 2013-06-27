@@ -1,0 +1,17 @@
+{
+  File file=null;
+  ObjectOutputStream oos=null;
+  try {
+    file=new File(filename);
+    oos=new ObjectOutputStream(new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(file))));
+    oos.writeObject(o);
+    oos.close();
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+  }
+ finally {
+    closeIgnoringExceptions(oos);
+  }
+  return file;
+}

@@ -1,0 +1,61 @@
+{
+  if (ref == null || ref == TIME_UNKNOWN || ref == TIME_REF) {
+    return this;
+  }
+  if (this == TIME_REF) {
+    return ref;
+  }
+  if (this == TIME_UNKNOWN) {
+    return this;
+  }
+  Partial partialRef=ref.getJodaTimePartial();
+  if (partialRef == null) {
+    throw new UnsupportedOperationException("Cannot resolve if reftime is of class: " + ref.getClass());
+  }
+  Partial p=(base != null) ? JodaTimeUtils.combineMoreGeneralFields(base,partialRef) : partialRef;
+  p=JodaTimeUtils.resolveDowToDay(p,partialRef);
+  Time resolved;
+  if (p == base) {
+    resolved=this;
+  }
+ else {
+    resolved=new PartialTime(this,p);
+  }
+  Duration resolvedGranularity=resolved.getGranularity();
+  Duration refGranularity=ref.getGranularity();
+  if (resolvedGranularity != null && refGranularity != null && resolvedGranularity.compareTo(refGranularity) >= 0) {
+    if ((flags & RESOLVE_TO_PAST) != 0) {
+      if (resolved.compareTo(ref) > 0) {
+        Time t=(Time)this.prev();
+        if (t != null) {
+          resolved=(Time)t.resolve(ref,0);
+        }
+      }
+    }
+ else     if ((flags & RESOLVE_TO_FUTURE) != 0) {
+      if (resolved.compareTo(ref) < 0) {
+        Time t=(Time)this.next();
+        if (t != null) {
+          resolved=(Time)t.resolve(ref,0);
+        }
+      }
+    }
+ else     if ((flags & RESOLVE_TO_CLOSEST) != 0) {
+      if (resolved.compareTo(ref) > 0) {
+        Time t=(Time)this.prev();
+        if (t != null) {
+          Time resolved2=(Time)t.resolve(ref,0);
+          resolved=Time.closest(ref,resolved,resolved2);
+        }
+      }
+      if (resolved.compareTo(ref) < 0) {
+        Time t=(Time)this.next();
+        if (t != null) {
+          Time resolved2=(Time)t.resolve(ref,0);
+          resolved=Time.closest(ref,resolved,resolved2);
+        }
+      }
+    }
+  }
+  return resolved;
+}

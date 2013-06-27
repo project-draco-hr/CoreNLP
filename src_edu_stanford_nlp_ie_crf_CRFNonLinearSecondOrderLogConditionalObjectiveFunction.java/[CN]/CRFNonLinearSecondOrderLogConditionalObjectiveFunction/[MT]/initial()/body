@@ -1,0 +1,98 @@
+{
+  double[] initial=new double[domainDimension()];
+  if (useHiddenLayer || useOutputLayer) {
+    double epsilon=0.1;
+    double twoEpsilon=epsilon * 2;
+    int count=0;
+    double val=0;
+    if (flags.blockInitialize) {
+      int interval4Edge=numEdgeFeatures / numHiddenUnits;
+      for (int i=0; i < numHiddenUnits; i++) {
+        int lower=i * interval4Edge;
+        int upper=(i + 1) * interval4Edge;
+        if (i == numHiddenUnits - 1)         upper=numEdgeFeatures;
+        for (int j=0; j < outputLayerSize4Edge; j++) {
+          for (int k=0; k < numEdgeFeatures; k++) {
+            val=0;
+            if (k >= lower && k < upper) {
+              val=random.nextDouble() * twoEpsilon - epsilon;
+            }
+            initial[count++]=val;
+          }
+        }
+      }
+      int interval=numNodeFeatures / numHiddenUnits;
+      for (int i=0; i < numHiddenUnits; i++) {
+        int lower=i * interval;
+        int upper=(i + 1) * interval;
+        if (i == numHiddenUnits - 1)         upper=numNodeFeatures;
+        for (int j=0; j < outputLayerSize; j++) {
+          for (int k=0; k < numNodeFeatures; k++) {
+            val=0;
+            if (k >= lower && k < upper) {
+              val=random.nextDouble() * twoEpsilon - epsilon;
+            }
+            initial[count++]=val;
+          }
+        }
+      }
+      if (count != beforeOutputWeights) {
+        throw new RuntimeException("after blockInitialize, param Index (" + count + ") not equal to beforeOutputWeights ("+ beforeOutputWeights+ ")");
+      }
+    }
+ else {
+      for (int i=0; i < beforeOutputWeights; i++) {
+        val=random.nextDouble() * twoEpsilon - epsilon;
+        initial[count++]=val;
+      }
+    }
+    if (flags.sparseOutputLayer) {
+      for (int i=0; i < outputLayerSize4Edge; i++) {
+        double total=1;
+        for (int j=0; j < numHiddenUnits - 1; j++) {
+          val=random.nextDouble() * total;
+          initial[count++]=val;
+          total-=val;
+        }
+        initial[count++]=total;
+      }
+      for (int i=0; i < outputLayerSize; i++) {
+        double total=1;
+        for (int j=0; j < numHiddenUnits - 1; j++) {
+          val=random.nextDouble() * total;
+          initial[count++]=val;
+          total-=val;
+        }
+        initial[count++]=total;
+      }
+    }
+ else     if (flags.tieOutputLayer) {
+      double total=1;
+      double sum=0;
+      for (int j=0; j < numHiddenUnits - 1; j++) {
+        val=random.nextDouble() * total;
+        initial[count++]=val;
+        total-=val;
+      }
+      initial[count++]=total;
+      total=1;
+      sum=0;
+      for (int j=0; j < numHiddenUnits - 1; j++) {
+        val=random.nextDouble() * total;
+        initial[count++]=val;
+        total-=val;
+      }
+      initial[count++]=total;
+    }
+ else {
+      for (int i=beforeOutputWeights; i < domainDimension(); i++) {
+        val=random.nextDouble() * twoEpsilon - epsilon;
+        initial[count++]=val;
+      }
+    }
+    if (count != domainDimension()) {
+      throw new RuntimeException("after param initialization, param Index (" + count + ") not equal to domainDimension ("+ domainDimension()+ ")");
+    }
+  }
+  return initial;
+}

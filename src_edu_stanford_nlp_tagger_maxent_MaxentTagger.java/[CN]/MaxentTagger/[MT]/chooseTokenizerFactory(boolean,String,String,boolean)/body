@@ -1,0 +1,30 @@
+{
+  if (tokenize && tokenizerFactory.trim().length() != 0) {
+    try {
+      @SuppressWarnings({"unchecked"}) Class<TokenizerFactory<? extends HasWord>> clazz=(Class<TokenizerFactory<? extends HasWord>>)Class.forName(tokenizerFactory.trim());
+      Method factoryMethod=clazz.getMethod("newTokenizerFactory");
+      @SuppressWarnings({"unchecked"}) TokenizerFactory<? extends HasWord> factory=(TokenizerFactory<? extends HasWord>)factoryMethod.invoke(tokenizerOptions);
+      return factory;
+    }
+ catch (    Exception e) {
+      throw new RuntimeException("Could not load tokenizer factory",e);
+    }
+  }
+ else   if (tokenize) {
+    if (invertible) {
+      if (tokenizerOptions.equals("")) {
+        tokenizerOptions="invertible=true";
+      }
+ else       if (!tokenizerOptions.matches("(^|.*,)invertible=true")) {
+        tokenizerOptions+=",invertible=true";
+      }
+      return PTBTokenizerFactory.newCoreLabelTokenizerFactory(tokenizerOptions);
+    }
+ else {
+      return PTBTokenizerFactory.newWordTokenizerFactory(tokenizerOptions);
+    }
+  }
+ else {
+    return WhitespaceTokenizer.factory();
+  }
+}

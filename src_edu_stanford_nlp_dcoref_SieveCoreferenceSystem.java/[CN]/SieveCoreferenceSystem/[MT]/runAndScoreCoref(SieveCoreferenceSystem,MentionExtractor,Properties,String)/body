@@ -1,0 +1,100 @@
+{
+  PrintWriter writerGold=null;
+  PrintWriter writerPredicted=null;
+  PrintWriter writerPredictedCoref=null;
+  String conllOutputMentionGoldFile=null;
+  String conllOutputMentionPredictedFile=null;
+  String conllOutputMentionCorefPredictedFile=null;
+  String conllMentionEvalFile=null;
+  String conllMentionEvalErrFile=null;
+  String conllMentionCorefEvalFile=null;
+  String conllMentionCorefEvalErrFile=null;
+  if (Constants.PRINT_CONLL_OUTPUT || corefSystem.replicateCoNLL) {
+    String conllOutput=props.getProperty(Constants.CONLL_OUTPUT_PROP,"conlloutput");
+    conllOutputMentionGoldFile=conllOutput + "-" + timeStamp+ ".gold.txt";
+    conllOutputMentionPredictedFile=conllOutput + "-" + timeStamp+ ".predicted.txt";
+    conllOutputMentionCorefPredictedFile=conllOutput + "-" + timeStamp+ ".coref.predicted.txt";
+    conllMentionEvalFile=conllOutput + "-" + timeStamp+ ".eval.txt";
+    conllMentionEvalErrFile=conllOutput + "-" + timeStamp+ ".eval.err.txt";
+    conllMentionCorefEvalFile=conllOutput + "-" + timeStamp+ ".coref.eval.txt";
+    conllMentionCorefEvalErrFile=conllOutput + "-" + timeStamp+ ".coref.eval.err.txt";
+    logger.info("CONLL MENTION GOLD FILE: " + conllOutputMentionGoldFile);
+    logger.info("CONLL MENTION PREDICTED FILE: " + conllOutputMentionPredictedFile);
+    logger.info("CONLL MENTION EVAL FILE: " + conllMentionEvalFile);
+    if (!Constants.SKIP_COREF) {
+      logger.info("CONLL MENTION PREDICTED WITH COREF FILE: " + conllOutputMentionCorefPredictedFile);
+      logger.info("CONLL MENTION WITH COREF EVAL FILE: " + conllMentionCorefEvalFile);
+    }
+    writerGold=new PrintWriter(new FileOutputStream(conllOutputMentionGoldFile));
+    writerPredicted=new PrintWriter(new FileOutputStream(conllOutputMentionPredictedFile));
+    writerPredictedCoref=new PrintWriter(new FileOutputStream(conllOutputMentionCorefPredictedFile));
+  }
+  mentionExtractor.resetDocs();
+  if (corefSystem.doScore()) {
+    corefSystem.initScorers();
+  }
+  while (true) {
+    Document document=mentionExtractor.nextDoc();
+    if (document == null)     break;
+    if (!props.containsKey(Constants.MUC_PROP)) {
+      printRawDoc(document,true);
+      printRawDoc(document,false);
+    }
+    printDiscourseStructure(document);
+    if (corefSystem.doScore()) {
+      document.extractGoldCorefClusters();
+    }
+    if (Constants.PRINT_CONLL_OUTPUT || corefSystem.replicateCoNLL) {
+      printConllOutput(document,writerGold,true);
+      printConllOutput(document,writerPredicted,false);
+    }
+    if (Constants.SKIP_COREF) {
+      continue;
+    }
+    corefSystem.coref(document);
+    if (corefSystem.doScore()) {
+      corefSystem.printTopK(logger,document,corefSystem.semantics);
+      logger.fine("pairwise score for this doc: ");
+      corefSystem.scoreSingleDoc.get(corefSystem.sieves.length - 1).printF1(logger);
+      logger.fine("accumulated score: ");
+      corefSystem.printF1(true);
+      logger.fine("\n");
+    }
+    if (Constants.PRINT_CONLL_OUTPUT || corefSystem.replicateCoNLL) {
+      printConllOutput(document,writerPredictedCoref,false,true);
+    }
+  }
+  double finalScore=0;
+  if (Constants.PRINT_CONLL_OUTPUT || corefSystem.replicateCoNLL) {
+    writerGold.close();
+    writerPredicted.close();
+    writerPredictedCoref.close();
+    if (corefSystem.conllMentionEvalScript != null) {
+      String summary=getConllEvalSummary(corefSystem.conllMentionEvalScript,conllOutputMentionGoldFile,conllOutputMentionPredictedFile);
+      logger.info("\nCONLL EVAL SUMMARY (Before COREF)");
+      printScoreSummary(summary,logger,false);
+      if (!Constants.SKIP_COREF) {
+        summary=getConllEvalSummary(corefSystem.conllMentionEvalScript,conllOutputMentionGoldFile,conllOutputMentionCorefPredictedFile);
+        logger.info("\nCONLL EVAL SUMMARY (After COREF)");
+        printScoreSummary(summary,logger,true);
+        printFinalConllScore(summary);
+        if (corefSystem.optimizeConllScore) {
+          finalScore=getFinalConllScore(summary,corefSystem.optimizeMetricType,corefSystem.optimizeSubScoreType.toString());
+        }
+      }
+    }
+  }
+  if (!corefSystem.optimizeConllScore && corefSystem.doScore()) {
+    finalScore=corefSystem.getFinalScore(corefSystem.optimizeMetricType,corefSystem.optimizeSubScoreType);
+  }
+  String scoresFile=props.getProperty(Constants.SCORE_FILE_PROP);
+  if (scoresFile != null) {
+    PrintWriter pw=IOUtils.getPrintWriter(scoresFile);
+    pw.println(finalScore);
+    pw.close();
+  }
+  if (corefSystem.optimizeSieves) {
+    logger.info("Final reported score for sieve optimization " + corefSystem.optimizeScoreType + " : "+ finalScore);
+  }
+  return finalScore;
+}

@@ -1,0 +1,9 @@
+{
+  List<CoreLabel> words=Sentence.toCoreLabelList("foo","bar","baz");
+  words.get(1).set(ParserAnnotations.CandidatePartOfSpeechAnnotation.class,"JJ");
+  Tree tree=englishParser.parse(words);
+  assertEquals("JJ",tree.taggedYield().get(1).tag());
+  words.get(1).set(ParserAnnotations.CandidatePartOfSpeechAnnotation.class,"NN|NNP");
+  tree=englishParser.parse(words);
+  assertTrue(tree.taggedYield().get(1).tag().equals("NN") || tree.taggedYield().get(1).tag().equals("NNP"));
+}

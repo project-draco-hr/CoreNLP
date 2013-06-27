@@ -1,0 +1,31 @@
+{
+  ArrayList<String> labels=new ArrayList<String>();
+  String line;
+  while ((line=is.readLine()) != null) {
+    ArrayList<String> tokens=SimpleTokenize.tokenize(line);
+    if (tokens.isEmpty() == false)     labels.add(tokens.get(0));
+  }
+  assert(labels.size() == mTokens.size());
+  int entityId=1;
+  for (int i=0; i < labels.size(); i++) {
+    if (labels.get(i).startsWith("B-") || labels.get(i).startsWith("I-")) {
+      int startToken=i;
+      int endToken=i + 1;
+      while (endToken < labels.size() && labels.get(endToken).startsWith("I-"))       endToken++;
+      String label=labels.get(startToken);
+      int dash=label.indexOf("-",2);
+      if (dash <= 2 || dash >= label.length()) {
+        throw new RuntimeException(label);
+      }
+      assert(dash > 2 && dash < label.length() - 1);
+      String type=label.substring(2,dash);
+      String subtype=label.substring(dash + 1);
+      makeEntity(startToken,endToken,entityId,type,subtype);
+      i=endToken - 1;
+      entityId++;
+    }
+ else {
+      assert(labels.get(i).equals("O"));
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  List<File> files=getFileList();
+  File dir=File.createTempFile("StanfordCoreNLPSlowITest","");
+  dir.delete();
+  dir.mkdir();
+  dir.deleteOnExit();
+  System.out.println("Temp path: " + dir.getPath());
+  Properties props=new Properties();
+  props.setProperty("outputDirectory",dir.getPath());
+  props.setProperty("annotators","tokenize, cleanxml, ssplit, pos, lemma, ner, parse, dcoref");
+  return new StanfordCoreNLP(props);
+}

@@ -1,0 +1,37 @@
+{
+  geFeature2EmpiricalDist=new double[geFeatures.size()][labeledDataset.labelIndex.size()];
+  geFeature2DatumList=new ArrayList<List<Integer>>(geFeatures.size());
+  Map<F,Integer> geFeatureMap=Generics.newHashMap();
+  Set<Integer> activeUnlabeledExamples=Generics.newHashSet();
+  for (int n=0; n < geFeatures.size(); n++) {
+    F geFeature=geFeatures.get(n);
+    geFeature2DatumList.add(new ArrayList<Integer>());
+    Arrays.fill(geFeature2EmpiricalDist[n],0);
+    geFeatureMap.put(geFeature,n);
+  }
+  for (int i=0; i < labeledDataset.size(); i++) {
+    Datum<L,F> datum=labeledDataset.getDatum(i);
+    int labelID=labeledDataset.labelIndex.indexOf(datum.label());
+    for (    F feature : datum.asFeatures()) {
+      if (geFeatureMap.containsKey(feature)) {
+        int geFnum=geFeatureMap.get(feature);
+        geFeature2EmpiricalDist[geFnum][labelID]++;
+      }
+    }
+  }
+  for (int n=0; n < geFeatures.size(); n++) {
+    ArrayMath.normalize(geFeature2EmpiricalDist[n]);
+    smoothDistribution(geFeature2EmpiricalDist[n]);
+  }
+  for (int i=0; i < unlabeledDataList.size(); i++) {
+    Datum<L,F> datum=unlabeledDataList.get(i);
+    for (    F feature : datum.asFeatures()) {
+      if (geFeatureMap.containsKey(feature)) {
+        int geFnum=geFeatureMap.get(feature);
+        geFeature2DatumList.get(geFnum).add(i);
+        activeUnlabeledExamples.add(i);
+      }
+    }
+  }
+  System.out.println("Number of active unlabeled examples:" + activeUnlabeledExamples.size());
+}

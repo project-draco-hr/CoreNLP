@@ -1,0 +1,24 @@
+{
+  boolean replicateCoNLL=Boolean.parseBoolean(props.getProperty(Constants.REPLICATECONLL_PROP,"false"));
+  Properties pipelineProps=new Properties(props);
+  StringBuilder annoSb=new StringBuilder("");
+  if (!Constants.USE_GOLD_POS && !replicateCoNLL) {
+    annoSb.append("pos, lemma");
+  }
+ else {
+    annoSb.append("lemma");
+  }
+  if (Constants.USE_TRUECASE) {
+    annoSb.append(", truecase");
+  }
+  if (!Constants.USE_GOLD_NE && !replicateCoNLL) {
+    annoSb.append(", ner");
+  }
+  if (!Constants.USE_GOLD_PARSES && !replicateCoNLL) {
+    annoSb.append(", parse");
+  }
+  String annoStr=annoSb.toString();
+  SieveCoreferenceSystem.logger.info("Ignoring specified annotators, using annotators=" + annoStr);
+  pipelineProps.put("annotators",annoStr);
+  return new StanfordCoreNLP(pipelineProps,false);
+}

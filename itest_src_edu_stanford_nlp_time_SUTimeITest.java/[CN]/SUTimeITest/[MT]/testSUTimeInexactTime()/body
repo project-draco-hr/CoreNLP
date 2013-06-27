@@ -1,0 +1,20 @@
+{
+  String testText="The morning of January 31 was very cold.\n" + "He arrived late last night.\n" + "He arrived last night.\n";
+  Iterator<Timex> expectedTimexes=Arrays.asList(Timex.fromXml("<TIMEX3 tid=\"t1\" value=\"XXXX-01-31TMO\" type=\"TIME\">The morning of January 31</TIMEX3>"),Timex.fromXml("<TIMEX3 tid=\"t2\" alt_value=\"TNI OFFSET P-1D\" type=\"DATE\" mod=\"LATE\" temporalFunction=\"true\" valueFromFunction=\"tf0\" anchorTimeID=\"t3\">late last night</TIMEX3>"),Timex.fromXml("<TIMEX3 tid=\"t4\" alt_value=\"TNI OFFSET P-1D\" type=\"DATE\" temporalFunction=\"true\" valueFromFunction=\"tf1\" anchorTimeID=\"t5\">last night</TIMEX3>")).iterator();
+  Iterator<Timex> expectedTimexesResolved=Arrays.asList(Timex.fromXml("<TIMEX3 tid=\"t1\" value=\"2003-01-31TMO\" type=\"TIME\">The morning of January 31</TIMEX3>"),Timex.fromXml("<TIMEX3 tid=\"t2\" value=\"2003-04-13TNI\" type=\"TIME\" mod=\"LATE\">late last night</TIMEX3>"),Timex.fromXml("<TIMEX3 tid=\"t3\" value=\"2003-04-13TNI\" type=\"TIME\">last night</TIMEX3>")).iterator();
+  Annotation document=createDocument(testText);
+  TimeAnnotator sutime=getTimeAnnotator();
+  sutime.annotate(document);
+  for (  CoreMap timexAnn : document.get(TimeAnnotations.TimexAnnotations.class)) {
+    Timex expectedTimex=expectedTimexes.next();
+    testTimex(testText,expectedTimex.text(),expectedTimex,timexAnn);
+  }
+  assertFalse(expectedTimexes.hasNext());
+  Annotation documentWithRefTime=createDocument(testText,"20030414");
+  sutime.annotate(documentWithRefTime);
+  for (  CoreMap timexAnn : documentWithRefTime.get(TimeAnnotations.TimexAnnotations.class)) {
+    Timex expectedTimex=expectedTimexesResolved.next();
+    testTimex(testText,expectedTimex.text(),expectedTimex,timexAnn);
+  }
+  assertFalse(expectedTimexes.hasNext());
+}

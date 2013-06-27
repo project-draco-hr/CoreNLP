@@ -1,0 +1,16 @@
+{
+  int position=left;
+  if (!useTag && t.isLeaf()) {
+    position+=t.label().value().length();
+    deps.add(cf.newConstituent(left,position - 1,t.label(),0.0));
+  }
+ else   if (useTag && t.isPreTerminal()) {
+    position+=t.firstChild().label().value().length();
+    deps.add(cf.newConstituent(left,position - 1,t.label(),0.0));
+  }
+ else {
+    Tree[] kids=t.children();
+    for (int i=0; i < kids.length; i++)     position=extractDeps(kids[i],position,deps);
+  }
+  return position;
+}

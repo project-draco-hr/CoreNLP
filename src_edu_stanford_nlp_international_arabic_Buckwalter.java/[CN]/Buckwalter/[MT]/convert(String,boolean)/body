@@ -1,0 +1,39 @@
+{
+  final StringTokenizer st=new StringTokenizer(in);
+  final StringBuilder result=new StringBuilder(in.length());
+  while (st.hasMoreTokens()) {
+    final String token=st.nextToken();
+    for (int i=0; i < token.length(); i++) {
+      if (ATBTreeUtils.reservedWords.contains(token)) {
+        result.append(token);
+        break;
+      }
+      final Character inCh=Character.valueOf(token.charAt(i));
+      Character outCh=null;
+      if (unicodeToBuckwalter) {
+        outCh=(PASS_ASCII_IN_UNICODE && inCh.charValue() < 127) ? inCh : u2bMap.get(inCh);
+      }
+ else       if ((SUPPRESS_DIGIT_MAPPING_IN_B2A && Character.isDigit(inCh)) || (SUPPRESS_PUNC_MAPPING_IN_B2A && latinPunc.matcher(inCh.toString()).matches())) {
+        outCh=inCh;
+      }
+ else {
+        outCh=b2uMap.get(inCh);
+      }
+      if (outCh == null) {
+        if (DEBUG) {
+          String key=inCh + "[U+" + StringUtils.padLeft(Integer.toString(inCh,16).toUpperCase(),4,'0')+ ']';
+          unmappable.incrementCount(key);
+        }
+        result.append(inCh);
+      }
+ else       if (outputUnicodeValues) {
+        result.append("\\u").append(StringUtils.padLeft(Integer.toString(inCh,16).toUpperCase(),4,'0'));
+      }
+ else {
+        result.append(outCh);
+      }
+    }
+    result.append(" ");
+  }
+  return result.toString().trim();
+}

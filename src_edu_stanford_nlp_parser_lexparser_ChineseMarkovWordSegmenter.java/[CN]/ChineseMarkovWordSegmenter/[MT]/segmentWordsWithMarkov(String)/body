@@ -1,0 +1,75 @@
+{
+  DeltaIndex<String> deltaWordIndex=new DeltaIndex<String>(wordIndex);
+  int length=s.length();
+  int numTags=POSes.size();
+  double[][][] scores=new double[length][length + 1][numTags];
+  int[][][] splitBacktrace=new int[length][length + 1][numTags];
+  int[][][] POSbacktrace=new int[length][length + 1][numTags];
+  for (int i=0; i < length; i++) {
+    for (int j=0; j < length + 1; j++) {
+      Arrays.fill(scores[i][j],Double.NEGATIVE_INFINITY);
+    }
+  }
+  for (int diff=1; diff <= 10; diff++) {
+    for (int start=0; start + diff <= length; start++) {
+      int end=start + diff;
+      StringBuilder wordBuf=new StringBuilder();
+      for (int pos=start; pos < end; pos++) {
+        wordBuf.append(s.charAt(pos));
+      }
+      String word=wordBuf.toString();
+      for (      String tag : POSes) {
+        IntTaggedWord itw=new IntTaggedWord(word,tag,deltaWordIndex,tagIndex);
+        double score=lex.score(itw,0,word,null);
+        if (start == 0) {
+          score+=Math.log(initialPOSDist.probabilityOf(tag));
+        }
+        scores[start][end][itw.tag()]=score;
+        splitBacktrace[start][end][itw.tag()]=end;
+      }
+    }
+  }
+  for (int diff=2; diff <= length; diff++) {
+    for (int start=0; start + diff <= length; start++) {
+      int end=start + diff;
+      for (int split=start + 1; split < end && split - start <= 10; split++) {
+        for (        String tag : POSes) {
+          int tagNum=tagIndex.indexOf(tag,true);
+          if (splitBacktrace[start][split][tagNum] != split) {
+            continue;
+          }
+          Distribution<String> rTagDist=markovPOSDists.get(tag);
+          if (rTagDist == null) {
+            continue;
+          }
+          for (          String rTag : POSes) {
+            int rTagNum=tagIndex.indexOf(rTag,true);
+            double newScore=scores[start][split][tagNum] + scores[split][end][rTagNum] + Math.log(rTagDist.probabilityOf(rTag));
+            if (newScore > scores[start][end][tagNum]) {
+              scores[start][end][tagNum]=newScore;
+              splitBacktrace[start][end][tagNum]=split;
+              POSbacktrace[start][end][tagNum]=rTagNum;
+            }
+          }
+        }
+      }
+    }
+  }
+  int nextPOS=ArrayMath.argmax(scores[0][length]);
+  ArrayList<HasWord> words=new ArrayList<HasWord>();
+  int start=0;
+  while (start < length) {
+    int split=splitBacktrace[start][length][nextPOS];
+    StringBuilder wordBuf=new StringBuilder();
+    for (int i=start; i < split; i++) {
+      wordBuf.append(s.charAt(i));
+    }
+    String word=wordBuf.toString();
+    words.add(new Word(word));
+    if (split < length) {
+      nextPOS=POSbacktrace[start][length][nextPOS];
+    }
+    start=split;
+  }
+  return words;
+}

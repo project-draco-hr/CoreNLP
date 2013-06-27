@@ -1,0 +1,16 @@
+{
+  if (tempMDouble == null) {
+    tempMDouble=new MutableDouble();
+  }
+  MutableDouble oldMDouble=map.put(key,tempMDouble);
+  if (oldMDouble != null) {
+    count=SloppyMath.logAdd(count,oldMDouble.doubleValue());
+    totalCount+=count - oldMDouble.doubleValue();
+  }
+ else {
+    totalCount+=count;
+  }
+  tempMDouble.set(count);
+  tempMDouble=oldMDouble;
+  return count;
+}

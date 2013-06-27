@@ -1,0 +1,28 @@
+{
+  DirectedMultiGraph<Integer,String> g=new DirectedMultiGraph<Integer,String>();
+  g.addVertex(1);
+  assertEquals(new HashSet<Integer>(Arrays.asList(1)),g.getAllVertices());
+  g.addVertex(2);
+  assertEquals(new HashSet<Integer>(Arrays.asList(1,2)),g.getAllVertices());
+  g.add(1,2,"foo");
+  g.add(1,2,"bar");
+  g.addVertex(3);
+  assertEquals(new HashSet<Integer>(Arrays.asList(1,2,3)),g.getAllVertices());
+  g.add(1,3,"bar");
+  g.add(2,3,"foo");
+  g.add(2,3,"baz");
+  g.add(2,4,"baz");
+  assertEquals(new HashSet<Integer>(Arrays.asList(1,2,3,4)),g.getAllVertices());
+  g.removeEdges(2,3);
+  g.removeEdge(1,2,"foo");
+  g.removeEdge(1,2,"bar");
+  g.removeEdge(1,3,"bar");
+  g.removeEdge(2,4,"baz");
+  assertEquals(new HashSet<Integer>(Arrays.asList(1,2,3,4)),g.getAllVertices());
+  g.removeVertex(4);
+  assertEquals(new HashSet<Integer>(Arrays.asList(1,2,3)),g.getAllVertices());
+  g.add(1,4,"blah");
+  assertEquals(new HashSet<Integer>(Arrays.asList(1,2,3,4)),g.getAllVertices());
+  g.removeZeroDegreeNodes();
+  assertEquals(new HashSet<Integer>(Arrays.asList(1,4)),g.getAllVertices());
+}

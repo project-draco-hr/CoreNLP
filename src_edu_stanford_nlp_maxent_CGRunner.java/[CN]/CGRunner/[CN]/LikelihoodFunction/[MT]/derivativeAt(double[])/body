@@ -1,0 +1,20 @@
+{
+  boolean eq=true;
+  for (int j=0; j < lambda.length; j++) {
+    if (Math.abs(lambda[j] - model.lambda[j]) > tol) {
+      eq=false;
+      break;
+    }
+  }
+  if (!eq) {
+    System.err.println("derivativeAt: call with different value");
+    valueAt(lambda);
+  }
+  double[] drvs=model.getDerivatives();
+  if (useGaussianPrior) {
+    for (int j=0; j < lambda.length; j++) {
+      drvs[j]+=lambda[j] / sigmaSquareds[j];
+    }
+  }
+  return drvs;
+}

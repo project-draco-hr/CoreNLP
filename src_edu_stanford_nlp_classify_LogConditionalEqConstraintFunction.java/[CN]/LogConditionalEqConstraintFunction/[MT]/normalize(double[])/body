@@ -1,0 +1,29 @@
+{
+  double[] x1=new double[x.length];
+  copy(x1,x);
+  double[] sums=new double[numClasses];
+  for (int c=0; c < numClasses; c++) {
+    int priorc=indexOf(c);
+    sums[c]+=x[priorc];
+  }
+  double total=ArrayMath.logSum(sums);
+  for (int c=0; c < numClasses; c++) {
+    int priorc=indexOf(c);
+    x1[priorc]-=total;
+  }
+  for (int c=0; c < numClasses; c++) {
+    for (int f=0; f < numFeatures; f++) {
+      double[] vals=new double[numValues[f]];
+      for (int val=0; val < numValues[f]; val++) {
+        int index=indexOf(f,c,val);
+        vals[val]=x[index];
+      }
+      total=ArrayMath.logSum(vals);
+      for (int val=0; val < numValues[f]; val++) {
+        int index=indexOf(f,c,val);
+        x1[index]-=total;
+      }
+    }
+  }
+  return x1;
+}

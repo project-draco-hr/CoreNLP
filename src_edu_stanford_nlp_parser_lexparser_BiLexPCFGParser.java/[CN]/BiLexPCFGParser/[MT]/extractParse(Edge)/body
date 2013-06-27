@@ -1,0 +1,31 @@
+{
+  String head=wordIndex.get(words[edge.head]);
+  String tag=tagIndex.get(edge.tag);
+  String state=stateIndex.get(edge.state);
+  Label label=new CategoryWordTag(state,head,tag);
+  if (edge.backEdge == null && edge.backHook == null) {
+    Tree leaf;
+    if (originalLabels[edge.head] != null) {
+      leaf=tf.newLeaf(originalLabels[edge.head]);
+    }
+ else {
+      leaf=tf.newLeaf(head);
+    }
+    List<Tree> childList=Collections.singletonList(leaf);
+    return tf.newTreeNode(label,childList);
+  }
+  if (edge.backHook == null) {
+    List<Tree> childList=Collections.singletonList(extractParse(edge.backEdge));
+    return tf.newTreeNode(label,childList);
+  }
+  List<Tree> children=new ArrayList<Tree>();
+  if (edge.backHook.isPreHook()) {
+    children.add(extractParse(edge.backEdge));
+    children.add(extractParse(edge.backHook.backEdge));
+  }
+ else {
+    children.add(extractParse(edge.backHook.backEdge));
+    children.add(extractParse(edge.backEdge));
+  }
+  return tf.newTreeNode(label,children);
+}

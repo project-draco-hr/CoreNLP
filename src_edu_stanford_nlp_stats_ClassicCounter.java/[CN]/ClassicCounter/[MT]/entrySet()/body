@@ -1,0 +1,44 @@
+{
+  return new AbstractSet<Map.Entry<E,Double>>(){
+    @Override public Iterator<Entry<E,Double>> iterator(){
+      return new Iterator<Entry<E,Double>>(){
+        final Iterator<Entry<E,MutableDouble>> inner=map.entrySet().iterator();
+        @Override public boolean hasNext(){
+          return inner.hasNext();
+        }
+        @Override public Entry<E,Double> next(){
+          return new Entry<E,Double>(){
+            final Entry<E,MutableDouble> e=inner.next();
+            public double getDoubleValue(){
+              return e.getValue().doubleValue();
+            }
+            public double setValue(            double value){
+              final double old=e.getValue().doubleValue();
+              e.getValue().set(value);
+              totalCount=totalCount - old + value;
+              return old;
+            }
+            @Override public E getKey(){
+              return e.getKey();
+            }
+            @Override public Double getValue(){
+              return getDoubleValue();
+            }
+            @Override public Double setValue(            Double value){
+              return setValue(value.doubleValue());
+            }
+          }
+;
+        }
+        @Override public void remove(){
+          throw new UnsupportedOperationException();
+        }
+      }
+;
+    }
+    @Override public int size(){
+      return map.size();
+    }
+  }
+;
+}

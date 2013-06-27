@@ -1,0 +1,26 @@
+{
+  op=new Options();
+  op.tlpParams=new ArabicTreebankParserParams();
+  op.setOptions("-arabicFactored");
+  op.testOptions.maxLength=maxSentLen;
+  op.testOptions.MAX_ITEMS=5000000;
+  op.testOptions.outputFormatOptions="removeTopBracket,includePunctuationDependencies";
+  op.testOptions.maxSpanForTags=80;
+  treePrint=op.testOptions.treePrint(op.tlpParams);
+  debinarizer=new Debinarizer(op.forceCNF,new CategoryWordTagFactory());
+  subcategoryStripper=op.tlpParams.subcategoryStripper();
+  Timing.startTime();
+  final Treebank trainTreebank=op.tlpParams.diskTreebank();
+  trainTreebank.loadPath(trainTreebankFile);
+  lp=getParserDataFromTreebank(trainTreebank);
+  makeParsers();
+  if (VERBOSE) {
+    op.display();
+    String lexNumRules=(pparser != null) ? Integer.toString(lp.lex.numRules()) : "";
+    System.err.println("Grammar\tStates\tTags\tWords\tUnaryR\tBinaryR\tTaggings");
+    System.err.println("Grammar\t" + lp.stateIndex.size() + '\t'+ lp.tagIndex.size()+ '\t'+ lp.wordIndex.size()+ '\t'+ (pparser != null ? lp.ug.numRules() : "")+ '\t'+ (pparser != null ? lp.bg.numRules() : "")+ '\t'+ lexNumRules);
+    System.err.println("ParserPack is " + op.tlpParams.getClass().getName());
+    System.err.println("Lexicon is " + lp.lex.getClass().getName());
+  }
+  return parse(inputStream);
+}

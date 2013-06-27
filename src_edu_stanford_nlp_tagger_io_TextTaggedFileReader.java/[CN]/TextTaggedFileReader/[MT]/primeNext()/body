@@ -1,0 +1,26 @@
+{
+  String line;
+  try {
+    line=reader.readLine();
+  }
+ catch (  IOException e) {
+    throw new RuntimeException(e);
+  }
+  if (line == null) {
+    next=null;
+    return;
+  }
+  ++numSentences;
+  next=new ArrayList<TaggedWord>();
+  StringTokenizer st=new StringTokenizer(line);
+  while (st.hasMoreTokens()) {
+    String token=st.nextToken();
+    int indexUnd=token.lastIndexOf(tagSeparator);
+    if (indexUnd < 0) {
+      throw new IllegalArgumentException("Data format error: can't find delimiter \"" + tagSeparator + "\" in word \""+ token+ "\" (line "+ (numSentences + 1)+ " of "+ filename+ ')');
+    }
+    String word=token.substring(0,indexUnd).intern();
+    String tag=token.substring(indexUnd + 1).intern();
+    next.add(new TaggedWord(word,tag));
+  }
+}

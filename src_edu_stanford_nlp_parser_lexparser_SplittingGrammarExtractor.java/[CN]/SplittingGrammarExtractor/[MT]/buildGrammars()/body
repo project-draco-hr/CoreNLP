@@ -1,0 +1,55 @@
+{
+  TwoDimensionalMap<String,String,double[][]> tempUnaryBetas=new TwoDimensionalMap<String,String,double[][]>();
+  ThreeDimensionalMap<String,String,String,double[][][]> tempBinaryBetas=new ThreeDimensionalMap<String,String,String,double[][][]>();
+  Map<String,double[]> totalStateMass=Generics.newHashMap();
+  recalculateTemporaryBetas(false,totalStateMass,tempUnaryBetas,tempBinaryBetas);
+  BinaryGrammar bg=new BinaryGrammar(stateIndex);
+  for (  String parent : tempBinaryBetas.firstKeySet()) {
+    int parentStates=getStateSplitCount(parent);
+    double[] stateTotal=totalStateMass.get(parent);
+    for (    String left : tempBinaryBetas.get(parent).firstKeySet()) {
+      int leftStates=getStateSplitCount(left);
+      for (      String right : tempBinaryBetas.get(parent).get(left).keySet()) {
+        int rightStates=getStateSplitCount(right);
+        double[][][] betas=tempBinaryBetas.get(parent,left,right);
+        for (int i=0; i < parentStates; ++i) {
+          if (stateTotal[i] < EPSILON) {
+            continue;
+          }
+          for (int j=0; j < leftStates; ++j) {
+            for (int k=0; k < rightStates; ++k) {
+              int parentIndex=stateIndex.indexOf(state(parent,i));
+              int leftIndex=stateIndex.indexOf(state(left,j));
+              int rightIndex=stateIndex.indexOf(state(right,k));
+              double score=betas[i][j][k] - Math.log(stateTotal[i]);
+              BinaryRule br=new BinaryRule(parentIndex,leftIndex,rightIndex,score);
+              bg.addRule(br);
+            }
+          }
+        }
+      }
+    }
+  }
+  UnaryGrammar ug=new UnaryGrammar(stateIndex);
+  for (  String parent : tempUnaryBetas.firstKeySet()) {
+    int parentStates=getStateSplitCount(parent);
+    double[] stateTotal=totalStateMass.get(parent);
+    for (    String child : tempUnaryBetas.get(parent).keySet()) {
+      int childStates=getStateSplitCount(child);
+      double[][] betas=tempUnaryBetas.get(parent,child);
+      for (int i=0; i < parentStates; ++i) {
+        if (stateTotal[i] < EPSILON) {
+          continue;
+        }
+        for (int j=0; j < childStates; ++j) {
+          int parentIndex=stateIndex.indexOf(state(parent,i));
+          int childIndex=stateIndex.indexOf(state(child,j));
+          double score=betas[i][j] - Math.log(stateTotal[i]);
+          UnaryRule ur=new UnaryRule(parentIndex,childIndex,score);
+          ug.addRule(ur);
+        }
+      }
+    }
+  }
+  bgug=new Pair<UnaryGrammar,BinaryGrammar>(ug,bg);
+}

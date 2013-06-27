@@ -1,0 +1,50 @@
+{
+  if (y != null && !PAD_FIELD_UNKNOWN4.equals(y)) {
+    if (!y.matches("[+-]?[0-9X]{4}")) {
+      throw new IllegalArgumentException("Year not in ISO format " + y);
+    }
+    if (y.startsWith("-")) {
+      y=y.substring(1);
+      era=ERA_BC;
+    }
+ else     if (y.startsWith("+")) {
+      y=y.substring(1);
+      era=ERA_AD;
+    }
+    if (y.contains(PAD_FIELD_UNKNOWN)) {
+    }
+ else {
+      year=Integer.parseInt(y);
+    }
+  }
+ else {
+    y=PAD_FIELD_UNKNOWN4;
+  }
+  if (m != null && !PAD_FIELD_UNKNOWN2.equals(m)) {
+    month=Integer.parseInt(m);
+  }
+ else {
+    m=PAD_FIELD_UNKNOWN2;
+  }
+  if (d != null && !PAD_FIELD_UNKNOWN2.equals(d)) {
+    day=Integer.parseInt(d);
+  }
+ else {
+    d=PAD_FIELD_UNKNOWN2;
+  }
+  initBase();
+  if (year < 0 && !PAD_FIELD_UNKNOWN4.equals(y)) {
+    if (Character.isDigit(y.charAt(0)) && Character.isDigit(y.charAt(1))) {
+      int century=Integer.parseInt(y.substring(0,2));
+      base=JodaTimeUtils.setField(base,DateTimeFieldType.centuryOfEra(),century);
+    }
+    if (Character.isDigit(y.charAt(2)) && Character.isDigit(y.charAt(3))) {
+      int cy=Integer.parseInt(y.substring(2,4));
+      base=JodaTimeUtils.setField(base,DateTimeFieldType.yearOfCentury(),cy);
+    }
+ else     if (Character.isDigit(y.charAt(2))) {
+      int decade=Integer.parseInt(y.substring(2,3));
+      base=JodaTimeUtils.setField(base,JodaTimeUtils.DecadeOfCentury,decade);
+    }
+  }
+}

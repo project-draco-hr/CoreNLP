@@ -1,0 +1,18 @@
+{
+  Mapper m=null;
+  try {
+    Class c=ClassLoader.getSystemClassLoader().loadClass(className);
+    m=(Mapper)c.newInstance();
+  }
+ catch (  ClassNotFoundException e) {
+    System.err.printf("%s: Mapper type %s does not exist\n",this.getClass().getName(),className);
+  }
+catch (  InstantiationException e) {
+    System.err.printf("%s: Unable to instantiate mapper type %s\n",this.getClass().getName(),className);
+    e.printStackTrace();
+  }
+catch (  IllegalAccessException e) {
+    System.err.printf("%s: Unable to access mapper type %s\n",this.getClass().getName(),className);
+  }
+  return m;
+}

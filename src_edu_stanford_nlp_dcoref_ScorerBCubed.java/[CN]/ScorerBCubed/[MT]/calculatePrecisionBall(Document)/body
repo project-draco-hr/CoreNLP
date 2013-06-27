@@ -1,0 +1,20 @@
+{
+  int pDen=0;
+  double pNum=0.0;
+  Map<Integer,Mention> goldMentions=doc.allGoldMentions;
+  Map<Integer,Mention> predictedMentions=doc.allPredictedMentions;
+  for (  Mention m : predictedMentions.values()) {
+    double correct=0.0;
+    double total=0.0;
+    for (    Mention m2 : doc.corefClusters.get(m.corefClusterID).getCorefMentions()) {
+      if (m == m2 || (goldMentions.containsKey(m.mentionID) && goldMentions.containsKey(m2.mentionID) && goldMentions.get(m.mentionID).goldCorefClusterID == goldMentions.get(m2.mentionID).goldCorefClusterID)) {
+        correct++;
+      }
+      total++;
+    }
+    pNum+=correct / total;
+    pDen++;
+  }
+  precisionDenSum+=pDen;
+  precisionNumSum+=pNum;
+}

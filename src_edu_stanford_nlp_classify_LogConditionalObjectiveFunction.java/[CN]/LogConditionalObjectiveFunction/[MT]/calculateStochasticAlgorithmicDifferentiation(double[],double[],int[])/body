@@ -1,0 +1,72 @@
+{
+  System.err.print("*");
+  value=0.0;
+  if (derivativeAD == null) {
+    derivativeAD=new DoubleAD[x.length];
+    for (int i=0; i < x.length; i++) {
+      derivativeAD[i]=new DoubleAD(0.0,0.0);
+    }
+  }
+  if (xAD == null) {
+    xAD=new DoubleAD[x.length];
+    for (int i=0; i < x.length; i++) {
+      xAD[i]=new DoubleAD(x[i],v[i]);
+    }
+  }
+  if (sums == null) {
+    sums=new DoubleAD[numClasses];
+    for (int c=0; c < numClasses; c++) {
+      sums[c]=new DoubleAD(0,0);
+    }
+  }
+  if (probs == null) {
+    probs=new DoubleAD[numClasses];
+    for (int c=0; c < numClasses; c++) {
+      probs[c]=new DoubleAD(0,0);
+    }
+  }
+  for (int i=0; i < x.length; i++) {
+    xAD[i].set(x[i],v[i]);
+    derivativeAD[i].set(0.0,0.0);
+  }
+  for (int d=0; d < batch.length; d++) {
+    int m=(curElement + d) % data.length;
+    int[] features=data[m];
+    for (int c=0; c < numClasses; c++) {
+      sums[c].set(0.0,0.0);
+    }
+    for (int c=0; c < numClasses; c++) {
+      for (int f=0; f < features.length; f++) {
+        int i=indexOf(features[f],c);
+        sums[c]=ADMath.plus(sums[c],xAD[i]);
+      }
+    }
+    DoubleAD total=ADMath.logSum(sums);
+    for (int c=0; c < numClasses; c++) {
+      probs[c]=ADMath.exp(ADMath.minus(sums[c],total));
+      if (dataweights != null) {
+        probs[c]=ADMath.multConst(probs[c],dataweights[d]);
+      }
+      for (int f=0; f < features.length; f++) {
+        int i=indexOf(features[f],c);
+        if (c == labels[m]) {
+          derivativeAD[i].plusEqualsConst(-1.0);
+        }
+        derivativeAD[i].plusEquals(probs[c]);
+      }
+    }
+    double dV=sums[labels[m]].getval() - total.getval();
+    if (dataweights != null) {
+      dV*=dataweights[d];
+    }
+    value-=dV;
+  }
+  double[] tmp=new double[x.length];
+  for (int i=0; i < x.length; i++) {
+    tmp[i]=derivativeAD[i].getval();
+    derivativeAD[i].plusEquals(ADMath.multConst(xAD[i],batch.length / (data.length * prior.getSigma() * prior.getSigma())));
+    derivative[i]=derivativeAD[i].getval();
+    HdotV[i]=derivativeAD[i].getdot();
+  }
+  value+=((double)batch.length) / ((double)data.length) * prior.compute(x,tmp);
+}

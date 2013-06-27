@@ -1,0 +1,29 @@
+{
+  int numStates=index.size();
+  PrintWriter out=new PrintWriter(w);
+  out.println("Unary ruleIterator");
+  for (Iterator<UnaryRule> rI=ruleIterator(); rI.hasNext(); ) {
+    out.println(rI.next().toString(index));
+  }
+  out.println("Unary closedRuleIterator");
+  for (Iterator<UnaryRule> rI=closedRuleIterator(); rI.hasNext(); ) {
+    out.println(rI.next().toString(index));
+  }
+  out.println("Unary rulesWithParentIterator");
+  for (int i=0; i < numStates; i++) {
+    out.println(index.get(i));
+    for (Iterator<UnaryRule> rI=ruleIteratorByParent(i); rI.hasNext(); ) {
+      out.print("  ");
+      out.println(rI.next().toString(index));
+    }
+  }
+  out.println("Unary closedRulesWithParentIterator");
+  for (int i=0; i < numStates; i++) {
+    out.println(index.get(i));
+    for (Iterator<UnaryRule> rI=closedRuleIteratorByParent(i); rI.hasNext(); ) {
+      out.print("  ");
+      out.println(rI.next().toString(index));
+    }
+  }
+  out.flush();
+}

@@ -1,0 +1,52 @@
+{
+  String[] refTimes={"2011-06-03","2010-11-23","1988-01-16"};
+  String[] refModifiers={"","last","this","next","this coming"};
+  String[] todExprs={"at 8 p.m.","at 8 in the morning","at 8 in the evening","1:00 pm","morning","noon","afternoon","evening","night","midnight"};
+  String[] expectedTodValues={"T20:00","T08:00","T20:00","T13:00","TMO","T12:00","TAF","TEV","TNI","T00:00"};
+  String[] refExprs={"monday","tuesday","wednesday","thursday","friday","saturday","sunday"};
+  String[][] expectedValuesPrev={{"2011-05-23","2011-05-24","2011-05-25","2011-05-26","2011-05-27","2011-05-28","2011-05-29"},{"2010-11-15","2010-11-16","2010-11-17","2010-11-18","2010-11-19","2010-11-20","2010-11-21"},{"1988-01-04","1988-01-05","1988-01-06","1988-01-07","1988-01-08","1988-01-09","1988-01-10"}};
+  String[][] expectedValuesThis={{"2011-05-30","2011-05-31","2011-06-01","2011-06-02","2011-06-03","2011-06-04","2011-06-05"},{"2010-11-22","2010-11-23","2010-11-24","2010-11-25","2010-11-26","2010-11-27","2010-11-28"},{"1988-01-11","1988-01-12","1988-01-13","1988-01-14","1988-01-15","1988-01-16","1988-01-17"}};
+  String[][] expectedValuesNext={{"2011-06-06","2011-06-07","2011-06-08","2011-06-09","2011-06-10","2011-06-11","2011-06-12"},{"2010-11-29","2010-11-30","2010-12-01","2010-12-02","2010-12-03","2010-12-04","2010-12-05"},{"1988-01-18","1988-01-19","1988-01-20","1988-01-21","1988-01-22","1988-01-23","1988-01-24"}};
+  String[][] expectedValuesNextImme={{"2011-06-06","2011-06-07","2011-06-08","2011-06-09","2011-06-10","2011-06-04","2011-06-05"},{"2010-11-29","2010-11-30","2010-11-24","2010-11-25","2010-11-26","2010-11-27","2010-11-28"},{"1988-01-18","1988-01-19","1988-01-20","1988-01-21","1988-01-22","1988-01-23","1988-01-17"}};
+  String[][][] expectedValuesAll={expectedValuesThis,expectedValuesPrev,expectedValuesThis,expectedValuesNext,expectedValuesNextImme};
+  for (int i=0; i < refTimes.length; i++) {
+    for (int j=0; j < refModifiers.length; j++) {
+      String refTime=refTimes[i];
+      String refMod=refModifiers[j];
+      StringBuilder sb=new StringBuilder();
+      for (      String s : refExprs) {
+        for (        String tod : todExprs) {
+          sb.append("It happened " + refMod + " "+ s+ " "+ tod+ ". ");
+        }
+      }
+      String testText=sb.toString();
+      String[] expectedValues=expectedValuesAll[j][i];
+      Timex[] expectedTimexes=new Timex[refExprs.length * todExprs.length];
+      int k=0;
+      for (int k1=0; k1 < refExprs.length; k1++) {
+        for (int k2=0; k2 < todExprs.length; k2++) {
+          String v=expectedValues[k1] + expectedTodValues[k2];
+          String expr=(refMod.length() > 0) ? (refMod + " ") : "";
+          expr=expr + refExprs[k1] + " "+ todExprs[k2];
+          if (v.contains("=")) {
+            expectedTimexes[k]=Timex.fromXml("<TIMEX3 tid=\"t" + (k + 1) + "\" "+ v+ " type=\"TIME\">"+ expr+ "</TIMEX3>");
+          }
+ else {
+            expectedTimexes[k]=Timex.fromXml("<TIMEX3 tid=\"t" + (k + 1) + "\" value=\""+ v+ "\" type=\"TIME\">"+ expr+ "</TIMEX3>");
+          }
+          k++;
+        }
+      }
+      Annotation documentWithRefTime=createDocument(testText,refTime);
+      TimeAnnotator sutime=getTimeAnnotator();
+      sutime.annotate(documentWithRefTime);
+      k=0;
+      for (      CoreMap timexAnn : documentWithRefTime.get(TimeAnnotations.TimexAnnotations.class)) {
+        Timex expectedTimex=expectedTimexes[k];
+        testTimex(testText,expectedTimex.text(),expectedTimex,timexAnn);
+        k++;
+      }
+      assertEquals(expectedTimexes.length,k);
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  if (seq == null)   return false;
+  boolean extracted=false;
+  SequenceMatcher<T> m=pattern.getMatcher(seq);
+  if (findType != null) {
+    m.setFindType(findType);
+  }
+  m.setMatchWithResult(matchWithResult);
+  while (m.find()) {
+    out.add(extractor.apply(m));
+    extracted=true;
+  }
+  return extracted;
+}

@@ -1,0 +1,30 @@
+{
+  String[] input=new String[]{"0 ab","0 bb","0 cc","1 dd","2 dd","2 kj","3 kj","3 kk"};
+  int[] counts=new int[]{3,1,2,2};
+  Comparator<String> fieldOne=new Comparator<String>(){
+    public int compare(    String o1,    String o2){
+      return o1.split(" ")[0].compareTo(o2.split(" ")[0]);
+    }
+  }
+;
+  int index=0;
+  int group=0;
+  for (  Iterable<String> set : Iterables.group(Arrays.asList(input),fieldOne)) {
+    String sharedKey=null;
+    int thisCount=0;
+    for (    String line : set) {
+      String thisKey=line.split(" ")[0];
+      if (sharedKey == null) {
+        sharedKey=thisKey;
+      }
+ else {
+        assertEquals("Wrong key",sharedKey,thisKey);
+      }
+      assertEquals("Wrong input line",line,input[index++]);
+      thisCount++;
+    }
+    assertEquals("Wrong number of items in this iterator",counts[group++],thisCount);
+  }
+  assertEquals("Didn't get all inputs",input.length,index);
+  assertEquals("Wrong number of groups",counts.length,group);
+}

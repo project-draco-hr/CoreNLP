@@ -1,0 +1,81 @@
+{
+  String outputFilename="";
+  String tagSeparator="";
+  String treeRange="";
+  String inputEncoding="UTF-8";
+  String outputEncoding="UTF-8";
+  String treeFilter="";
+  boolean noTags=false;
+  boolean noSpaces=false;
+  List<String> inputFilenames=new ArrayList<String>();
+  for (int i=0; i < args.length; ++i) {
+    if ((args[i].equalsIgnoreCase("-output") || args[i].equalsIgnoreCase("--output")) && (i + 1 < args.length)) {
+      outputFilename=args[i + 1];
+      i++;
+    }
+ else     if ((args[i].equalsIgnoreCase("-tagSeparator") || args[i].equalsIgnoreCase("--tagSeparator")) && (i + 1 < args.length)) {
+      tagSeparator=args[i + 1];
+      i++;
+    }
+ else     if ((args[i].equalsIgnoreCase("-treeRange") || args[i].equalsIgnoreCase("--treeRange")) && (i + 1 < args.length)) {
+      treeRange=args[i + 1];
+      i++;
+    }
+ else     if ((args[i].equalsIgnoreCase("-inputEncoding") || args[i].equalsIgnoreCase("--inputEncoding")) && (i + 1 < args.length)) {
+      inputEncoding=args[i + 1];
+      i++;
+    }
+ else     if ((args[i].equalsIgnoreCase("-outputEncoding") || args[i].equalsIgnoreCase("--outputEncoding")) && (i + 1 < args.length)) {
+      outputEncoding=args[i + 1];
+      i++;
+    }
+ else     if ((args[i].equalsIgnoreCase("-treeFilter") || args[i].equalsIgnoreCase("--treeFilter")) && (i + 1 < args.length)) {
+      treeFilter=args[i + 1];
+      i++;
+    }
+ else     if (args[i].equalsIgnoreCase("-noTags") || args[i].equalsIgnoreCase("--noTags")) {
+      noTags=true;
+    }
+ else     if (args[i].equalsIgnoreCase("-noSpaces") || args[i].equalsIgnoreCase("--noSpaces")) {
+      noSpaces=true;
+    }
+ else {
+      inputFilenames.add(args[i]);
+    }
+  }
+  if (outputFilename.equals("")) {
+    System.err.println("Must specify an output filename, -output");
+    System.exit(2);
+  }
+  if (inputFilenames.size() == 0) {
+    System.err.println("Must specify one or more input filenames");
+    System.exit(2);
+  }
+  FileOutputStream fos=new FileOutputStream(outputFilename);
+  OutputStreamWriter osw=new OutputStreamWriter(fos,outputEncoding);
+  BufferedWriter bout=new BufferedWriter(osw);
+  Properties props=new Properties();
+  for (  String filename : inputFilenames) {
+    String description=(TaggedFileRecord.FORMAT + "=" + TaggedFileRecord.Format.TREES+ ","+ filename);
+    if (!treeRange.equals("")) {
+      description=(TaggedFileRecord.TREE_RANGE + "=" + treeRange+ ","+ description);
+    }
+    if (!treeFilter.equals("")) {
+      description=(TaggedFileRecord.TREE_FILTER + "=" + treeFilter+ ","+ description);
+    }
+    description=(TaggedFileRecord.ENCODING + "=" + inputEncoding+ ","+ description);
+    TaggedFileRecord record=TaggedFileRecord.createRecord(props,description);
+    for (    List<TaggedWord> sentence : record.reader()) {
+      String output=Sentence.listToString(sentence,noTags,tagSeparator);
+      if (noSpaces) {
+        output=output.replaceAll(" ","");
+      }
+      bout.write(output);
+      bout.newLine();
+    }
+  }
+  bout.flush();
+  bout.close();
+  osw.close();
+  fos.close();
+}

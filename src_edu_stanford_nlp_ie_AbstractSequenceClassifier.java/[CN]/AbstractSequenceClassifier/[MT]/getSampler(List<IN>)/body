@@ -1,0 +1,18 @@
+{
+  return new Sampler<List<IN>>(){
+    SequenceModel model=getSequenceModel(input);
+    SequenceSampler sampler=new SequenceSampler();
+    @Override public List<IN> drawSample(){
+      int[] sampleArray=sampler.bestSequence(model);
+      List<IN> sample=new ArrayList<IN>();
+      int i=0;
+      for (      IN word : input) {
+        IN newWord=tokenFactory.makeToken(word);
+        newWord.set(CoreAnnotations.AnswerAnnotation.class,classIndex.get(sampleArray[i++]));
+        sample.add(newWord);
+      }
+      return sample;
+    }
+  }
+;
+}

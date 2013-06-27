@@ -1,0 +1,27 @@
+{
+  if (word == lastWord) {
+    return;
+  }
+  lastWord=word;
+  if (functionWordTags.containsKey(wordIndex.get(word))) {
+    logProbs=new ClassicCounter<String>();
+    String trueTag=functionWordTags.get(wordIndex.get(word));
+    for (    String tag : tagIndex.objectsList()) {
+      if (ctlp.basicCategory(tag).equals(trueTag)) {
+        logProbs.setCount(tag,0);
+      }
+ else {
+        logProbs.setCount(tag,Double.NEGATIVE_INFINITY);
+      }
+    }
+    return;
+  }
+  Datum datum=new BasicDatum(featExtractor.makeFeatures(wordIndex.get(word)));
+  logProbs=scorer.logProbabilityOf(datum);
+  if (subtractTagScore) {
+    Set<String> tagSet=logProbs.keySet();
+    for (    String tag : tagSet) {
+      logProbs.incrementCount(tag,-Math.log(tagDist.probabilityOf(tag)));
+    }
+  }
+}

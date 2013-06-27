@@ -1,0 +1,27 @@
+{
+  int TOKEN_INDEX=0;
+  int ANSWER_INDEX=1;
+  int GUESS_INDEX=2;
+  String line;
+  Pattern delimPattern=Pattern.compile(delimiter);
+  clearCounts();
+  while ((line=br.readLine()) != null) {
+    line=line.trim();
+    if (line.length() > 0) {
+      String[] fields=delimPattern.split(line);
+      if (boundary != null && boundary.equals(fields[TOKEN_INDEX])) {
+        markBoundary();
+      }
+ else {
+        L answer=stringConverter.apply(fields[ANSWER_INDEX]);
+        L guess=stringConverter.apply(fields[GUESS_INDEX]);
+        addGuess(guess,answer);
+      }
+    }
+ else {
+      markBoundary();
+    }
+  }
+  finalizeCounts();
+  return getFMeasure();
+}

@@ -1,0 +1,27 @@
+{
+  super(".+(" + arg + ')');
+  if (arg.startsWith("!")) {
+    negatedPattern=true;
+    arg=arg.substring(1);
+  }
+ else {
+    negatedPattern=false;
+  }
+  if (arg.startsWith("@")) {
+    basicCat=true;
+    this.basicCatFunction=basicCatFunction;
+    arg=arg.substring(1);
+  }
+ else {
+    basicCat=false;
+  }
+  if (arg.matches("/.*/")) {
+    pattern=Pattern.compile(arg.substring(1,arg.length() - 1));
+  }
+ else   if (arg.matches("__")) {
+    pattern=Pattern.compile("^.*$");
+  }
+ else {
+    pattern=Pattern.compile("^(?:" + arg + ")$");
+  }
+}

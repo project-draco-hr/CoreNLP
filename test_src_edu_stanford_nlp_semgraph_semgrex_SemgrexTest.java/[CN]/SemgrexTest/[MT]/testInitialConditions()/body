@@ -1,0 +1,15 @@
+{
+  SemanticGraph graph=makeComplicatedGraph();
+  SemgrexPattern pattern=SemgrexPattern.compile("{}=a >> {}=b : {}=a >> {}=c");
+  Map<String,IndexedWord> variables=new HashMap<String,IndexedWord>();
+  variables.put("b",graph.getNodeByIndex(5));
+  variables.put("c",graph.getNodeByIndex(2));
+  SemgrexMatcher matcher=pattern.matcher(graph,variables);
+  assertTrue(matcher.find());
+  assertEquals(3,matcher.getNodeNames().size());
+  assertEquals("A",matcher.getNode("a").toString());
+  assertEquals("E",matcher.getNode("b").toString());
+  assertEquals("B",matcher.getNode("c").toString());
+  assertEquals("A",matcher.getMatch().toString());
+  assertFalse(matcher.find());
+}

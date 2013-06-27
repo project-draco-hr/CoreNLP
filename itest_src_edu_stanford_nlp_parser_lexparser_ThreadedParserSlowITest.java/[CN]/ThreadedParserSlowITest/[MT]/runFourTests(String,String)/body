@@ -1,0 +1,12 @@
+{
+  List<Tree> pcfgInput=inputTrees.get(pcfg);
+  List<Tree> factoredInput=inputTrees.get(factored);
+  List<Tree> pcfgResults=expectedResults.get(pcfg);
+  List<Tree> factoredResults=expectedResults.get(factored);
+  LexicalizedParser parser=LexicalizedParser.loadModel(pcfg);
+  runTest(new ParserThread(parser,pcfgInput,pcfgResults),new ParserThread(parser,pcfgInput,pcfgResults));
+  parser=LexicalizedParser.loadModel(factored);
+  runTest(new ParserThread(parser,factoredInput,factoredResults),new ParserThread(parser,factoredInput,factoredResults));
+  runTest(new ParserThread(pcfg,pcfgInput,pcfgResults),new ParserThread(pcfg,pcfgInput,pcfgResults));
+  runTest(new ParserThread(pcfg,pcfgInput,pcfgResults),new ParserThread(factored,factoredInput,factoredResults));
+}

@@ -1,0 +1,26 @@
+{
+  for (  Entry<K,Collection<V>> entry : cvm.entrySet()) {
+    K key=entry.getKey();
+    Collection<V> currentCollection=get(key);
+    Collection<V> newValues=entry.getValue();
+    if (treatCollectionsAsImmutable) {
+      Collection<V> newCollection=cf.newCollection();
+      if (currentCollection != null) {
+        newCollection.addAll(currentCollection);
+      }
+      newCollection.addAll(newValues);
+      map.put(key,newCollection);
+    }
+ else {
+      boolean needToAdd=false;
+      if (currentCollection == emptyValue) {
+        currentCollection=cf.newCollection();
+        needToAdd=true;
+      }
+      currentCollection.addAll(newValues);
+      if (needToAdd) {
+        map.put(key,currentCollection);
+      }
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  if (finished) {
+    return false;
+  }
+  while (!finished) {
+    if (matchChild()) {
+      if (myNode.isNegated()) {
+        finished=true;
+        return false;
+      }
+ else {
+        if (myNode.isOptional()) {
+          finished=true;
+        }
+        return true;
+      }
+    }
+ else {
+      goToNextTreeNodeMatch();
+    }
+  }
+  if (myNode.isNegated()) {
+    return true;
+  }
+ else {
+    decommitVariableGroups();
+    removeNamedNodes();
+    nextTreeNodeMatchCandidate=null;
+    return myNode.isOptional();
+  }
+}

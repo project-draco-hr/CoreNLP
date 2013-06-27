@@ -1,0 +1,125 @@
+{
+  Set<DFSAState<T,S>> states=dfsa.states();
+  long time=System.currentTimeMillis();
+  if (debug) {
+    time=System.currentTimeMillis();
+    System.err.println("\nStarting on " + dfsa.dfsaID);
+    System.err.println(" -- " + states.size() + " states.");
+  }
+  int numStates=states.size();
+  int id=0;
+  DFSAState<T,S>[] state=ErasureUtils.<DFSAState<T,S>[]>uncheckedCast(new DFSAState[numStates]);
+  Map<DFSAState<T,S>,Integer> stateToID=Generics.newHashMap();
+  for (  DFSAState<T,S> state1 : states) {
+    state[id]=state1;
+    stateToID.put(state1,Integer.valueOf(id));
+    id++;
+  }
+  boolean[][] distinct=new boolean[numStates][numStates];
+  List<IntPair>[][] dependentList=ErasureUtils.<List<IntPair>[][]>uncheckedCast(new List[numStates][numStates]);
+  for (int i=0; i < numStates; i++) {
+    for (int j=i + 1; j < numStates; j++) {
+      distinct[i][j]=state[i].isAccepting() != state[j].isAccepting();
+    }
+  }
+  if (debug) {
+    System.err.println("Initialized: " + (System.currentTimeMillis() - time));
+    time=System.currentTimeMillis();
+  }
+  for (int i=0; i < numStates; i++) {
+    for (int j=i + 1; j < numStates; j++) {
+      if (!distinct[i][j]) {
+        DFSAState<T,S> state1=state[i];
+        DFSAState<T,S> state2=state[j];
+        IntPair ip=new IntPair(i,j);
+        Set<T> inputs=Generics.newHashSet();
+        inputs.addAll(state1.continuingInputs());
+        inputs.addAll(state2.continuingInputs());
+        boolean distinguishable=false;
+        Set<IntPair> pendingIPairs=Generics.newHashSet();
+        Iterator<T> inputI=inputs.iterator();
+        while (inputI.hasNext() && !distinguishable) {
+          T input=inputI.next();
+          DFSATransition<T,S> transition1=state1.transition(input);
+          DFSATransition<T,S> transition2=state2.transition(input);
+          if ((transition1 == null) != (transition2 == null)) {
+            distinguishable=true;
+          }
+          if (transition1 != null && transition2 != null) {
+            DFSAState<T,S> target1=transition1.getTarget();
+            DFSAState<T,S> target2=transition2.getTarget();
+            int num1=stateToID.get(target1).intValue();
+            int num2=stateToID.get(target2).intValue();
+            IntPair targetIPair=new IntPair(num1,num2);
+            if (num1 != num2) {
+              if (distinct[num1][num2]) {
+                distinguishable=true;
+              }
+ else {
+                pendingIPairs.add(targetIPair);
+              }
+            }
+          }
+        }
+        if (distinguishable) {
+          List<IntPair> markStack=new ArrayList<IntPair>();
+          markStack.add(ip);
+          while (!markStack.isEmpty()) {
+            IntPair ipToMark=markStack.get(markStack.size() - 1);
+            markStack.remove(markStack.size() - 1);
+            distinct[ipToMark.i][ipToMark.j]=true;
+            List<IntPair> addList=dependentList[ipToMark.i][ipToMark.j];
+            if (addList != null) {
+              markStack.addAll(addList);
+            }
+          }
+        }
+ else {
+          for (          IntPair pendingIPair : pendingIPairs) {
+            List<IntPair> dependentList1=dependentList[pendingIPair.i][pendingIPair.j];
+            if (dependentList1 == null) {
+              dependentList1=new ArrayList<IntPair>();
+              dependentList[pendingIPair.i][pendingIPair.j]=dependentList1;
+            }
+            dependentList1.add(ip);
+          }
+        }
+      }
+    }
+  }
+  if (debug) {
+    System.err.println("All pairs marked: " + (System.currentTimeMillis() - time));
+    time=System.currentTimeMillis();
+  }
+  DisjointSet<DFSAState<T,S>> stateClasses=new FastDisjointSet<DFSAState<T,S>>(states);
+  for (int i=0; i < numStates; i++) {
+    for (int j=i + 1; j < numStates; j++) {
+      if (!distinct[i][j]) {
+        DFSAState<T,S> state1=state[i];
+        DFSAState<T,S> state2=state[j];
+        stateClasses.union(state1,state2);
+      }
+    }
+  }
+  Map<DFSAState<T,S>,DFSAState<T,S>> stateToRep=Generics.newHashMap();
+  for (  DFSAState<T,S> state1 : states) {
+    DFSAState<T,S> rep=stateClasses.find(state1);
+    stateToRep.put(state1,rep);
+  }
+  if (debug) {
+    System.err.println("Canonical states chosen: " + (System.currentTimeMillis() - time));
+    time=System.currentTimeMillis();
+  }
+  for (  DFSAState<T,S> state1 : states) {
+    if (!state1.equals(stateToRep.get(state1))) {
+      continue;
+    }
+    for (    DFSATransition<T,S> transition : state1.transitions()) {
+      transition.target=stateToRep.get(transition.target);
+    }
+  }
+  dfsa.initialState=stateToRep.get(dfsa.initialState);
+  if (debug) {
+    System.err.println("Done: " + (System.currentTimeMillis() - time));
+  }
+}

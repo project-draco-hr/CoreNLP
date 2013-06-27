@@ -1,0 +1,36 @@
+{
+  return new SearchNodeIterator(){
+    boolean foundOnce=false;
+    int nextNum;
+    @Override public void initialize(){
+    }
+    @Override public void advance(){
+      if (alignment == null)       return;
+      if (node.equals(IndexedWord.NO_WORD))       next=null;
+      if (hypToText) {
+        if (!foundOnce) {
+          next=alignment.getMap().get(node);
+          foundOnce=true;
+        }
+ else {
+          next=null;
+        }
+      }
+ else {
+        int num=0;
+        for (        Map.Entry<IndexedWord,IndexedWord> pair : alignment.getMap().entrySet()) {
+          if (pair.getValue().equals(node)) {
+            if (nextNum == num) {
+              next=pair.getKey();
+              nextNum++;
+              return;
+            }
+            num++;
+          }
+        }
+        next=null;
+      }
+    }
+  }
+;
+}

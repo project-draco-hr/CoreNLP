@@ -1,0 +1,51 @@
+{
+  String addend=null;
+  String pAnswer=info.get(loc - 1).get(CoreAnnotations.AnswerAnnotation.class);
+  String p2Answer=info.get(loc - 2).get(CoreAnnotations.AnswerAnnotation.class);
+  String p3Answer=info.get(loc - 3).get(CoreAnnotations.AnswerAnnotation.class);
+  String p4Answer=info.get(loc - 4).get(CoreAnnotations.AnswerAnnotation.class);
+  String p5Answer=info.get(loc - 5).get(CoreAnnotations.AnswerAnnotation.class);
+  String nAnswer=info.get(loc + 1).get(CoreAnnotations.AnswerAnnotation.class);
+  if (c == FeatureFactory.cliqueCpC) {
+    addend='|' + pAnswer;
+  }
+ else   if (c == FeatureFactory.cliqueCp2C) {
+    addend='|' + p2Answer;
+  }
+ else   if (c == FeatureFactory.cliqueCp3C) {
+    addend='|' + p3Answer;
+  }
+ else   if (c == FeatureFactory.cliqueCp4C) {
+    addend='|' + p4Answer;
+  }
+ else   if (c == FeatureFactory.cliqueCp5C) {
+    addend='|' + p5Answer;
+  }
+ else   if (c == FeatureFactory.cliqueCpCp2C) {
+    addend='|' + pAnswer + '-'+ p2Answer;
+  }
+ else   if (c == FeatureFactory.cliqueCpCp2Cp3C) {
+    addend='|' + pAnswer + '-'+ p2Answer+ '-'+ p3Answer;
+  }
+ else   if (c == FeatureFactory.cliqueCpCp2Cp3Cp4C) {
+    addend='|' + pAnswer + '-'+ p2Answer+ '-'+ p3Answer+ '-'+ p4Answer;
+  }
+ else   if (c == FeatureFactory.cliqueCpCp2Cp3Cp4Cp5C) {
+    addend='|' + pAnswer + '-'+ p2Answer+ '-'+ p3Answer+ '-'+ p4Answer+ '-'+ p5Answer;
+  }
+ else   if (c == FeatureFactory.cliqueCnC) {
+    addend='|' + nAnswer;
+  }
+ else   if (c == FeatureFactory.cliqueCpCnC) {
+    addend='|' + pAnswer + '-'+ nAnswer;
+  }
+  if (addend == null) {
+    return feats;
+  }
+  Collection<String> newFeats=Generics.newHashSet();
+  for (  String feat : feats) {
+    String newFeat=feat + addend;
+    newFeats.add(newFeat);
+  }
+  return newFeats;
+}

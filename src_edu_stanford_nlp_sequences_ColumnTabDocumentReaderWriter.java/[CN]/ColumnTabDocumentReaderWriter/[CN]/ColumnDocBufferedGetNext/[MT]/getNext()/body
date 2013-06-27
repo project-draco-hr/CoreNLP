@@ -1,0 +1,74 @@
+{
+  if (itemCnt > 0 && itemCnt % 1000 == 0) {
+    System.err.print("[" + itemCnt + ","+ lineCnt+ "]");
+    if (itemCnt % 10000 == 9000) {
+      System.err.println();
+    }
+  }
+  try {
+    String line;
+    List<IN> words=null;
+    List<IntPair> boundaries=null;
+    if (keepBoundaries) {
+      boundaries=new ArrayList<IntPair>();
+    }
+    while ((line=br.readLine()) != null) {
+      lineCnt++;
+      line=line.trim();
+      if (line.length() != 0) {
+        String[] info=delimiterPattern.split(line);
+        if (replaceWhitespace) {
+          for (int i=0; i < info.length; i++) {
+            info[i]=whitespacePattern.matcher(info[i]).replaceAll("_");
+          }
+        }
+        if (hasDocId && line.startsWith("* ") && info.length == 1) {
+          newDocId=line.substring(2);
+          if (words != null) {
+            return createDoc(docId,words,boundaries,includeText);
+          }
+        }
+ else         if (hasDocStart && "-DOCSTART-".equals(info[0])) {
+          newDocId="doc" + itemCnt;
+          if (words != null) {
+            if (keepBoundaries) {
+              markBoundary(words,boundaries);
+            }
+            return createDoc(docId,words,boundaries,includeText);
+          }
+        }
+ else {
+          if (words == null) {
+            words=new ArrayList<IN>();
+            docId=newDocId;
+            itemCnt++;
+          }
+          IN wi=tokenFactory.makeToken(map,info);
+          words.add(wi);
+        }
+      }
+ else {
+        if (returnTokensOnEmptyLine && words != null) {
+          if (keepBoundaries) {
+            markBoundary(words,boundaries);
+          }
+          return createDoc(docId,words,boundaries,includeText);
+        }
+ else         if (keepBoundaries) {
+          markBoundary(words,boundaries);
+        }
+      }
+    }
+    if (words == null) {
+      System.err.println("[" + itemCnt + ","+ lineCnt+ "]");
+    }
+    if (keepBoundaries) {
+      markBoundary(words,boundaries);
+    }
+    return (words == null) ? null : createDoc(docId,words,boundaries,includeText);
+  }
+ catch (  IOException ex) {
+    System.err.println("IOException: " + ex);
+    throw new RuntimeException(ex);
+  }
+}

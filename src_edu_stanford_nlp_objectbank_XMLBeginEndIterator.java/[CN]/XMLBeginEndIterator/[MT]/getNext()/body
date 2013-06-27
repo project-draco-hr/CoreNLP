@@ -1,0 +1,58 @@
+{
+  StringBuilder result=new StringBuilder();
+  try {
+    XMLUtils.XMLTag tag;
+    do {
+      XMLUtils.readUntilTag(inputReader);
+      tag=XMLUtils.readAndParseTag(inputReader);
+      if (tag == null) {
+        return null;
+      }
+    }
+ while (!tagNamePattern.matcher(tag.name).matches() || tag.isEndTag || tag.isSingleTag);
+    if (keepDelimitingTags) {
+      result.append(tag.toString());
+    }
+    int depth=1;
+    while (true) {
+      String text=XMLUtils.readUntilTag(inputReader);
+      if (text != null) {
+        result.append(text);
+      }
+      String tagString=XMLUtils.readTag(inputReader);
+      tag=XMLUtils.parseTag(tagString);
+      if (tag == null) {
+        return null;
+      }
+      if (tagNamePattern.matcher(tag.name).matches() && tag.isEndTag) {
+        if ((countDepth && depth == 1) || !countDepth) {
+          if (keepDelimitingTags) {
+            result.append(tagString);
+          }
+          break;
+        }
+ else {
+          --depth;
+          if (keepInternalTags) {
+            result.append(tagString);
+          }
+        }
+      }
+ else       if (tagNamePattern.matcher(tag.name).matches() && !tag.isEndTag && !tag.isSingleTag&& countDepth) {
+        ++depth;
+        if (keepInternalTags) {
+          result.append(tagString);
+        }
+      }
+ else {
+        if (keepInternalTags) {
+          result.append(tagString);
+        }
+      }
+    }
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+  }
+  return result.toString();
+}

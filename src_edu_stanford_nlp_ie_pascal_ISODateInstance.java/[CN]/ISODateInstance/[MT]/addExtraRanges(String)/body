@@ -1,0 +1,36 @@
+{
+  if (isRange()) {
+    return false;
+  }
+  inputDate=inputDate.toLowerCase();
+  if (inputDate.contains("half")) {
+    if (inputDate.contains("first") && isoDate.length() <= 6) {
+      String firstDate=isoDate + "01";
+      String secondDate;
+      if (isoDate.length() == 4) {
+        secondDate=isoDate + MONTH_OF_HALF_YEAR;
+      }
+ else {
+        secondDate=isoDate + DAY_OF_HALF_MONTH;
+      }
+      isoDate=firstDate + '/' + secondDate;
+      return true;
+    }
+ else     if (inputDate.contains("second") && isoDate.length() <= 6) {
+      String firstDate;
+      String secondDate;
+      if (isoDate.length() == 4) {
+        firstDate=isoDate + MONTH_OF_HALF_YEAR;
+        secondDate=isoDate + LAST_MONTH_OF_YEAR;
+        isoDate=firstDate + '/' + secondDate;
+      }
+ else {
+        firstDate=isoDate + DAY_OF_HALF_MONTH;
+        secondDate=isoDate + LAST_DAY_OF_MONTH;
+      }
+      isoDate=firstDate + '/' + secondDate;
+      return true;
+    }
+  }
+  return false;
+}

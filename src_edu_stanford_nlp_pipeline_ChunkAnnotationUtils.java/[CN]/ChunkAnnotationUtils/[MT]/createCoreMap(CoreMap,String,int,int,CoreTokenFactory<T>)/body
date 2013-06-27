@@ -1,0 +1,14 @@
+{
+  if (end > start) {
+    T token=factory.makeToken();
+    Integer cmCharStart=cm.get(CoreAnnotations.CharacterOffsetBeginAnnotation.class);
+    if (cmCharStart == null)     cmCharStart=0;
+    token.set(CoreAnnotations.TextAnnotation.class,text.substring(start,end));
+    token.set(CoreAnnotations.CharacterOffsetBeginAnnotation.class,cmCharStart + start);
+    token.set(CoreAnnotations.CharacterOffsetEndAnnotation.class,cmCharStart + end);
+    return token;
+  }
+ else {
+    return null;
+  }
+}

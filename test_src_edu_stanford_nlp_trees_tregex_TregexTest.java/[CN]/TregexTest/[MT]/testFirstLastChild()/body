@@ -1,0 +1,25 @@
+{
+  runTest("/.*/ >, root","(root (a (foo 1 2) (bar 3 4)) (b (baz 5)))","(a (foo 1 2) (bar 3 4))");
+  runTest("/.*/ >, a","(root (a (foo 1 2) (bar 3 4)) (b (baz 5)))","(foo 1 2)");
+  runTest("/.*/ >, foo","(root (a (foo 1 2) (bar 3 4)) (b (baz 5)))","(1)");
+  runTest("/.*/ >, bar","(root (a (foo 1 2) (bar 3 4)) (b (baz 5)))","(3)");
+  runTest("/.*/ >- root","(root (a (foo 1 2) (bar 3 4)) (b (baz 5)))","(b (baz 5))");
+  runTest("/.*/ >- a","(root (a (foo 1 2) (bar 3 4)) (b (baz 5)))","(bar 3 4)");
+  runTest("/.*/ >- foo","(root (a (foo 1 2) (bar 3 4)) (b (baz 5)))","(2)");
+  runTest("/.*/ >- bar","(root (a (foo 1 2) (bar 3 4)) (b (baz 5)))","(4)");
+  runTest("/.*/ >- b","(root (a (foo 1 2) (bar 3 4)) (b (baz 5)))","(baz 5)");
+  runTest("/.*/ <, root","(root (a (foo 1 2) (bar 3 4)) (b (baz 5)))");
+  runTest("/.*/ <, a","(root (a (foo 1 2) (bar 3 4)) (b (baz 5)))","(root (a (foo 1 2) (bar 3 4)) (b (baz 5)))");
+  runTest("/.*/ <, /1/","(root (a (foo 1 2) (bar 3 4)) (b (baz 5)))","(foo 1 2)");
+  runTest("/.*/ <, /2/","(root (a (foo 1 2) (bar 3 4)) (b (baz 5)))");
+  runTest("/.*/ <, bar","(root (a (foo 1 2) (bar 3 4)) (b (baz 5)))");
+  runTest("/.*/ <, /3/","(root (a (foo 1 2) (bar 3 4)) (b (baz 5)))","(bar 3 4)");
+  runTest("/.*/ <, /4/","(root (a (foo 1 2) (bar 3 4)) (b (baz 5)))");
+  runTest("/.*/ <- root","(root (a (foo 1 2) (bar 3 4)) (b (baz 5)))");
+  runTest("/.*/ <- a","(root (a (foo 1 2) (bar 3 4)) (b (baz 5)))");
+  runTest("/.*/ <- /1/","(root (a (foo 1 2) (bar 3 4)) (b (baz 5)))");
+  runTest("/.*/ <- /2/","(root (a (foo 1 2) (bar 3 4)) (b (baz 5)))","(foo 1 2)");
+  runTest("/.*/ <- bar","(root (a (foo 1 2) (bar 3 4)) (b (baz 5)))","(a (foo 1 2) (bar 3 4))");
+  runTest("/.*/ <- /3/","(root (a (foo 1 2) (bar 3 4)) (b (baz 5)))");
+  runTest("/.*/ <- /4/","(root (a (foo 1 2) (bar 3 4)) (b (baz 5)))","(bar 3 4)");
+}

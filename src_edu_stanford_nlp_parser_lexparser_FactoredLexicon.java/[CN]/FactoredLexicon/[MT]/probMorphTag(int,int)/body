@@ -1,0 +1,16 @@
+{
+  double cM=morphTag.totalCount(morphId);
+  double cMT=morphTag.getCount(morphId,tagId);
+  double p_M=cM / morphTag.totalCount();
+  double cTseen=tagCounter.getCount(tagId);
+  double p_T=cTseen / tagCounter.totalCount();
+  double p_M_T=0.0;
+  if (cM > 100.0 && cMT > 0.0) {
+    double p_T_M=cMT / cM;
+    p_M_T=p_T_M * p_M / p_T;
+  }
+ else {
+    p_M_T=1.0 / (morphTag.totalCount() + tagIndex.size() + 1.0);
+  }
+  return p_M_T;
+}

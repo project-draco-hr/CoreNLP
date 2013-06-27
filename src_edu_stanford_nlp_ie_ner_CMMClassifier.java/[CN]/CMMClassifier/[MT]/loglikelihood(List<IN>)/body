@@ -1,0 +1,23 @@
+{
+  double cll=0.0;
+  for (int i=0; i < lineInfos.size(); i++) {
+    Datum<String,String> d=makeDatum(lineInfos,i,featureFactory);
+    Counter<String> c=classifier.logProbabilityOf(d);
+    double total=Double.NEGATIVE_INFINITY;
+    for (    String s : c.keySet()) {
+      total=SloppyMath.logAdd(total,c.getCount(s));
+    }
+    cll-=c.getCount(d.label()) - total;
+  }
+  if (classifier instanceof LinearClassifier) {
+    double sigmaSq=flags.sigma * flags.sigma;
+    LinearClassifier<String,String> lc=(LinearClassifier<String,String>)classifier;
+    for (    String feature : lc.features()) {
+      for (      String classLabel : classIndex) {
+        double w=lc.weight(feature,classLabel);
+        cll+=w * w / 2.0 / sigmaSq;
+      }
+    }
+  }
+  return cll;
+}

@@ -1,0 +1,60 @@
+{
+  String pre="";
+  if (cols[pos - 1][0].matches("[-A-Z]*")) {
+    cols[pos][1]="LOCATION";
+    return;
+  }
+  for (int i=pos - 1; i >= 0 && cols[i].length >= 2; i--) {
+    if (cols[i][1].equals("LOCATION")) {
+      if (pre.equals("")) {
+        pre=cols[i][0];
+      }
+ else {
+        pre=cols[i][0] + " " + pre;
+      }
+    }
+ else {
+      break;
+    }
+  }
+  String post="";
+  for (int i=pos + 1; i < cols.length && cols[i].length >= 2; i++) {
+    if (cols[i][1].equals("LOCATION")) {
+      if (post.equals("")) {
+        post=cols[i][0];
+      }
+ else {
+        post=post + " " + cols[i][0];
+      }
+    }
+ else {
+      break;
+    }
+  }
+  String ans=(answers == null) ? "" : answers.readLine();
+  String loc=pre + "," + post+ " ?";
+  System.err.println(loc);
+  if (ans.equals(loc)) {
+    String response=answers.readLine();
+    System.err.println(response);
+    if (ans.equalsIgnoreCase("Y")) {
+      cols[pos][1]="LOCATION";
+    }
+  }
+ else {
+    ans=cache.get(loc);
+    if (ans == null) {
+      if (in.readLine().equalsIgnoreCase("Y")) {
+        cache.put(loc,"Y");
+        cols[pos][1]="LOCATION";
+      }
+ else {
+        cache.put(loc,"N");
+      }
+    }
+ else     if (ans.equalsIgnoreCase("Y")) {
+      cols[pos][1]="LOCATION";
+      System.err.println("Y");
+    }
+  }
+}

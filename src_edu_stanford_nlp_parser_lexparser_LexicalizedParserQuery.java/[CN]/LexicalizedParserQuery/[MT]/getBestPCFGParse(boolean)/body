@@ -1,0 +1,15 @@
+{
+  if (pparser == null || parseSkipped || parseUnparsable) {
+    return null;
+  }
+  Tree binaryTree=pparser.getBestParse();
+  if (binaryTree == null) {
+    return null;
+  }
+  Tree t=debinarizer.transformTree(binaryTree);
+  if (stripSubcategories) {
+    t=subcategoryStripper.transformTree(t);
+  }
+  restoreOriginalWords(t);
+  return t;
+}

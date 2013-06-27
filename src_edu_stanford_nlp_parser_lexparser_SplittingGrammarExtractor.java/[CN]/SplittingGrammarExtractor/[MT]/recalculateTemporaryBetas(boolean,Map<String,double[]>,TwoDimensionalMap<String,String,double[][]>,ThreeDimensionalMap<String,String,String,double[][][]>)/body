@@ -1,0 +1,15 @@
+{
+  tempWordIndex=new HashIndex<String>();
+  tempTagIndex=new HashIndex<String>();
+  tempLex=op.tlpParams.lex(op,tempWordIndex,tempTagIndex);
+  tempLex.initializeTraining(trainSize);
+  for (  Tree tree : trees) {
+    double weight=treeWeights.getCount(tree);
+    if (DEBUG()) {
+      System.out.println("Incrementing trees read: " + weight);
+    }
+    tempLex.incrementTreesRead(weight);
+    recalculateTemporaryBetas(tree,splitStates,totalStateMass,tempUnaryBetas,tempBinaryBetas);
+  }
+  tempLex.finishTraining();
+}

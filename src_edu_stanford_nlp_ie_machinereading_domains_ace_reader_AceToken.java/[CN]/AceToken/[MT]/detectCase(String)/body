@@ -1,0 +1,56 @@
+{
+  boolean isAllCaps=true;
+  for (int i=0; i < word.length(); i++) {
+    if (!Character.isUpperCase(word.charAt(i))) {
+      isAllCaps=false;
+      break;
+    }
+  }
+  if (isAllCaps)   return CASE_ALLCAPS;
+  boolean isAllCapsOrDots=true;
+  if (Character.isUpperCase(word.charAt(0))) {
+    for (int i=0; i < word.length(); i++) {
+      if (!Character.isUpperCase(word.charAt(i)) && word.charAt(i) != '.') {
+        isAllCapsOrDots=false;
+        break;
+      }
+    }
+  }
+ else {
+    isAllCapsOrDots=false;
+  }
+  if (isAllCapsOrDots)   return CASE_ALLCAPSORDOTS;
+  boolean isInitialCap=false;
+  if (Character.isUpperCase(word.charAt(0)))   isInitialCap=true;
+  if (isInitialCap)   return CASE_CAPINI;
+  boolean isInCap=false;
+  for (int i=1; i < word.length(); i++) {
+    if (Character.isUpperCase(word.charAt(i))) {
+      isInCap=true;
+      break;
+    }
+  }
+  if (isInCap)   return CASE_INCAP;
+  boolean isAllDigits=false;
+  for (int i=0; i < word.length(); i++) {
+    if (!Character.isDigit(word.charAt(i))) {
+      isAllDigits=false;
+      break;
+    }
+  }
+  if (isAllDigits)   return CASE_ALLDIGITS;
+  boolean isAllDigitsOrDots=true;
+  if (Character.isDigit(word.charAt(0))) {
+    for (int i=0; i < word.length(); i++) {
+      if (!Character.isDigit(word.charAt(i)) && word.charAt(i) != '.' && word.charAt(i) != ',') {
+        isAllDigitsOrDots=false;
+        break;
+      }
+    }
+  }
+ else {
+    isAllDigitsOrDots=false;
+  }
+  if (isAllDigitsOrDots)   return CASE_ALLDIGITSORDOTS;
+  return CASE_OTHER;
+}

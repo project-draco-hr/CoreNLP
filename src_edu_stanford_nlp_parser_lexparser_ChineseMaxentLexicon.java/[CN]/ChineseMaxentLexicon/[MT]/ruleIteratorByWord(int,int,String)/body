@@ -1,0 +1,22 @@
+{
+  ensureProbs(word);
+  List<IntTaggedWord> rules=new ArrayList<IntTaggedWord>();
+  if (seenTagsOnly) {
+    String wordString=wordIndex.get(word);
+    Collection<String> tags=tagsForWord.get(wordString);
+    for (    String tag : tags) {
+      rules.add(new IntTaggedWord(wordString,tag,wordIndex,tagIndex));
+    }
+  }
+ else {
+    double max=Counters.max(logProbs);
+    for (int tag=0; tag < tagIndex.size(); tag++) {
+      IntTaggedWord iTW=new IntTaggedWord(word,tag);
+      double score=logProbs.getCount(tagIndex.get(tag));
+      if (score > max - iteratorCutoffFactor) {
+        rules.add(iTW);
+      }
+    }
+  }
+  return rules.iterator();
+}

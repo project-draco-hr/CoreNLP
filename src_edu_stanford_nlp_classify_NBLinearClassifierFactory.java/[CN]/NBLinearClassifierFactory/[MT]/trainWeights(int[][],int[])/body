@@ -1,0 +1,50 @@
+{
+  if (tuneSigma) {
+    tuneSigma(data,labels);
+  }
+  if (VERBOSE) {
+    System.err.println("NB CF: " + data.length + " data items ");
+    for (int i=0; i < data.length; i++) {
+      System.err.print("Datum " + i + ": "+ labels[i]+ ":");
+      for (int j=0; j < data[i].length; j++) {
+        System.err.print(" " + data[i][j]);
+      }
+      System.err.println();
+    }
+  }
+  int numFeatures=numFeatures();
+  int numClasses=numClasses();
+  double[][] weights=new double[numFeatures][numClasses];
+  int num=0;
+  double[] numc=new double[numClasses];
+  double n=0;
+  double[] n_c=new double[numClasses];
+  double[] n_f=new double[numFeatures];
+  double[][] n_fc=new double[numFeatures][numClasses];
+  for (int d=0; d < data.length; d++) {
+    num++;
+    numc[labels[d]]++;
+    for (int i=0; i < data[d].length; i++) {
+      n++;
+      n_c[labels[d]]++;
+      n_f[data[d][i]]++;
+      n_fc[data[d][i]][labels[d]]++;
+    }
+  }
+  for (int c=0; c < numClasses; c++) {
+    for (int f=0; f < numFeatures; f++) {
+      if (interpretAlwaysOnFeatureAsPrior && n_f[f] == data.length) {
+        weights[f][c]=Math.log(numc[c] / num);
+      }
+ else {
+        double p_c=(n_c[c] + epsilon) / (n + numClasses * epsilon);
+        double p_c_f=(n_fc[f][c] + sigma) / (n_f[f] + sigma * numClasses);
+        if (VERBOSE) {
+          System.err.println("Prob ratio(f=" + f + ",c="+ c+ ") = "+ p_c_f / p_c + " (nc=" + n_c[c] + ", nf=" + n_f[f] + ", nfc=" + n_fc[f][c] + ")");
+        }
+        weights[f][c]=Math.log(p_c_f / p_c);
+      }
+    }
+  }
+  return weights;
+}

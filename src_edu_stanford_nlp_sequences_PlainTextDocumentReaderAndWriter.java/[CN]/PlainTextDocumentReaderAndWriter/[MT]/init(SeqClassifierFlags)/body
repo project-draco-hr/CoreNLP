@@ -1,0 +1,21 @@
+{
+  String options="tokenizeNLs=false,invertible=true";
+  if (flags.tokenizerOptions != null) {
+    options=options + "," + flags.tokenizerOptions;
+  }
+  TokenizerFactory<IN> factory;
+  if (flags.tokenizerFactory != null) {
+    try {
+      Class<TokenizerFactory<? extends HasWord>> clazz=ErasureUtils.uncheckedCast(Class.forName(flags.tokenizerFactory));
+      Method factoryMethod=clazz.getMethod("newCoreLabelTokenizerFactory",String.class);
+      factory=ErasureUtils.uncheckedCast(factoryMethod.invoke(null,options));
+    }
+ catch (    Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+ else {
+    factory=ErasureUtils.uncheckedCast(PTBTokenizer.PTBTokenizerFactory.newCoreLabelTokenizerFactory(options));
+  }
+  init(flags,factory);
+}

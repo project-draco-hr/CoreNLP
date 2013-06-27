@@ -1,0 +1,31 @@
+{
+  if (consume) {
+    T node=matchedStates.get();
+    if (matchedStates.matcher.matchWithResult) {
+      Object obj=pattern.matchWithResult(node);
+      if (obj != null) {
+        if (obj != Boolean.TRUE) {
+          matchedStates.branchStates.setMatchedResult(bid,matchedStates.curPosition,obj);
+        }
+        matchedStates.addStates(bid,next);
+        return true;
+      }
+ else {
+        return false;
+      }
+    }
+ else {
+      if (node != null && pattern.match(node)) {
+        matchedStates.addStates(bid,next);
+        return true;
+      }
+ else {
+        return false;
+      }
+    }
+  }
+ else {
+    matchedStates.addState(bid,this);
+    return false;
+  }
+}

@@ -1,0 +1,38 @@
+{
+  Ehat=empty2D();
+  for (int m=0; m < data.length; m++) {
+    int[][][] docData=data[m];
+    int[] docLabels=labels[m];
+    int[] windowLabels=new int[window];
+    Arrays.fill(windowLabels,classIndex.indexOf(backgroundSymbol));
+    if (docLabels.length > docData.length) {
+      System.arraycopy(docLabels,0,windowLabels,0,windowLabels.length);
+      int[] newDocLabels=new int[docData.length];
+      System.arraycopy(docLabels,docLabels.length - newDocLabels.length,newDocLabels,0,newDocLabels.length);
+      docLabels=newDocLabels;
+    }
+    for (int i=0; i < docData.length; i++) {
+      System.arraycopy(windowLabels,1,windowLabels,0,window - 1);
+      windowLabels[window - 1]=docLabels[i];
+      int[][] docDataI=docData[i];
+      for (int j=0; j < docDataI.length; j++) {
+        int[] docDataIJ=docDataI[j];
+        int[] cliqueLabel=new int[j + 1];
+        System.arraycopy(windowLabels,window - 1 - j,cliqueLabel,0,j + 1);
+        CRFLabel crfLabel=new CRFLabel(cliqueLabel);
+        Index<CRFLabel> labelIndex=labelIndices.get(j);
+        int observedLabelIndex=labelIndex.indexOf(crfLabel);
+        for (int lopIter=0; lopIter < numLopExpert; lopIter++) {
+          double[][] ehatOfIter=Ehat[lopIter];
+          Set<Integer> indicesSet=featureIndicesSetArray.get(lopIter);
+          for (int k=0; k < docDataIJ.length; k++) {
+            int featureIdx=docDataIJ[k];
+            if (indicesSet.contains(featureIdx)) {
+              ehatOfIter[featureIdx][observedLabelIndex]++;
+            }
+          }
+        }
+      }
+    }
+  }
+}

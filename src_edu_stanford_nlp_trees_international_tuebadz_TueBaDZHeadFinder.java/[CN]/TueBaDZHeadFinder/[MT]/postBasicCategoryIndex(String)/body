@@ -1,0 +1,21 @@
+{
+  boolean sawAtZero=false;
+  char seenAtZero='\u0000';
+  int i=0;
+  for (int leng=category.length(); i < leng; i++) {
+    char ch=category.charAt(i);
+    if (isLabelAnnotationIntroducingCharacter(ch)) {
+      if (i == 0) {
+        sawAtZero=true;
+        seenAtZero=ch;
+      }
+ else       if (sawAtZero && ch == seenAtZero) {
+        sawAtZero=false;
+      }
+ else {
+        break;
+      }
+    }
+  }
+  return i;
+}

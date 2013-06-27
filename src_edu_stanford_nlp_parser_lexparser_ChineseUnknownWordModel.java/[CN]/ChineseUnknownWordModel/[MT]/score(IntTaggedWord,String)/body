@@ -1,0 +1,74 @@
+{
+  String tag=itw.tagString(tagIndex);
+  Label tagL=new Tag(tag);
+  float logProb;
+  if (VERBOSE)   EncodingPrintWriter.out.println("Scoring unknown word |" + word + "| with tag "+ tag,encoding);
+  if (word.matches(dateMatch)) {
+    if (tag.equals("NT")) {
+      logProb=0.0f;
+    }
+ else {
+      logProb=Float.NEGATIVE_INFINITY;
+    }
+  }
+ else   if (word.matches(numberMatch)) {
+    if (tag.equals("CD") && (!word.matches(ordinalMatch))) {
+      logProb=0.0f;
+    }
+ else     if (tag.equals("OD") && word.matches(ordinalMatch)) {
+      logProb=0.0f;
+    }
+ else {
+      logProb=Float.NEGATIVE_INFINITY;
+    }
+  }
+ else   if (word.matches(properNameMatch)) {
+    if (tag.equals("NR")) {
+      logProb=0.0f;
+    }
+ else {
+      logProb=Float.NEGATIVE_INFINITY;
+    }
+  }
+ else {
+    first:     if (useFirst) {
+      String first=word.substring(0,1);
+      if (useUnicodeType) {
+        char ch=word.charAt(0);
+        int type=Character.getType(ch);
+        if (type != Character.OTHER_LETTER) {
+          first=Integer.toString(type);
+        }
+      }
+      if (!seenFirst.contains(first)) {
+        if (useGT) {
+          logProb=scoreGT(tag);
+          break first;
+        }
+ else {
+          first=unknown;
+        }
+      }
+      ClassicCounter<String> wordProbs=tagHash.get(tagL);
+      if (wordProbs == null) {
+        if (VERBOSE)         System.err.println("Warning: proposed tag is unseen in training data!");
+        logProb=Float.NEGATIVE_INFINITY;
+      }
+ else       if (wordProbs.containsKey(first)) {
+        logProb=(float)wordProbs.getCount(first);
+      }
+ else {
+        logProb=(float)wordProbs.getCount(unknown);
+      }
+    }
+ else     if (useGT) {
+      logProb=scoreGT(tag);
+    }
+ else {
+      if (VERBOSE)       System.err.println("Warning: no unknown word model in place!\nGiving the combination " + word + " "+ tag+ " zero probability.");
+      logProb=Float.NEGATIVE_INFINITY;
+    }
+  }
+  if (VERBOSE)   EncodingPrintWriter.out.println("Unknown word estimate for " + word + " as "+ tag+ ": "+ logProb,encoding);
+  return logProb;
+}
