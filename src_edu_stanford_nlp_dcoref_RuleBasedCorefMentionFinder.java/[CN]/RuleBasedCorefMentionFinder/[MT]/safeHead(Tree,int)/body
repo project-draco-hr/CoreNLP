@@ -1,0 +1,26 @@
+{
+  Tree head=top.headTerminal(headFinder);
+  if (head != null) {
+    Integer headIndexInteger=((CoreLabel)head.label()).get(CoreAnnotations.IndexAnnotation.class);
+    if (headIndexInteger != null) {
+      int headIndex=headIndexInteger - 1;
+      if (headIndex < endIndex) {
+        return head;
+      }
+    }
+  }
+  List<Tree> leaves=top.getLeaves();
+  int candidate=leaves.size() - 1;
+  while (candidate >= 0) {
+    head=leaves.get(candidate);
+    Integer headIndexInteger=((CoreLabel)head.label()).get(CoreAnnotations.IndexAnnotation.class);
+    if (headIndexInteger != null) {
+      int headIndex=headIndexInteger - 1;
+      if (headIndex < endIndex) {
+        return head;
+      }
+    }
+    candidate--;
+  }
+  return top;
+}
