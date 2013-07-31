@@ -1,7 +1,15 @@
 {
+  boolean useFeatureCountThresh=flags.featureCountThresh > 1 ? true : false;
   Set<String>[] featureIndices=new HashSet[windowSize];
+  Map<String,Integer>[] featureCountIndices=null;
   for (int i=0; i < windowSize; i++) {
     featureIndices[i]=Generics.newHashSet();
+  }
+  if (useFeatureCountThresh) {
+    featureCountIndices=new HashMap[windowSize];
+    for (int i=0; i < windowSize; i++) {
+      featureCountIndices[i]=Generics.newHashMap();
+    }
   }
   labelIndices=new ArrayList<Index<CRFLabel>>(windowSize);
   for (int i=0; i < windowSize; i++) {
@@ -41,24 +49,55 @@
           }
           if (background) {
             for (            String f : cliqueFeatures) {
-              if (!featureIndices[k].contains(f)) {
-                if (seenBackgroundFeatures[k].contains(f)) {
-                  seenBackgroundFeatures[k].remove(f);
-                  featureIndices[k].add(f);
-                }
+              if (useFeatureCountThresh) {
+                if (!featureCountIndices[k].containsKey(f)) {
+                  if (seenBackgroundFeatures[k].contains(f)) {
+                    seenBackgroundFeatures[k].remove(f);
+                    featureCountIndices[k].put(f,1);
+                  }
  else {
-                  seenBackgroundFeatures[k].add(f);
+                    seenBackgroundFeatures[k].add(f);
+                  }
+                }
+              }
+ else {
+                if (!featureIndices[k].contains(f)) {
+                  if (seenBackgroundFeatures[k].contains(f)) {
+                    seenBackgroundFeatures[k].remove(f);
+                    featureIndices[k].add(f);
+                  }
+ else {
+                    seenBackgroundFeatures[k].add(f);
+                  }
                 }
               }
             }
           }
  else {
             seenBackgroundFeatures[k].removeAll(cliqueFeatures);
-            featureIndices[k].addAll(cliqueFeatures);
+            if (useFeatureCountThresh) {
+              Map<String,Integer> fCountIndex=featureCountIndices[k];
+              for (              String f : cliqueFeatures) {
+                if (fCountIndex.containsKey(f))                 fCountIndex.put(f,fCountIndex.get(f) + 1);
+ else                 fCountIndex.put(f,1);
+              }
+            }
+ else {
+              featureIndices[k].addAll(cliqueFeatures);
+            }
           }
         }
  else {
-          featureIndices[k].addAll(cliqueFeatures);
+          if (useFeatureCountThresh) {
+            Map<String,Integer> fCountIndex=featureCountIndices[k];
+            for (            String f : cliqueFeatures) {
+              if (fCountIndex.containsKey(f))               fCountIndex.put(f,fCountIndex.get(f) + 1);
+ else               fCountIndex.put(f,1);
+            }
+          }
+ else {
+            featureIndices[k].addAll(cliqueFeatures);
+          }
         }
       }
     }
@@ -66,10 +105,28 @@
       Collections.reverse(doc);
     }
   }
+  if (useFeatureCountThresh) {
+    int numFeatures=0;
+    for (int i=0; i < windowSize; i++) {
+      numFeatures+=featureCountIndices[i].size();
+    }
+    System.err.println("Before feature count thresholding, numFeatures = " + numFeatures);
+    for (int i=0; i < windowSize; i++) {
+      for (Iterator<Map.Entry<String,Integer>> it=featureCountIndices[i].entrySet().iterator(); it.hasNext(); ) {
+        Map.Entry<String,Integer> entry=it.next();
+        if (entry.getValue() < flags.featureCountThresh) {
+          it.remove();
+        }
+      }
+      featureIndices[i].addAll(featureCountIndices[i].keySet());
+      featureCountIndices[i]=null;
+    }
+  }
   int numFeatures=0;
   for (int i=0; i < windowSize; i++) {
     numFeatures+=featureIndices[i].size();
   }
+  System.err.println("numFeatures = " + numFeatures);
   featureIndex=new HashIndex<String>();
   map=new int[numFeatures];
   if (flags.groupByFeatureTemplate) {
