@@ -1,6 +1,6 @@
 {
   double prob=0.0;
-  to2D(x,weights);
+  final double[][] weights=to2D(x);
   if (prior == DROPOUT_PRIOR) {
     if (weightSquare == null) {
       weightSquare=new double[weights.length][];
@@ -14,44 +14,16 @@
       }
     }
   }
-  clear2D(E);
-  if (prior != DROPOUT_PRIOR) {
-    if (multiThreadGrad == 1) {
-      for (int m=0; m < data.length; m++) {
-        prob+=expectedCountsAndValueForADoc(weights,E,m);
-      }
-    }
- else {
-      MulticoreWrapper<Pair<Integer,List<Integer>>,Pair<Integer,Double>> wrapper=new MulticoreWrapper<Pair<Integer,List<Integer>>,Pair<Integer,Double>>(multiThreadGrad,threadProcessor);
-      int batchSize=totalData.length / multiThreadGrad;
-      int index=0;
-      for (int tCount=0; tCount < multiThreadGrad; tCount++) {
-        int endIndex=index + batchSize;
-        if (tCount == multiThreadGrad - 1)         endIndex=totalData.length;
-        List<Integer> docIndices=new ArrayList<Integer>(endIndex - index);
-        for (int ind=index; ind < endIndex; ind++)         docIndices.add(ind);
-        wrapper.put(new Pair<Integer,List<Integer>>(tCount,docIndices));
-        while (wrapper.peek()) {
-          Pair<Integer,Double> result=wrapper.poll();
-          int doneTCount=result.first();
-          double batchProb=result.second();
-          prob+=batchProb;
-          combine2DArr(E,batchE[doneTCount]);
-        }
-        index=endIndex;
-      }
-      wrapper.join();
-      while (wrapper.peek()) {
-        Pair<Integer,Double> result=wrapper.poll();
-        int doneTCount=result.first();
-        double batchProb=result.second();
-        prob+=batchProb;
-        combine2DArr(E,batchE[doneTCount]);
-      }
+  double[][] E=empty2D();
+  double[][] dropoutPriorGrad=null;
+  if (prior == DROPOUT_PRIOR)   dropoutPriorGrad=empty2D();
+  if (multiThreadGrad == 0) {
+    for (int m=0; m < data.length; m++) {
+      prob+=expectedCountsAndValueForADoc(weights,E,m);
     }
   }
  else {
-    MulticoreWrapper<Triple<Integer,Boolean,double[][]>,Quadruple<Integer,Double,Map<Integer,double[]>,Map<Integer,double[]>>> wrapper=new MulticoreWrapper<Triple<Integer,Boolean,double[][]>,Quadruple<Integer,Double,Map<Integer,double[]>,Map<Integer,double[]>>>(multiThreadGrad,dropoutPriorThreadProcessor);
+    MulticoreWrapper<Triple<Integer,Boolean,double[][]>,Quadruple<Integer,Double,Map<Integer,double[]>,Map<Integer,double[]>>> wrapper=new MulticoreWrapper<Triple<Integer,Boolean,double[][]>,Quadruple<Integer,Double,Map<Integer,double[]>,Map<Integer,double[]>>>(multiThreadGrad,threadProcessor);
     for (int m=0; m < totalData.length; m++) {
       boolean submitIsUnsup=(m >= unsupDropoutStartIndex);
       wrapper.put(new Triple<Integer,Boolean,double[][]>(m,submitIsUnsup,weights));

@@ -15,13 +15,6 @@
   this.dropoutApprox=dropoutApprox;
   this.multiThreadGrad=multiThreadGrad;
   Ehat=empty2D();
-  E=empty2D();
-  if (multiThreadGrad > 1 && prior != DROPOUT_PRIOR) {
-    batchE=new double[multiThreadGrad][][];
-    for (int t=0; t < multiThreadGrad; t++)     batchE[t]=empty2D();
-  }
-  weights=empty2D();
-  if (prior == DROPOUT_PRIOR)   dropoutPriorGrad=empty2D();
   empiricalCounts(Ehat);
   int myDomainDimension=0;
   for (  int dim : map) {
@@ -42,8 +35,6 @@
     this.totalData=data;
   }
   domainDimension=myDomainDimension;
-  if (prior == DROPOUT_PRIOR) {
-    initEdgeLabels();
-    initializeDataFeatureHash();
-  }
+  initEdgeLabels();
+  if (multiThreadGrad > 0)   initializeDataFeatureHash();
 }
