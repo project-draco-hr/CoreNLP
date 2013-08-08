@@ -54,38 +54,45 @@
       boolean nlSplitting=Boolean.valueOf(properties.getProperty(NEWLINE_SPLITTER_PROPERTY,"false"));
       if (nlSplitting) {
         boolean whitespaceTokenization=Boolean.valueOf(properties.getProperty("tokenize.whitespace","false"));
+        WordsToSentencesAnnotator wts;
         if (whitespaceTokenization) {
           if (System.getProperty("line.separator").equals("\n")) {
-            return WordsToSentencesAnnotator.newlineSplitter(false,"\n");
+            wts=WordsToSentencesAnnotator.newlineSplitter(false,"\n");
           }
  else {
-            return WordsToSentencesAnnotator.newlineSplitter(false,System.getProperty("line.separator"),"\n");
+            wts=WordsToSentencesAnnotator.newlineSplitter(false,System.getProperty("line.separator"),"\n");
           }
         }
  else {
-          return WordsToSentencesAnnotator.newlineSplitter(false,PTBTokenizer.getNewlineToken());
+          wts=WordsToSentencesAnnotator.newlineSplitter(false,PTBTokenizer.getNewlineToken());
         }
+        wts.setCountLineNumbers(true);
+        return wts;
       }
  else {
-        String isOneSentence=properties.getProperty("ssplit.isOneSentence");
-        if (Boolean.parseBoolean(isOneSentence)) {
-          return WordsToSentencesAnnotator.nonSplitter(false);
-        }
+        WordsToSentencesAnnotator wts;
         String boundaryTokenRegex=properties.getProperty("ssplit.boundaryTokenRegex");
-        Set<String> boundariesToDiscard=null;
+        if (boundaryTokenRegex != null) {
+          wts=new WordsToSentencesAnnotator(false,boundaryTokenRegex);
+        }
+ else {
+          wts=new WordsToSentencesAnnotator();
+        }
         String bounds=properties.getProperty("ssplit.boundariesToDiscard");
         if (bounds != null) {
           String[] toks=bounds.split(",");
-          boundariesToDiscard=Generics.newHashSet(Arrays.asList(toks));
+          wts.setSentenceBoundaryToDiscard(Generics.newHashSet(Arrays.asList(toks)));
         }
-        Set<String> htmlElementsToDiscard=null;
         bounds=properties.getProperty("ssplit.htmlBoundariesToDiscard");
         if (bounds != null) {
-          String[] elements=bounds.split(",");
-          htmlElementsToDiscard=Generics.newHashSet(Arrays.asList(elements));
+          String[] toks=bounds.split(",");
+          wts.addHtmlSentenceBoundaryToDiscard(Generics.newHashSet(Arrays.asList(toks)));
         }
-        String nlsb=properties.getProperty("ssplit.newlineIsSentenceBreak","two");
-        return new WordsToSentencesAnnotator(false,boundaryTokenRegex,boundariesToDiscard,htmlElementsToDiscard,nlsb);
+        String isOneSentence=properties.getProperty("ssplit.isOneSentence");
+        if (isOneSentence != null) {
+          wts.setOneSentence(Boolean.parseBoolean(isOneSentence));
+        }
+        return wts;
       }
     }
     @Override public String signature(){
@@ -95,13 +102,9 @@
         os.append("tokenize.whitespace:" + properties.getProperty("tokenize.whitespace","false"));
       }
  else {
-        os.append("ssplit.isOneSentence:" + properties.getProperty("ssplit.isOneSentence","false"));
-        if (!Boolean.valueOf(properties.getProperty("ssplit.isOneSentence","false"))) {
-          os.append("ssplit.boundaryTokenRegex:" + properties.getProperty("ssplit.boundaryTokenRegex",""));
-          os.append("ssplit.boundariesToDiscard:" + properties.getProperty("ssplit.boundariesToDiscard",""));
-          os.append("ssplit.htmlBoundariesToDiscard:" + properties.getProperty("ssplit.htmlBoundariesToDiscard",""));
-          os.append("ssplit.newlineIsSentenceBreak:" + properties.getProperty("ssplit.newlineIsSentenceBreak","two"));
-        }
+        os.append("ssplit.boundariesToDiscard:" + properties.getProperty("ssplit.boundariesToDiscard",""));
+        os.append("ssplit.htmlBoundariesToDiscard:" + properties.getProperty("ssplit.htmlBoundariesToDiscard",""));
+        os.append("ssplit.isOneSentence:" + properties.getProperty("ssplit.isOneSentence",""));
       }
       return os.toString();
     }
