@@ -1,8 +1,11 @@
 {
-  if (encoded.length() == 0)   return new String[]{};
+  if (encoded.length() == 0)   return new HashMap<String,String>();
   char[] chars=encoded.trim().toCharArray();
   char quoteCloseChar=(char)0;
-  List<StringBuilder> terms=new LinkedList<StringBuilder>();
+  Map<String,String> map=new HashMap<String,String>();
+  String key="";
+  String value="";
+  boolean onKey=true;
   StringBuilder current=new StringBuilder();
   int start=0;
   int end=chars.length;
@@ -42,23 +45,35 @@
  else       if (chars[i] == '\'') {
         quoteCloseChar='\'';
       }
- else       if (chars[i] == ',' || chars[i] == ';' || chars[i] == ' ' || chars[i] == '\t' || chars[i] == '\n') {
+ else       if (chars[i] == ',' || chars[i] == ';' || chars[i] == '\t' || chars[i] == '\n') {
+        if (onKey) {
+          throw new IllegalArgumentException("Encountered key without value");
+        }
         if (current.length() > 0) {
-          terms.add(current);
+          value=current.toString().trim();
         }
         current=new StringBuilder();
+        onKey=true;
+        map.put(key,value);
+      }
+ else       if ((chars[i] == '-' || chars[i] == '=') && (i < chars.length - 1 && chars[i + 1] == '>')) {
+        if (!onKey) {
+          throw new IllegalArgumentException("Encountered a value without a key");
+        }
+        if (current.length() > 0) {
+          key=current.toString().trim();
+        }
+        current=new StringBuilder();
+        onKey=false;
+        i+=1;
       }
  else {
         current.append(chars[i]);
       }
     }
   }
-  if (current.length() > 0)   terms.add(current);
-  String[] rtn=new String[terms.size()];
-  int i=0;
-  for (  StringBuilder b : terms) {
-    rtn[i]=b.toString().trim();
-    i+=1;
+  if (current.toString().trim().length() > 0 && !onKey) {
+    map.put(key.trim(),current.toString().trim());
   }
-  return rtn;
+  return map;
 }
