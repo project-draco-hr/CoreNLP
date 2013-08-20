@@ -1,0 +1,23 @@
+{
+  PartialApproxMatch<K,V> res=new PartialApproxMatch<K,V>();
+  res.matched=matched;
+  if (k != null) {
+    if (res.matched == null) {
+      res.matched=new ArrayList<K>(1);
+    }
+ else {
+      res.matched=new ArrayList<K>(matched.size() + 1);
+      res.matched.addAll(matched);
+    }
+    res.matched.add(k);
+  }
+  res.begin=begin;
+  res.end=(t != null) ? end + 1 : end;
+  res.cost=cost + deltaCost;
+  res.trie=(k != null) ? trie.getChildTrie(k) : trie;
+  res.value=res.trie.value;
+  res.multimatched=multimatched;
+  res.multivalues=multivalues;
+  res.lastMultimatchedStartIndex=lastMultimatchedStartIndex;
+  return res;
+}
