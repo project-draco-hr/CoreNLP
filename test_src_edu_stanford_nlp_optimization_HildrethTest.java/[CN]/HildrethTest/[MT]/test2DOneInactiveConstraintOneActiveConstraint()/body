@@ -1,0 +1,11 @@
+{
+  RealMatrix C=new Array2DRowRealMatrix(new double[][]{{-1.,0},{0,-1}});
+  RealMatrix invC=new LUDecompositionImpl(C).getSolver().getInverse();
+  RealVector d=new ArrayRealVector(new double[]{4,6});
+  RealMatrix G=new Array2DRowRealMatrix(new double[][]{{-1.,0},{0,-1}});
+  RealVector h=new ArrayRealVector(new double[]{10,-3.1});
+  Hildreth hildreth=new Hildreth();
+  RealVector x=hildreth.solve(invC,d,G,h);
+  assertEquals(2.,x.getEntry(0));
+  assertEquals(3.1,x.getEntry(1));
+}

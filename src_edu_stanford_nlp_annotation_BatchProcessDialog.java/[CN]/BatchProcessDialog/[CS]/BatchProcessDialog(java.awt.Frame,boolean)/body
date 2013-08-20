@@ -1,0 +1,26 @@
+{
+  super(parent,modal);
+  initComponents();
+  jfc=new JFileChooser();
+  getRootPane().setDefaultButton(okButton);
+  getRootPane().getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE,0),"close");
+  getRootPane().getActionMap().put("close",new AbstractAction(){
+    /** 
+ */
+    private static final long serialVersionUID=7943408574251163397L;
+    public void actionPerformed(    ActionEvent ae){
+      status=CANCEL_OPTION;
+      closeDialog(null);
+    }
+  }
+);
+  SwingUtils.loadButtonIcon(sourceDirButton,"toolbarButtonGraphics/general/Open16.gif",null);
+  SwingUtils.loadButtonIcon(targetDirButton,"toolbarButtonGraphics/general/Open16.gif",null);
+  okButton.setEnabled(false);
+  addWindowListener(new WindowAdapter(){
+    @Override public void windowClosing(    WindowEvent we){
+      status=CANCEL_OPTION;
+    }
+  }
+);
+}

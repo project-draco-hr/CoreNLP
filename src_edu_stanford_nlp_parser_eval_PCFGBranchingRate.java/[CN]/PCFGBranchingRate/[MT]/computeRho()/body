@@ -1,0 +1,30 @@
+{
+  double[][] mExp=new double[symLUT.keySet().size()][symLUT.keySet().size()];
+  for (  String A : pcfg.ruleCtr.firstKeySet()) {
+    if (!symLUT.containsKey(A))     throw new RuntimeException("LUT does not contain |||" + A + "|||");
+    final int aIdx=symLUT.get(A);
+    final Set<RuleRHS> rhsSet=pcfg.ruleCtr.getCounter(A).keySet();
+    for (    RuleRHS rhs : rhsSet) {
+      final double p_r=pcfg.ruleCtr.getCount(A,rhs);
+      Counter<String> n=new ClassicCounter<String>();
+      for (      String sRhs : rhs.getStates())       n.incrementCount(sRhs);
+      for (      String B : n.keySet()) {
+        int bIdx=symLUT.get(B);
+        double n_B=n.getCount(B);
+        double p_A_B=p_r * n_B;
+        mExp[aIdx][bIdx]=p_A_B;
+      }
+    }
+  }
+  Matrix expMatrix=new ArrayMatrix(mExp);
+  double rho=0.0;
+  try {
+    EVD evd=EVD.factorize(expMatrix);
+    double[] eigenvalues=evd.getRealEigenvalues();
+    rho=absMax(eigenvalues);
+  }
+ catch (  NotConvergedException e) {
+    System.err.println(this.getClass().getName() + ": EVD did not converge");
+  }
+  return rho;
+}

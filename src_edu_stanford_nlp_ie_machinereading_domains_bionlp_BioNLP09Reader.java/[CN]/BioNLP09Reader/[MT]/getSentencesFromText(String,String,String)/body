@@ -1,0 +1,74 @@
+{
+  List<CoreMap> tokenizedSents=new ArrayList<CoreMap>();
+  if (useOfflineAnnotations) {
+    try {
+      if (!text.endsWith("."))       text+=". ";
+      BufferedReader is=new BufferedReader(new FileReader(pathPrefix + TOKENIZED_EXTENSION));
+      String line;
+      int textOffset=0;
+      while ((line=is.readLine()) != null) {
+        Annotation sent=new Annotation(line);
+        String[] stringToks=line.split("[ \t]+");
+        List<CoreLabel> tokens=new ArrayList<CoreLabel>();
+        for (        String stringTok : stringToks) {
+          CoreLabel token=new CoreLabel();
+          token.setWord(stringTok);
+          token.setOriginalText(stringTok);
+          Pair<Integer,Integer> charPositions=new Pair<Integer,Integer>();
+          textOffset=alignTokenToText(textOffset,text,stringTok,charPositions);
+          token.set(CharacterOffsetBeginAnnotation.class,charPositions.first);
+          token.set(CharacterOffsetEndAnnotation.class,charPositions.second);
+          tokens.add(token);
+        }
+        sent.set(DocIDAnnotation.class,docId);
+        sent.set(CoreAnnotations.TokensAnnotation.class,tokens);
+        tokenizedSents.add(sent);
+      }
+      is.close();
+    }
+ catch (    IOException e) {
+      System.err.println("ERROR: cannot read offline tokenization from " + pathPrefix + TOKENIZED_EXTENSION);
+      e.printStackTrace();
+      System.exit(1);
+    }
+  }
+ else {
+    String[] sentences=text.split("\\. ");
+    int sentenceCharacterOffset=0;
+    PrintStream os=null;
+    if (SAVE_ONLINE_TOKENIZATION) {
+      try {
+        os=new PrintStream(new FileOutputStream(pathPrefix + "tokenized.stanford"));
+      }
+ catch (      IOException e) {
+        System.err.println("ERROR: cannot save online tokenization to " + pathPrefix + "tokenized.stanford");
+        e.printStackTrace();
+        System.exit(1);
+      }
+    }
+    for (    String sentence : sentences) {
+      BioNLPTokenizer tokenizer=new BioNLPTokenizer(sentence + ". ");
+      List<CoreLabel> tokens=tokenizer.tokenize();
+      if (SAVE_ONLINE_TOKENIZATION) {
+        for (        CoreLabel l : tokens) {
+          os.print(l.word() + " ");
+        }
+        os.println();
+      }
+      logger.fine("tokens: " + tokens.size() + " "+ tokens);
+      AnnotationUtils.updateOffsetsInCoreLabels(tokens,sentenceCharacterOffset);
+      Annotation sent=new Annotation(sentence);
+      sent.set(DocIDAnnotation.class,docId);
+      sent.set(CoreAnnotations.TokensAnnotation.class,tokens);
+      tokenizedSents.add(sent);
+      sentenceCharacterOffset+=sentence.length() + 2;
+    }
+    if (SAVE_ONLINE_TOKENIZATION) {
+      os.close();
+    }
+  }
+  for (int i=0; i < tokenizedSents.size(); i++) {
+    tokenizedSents.get(i).set(SentenceIndexAnnotation.class,i);
+  }
+  return tokenizedSents;
+}

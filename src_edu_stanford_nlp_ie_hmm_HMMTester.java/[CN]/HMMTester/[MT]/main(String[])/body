@@ -1,0 +1,32 @@
+{
+  int curArg=0;
+  if (args.length < 3) {
+    dieUsage();
+    return;
+  }
+  String hmmFile=args[curArg++];
+  System.err.println("Input HMM : " + hmmFile);
+  String testFile=args[curArg++];
+  int remainnum=args.length - curArg;
+  String[] targetFields=new String[remainnum];
+  for (int i=curArg; i < args.length; i++) {
+    targetFields[i - curArg]=args[i];
+  }
+  try {
+    FileInputStream fis=new FileInputStream(hmmFile);
+    ObjectInputStream in=new ObjectInputStream(fis);
+    HMM hmm=(HMM)in.readObject();
+    in.close();
+    HMMTester hmmtest=new HMMTester(hmm);
+    Corpus c;
+    c=new Corpus(testFile,targetFields);
+    hmmtest.test(c);
+  }
+ catch (  IOException ex) {
+    ex.printStackTrace();
+  }
+catch (  Exception e) {
+    System.err.println(e.getMessage());
+    e.printStackTrace();
+  }
+}

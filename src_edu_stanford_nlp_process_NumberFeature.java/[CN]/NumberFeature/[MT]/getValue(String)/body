@@ -1,0 +1,34 @@
+{
+  int length=s.length();
+  boolean number=true, seenDigit=false;
+  boolean seenNonDigit=false;
+  if (length == 0) {
+    return NONUMBER;
+  }
+  for (int i=0; i < length; i++) {
+    char ch=s.charAt(i);
+    boolean digit=Character.isDigit(ch);
+    if (digit) {
+      seenDigit=true;
+    }
+ else {
+      seenNonDigit=true;
+    }
+    digit=digit || ch == '.' || ch == ',' || (i == 0 && ch == '-');
+    if (!digit) {
+      number=false;
+    }
+  }
+  if (seenDigit && !seenNonDigit) {
+    return CARDINAL;
+  }
+ else   if (number && seenDigit) {
+    return NUMBER;
+  }
+ else   if (seenDigit) {
+    return HASNUMBER;
+  }
+ else {
+    return NONUMBER;
+  }
+}

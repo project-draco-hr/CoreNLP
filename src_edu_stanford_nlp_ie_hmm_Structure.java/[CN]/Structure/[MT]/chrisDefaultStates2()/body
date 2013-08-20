@@ -1,0 +1,66 @@
+{
+  int numStates=3 + NUMTARGETS + 2 * PRESUFFLENG;
+  State[] states=new State[numStates];
+  for (int i=0; i < numStates; i++) {
+    states[i]=new State(numStates);
+  }
+  states[State.FINISHIDX].type=State.FINISHTYPE;
+  states[State.STARTIDX].type=State.STARTTYPE;
+  for (int j=STARTTARGET; j < STARTSUFFIX; j++) {
+    states[j].type=1;
+  }
+  states[State.FINISHIDX].transition[State.FINISHIDX]=1.0;
+  states[State.STARTIDX].transition[BKGRND]=0.93;
+  states[State.STARTIDX].transition[State.FINISHIDX]=0.01;
+  states[State.STARTIDX].transition[STARTPREFIX]=0.02;
+  states[State.STARTIDX].transition[STARTTARGET - 1]=0.02;
+  states[State.STARTIDX].transition[STARTTARGET]=0.02;
+  states[BKGRND].transition[BKGRND]=.95;
+  states[BKGRND].transition[STARTPREFIX]=.025;
+  states[BKGRND].transition[State.FINISHIDX]=0.025;
+  for (int j=STARTTARGET - 1; j > BKGRND; j--) {
+    if (j == STARTTARGET - 1) {
+      int k;
+      for (k=STARTTARGET; k < STARTTARGET + NUMTARGETS / 2; k++) {
+        states[j].transition[k]=0.6 / (NUMTARGETS / 2);
+      }
+      for (; k < STARTSUFFIX; k++) {
+        states[j].transition[k]=0.4 / (NUMTARGETS - (NUMTARGETS / 2));
+      }
+    }
+ else     if (j == STARTTARGET - 2) {
+      states[j].transition[j]=0.5;
+      states[j].transition[j + 1]=0.5;
+    }
+ else {
+      states[j].transition[j + 1]=0.5;
+      states[j].transition[j + 2]=0.5;
+    }
+  }
+  for (int j=STARTTARGET; j < STARTSUFFIX; j++) {
+    for (int m=STARTTARGET; m <= STARTSUFFIX; m++) {
+      states[j].transition[m]=0.11 + ((float)m) / 100;
+    }
+    states[j].transition[State.FINISHIDX]=0.05;
+  }
+  for (int j=STARTSUFFIX; j < STARTSUFFIX + PRESUFFLENG; j++) {
+    if (j == STARTSUFFIX + PRESUFFLENG - 1) {
+      states[j].transition[BKGRND]=0.95;
+      states[j].transition[State.FINISHIDX]=0.05;
+    }
+ else     if (j == STARTSUFFIX) {
+      states[j].transition[j + 1]=0.5;
+      states[j].transition[j + 2]=0.45;
+      states[j].transition[State.FINISHIDX]=0.05;
+    }
+ else     if (j == STARTSUFFIX + 1) {
+      states[j].transition[j]=0.5;
+      states[j].transition[j + 1]=0.5;
+    }
+ else {
+      states[j].transition[j + 1]=0.95;
+      states[j].transition[State.FINISHIDX]=0.05;
+    }
+  }
+  return states;
+}

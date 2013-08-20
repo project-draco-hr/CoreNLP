@@ -1,0 +1,19 @@
+{
+  File dir=new File(path);
+  assert(dir.exists());
+  File[] rawTextFiles=null;
+  if (dir.isDirectory()) {
+    rawTextFiles=dir.listFiles(new FilenameFilter(){
+      public boolean accept(      File dir,      String name){
+        return name.endsWith(TEXT_EXTENSION);
+      }
+    }
+);
+  }
+ else {
+    assert(path.endsWith(TEXT_EXTENSION));
+    rawTextFiles=new File[1];
+    rawTextFiles[0]=dir;
+  }
+  return Arrays.asList(rawTextFiles);
+}

@@ -1,0 +1,15 @@
+{
+  ExtractorField[] extractorFields=getAssignedExtractorFields(className,slotName);
+  if (extractorFields.length == 0) {
+    if (verbose) {
+      System.err.println("No extractors have been assigned to any slots for " + className);
+    }
+    return (false);
+  }
+  for (int i=0; i < extractorFields.length; i++) {
+    if (!unassignExtractorField(className,slotName,extractorFields[i].getExtractorName(),extractorFields[i].getFieldName())) {
+      return (false);
+    }
+  }
+  return (true);
+}

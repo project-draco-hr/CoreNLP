@@ -1,6 +1,6 @@
 {
   final TreeReaderFactory trf=new FrenchTreeReaderFactory();
-  Map<String,Tree> treeMap=Generics.newHashMap();
+  Map<String,Tree> treeMap=new HashMap<String,Tree>();
   for (  String filename : filenames) {
     File file=new File(filename);
     String canonicalFilename=file.getName().substring(0,file.getName().lastIndexOf('.'));
@@ -8,7 +8,7 @@
     Tree t=null;
     int numTrees;
     for (numTrees=0; (t=tr.readTree()) != null; numTrees++) {
-      String id=canonicalFilename + "-" + ((CoreLabel)t.label()).get(CoreAnnotations.SentenceIDAnnotation.class);
+      String id=canonicalFilename + "-" + ((CoreLabel)t.label()).get(SentenceIDAnnotation.class);
       treeMap.put(id,t);
     }
     tr.close();

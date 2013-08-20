@@ -1,0 +1,27 @@
+{
+  String senseJustification=null;
+  String bestSense=Instance.UNASSIGNED;
+  if (!ins.sense[0].equals(Instance.UNASSIGNED)) {
+    Counter<String> sensePosterior=new ClassicCounter<String>();
+    List[] justLists=new List[allSenses.size()];
+    for (    String sense : allSenses) {
+      List justProbs=new ArrayList();
+      double logThisScore;
+      logThisScore=logP_senseGivenSeq(ins,sense);
+      justLists[allSenses.indexOf(sense)]=justProbs;
+      sensePosterior.setCount(sense,logThisScore);
+    }
+    bestSense=Counters.argmax(sensePosterior);
+  }
+  Subcategory bestSubcat=Subcategory.UNASSIGNED;
+  String subcatJustification=null;
+  Counter<Subcategory> subcatPosterior=new ClassicCounter<Subcategory>();
+  if (ins.subcat != Subcategory.UNASSIGNED && ins.subcat != Subcategory.DISTRIBUTION) {
+    for (    Subcategory subcat : Subcategory.SUBCATEGORIES) {
+      double posterior=logP_seqGivenSub(ins,subcat) + Math.log(subcatPrior.probabilityOf(subcat));
+      subcatPosterior.setCount(subcat,posterior);
+    }
+    bestSubcat=Counters.argmax(subcatPosterior);
+  }
+  return new InstanceMarking(ins,bestSense,bestSubcat,senseJustification,subcatJustification);
+}

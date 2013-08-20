@@ -1,0 +1,88 @@
+{
+  Set<L> labelSet=new HashSet<L>();
+  for (  RVFDatum<L,F> datum : dataset) {
+    labelSet.add(datum.label());
+  }
+  List<L> labelList=new ArrayList<L>(labelSet);
+  Index<Pair<F,L>> weightIndex=new HashIndex<Pair<F,L>>();
+  double[] weightsArray=new double[0];
+  ArrayRealVector weightsSum=new ArrayRealVector();
+  ClassicCounter<Pair<F,L>> weights=new ClassicCounter<Pair<F,L>>();
+  MIRAWeightUpdater<Pair<F,L>,String> miraUpdate=new MIRAWeightUpdater<Pair<F,L>,String>(C);
+  System.out.println("Training with MIRA");
+  System.out.printf("\tC: %e\n",C);
+  System.out.printf("\tEpochs %d\n",epochs);
+  System.out.printf("\tWeight averaging: %b\n",averageWeights);
+  Random r=new Random(1);
+  RandomizedIterable<RVFDatum<L,F>> randDatums=new RandomizedIterable<RVFDatum<L,F>>(dataset,r,true);
+  for (int epoch=0; epoch < epochs; epoch++) {
+    double sumMarginViolations=0;
+    int cntMarginViolations=0;
+    int cntIncorrect=0;
+    for (    RVFDatum<L,F> datum : randDatums) {
+      ClassicCounter<Pair<F,L>>[] guessedVectors=new ClassicCounter[labelList.size()];
+      ClassicCounter<Pair<F,L>>[] goldVectors=new ClassicCounter[labelList.size()];
+      double[] losses=new double[labelList.size()];
+      double bestIncorrectScore=Double.NEGATIVE_INFINITY;
+      goldVectors[0]=makeFeatureFunctionPairs(datum.label(),datum);
+      for (int i=0; i < guessedVectors.length; i++) {
+        guessedVectors[i]=makeFeatureFunctionPairs(labelList.get(i),datum);
+        goldVectors[i]=goldVectors[0];
+        if (labelList.get(i).equals(datum.label())) {
+          losses[i]=0;
+        }
+ else {
+          losses[i]=1;
+          double score=Counters.dotProduct(weights,guessedVectors[i]);
+          bestIncorrectScore=(bestIncorrectScore < score ? score : bestIncorrectScore);
+        }
+      }
+      double goldScore=Counters.dotProduct(weights,goldVectors[0]);
+      double margin=bestIncorrectScore + 1 - goldScore;
+      if (margin >= 0) {
+        sumMarginViolations=margin;
+        cntMarginViolations++;
+        if (VERBOSE) {
+          System.out.printf("Margin violation of %e\n",margin);
+          System.out.printf("Weights: %s\n",weights);
+        }
+      }
+      if (bestIncorrectScore >= goldScore) {
+        cntIncorrect++;
+      }
+      Counter<Pair<F,L>> delta=miraUpdate.getUpdate(null,goldVectors,guessedVectors,losses,null,0);
+      weights.addAll(delta);
+      if (VERBOSE) {
+        bestIncorrectScore=Double.NEGATIVE_INFINITY;
+        for (int i=0; i < guessedVectors.length; i++) {
+          if (!labelList.get(i).equals(datum.label())) {
+            double score=Counters.dotProduct(weights,guessedVectors[i]);
+            bestIncorrectScore=(bestIncorrectScore < score ? score : bestIncorrectScore);
+          }
+        }
+        goldScore=Counters.dotProduct(weights,goldVectors[0]);
+        System.out.printf("Post update margin violation of %e\n",bestIncorrectScore + 1 - goldScore);
+      }
+      if (epoch + 1 == epochs && averageWeights) {
+        RealVector weightsVec=miraUpdate.getWeights();
+        if (weightsVec.getDimension() > weightsSum.getDimension()) {
+          weightsSum=(ArrayRealVector)weightsSum.append(new double[weightsVec.getDimension() - weightsSum.getDimension()]);
+        }
+        weightsSum=MIRAWeightUpdater.quickAddToSelf(weightsSum,weightsVec);
+      }
+    }
+    System.out.printf("MIRA Epoch %d - Incorrect: %d/%d Margin violations: %d Margin violation sum: %e\n",epoch,cntIncorrect,dataset.size,cntMarginViolations,sumMarginViolations);
+  }
+  double[] finalWeights;
+  if (averageWeights) {
+    finalWeights=weightsSum.toArray();
+  }
+ else {
+    finalWeights=miraUpdate.getWeights().toArray();
+  }
+  if (ArrayMath.L1Norm(finalWeights) != 0) {
+    ArrayMath.L1normalize(finalWeights);
+  }
+  LinearClassifier<L,F> lc=new LinearClassifier<L,F>(finalWeights,miraUpdate.getKeyIndex());
+  return lc;
+}

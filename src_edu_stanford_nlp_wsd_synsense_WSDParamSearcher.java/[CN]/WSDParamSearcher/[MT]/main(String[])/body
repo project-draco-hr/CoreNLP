@@ -1,0 +1,66 @@
+{
+  Map argMap=StringUtils.parseCommandLineArguments(args);
+  SynSense.readInData(argMap);
+  SynSense.shuffleDatasets();
+  List<double[]> allParamsByWord=new ArrayList<double[]>();
+  List<double[]> allKfoldAccuraciesByWord=new ArrayList<double[]>();
+  List<double[]> allTestAccuraciesByWord=new ArrayList<double[]>();
+  BufferedOutputStream bos=new BufferedOutputStream(new FileOutputStream("everything.csv"));
+  PrintWriter pw=new PrintWriter(bos);
+  pw.print("word,buck1,buck2,buck3,buck4,buck5,buck6,senseEvidenceMult,subcatEvidenceMult,senseGivenSubcatMult,");
+  pw.print("subcatGivenSenseMult,BASkfSense,BASkfSubcat,BAStSense,BAStSubcat,");
+  pw.print("JOINTkfSense,JOINTkfSubcat,JOINTtSense,JOINTtSubcat,numSenseTrain,numSubcatTrain,");
+  pw.println("numSenseTest,numSubcatTest");
+  for (int word=0; word < SynSense.words.size(); word++) {
+    double[] initialWeights;
+    double[] allParams=new double[11];
+    System.out.println("\n\n\n\n\n\n\n\n");
+    System.out.println("NEW WORD: " + SynSense.words.get(word));
+    pw.print(SynSense.words.get(word));
+    double[] bucketWeights={2.4,8.0,28.0,11.1,12.0,1.5};
+    double senseEvidenceMult=1.666;
+    double subcatEvidenceMult=0.75;
+    double senseGivenSubcatMult=1.0;
+    double subcatGivenSenseMult=1.0;
+    int[] baseline=SynSense.kFoldTrainAndTestOneWord(new BasicModel(),word);
+    int bestSenseResult=baseline[0];
+    int bestSubcatResult=baseline[1];
+    for (int i=0; i < bucketWeights.length; i++) {
+      pw.print("," + bucketWeights[i]);
+    }
+    pw.print("," + senseEvidenceMult);
+    pw.print("," + subcatEvidenceMult);
+    System.out.println("Training joint model params for word " + SynSense.words.get(word));
+    initialWeights=new double[]{senseGivenSubcatMult,subcatGivenSenseMult};
+    JointParamsFunction bigJointFunction=new JointParamsFunction(word,(double)bestSenseResult / SynSense.senseTrainData[word].size(),(double)bestSubcatResult / SynSense.subcatTrainData[word].size(),bucketWeights,senseEvidenceMult,subcatEvidenceMult);
+    Minimizer<JointParamsFunction> minimizer3=new RandomGreedyLocalSearch(0.5,6);
+    double[] ans3=minimizer3.minimize(bigJointFunction,0.01,initialWeights);
+    senseGivenSubcatMult=ans3[0];
+    subcatGivenSenseMult=ans3[1];
+    System.out.println("Found joint params: ");
+    System.out.println(formatter.format(senseGivenSubcatMult) + '\t' + formatter.format(subcatGivenSenseMult));
+    System.out.println("Giving k-fold accuracies of ");
+    double jointSenseAcc=(double)bigJointFunction.bestNumCorrect[0] / SynSense.senseTrainData[word].size();
+    double jointSubcatAcc=(double)bigJointFunction.bestNumCorrect[1] / SynSense.subcatTrainData[word].size();
+    System.out.println(formatter.format(jointSenseAcc) + '\t' + formatter.format(jointSubcatAcc));
+    allParams[8]=senseGivenSubcatMult;
+    pw.print("," + senseGivenSubcatMult);
+    allParams[9]=subcatGivenSenseMult;
+    pw.print("," + subcatGivenSenseMult);
+    allParamsByWord.add(word,allParams);
+    BasicModel basicModel=new BasicModel(bucketWeights,senseEvidenceMult,subcatEvidenceMult);
+    int[] testBasicNum=SynSense.trainAndTestOneWord(basicModel,word);
+    pw.print("," + bestSenseResult + ","+ bestSubcatResult);
+    pw.print("," + testBasicNum[0] + ","+ testBasicNum[1]);
+    JointModel subcatModel=new JointModel(bucketWeights,senseEvidenceMult,subcatEvidenceMult,senseGivenSubcatMult,subcatGivenSenseMult,0.5);
+    int[] testSubcatNum=SynSense.trainAndTestOneWord(subcatModel,word);
+    pw.print("," + bigJointFunction.bestNumCorrect[0] + ","+ bigJointFunction.bestNumCorrect[1]);
+    pw.print("," + testSubcatNum[0] + ","+ testSubcatNum[1]);
+    pw.println("," + SynSense.senseTrainData[word].size() + ","+ SynSense.subcatTrainData[word].size()+ ","+ SynSense.senseTestData[word].size()+ ","+ SynSense.subcatTestData[word].size());
+    double[] allTestAcc={testBasicNum[0],testBasicNum[1],testSubcatNum[0],testSubcatNum[1]};
+    allTestAccuraciesByWord.add(word,allTestAcc);
+    double[] allKfoldAccuracies={bestSenseResult,bestSubcatResult,bigJointFunction.bestNumCorrect[0],bigJointFunction.bestNumCorrect[1]};
+    allKfoldAccuraciesByWord.add(word,allKfoldAccuracies);
+  }
+  pw.close();
+}

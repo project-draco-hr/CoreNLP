@@ -1,0 +1,32 @@
+{
+  List<RelationMention> rels=new ArrayList<RelationMention>();
+  if (score1 != null) {
+    rels.add(generateTeamFinalScore(factory,score1));
+  }
+  if (score2 != null) {
+    rels.add(generateTeamFinalScore(factory,score2));
+  }
+  if (team1 != null) {
+    rels.add(generateTeamGameRelation(factory,team1,"teamInGame"));
+  }
+  if (team2 != null) {
+    rels.add(generateTeamGameRelation(factory,team2,"teamInGame"));
+  }
+  if (score1 == null || score2 == null) {
+    return rels;
+  }
+  int scoreValue1=Integer.parseInt(score1.getExtentString());
+  int scoreValue2=Integer.parseInt(score2.getExtentString());
+  EntityMention winner, loser;
+  if (scoreValue1 > scoreValue2) {
+    winner=team1;
+    loser=team2;
+  }
+ else {
+    winner=team2;
+    loser=team1;
+  }
+  rels.add(generateTeamGameRelation(factory,winner,"gameWinner"));
+  rels.add(generateTeamGameRelation(factory,loser,"gameLoser"));
+  return rels;
+}

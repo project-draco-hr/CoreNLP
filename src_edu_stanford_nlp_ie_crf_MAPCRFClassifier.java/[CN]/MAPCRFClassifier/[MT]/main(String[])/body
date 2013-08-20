@@ -1,0 +1,40 @@
+{
+  Properties props=StringUtils.argsToProperties(args);
+  MAPCRFClassifier crf=new MAPCRFClassifier(props);
+  String trainFile=crf.flags.trainFile;
+  String testFile=crf.flags.testFile;
+  String textFile=crf.flags.textFile;
+  String loadPath=crf.flags.loadClassifier;
+  String serializeTo=crf.flags.serializeTo;
+  String selfTrainFile=crf.flags.selfTrainFile;
+  if (trainFile != null) {
+    crf.train(trainFile,crf.makeReaderAndWriter());
+  }
+ else   if (loadPath != null) {
+    crf.loadClassifierNoExceptions(loadPath);
+    crf.flags.setProperties(props);
+  }
+  if (serializeTo != null) {
+    crf.serializeClassifier(serializeTo);
+  }
+  if ((crf.flags.crfType.equalsIgnoreCase("maxent")) && selfTrainFile != null) {
+    ObjectBank<List<CoreLabel>> docs=crf.makeObjectBankFromFile(selfTrainFile,crf.makeReaderAndWriter());
+    crf.selfTrainMaxEnt(docs,crf.flags.selfTrainWindowSize,crf.flags.selfTrainConfidenceThreshold,crf.flags.selfTrainIterations);
+  }
+  if (testFile != null) {
+    DocumentReaderAndWriter<CoreLabel> readerAndWriter=crf.makeReaderAndWriter();
+    if (crf.flags.printFirstOrderProbs) {
+      crf.printFirstOrderProbs(testFile,readerAndWriter);
+    }
+ else     if (crf.flags.printProbs) {
+      crf.printProbs(testFile,readerAndWriter);
+    }
+ else {
+      crf.classifyAndWriteAnswers(testFile,readerAndWriter);
+    }
+  }
+  if (textFile != null) {
+    DocumentReaderAndWriter<CoreLabel> readerAndWriter=new PlainTextDocumentReaderAndWriter<CoreLabel>();
+    crf.classifyAndWriteAnswers(textFile,readerAndWriter);
+  }
+}

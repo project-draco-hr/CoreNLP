@@ -1,0 +1,13 @@
+{
+  ArrayWrapper<String> aw=new ArrayWrapper<String>(arr);
+  String oldstr;
+synchronized (m) {
+    oldstr=m.get(aw);
+  }
+  if (oldstr != null)   return oldstr;
+  String newstr=uncachedToString(arr);
+synchronized (m) {
+    m.put(aw,newstr);
+  }
+  return newstr;
+}

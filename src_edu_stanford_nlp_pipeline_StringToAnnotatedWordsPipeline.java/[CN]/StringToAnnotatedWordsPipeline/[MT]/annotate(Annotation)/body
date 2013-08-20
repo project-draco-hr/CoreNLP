@@ -1,0 +1,19 @@
+{
+  Iterator<MutableInteger> it;
+  Timing t;
+  if (TIME) {
+    it=accumulatedTime.iterator();
+    t=new Timing();
+  }
+  for (  Annotator annotator : annotators) {
+    if (TIME) {
+      t.start();
+    }
+    annotator.annotate(annotation);
+    if (TIME) {
+      int elapsed=(int)t.stop();
+      MutableInteger m=it.next();
+      m.incValue(elapsed);
+    }
+  }
+}

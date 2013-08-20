@@ -1,0 +1,35 @@
+{
+  tree=tree.treeSkeletonCopy();
+  for (Iterator<Tree> it=tree.iterator(); it.hasNext(); ) {
+    Tree subtree=it.next();
+    CyclicCoreLabel label=(CyclicCoreLabel)subtree.label();
+    if (subtree.isLeaf()) {
+      label.setWord(subtree.toString());
+      Tree p=subtree.parent(tree);
+      String pos=p.label().value();
+      label.setTag(pos);
+      label.set(SemanticWordAnnotation.class,subtree.toString());
+      label.set(SemanticTagAnnotation.class,pos);
+      continue;
+    }
+    try {
+      Tree headPreTerminal=subtree.headPreTerminal(headFinder);
+      Tree headTerminal=headPreTerminal.getChild(0);
+      String headWord=headTerminal.label().value();
+      label.setWord(headWord);
+      String headTag=headPreTerminal.label().value();
+      label.setTag(headTag);
+      Tree semanticNode=subtree.headPreTerminal(semanticHeadFinder);
+      String semanticHeadWord=semanticNode.getChild(0).label().value();
+      label.set(SemanticHeadWordAnnotation.class,semanticHeadWord);
+      String semanticHeadTag=semanticNode.label().value();
+      label.set(SemanticTagAnnotation.class,semanticHeadTag);
+    }
+ catch (    Exception e) {
+      subtree.pennPrint(System.err);
+      e.printStackTrace();
+      continue;
+    }
+  }
+  return tree;
+}

@@ -1,0 +1,68 @@
+{
+  Properties prop=new Properties();
+  FileInputStream fis=null;
+  try {
+    fis=new FileInputStream(filename);
+    prop.load(fis);
+  }
+ catch (  Exception e) {
+    throw new RuntimeException(e);
+  }
+ finally {
+    if (fis != null) {
+      try {
+        fis.close();
+      }
+ catch (      IOException ioe) {
+      }
+    }
+  }
+  String m=prop.getProperty("gaussian_means");
+  String s=prop.getProperty("gaussian_deviations");
+  String[] ms=m.split(",");
+  String[] ss=s.split(",");
+  means[PS][NOA]=means[NOA][PS]=Double.parseDouble(ms[0]);
+  sds[PS][NOA]=sds[NOA][PS]=Double.parseDouble(ss[0]);
+  means[PS][CR]=means[CR][PS]=Double.parseDouble(ms[1]);
+  sds[PS][CR]=sds[CR][PS]=Double.parseDouble(ss[1]);
+  means[PS][WS]=means[WS][PS]=Double.parseDouble(ms[2]);
+  sds[PS][WS]=sds[WS][PS]=Double.parseDouble(ss[2]);
+  means[NOA][CR]=means[CR][NOA]=Double.parseDouble(ms[3]);
+  sds[NOA][CR]=sds[CR][NOA]=Double.parseDouble(ss[3]);
+  means[NOA][WS]=means[WS][NOA]=Double.parseDouble(ms[4]);
+  sds[NOA][WS]=sds[WS][NOA]=Double.parseDouble(ss[4]);
+  means[CR][WS]=means[WS][CR]=Double.parseDouble(ms[5]);
+  sds[CR][WS]=sds[WS][CR]=Double.parseDouble(ss[5]);
+  for (int i=0; i < dateNames.length; i++) {
+    String key="null_distribution_" + dateNames[i];
+    String n=prop.getProperty(key);
+    String[] ns=n.split(",");
+    for (int j=0; j < ns.length; j++) {
+      nulls[i][j]=Math.pow(Math.E,Double.parseDouble(ns[j]));
+    }
+  }
+  for (int i=0; i < dateNames.length; i++) {
+    String key="day_of_week_distribution_" + dateNames[i];
+    String d=prop.getProperty(key);
+    String[] ds=d.split(",");
+    for (int j=0; j < ds.length; j++) {
+      dayOfWeeks[i][j]=Math.pow(Math.E,Double.parseDouble(ds[j]));
+    }
+  }
+  for (int i=0; i < dateNames.length; i++) {
+    String key="month_distribution_" + dateNames[i];
+    m=prop.getProperty(key);
+    ms=m.split(",");
+    for (int j=0; j < ms.length; j++) {
+      months[i][j]=Math.pow(Math.E,Double.parseDouble(ms[j]));
+    }
+  }
+  for (int i=0; i < dateNames.length; i++) {
+    String key="range_distribution_" + dateNames[i];
+    String r=prop.getProperty(key);
+    String[] rs=r.split(",");
+    for (int j=0; j < rs.length; j++) {
+      ranges[i][j]=Math.pow(Math.E,Double.parseDouble(rs[j]));
+    }
+  }
+}

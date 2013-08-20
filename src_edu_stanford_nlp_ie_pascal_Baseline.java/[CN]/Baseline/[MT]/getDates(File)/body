@@ -1,0 +1,36 @@
+{
+  try {
+    HashSet<DateRangePair> dates=new HashSet<DateRangePair>();
+    String file=IOUtils.slurpFile(infile);
+    String p="<DATE.*?>";
+    Pattern pattern=Pattern.compile(p,Pattern.CASE_INSENSITIVE);
+    Matcher matcher=pattern.matcher(file);
+    Pattern datePattern=Pattern.compile("normalized=\"([0-9/]*)\"");
+    Pattern rangePattern=Pattern.compile("range=\"((?:true)|(?:false))\"");
+    while (matcher.find()) {
+      String d=matcher.group();
+      Matcher dateMatcher=datePattern.matcher(d);
+      dateMatcher.find();
+      String date=dateMatcher.group(1);
+      if (date.equals(INVALID_DATE)) {
+        continue;
+      }
+      Matcher rangeMatcher=rangePattern.matcher(d);
+      rangeMatcher.find();
+      boolean range=Boolean.parseBoolean(rangeMatcher.group(1));
+      DateRangePair drp=new DateRangePair(date,range);
+      if (dates.contains(drp)) {
+        dates.remove(drp);
+        drp.numOccurrences++;
+      }
+      dates.add(drp);
+    }
+    while (dates.size() < 4) {
+      dates.add(new DateRangePair());
+    }
+    return dates;
+  }
+ catch (  Exception e) {
+    throw new RuntimeException(e);
+  }
+}

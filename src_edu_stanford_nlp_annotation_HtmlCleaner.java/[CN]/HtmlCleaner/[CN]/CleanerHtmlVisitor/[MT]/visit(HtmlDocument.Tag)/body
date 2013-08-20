@@ -1,0 +1,19 @@
+{
+  String name=t.tagName;
+  if (ignores.get(name) != null) {
+    ignores.put(name,inScope);
+    return;
+  }
+ else   if (nospanIgnores.get(name) != null) {
+    return;
+  }
+  if (!scriptInScope() && (acceptableTags == null || acceptableTags.contains(name))) {
+    newLinePrinted=false;
+    if (ignoreAttributes && !name.equals("tag")) {
+      out.print("<" + name + ">");
+    }
+ else {
+      out.print(t);
+    }
+  }
+}

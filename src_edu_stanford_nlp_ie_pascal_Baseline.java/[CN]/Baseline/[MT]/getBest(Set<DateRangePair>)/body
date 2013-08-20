@@ -1,0 +1,31 @@
+{
+  List<DateRangePair> bestList=null;
+  double bestProb=Double.NEGATIVE_INFINITY;
+  for (  DateRangePair workshopDate : dates) {
+    for (    DateRangePair cameraReadyDate : dates) {
+      if (cameraReadyDate == workshopDate) {
+        continue;
+      }
+      for (      DateRangePair notificationDate : dates) {
+        if (notificationDate == workshopDate || notificationDate == cameraReadyDate) {
+          continue;
+        }
+        for (        DateRangePair paperSubmitDate : dates) {
+          if (paperSubmitDate == workshopDate || paperSubmitDate == cameraReadyDate || paperSubmitDate == notificationDate) {
+            continue;
+          }
+          double prob=prob(workshopDate,cameraReadyDate,notificationDate,paperSubmitDate);
+          if (prob >= bestProb) {
+            bestProb=prob;
+            bestList=new ArrayList<DateRangePair>();
+            bestList.add(paperSubmitDate);
+            bestList.add(notificationDate);
+            bestList.add(cameraReadyDate);
+            bestList.add(workshopDate);
+          }
+        }
+      }
+    }
+  }
+  return bestList;
+}

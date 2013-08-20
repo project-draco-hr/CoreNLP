@@ -1,0 +1,25 @@
+{
+  for (  CoreMap sentence : sentences) {
+    List<EventMention> events=sentence.get(EventMentionsAnnotation.class);
+    if (events != null) {
+      for (      EventMention event : events) {
+        Integer anchorSent=event.getAnchor().getSentence().get(SentenceIndexAnnotation.class);
+        assert(anchorSent != null);
+        int max=0;
+        for (        ExtractionObject arg : event.getArgs()) {
+          Integer argSent=null;
+          if (arg instanceof EventMention) {
+            argSent=((EventMention)arg).getAnchor().getSentence().get(SentenceIndexAnnotation.class);
+          }
+ else {
+            argSent=arg.getSentence().get(SentenceIndexAnnotation.class);
+          }
+          assert(argSent != null);
+          int dist=Math.abs(argSent - anchorSent);
+          if (dist > max)           max=dist;
+        }
+        spanHistogram.incrementCount(max);
+      }
+    }
+  }
+}

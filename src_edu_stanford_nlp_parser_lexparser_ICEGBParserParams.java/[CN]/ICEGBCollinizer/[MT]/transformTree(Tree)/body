@@ -1,0 +1,32 @@
+{
+  String label=tree.label().value();
+  if (tree.isLeaf()) {
+    if (deletePunct && ctlp.isPunctuationWord(label)) {
+      return null;
+    }
+ else {
+      return tf.newLeaf(new StringLabel(label));
+    }
+  }
+  if (tree.isPreTerminal() && deletePunct && ctlp.isPunctuationTag(label)) {
+    return null;
+  }
+  List children=new ArrayList();
+  if (ctlp.isStartSymbol(label) && tree.children().length == 1) {
+    return transformTree(tree.children()[0]);
+  }
+  if (addFeatures) {
+    label=label.replaceFirst("\\[.*$","");
+  }
+  for (int cNum=0; cNum < tree.children().length; cNum++) {
+    Tree child=tree.children()[cNum];
+    Tree newChild=transformTree(child);
+    if (newChild != null) {
+      children.add(newChild);
+    }
+  }
+  if (children.size() == 0) {
+    return null;
+  }
+  return tf.newTreeNode(new StringLabel(label),children);
+}

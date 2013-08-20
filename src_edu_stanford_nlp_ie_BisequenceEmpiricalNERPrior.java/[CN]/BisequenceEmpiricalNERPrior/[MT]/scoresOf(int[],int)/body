@@ -1,0 +1,27 @@
+{
+  double[] probs=new double[numClasses];
+  int origClass=sequence[pos];
+  int lastVal=-1;
+  for (int label=0; label < numClasses; label++) {
+    if (label == origClass)     continue;
+    int oldVal=sequence[pos];
+    lastVal=label;
+    sequence[pos]=label;
+    updateSequenceElement(sequence,pos,oldVal);
+    probs[label]=scoreOf(sequence);
+    if (DEBUG) {
+      if (pos == 597) {
+        System.err.println("scoreOf(" + pos + ")\t"+ classIndex.get(label));
+      }
+    }
+  }
+  sequence[pos]=origClass;
+  updateSequenceElement(sequence,pos,lastVal);
+  probs[origClass]=scoreOf(sequence);
+  if (DEBUG) {
+    if (pos == 597) {
+      System.err.println("scoreOf(" + pos + ")\t"+ classIndex.get(origClass));
+    }
+  }
+  return probs;
+}

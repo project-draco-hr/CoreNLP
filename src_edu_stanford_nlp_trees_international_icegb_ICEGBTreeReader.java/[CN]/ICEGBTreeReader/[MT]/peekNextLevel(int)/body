@@ -1,0 +1,19 @@
+{
+  int level=-2;
+  if (treeTok.hasNext()) {
+    ICEGBToken p=treeTok.peek();
+    if (p.type == ICEGBLexer.WHITESPACE) {
+      level=p.text.length();
+    }
+ else     if (p.text.equals("PU")) {
+      level=0;
+    }
+ else     if (p.type == ICEGBLexer.LBR) {
+      level=preLevel;
+    }
+ else {
+      System.err.println("!!!! ERROR !! the first token of a line must be WHITESPACE or PU!!!!!!");
+    }
+  }
+  return level;
+}

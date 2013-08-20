@@ -1,0 +1,34 @@
+{
+  for (int i=0; i < oldExtractorFiles.size(); i++) {
+    File extractorFile=oldExtractorFiles.get(i);
+    if (!extractorFile.delete()) {
+      if (verbose) {
+        System.err.println("Unable to delete serialized extractor file: " + extractorFile);
+      }
+    }
+  }
+  if (verbose && oldExtractorFiles.size() > 0) {
+    System.err.println("Removed " + oldExtractorFiles.size() + " old extractor files");
+  }
+  oldExtractorFiles.clear();
+  for (Iterator<String> iter=newExtractorNames.iterator(); iter.hasNext(); ) {
+    String name=iter.next();
+    FieldExtractor extractor=getExtractor(name);
+    File out=getSerializedExtractorFile(name);
+    try {
+      extractor.storeExtractor(new FileOutputStream(out));
+    }
+ catch (    Exception e) {
+      if (verbose) {
+        System.err.println("Unable to serialize extractor to " + out);
+        e.printStackTrace();
+      }
+      return (false);
+    }
+  }
+  if (verbose && newExtractorNames.size() > 0) {
+    System.err.println("Serialized " + newExtractorNames.size() + " new extractors");
+  }
+  newExtractorNames.clear();
+  return (new EMXMLHandler(this).storeMediator());
+}

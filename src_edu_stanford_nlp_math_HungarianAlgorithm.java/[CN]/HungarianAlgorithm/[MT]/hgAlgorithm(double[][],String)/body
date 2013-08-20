@@ -1,0 +1,53 @@
+{
+  double[][] cost=copyOf(array);
+  if (sumType.equalsIgnoreCase("max")) {
+    double maxWeight=findLargest(cost);
+    for (int i=0; i < cost.length; i++) {
+      for (int j=0; j < cost[i].length; j++) {
+        cost[i][j]=(maxWeight - cost[i][j]);
+      }
+    }
+  }
+  double maxCost=findLargest(cost);
+  int[][] mask=new int[cost.length][cost[0].length];
+  int[] rowCover=new int[cost.length];
+  int[] colCover=new int[cost[0].length];
+  int[] zero_RC=new int[2];
+  int step=1;
+  boolean done=false;
+  while (done == false) {
+switch (step) {
+case 1:
+      step=hg_step1(step,cost);
+    break;
+case 2:
+  step=hg_step2(step,cost,mask,rowCover,colCover);
+break;
+case 3:
+step=hg_step3(step,mask,colCover);
+break;
+case 4:
+step=hg_step4(step,cost,mask,rowCover,colCover,zero_RC);
+break;
+case 5:
+step=hg_step5(step,mask,rowCover,colCover,zero_RC);
+break;
+case 6:
+step=hg_step6(step,cost,rowCover,colCover,maxCost);
+break;
+case 7:
+done=true;
+break;
+}
+}
+int[][] assignment=new int[array.length][2];
+for (int i=0; i < mask.length; i++) {
+for (int j=0; j < mask[i].length; j++) {
+if (mask[i][j] == 1) {
+assignment[i][0]=i;
+assignment[i][1]=j;
+}
+}
+}
+return assignment;
+}

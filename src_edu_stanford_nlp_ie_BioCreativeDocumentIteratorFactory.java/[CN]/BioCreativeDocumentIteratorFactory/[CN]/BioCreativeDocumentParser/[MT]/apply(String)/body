@@ -1,0 +1,40 @@
+{
+  if (doc == null) {
+    return null;
+  }
+  List<CoreLabel> words=new ArrayList<CoreLabel>();
+  String[] lines=doc.split("\n");
+  String id="";
+  int position=0;
+  for (int i=0; i < lines.length; i++) {
+    lines[i]=lines[i].trim();
+    if (lines[i].length() == 0) {
+      continue;
+    }
+    if (lines[i].startsWith("@@")) {
+      id=intern(lines[i]);
+      position=0;
+      continue;
+    }
+    String[] info=lines[i].split("\\s+");
+    for (int j=0; j < info.length; j++) {
+      intern(info[j]);
+    }
+    CoreLabel wi=new CoreLabel(map,info);
+    wi.set(IDAnnotation.class,id);
+    wi.set(ChunkAnnotation.class,intern("X"));
+    wi.set(PositionAnnotation.class,intern("" + position));
+    if (wi.get(AnswerAnnotation.class).length() > 0) {
+      if (wi.get(AnswerAnnotation.class).startsWith("NEWGENE")) {
+        wi.set(AnswerAnnotation.class,GENE);
+      }
+ else {
+        wi.set(AnswerAnnotation.class,OTHER);
+      }
+      wi.set(GoldAnswerAnnotation.class,wi.get(AnswerAnnotation.class));
+    }
+    words.add(wi);
+    position++;
+  }
+  return words;
+}

@@ -1,0 +1,26 @@
+{
+  try {
+    Properties p=StringUtils.argsToProperties(args);
+    String otherArgs=p.getProperty("");
+    if (otherArgs != null) {
+      args=otherArgs.split(" ");
+    }
+ else {
+      args=StringUtils.EMPTY_STRING_ARRAY;
+    }
+    InputStream fis=System.in;
+    if (args.length > 0) {
+      fis=new FileInputStream(args[0]);
+    }
+    OutputStream fos=System.out;
+    if (args.length > 1) {
+      fos=new FileOutputStream(args[1]);
+    }
+    String from=p.getProperty("f",System.getProperty("file.encoding"));
+    String to=p.getProperty("t",System.getProperty("file.encoding"));
+    new ConvertEncodingThread(fis,fos,from,to).start();
+  }
+ catch (  IOException e) {
+    e.printStackTrace();
+  }
+}

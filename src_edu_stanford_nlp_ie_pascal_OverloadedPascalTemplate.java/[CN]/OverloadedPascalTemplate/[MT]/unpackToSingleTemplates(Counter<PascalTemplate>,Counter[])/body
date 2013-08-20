@@ -1,0 +1,23 @@
+{
+  removeDuplicateValues();
+  double scoreForEach=1.0 / getNumPossibilities();
+  for (int i=0; i < PascalTemplate.fields.length - 1; i++) {
+    if (numValues[i] == 0) {
+      numValues[i]=1;
+      values[i][0]=null;
+    }
+  }
+  ArrayList<PascalTemplate> templateCollector=allPossibilities(0);
+  for (  PascalTemplate pt : templateCollector) {
+    double d;
+    if (templateCounter.containsKey(pt)) {
+      d=templateCounter.getCount(pt);
+    }
+ else {
+      d=0.0;
+    }
+    templateCounter.setCount(pt,d + scoreForEach);
+    pt.writeToFieldValueCounter(fieldValueCounter,scoreForEach);
+  }
+  return templateCounter;
+}

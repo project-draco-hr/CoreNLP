@@ -1,0 +1,26 @@
+{
+  long numTokens=0;
+  int numFiles=inputFileList.size();
+  final long start=System.nanoTime();
+  if (numFiles == 0) {
+    BufferedReader stdin=new BufferedReader(new InputStreamReader(System.in,charset));
+    PrintWriter out=new PrintWriter(new OutputStreamWriter(System.out,charset),true);
+    for (String line; (line=stdin.readLine()) != null; ) {
+      numTokens+=tokReader(new StringReader(line),out,parseInsideBegin,parseInsideEnd,options,preserveLines,dump,lowerCase);
+      if (preserveLines)       out.println();
+    }
+    IOUtils.closeIgnoringExceptions(out);
+  }
+ else {
+    for (int j=0; j < numFiles; j++) {
+      Reader r=IOUtils.readReaderFromString(inputFileList.get(j),charset);
+      PrintWriter out=(outputFileList == null) ? new PrintWriter(new OutputStreamWriter(System.out,charset),true) : new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFileList.get(j)),charset)),true);
+      numTokens+=tokReader(r,out,parseInsideBegin,parseInsideEnd,options,preserveLines,dump,lowerCase);
+      r.close();
+      if (j == numFiles - 1 || outputFileList != null)       IOUtils.closeIgnoringExceptions(out);
+    }
+  }
+  final long duration=System.nanoTime() - start;
+  final double wordsPerSec=(double)numTokens / ((double)duration / 1000000000.0);
+  System.err.printf("PTBTokenizer tokenized %d tokens at %.2f tokens per second.%n",numTokens,wordsPerSec);
+}

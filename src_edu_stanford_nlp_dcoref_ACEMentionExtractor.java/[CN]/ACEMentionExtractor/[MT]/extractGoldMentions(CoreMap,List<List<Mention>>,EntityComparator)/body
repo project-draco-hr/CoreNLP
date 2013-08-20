@@ -2,13 +2,13 @@
   List<Mention> goldMentions=new ArrayList<Mention>();
   allGoldMentions.add(goldMentions);
   List<EntityMention> goldMentionList=s.get(MachineReadingAnnotations.EntityMentionsAnnotation.class);
-  List<CoreLabel> words=s.get(CoreAnnotations.TokensAnnotation.class);
+  List<CoreLabel> words=s.get(TokensAnnotation.class);
   TreeSet<EntityMention> treeForSortGoldMentions=new TreeSet<EntityMention>(comparator);
   if (goldMentionList != null)   treeForSortGoldMentions.addAll(goldMentionList);
   if (!treeForSortGoldMentions.isEmpty()) {
     for (    EntityMention e : treeForSortGoldMentions) {
       Mention men=new Mention();
-      men.dependency=s.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class);
+      men.dependency=s.get(CollapsedDependenciesAnnotation.class);
       men.startIndex=e.getExtentTokenStart();
       men.endIndex=e.getExtentTokenEnd();
       String[] parseID=e.getObjectId().split("-");
@@ -31,8 +31,8 @@
         CoreLabel word=words.get(j);
         String ner=e.getType() + "-" + e.getSubType();
         if (Constants.USE_GOLD_NE) {
-          word.set(CoreAnnotations.EntityTypeAnnotation.class,e.getMentionType());
-          if (e.getMentionType().equals("NAM"))           word.set(CoreAnnotations.NamedEntityTagAnnotation.class,ner);
+          word.set(EntityTypeAnnotation.class,e.getMentionType());
+          if (e.getMentionType().equals("NAM"))           word.set(NamedEntityTagAnnotation.class,ner);
         }
       }
     }

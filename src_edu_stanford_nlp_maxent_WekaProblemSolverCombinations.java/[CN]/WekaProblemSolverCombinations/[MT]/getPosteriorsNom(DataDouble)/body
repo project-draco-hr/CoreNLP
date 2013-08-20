@@ -1,0 +1,63 @@
+{
+  double[] posters=new double[train.numClasses];
+  int numF;
+  int numA=train.getNumAttributes();
+  for (int y=0; y < train.numClasses; y++) {
+    String key=numA + "|" + y;
+    if (mE.fAssociations.containsKey(key)) {
+      numF=mE.fAssociations.get(key).intValue();
+      if (numF > -1) {
+        posters[y]+=model.lambda[numF];
+      }
+    }
+  }
+  for (int a=0; a < numA; a++) {
+    if (train.nominal(a)) {
+      int val=(int)d.getX(a);
+      for (int y=0; y < train.numClasses; y++) {
+        String key=a + "|" + val+ "|"+ y;
+        if (mE.fAssociations.containsKey(key)) {
+          numF=mE.fAssociations.get(key).intValue();
+          if (numF > -1) {
+            posters[y]+=(model.lambda[numF]);
+          }
+        }
+        if (val == y) {
+          key=a + "";
+          if (mE.fAssociations.containsKey(key)) {
+            numF=mE.fAssociations.get(key).intValue();
+            if (!clean) {
+              System.out.println(" Number function " + numF);
+            }
+            if (numF > -1) {
+              posters[y]+=(model.lambda[numF]);
+            }
+          }
+        }
+      }
+    }
+    if (train.numeric(a)) {
+      double val=d.getX(a);
+      for (int y=0; y < train.numClasses; y++) {
+        String key=a + "|" + "num"+ "|"+ y;
+        if (mE.fAssociations.containsKey(key)) {
+          numF=mE.fAssociations.get(key).intValue();
+          if (numF > -1) {
+            posters[y]+=(val * model.lambda[numF]);
+          }
+        }
+      }
+    }
+  }
+  int val=getClassificationVoting(d,top,false);
+  if (val > -1) {
+    String key="m";
+    if (mE.fAssociations.containsKey(key)) {
+      numF=mE.fAssociations.get(key).intValue();
+      if (numF > -1) {
+        posters[val]+=(model.lambda[numF]);
+      }
+    }
+  }
+  return posters;
+}

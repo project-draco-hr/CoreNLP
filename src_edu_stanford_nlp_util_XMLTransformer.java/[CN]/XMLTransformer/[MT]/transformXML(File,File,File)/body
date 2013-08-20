@@ -1,0 +1,24 @@
+{
+  try {
+    TransformerFactory tFactory=TransformerFactory.newInstance();
+    StreamSource stylesource=new StreamSource(xsltFile);
+    Transformer transformer=tFactory.newTransformer(stylesource);
+    StreamSource source=new StreamSource(inputFile);
+    StreamResult result=new StreamResult(outputFile);
+    transformer.transform(source,result);
+  }
+ catch (  TransformerConfigurationException tce) {
+    System.out.println("\n** Transformer Factory error");
+    System.out.println("   " + tce.getMessage());
+    Throwable x=tce;
+    if (tce.getException() != null)     x=tce.getException();
+    x.printStackTrace();
+  }
+catch (  TransformerException te) {
+    System.out.println("\n** Transformation error");
+    System.out.println("   " + te.getMessage());
+    Throwable x=te;
+    if (te.getException() != null)     x=te.getException();
+    x.printStackTrace();
+  }
+}

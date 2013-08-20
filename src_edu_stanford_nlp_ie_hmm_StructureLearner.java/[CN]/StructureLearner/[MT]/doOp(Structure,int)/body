@@ -1,0 +1,49 @@
+{
+  Structure child=parent.copy();
+  int firstTarget=3 + parent.numPrefixes();
+  int firstSuffix=firstTarget + parent.numTargets();
+switch (op) {
+case 0:
+    if (verbose) {
+      System.err.println("0: Adding prefix...");
+    }
+  child.addPrefix(1);
+break;
+case 1:
+if (verbose) {
+System.err.println("1: Adding target...");
+}
+child.addTarget(1);
+break;
+case 2:
+if (verbose) {
+System.err.println("2: Adding suffix...");
+}
+child.addSuffix(1);
+break;
+default :
+if (op - 3 < parent.numPrefixes()) {
+if (verbose) {
+System.err.println(op + ": Lengthening prefix " + (op - 3)+ "...");
+}
+child.lengthenPrefix(op - 3);
+}
+ else if (op - firstTarget < parent.numTargets()) {
+if (verbose) {
+System.err.println(op + ": Lengthening target " + (op - firstTarget)+ "...");
+}
+child.lengthenTarget(op - firstTarget);
+}
+ else if (op - firstSuffix < parent.numSuffixes()) {
+if (verbose) {
+System.err.println(op + ": Lengthening suffix " + (op - firstSuffix)+ "...");
+}
+child.lengthenSuffix(op - firstSuffix);
+}
+ else {
+System.err.println("ERROR: op out of range: " + op);
+throw (new IllegalArgumentException());
+}
+}
+return child;
+}

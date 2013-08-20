@@ -1,0 +1,39 @@
+{
+  pw.println("Dependency     \tCorrect\tTotal\tAccuracy");
+  double allCorrect=0.0;
+  double allTotal=0.0;
+  for (  Object gold : confusion.topLevelKeySet()) {
+    GeneralizedCounter thisConfusion=confusion.conditionalizeOnce(gold);
+    double correct=thisConfusion.conditionalizeOnce(true).totalCount();
+    double total=thisConfusion.conditionalizeOnce(false).totalCount() + correct;
+    allCorrect+=correct;
+    allTotal+=total;
+    pw.print(gold);
+    for (int z=0; z < 15 - gold.toString().length(); z++) {
+      pw.print(" ");
+    }
+    pw.println("\t" + ((int)correct) + "\t"+ ((int)total)+ "\t"+ (correct / total));
+  }
+  pw.println("Total:  \t" + ((int)allCorrect) + "\t"+ ((int)allTotal)+ "\t"+ (allCorrect / allTotal));
+  pw.println();
+  pw.println("Confusion matrix for incorrect deps (target then proposed)");
+  for (  Object gold : confusion.topLevelKeySet()) {
+    GeneralizedCounter thisConfusion=confusion.conditionalizeOnce(gold).conditionalizeOnce(false);
+    pw.println();
+    pw.println(gold + "\t" + ((int)thisConfusion.totalCount()));
+    for (    Object guess : thisConfusion.topLevelKeySet()) {
+      pw.println("\t" + guess + "\t"+ ((int)thisConfusion.getCount(guess)));
+    }
+  }
+  pw.println("Total dependencies: " + allTotal);
+  pw.println("Total confusions: " + (allTotal - allCorrect));
+  PriorityQueue pq=sortedConfusions();
+  int num=Math.min(pq.size(),50);
+  pw.println("Top " + num + " confusions (target,proposed):");
+  for (int i=0; i < num; i++) {
+    Object key=pq.getFirst();
+    double score=pq.getPriority(key);
+    pq.removeFirst();
+    pw.println(key + "\t" + ((int)score));
+  }
+}

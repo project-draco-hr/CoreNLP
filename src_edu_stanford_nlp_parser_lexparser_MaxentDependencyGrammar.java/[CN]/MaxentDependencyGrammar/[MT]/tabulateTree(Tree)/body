@@ -1,0 +1,21 @@
+{
+  List taggedWords=tree.taggedYield();
+  lengthOfCurrentSentence=taggedWords.size();
+  if (ITWs == null || ITWs.length < lengthOfCurrentSentence) {
+    ITWs=new IntTaggedWord[lengthOfCurrentSentence];
+  }
+  for (int i=0; i < lengthOfCurrentSentence; i++) {
+    TaggedWord taggedWord=(TaggedWord)taggedWords.get(i);
+    int tag=tagBin(tagIndex.indexOf(taggedWord.tag(),true));
+    String wordString=taggedWord.word();
+    int word=wordIndex.indexOf(wordString,true);
+    ITWs[i]=itwInterner.intern(new IntTaggedWord(word,tag));
+    wordCounter.incrementCount(ITWs[i]);
+    for (int j=0; j < i; j++) {
+      wordPairCounter.incrementCount(pairInterner.intern(new Pair<IntTaggedWord,IntTaggedWord>(ITWs[i],ITWs[j])));
+    }
+  }
+  negExamplesForSentence=new ArrayList<List<IntDependency>>();
+  tabulateTreeHelper(tree,0);
+  negExamplesPerSentence.add(negExamplesForSentence);
+}

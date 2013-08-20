@@ -1,0 +1,22 @@
+{
+  String extract;
+  for (int a=0; a < tokens.size(); a++) {
+    extract=tokens.get(a);
+    extract=extract.replaceAll("[^0-9]","");
+    if (!extract.equals("")) {
+      try {
+        Integer i=Integer.valueOf(extract);
+        if (i.intValue() < 32 && i.intValue() > 0) {
+          startDate.set(Calendar.DAY_OF_MONTH,i.intValue());
+          return true;
+        }
+      }
+ catch (      NumberFormatException e) {
+        System.err.println("Exception in extract Day." + e.getStackTrace());
+        System.err.println(e);
+        System.err.println("tokens size :" + tokens.size());
+      }
+    }
+  }
+  return false;
+}

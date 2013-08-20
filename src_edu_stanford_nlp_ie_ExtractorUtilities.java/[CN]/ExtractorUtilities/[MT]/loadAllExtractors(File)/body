@@ -1,0 +1,14 @@
+{
+  File[] files=dir.listFiles(new ExtensionFileFilter("obj",false));
+  if (files == null) {
+    return (new FieldExtractor[0]);
+  }
+  List<FieldExtractor> extractors=new ArrayList<FieldExtractor>();
+  for (int i=0; i < files.length; i++) {
+    FieldExtractor extractor=loadExtractor(files[i]);
+    if (extractor != null) {
+      extractors.add(extractor);
+    }
+  }
+  return extractors.toArray(new FieldExtractor[0]);
+}

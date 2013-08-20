@@ -1,0 +1,48 @@
+{
+  SequenceClassifier seq=new SequenceClassifier();
+  Properties props=StringUtils.argsToProperties(args);
+  SeqClassifierFlags tmpFlags=new SeqClassifierFlags(props);
+  String loadPath=tmpFlags.loadClassifier;
+  if (loadPath == null) {
+    seq.setFlags(tmpFlags);
+    if (seq.flags.loadDatasetsDir != null && seq.flags.trainFiles == null && seq.flags.trainFile == null) {
+      seq.train(seq.flags.loadDatasetsDir);
+    }
+ else     if (seq.flags.trainHierarchical != null) {
+      seq.featureFactory=seq.createFeatureFactory();
+      seq.trainHierarchical(seq.flags.baseline,seq.flags.doFE);
+    }
+ else {
+      seq.featureFactory=seq.createFeatureFactory();
+      ObjectBank<List<CoreLabel>> data=seq.getObjectBank(true);
+      if (seq.flags.useSeenFeaturesOnly) {
+        System.err.println("(DEBUG) flags.useSeenFeaturesOnly is true");
+        ObjectBank<List<CoreLabel>> testData=seq.getObjectBank(false);
+        seq.train(data,testData);
+      }
+ else {
+        if (seq.flags.evaluateIters > 0) {
+          ObjectBank<List<CoreLabel>> testData=seq.getObjectBank(false);
+          seq.train(data,testData);
+        }
+ else {
+          seq.train(data);
+        }
+      }
+    }
+    if (seq.flags.serializeTo != null) {
+      seq.serializeClassifier(seq.flags.serializeTo);
+    }
+  }
+ else {
+    seq.loadClassifier(loadPath);
+    System.err.printf("\nUpdating the props from %s\n",loadPath);
+    seq.flags.setProperties(props);
+  }
+  if (seq.flags.adaptFile != null) {
+    System.err.println("(DEBUG) MAP adaptation using adaptFile=" + seq.flags.adaptFile);
+    ObjectBank<List<CoreLabel>> adapt=seq.getObjectBank(new File(seq.flags.adaptFile));
+    seq.adapt(adapt);
+  }
+  return seq;
+}

@@ -1,0 +1,50 @@
+{
+  Set<EventMention> noArgEvents=new IdentityHashSet<EventMention>();
+  for (  CoreMap sent : sentences) {
+    List<EventMention> events=sent.get(EventMentionsAnnotation.class);
+    if (events == null)     continue;
+    List<EventMention> newEvents=new ArrayList<EventMention>();
+    for (    EventMention event : events) {
+      if (eventsToRemove.contains(event) || event.getArgs().size() == 0) {
+        count.incValue(1);
+        if (verbose)         System.err.println("REMOVING " + event.getObjectId());
+        if (eventStats != null)         eventStats.incrementCount(event.getType());
+        Set<ExtractionObject> parents=event.getParents();
+        event.removeFromParents();
+        for (        ExtractionObject arg : event.getArgs()) {
+          if (arg instanceof EventMention) {
+            ((EventMention)arg).removeParent(event);
+          }
+        }
+        for (        ExtractionObject parent : parents) {
+          if (parent instanceof EventMention) {
+            List<ExtractionObject> myArgs=event.getArgs();
+            List<String> myArgNames=event.getArgNames();
+            if (myArgs != null && myArgs.size() > 0) {
+              ((EventMention)parent).addArgs(myArgs,myArgNames,true);
+              logger.fine("Removing one event from a chain > 2:");
+              logger.fine("Parent event: " + parent);
+              logger.fine("Current event to be removed: " + event);
+              for (int i=0; i < myArgs.size(); i++) {
+                logger.fine("Child #" + i + ": "+ myArgNames.get(i)+ " "+ myArgs.get(i));
+              }
+            }
+          }
+        }
+        for (        ExtractionObject parent : parents) {
+          if (parent instanceof EventMention && !eventsToRemove.contains(parent) && ((EventMention)parent).getArgs().size() == 0) {
+            noArgEvents.add((EventMention)parent);
+          }
+        }
+        if (verbose)         annotationsSummary(sentences,"Annotations after removing event " + event.getObjectId());
+      }
+ else {
+        newEvents.add(event);
+      }
+    }
+    sent.set(EventMentionsAnnotation.class,newEvents);
+  }
+  if (noArgEvents.size() > 0) {
+    removeEvents(sentences,noArgEvents,count,verbose,eventStats);
+  }
+}

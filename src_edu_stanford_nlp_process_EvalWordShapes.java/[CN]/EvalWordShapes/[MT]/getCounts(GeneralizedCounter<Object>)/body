@@ -1,0 +1,21 @@
+{
+  GeneralizedCounter<Object> counts=new GeneralizedCounter<Object>(2);
+  Iterator<Object> it=gc.topLevelKeySet().iterator();
+  String wordshape;
+  while (it.hasNext()) {
+    wordshape=(String)it.next();
+    List<Object> l=new ArrayList<Object>(1);
+    l.add(wordshape);
+    GeneralizedCounter<Object> c=gc.conditionalize(l);
+    Object o=Counters.argmax(c.counterView());
+    Iterator<Object> it1=c.topLevelKeySet().iterator();
+    while (it1.hasNext()) {
+      List<Object> l1=new ArrayList<Object>(2);
+      Object o1=it1.next();
+      l1.add(o1);
+      l1.add(o);
+      counts.incrementCount(l1,c.getCount(o1));
+    }
+  }
+  return counts;
+}

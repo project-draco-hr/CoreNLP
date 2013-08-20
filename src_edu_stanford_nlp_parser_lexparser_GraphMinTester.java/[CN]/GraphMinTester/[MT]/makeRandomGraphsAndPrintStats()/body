@@ -1,0 +1,75 @@
+{
+  int numSamples=5;
+  TransducerGraph.ArcProcessor ocp=new TransducerGraph.OutputCombiningProcessor();
+  System.out.println("inp\tlen\tpaths\tN\tminN\tM\tK\tKN/M\tEM\tSEM\tFEM\tEMvar\tSEMvar\tFEMvar");
+  int pathLength=5;
+  AutomatonMinimizer exactMinimizer=new ExactAutomatonMinimizer(false);
+  AutomatonMinimizer sparseExactMinimizer=new ExactAutomatonMinimizer(true);
+  AutomatonMinimizer fastExactMinimizer=new FastExactAutomatonMinimizer();
+  for (int numInputs=128; numInputs <= 512; numInputs*=2) {
+    for (int numPaths=128; numPaths <= 2048; numPaths*=2) {
+      int numNodes=0;
+      int numArcs=0;
+      int numActualInputs=0;
+      int numNodes1=0;
+      int numNodes2=0;
+      int numNodes3=0;
+      long time1=0L;
+      long time2=0L;
+      long time3=0L;
+      long sqtime1=0L;
+      long sqtime2=0L;
+      long sqtime3=0L;
+      for (int i=0; i < numSamples; i++) {
+        List paths=TransducerGraph.createRandomPaths(numPaths,pathLength,1.0,numInputs);
+        TransducerGraph graph=TransducerGraph.createGraphFromPaths(paths,-1);
+        numNodes+=graph.getNodes().size();
+        numArcs+=graph.getArcs().size();
+        numActualInputs+=graph.getInputs().size();
+        long startTime;
+        long elapsedTime;
+        TransducerGraph graph1=new TransducerGraph(graph);
+        System.gc();
+        startTime=System.currentTimeMillis();
+        TransducerGraph result1=exactMinimizer.minimizeFA(graph1);
+        elapsedTime=System.currentTimeMillis() - startTime;
+        time1+=elapsedTime;
+        sqtime1+=elapsedTime * elapsedTime;
+        numNodes1+=result1.getNodes().size();
+        TransducerGraph graph2=new TransducerGraph(graph);
+        System.gc();
+        startTime=System.currentTimeMillis();
+        TransducerGraph result2=sparseExactMinimizer.minimizeFA(graph2);
+        elapsedTime=System.currentTimeMillis() - startTime;
+        time2+=elapsedTime;
+        sqtime2+=elapsedTime * elapsedTime;
+        numNodes2+=result2.getNodes().size();
+        TransducerGraph graph3=new TransducerGraph(graph);
+        System.gc();
+        startTime=System.currentTimeMillis();
+        TransducerGraph result3=fastExactMinimizer.minimizeFA(graph3);
+        elapsedTime=System.currentTimeMillis() - startTime;
+        time3+=elapsedTime;
+        sqtime3+=elapsedTime * elapsedTime;
+        numNodes3+=result3.getNodes().size();
+        if (numNodes1 != numNodes2 || numNodes1 != numNodes3) {
+          System.out.println("Minimizers don't agree on the number of nodes.");
+        }
+      }
+      double enumNodes=(double)numNodes / (double)numSamples;
+      double eminNodes=(double)numNodes1 / (double)numSamples;
+      double enumArcs=(double)numArcs / (double)numSamples;
+      double enumActualInputs=(double)numActualInputs / (double)numSamples;
+      double etime1=(double)time1 / (double)numSamples;
+      double etime2=(double)time2 / (double)numSamples;
+      double etime3=(double)time3 / (double)numSamples;
+      double esqtime1=(double)sqtime1 / (double)numSamples;
+      double esqtime2=(double)sqtime2 / (double)numSamples;
+      double esqtime3=(double)sqtime3 / (double)numSamples;
+      double var1=esqtime1 - (etime1 * etime1);
+      double var2=esqtime2 - (etime2 * etime2);
+      double var3=esqtime3 - (etime3 * etime3);
+      System.out.println(numInputs + "\t" + pathLength+ "\t"+ numPaths+ "\t"+ enumNodes+ "\t"+ eminNodes+ "\t"+ enumArcs+ "\t"+ enumActualInputs+ "\t"+ (enumActualInputs * enumNodes / enumArcs)+ "\t"+ (etime1 / 1000.0)+ "\t"+ (etime2 / 1000.0)+ "\t"+ (etime3 / 1000.0)+ "\t"+ (var1 / 1000.0)+ "\t"+ (var2 / 1000.0)+ "\t"+ (var3 / 1000.0));
+    }
+  }
+}

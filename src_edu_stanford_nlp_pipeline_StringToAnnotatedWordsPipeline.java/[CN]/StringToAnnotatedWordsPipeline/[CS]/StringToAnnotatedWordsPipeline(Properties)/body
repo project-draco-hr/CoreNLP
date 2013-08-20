@@ -1,0 +1,44 @@
+{
+  try {
+    if (PropertiesUtils.hasProperty(props,"tokenize")) {
+      annotators.add(new PTBTokenizerAnnotator(false));
+      WordsToSentencesAnnotator wts=new WordsToSentencesAnnotator(false);
+      wts.setOneSentence(true);
+      annotators.add(wts);
+    }
+    if (PropertiesUtils.hasProperty(props,"tackbp")) {
+      annotators.add(new SimpleXMLAnnotator(false));
+    }
+    if (PropertiesUtils.hasProperty(props,"pos")) {
+      try {
+        annotators.add(new POSTaggerAnnotator(true));
+      }
+ catch (      Exception e) {
+        System.err.println("Error loading POSTaggerAnnotator.");
+        e.printStackTrace();
+      }
+    }
+    if (PropertiesUtils.hasProperty(props,"lemma")) {
+      annotators.add(new MorphaAnnotator(false));
+    }
+    if (PropertiesUtils.hasProperty(props,"ner")) {
+      AbstractSequenceClassifier firstCombiner=new NERClassifierCombiner("/u/nlp/data/ner/goodClassifiers/english.all.3class.distsim.crf.gz","/u/nlp/data/ner/goodClassifiers/english.muc.7class.distsim.crf.gz");
+      AbstractSequenceClassifier aux2=CRFClassifier.getClassifier("/u/nlp/data/ner/goodClassifiers/english.conll.4class.distsim.crf.ser.gz");
+      NERClassifierCombiner nerCombiner=new NERClassifierCombiner(firstCombiner,aux2);
+      annotators.add(new NERCombinerAnnotator(nerCombiner,false));
+      annotators.add(new NumberAnnotator(false));
+      annotators.add(new TimeWordAnnotator(false));
+      annotators.add(new QuantifiableEntityNormalizingAnnotator(false,false));
+    }
+    if (TIME) {
+      accumulatedTime=new ArrayList<MutableInteger>(annotators.size());
+      for (int i=0, sz=annotators.size(); i < sz; i++) {
+        accumulatedTime.add(new MutableInteger());
+      }
+    }
+  }
+ catch (  Exception e) {
+    System.err.println("Error setting up StringToAnnotatedWordsPipeline");
+    e.printStackTrace();
+  }
+}

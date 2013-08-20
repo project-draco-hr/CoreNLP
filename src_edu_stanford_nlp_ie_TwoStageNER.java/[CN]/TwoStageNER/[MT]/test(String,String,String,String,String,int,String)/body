@@ -1,0 +1,12 @@
+{
+  prepareRound1TestPropFile(testFile,basicPropFile,directory,round1SerializedFile);
+  String propFile=directory + "/round1.test.prop";
+  String allresultsFile=directory + "/round1.test.res";
+  CommandLineCall.execute(getJavaCmd() + " edu.stanford.nlp.ie.crf.CRFClassifier -prop " + propFile+ " > "+ allresultsFile);
+  getMajorityFiles(allresultsFile);
+  String round2TestFile=directory + "/round2.test";
+  CommandLineCall.execute("paste " + testFile + " "+ allresultsFile+ "_majorities"+ " > "+ round2TestFile);
+  String round2PropFile=directory + "/round2.test.prop";
+  prepareRound2TestPropFile(round2TestFile,basicPropFile,directory,colsInDataFile,round2SerializedFile);
+  CommandLineCall.execute(getJavaCmd() + " edu.stanford.nlp.ie.crf.CRFClassifier -prop " + round2PropFile+ " > "+ finalResultsFile);
+}

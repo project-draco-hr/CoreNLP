@@ -1,3 +1,14 @@
 {
-  return Counters.asArray(counter,index,index.size());
+  if (index.size() == 0) {
+    throw new IllegalArgumentException("Empty index");
+  }
+  Set<E> keys=counter.keySet();
+  double[] array=new double[index.size()];
+  for (  E key : keys) {
+    int i=index.indexOf(key);
+    if (i >= 0) {
+      array[i]=counter.getCount(key);
+    }
+  }
+  return array;
 }

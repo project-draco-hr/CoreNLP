@@ -1,0 +1,49 @@
+{
+  CoreMap m=new ArrayCoreMap(keys.length);
+  for (int i=0; i < Math.min(keys.length,values.length); i++) {
+    String key=keys[i];
+    String value=values[i];
+    KeyLookup lookup=AnnotationLookup.getCoreKey(key);
+    if (lookup == null) {
+      if (genericKeys.containsKey(key)) {
+        m.set(genericKeys.get(key),value);
+      }
+ else {
+        GenericAnnotation<String> newKey=new GenericAnnotation<String>(){
+          public Class<String> getType(){
+            return String.class;
+          }
+        }
+;
+        m.set(newKey.getClass(),values[i]);
+        genericKeys.put(keys[i],newKey.getClass());
+        genericValues.put(newKey.getClass(),keys[i]);
+      }
+      if (VERBOSE) {
+        System.err.println("CORE: CoreLabel.fromAbstractMapLabel: " + "Unknown key " + key);
+      }
+    }
+ else {
+      try {
+        Class<?> valueClass=AnnotationLookup.getValueType(lookup.coreKey);
+        if (valueClass.equals(String.class)) {
+          m.set((Class<? extends CoreAnnotation>)lookup.coreKey,values[i]);
+        }
+ else         if (valueClass == Integer.class) {
+          m.set((Class<? extends CoreAnnotation>)lookup.coreKey,Integer.parseInt(values[i]));
+        }
+ else         if (valueClass == Double.class) {
+          m.set((Class<? extends CoreAnnotation>)lookup.coreKey,Double.parseDouble(values[i]));
+        }
+ else         if (valueClass == Long.class) {
+          m.set((Class<? extends CoreAnnotation>)lookup.coreKey,Long.parseLong(values[i]));
+        }
+      }
+ catch (      Exception e) {
+        e.printStackTrace();
+        System.err.println("CORE: copying from a CoreMap:" + "Bad type for " + key + ". Value was: "+ value+ "; expected "+ AnnotationLookup.getValueType(lookup.coreKey));
+      }
+    }
+  }
+  return m;
+}

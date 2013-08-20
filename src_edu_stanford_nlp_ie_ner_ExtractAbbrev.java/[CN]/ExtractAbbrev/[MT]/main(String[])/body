@@ -1,0 +1,44 @@
+{
+  String shortForm, longForm, defnString, str;
+  ExtractAbbrev extractAbbrev=new ExtractAbbrev();
+  Vector candidates;
+  String[] candidate;
+  String filename=null;
+  String testList=null;
+  for (int i=0; i < args.length; i++) {
+    if (args[i].equals("-testlist")) {
+      if (i == args.length - 1) {
+        usage();
+      }
+      testList=args[++i];
+      extractAbbrev.testMode=true;
+    }
+ else     if (args[i].equals("-usage")) {
+      usage();
+    }
+ else     if (args[i].equals("-help")) {
+      usage();
+    }
+ else     if (args[i].equals("-parenType")) {
+      extractAbbrev.open=args[i + 1].charAt(0);
+      extractAbbrev.close=args[i + 1].charAt(1);
+      i++;
+    }
+ else {
+      filename=args[i];
+      if (i != args.length - 1) {
+        usage();
+      }
+    }
+  }
+  if (filename == null) {
+    usage();
+  }
+  if (extractAbbrev.testMode) {
+    extractAbbrev.loadTrueDefinitions(testList);
+  }
+  extractAbbrev.extractAbbrPairs(filename);
+  if (extractAbbrev.testMode) {
+    System.out.println("TP: " + extractAbbrev.truePositives + " FP: "+ extractAbbrev.falsePositives+ " FN: "+ extractAbbrev.falseNegatives+ " TN: "+ extractAbbrev.trueNegatives);
+  }
+}

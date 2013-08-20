@@ -1,25 +1,22 @@
 {
-  String mSpeakerStr=m.headWord.get(CoreAnnotations.SpeakerAnnotation.class);
-  if (mSpeakerStr == null) {
-    return false;
-  }
-  String antSpeakerStr=ant.headWord.get(CoreAnnotations.SpeakerAnnotation.class);
-  if (antSpeakerStr == null) {
+  if (m.headWord.containsKey(SpeakerAnnotation.class) == false || ant.headWord.containsKey(SpeakerAnnotation.class) == false) {
     return false;
   }
   int mSpeakerID;
   int antSpeakerID;
+  String mSpeakerStr=m.headWord.get(SpeakerAnnotation.class);
+  String antSpeakerStr=ant.headWord.get(SpeakerAnnotation.class);
   if (NumberMatchingRegex.isDecimalInteger(mSpeakerStr) && NumberMatchingRegex.isDecimalInteger(antSpeakerStr)) {
     try {
       mSpeakerID=Integer.parseInt(mSpeakerStr);
-      antSpeakerID=Integer.parseInt(ant.headWord.get(CoreAnnotations.SpeakerAnnotation.class));
+      antSpeakerID=Integer.parseInt(ant.headWord.get(SpeakerAnnotation.class));
     }
  catch (    Exception e) {
-      return (m.headWord.get(CoreAnnotations.SpeakerAnnotation.class).equals(ant.headWord.get(CoreAnnotations.SpeakerAnnotation.class)));
+      return (m.headWord.get(SpeakerAnnotation.class).equals(ant.headWord.get(SpeakerAnnotation.class)));
     }
   }
  else {
-    return (m.headWord.get(CoreAnnotations.SpeakerAnnotation.class).equals(ant.headWord.get(CoreAnnotations.SpeakerAnnotation.class)));
+    return (m.headWord.get(SpeakerAnnotation.class).equals(ant.headWord.get(SpeakerAnnotation.class)));
   }
   int mSpeakerClusterID=document.allPredictedMentions.get(mSpeakerID).corefClusterID;
   int antSpeakerClusterID=document.allPredictedMentions.get(antSpeakerID).corefClusterID;

@@ -1,0 +1,39 @@
+{
+  double[] x=new double[numAttributes];
+  StringTokenizer st=new StringTokenizer(s," \t,");
+  String token;
+  for (int a=0; a < numAttributes; a++) {
+    token=st.nextToken();
+    if (numeric(a)) {
+      x[a]=Double.parseDouble(token);
+    }
+ else {
+      if (hashMaps.get(a).containsKey(token)) {
+        x[a]=(hashMaps.get(a).get(token)).intValue();
+      }
+ else {
+        HashMap<String,Integer> hM=hashMaps.get(a);
+        x[a]=hM.size();
+        hM.put(token,Integer.valueOf(hM.size()));
+      }
+    }
+    if (binary) {
+      if (x[a] > 0) {
+        x[a]=1.0;
+      }
+    }
+  }
+  token=st.nextToken();
+  int y=-1;
+  if (token != null) {
+    Object o=(hashMaps.get(numAttributes).get(token));
+    if (o != null) {
+      y=((Integer)o).intValue();
+    }
+  }
+ else {
+    y=-1;
+  }
+  DataDouble d=new DataDouble(x,y);
+  return d;
+}

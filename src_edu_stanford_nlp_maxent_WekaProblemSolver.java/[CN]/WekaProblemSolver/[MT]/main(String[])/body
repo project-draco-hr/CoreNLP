@@ -1,0 +1,77 @@
+{
+  double gain=.002;
+  boolean train=false, test=false, validation=false;
+  String trainFile="NO_TRAIN_FILE", testFile="NO_TEST_FILE";
+  try {
+    WekaProblemSolver wPS=new WekaProblemSolver();
+    int crnt=0;
+    while (crnt < args.length) {
+      String token=args[crnt];
+      if (token.equals("-train")) {
+        trainFile=args[++crnt];
+        train=true;
+        crnt++;
+      }
+ else       if (token.equals("-test")) {
+        trainFile=args[++crnt];
+        testFile=args[++crnt];
+        test=true;
+        crnt++;
+      }
+ else       if (token.equals("-gain")) {
+        gain=Double.parseDouble(args[++crnt]);
+        crnt++;
+      }
+ else       if (token.equals("-support")) {
+        cutoff=Integer.parseInt(args[++crnt]);
+        System.out.println(" cutoff is " + cutoff);
+        crnt++;
+      }
+ else       if (token.equals("-iters")) {
+        iters=Integer.parseInt(args[++crnt]);
+        crnt++;
+      }
+ else       if (token.equals("-ftNum")) {
+        ftNum=Integer.parseInt(args[++crnt]);
+        crnt++;
+      }
+ else       if (token.equals("-binary")) {
+        binary=true;
+        crnt++;
+      }
+ else       if (token.equals("-crossval")) {
+        crossvalidation=true;
+        crnt++;
+      }
+ else       if (token.equals("-validation")) {
+        validation=true;
+        crnt++;
+      }
+ else       if (token.equals("-clean")) {
+        clean=true;
+        crnt++;
+      }
+ else       if (token.equals("-no_sel")) {
+        select=false;
+        crnt++;
+      }
+    }
+    if (train) {
+      if (!validation) {
+        wPS.buildClassifier(trainFile,iters,gain);
+      }
+ else {
+        wPS.buildClassifierValidation(trainFile,iters,gain);
+      }
+      wPS.save(trainFile);
+    }
+    if (test) {
+      wPS.read(trainFile);
+      wPS.test(testFile);
+    }
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+    System.out.println(" Format :\n [-train fileName] [-test trainFile testFile] [-gain doubleVal] [-iters numIters] [-support minsupport ] \n");
+  }
+}

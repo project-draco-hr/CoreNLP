@@ -1,0 +1,21 @@
+{
+  if (cmfs != null && flags.useReverseAffix) {
+    char cp=getCharFromWordInfo(cInfo.get(loc - 1));
+    char c=getCharFromWordInfo(cInfo.get(loc));
+    List<String> cpFeat=new ArrayList<String>();
+    List<String> cFeat=new ArrayList<String>();
+    for (    Map.Entry<String,Pair<Set<Character>,Set<Character>>> e : cmfs.getAffixFeatures().entrySet()) {
+      if (e.getValue().second().contains(cp)) {
+        cpFeat.add(e.getKey() + "-Suf");
+      }
+      if (e.getValue().first().contains(c)) {
+        cFeat.add(e.getKey() + "-Pre");
+      }
+    }
+    for (    String sCp : cpFeat) {
+      for (      String sC : cFeat) {
+        features.add(sCp + '&' + sC);
+      }
+    }
+  }
+}

@@ -1,20 +1,20 @@
 {
   if (Constants.USE_GOLD_SPEAKER_TAGS) {
-    for (    CoreMap sent : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
-      for (      CoreLabel w : sent.get(CoreAnnotations.TokensAnnotation.class)) {
-        int utterIndex=w.get(CoreAnnotations.UtteranceAnnotation.class);
-        speakers.put(utterIndex,w.get(CoreAnnotations.SpeakerAnnotation.class));
+    for (    CoreMap sent : annotation.get(SentencesAnnotation.class)) {
+      for (      CoreLabel w : sent.get(TokensAnnotation.class)) {
+        int utterIndex=w.get(UtteranceAnnotation.class);
+        speakers.put(utterIndex,w.get(SpeakerAnnotation.class));
       }
     }
   }
  else {
     if (docType == DocType.CONVERSATION)     findSpeakersInConversation(dict);
  else     if (docType == DocType.ARTICLE)     findSpeakersInArticle(dict);
-    for (    CoreMap sent : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
-      for (      CoreLabel w : sent.get(CoreAnnotations.TokensAnnotation.class)) {
-        int utterIndex=w.get(CoreAnnotations.UtteranceAnnotation.class);
+    for (    CoreMap sent : annotation.get(SentencesAnnotation.class)) {
+      for (      CoreLabel w : sent.get(TokensAnnotation.class)) {
+        int utterIndex=w.get(UtteranceAnnotation.class);
         if (speakers.containsKey(utterIndex)) {
-          w.set(CoreAnnotations.SpeakerAnnotation.class,speakers.get(utterIndex));
+          w.set(SpeakerAnnotation.class,speakers.get(utterIndex));
         }
       }
     }

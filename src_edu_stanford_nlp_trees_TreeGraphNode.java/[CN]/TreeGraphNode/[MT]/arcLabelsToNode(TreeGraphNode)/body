@@ -1,14 +1,15 @@
 {
   Set<Class<? extends GrammaticalRelationAnnotation>> arcLabels=Generics.newHashSet();
-  CoreLabel cl=label();
-  for (  Class key : cl.keySet()) {
-    if (key == null || !GrammaticalRelationAnnotation.class.isAssignableFrom(key)) {
-      continue;
-    }
-    Class<? extends GrammaticalRelationAnnotation> typedKey=ErasureUtils.uncheckedCast(key);
-    Set<TreeGraphNode> val=cl.get(typedKey);
-    if (val != null && val.contains(destNode)) {
-      arcLabels.add(typedKey);
+  CyclicCoreLabel cl=label();
+  for (Iterator<Class<?>> it=cl.keySet().iterator(); it.hasNext(); ) {
+    Class<? extends CoreAnnotation> key=(Class<? extends CoreAnnotation>)it.next();
+    Object val=cl.get(key);
+    if (val != null && val instanceof Set) {
+      if (((Set)val).contains(destNode)) {
+        if (key != null) {
+          arcLabels.add((Class<? extends GrammaticalRelationAnnotation>)key);
+        }
+      }
     }
   }
   return arcLabels;

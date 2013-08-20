@@ -1,0 +1,20 @@
+{
+  for (int i=0; i < words.size(); i++) {
+    String word=words.get(i);
+    out.print(word + ",");
+    int[] result;
+    System.out.println("kFold basic for " + word);
+    result=kFoldTrainAndTestOneWord(new BasicModel(),i);
+    out.print(result[0] + "," + result[1]+ ",");
+    System.out.println("testset basic for " + word);
+    result=trainAndTestOneWord(new BasicModel(),i);
+    out.print(result[0] + "," + result[1]+ ",");
+    System.out.println("kfold joint for " + word);
+    result=kFoldTrainAndTestOneWord(new JointModel(),i);
+    out.print(result[0] + "," + result[1]+ ",");
+    System.out.println("testset joint for " + word);
+    result=trainAndTestOneWord(new JointModel(),i);
+    out.print(result[0] + "," + result[1]+ ",");
+    out.println(senseTrainData[i].size() + "," + subcatTrainData[i].size()+ ","+ senseTestData[i].size()+ ","+ subcatTestData[i].size());
+  }
+}

@@ -1,0 +1,19 @@
+{
+  if (label == -1) {
+    label=numClasses - 1;
+  }
+  double[] scores=new double[numClasses];
+  Set<Map.Entry<IntTuple,Double>> entries=fM.entries();
+  for (  Map.Entry<IntTuple,Double> eN : entries) {
+    IntTuple wP=eN.getKey();
+    Double val=eN.getValue();
+    int y=wP.get(0);
+    int fno=wP.get(1);
+    scores[y]+=val.doubleValue() * lambdas[fno];
+  }
+  double total=ArrayMath.logSum(scores);
+  for (int j=0; j < numClasses; j++) {
+    scores[j]-=total;
+  }
+  return scores[label];
+}

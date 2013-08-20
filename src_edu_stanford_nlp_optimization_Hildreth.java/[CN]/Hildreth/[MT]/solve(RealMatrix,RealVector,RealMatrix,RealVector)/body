@@ -1,0 +1,53 @@
+{
+  if (VERBOSE) {
+    System.out.println("Constructing Gt");
+  }
+  RealMatrix Gt=G.transpose();
+  if (VERBOSE) {
+    System.out.println("Constructing A");
+  }
+  if (VERBOSE) {
+    System.out.println("G invC:");
+    System.out.println(matrixToPrettyString(G.multiply(invC)));
+    System.out.println("Gt");
+    System.out.println(matrixToPrettyString(Gt));
+  }
+  RealMatrix A=G.multiply(invC).multiply(Gt).scalarMultiply(-1. / 4);
+  if (VERBOSE) {
+    System.out.println("Constructing b");
+  }
+  RealVector bt=Gt.preMultiply(invC.preMultiply(d)).mapMultiply(1. / 2).add(h);
+  int numRows=A.getRowDimension();
+  RealVector z=new ArrayRealVector(A.getColumnDimension());
+  if (VERBOSE) {
+    System.out.println("\nSolving Dual:");
+    System.out.printf("\targmin_z z A z + b z\n");
+    System.out.printf("A:\n%s\n",matrixToPrettyString(A));
+    System.out.printf("b:\n%s\n",bt);
+    System.out.println("\tSubject to z_i >= 0 for all i");
+  }
+  double lastObj=Double.POSITIVE_INFINITY;
+  System.out.println("Optimizing QP");
+  for (int iter=0; iter < maxIterations; iter++) {
+    double obj=A.preMultiply(z).dotProduct(z) + bt.dotProduct(z);
+    double objDiff=lastObj - obj;
+    System.out.printf("iter %d objective value %e (diff: %e, diff/obj: %e)\n",iter,obj,objDiff,objDiff / Math.abs(obj));
+    if (objDiff / Math.abs(obj) < epsilon) {
+      break;
+    }
+    lastObj=obj;
+    for (int i=0; i < numRows; i++) {
+      double Aii=A.getEntry(i,i);
+      double Ai=A.getRowVector(i).dotProduct(z);
+      double bi=bt.getEntry(i);
+      if (Ai == bi / 2)       continue;
+      if (Aii == 0) {
+        continue;
+      }
+      double wi=-(1 / Aii) * (Ai - Aii * z.getEntry(i) + bi / 2);
+      z.setEntry(i,Math.max(0,wi));
+    }
+  }
+  RealVector x=invC.scalarMultiply(1. / 2).operate(Gt.operate(z).subtract(d));
+  return x;
+}

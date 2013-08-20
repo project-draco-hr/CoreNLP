@@ -1,0 +1,56 @@
+{
+  JToolBar batchBar=new JToolBar();
+  savePrevButton=new JButton("<< SAVE");
+  savePrevButton.addActionListener(new ActionListener(){
+    public void actionPerformed(    ActionEvent evt){
+      openPrevFile(true);
+    }
+  }
+);
+  batchBar.add(savePrevButton);
+  prevButton=new JButton("<<");
+  prevButton.addActionListener(new ActionListener(){
+    public void actionPerformed(    ActionEvent evt){
+      openPrevFile(false);
+    }
+  }
+);
+  batchBar.add(prevButton);
+  nextButton=new JButton(">>");
+  nextButton.addActionListener(new ActionListener(){
+    public void actionPerformed(    ActionEvent evt){
+      openNextFile(false);
+    }
+  }
+);
+  batchBar.add(nextButton);
+  saveNextButton=new JButton("SAVE >>");
+  saveNextButton.addActionListener(new ActionListener(){
+    public void actionPerformed(    ActionEvent evt){
+      openNextFile(true);
+    }
+  }
+);
+  batchBar.add(saveNextButton);
+  batchBar.addSeparator(new Dimension(10,20));
+  fileNumField=new JTextField();
+  fileNumField.setPreferredSize(new Dimension(30,20));
+  fileNumField.setMaximumSize(new Dimension(30,20));
+  fileNumField.addActionListener(new ActionListener(){
+    public void actionPerformed(    ActionEvent evt){
+      int index=Integer.parseInt(fileNumField.getText());
+      if (index <= 0 || index > files.length) {
+        fileNumField.setText(String.valueOf(fileIndex));
+      }
+ else {
+        openFile(index);
+      }
+    }
+  }
+);
+  batchBar.add(fileNumField);
+  batchBar.addSeparator(new Dimension(10,20));
+  numFilesLabel=new JLabel("of");
+  batchBar.add(numFilesLabel);
+  return batchBar;
+}

@@ -1,0 +1,56 @@
+{
+  nonZeroTransitions=new boolean[numStates][numStates];
+  for (int i=0; i < numStates; i++) {
+    for (int j=0; j < numStates; j++) {
+      nonZeroTransitions[i][j]=(states[i].transition[j] != 0);
+    }
+  }
+  nonZeroEmissions=new boolean[numStates][vocab.size()];
+  for (int i=0; i < numStates; i++) {
+    if (i != State.FINISHIDX && i != State.STARTIDX && !(states[i].emit instanceof ConstantEmitMap)) {
+      int j=0;
+      for (Iterator iter=vocab.keySet().iterator(); iter.hasNext(); j++) {
+        nonZeroEmissions[i][j]=(states[i].emit.get((String)iter.next()) != 0);
+      }
+    }
+  }
+  numParams=0;
+  for (int i=0; i < numStates; i++) {
+    for (int j=0; j < numStates; j++) {
+      if (nonZeroTransitions[i][j]) {
+        numParams++;
+      }
+    }
+    for (int j=0; j < vocab.size(); j++) {
+      if (nonZeroEmissions[i][j]) {
+        numParams++;
+      }
+    }
+  }
+  double[] x=new double[numParams];
+  int index=0;
+  for (int i=0; i < numStates; i++) {
+    if (i == State.FINISHIDX) {
+      continue;
+    }
+    State s=states[i];
+    for (int j=0; j < s.transition.length; j++) {
+      if (nonZeroTransitions[i][j]) {
+        x[index++]=Math.log(s.transition[j]);
+      }
+    }
+    if (i != State.FINISHIDX && i != State.STARTIDX && !(s.emit instanceof ConstantEmitMap)) {
+      int j=0;
+      for (Iterator iter=vocab.keySet().iterator(); iter.hasNext(); j++) {
+        String emit=(String)iter.next();
+        if (nonZeroEmissions[i][j]) {
+          x[index++]=Math.log(s.emit.get(emit));
+        }
+      }
+    }
+  }
+  if (verbose) {
+    System.err.println("sigma-squared: " + sigmaSquared);
+  }
+  return (x);
+}

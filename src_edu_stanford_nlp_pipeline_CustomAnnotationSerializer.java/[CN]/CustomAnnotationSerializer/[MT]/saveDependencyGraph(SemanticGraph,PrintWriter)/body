@@ -7,18 +7,18 @@
   boolean outputHeader=false;
   for (  IndexedWord node : graph.vertexSet()) {
     if (!outputHeader) {
-      String docId=node.get(CoreAnnotations.DocIDAnnotation.class);
+      String docId=node.get(DocIDAnnotation.class);
       if (docId != null && docId.length() > 0)       pw.print(docId);
  else       pw.print("-");
       pw.print("\t");
-      pw.print(node.get(CoreAnnotations.SentenceIndexAnnotation.class));
+      pw.print(node.get(SentenceIndexAnnotation.class));
       outputHeader=true;
     }
     pw.print("\t");
     pw.print(node.index());
-    if (node.containsKey(CoreAnnotations.CopyAnnotation.class)) {
+    if (node.containsKey(CopyAnnotation.class)) {
       pw.print("-");
-      pw.print(node.get(CoreAnnotations.CopyAnnotation.class));
+      pw.print(node.get(CopyAnnotation.class));
     }
   }
   pw.println();
@@ -32,10 +32,6 @@
     pw.print(edge.getSource().index());
     pw.print(" ");
     pw.print(edge.getTarget().index());
-    if (edge.isExtra()) {
-      pw.print(" ");
-      pw.print(edge.isExtra());
-    }
     first=false;
   }
   pw.println();

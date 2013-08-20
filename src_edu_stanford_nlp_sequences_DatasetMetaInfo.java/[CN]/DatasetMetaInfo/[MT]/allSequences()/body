@@ -1,0 +1,29 @@
+{
+  Clique c=getMaxClique();
+  int[] labels=new int[c.size()];
+  int[] labelIndex=new int[c.size()];
+  Arrays.fill(labelIndex,0);
+  List<LabeledClique> maxLabels=new ArrayList<LabeledClique>();
+  while (true) {
+    for (int i=0; i < labels.length; i++) {
+      labels[i]=labelIndex[i];
+    }
+    LabeledClique lc=LabeledClique.valueOf(c,labels);
+    maxLabels.add(lc);
+    boolean done=true;
+    for (int i=0; i < labelIndex.length; i++) {
+      if (labelIndex[i] == numLabels() - 1) {
+        labelIndex[i]=0;
+      }
+ else {
+        labelIndex[i]++;
+        done=false;
+        break;
+      }
+    }
+    if (done) {
+      break;
+    }
+  }
+  return maxLabels;
+}

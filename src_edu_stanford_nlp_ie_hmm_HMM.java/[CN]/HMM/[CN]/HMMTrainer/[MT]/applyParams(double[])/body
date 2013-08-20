@@ -1,0 +1,23 @@
+{
+  int index=0;
+  for (int i=0; i < numStates; i++) {
+    if (i == State.FINISHIDX) {
+      continue;
+    }
+    State s=states[i];
+    for (int j=0; j < s.transition.length; j++) {
+      if (nonZeroTransitions[i][j]) {
+        s.transition[j]=Math.exp(x[index++]);
+      }
+    }
+    if (i != State.FINISHIDX && i != State.STARTIDX && !(s.emit instanceof ConstantEmitMap)) {
+      int j=0;
+      for (Iterator iter=vocab.keySet().iterator(); iter.hasNext(); j++) {
+        String emit=(String)iter.next();
+        if (nonZeroEmissions[i][j]) {
+          s.emit.set(emit,Math.exp(x[index++]));
+        }
+      }
+    }
+  }
+}

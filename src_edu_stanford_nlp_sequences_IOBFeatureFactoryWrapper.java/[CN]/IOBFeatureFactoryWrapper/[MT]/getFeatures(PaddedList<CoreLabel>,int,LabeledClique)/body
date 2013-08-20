@@ -1,0 +1,63 @@
+{
+  if (position != this.position) {
+    cache=new HashMap<Clique,ClassicCounter>();
+    this.position=position;
+  }
+  ClassicCounter newFeatures=new ClassicCounter();
+  for (  Clique c : wrapped.getCliques()) {
+    ClassicCounter cliqueFeatures=cache.get(c);
+    LabeledClique cliqueLabel=LabeledClique.valueOf(c,lc,0);
+    Pair<String,String> stringLabels=labelToString.get(cliqueLabel);
+    if (stringLabels == null) {
+      String label="";
+      String boundary="";
+      for (int i=0; i < cliqueLabel.clique.size(); i++) {
+        CoreLabel f=info.get(position + cliqueLabel.clique.relativeIndex(i));
+        String ans=f.get(AnswerAnnotation.class);
+        String[] bits=ans.split("-",2);
+        if (bits.length == 1 && bits.equals("O")) {
+          throw new RuntimeException("  You are using IOBFeatureFactoryWrapper, but your labels aren't IOB: " + ans);
+        }
+        if (bits.length == 0 || bits.length == 1) {
+          label+="|" + ans;
+          boundary+="|" + ans;
+        }
+ else {
+          label+="|" + bits[1];
+          boundary+="|" + bits[0];
+        }
+      }
+      stringLabels=new Pair<String,String>(label,boundary);
+      labelToString.put(cliqueLabel,stringLabels);
+    }
+    if (cliqueFeatures == null) {
+      cliqueFeatures=new ClassicCounter();
+      if (wrapped instanceof RVFFeatureFactory) {
+        ClassicCounter tmp=((RVFFeatureFactory)wrapped).getCliqueFeaturesRVF(info,position,c);
+        for (        Object f : tmp.keySet()) {
+          cliqueFeatures.setCount(Interner.globalIntern(f),tmp.getCount(f));
+        }
+      }
+ else {
+        Collection tmp=wrapped.getCliqueFeatures(info,position,c);
+        for (        Object f : tmp) {
+          cliqueFeatures.setCount(Interner.globalIntern(f),1.0);
+        }
+      }
+      cache.put(c,cliqueFeatures);
+    }
+    String l1=stringLabels.first();
+    String l2=stringLabels.second();
+    for (    Object f : cliqueFeatures.keySet()) {
+      Object feature=new ImmutablePairOfImmutables(f,l1);
+      newFeatures.incrementCount(feature,cliqueFeatures.getCount(f));
+    }
+    if (!l1.equals(l2)) {
+      for (      Object f : cliqueFeatures.keySet()) {
+        Object feature=new ImmutablePairOfImmutables(f,l2);
+        newFeatures.incrementCount(feature,cliqueFeatures.getCount(f));
+      }
+    }
+  }
+  return newFeatures;
+}

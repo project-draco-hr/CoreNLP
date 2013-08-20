@@ -2,9 +2,9 @@
   CoreLabel c=cInfo.get(loc);
   CoreLabel n=(loc + 1 < cInfo.size()) ? cInfo.get(loc + 1) : null;
   CoreLabel p=(loc - 1 >= 0) ? cInfo.get(loc - 1) : null;
-  String nWord=(n != null) ? n.getString(CoreAnnotations.TextAnnotation.class) : null;
-  String cWord=(c != null) ? c.getString(CoreAnnotations.TextAnnotation.class) : null;
-  String pWord=(p != null) ? p.getString(CoreAnnotations.TextAnnotation.class) : null;
+  String nWord=(n != null) ? n.getString(TextAnnotation.class) : null;
+  String cWord=(c != null) ? c.getString(TextAnnotation.class) : null;
+  String pWord=(p != null) ? p.getString(TextAnnotation.class) : null;
   Collection<String> featuresC=new ArrayList<String>();
   if (flags.useWord)   featuresC.add(cWord + "-WORD");
   if (flags.useWord1 && p != null)   featuresC.add(pWord + "-pWORD");
@@ -30,15 +30,15 @@
       cWordPrefix=cWord.substring(0,2);
       cWordSuffix=cWord.substring(cWord.length() - 1,cWord.length());
     }
-    String cTag=c.getString(CoreAnnotations.PartOfSpeechAnnotation.class);
+    String cTag=c.getString(PartOfSpeechAnnotation.class);
     Matcher m=nounTagStem.matcher(cTag);
     if ((m.find() || cTag.contains(adjTagStem)) && !cWordPrefix.equals("????") && cWordSuffix.equals("??")) {
       featuresC.add(cTag + "-cACASE");
     }
   }
   if (flags.useVB) {
-    String cTag=c.getString(CoreAnnotations.PartOfSpeechAnnotation.class);
-    String stem=c.getString(CoreAnnotations.StemAnnotation.class);
+    String cTag=c.getString(PartOfSpeechAnnotation.class);
+    String stem=c.getString(StemAnnotation.class);
     if (!stem.equals("NA") && !stem.equals(flags.backgroundSymbol))     featuresC.add(cTag + "-true" + "-USEVB");
  else     featuresC.add(cTag + "-false" + "-USEVB");
     Matcher m=verbTagStem.matcher(cTag);
@@ -48,7 +48,7 @@
     if (temporalNouns.contains(cWord))     featuresC.add(cWord + "-CTEMPORAL_NN");
   }
   if (flags.usePath) {
-    String cTag=c.getString(CoreAnnotations.PartOfSpeechAnnotation.class).trim();
+    String cTag=c.getString(PartOfSpeechAnnotation.class).trim();
     if (cTag.contains("NN") || cTag.startsWith("PRP") || cTag.equals("IN"))     addPath(featuresC,cInfo,loc);
   }
   if (flags.useAgreement) {
@@ -60,11 +60,11 @@
       }
     }
     if (canAgree) {
-      String cTag=c.getString(CoreAnnotations.PartOfSpeechAnnotation.class);
+      String cTag=c.getString(PartOfSpeechAnnotation.class);
       Matcher m=nounTagStem.matcher(cTag);
       if (m.find()) {
         for (int offset=1; offset <= 5 && (loc - offset) >= 0; offset++) {
-          String pTagi=cInfo.get(loc - offset).getString(CoreAnnotations.PartOfSpeechAnnotation.class);
+          String pTagi=cInfo.get(loc - offset).getString(PartOfSpeechAnnotation.class);
           if (pTagi.contains("NN")) {
             break;
           }

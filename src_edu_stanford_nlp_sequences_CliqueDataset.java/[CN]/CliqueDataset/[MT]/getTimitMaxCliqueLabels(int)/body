@@ -1,0 +1,23 @@
+{
+  flags.restrictTransitionsTimit=false;
+  List<LabeledClique> allLabels=getMaxCliqueLabels(datumNum);
+  flags.restrictTransitionsTimit=true;
+  if (datumNum == 0 || labels[datumNum] != labels[datumNum - 1]) {
+    return allLabels;
+  }
+  List<LabeledClique> noTransitionLabels=new ArrayList<LabeledClique>();
+  for (  LabeledClique lc : allLabels) {
+    boolean good=true;
+    int first=lc.label(0);
+    for (int i=0; i < lc.clique.size(); i++) {
+      if (lc.label(i) != first) {
+        good=false;
+        break;
+      }
+    }
+    if (good) {
+      noTransitionLabels.add(lc);
+    }
+  }
+  return noTransitionLabels;
+}

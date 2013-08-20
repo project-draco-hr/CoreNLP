@@ -1,0 +1,20 @@
+{
+  ClassicCounter<String> weights=new ClassicCounter<String>();
+  weights.setCount("isCap",1.5);
+  weights.setCount("hasNums",2.5);
+  weights.setCount("numWords",3.5);
+  weights.setCount("numChars",4.5);
+  HandWeightedRVFClassifier<String> model=new HandWeightedRVFClassifier<String>(weights,16.0);
+  model.print();
+  ClassicCounter<String> features=new ClassicCounter<String>();
+  features.setCount("isCap",1.0);
+  features.setCount("hasNums",0.0);
+  features.setCount("numWords",4.0);
+  features.setCount("funniness",19.0);
+  RVFDatum<Boolean,String> datum=new RVFDatum<Boolean,String>(features);
+  System.out.println("Datum:  " + datum.asFeaturesCounter());
+  System.out.println("Score:  " + model.getScore(datum));
+  System.out.println("Posi?:  " + model.isPositiveClass(datum));
+  System.out.println("Scores: " + model.scoresOf(datum));
+  System.out.println("Class:  " + model.classOf(datum));
+}

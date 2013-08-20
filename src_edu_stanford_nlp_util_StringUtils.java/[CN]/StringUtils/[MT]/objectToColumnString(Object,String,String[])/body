@@ -1,15 +1,15 @@
 {
   StringBuilder sb=new StringBuilder();
-  for (  String fieldName : fieldNames) {
+  for (int i=0; i < fieldNames.length; i++) {
     if (sb.length() > 0) {
       sb.append(delimiter);
     }
     try {
-      Field field=object.getClass().getDeclaredField(fieldName);
+      Field field=object.getClass().getDeclaredField(fieldNames[i]);
       sb.append(field.get(object));
     }
  catch (    IllegalAccessException ex) {
-      Method method=object.getClass().getDeclaredMethod("get" + StringUtils.capitalize(fieldName));
+      Method method=object.getClass().getDeclaredMethod("get" + StringUtils.capitalize(fieldNames[i]));
       sb.append(method.invoke(object));
     }
   }

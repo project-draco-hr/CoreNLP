@@ -1,0 +1,14 @@
+{
+  nonTerminalInfo=new HashMap<String,String[][]>();
+  for (  String line : ObjectBank.getLineIterator(new File(maltTabFile))) {
+    String[] cols=line.split("\\t");
+    String[] els=cols[1].split(";");
+    String[][] nti=new String[els.length][];
+    for (int i=0; i < nti.length; ++i) {
+      nti[i]=els[i].split(" +");
+      nti[i][0]=nti[i][0].replaceAll("^l$","leftdis").replaceAll("^r$","rightdis");
+    }
+    nonTerminalInfo.put(cols[0],nti);
+  }
+  nonTerminalInfo.put(null,new String[][]{{"leftdis"}});
+}

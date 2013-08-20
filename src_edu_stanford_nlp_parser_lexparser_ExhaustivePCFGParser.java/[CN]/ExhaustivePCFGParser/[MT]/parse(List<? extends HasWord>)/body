@@ -40,10 +40,7 @@
       originalCoreLabels[i]=(CoreLabel)sentence.get(i);
     }
     if (sentence.get(i) instanceof HasTag) {
-      HasTag tag=(HasTag)sentence.get(i);
-      if (tag.tag() != null) {
-        originalTags[i]=tag;
-      }
+      originalTags[i]=(HasTag)sentence.get(i);
     }
     if (op.testOptions.verbose && (!wordIndex.contains(s) || !lex.isKnown(wordIndex.indexOf(s)))) {
       unk++;
@@ -61,9 +58,6 @@
   if (spillGuts) {
     tick("Wiping arrays...");
   }
-  if (Thread.interrupted()) {
-    throw new RuntimeInterruptedException();
-  }
   for (int start=0; start < length; start++) {
     for (int end=start + 1; end <= length; end++) {
       Arrays.fill(iScore[start][end],Float.NEGATIVE_INFINITY);
@@ -74,9 +68,6 @@
         Arrays.fill(wordsInSpan[start][end],1);
       }
     }
-  }
-  if (Thread.interrupted()) {
-    throw new RuntimeInterruptedException();
   }
   for (int loc=0; loc <= length; loc++) {
     Arrays.fill(narrowLExtent[loc],-1);
@@ -91,9 +82,6 @@
     unkWords.append(" ]");
     op.tlpParams.pw(System.err).println("Unknown words: " + unk + " "+ unkWords);
     System.err.print("Starting filters...");
-  }
-  if (Thread.interrupted()) {
-    throw new RuntimeInterruptedException();
   }
   if (spillGuts) {
     tick("Tagging...");
@@ -127,9 +115,6 @@
   }
   if (op.doDep) {
     initializePossibles();
-  }
-  if (Thread.interrupted()) {
-    throw new RuntimeInterruptedException();
   }
   return succeeded;
 }

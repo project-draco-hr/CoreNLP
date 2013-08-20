@@ -1,0 +1,23 @@
+{
+  Timing timer=new Timing();
+  Counter<String> entityTP=new ClassicCounter<String>();
+  Counter<String> entityFP=new ClassicCounter<String>();
+  Counter<String> entityFN=new ClassicCounter<String>();
+  boolean resultsCounted=true;
+  int numWords=0;
+  int numDocs=0;
+  for (  List<IN> doc : documents) {
+    classify(doc);
+    numWords+=doc.size();
+    writeAnswers(doc,printWriter,readerWriter);
+    resultsCounted=resultsCounted && countResults(doc,entityTP,entityFP,entityFN);
+    numDocs++;
+  }
+  long millis=timer.stop();
+  double wordspersec=numWords / (((double)millis) / 1000);
+  NumberFormat nf=new DecimalFormat("0.00");
+  System.err.println(StringUtils.getShortClassName(this) + " tagged " + numWords+ " words in "+ numDocs+ " documents at "+ nf.format(wordspersec)+ " words per second.");
+  if (resultsCounted) {
+    printResults(entityTP,entityFP,entityFN);
+  }
+}

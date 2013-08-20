@@ -6,7 +6,7 @@
   if (this.windowSize != crf.windowSize) {
     throw new RuntimeException("Incompatible CRFClassifier: windowSize does not match");
   }
-  if (this.labelIndices.size() != crf.labelIndices.size()) {
+  if (this.labelIndices.length != crf.labelIndices.length) {
     throw new RuntimeException("Incompatible CRFClassifier: labelIndices length does not match");
   }
   this.classIndex.addAll(crf.classIndex.objectsList());
@@ -17,8 +17,8 @@
   this.featureIndex.addAll(crf.featureIndex.objectsList());
   this.knownLCWords.addAll(crf.knownLCWords);
   assert(weights.length == oldNumFeatures1);
-  for (int i=0; i < labelIndices.size(); i++) {
-    this.labelIndices.get(i).addAll(crf.labelIndices.get(i).objectsList());
+  for (int i=0; i < labelIndices.length; i++) {
+    this.labelIndices[i].addAll(crf.labelIndices[i].objectsList());
   }
   System.err.println("Combining weights: will automatically match labelIndices");
   combineWeights(crf,weight);

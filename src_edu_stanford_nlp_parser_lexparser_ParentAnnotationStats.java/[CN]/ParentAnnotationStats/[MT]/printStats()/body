@@ -5,16 +5,16 @@
   for (int i=0; i < CUTOFFS.length; i++) {
     javaSB[i]=new StringBuffer("  private static String[] splitters" + (i + 1) + " = new String[] {");
   }
-  ClassicCounter<List<String>> allScores=new ClassicCounter<List<String>>();
+  ClassicCounter allScores=new ClassicCounter();
   for (  String node : nodeRules.keySet()) {
-    ArrayList<Pair<List<String>,Double>> answers=Generics.newArrayList();
-    ClassicCounter<List<String>> cntr=nodeRules.get(node);
+    ArrayList answers=new ArrayList();
+    ClassicCounter cntr=(ClassicCounter)nodeRules.get(node);
     double support=(cntr.totalCount());
     System.out.println("Node " + node + " support is "+ support);
     for (Iterator<List<String>> it2=pRules.keySet().iterator(); it2.hasNext(); ) {
       List<String> key=it2.next();
       if (key.get(0).equals(node)) {
-        ClassicCounter<List<String>> cntr2=pRules.get(key);
+        ClassicCounter cntr2=pRules.get(key);
         double support2=(cntr2.totalCount());
         double kl=Counters.klDivergence(cntr2,cntr);
         System.out.println("KL(" + key + "||"+ node+ ") = "+ nf.format(kl)+ "\t"+ "support("+ key+ ") = "+ support2);
@@ -25,9 +25,13 @@
     }
     System.out.println("----");
     System.out.println("Sorted descending support * KL");
-    Collections.sort(answers,new Comparator<Pair<List<String>,Double>>(){
-      public int compare(      Pair<List<String>,Double> o1,      Pair<List<String>,Double> o2){
-        return o2.second().compareTo(o1.second());
+    Collections.sort(answers,new Comparator(){
+      public int compare(      Object o1,      Object o2){
+        Pair p1=(Pair)o1;
+        Pair p2=(Pair)o2;
+        Double p12=(Double)p1.second();
+        Double p22=(Double)p2.second();
+        return p22.compareTo(p12);
       }
     }
 );
@@ -49,30 +53,36 @@
     }
     System.out.println();
   }
-  for (  List<String> node : pRules.keySet()) {
-    ArrayList<Pair<List<String>,Double>> answers=Generics.newArrayList();
-    ClassicCounter<List<String>> cntr=pRules.get(node);
+  for (Iterator it=pRules.keySet().iterator(); it.hasNext(); ) {
+    List node=(List)it.next();
+    ArrayList answers=new ArrayList();
+    ClassicCounter cntr=(ClassicCounter)pRules.get(node);
     double support=(cntr.totalCount());
     if (support < SUPPCUTOFF) {
       continue;
     }
     System.out.println("Node " + node + " support is "+ support);
-    for (    List<String> key : gPRules.keySet()) {
+    for (Iterator it2=gPRules.keySet().iterator(); it2.hasNext(); ) {
+      List key=(List)it2.next();
       if (key.get(0).equals(node.get(0)) && key.get(1).equals(node.get(1))) {
-        ClassicCounter<List<String>> cntr2=gPRules.get(key);
+        ClassicCounter cntr2=(ClassicCounter)gPRules.get(key);
         double support2=(cntr2.totalCount());
         double kl=Counters.klDivergence(cntr2,cntr);
         System.out.println("KL(" + key + "||"+ node+ ") = "+ nf.format(kl)+ "\t"+ "support("+ key+ ") = "+ support2);
         double score=kl * support2;
-        answers.add(Pair.makePair(key,new Double(score)));
+        answers.add(new Pair(key,new Double(score)));
         allScores.setCount(key,score);
       }
     }
     System.out.println("----");
     System.out.println("Sorted descending support * KL");
-    Collections.sort(answers,new Comparator<Pair<List<String>,Double>>(){
-      public int compare(      Pair<List<String>,Double> o1,      Pair<List<String>,Double> o2){
-        return o2.second().compareTo(o1.second());
+    Collections.sort(answers,new Comparator(){
+      public int compare(      Object o1,      Object o2){
+        Pair p1=(Pair)o1;
+        Pair p2=(Pair)o2;
+        Double p12=(Double)p1.second();
+        Double p22=(Double)p2.second();
+        return p22.compareTo(p12);
       }
     }
 );
@@ -98,9 +108,9 @@
   }
   System.out.println();
   System.out.println("All scores:");
-  edu.stanford.nlp.util.PriorityQueue<List<String>> pq=Counters.toPriorityQueue(allScores);
+  edu.stanford.nlp.util.PriorityQueue pq=Counters.toPriorityQueue(allScores);
   while (!pq.isEmpty()) {
-    List<String> key=pq.getFirst();
+    Object key=pq.getFirst();
     double score=pq.getPriority(key);
     pq.removeFirst();
     System.out.println(key + "\t" + score);

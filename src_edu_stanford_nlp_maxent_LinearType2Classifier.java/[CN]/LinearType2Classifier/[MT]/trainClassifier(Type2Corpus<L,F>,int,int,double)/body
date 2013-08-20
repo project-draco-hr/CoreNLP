@@ -1,0 +1,17 @@
+{
+  data.createFeatureIndex(lowerEmpCount,lowerAllCount);
+  data.summaryStatistics();
+  String tmpIndexFile="/tmp/type2ClassifierIndex.tmp";
+  data.saveIndexAndForget(tmpIndexFile);
+  DiffFunction logLik=new LikelihoodPriorObjectiveFunction(data,sigma);
+  Minimizer<DiffFunction> m=new QNMinimizer(5);
+  double[] initial=new double[data.domainDimension()];
+  double[] parameters=m.minimize(logLik,1e-3,initial);
+  ClassicCounter<Pair<L,F>> weights=new ClassicCounter<Pair<L,F>>();
+  data.readIndex(tmpIndexFile);
+  for (int ind=0; ind < parameters.length; ind++) {
+    weights.incrementCount(data.getFeature(ind),parameters[ind]);
+  }
+  data.clear();
+  return new LinearType2Classifier<L,Pair<L,F>>(weights);
+}

@@ -1,0 +1,39 @@
+{
+  boolean result=false;
+  try {
+    if (this.inf.getRemaining() > GZIP_TRAILER_LENGTH) {
+      raf.seek(raf.getFilePointer() - this.inf.getRemaining() + GZIP_TRAILER_LENGTH);
+      this.resetInflater();
+    }
+    for (int read=-1, headerRead=0; true; headerRead=0) {
+      getInputStream().mark(3);
+      if ((read=getInputStream().read()) == -1) {
+        break;
+      }
+      if (compareBytes(read,GZIPInputStream.GZIP_MAGIC)) {
+        headerRead++;
+        if ((read=getInputStream().read()) == -1) {
+          break;
+        }
+        if (compareBytes(read,GZIPInputStream.GZIP_MAGIC >> 8)) {
+          headerRead++;
+          if ((read=getInputStream().read()) == -1) {
+            break;
+          }
+          if (compareBytes(read,Deflater.DEFLATED)) {
+            headerRead++;
+            getInputStream().reset();
+            result=true;
+            break;
+          }
+        }
+        raf.seek(raf.getFilePointer() - headerRead);
+      }
+    }
+    this.resetInflater();
+  }
+ catch (  IOException e) {
+    throw new RuntimeException("Failed i/o: " + e.getMessage());
+  }
+  return result;
+}

@@ -1,0 +1,153 @@
+{
+  int zzInput;
+  int zzAction;
+  int zzCurrentPosL;
+  int zzMarkedPosL;
+  int zzEndReadL=zzEndRead;
+  char[] zzBufferL=zzBuffer;
+  char[] zzCMapL=ZZ_CMAP;
+  int[] zzTransL=ZZ_TRANS;
+  int[] zzRowMapL=ZZ_ROWMAP;
+  int[] zzAttrL=ZZ_ATTRIBUTE;
+  while (true) {
+    zzMarkedPosL=zzMarkedPos;
+    zzAction=-1;
+    zzCurrentPosL=zzCurrentPos=zzStartRead=zzMarkedPosL;
+    zzState=zzLexicalState;
+    zzForAction: {
+      while (true) {
+        if (zzCurrentPosL < zzEndReadL)         zzInput=zzBufferL[zzCurrentPosL++];
+ else         if (zzAtEOF) {
+          zzInput=YYEOF;
+          break zzForAction;
+        }
+ else {
+          zzCurrentPos=zzCurrentPosL;
+          zzMarkedPos=zzMarkedPosL;
+          boolean eof=zzRefill();
+          zzCurrentPosL=zzCurrentPos;
+          zzMarkedPosL=zzMarkedPos;
+          zzBufferL=zzBuffer;
+          zzEndReadL=zzEndRead;
+          if (eof) {
+            zzInput=YYEOF;
+            break zzForAction;
+          }
+ else {
+            zzInput=zzBufferL[zzCurrentPosL++];
+          }
+        }
+        int zzNext=zzTransL[zzRowMapL[zzState] + zzCMapL[zzInput]];
+        if (zzNext == -1)         break zzForAction;
+        zzState=zzNext;
+        int zzAttributes=zzAttrL[zzState];
+        if ((zzAttributes & 1) == 1) {
+          zzAction=zzState;
+          zzMarkedPosL=zzCurrentPosL;
+          if ((zzAttributes & 8) == 8)           break zzForAction;
+        }
+      }
+    }
+    zzMarkedPos=zzMarkedPosL;
+switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
+case 9:
+{
+        return LINEEND;
+      }
+case 16:
+    break;
+case 15:
+{
+    return STRING;
+  }
+case 17:
+break;
+case 5:
+{
+return RBR;
+}
+case 18:
+break;
+case 11:
+{
+return COMMA;
+}
+case 19:
+break;
+case 1:
+{
+return STRING;
+}
+case 20:
+break;
+case 3:
+{
+return RSB;
+}
+case 21:
+break;
+case 2:
+{
+return OTHER;
+}
+case 22:
+break;
+case 4:
+{
+return LBR;
+}
+case 23:
+break;
+case 6:
+{
+return LSB;
+}
+case 24:
+break;
+case 13:
+{
+return TAG;
+}
+case 25:
+break;
+case 12:
+{
+return TAG;
+}
+case 26:
+break;
+case 10:
+{
+return WHITESPACE;
+}
+case 27:
+break;
+case 8:
+{
+return RPAREN;
+}
+case 28:
+break;
+case 7:
+{
+return LPAREN;
+}
+case 29:
+break;
+case 14:
+{
+return SEPARATE;
+}
+case 30:
+break;
+default :
+if (zzInput == YYEOF && zzStartRead == zzCurrentPos) {
+zzAtEOF=true;
+return YYEOF;
+}
+ else {
+zzScanError(ZZ_NO_MATCH);
+}
+}
+}
+}

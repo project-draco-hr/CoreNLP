@@ -1,0 +1,36 @@
+{
+  double[] posters=new double[train.numClasses];
+  double[] scores=new double[train.numClasses];
+  double[] chrisscores=new double[train.numClasses];
+  int start=0;
+  if (inTrain) {
+    start=2;
+    topNo+=2;
+  }
+  double[] x=d.x;
+  for (int j=start; j < topNo; j++) {
+    int yVc=(int)x[inds[j]];
+    String nameVal=train.getAttrName(inds[j],yVc);
+    int yV=train.getYIndex(nameVal);
+    if (yV > -1) {
+      posters[yV]++;
+      chrisscores[yV]+=chrisweights[inds[j]];
+      scores[yV]+=accuracies[inds[j]];
+    }
+  }
+  double max=0;
+  int maxI=0;
+  for (int z=0; z < posters.length; z++) {
+    if (posters[z] > max) {
+      max=posters[z];
+      maxI=z;
+    }
+    if (posters[z] == max) {
+      if (scores[z] > scores[maxI]) {
+        max=posters[z];
+        maxI=z;
+      }
+    }
+  }
+  return maxI;
+}

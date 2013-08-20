@@ -7,13 +7,13 @@
   for (Iterator<CoreLabel> wordIter=doc.iterator(); wordIter.hasNext(); testContentIdx++) {
     CoreLabel pwi=wi;
     wi=wordIter.next();
-    boolean originalWhiteSpace="1".equals(wi.get(CoreAnnotations.SpaceBeforeAnnotation.class));
-    if (wi.get(CoreAnnotations.AnswerAnnotation.class).equals("1") && !("0".equals(String.valueOf(wi.get(CoreAnnotations.PositionAnnotation.class))))) {
+    boolean originalWhiteSpace="1".equals(wi.get(SpaceBeforeAnnotation.class));
+    if (wi.get(AnswerAnnotation.class).equals("1") && !("0".equals(String.valueOf(wi.get(PositionAnnotation.class))))) {
       boolean seg=true;
       if (flags.keepEnglishWhitespaces) {
         if (testContentIdx > 0) {
-          char prevChar=pwi.get(CoreAnnotations.OriginalCharAnnotation.class).charAt(0);
-          char currChar=wi.get(CoreAnnotations.OriginalCharAnnotation.class).charAt(0);
+          char prevChar=pwi.get(OriginalCharAnnotation.class).charAt(0);
+          char currChar=wi.get(OriginalCharAnnotation.class).charAt(0);
           if (isLetterASCII(prevChar) && isLetterASCII(currChar)) {
             if (!originalWhiteSpace) {
               seg=false;
@@ -38,8 +38,8 @@
  else {
       boolean seg=false;
       if (testContentIdx > 0) {
-        char prevChar=pwi.get(CoreAnnotations.OriginalCharAnnotation.class).charAt(0);
-        char currChar=wi.get(CoreAnnotations.OriginalCharAnnotation.class).charAt(0);
+        char prevChar=pwi.get(OriginalCharAnnotation.class).charAt(0);
+        char currChar=wi.get(OriginalCharAnnotation.class).charAt(0);
         if ((prevChar < (char)128) != (currChar < (char)128)) {
           if (ChineseUtils.isNumber(prevChar) && ChineseUtils.isNumber(currChar)) {
           }
@@ -50,17 +50,17 @@
       }
       if (flags.keepEnglishWhitespaces) {
         if (testContentIdx > 0) {
-          char prevChar=pwi.get(CoreAnnotations.OriginalCharAnnotation.class).charAt(0);
-          char currChar=wi.get(CoreAnnotations.OriginalCharAnnotation.class).charAt(0);
+          char prevChar=pwi.get(OriginalCharAnnotation.class).charAt(0);
+          char currChar=wi.get(OriginalCharAnnotation.class).charAt(0);
           if (isLetterASCII(prevChar) && isLetterASCII(currChar) || isLetterASCII(prevChar) && ChineseUtils.isNumber(currChar) || ChineseUtils.isNumber(prevChar) && isLetterASCII(currChar)) {
-            if ("1".equals(wi.get(CoreAnnotations.SpaceBeforeAnnotation.class))) {
+            if ("1".equals(wi.get(SpaceBeforeAnnotation.class))) {
               seg=true;
             }
           }
         }
       }
       if (flags.keepAllWhitespaces) {
-        if (!("0".equals(String.valueOf(wi.get(CoreAnnotations.PositionAnnotation.class)))) && "1".equals(wi.get(CoreAnnotations.SpaceBeforeAnnotation.class))) {
+        if (!("0".equals(String.valueOf(wi.get(PositionAnnotation.class)))) && "1".equals(wi.get(SpaceBeforeAnnotation.class))) {
           seg=true;
         }
       }
@@ -73,9 +73,9 @@
         }
       }
     }
-    ans.append(wi.get(CoreAnnotations.OriginalCharAnnotation.class));
-    unmod_ans.append(wi.get(CoreAnnotations.OriginalCharAnnotation.class));
-    unmod_normed_ans.append(wi.get(CoreAnnotations.CharAnnotation.class));
+    ans.append(wi.get(OriginalCharAnnotation.class));
+    unmod_ans.append(wi.get(OriginalCharAnnotation.class));
+    unmod_normed_ans.append(wi.get(CharAnnotation.class));
   }
   String ansStr=ans.toString();
   if (flags.sighanPostProcessing) {

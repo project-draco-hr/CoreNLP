@@ -2,7 +2,7 @@
   logger.info("=============SIEVE OPTIMIZATION START ====================");
   logger.info("Optimize sieves using score: " + optimizeScoreType);
   FileFilter scoreFilesFilter=new FileFilter(){
-    @Override public boolean accept(    File file){
+    public boolean accept(    File file){
       return file.getAbsolutePath().endsWith(".score");
     }
     public String toString(){
@@ -15,7 +15,7 @@
   String mainWorkDirPath=props.getProperty(Constants.RUN_DIST_CMD_WORK_DIR,"workdir") + "-" + timestamp+ File.separator;
   DeterministicCorefSieve[] origSieves=sieves;
   String[] origSieveNames=sieveClassNames;
-  Set<Integer> remainingSieveIndices=Generics.newHashSet();
+  Set<Integer> remainingSieveIndices=new HashSet<Integer>();
   for (int i=0; i < origSieves.length; i++) {
     remainingSieveIndices.add(i);
   }
@@ -35,7 +35,7 @@
         if (ko.second() < 0) {
           if (remainingSieveIndices.contains(ko.first())) {
             logger.info("Restrict selection to " + origSieveNames[ko.first()] + " because of constraint "+ toSieveOrderConstraintString(ko,origSieveNames));
-            selectableSieveIndices=Generics.newHashSet(1);
+            selectableSieveIndices=new HashSet<Integer>(1);
             selectableSieveIndices.add(ko.first());
             break;
           }
@@ -54,7 +54,7 @@
         }
       }
     }
-    if (selectableSieveIndices.isEmpty()) {
+    if (selectableSieveIndices.size() == 0) {
       throw new RuntimeException("Unable to find sieve ordering to satisfy all ordering constraints!!!!");
     }
     int selected=-1;

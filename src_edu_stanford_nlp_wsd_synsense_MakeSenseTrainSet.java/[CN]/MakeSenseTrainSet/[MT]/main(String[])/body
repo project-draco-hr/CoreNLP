@@ -1,0 +1,80 @@
+{
+  if (args.length < 3) {
+    System.out.println("Usage: java MakeSenseTrainSet [file] [form0|form1|form2|form3|form4] [maxSentenceSize] [maxNumSentences]");
+    System.exit(1);
+  }
+  try {
+    File my_file=new File(args[0]);
+    String[] wordForms=new String[5];
+    int j=0;
+    StringTokenizer tok=new StringTokenizer(args[1],"|");
+    while (tok.hasMoreTokens()) {
+      wordForms[j++]=tok.nextToken();
+    }
+    int maxSentenceSize=Integer.parseInt(args[2]);
+    int maxNumSentences=Integer.parseInt(args[3]);
+    String wf="<wf";
+    String punc="<punc";
+    String verb="pos=VB";
+    String wnsn="wnsn=";
+    BufferedReader in=new BufferedReader(new FileReader(my_file));
+    boolean hasQuote=false;
+    String line;
+    Vector<String> buffer=new Vector<String>();
+    int wordIndex=-1;
+    int wordStart=-1;
+    int wordEnd=-1;
+    String tempWord;
+    int wordSense=-1;
+    int numPrinted=0;
+    int tempSenseIndex;
+    StringTokenizer tokSense;
+    System.out.println(wordForms[0] + "|" + wordForms[1]+ "|"+ wordForms[2]+ "|"+ wordForms[3]+ "|"+ wordForms[4]);
+    int i=0;
+    while ((line=in.readLine()) != null) {
+      if (line.indexOf("</s>") >= 0) {
+        if (wordIndex >= 0 && buffer.size() < maxSentenceSize && !hasQuote) {
+          printBuffer(buffer);
+          numPrinted++;
+          if (numPrinted >= maxNumSentences) {
+            return;
+          }
+        }
+        buffer.clear();
+        wordIndex=-1;
+        wordSense=-1;
+        hasQuote=false;
+      }
+ else       if (line.indexOf(wf) >= 0 || line.indexOf(punc) >= 0) {
+        wordStart=line.indexOf('>') + 1;
+        wordEnd=line.indexOf('<',wordStart);
+        tempWord=line.substring(wordStart,wordEnd);
+        tempWord=replaceUnderscoreWithSpace(tempWord);
+        if (wordIndex < 0 && line.indexOf(verb) >= 0 && (tempWord.equals(wordForms[0]) || tempWord.equals(wordForms[1]) || tempWord.equals(wordForms[2])|| tempWord.equals(wordForms[3])|| tempWord.equals(wordForms[4]))) {
+          tempSenseIndex=line.indexOf(wnsn);
+          if (tempSenseIndex >= 0 && tempSenseIndex < line.length() - 6) {
+            tokSense=new StringTokenizer(line.substring(tempSenseIndex + 5),"> ;");
+            wordSense=Integer.parseInt(tokSense.nextToken());
+            tempWord=tempWord + "^" + wordSense;
+            wordIndex=i;
+          }
+        }
+        if (tempWord.equals("\'\'") || tempWord.equals("``")) {
+          hasQuote=true;
+        }
+        buffer.add(tempWord);
+        i++;
+      }
+    }
+  }
+ catch (  FileNotFoundException e) {
+    System.out.println(e);
+    System.out.println("Usage: java MakeTrainSet [file] [word]");
+    System.exit(1);
+  }
+catch (  IOException e) {
+    System.out.println(e);
+    System.out.println("Usage: java MakeTrainSet [file] [word]");
+    System.exit(1);
+  }
+}

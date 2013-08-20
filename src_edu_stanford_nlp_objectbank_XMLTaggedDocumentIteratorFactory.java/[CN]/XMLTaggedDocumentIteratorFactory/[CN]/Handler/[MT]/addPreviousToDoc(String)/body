@@ -1,0 +1,12 @@
+{
+  String s=fieldBuffer.toString();
+  if (verbose)   System.out.println("Adding as " + tag + ": \""+ s+ "\"");
+  fieldBuffer=new StringBuffer();
+  Tokenizer<CoreLabel> tok=tokenizerFactory.getTokenizer(new StringReader(s));
+  List<CoreLabel> tokens=tok.tokenize();
+  for (int i=0; i < tokens.size(); i++) {
+    CoreLabel mapLabel=tokens.get(i);
+    mapLabel.setTag(tag);
+    thisDoc.add(mapLabel);
+  }
+}

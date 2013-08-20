@@ -1,0 +1,20 @@
+{
+  Label boundary=new Tag("<s>");
+  Treebank treebank=new DiskTreebank(new TreeReaderFactory(){
+    public TreeReader newTreeReader(    Reader in){
+      return new PennTreeReader(in,new LabeledScoredTreeFactory(),new BobChrisTreeNormalizer());
+    }
+  }
+);
+  treebank.loadPath(args[0]);
+  Iterator iter=treebank.iterator();
+  while (iter.hasNext()) {
+    Tree t=(Tree)iter.next();
+    List ts=new ArrayList();
+    ts.add(boundary);
+    t.preTerminalYield(ts);
+    ts.add(boundary);
+    addBigrams(ts);
+  }
+  printBigrams();
+}

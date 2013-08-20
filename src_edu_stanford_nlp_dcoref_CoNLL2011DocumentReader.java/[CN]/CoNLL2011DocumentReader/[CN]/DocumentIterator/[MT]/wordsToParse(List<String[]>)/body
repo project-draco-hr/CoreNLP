@@ -16,5 +16,13 @@
     }
   }
   String parseStr=sb.toString();
-  return Tree.valueOf(parseStr,treeReaderFactory);
+  try {
+    TreeReader treeReader=new PennTreeReader(new StringReader(parseStr),treeFactory);
+    Tree tree=treeReader.readTree();
+    treeReader.close();
+    return tree;
+  }
+ catch (  IOException ex) {
+    throw new RuntimeException(ex);
+  }
 }

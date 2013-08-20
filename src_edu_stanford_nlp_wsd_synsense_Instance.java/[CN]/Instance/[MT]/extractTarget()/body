@@ -1,0 +1,20 @@
+{
+  String dummyWord="xtrainx";
+  index=getIndexOfWordWithChar(allWords,'_');
+  List<List<Word>> sentences=wordToSentenceProc.process(allWords);
+  for (Iterator<List<Word>> sentI=sentences.iterator(); sentI.hasNext(); ) {
+    List<Word> s=sentI.next();
+    for (Iterator<Word> wordI=s.iterator(); wordI.hasNext(); ) {
+      Word w=wordI.next();
+      String wordStr=w.word();
+      int ind=wordStr.indexOf('_');
+      if (ind > 0) {
+        word=wordStr.substring(0,ind) + "^";
+        w.setWord(word);
+        sentence=removeDummyWords(s,dummyWord);
+        return;
+      }
+    }
+  }
+  throw new RuntimeException("no target word found in: " + allWords);
+}

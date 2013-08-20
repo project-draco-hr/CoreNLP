@@ -1,0 +1,48 @@
+{
+  HashMap<String,PrecisionRecallStats> statsByField=new HashMap<String,PrecisionRecallStats>();
+  PrecisionRecallStats aggregateStats=new PrecisionRecallStats();
+  for (Iterator<TypedTaggedDocument> iter=testDocs.iterator(); iter.hasNext(); ) {
+    TypedTaggedDocument doc=iter.next();
+    AnswerChecker ac=new AnswerChecker(doc);
+    Map<String,Set<String>> answersByField=collapseAnswerWordSequences(typeKeysToFieldKeys(ac.getAnswerWordSequences(false),testDocs));
+    String docText=PTBTokenizer.labelList2Text(doc);
+    Map guessedAnswersByField=extractor.extractFields(docText);
+    Map<String,PrecisionRecallStats> stats=checkAnswers(answersByField,guessedAnswersByField);
+    if (verbose) {
+      System.err.println("Document: " + docText);
+      System.err.println("True answers in document:" + answersByField);
+      System.err.println("Guessed answers:" + guessedAnswersByField);
+      System.err.println("Document stats: " + stats);
+      System.err.println();
+    }
+    Iterator<String> statsIter=stats.keySet().iterator();
+    while (statsIter.hasNext()) {
+      String field=statsIter.next();
+      PrecisionRecallStats prs=stats.get(field);
+      PrecisionRecallStats fieldPRS=statsByField.get(field);
+      if (fieldPRS == null) {
+        fieldPRS=new PrecisionRecallStats();
+      }
+      fieldPRS.addCounts(prs);
+      statsByField.put(field,fieldPRS);
+      aggregateStats.addCounts(prs);
+    }
+  }
+  if (verbose) {
+    System.err.println("Aggregate stats by field:");
+    for (Iterator<String> iter=statsByField.keySet().iterator(); iter.hasNext(); ) {
+      String field=iter.next();
+      PrecisionRecallStats prs=statsByField.get(field);
+      System.err.println();
+      System.err.println("Precision on " + field + ": "+ prs.getPrecisionDescription(2));
+      System.err.println("Recall on " + field + ": "+ prs.getRecallDescription(2));
+      System.err.println("F1 on " + field + ": "+ prs.getF1Description(2));
+    }
+    System.err.println();
+    System.err.println("Overall aggregate stats: " + aggregateStats);
+    System.err.println("Overall Precision: " + aggregateStats.getPrecision());
+    System.err.println("Overall Recall: " + aggregateStats.getRecall());
+    System.err.println("Overall F1: " + aggregateStats.getFMeasure());
+  }
+  return (statsByField);
+}

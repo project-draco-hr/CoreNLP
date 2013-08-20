@@ -1,0 +1,41 @@
+{
+  for (  EdgeType edgetype : EdgeType.values()) {
+    assertIt(loadedEdges.contains(edgetype),"Failed to load " + edgetype);
+  }
+  for (  SynsetID synset : synsets.values()) {
+    assertIt(all.get(synset.index()) == synset,"Misplaced synset " + synset);
+    assertIt(synset.getWordTag(1).getSynset(synset.numberInFirstWordTagID) == synset,"Wrong number in first WordTagID " + synset);
+    assertIt(!synset.wordtags.contains(null),synset + " contains null WordTagID");
+    for (    WordTagID wordtag : synset.wordtags) {
+      assertIt(wordtag.synsets.contains(synset),"Miswired Synset " + synset);
+    }
+  }
+  for (  WordTagID wordtag : wordtags.values()) {
+    assertIt(all.get(wordtag.index()) == wordtag,"Misplaced wordtag " + wordtag);
+    assertIt(!wordtag.synsets.contains(null),wordtag + " contains null SynsetID");
+    for (    SynsetID synset : wordtag.synsets) {
+      assertIt(synset.wordtags.contains(wordtag),"Miswired WordTag " + wordtag);
+    }
+    assertIt(wordtag.word.wordTags.containsValue(wordtag),"Miswired WordTag " + wordtag);
+  }
+  for (  WordID word : words.values()) {
+    assertIt(all.get(word.index()) == word,"Misplaced word " + word);
+    for (    WordTagID wordtag : word.wordTags.values()) {
+      assertIt(wordtag.word == word,"Miswired WordTag " + word);
+    }
+  }
+  for (  WordNetID id1 : all) {
+    for (    EdgeType[] pair : transpose) {
+      for (      WordNetID id2 : id1.get(pair[0])) {
+        assertIt(id2.get(pair[1]).contains(id1),"Missing transpose " + Arrays.asList(transpose) + " "+ id1+ " "+ id2);
+      }
+    }
+  }
+  for (  WordNetID id1 : all) {
+    for (    EdgeType type : reflexive) {
+      for (      WordNetID id2 : id1.get(type)) {
+        assertIt(id2.get(type).contains(id1),"Missing reflextive " + type + " "+ id1+ " "+ id2);
+      }
+    }
+  }
+}

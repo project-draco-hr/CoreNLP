@@ -1,0 +1,15 @@
+{
+  CoreLabel[] docArray=doc.toArray(new CoreLabel[doc.size()]);
+  MutableInteger nodeId=new MutableInteger(0);
+  DFSA answerLattice=new DFSA(null);
+  DFSAState aInitState=new DFSAState(nodeId.intValue(),answerLattice);
+  answerLattice.setInitialState(aInitState);
+  Map<DFSAState,DFSAState> stateLinks=new HashMap<DFSAState,DFSAState>();
+  tagLatticeToAnswerLattice(tagLattice.initialState(),aInitState,new StringBuilder(""),nodeId,0,0.0,stateLinks,answerLattice,docArray);
+  try {
+    answerLattice.printAttFsmFormat(out);
+  }
+ catch (  IOException e) {
+    throw new RuntimeException(e);
+  }
+}

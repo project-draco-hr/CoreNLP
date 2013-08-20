@@ -1,10 +1,10 @@
 {
   CoreMap lastSent=paragraph.get(paragraph.size() - 1);
   String speaker="";
-  for (  CoreLabel w : lastSent.get(CoreAnnotations.TokensAnnotation.class)) {
-    if (w.get(CoreAnnotations.LemmaAnnotation.class).equals("report") || w.get(CoreAnnotations.LemmaAnnotation.class).equals("say")) {
-      String word=w.get(CoreAnnotations.TextAnnotation.class);
-      SemanticGraph dependency=lastSent.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class);
+  for (  CoreLabel w : lastSent.get(TokensAnnotation.class)) {
+    if (w.get(LemmaAnnotation.class).equals("report") || w.get(LemmaAnnotation.class).equals("say")) {
+      String word=w.get(TextAnnotation.class);
+      SemanticGraph dependency=lastSent.get(CollapsedDependenciesAnnotation.class);
       IndexedWord t=dependency.getNodeByWordPattern(word);
       for (      Pair<GrammaticalRelation,IndexedWord> child : dependency.childPairs(t)) {
         if (child.first().getShortName().equals("nsubj")) {

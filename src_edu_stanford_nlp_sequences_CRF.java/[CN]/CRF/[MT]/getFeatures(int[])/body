@@ -1,0 +1,20 @@
+{
+  Counter<Integer> features=new ClassicCounter<Integer>();
+  int backgroundSymbol=metaInfo().backgroundIndex();
+  for (int position=0; position < factors.length; position++) {
+    int size=cliqueLabels[position].size();
+    for (int lcIndex=0; lcIndex < size; lcIndex++) {
+      LabeledClique lc=cliqueLabels[position].get(lcIndex);
+      LabeledClique actualLC=LabeledClique.valueOf(lc.clique,sequence,position,backgroundSymbol);
+      if (!lc.equals(actualLC)) {
+        continue;
+      }
+      Features labelInfo=dataset.features[position].get(lc);
+      int[] featuresArray=labelInfo.features;
+      for (int i=0; i < featuresArray.length; i++) {
+        features.incrementCount(featuresArray[i],labelInfo.value(i));
+      }
+    }
+  }
+  return features;
+}

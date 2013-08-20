@@ -1,0 +1,22 @@
+{
+  int sIndex;
+  int lIndex;
+  char currChar;
+  sIndex=shortForm.length() - 1;
+  lIndex=longForm.length() - 1;
+  for (; sIndex >= 0; sIndex--) {
+    currChar=Character.toLowerCase(shortForm.charAt(sIndex));
+    if (!Character.isLetterOrDigit(currChar)) {
+      continue;
+    }
+    while (((lIndex >= 0) && (Character.toLowerCase(longForm.charAt(lIndex)) != currChar)) || ((sIndex == 0) && (lIndex > 0) && (Character.isLetterOrDigit(longForm.charAt(lIndex - 1))))) {
+      lIndex--;
+    }
+    if (lIndex < 0) {
+      return null;
+    }
+    lIndex--;
+  }
+  lIndex=longForm.lastIndexOf(" ",lIndex) + 1;
+  return longForm.substring(lIndex);
+}

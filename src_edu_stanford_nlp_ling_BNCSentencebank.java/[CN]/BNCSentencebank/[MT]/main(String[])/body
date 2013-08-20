@@ -1,0 +1,29 @@
+{
+  if (args.length == 0) {
+    System.err.printf("Usage:\n\tjava edu.stanford.nlp.ling.BNCSentencebank -file \"(bnc doc1),(bnc doc2), ...\"");
+  }
+  Properties props=StringUtils.argsToProperties(args);
+  boolean wordAndTag=props.getProperty("wordAndTag") != null;
+  String files=props.getProperty("file");
+  for (  String filename : files.split(",")) {
+    File file=new File(filename);
+    BNCSentencebank bncbank;
+    if (file.isDirectory()) {
+      bncbank=new BNCSentencebank(file,FileFilters.findRegexFileFilter("."));
+    }
+ else {
+      bncbank=new BNCSentencebank(filename);
+    }
+    for (    ArrayList<TaggedWord> sent : bncbank) {
+      if (wordAndTag) {
+        for (        TaggedWord tw : sent) {
+          System.out.print(tw + " ");
+        }
+        System.out.print("\n");
+      }
+ else {
+        System.out.println(Sentence.listToString(sent));
+      }
+    }
+  }
+}

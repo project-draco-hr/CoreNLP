@@ -54,9 +54,6 @@
       binDistance[head][loc]=dg.distanceBin(rawDistance[head][loc]);
     }
   }
-  if (Thread.interrupted()) {
-    throw new RuntimeInterruptedException();
-  }
   for (int start=0; start + 1 <= length; start++) {
     String trueTagStr=null;
     if (sentence.get(start) instanceof HasTag) {
@@ -154,9 +151,6 @@
     System.err.print("Starting insides...");
   }
   for (int diff=2; diff <= length; diff++) {
-    if (Thread.interrupted()) {
-      throw new RuntimeInterruptedException();
-    }
     if (DEBUG_MORE)     System.err.println("SPAN " + diff + ": score = headPrev + argLeft + argRight + dep + argLStop + argRStop");
     for (int start=0; start + diff <= length; start++) {
       int end=start + diff;
@@ -264,9 +258,6 @@
   oScoreH[length - 1][goalTag][0]=0.0f;
   oScoreH[length - 1][goalTag][length]=0.0f;
   for (int diff=length; diff > 1; diff--) {
-    if (Thread.interrupted()) {
-      throw new RuntimeInterruptedException();
-    }
     for (int start=0; start + diff <= length; start++) {
       int end=start + diff;
       int endHead=end - 1;
@@ -338,9 +329,6 @@
       Arrays.fill(oPossibleByL[loc][head],false);
       Arrays.fill(oPossibleByR[loc][head],false);
     }
-  }
-  if (Thread.interrupted()) {
-    throw new RuntimeInterruptedException();
   }
   for (int head=0; head < length; head++) {
     for (int tag=0; tag < numTags; tag++) {

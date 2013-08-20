@@ -1,0 +1,20 @@
+{
+  Treebank trainTreebank=tlpParams.memoryTreebank();
+  System.out.print("Reading in treebank...");
+  Timing.startTime();
+  trainTreebank.loadPath(path,new NumberRangeFileFilter(low,high,true));
+  Timing.tick("done");
+  System.out.print("Extracting trees...");
+  Timing.startTime();
+  List<Tree> trainTrees=new ArrayList<Tree>();
+  for (  Tree tree : trainTreebank) {
+    trainTrees.add(tree);
+  }
+  Timing.tick("done");
+  System.out.print("Extracting paths...");
+  Timing.startTime();
+  Extractor<Map<String,List<List<String>>>> pExtractor=new PathExtractor(tlpParams.headFinder(),op);
+  Map<String,List<List<String>>> allPaths=pExtractor.extract(trainTrees);
+  Timing.tick("done");
+  return allPaths;
+}

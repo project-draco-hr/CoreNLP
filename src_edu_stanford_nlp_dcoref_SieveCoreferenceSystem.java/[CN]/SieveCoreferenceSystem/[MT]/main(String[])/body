@@ -12,7 +12,7 @@
     FileHandler fh=new FileHandler(logFileName,false);
     logger.addHandler(fh);
     logger.setLevel(Level.FINE);
-    fh.setFormatter(new NewlineLogFormatter());
+    fh.setFormatter(new LogFormatter());
   }
  catch (  SecurityException e) {
     System.err.println("ERROR: cannot initialize logger!");
@@ -28,13 +28,13 @@ catch (  IOException e) {
   SieveCoreferenceSystem corefSystem=new SieveCoreferenceSystem(props);
   MentionExtractor mentionExtractor=null;
   if (props.containsKey(Constants.MUC_PROP)) {
-    mentionExtractor=new MUCMentionExtractor(corefSystem.dictionaries,props,corefSystem.semantics,corefSystem.singletonPredictor);
+    mentionExtractor=new MUCMentionExtractor(corefSystem.dictionaries,props,corefSystem.semantics);
   }
  else   if (props.containsKey(Constants.ACE2004_PROP) || props.containsKey(Constants.ACE2005_PROP)) {
-    mentionExtractor=new ACEMentionExtractor(corefSystem.dictionaries,props,corefSystem.semantics,corefSystem.singletonPredictor);
+    mentionExtractor=new ACEMentionExtractor(corefSystem.dictionaries,props,corefSystem.semantics);
   }
  else   if (props.containsKey(Constants.CONLL2011_PROP)) {
-    mentionExtractor=new CoNLLMentionExtractor(corefSystem.dictionaries,props,corefSystem.semantics,corefSystem.singletonPredictor);
+    mentionExtractor=new CoNLLMentionExtractor(corefSystem.dictionaries,props,corefSystem.semantics);
   }
   if (mentionExtractor == null) {
     throw new RuntimeException("No input file specified!");

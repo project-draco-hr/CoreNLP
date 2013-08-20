@@ -1,0 +1,31 @@
+{
+  double targetScoreThreshold=1.0;
+  Document unkDoc=doc;
+  if (unseenMode == UNSEENMODE_UNK_LOW_COUNTS) {
+    unkDoc=new UnknownWordCollapser(vocab.keySet(),unkModel == UNKMODEL_FEATURAL_DECOMP,feat).processDocument(doc);
+  }
+  HMMTrainer hmmt=new HMMTrainer(false);
+  hmmt.forwardAlgorithm(unkDoc,true,false);
+  hmmt.backwardAlgorithm(unkDoc,true,false);
+  int[] typeSequence=getLabelsForSequence(stateSequence);
+  HashMap answerRangesByType=AnswerChecker.getAnswerRanges(typeSequence);
+  HashMap bestAnswerByType=new HashMap();
+  for (Iterator iter=answerRangesByType.keySet().iterator(); iter.hasNext(); ) {
+    Integer type=(Integer)iter.next();
+    List answerRanges=(List)answerRangesByType.get(type);
+    ClassicCounter rangeScores=new ClassicCounter();
+    for (Iterator rangeIter=answerRanges.iterator(); rangeIter.hasNext(); ) {
+      AnswerChecker.Range r=(AnswerChecker.Range)rangeIter.next();
+      rangeScores.setCount(r,hmmt.computeTargetScore(unkDoc,type.intValue(),r));
+    }
+    for (Iterator iter2=rangeScores.keySet().iterator(); iter2.hasNext(); ) {
+      AnswerChecker.Range r=(AnswerChecker.Range)iter2.next();
+      System.err.println(r.extractRange(doc) + ": " + rangeScores.getCount(r));
+    }
+    AnswerChecker.Range bestAnswerRange=(AnswerChecker.Range)Counters.argmax(rangeScores);
+    if (bestAnswerRange != null && rangeScores.getCount(bestAnswerRange) > targetScoreThreshold) {
+      bestAnswerByType.put(type,bestAnswerRange.extractRange(doc));
+    }
+  }
+  return (bestAnswerByType);
+}

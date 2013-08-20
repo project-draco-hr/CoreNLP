@@ -11,7 +11,7 @@
   if (docId != null) {
     setSingleElement(docElem,"docId",NAMESPACE_URI,docId);
   }
-  String docDate=annotation.get(CoreAnnotations.DocDateAnnotation.class);
+  String docDate=annotation.get(DocDateAnnotation.class);
   if (docDate != null) {
     setSingleElement(docElem,"docDate",NAMESPACE_URI,docDate);
   }
@@ -31,23 +31,20 @@
         wordTable.appendChild(wordInfo);
       }
       sentElem.appendChild(wordTable);
-      Tree tree=sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+      Tree tree=sentence.get(TreeAnnotation.class);
       if (tree != null) {
         Element parseInfo=new Element("parse",NAMESPACE_URI);
         addConstituentTreeInfo(parseInfo,tree,constituentTreePrinter);
         sentElem.appendChild(parseInfo);
-        Element depInfo=buildDependencyTreeInfo("basic-dependencies",sentence.get(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class),tokens,NAMESPACE_URI);
-        if (depInfo != null) {
-          sentElem.appendChild(depInfo);
-        }
-        depInfo=buildDependencyTreeInfo("collapsed-dependencies",sentence.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class),tokens,NAMESPACE_URI);
-        if (depInfo != null) {
-          sentElem.appendChild(depInfo);
-        }
-        depInfo=buildDependencyTreeInfo("collapsed-ccprocessed-dependencies",sentence.get(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class),tokens,NAMESPACE_URI);
-        if (depInfo != null) {
-          sentElem.appendChild(depInfo);
-        }
+        Element depInfo=new Element("basic-dependencies",NAMESPACE_URI);
+        addDependencyTreeInfo(depInfo,sentence.get(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class),tokens,NAMESPACE_URI);
+        sentElem.appendChild(depInfo);
+        depInfo=new Element("collapsed-dependencies",NAMESPACE_URI);
+        addDependencyTreeInfo(depInfo,sentence.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class),tokens,NAMESPACE_URI);
+        sentElem.appendChild(depInfo);
+        depInfo=new Element("collapsed-ccprocessed-dependencies",NAMESPACE_URI);
+        addDependencyTreeInfo(depInfo,sentence.get(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class),tokens,NAMESPACE_URI);
+        sentElem.appendChild(depInfo);
       }
       List<EntityMention> entities=sentence.get(MachineReadingAnnotations.EntityMentionsAnnotation.class);
       List<RelationMention> relations=sentence.get(MachineReadingAnnotations.RelationMentionsAnnotation.class);
