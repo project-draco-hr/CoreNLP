@@ -12,7 +12,7 @@
     parserOptions="-makeCopulaHead " + parserOptions;
   }
   parserOptions=parserOptions.trim();
-  Function<Object,Tree> lp;
+  Function<List<? extends HasWord>,Tree> lp;
   try {
     Class<?>[] classes=new Class<?>[]{String.class,String[].class};
     Method method=Class.forName("edu.stanford.nlp.parser.lexparser.LexicalizedParser").getMethod("loadModel",classes);
@@ -20,7 +20,7 @@
     if (parserOptions.length() > 0) {
       opts=parserOptions.split(" +");
     }
-    lp=(Function<Object,Tree>)method.invoke(null,parserFile,opts);
+    lp=(Function<List<? extends HasWord>,Tree>)method.invoke(null,parserFile,opts);
   }
  catch (  Exception cnfe) {
     throw new RuntimeException(cnfe);

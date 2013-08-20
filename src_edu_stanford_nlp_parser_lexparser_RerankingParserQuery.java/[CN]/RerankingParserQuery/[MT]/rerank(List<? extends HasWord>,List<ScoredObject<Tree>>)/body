@@ -1,0 +1,16 @@
+{
+  RerankerQuery rq=reranker.process(sentence);
+  List<ScoredObject<Tree>> reranked=new ArrayList<ScoredObject<Tree>>();
+  for (  ScoredObject<Tree> scoredTree : bestKParses) {
+    double score=scoredTree.score();
+    try {
+      score=op.baseParserWeight * score + rq.score(scoredTree.object());
+    }
+ catch (    NoSuchParseException e) {
+      score=Double.NEGATIVE_INFINITY;
+    }
+    reranked.add(new ScoredObject<Tree>(scoredTree.object(),score));
+  }
+  Collections.sort(reranked,ScoredComparator.DESCENDING_COMPARATOR);
+  return reranked;
+}

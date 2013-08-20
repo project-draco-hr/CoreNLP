@@ -1,0 +1,11 @@
+{
+  ArrayCoreMap foo=new ArrayCoreMap();
+  foo.set(CoreAnnotations.TextAnnotation.class,"word");
+  foo.set(CoreAnnotations.PartOfSpeechAnnotation.class,"NN");
+  assertEquals("word/NN",foo.toShortString("Text","PartOfSpeech"));
+  assertEquals("NN",foo.toShortString("PartOfSpeech"));
+  assertEquals("",foo.toShortString("Lemma"));
+  assertEquals("word|NN",foo.toShortString('|',"Text","PartOfSpeech","Lemma"));
+  foo.set(CoreAnnotations.AntecedentAnnotation.class,"the price of tea");
+  assertEquals("{word/NN/the price of tea}",foo.toShortString("Text","PartOfSpeech","Antecedent"));
+}

@@ -5,22 +5,21 @@
     if (docIterator == null) {
       docIterator=new DocumentIterator(curFile.getAbsolutePath(),options);
     }
-    Document next=docIterator.next();
-    while (next == null) {
+    while (!docIterator.hasNext()) {
       logger.info("Processed " + docIterator.docCnt + " documents in "+ curFile.getAbsolutePath());
       docIterator.close();
       curFileIndex++;
       if (curFileIndex >= fileList.size()) {
-        break;
+        return null;
       }
       curFile=fileList.get(curFileIndex);
       docIterator=new DocumentIterator(curFile.getAbsolutePath(),options);
-      next=docIterator.next();
     }
-    if (next != null)     SieveCoreferenceSystem.logger.fine("read document: " + next.getDocumentID());
+    Document next=docIterator.next();
+    SieveCoreferenceSystem.logger.fine("Reading document: " + next.getDocumentID());
     return next;
   }
  catch (  IOException ex) {
-    throw new RuntimeException(ex);
+    throw new RuntimeIOException(ex);
   }
 }

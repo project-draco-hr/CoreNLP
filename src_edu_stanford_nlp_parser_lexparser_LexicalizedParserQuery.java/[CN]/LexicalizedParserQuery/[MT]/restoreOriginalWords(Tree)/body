@@ -1,21 +1,13 @@
 {
-  if (originalWords == null || tree == null) {
+  if (originalSentence == null || tree == null) {
     return;
   }
   List<Tree> leaves=tree.getLeaves();
-  if (leaves.size() != originalWords.size()) {
-    return;
+  if (leaves.size() != originalSentence.size()) {
+    throw new IllegalStateException("originalWords and sentence of different sizes: " + originalSentence.size() + " vs. "+ leaves.size()+ "\n Orig: "+ Sentence.listToString(originalSentence)+ "\n Pars: "+ Sentence.listToString(leaves));
   }
-  if (originalWords.size() != originalLemmas.size()) {
-    throw new AssertionError("originalWords and originalLemmas of different sizes");
-  }
-  Iterator<String> wordsIterator=originalWords.iterator();
-  Iterator<String> lemmasIterator=originalLemmas.iterator();
+  Iterator<? extends Label> wordsIterator=(Iterator<? extends Label>)originalSentence.iterator();
   for (  Tree leaf : leaves) {
-    leaf.setValue(wordsIterator.next());
-    String lemma=lemmasIterator.next();
-    if ((leaf.label() instanceof HasLemma) && (lemma != null)) {
-      ((HasLemma)leaf.label()).setLemma(lemma);
-    }
+    leaf.setLabel(wordsIterator.next());
   }
 }

@@ -65,7 +65,7 @@
     String parserFile=props.getProperty("parserFile");
     String parserOpts=props.getProperty("parserOpts");
     boolean tokenized=props.getProperty("tokenized") != null;
-    Function<Object,Tree> lp=loadParser(parserFile,parserOpts,makeCopulaHead);
+    Function<List<? extends HasWord>,Tree> lp=loadParser(parserFile,parserOpts,makeCopulaHead);
     trees=new LazyLoadTreesByParsing(sentFileName,encoding,tokenized,lp);
     try {
       Method method=lp.getClass().getMethod("getTLPParams");
@@ -97,7 +97,7 @@
   Method m=null;
   if (test) {
     try {
-      Class sgf=Class.forName("edu.stanford.nlp.trees.semgraph.SemanticGraphFactory");
+      Class sgf=Class.forName("edu.stanford.nlp.semgraph.SemanticGraphFactory");
       m=sgf.getDeclaredMethod("makeFromTree",GrammaticalStructure.class,boolean.class,boolean.class,boolean.class,boolean.class,boolean.class,boolean.class,Filter.class,String.class,int.class);
     }
  catch (    Exception e) {
@@ -140,7 +140,7 @@
       if (m != null) {
         try {
           Object semGraph=m.invoke(null,gs,false,true,false,false,false,false,null,null,0);
-          Class sg=Class.forName("edu.stanford.nlp.trees.semgraph.SemanticGraph");
+          Class sg=Class.forName("edu.stanford.nlp.semgraph.SemanticGraph");
           Method mDag=sg.getDeclaredMethod("isDag");
           boolean isDag=(Boolean)mDag.invoke(semGraph);
           System.out.println("tree dependencies form a DAG: " + isDag);
@@ -205,7 +205,7 @@
     }
     if (portray) {
       try {
-        Class sgu=Class.forName("edu.stanford.nlp.trees.semgraph.SemanticGraphUtils");
+        Class sgu=Class.forName("edu.stanford.nlp.semgraph.SemanticGraphUtils");
         Method mRender=sgu.getDeclaredMethod("render",GrammaticalStructure.class,String.class);
         mRender.invoke(null,gs,"Collapsed, CC processed deps");
       }

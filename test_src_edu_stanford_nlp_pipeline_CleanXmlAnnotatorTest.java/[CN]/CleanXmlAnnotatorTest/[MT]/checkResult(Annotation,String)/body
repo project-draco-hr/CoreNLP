@@ -3,9 +3,9 @@
   Annotation[] goldAnnotations=new Annotation[gold.length];
   for (int i=0; i < gold.length; ++i) {
     goldAnnotations[i]=annotate(gold[i],ptbInvertible,null,null);
-    goldTokens.addAll(goldAnnotations[i].get(TokensAnnotation.class));
+    goldTokens.addAll(goldAnnotations[i].get(CoreAnnotations.TokensAnnotation.class));
   }
-  List<CoreLabel> annotationLabels=annotation.get(TokensAnnotation.class);
+  List<CoreLabel> annotationLabels=annotation.get(CoreAnnotations.TokensAnnotation.class);
   if (goldTokens.size() != annotationLabels.size()) {
     for (int i=0; i < annotationLabels.size(); ++i) {
       System.err.print(annotationLabels.get(i).word() + " ");
@@ -20,8 +20,8 @@
   for (int i=0; i < annotationLabels.size(); ++i) {
     assertEquals(goldTokens.get(i).word(),annotationLabels.get(i).word());
   }
-  if (annotation.get(SentencesAnnotation.class) != null) {
-    List<CoreMap> sentences=annotation.get(SentencesAnnotation.class);
+  if (annotation.get(CoreAnnotations.SentencesAnnotation.class) != null) {
+    List<CoreMap> sentences=annotation.get(CoreAnnotations.SentencesAnnotation.class);
     assertEquals(gold.length,sentences.size());
   }
 }

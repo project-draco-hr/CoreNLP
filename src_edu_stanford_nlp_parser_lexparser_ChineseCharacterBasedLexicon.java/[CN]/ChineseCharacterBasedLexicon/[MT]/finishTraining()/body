@@ -15,7 +15,7 @@
     }
   }
   Set<Symbol> singletons=Counters.keysBelow(charCounter,1.5);
-  knownChars=new HashSet<Symbol>(charCounter.keySet());
+  knownChars=Generics.newHashSet(charCounter.keySet());
   Timing.tick("Counting nGrams...");
   GeneralizedCounter[] POSspecificCharNGrams=new GeneralizedCounter[CONTEXT_LENGTH + 1];
   for (int i=0; i <= CONTEXT_LENGTH; i++) {
@@ -80,7 +80,7 @@
   }
   POSDistribution=Distribution.getDistribution(POSCounter);
   Timing.tick("Creating character prior distribution...");
-  charDistributions=new HashMap<List,Distribution>();
+  charDistributions=Generics.newHashMap();
   int numberOfKeys=charCounter.size() + singletons.size();
   Distribution<Symbol> prior=Distribution.goodTuringSmoothedCounter(charCounter,numberOfKeys);
   charDistributions.put(Collections.EMPTY_LIST,prior);

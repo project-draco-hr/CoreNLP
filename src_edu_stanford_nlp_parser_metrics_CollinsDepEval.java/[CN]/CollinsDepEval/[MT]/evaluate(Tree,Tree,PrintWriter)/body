@@ -7,15 +7,15 @@
   Map<CollinsRelation,Set<CollinsDependency>> guessDeps=makeCollinsObjects(guess);
   if (DEBUG)   System.out.println("gold:");
   Map<CollinsRelation,Set<CollinsDependency>> goldDeps=makeCollinsObjects(gold);
-  Set<CollinsRelation> relations=new HashSet<CollinsRelation>();
+  Set<CollinsRelation> relations=Generics.newHashSet();
   relations.addAll(guessDeps.keySet());
   relations.addAll(goldDeps.keySet());
   num+=1.0;
   for (  CollinsRelation rel : relations) {
     Set<CollinsDependency> thisGuessDeps=guessDeps.get(rel);
     Set<CollinsDependency> thisGoldDeps=goldDeps.get(rel);
-    if (thisGuessDeps == null)     thisGuessDeps=new HashSet<CollinsDependency>();
-    if (thisGoldDeps == null)     thisGoldDeps=new HashSet<CollinsDependency>();
+    if (thisGuessDeps == null)     thisGuessDeps=Generics.newHashSet();
+    if (thisGoldDeps == null)     thisGoldDeps=Generics.newHashSet();
     double currentPrecision=precision(thisGuessDeps,thisGoldDeps);
     double currentRecall=precision(thisGoldDeps,thisGuessDeps);
     double currentF1=(currentPrecision > 0.0 && currentRecall > 0.0 ? 2.0 / (1.0 / currentPrecision + 1.0 / currentRecall) : 0.0);

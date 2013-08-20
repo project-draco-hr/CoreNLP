@@ -1,6 +1,6 @@
 {
   if (answerArrays == null) {
-    answerArrays=new HashSet<List<String>>();
+    answerArrays=Generics.newHashSet();
   }
   if (classIndex == null) {
     classIndex=new HashIndex<String>();
@@ -14,14 +14,14 @@
       for (int diff=1; diff <= flags.maxLeft && start + diff <= leng; diff++) {
         String[] seq=new String[diff];
         for (int i=start; i < start + diff; i++) {
-          seq[i - start]=doc.get(i).get(AnswerAnnotation.class);
+          seq[i - start]=doc.get(i).get(CoreAnnotations.AnswerAnnotation.class);
         }
         answerArrays.add(Arrays.asList(seq));
       }
     }
     for (int i=0; i < leng; i++) {
       CoreLabel wordInfo=doc.get(i);
-      classIndex.add(wordInfo.get(AnswerAnnotation.class));
+      classIndex.add(wordInfo.get(CoreAnnotations.AnswerAnnotation.class));
     }
     if (flags.useReverse) {
       Collections.reverse(doc);

@@ -1,9 +1,9 @@
 {
   boolean insideQuotation=false;
   for (  CoreMap m : results) {
-    for (    CoreLabel l : m.get(TokensAnnotation.class)) {
-      String w=l.get(TextAnnotation.class);
-      boolean noSpeakerInfo=!l.containsKey(SpeakerAnnotation.class) || l.get(SpeakerAnnotation.class).equals("") || l.get(SpeakerAnnotation.class).startsWith("PER");
+    for (    CoreLabel l : m.get(CoreAnnotations.TokensAnnotation.class)) {
+      String w=l.get(CoreAnnotations.TextAnnotation.class);
+      boolean noSpeakerInfo=!l.containsKey(CoreAnnotations.SpeakerAnnotation.class) || l.get(CoreAnnotations.SpeakerAnnotation.class).equals("") || l.get(CoreAnnotations.SpeakerAnnotation.class).startsWith("PER");
       if (w.equals("``") || (!insideQuotation && normalQuotationType && w.equals("\""))) {
         insideQuotation=true;
         maxUtter++;
@@ -13,10 +13,10 @@
         insideQuotation=false;
       }
       if (insideQuotation) {
-        l.set(UtteranceAnnotation.class,maxUtter);
+        l.set(CoreAnnotations.UtteranceAnnotation.class,maxUtter);
       }
       if (noSpeakerInfo) {
-        l.set(SpeakerAnnotation.class,"PER" + l.get(UtteranceAnnotation.class));
+        l.set(CoreAnnotations.SpeakerAnnotation.class,"PER" + l.get(CoreAnnotations.UtteranceAnnotation.class));
       }
     }
   }

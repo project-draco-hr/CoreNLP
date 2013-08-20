@@ -1,0 +1,29 @@
+{
+  for (int argIndex=0; argIndex < args.length; ++argIndex) {
+    if (args[argIndex].equalsIgnoreCase("-info")) {
+      argsBox.info=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-patterns")) {
+      argsBox.patternDirStr=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-type")) {
+      argsBox.type=RUNTYPE.valueOf(args[argIndex + 1]);
+      argIndex+=2;
+    }
+  }
+  if (argsBox.patternDirStr == null) {
+    throw new IllegalArgumentException("Need to give a pattern location with -patterns");
+  }
+  argsBox.init();
+  System.out.println(argsBox);
+  try {
+    if (argsBox.type == RUNTYPE.interactive) {
+      Ssurgeon.inst().testRead(argsBox.patternDir);
+    }
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+  }
+}
