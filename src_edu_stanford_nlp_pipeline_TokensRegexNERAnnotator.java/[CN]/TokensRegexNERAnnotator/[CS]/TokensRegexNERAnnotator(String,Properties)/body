@@ -1,7 +1,7 @@
 {
   String backgroundSymbol=properties.getProperty(name + ".backgroundSymbol",SeqClassifierFlags.DEFAULT_BACKGROUND_SYMBOL + ",MISC");
   String[] backgroundSymbols=backgroundSymbol.split("\\s*,\\s*");
-  String[] mappings=PropertiesUtils.getStringArray(properties,name + ".mapping",new String[]{DefaultPaths.DEFAULT_REGEXNER_RULES});
+  String mapping=properties.getProperty(name + ".mapping",DefaultPaths.DEFAULT_REGEXNER_RULES);
   String validPosRegex=properties.getProperty(name + ".validpospattern");
   this.posMatchType=PosMatchType.valueOf(properties.getProperty(name + ".posmatchtype",DEFAULT_POS_MATCH_TYPE.name()));
   boolean overwriteMyLabels=true;
@@ -14,7 +14,17 @@
  else {
     validPosPattern=null;
   }
-  entries=readEntries(name,noDefaultOverwriteLabels,ignoreCase,verbose,mappings);
+  BufferedReader rd=null;
+  try {
+    rd=IOUtils.readerFromString(mapping);
+    entries=readEntries(name,mapping,rd,noDefaultOverwriteLabels,ignoreCase,verbose);
+  }
+ catch (  IOException e) {
+    throw new RuntimeIOException("Couldn't read TokensRegexNER from " + mapping,e);
+  }
+ finally {
+    IOUtils.closeIgnoringExceptions(rd);
+  }
   multiPatternMatcher=createPatternMatcher();
   myLabels=Generics.newHashSet();
   for (  String s : backgroundSymbols)   myLabels.add(s);
