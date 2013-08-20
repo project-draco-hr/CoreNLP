@@ -1,24 +1,26 @@
 {
-  IdentityHashMap<Object,Boolean> isSentenceBoundary=new IdentityHashMap<Object,Boolean>();
-  if (sentenceBoundaryMultiTokenPattern != null) {
-    SequenceMatcher<? super IN> matcher=sentenceBoundaryMultiTokenPattern.getMatcher(words);
-    while (matcher.find()) {
-      List nodes=matcher.groupNodes();
-      if (nodes != null & nodes.size() > 0) {
-        isSentenceBoundary.put(nodes.get(nodes.size() - 1),true);
-      }
-    }
-  }
   List<List<IN>> sentences=Generics.newArrayList();
   List<IN> currentSentence=new ArrayList<IN>();
   List<IN> lastSentence=null;
   boolean insideRegion=false;
   boolean inWaitForForcedEnd=false;
   for (  IN o : words) {
-    String word=getWord(o);
+    String word;
+    if (o instanceof HasWord) {
+      HasWord h=(HasWord)o;
+      word=h.word();
+    }
+ else     if (o instanceof String) {
+      word=(String)o;
+    }
+ else     if (o instanceof CoreMap) {
+      word=((CoreMap)o).get(CoreAnnotations.TextAnnotation.class);
+    }
+ else {
+      throw new RuntimeException("Expected token to be either Word or String.");
+    }
     boolean forcedEnd=false;
     boolean inMultiTokenExpr=false;
-    boolean discardToken=false;
     if (o instanceof CoreMap) {
       CoreMap cm=(CoreMap)o;
       Boolean forcedEndValue=cm.get(CoreAnnotations.ForcedSentenceEndAnnotation.class);
@@ -30,9 +32,6 @@
         if (mt != null && !mt.isEnd()) {
           inMultiTokenExpr=true;
         }
-      }
-      if (tokenPatternsToDiscard != null) {
-        discardToken=matchesTokenPatternsToDiscard(word);
       }
     }
     if (DEBUG) {
@@ -48,24 +47,23 @@
       continue;
     }
     if (sentenceBoundaryFollowers.contains(word) && lastSentence != null && currentSentence.isEmpty()) {
-      if (!discardToken)       lastSentence.add(o);
+      lastSentence.add(o);
       if (DEBUG) {
-        System.err.println(discardToken ? "discarded" : "  added to last");
+        System.err.println("  added to last");
       }
     }
  else {
       boolean newSent=false;
-      String debugText=(discardToken) ? "discarded" : "added to current";
       if (inWaitForForcedEnd && !forcedEnd) {
-        if (!discardToken)         currentSentence.add(o);
+        currentSentence.add(o);
         if (DEBUG) {
-          System.err.println("  is in wait for forced end; " + debugText);
+          System.err.println("  is in wait for forced end; added to current");
         }
       }
  else       if (inMultiTokenExpr && !forcedEnd) {
-        if (!discardToken)         currentSentence.add(o);
+        currentSentence.add(o);
         if (DEBUG) {
-          System.err.println("  is in multi token expr; " + debugText);
+          System.err.println("  is in multi token expr; added to current");
         }
       }
  else       if (matchesSentenceBoundaryToDiscard(word)) {
@@ -75,32 +73,25 @@
         insideRegion=false;
         newSent=true;
       }
- else       if (isSentenceBoundary.containsKey(o) && isSentenceBoundary.get(o)) {
-        if (!discardToken)         currentSentence.add(o);
-        if (DEBUG) {
-          System.err.println("  is sentence boundary (matched multi-token pattern); " + debugText);
-        }
-        newSent=true;
-      }
  else       if (sentenceBoundaryTokenPattern.matcher(word).matches()) {
-        if (!discardToken)         currentSentence.add(o);
+        currentSentence.add(o);
         if (DEBUG) {
-          System.err.println("  is sentence boundary; " + debugText);
+          System.err.println("  is sentence boundary; added to current");
         }
         newSent=true;
       }
  else       if (forcedEnd) {
-        if (!discardToken)         currentSentence.add(o);
+        currentSentence.add(o);
         inWaitForForcedEnd=false;
         newSent=true;
         if (DEBUG) {
-          System.err.println("  annotated to be the end of a sentence; " + debugText);
+          System.err.println("  annotated to be the end of a sentence");
         }
       }
  else {
-        if (!discardToken)         currentSentence.add(o);
+        currentSentence.add(o);
         if (DEBUG) {
-          System.err.println("  " + debugText);
+          System.err.println("  added to current");
         }
       }
       if (newSent && (!currentSentence.isEmpty() || allowEmptySentences())) {
