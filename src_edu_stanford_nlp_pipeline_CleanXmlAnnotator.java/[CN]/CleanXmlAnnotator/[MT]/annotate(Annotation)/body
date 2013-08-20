@@ -1,9 +1,9 @@
 {
-  if (annotation.has(TokensAnnotation.class)) {
-    List<CoreLabel> tokens=annotation.get(TokensAnnotation.class);
+  if (annotation.has(CoreAnnotations.TokensAnnotation.class)) {
+    List<CoreLabel> tokens=annotation.get(CoreAnnotations.TokensAnnotation.class);
     List<CoreLabel> dateTokens=new ArrayList<CoreLabel>();
     List<CoreLabel> newTokens=process(tokens,dateTokens);
-    annotation.set(TokensAnnotation.class,newTokens);
+    annotation.set(CoreAnnotations.TokensAnnotation.class,newTokens);
     if (dateTokens.size() > 0) {
       StringBuffer os=new StringBuffer();
       boolean first=true;
@@ -12,7 +12,7 @@
         os.append(t.word());
         first=false;
       }
-      annotation.set(DocDateAnnotation.class,os.toString());
+      annotation.set(CoreAnnotations.DocDateAnnotation.class,os.toString());
     }
   }
 }

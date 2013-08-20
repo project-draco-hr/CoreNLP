@@ -13,13 +13,13 @@
       prepend.append(before).append(word);
       if (previous != null) {
         String previousTokenAfter=StringUtils.getNotNullString(previous.get(CoreAnnotations.AfterAnnotation.class));
-        previous.set(AfterAnnotation.class,previousTokenAfter + word + after);
+        previous.set(CoreAnnotations.AfterAnnotation.class,previousTokenAfter + word + after);
       }
     }
  else {
       String before=StringUtils.getNotNullString(w.get(CoreAnnotations.BeforeAnnotation.class));
       if (prepend.length() > 0) {
-        w.set(BeforeAnnotation.class,prepend.toString() + before);
+        w.set(CoreAnnotations.BeforeAnnotation.class,prepend.toString() + before);
         prepend=new StringBuilder();
       }
       words.add(w);
@@ -32,14 +32,14 @@
   for (  List<IN> sentence : sentences) {
     int pos=0;
     for (    IN w : sentence) {
-      w.set(PositionAnnotation.class,Integer.toString(pos));
+      w.set(CoreAnnotations.PositionAnnotation.class,Integer.toString(pos));
       after=StringUtils.getNotNullString(w.get(CoreAnnotations.AfterAnnotation.class));
-      w.remove(AfterAnnotation.class);
+      w.remove(CoreAnnotations.AfterAnnotation.class);
       last=w;
     }
   }
   if (last != null) {
-    last.set(AfterAnnotation.class,after);
+    last.set(CoreAnnotations.AfterAnnotation.class,after);
   }
   return sentences.iterator();
 }

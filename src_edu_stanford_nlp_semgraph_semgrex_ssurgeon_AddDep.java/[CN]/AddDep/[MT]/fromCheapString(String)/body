@@ -1,0 +1,19 @@
+{
+  String arg=rawArg.substring(1,rawArg.length() - 1);
+  String[] tuples=arg.split(ATOM_DELIMITER);
+  Map<String,String> args=Generics.newHashMap();
+  for (  String tuple : tuples) {
+    String[] vals=tuple.split(TUPLE_DELIMITER);
+    String key=vals[0];
+    String value="";
+    if (vals.length == 2)     value=vals[1];
+    args.put(key,value);
+  }
+  IndexedWord newWord=new IndexedWord();
+  newWord.setWord(args.get(WORD_KEY));
+  newWord.setLemma(args.get(LEMMA_KEY));
+  newWord.setTag(args.get(POS_KEY));
+  newWord.setValue(args.get(VALUE_KEY));
+  newWord.setOriginalText(args.get(CURRENT_KEY));
+  return newWord;
+}

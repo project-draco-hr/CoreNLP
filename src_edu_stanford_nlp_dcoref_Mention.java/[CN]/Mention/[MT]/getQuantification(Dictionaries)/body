@@ -1,0 +1,23 @@
+{
+  if (headIndexedWord == null)   return null;
+  if (!nerString.equals("O"))   return "definite";
+  List<IndexedWord> quant=dependency.getChildrenWithReln(headIndexedWord,EnglishGrammaticalRelations.DETERMINER);
+  List<IndexedWord> poss=dependency.getChildrenWithReln(headIndexedWord,EnglishGrammaticalRelations.POSSESSION_MODIFIER);
+  String det="";
+  if (!quant.isEmpty()) {
+    det=quant.get(0).lemma();
+    if (dict.determiners.contains(det)) {
+      return "definite";
+    }
+  }
+ else   if (!poss.isEmpty()) {
+    return "definite";
+  }
+ else {
+    quant=dependency.getChildrenWithReln(headIndexedWord,EnglishGrammaticalRelations.NUMERIC_MODIFIER);
+    if (dict.quantifiers2.contains(det) || !quant.isEmpty()) {
+      return "quantified";
+    }
+  }
+  return "indefinite";
+}

@@ -13,38 +13,27 @@
   }
   this.properties=props;
   AnnotatorPool pool=getDefaultAnnotatorPool(props);
-  Map<String,Requirement> requires=new HashMap<String,Requirement>();
-  if (enforceRequirements) {
-    requires.put(STANFORD_TOKENIZE,new Requirement());
-    requires.put(STANFORD_CLEAN_XML,new Requirement(STANFORD_TOKENIZE));
-    requires.put(STANFORD_SSPLIT,new Requirement(STANFORD_TOKENIZE));
-    requires.put(STANFORD_POS,new Requirement(STANFORD_TOKENIZE,STANFORD_SSPLIT));
-    requires.put(STANFORD_LEMMA,new Requirement(STANFORD_TOKENIZE,STANFORD_SSPLIT,POS_TAGGING));
-    requires.put(STANFORD_NER,new Requirement(STANFORD_TOKENIZE,STANFORD_SSPLIT,POS_TAGGING,STANFORD_LEMMA));
-    requires.put(STANFORD_REGEXNER,new Requirement(STANFORD_TOKENIZE,STANFORD_SSPLIT));
-    requires.put(STANFORD_GENDER,new Requirement(STANFORD_TOKENIZE,STANFORD_SSPLIT));
-    requires.put(STANFORD_TRUECASE,new Requirement(STANFORD_TOKENIZE,STANFORD_SSPLIT,POS_TAGGING,STANFORD_LEMMA));
-    requires.put(STANFORD_NFL,new Requirement(STANFORD_TOKENIZE,STANFORD_SSPLIT,POS_TAGGING,STANFORD_LEMMA,STANFORD_NER,STANFORD_PARSE));
-    requires.put(STANFORD_PARSE,new Requirement(STANFORD_TOKENIZE,STANFORD_SSPLIT));
-    requires.put(STANFORD_DETERMINISTIC_COREF,new Requirement(STANFORD_TOKENIZE,STANFORD_SSPLIT,POS_TAGGING,STANFORD_NER,STANFORD_PARSE));
-  }
   List<String> annoNames=Arrays.asList(getRequiredProperty(props,"annotators").split("[, \t]+"));
-  HashSet<String> alreadyAddedAnnoNames=new HashSet<String>();
+  Set<String> alreadyAddedAnnoNames=Generics.newHashSet();
+  Set<Requirement> requirementsSatisfied=Generics.newHashSet();
   for (  String name : annoNames) {
     name=name.trim();
     if (name.isEmpty()) {
       continue;
     }
     System.err.println("Adding annotator " + name);
-    if (requires.containsKey(name)) {
-      String missingRequirement=requires.get(name).getMissingRequirement(alreadyAddedAnnoNames);
-      if (missingRequirement != null) {
-        String fmt="annotator \"%s\" requires annotator \"%s\"";
-        throw new IllegalArgumentException(String.format(fmt,name,missingRequirement));
-      }
-    }
     Annotator an=pool.get(name);
     this.addAnnotator(an);
+    if (enforceRequirements) {
+      Set<Requirement> allRequirements=an.requires();
+      for (      Requirement requirement : allRequirements) {
+        if (!requirementsSatisfied.contains(requirement)) {
+          String fmt="annotator \"%s\" requires annotator \"%s\"";
+          throw new IllegalArgumentException(String.format(fmt,name,requirement));
+        }
+      }
+      requirementsSatisfied.addAll(an.requirementsSatisfied());
+    }
     if (name.equals(STANFORD_TOKENIZE) && annoNames.contains(STANFORD_NFL) && !annoNames.contains(STANFORD_NFL_TOKENIZE)) {
       Annotator pp=pool.get(STANFORD_NFL_TOKENIZE);
       this.addAnnotator(pp);

@@ -1,0 +1,18 @@
+{
+  List<TreeGraphNode> nodes=new ArrayList<TreeGraphNode>();
+  for (  Tree node : gs.root()) {
+    nodes.add((TreeGraphNode)node);
+  }
+  Collections.reverse(nodes);
+  for (  TreeGraphNode node : nodes) {
+    if (!"ROOT".equals(node.value())) {
+      CoreLabel label=node.label();
+      Tree hw=label.get(TreeCoreAnnotations.HeadWordAnnotation.class);
+      if (hw != null) {
+        TreeGraphNode hwn=(TreeGraphNode)hw;
+        CoreLabel hwLabel=hwn.label();
+        hwLabel.set(CoreAnnotations.ProjectedCategoryAnnotation.class,node.value());
+      }
+    }
+  }
+}

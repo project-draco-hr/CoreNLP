@@ -129,7 +129,7 @@
       out.close();
       byte[] bytes=baos.toByteArray();
       ObjectInputStream in=new ObjectInputStream(new BufferedInputStream(new ByteArrayInputStream(bytes)));
-      c=IOUtils.readObject(in);
+      c=IOUtils.readObjectFromObjectStream(in);
       in.close();
       if (!this.integral) {
         assertEquals(-2.5,c.totalCount());
@@ -142,7 +142,10 @@
       }
     }
  catch (    IOException ioe) {
-      fail("IOError: " + ioe);
+      fail("IOException: " + ioe);
+    }
+catch (    ClassNotFoundException cce) {
+      fail("ClassNotFoundException: " + cce);
     }
   }
 }

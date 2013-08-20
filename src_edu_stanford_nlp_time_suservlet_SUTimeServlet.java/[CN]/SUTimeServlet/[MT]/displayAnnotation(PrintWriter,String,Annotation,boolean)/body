@@ -1,5 +1,5 @@
 {
-  List<CoreMap> timexAnns=anno.get(TimexAnnotations.class);
+  List<CoreMap> timexAnns=anno.get(TimeAnnotations.TimexAnnotations.class);
   List<String> pieces=new ArrayList<String>();
   List<Boolean> tagged=new ArrayList<Boolean>();
   int previousEnd=0;
@@ -40,7 +40,7 @@
     out.println("<th>Timex3 Tag</th></tr>");
     for (    CoreMap timexAnn : timexAnns) {
       out.println("<tr>");
-      Timex timex=timexAnn.get(TimexAnnotation.class);
+      Timex timex=timexAnn.get(TimeAnnotations.TimexAnnotation.class);
       int begin=timexAnn.get(CoreAnnotations.CharacterOffsetBeginAnnotation.class);
       int end=timexAnn.get(CoreAnnotations.CharacterOffsetEndAnnotation.class);
       out.print("<td>" + StringEscapeUtils.escapeHtml(query.substring(begin,end)) + "</td>");
@@ -61,8 +61,8 @@
   }
   out.println("<h3>POS Tags</h3>");
   out.println("<table><tr><td>");
-  for (  CoreMap sentence : anno.get(SentencesAnnotation.class)) {
-    List<CoreLabel> tokens=sentence.get(TokensAnnotation.class);
+  for (  CoreMap sentence : anno.get(CoreAnnotations.SentencesAnnotation.class)) {
+    List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
     for (    CoreLabel token : tokens) {
       String tokenOutput=StringEscapeUtils.escapeHtml(token.word() + "/" + token.tag());
       out.print(tokenOutput + " ");

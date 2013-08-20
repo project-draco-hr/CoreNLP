@@ -1,0 +1,26 @@
+{
+  final List<CoreLabel> words=sentence.get(CoreAnnotations.TokensAnnotation.class);
+  if (VERBOSE) {
+    System.err.println("Parsing: " + words);
+  }
+  Tree tree=null;
+  if (maxSentenceLength <= 0 || words.size() < maxSentenceLength) {
+    try {
+      final List<ParserConstraint> constraints=sentence.get(ParserAnnotations.ConstraintAnnotation.class);
+      tree=doOneSentence(constraints,words);
+    }
+ catch (    RuntimeInterruptedException e) {
+      if (VERBOSE) {
+        System.err.println("Took too long parsing: " + words);
+      }
+      tree=null;
+    }
+  }
+  if (tree == null) {
+    tree=ParserAnnotatorUtils.xTree(words);
+  }
+  if (treeMap != null) {
+    tree=treeMap.apply(tree);
+  }
+  ParserAnnotatorUtils.fillInParseAnnotations(VERBOSE,BUILD_GRAPHS,gsf,sentence,tree);
+}

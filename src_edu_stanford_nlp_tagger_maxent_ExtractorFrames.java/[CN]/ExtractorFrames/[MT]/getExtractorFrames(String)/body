@@ -95,9 +95,22 @@
  else     if (arg.startsWith("allwordshapes(")) {
       int lWindow=Extractor.getParenthesizedNum(arg,1);
       int rWindow=Extractor.getParenthesizedNum(arg,2);
-      for (int i=lWindow; i <= rWindow; i++) {
-        extrs.add(new ExtractorWordShapeClassifier(i,"chris2"));
+      String wsc=Extractor.getParenthesizedArg(arg,3);
+      if (wsc == null) {
+        wsc="chris2";
       }
+      for (int i=lWindow; i <= rWindow; i++) {
+        extrs.add(new ExtractorWordShapeClassifier(i,wsc));
+      }
+    }
+ else     if (arg.startsWith("allwordshapeconjunction(")) {
+      int lWindow=Extractor.getParenthesizedNum(arg,1);
+      int rWindow=Extractor.getParenthesizedNum(arg,2);
+      String wsc=Extractor.getParenthesizedArg(arg,3);
+      if (wsc == null) {
+        wsc="chris2";
+      }
+      extrs.add(new ExtractorWordShapeConjunction(lWindow,rWindow,wsc));
     }
  else     if (arg.startsWith("allunicodeshapes(")) {
       int lWindow=Extractor.getParenthesizedNum(arg,1);
@@ -111,7 +124,7 @@
       int rWindow=Extractor.getParenthesizedNum(arg,2);
       extrs.add(new ExtractorWordShapeConjunction(lWindow,rWindow,"chris4"));
     }
- else     if (arg.equalsIgnoreCase("naacl2003unknowns") || arg.equalsIgnoreCase("lnaacl2003unknowns") || arg.equalsIgnoreCase("caselessnaacl2003unknowns")|| arg.equalsIgnoreCase("naacl2003conjunctions")|| arg.equalsIgnoreCase("frenchunknowns")|| arg.startsWith("wordshapes(")|| arg.equalsIgnoreCase("motleyUnknown")|| arg.startsWith("suffix(")|| arg.startsWith("prefix(")|| arg.startsWith("prefixsuffix")|| arg.startsWith("capitalizationsuffix(")|| arg.startsWith("distsim(")|| arg.startsWith("distsimconjunction(")|| arg.equalsIgnoreCase("lctagfeatures")|| arg.startsWith("unicodeshapes(")|| arg.startsWith("chinesedictionaryfeatures(")|| arg.startsWith("unicodeshapeconjunction(")) {
+ else     if (arg.equalsIgnoreCase("naacl2003unknowns") || arg.equalsIgnoreCase("lnaacl2003unknowns") || arg.equalsIgnoreCase("caselessnaacl2003unknowns")|| arg.equalsIgnoreCase("naacl2003conjunctions")|| arg.equalsIgnoreCase("frenchunknowns")|| arg.startsWith("wordshapes(")|| arg.startsWith("wordshapeconjunction(")|| arg.equalsIgnoreCase("motleyUnknown")|| arg.startsWith("suffix(")|| arg.startsWith("prefix(")|| arg.startsWith("prefixsuffix")|| arg.startsWith("capitalizationsuffix(")|| arg.startsWith("distsim(")|| arg.startsWith("distsimconjunction(")|| arg.equalsIgnoreCase("lctagfeatures")|| arg.startsWith("unicodeshapes(")|| arg.startsWith("chinesedictionaryfeatures(")|| arg.startsWith("unicodeshapeconjunction(")) {
     }
  else {
       System.err.println("Unrecognized ExtractorFrames identifier (ignored): " + arg);

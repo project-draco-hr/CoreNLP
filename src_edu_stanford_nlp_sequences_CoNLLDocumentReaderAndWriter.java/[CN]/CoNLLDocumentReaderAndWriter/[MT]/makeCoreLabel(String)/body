@@ -5,22 +5,22 @@ switch (bits.length) {
 case 0:
 case 1:
     wi.setWord(BOUNDARY);
-  wi.set(AnswerAnnotation.class,OTHER);
+  wi.set(CoreAnnotations.AnswerAnnotation.class,OTHER);
 break;
 case 2:
 wi.setWord(bits[0]);
-wi.set(AnswerAnnotation.class,bits[1]);
+wi.set(CoreAnnotations.AnswerAnnotation.class,bits[1]);
 break;
 case 3:
 wi.setWord(bits[0]);
 wi.setTag(bits[1]);
-wi.set(AnswerAnnotation.class,bits[2]);
+wi.set(CoreAnnotations.AnswerAnnotation.class,bits[2]);
 break;
 case 4:
 wi.setWord(bits[0]);
 wi.setTag(bits[1]);
-wi.set(ChunkAnnotation.class,bits[2]);
-wi.set(AnswerAnnotation.class,bits[3]);
+wi.set(CoreAnnotations.ChunkAnnotation.class,bits[2]);
+wi.set(CoreAnnotations.AnswerAnnotation.class,bits[3]);
 break;
 case 5:
 if (flags.useLemmaAsWord) {
@@ -29,14 +29,14 @@ wi.setWord(bits[1]);
  else {
 wi.setWord(bits[0]);
 }
-wi.set(LemmaAnnotation.class,bits[1]);
+wi.set(CoreAnnotations.LemmaAnnotation.class,bits[1]);
 wi.setTag(bits[2]);
-wi.set(ChunkAnnotation.class,bits[3]);
-wi.set(AnswerAnnotation.class,bits[4]);
+wi.set(CoreAnnotations.ChunkAnnotation.class,bits[3]);
+wi.set(CoreAnnotations.AnswerAnnotation.class,bits[4]);
 break;
 default :
 throw new RuntimeIOException("Unexpected input (many fields): " + line);
 }
-wi.set(OriginalAnswerAnnotation.class,wi.get(AnswerAnnotation.class));
+wi.set(CoreAnnotations.OriginalAnswerAnnotation.class,wi.get(CoreAnnotations.AnswerAnnotation.class));
 return wi;
 }

@@ -1,0 +1,13 @@
+{
+  Map<String,Counter<String>> w=new HashMap<String,Counter<String>>();
+  for (  String feature : featureIndex) {
+    int index=featureIndex.indexOf(feature);
+    double[] v=weights[index];
+    Index<CRFLabel> l=this.labelIndices.get(0);
+    for (    CRFLabel label : l) {
+      if (!w.containsKey(label.toString(classIndex)))       w.put(label.toString(classIndex),new ClassicCounter<String>());
+      w.get(label.toString(classIndex)).setCount(feature,v[l.indexOf(label)]);
+    }
+  }
+  return w;
+}

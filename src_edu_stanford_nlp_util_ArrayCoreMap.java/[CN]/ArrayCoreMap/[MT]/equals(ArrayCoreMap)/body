@@ -1,24 +1,42 @@
 {
-  if (this.size != other.size) {
-    return false;
+  TwoDimensionalMap<CoreMap,CoreMap,Boolean> calledMap=equalsCalled.get();
+  boolean createdCalledMap=(calledMap == null);
+  if (createdCalledMap) {
+    calledMap=TwoDimensionalMap.identityHashMap();
+    equalsCalled.set(calledMap);
   }
-  for (int i=0; i < this.size; i++) {
-    boolean matched=false;
-    for (int j=0; j < other.size; j++) {
-      if (this.keys[i] == other.keys[j]) {
-        if ((this.values[i] == null && other.values[j] != null) || (this.values[i] != null && other.values[j] == null)) {
-          matched=false;
-          break;
-        }
-        if ((this.values[i] == null && other.values[j] == null) || (this.values[i].equals(other.values[j]))) {
-          matched=true;
-          break;
+  if (calledMap.contains(this,other)) {
+    return true;
+  }
+  boolean result=true;
+  calledMap.put(this,other,true);
+  calledMap.put(other,this,true);
+  if (this.size != other.size) {
+    result=false;
+  }
+ else {
+    for (int i=0; i < this.size; i++) {
+      boolean matched=false;
+      for (int j=0; j < other.size; j++) {
+        if (this.keys[i] == other.keys[j]) {
+          if ((this.values[i] == null && other.values[j] != null) || (this.values[i] != null && other.values[j] == null)) {
+            matched=false;
+            break;
+          }
+          if ((this.values[i] == null && other.values[j] == null) || (this.values[i].equals(other.values[j]))) {
+            matched=true;
+            break;
+          }
         }
       }
-    }
-    if (!matched) {
-      return false;
+      if (!matched) {
+        result=false;
+        break;
+      }
     }
   }
-  return true;
+  if (createdCalledMap) {
+    equalsCalled.set(null);
+  }
+  return result;
 }
