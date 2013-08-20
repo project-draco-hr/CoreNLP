@@ -14,12 +14,7 @@
   List<CoreLabel> docDateTokens=new ArrayList<CoreLabel>();
   List<CoreLabel> docTypeTokens=new ArrayList<CoreLabel>();
   List<CoreLabel> docIdTokens=new ArrayList<CoreLabel>();
-  CoreMap tokenAnnotations=(tokenAnnotationPatterns != null && !tokenAnnotationPatterns.isEmpty()) ? new ArrayCoreMap() : null;
-  XMLUtils.XMLTag sectionStartTag=null;
-  CoreLabel sectionStartToken=null;
-  CoreMap sectionAnnotations=null;
-  Map<Class,List<CoreLabel>> savedTokensForSection=new HashMap<Class,List<CoreLabel>>();
-  boolean markSingleSentence=false;
+  boolean markSingleSentence=true;
   for (  CoreLabel token : tokens) {
     String word=token.word().trim();
     XMLUtils.XMLTag tag=XMLUtils.parseTag(word);
@@ -34,9 +29,6 @@
         if (markSingleSentence) {
           token.set(CoreAnnotations.ForcedSentenceUntilEndAnnotation.class,true);
           markSingleSentence=false;
-        }
-        if (tokenAnnotations != null) {
-          ChunkAnnotationUtils.copyUnsetAnnotations(tokenAnnotations,token);
         }
       }
       if (removedText.length() > 0) {
@@ -70,15 +62,29 @@
       if (inSpeakerTag) {
         speakerTokens.add(token);
       }
-      if (sectionStartTag != null) {
-        if (sectionStartToken == null) {
-          sectionStartToken=token;
-        }
-        for (        List<CoreLabel> saved : savedTokensForSection.values()) {
-          saved.add(token);
+      continue;
+    }
+    if (!toAnnotate.isEmpty() && tag.attributes != null) {
+      Set<Class> foundAnnotations=new HashSet<Class>();
+      for (      Class key : toAnnotate) {
+        for (        Pair<Pattern,Pattern> pattern : docAnnotationPatterns.get(key)) {
+          Pattern tagPattern=pattern.first;
+          Pattern attrPattern=pattern.second;
+          if (tagPattern.matcher(tag.name).matches()) {
+            boolean matched=false;
+            for (            Map.Entry<String,String> entry : tag.attributes.entrySet()) {
+              if (attrPattern.matcher(entry.getKey()).matches()) {
+                annotation.set(key,entry.getValue());
+                foundAnnotations.add(key);
+                matched=true;
+                break;
+              }
+            }
+            if (matched)             break;
+          }
         }
       }
-      continue;
+      toAnnotate.removeAll(foundAnnotations);
     }
     String currentRemoval=token.get(CoreAnnotations.BeforeAnnotation.class);
     if (currentRemoval != null)     removedText.append(currentRemoval);
@@ -87,38 +93,6 @@
     if (token == tokens.get(tokens.size() - 1)) {
       currentRemoval=token.get(CoreAnnotations.AfterAnnotation.class);
       if (currentRemoval != null)       removedText.append(currentRemoval);
-    }
-    if (!toAnnotate.isEmpty() && tag.attributes != null) {
-      Set<Class> foundAnnotations=annotateWithTag(annotation,annotation,tag,docAnnotationPatterns,null,toAnnotate,false);
-      toAnnotate.removeAll(foundAnnotations);
-    }
-    if (sectionTagMatcher != null && sectionTagMatcher.matcher(tag.name).matches()) {
-      if (tag.isEndTag) {
-        annotateWithTag(annotation,sectionAnnotations,tag,sectionAnnotationPatterns,savedTokensForSection,null,false);
-        if (sectionStartToken != null) {
-          sectionStartToken.set(CoreAnnotations.SectionStartAnnotation.class,sectionAnnotations);
-        }
-        if (newTokens.size() > 0) {
-          CoreLabel previous=newTokens.get(newTokens.size() - 1);
-          previous.set(CoreAnnotations.ForcedSentenceEndAnnotation.class,true);
-          previous.set(CoreAnnotations.SectionEndAnnotation.class,sectionStartTag.name);
-        }
-        savedTokensForSection.clear();
-        sectionStartTag=null;
-        sectionStartToken=null;
-        sectionAnnotations=null;
-      }
- else       if (!tag.isSingleTag) {
-        sectionStartTag=tag;
-        sectionAnnotations=new ArrayCoreMap();
-        sectionAnnotations.set(CoreAnnotations.SectionAnnotation.class,sectionStartTag.name);
-      }
-    }
-    if (sectionStartTag != null) {
-      annotateWithTag(annotation,sectionAnnotations,tag,sectionAnnotationPatterns,savedTokensForSection,null,false);
-    }
-    if (tokenAnnotations != null) {
-      annotateWithTag(annotation,tokenAnnotations,tag,tokenAnnotationPatterns,null,null,true);
     }
     if (sentenceEndingTagMatcher != null && sentenceEndingTagMatcher.matcher(tag.name).matches() && newTokens.size() > 0) {
       CoreLabel previous=newTokens.get(newTokens.size() - 1);
