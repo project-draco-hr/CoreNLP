@@ -1,0 +1,75 @@
+{
+  List<E> toRemove=new ArrayList<E>();
+  fixupNerBeforeNormalization(list);
+  String prevNerTag=BACKGROUND_SYMBOL;
+  String timeModifier="";
+  int beforeIndex=-1;
+  ArrayList<E> collector=new ArrayList<E>();
+  for (int i=0, sz=list.size(); i <= sz; i++) {
+    E wi=null;
+    String currNerTag=null;
+    String nextWord="";
+    if (i < list.size()) {
+      wi=list.get(i);
+      if (DEBUG) {
+        System.err.println("addNormalizedQuantitiesToEntities: wi is " + wi + "; collector is "+ collector);
+      }
+      if ((i + 1) < sz) {
+        nextWord=list.get(i + 1).get(CoreAnnotations.TextAnnotation.class);
+        if (nextWord == null)         nextWord="";
+      }
+      currNerTag=wi.get(CoreAnnotations.NamedEntityTagAnnotation.class);
+      if ("TIME".equals(currNerTag)) {
+        if (timeModifier.equals("")) {
+          timeModifier=detectTimeOfDayModifier(list,i - 1,i + 1);
+        }
+      }
+    }
+    if ((currNerTag == null || !currNerTag.equals(prevNerTag)) && quantifiable.contains(prevNerTag)) {
+      String compModifier=null;
+      if (prevNerTag.equals("TIME")) {
+        processEntity(collector,prevNerTag,timeModifier,nextWord);
+      }
+ else       if (prevNerTag.equals(("DATE"))) {
+        E prev=(beforeIndex >= 0) ? list.get(beforeIndex) : null;
+        if (usesSUTime) {
+          compModifier=detectDateRangeModifier(prev);
+        }
+ else {
+          compModifier=detectDateRangeModifier(collector,list,beforeIndex,i);
+        }
+        if (!compModifier.equals(ISODateInstance.BOUNDED_RANGE))         processEntity(collector,prevNerTag,compModifier,nextWord);
+        if (concatenate)         concatenateNumericString(collector,toRemove);
+      }
+ else {
+        if (prevNerTag.equals("MONEY") || prevNerTag.equals("NUMBER") || prevNerTag.equals("PERCENT")) {
+          compModifier=detectQuantityModifier(list,beforeIndex,i);
+        }
+        processEntity(collector,prevNerTag,compModifier,nextWord);
+        if (concatenate) {
+          concatenateNumericString(collector,toRemove);
+        }
+      }
+      collector=new ArrayList<E>();
+      timeModifier="";
+    }
+    if (quantifiable.contains(currNerTag)) {
+      if (collector.isEmpty()) {
+        beforeIndex=i - 1;
+      }
+      collector.add(wi);
+    }
+    prevNerTag=currNerTag;
+  }
+  if (concatenate) {
+    list.removeAll(toRemove);
+  }
+  List<E> moreRemoves=new ArrayList<E>();
+  for (int i=0, sz=list.size(); i < sz; i++) {
+    E wi=list.get(i);
+    moreRemoves.addAll(detectTwoSidedRangeModifier(wi,list,i - 1,i + 1,concatenate));
+  }
+  if (concatenate) {
+    list.removeAll(moreRemoves);
+  }
+}

@@ -15,10 +15,16 @@
     if (m.matches()) {
       Pattern tagPattern=toCaseInsensitivePattern(m.group(1));
       Pattern attrPattern=toCaseInsensitivePattern(m.group(2));
-      docAnnotationPatterns.add(annoKey,Pair.makePair(tagPattern,attrPattern));
+      annotationPatterns.add(annoKey,Pair.makePair(tagPattern,attrPattern));
     }
  else {
-      throw new IllegalArgumentException("Invalid tag pattern: " + pattern + " for annotation key "+ annoKeyString);
+      if (attrOnly) {
+        throw new IllegalArgumentException("Invalid tag pattern: " + pattern + " for annotation key "+ annoKeyString);
+      }
+ else {
+        Pattern tagPattern=toCaseInsensitivePattern(pattern);
+        annotationPatterns.add(annoKey,Pair.makePair(tagPattern,(Pattern)null));
+      }
     }
   }
 }
