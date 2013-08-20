@@ -14,17 +14,13 @@
         key[i]=regexes[i].toLowerCase();
       }
     }
-    String type=split[1].trim();
     if (seenRegexes.containsKey(key)) {
-      Entry oldEntry=seenRegexes.get(key);
-      String[] types=oldEntry.type.split("\\s*,\\s*");
-      if (!CollectionUtils.asSet(types).contains(type)) {
-        if (verbose) {
-          System.err.println("Ignoring duplicate entry: " + split[0] + ", old type = "+ oldEntry.type+ ", new type = "+ type);
-        }
+      if (verbose) {
+        System.err.println("Ignoring duplicate entry: " + split[0]);
       }
       continue;
     }
+    String type=split[1].trim();
     Set<String> overwritableTypes=Generics.newHashSet();
     double priority=0.0;
     if (split.length >= 3) {
