@@ -4,8 +4,6 @@
   int matchDepth=0;
   List<CoreLabel> newTokens=new ArrayList<CoreLabel>();
   StringBuilder removedText=new StringBuilder();
-  Set<Class> toAnnotate=new HashSet<Class>();
-  toAnnotate.addAll(docAnnotationPatterns.keySet());
   int utteranceIndex=0;
   boolean inUtterance=false;
   boolean inSpeakerTag=false;
@@ -14,7 +12,6 @@
   List<CoreLabel> docDateTokens=new ArrayList<CoreLabel>();
   List<CoreLabel> docTypeTokens=new ArrayList<CoreLabel>();
   List<CoreLabel> docIdTokens=new ArrayList<CoreLabel>();
-  boolean markSingleSentence=true;
   for (  CoreLabel token : tokens) {
     String word=token.word().trim();
     XMLUtils.XMLTag tag=XMLUtils.parseTag(word);
@@ -25,10 +22,6 @@
         if (inUtterance) {
           token.set(CoreAnnotations.UtteranceAnnotation.class,utteranceIndex);
           if (currentSpeaker != null)           token.set(CoreAnnotations.SpeakerAnnotation.class,currentSpeaker);
-        }
-        if (markSingleSentence) {
-          token.set(CoreAnnotations.ForcedSentenceUntilEndAnnotation.class,true);
-          markSingleSentence=false;
         }
       }
       if (removedText.length() > 0) {
@@ -63,28 +56,6 @@
         speakerTokens.add(token);
       }
       continue;
-    }
-    if (!toAnnotate.isEmpty() && tag.attributes != null) {
-      Set<Class> foundAnnotations=new HashSet<Class>();
-      for (      Class key : toAnnotate) {
-        for (        Pair<Pattern,Pattern> pattern : docAnnotationPatterns.get(key)) {
-          Pattern tagPattern=pattern.first;
-          Pattern attrPattern=pattern.second;
-          if (tagPattern.matcher(tag.name).matches()) {
-            boolean matched=false;
-            for (            Map.Entry<String,String> entry : tag.attributes.entrySet()) {
-              if (attrPattern.matcher(entry.getKey()).matches()) {
-                annotation.set(key,entry.getValue());
-                foundAnnotations.add(key);
-                matched=true;
-                break;
-              }
-            }
-            if (matched)             break;
-          }
-        }
-      }
-      toAnnotate.removeAll(foundAnnotations);
     }
     String currentRemoval=token.get(CoreAnnotations.BeforeAnnotation.class);
     if (currentRemoval != null)     removedText.append(currentRemoval);
@@ -131,18 +102,6 @@
         currentSpeaker=null;
       }
       speakerTokens.clear();
-    }
-    if (singleSentenceTagMatcher != null && singleSentenceTagMatcher.matcher(tag.name).matches()) {
-      if (tag.isEndTag) {
-        if (newTokens.size() > 0) {
-          CoreLabel previous=newTokens.get(newTokens.size() - 1);
-          previous.set(CoreAnnotations.ForcedSentenceEndAnnotation.class,true);
-        }
-        markSingleSentence=false;
-      }
- else       if (!tag.isSingleTag) {
-        markSingleSentence=true;
-      }
     }
     if (xmlTagMatcher == null)     continue;
     if (tag.isSingleTag) {

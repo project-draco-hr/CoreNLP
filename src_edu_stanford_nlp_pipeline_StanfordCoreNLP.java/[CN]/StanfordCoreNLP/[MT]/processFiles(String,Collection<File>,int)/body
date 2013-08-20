@@ -28,9 +28,7 @@ throw new IllegalArgumentException("Unknown output format " + outputFormat);
 }
 final String serializerClass=properties.getProperty("serializer");
 final String inputSerializerClass=properties.getProperty("inputSerializer",serializerClass);
-final String inputSerializerName=(serializerClass == inputSerializerClass) ? "serializer" : "inputSerializer";
 final String outputSerializerClass=properties.getProperty("outputSerializer",serializerClass);
-final String outputSerializerName=(serializerClass == outputSerializerClass) ? "serializer" : "outputSerializer";
 final String extension=properties.getProperty("outputExtension",defaultExtension);
 final boolean replaceExtension=Boolean.parseBoolean(properties.getProperty("replaceExtension","false"));
 final boolean continueOnAnnotateError=Boolean.parseBoolean(properties.getProperty("continueOnAnnotateError","false"));
@@ -83,10 +81,8 @@ Annotation annotation=null;
 if (file.getAbsolutePath().endsWith(".ser.gz")) {
 try {
 if (inputSerializerClass != null) {
-  AnnotationSerializer inputSerializer=loadSerializer(inputSerializerClass,inputSerializerName,properties);
-  InputStream is=new BufferedInputStream(new FileInputStream(file));
-  annotation=inputSerializer.load(is);
-  IOUtils.closeIgnoringExceptions(is);
+  AnnotationSerializer inputSerializer=ReflectionLoading.loadByReflection(inputSerializerClass);
+  annotation=inputSerializer.load(new BufferedInputStream(new FileInputStream(file)));
 }
  else {
   annotation=IOUtils.readObjectFromFile(file);
@@ -143,7 +139,7 @@ break;
 case SERIALIZED:
 {
 if (outputSerializerClass != null) {
-AnnotationSerializer outputSerializer=loadSerializer(outputSerializerClass,outputSerializerName,properties);
+AnnotationSerializer outputSerializer=ReflectionLoading.loadByReflection(inputSerializerClass);
 OutputStream fos=new BufferedOutputStream(new FileOutputStream(finalOutputFilename));
 outputSerializer.save(annotation,fos);
 fos.close();
