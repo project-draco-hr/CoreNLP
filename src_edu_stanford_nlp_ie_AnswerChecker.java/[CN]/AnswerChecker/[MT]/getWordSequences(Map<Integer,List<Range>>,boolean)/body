@@ -1,0 +1,17 @@
+{
+  HashMap<Integer,Set<List<String>>> wordSequencesByType=new HashMap<Integer,Set<List<String>>>();
+  for (  Integer type : answerRanges.keySet()) {
+    List<Range> ranges=answerRanges.get(type);
+    Set<List<String>> wordSequences=new HashSet<List<String>>();
+    for (    Range r : ranges) {
+      List<String> wordSequence=new ArrayList<String>(r.getTo() - r.getFrom());
+      for (int i=r.getFrom(); i < r.getTo(); i++) {
+        String word=source.get(i).word();
+        wordSequence.add(ignoreCase ? word.toLowerCase() : word);
+      }
+      wordSequences.add(wordSequence);
+    }
+    wordSequencesByType.put(type,wordSequences);
+  }
+  return wordSequencesByType;
+}

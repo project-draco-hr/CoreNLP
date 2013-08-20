@@ -1,0 +1,20 @@
+{
+  String round2PropFile=directory + "/round2.train.prop";
+  BufferedWriter bw=new BufferedWriter(new FileWriter(round2PropFile));
+  bw.write("trainFile = " + round2TrainFile + "\n");
+  bw.write("serializeTo = " + directory + "/round2_serialized.gz"+ "\n");
+  bw.write("twoStage=true" + "\n");
+  BufferedReader br=new BufferedReader(new FileReader(basicPropFile));
+  String line;
+  while ((line=br.readLine()) != null) {
+    if (line.startsWith("map")) {
+      bw.write(line);
+      for (int i=1; i <= 6; i++)       bw.write(",bin" + i + "="+ (colsInDataFile - 1 + i));
+      bw.write("\n");
+    }
+ else {
+      bw.write(line + "\n");
+    }
+  }
+  bw.close();
+}

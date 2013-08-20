@@ -1,0 +1,57 @@
+{
+  boolean isClass=false;
+  StringTokenizer st=new StringTokenizer(s," \t,{};");
+  String token;
+  String nameA="empty";
+  token=st.nextToken();
+  token=st.nextToken();
+  if (token.equalsIgnoreCase("class")) {
+    isClass=true;
+    nameA=token;
+  }
+ else {
+    nameA=token;
+    token=st.nextToken();
+    while (!(token.equals("numeric") || token.equals("class"))) {
+      nameA=nameA + " " + token;
+      token=st.nextToken();
+    }
+  }
+  this.attrNames.add(nameA);
+  if (token.equalsIgnoreCase("class")) {
+    isClass=true;
+    token=st.nextToken();
+  }
+  if (token.equalsIgnoreCase("real") || token.equalsIgnoreCase("numeric")) {
+    numAttributes++;
+    this.hashMaps.add(new HashMap<String,Integer>(1));
+    attrTypes.add("numeric");
+    return;
+  }
+  if (token.equalsIgnoreCase("nominal")) {
+    this.hashMaps.add(new HashMap<String,Integer>());
+    numAttributes++;
+    attrTypes.add("nominal");
+  }
+ else   if (token.equalsIgnoreCase("string")) {
+    this.hashMaps.add(new HashMap<String,Integer>());
+    numAttributes++;
+    attrTypes.add("nominal");
+  }
+ else {
+    this.hashMaps.add(new HashMap<String,Integer>());
+    numAttributes++;
+    attrTypes.add("nominal");
+    HashMap<String,Integer> hM=(this.hashMaps.get(numAttributes - 1));
+    hM.put(token,Integer.valueOf(hM.size()));
+  }
+  while (st.hasMoreTokens()) {
+    token=st.nextToken();
+    HashMap<String,Integer> hM=(this.hashMaps.get(numAttributes - 1));
+    hM.put(token,Integer.valueOf(hM.size()));
+  }
+  if (isClass) {
+    numClasses=(this.hashMaps.get(numAttributes - 1)).size();
+    numAttributes=numAttributes - 1;
+  }
+}

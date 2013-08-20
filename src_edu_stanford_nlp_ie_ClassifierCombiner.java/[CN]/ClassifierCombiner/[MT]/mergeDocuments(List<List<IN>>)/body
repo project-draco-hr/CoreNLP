@@ -2,7 +2,7 @@
   assert(!baseClassifiers.isEmpty() && !baseDocuments.isEmpty());
   for (int i=1; i < baseDocuments.size(); i++)   assert(baseDocuments.get(0).size() == baseDocuments.get(i).size());
   List<Set<String>> baseLabels=new ArrayList<Set<String>>();
-  Set<String> seenLabels=Generics.newHashSet();
+  Set<String> seenLabels=new HashSet<String>();
   for (  AbstractSequenceClassifier<? extends CoreMap> baseClassifier : baseClassifiers) {
     Set<String> labs=baseClassifier.labels();
     labs.removeAll(seenLabels);
@@ -18,7 +18,7 @@
       System.err.printf("Output of model #%d:",i);
       for (      IN l : baseDocuments.get(i)) {
         System.err.print(' ');
-        System.err.print(l.get(CoreAnnotations.AnswerAnnotation.class));
+        System.err.print(l.get(AnswerAnnotation.class));
       }
       System.err.println();
     }
@@ -31,7 +31,7 @@
     System.err.print("Output of combined model:");
     for (    IN l : mainDocument) {
       System.err.print(' ');
-      System.err.print(l.get(CoreAnnotations.AnswerAnnotation.class));
+      System.err.print(l.get(AnswerAnnotation.class));
     }
     System.err.println();
     System.err.println();

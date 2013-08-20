@@ -1,0 +1,47 @@
+{
+  Corpus contextDocs=new Corpus(trainDocs);
+  contextDocs.isolateContext();
+  if (props == null) {
+    props=Extractor.getDefaultProperties();
+  }
+  int threshold=Integer.parseInt(props.getProperty("clInitThreshold"));
+  MultiStructure start=new MultiStructure(targetFields,contextDocs,threshold);
+  start.initializeTransitions(MultiStructure.LEARNING_INIT);
+  HMM hmm=new HMM(start,HMM.CONTEXT_HMM);
+  if (verbose) {
+    hmm.printTransitions();
+  }
+  hmm.train(contextDocs,props,verbose);
+  double logLike=hmm.logLikelihood(contextDocs);
+  double result=hmm.mdlScore(contextDocs,logLike);
+  if (verbose) {
+    System.err.println("..............................");
+    System.err.println("Initial structure:");
+    System.err.println(start);
+    System.err.println("log likelihood = " + logLike);
+    System.err.println("mdl score = " + result);
+  }
+  bestResult=result;
+  argBest=start;
+  int depth=0;
+  MultiStructure current=start;
+  improving=true;
+  oneWorse=false;
+  while (improving && depth < 20) {
+    if (verbose) {
+      System.err.println("expanding Nodes...");
+    }
+    current=expandNode(current,contextDocs,props,verbose);
+    depth++;
+  }
+  best=new HMM(argBest,HMM.CONTEXT_HMM);
+  best.train(contextDocs,props,verbose);
+  if (verbose) {
+    System.err.println();
+    System.err.println("Search concluded");
+    System.err.println(argBest);
+    System.err.println("Likelihood= " + bestResult);
+    System.err.println("Depth reached " + depth);
+  }
+  return (best);
+}

@@ -1,0 +1,18 @@
+{
+  if (relationExtractorClassifierType.equalsIgnoreCase("linear")) {
+    LinearClassifierFactory<String,String> lcFactory=new LinearClassifierFactory<String,String>(1e-4,false,sigma);
+    lcFactory.setVerbose(false);
+    classifier=lcFactory.trainClassifier(trainSet);
+  }
+ else   if (relationExtractorClassifierType.equalsIgnoreCase("svm")) {
+    SVMLightClassifierFactory<String,String> svmFactory=new SVMLightClassifierFactory<String,String>();
+    svmFactory.setC(sigma);
+    classifier=svmFactory.trainClassifier(trainSet);
+  }
+ else {
+    throw new RuntimeException("Invalid classifier type: " + relationExtractorClassifierType);
+  }
+  if (logger.isLoggable(Level.FINE)) {
+    reportWeights(classifier,null);
+  }
+}

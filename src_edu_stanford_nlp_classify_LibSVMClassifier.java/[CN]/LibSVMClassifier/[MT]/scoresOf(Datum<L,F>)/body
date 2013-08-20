@@ -1,0 +1,16 @@
+{
+  Collection<F> features=example.asFeatures();
+  ArrayList<svm_node> nodes=new ArrayList<svm_node>();
+  for (  F feature : features) {
+    int featInt=featureIndex.indexOf(feature);
+    nodes.add(newSVMnode(featInt,getFeatureScore(example,feature)));
+  }
+  Collections.sort(nodes,new NodeComparator());
+  svm_node[] nodeArray=new svm_node[nodes.size()];
+  nodes.toArray(nodeArray);
+  double[] scores=new double[labels().size()];
+  svm.svm_predict_values(model,nodeArray,scores);
+  Counter<L> scoresC=new ClassicCounter<L>();
+  for (int i=0; i < scores.length; i++)   scoresC.setCount(labelIndex.get(model.label[i]),scores[i]);
+  return scoresC;
+}

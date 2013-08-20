@@ -1,0 +1,40 @@
+{
+  if (args.length == 2 && args[0].equals("-convert")) {
+    readAllWordsFromOneSerializedFile(args[1]);
+    for (int i=0; i < words.size(); i++) {
+      String word=words.get(i);
+      writeInstancesOfOneWordToSerializedFile(word,i);
+    }
+    return;
+  }
+  words=new ArrayList<String>();
+  if (args.length == 1) {
+    words.add(args[0]);
+  }
+ else   if (args.length == 0) {
+    File currentDir=new File(".");
+    String[] filenames=currentDir.list();
+    System.out.println("loading data for words: ");
+    for (int i=0; i < filenames.length; i++) {
+      String filename=filenames[i];
+      if (filename.endsWith(".parser")) {
+        String word=filename.substring(0,filename.length() - 7);
+        words.add(word);
+        System.out.print(word + " ");
+      }
+    }
+    System.out.println();
+  }
+ else {
+    printUsageAndExit();
+  }
+  senseTrainData=new List[words.size()];
+  senseTestData=new List[words.size()];
+  subcatTrainData=new List[words.size()];
+  subcatTestData=new List[words.size()];
+  for (int i=0; i < words.size(); i++) {
+    String word=words.get(i);
+    loadDataForOneWord(word,i);
+    writeInstancesOfOneWordToSerializedFile(word,i);
+  }
+}

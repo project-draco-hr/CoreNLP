@@ -1,0 +1,29 @@
+{
+  SemanticGraph newGraph=new SemanticGraph();
+  Map<Integer,IndexedWord> newWords=new HashMap<Integer,IndexedWord>();
+  List<IndexedWord> newRoots=new ArrayList<IndexedWord>();
+  int vertexOffset=0;
+  for (int i=0; i < graphs.size(); ++i) {
+    SemanticGraph graph=graphs.get(i);
+    for (    IndexedWord vertex : graph.vertexSet()) {
+      IndexedWord newVertex=new IndexedWord(vertex);
+      newVertex.setIndex(vertex.index() + vertexOffset);
+      newGraph.addVertex(newVertex);
+      newWords.put(newVertex.index(),newVertex);
+    }
+    for (    SemanticGraphEdge edge : graph.edgeIterable()) {
+      IndexedWord gov=newWords.get(edge.getGovernor().index() + vertexOffset);
+      IndexedWord dep=newWords.get(edge.getDependent().index() + vertexOffset);
+      if (gov == null || dep == null) {
+        throw new AssertionError("Counting problem (or broken edge)");
+      }
+      newGraph.addEdge(gov,dep,edge.getRelation(),edge.getWeight());
+    }
+    for (    IndexedWord root : graph.getRoots()) {
+      newRoots.add(newWords.get(root.index() + vertexOffset));
+    }
+    vertexOffset+=lengths.get(i);
+  }
+  newGraph.setRoots(newRoots);
+  return newGraph;
+}

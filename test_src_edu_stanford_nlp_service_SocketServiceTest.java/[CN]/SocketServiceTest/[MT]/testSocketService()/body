@@ -1,0 +1,10 @@
+{
+  final int PORT=9090;
+  SocketService service=new SocketService(new SampleService(),PORT);
+  new Thread(service).start();
+  SocketClient<String,String> client=SocketClient.connect(localhost,PORT);
+  assertEquals(client.apply("hi"),"HI");
+  assertEquals(client.apply("woot!"),"WOOT!");
+  client.disconnect();
+  service.stop();
+}

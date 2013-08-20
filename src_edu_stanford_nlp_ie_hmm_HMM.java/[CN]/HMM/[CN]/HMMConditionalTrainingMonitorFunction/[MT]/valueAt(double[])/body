@@ -1,0 +1,19 @@
+{
+  numIterations++;
+  monitor=true;
+  System.err.println("negative log likelihood plus penalty after " + numIterations + " iterations of conditional training: "+ trainer.valueAt(x));
+  monitor=false;
+  if (josephStuff) {
+    System.err.println("log likelihood on training data after " + numIterations + " iterations of conditional training: "+ trainer.logLikelihood(trainer.getTrainDocs(),true,true));
+    System.err.println("conditional log likelihood on training data after " + numIterations + " iterations of conditional training: "+ trainer.logConditionalLikelihood(trainer.getTrainDocs()));
+    System.err.println("F1 on training data after " + numIterations + " iterations of conditional training: "+ new HMMTester(getHMM()).test(trainer.getTrainDocs(),null,true,false,false));
+    if (testDocs != null) {
+      System.err.println("log likelihood on test data after " + numIterations + " iterations of conditional training: "+ trainer.logLikelihood(testDocs,true,true));
+      System.err.println("conditional log likelihood on test data after " + numIterations + " iterations of conditional training: "+ trainer.logConditionalLikelihood(testDocs));
+      System.err.println("F1 on test data after " + numIterations + " iterations of conditional training: "+ new HMMTester(getHMM()).test(testDocs,null,true,false,false));
+    }
+  }
+  System.err.println("HMM probs after " + numIterations + " iterations of conditional training: ");
+  printProbs();
+  return (42);
+}

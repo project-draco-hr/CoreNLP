@@ -1,0 +1,23 @@
+{
+  if (args.length == 0) {
+    System.err.println("Usage: java edu.stanford.nlp.ie.hmm.UnknownWordCollapser corpusfilename [maxUnknownFrequency] [unknownWord]");
+    System.exit(1);
+  }
+  Corpus c=new Corpus(args[0],new String[]{"(Background)","purchaser"});
+  UnknownWordCollapser uwc;
+  if (args.length == 1) {
+    uwc=new UnknownWordCollapser(c,new NumAndCapFeature());
+  }
+ else   if (args.length == 2) {
+    uwc=new UnknownWordCollapser(c,Integer.parseInt(args[1]),new NumAndCapFeature());
+  }
+ else {
+    uwc=new UnknownWordCollapser(c,Integer.parseInt(args[1]),args[2],false,new NumAndCapFeature());
+  }
+  for (int i=0; i < c.size(); i++) {
+    Document in=(Document)c.get(i);
+    System.out.println("BEFORE: " + in);
+    System.out.println("AFTER: " + uwc.processDocument(in));
+    System.out.println();
+  }
+}

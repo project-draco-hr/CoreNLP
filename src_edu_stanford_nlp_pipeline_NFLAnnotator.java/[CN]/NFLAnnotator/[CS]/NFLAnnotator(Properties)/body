@@ -1,0 +1,32 @@
+{
+  verbose=Boolean.parseBoolean(props.getProperty("nfl.verbose","false"));
+  useMaxRecall=Boolean.parseBoolean(props.getProperty("nfl.relations.use.max.recall","false"));
+  boolean useModelMerging=Boolean.parseBoolean(props.getProperty("nfl.relations.use.model.merging","false"));
+  boolean useBasicInference=Boolean.parseBoolean(props.getProperty("nfl.relations.use.basic.inference","true"));
+  String gazetteer=props.getProperty("nfl.gazetteer",DefaultPaths.DEFAULT_NFL_GAZETTEER);
+  String entityModel=props.getProperty("nfl.entity.model",DefaultPaths.DEFAULT_NFL_ENTITY_MODEL);
+  String relationModel=props.getProperty("nfl.relation.model",DefaultPaths.DEFAULT_NFL_RELATION_MODEL);
+  String[] relationModels=props.getProperty("nfl.relation.model",DefaultPaths.DEFAULT_NFL_RELATION_MODEL).split(",");
+  try {
+    Extractor entityExtractor=null;
+    if (useMaxRecall) {
+      entityExtractor=new NFLMaxRecallEntityExtractor(gazetteer);
+    }
+ else     entityExtractor=BasicEntityExtractor.load(entityModel,NFLEntityExtractor.class,true);
+    Extractor relationExtractor;
+    if (useModelMerging) {
+      relationExtractor=ExtractorMerger.buildRelationExtractorMerger(relationModels);
+    }
+ else {
+      relationExtractor=BasicRelationExtractor.load(relationModel);
+    }
+    Extractor consistencyChecker=new ConsistencyChecker();
+    Extractor inference=useBasicInference ? new BasicNFLInference() : null;
+    mr=MachineReading.makeMachineReadingForAnnotation(new NFLReader(props),entityExtractor,relationExtractor,null,consistencyChecker,inference,true,verbose);
+    loadTeamNames(gazetteer);
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+    throw new RuntimeException(e);
+  }
+}

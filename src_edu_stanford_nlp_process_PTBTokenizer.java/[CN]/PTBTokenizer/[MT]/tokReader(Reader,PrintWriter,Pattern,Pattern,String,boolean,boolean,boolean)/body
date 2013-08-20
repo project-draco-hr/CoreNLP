@@ -1,0 +1,49 @@
+{
+  int numTokens=0;
+  boolean printing=parseInsideBegin == null;
+  boolean beginLine=true;
+  PTBTokenizer<CoreLabel> tokenizer=new PTBTokenizer<CoreLabel>(r,new CoreLabelTokenFactory(),options);
+  while (tokenizer.hasNext()) {
+    CoreLabel obj=tokenizer.next();
+    String origStr=obj.get(TextAnnotation.class).replaceFirst("\n+$","");
+    String str;
+    if (lowerCase) {
+      str=origStr.toLowerCase(Locale.ENGLISH);
+      obj.set(TextAnnotation.class,str);
+    }
+ else {
+      str=origStr;
+    }
+    if (parseInsideBegin != null && parseInsideBegin.matcher(origStr).matches()) {
+      printing=true;
+    }
+ else     if (parseInsideEnd != null && parseInsideEnd.matcher(origStr).matches()) {
+      printing=false;
+    }
+ else     if (printing) {
+      if (dump) {
+        str=obj.toString();
+      }
+      if (preserveLines) {
+        if (PTBLexer.NEWLINE_TOKEN.equals(origStr)) {
+          beginLine=true;
+          out.println();
+        }
+ else {
+          if (!beginLine) {
+            out.print(" ");
+          }
+ else {
+            beginLine=false;
+          }
+          out.print(str.replace("\n",""));
+        }
+      }
+ else {
+        out.println(str);
+      }
+    }
+    numTokens++;
+  }
+  return numTokens;
+}

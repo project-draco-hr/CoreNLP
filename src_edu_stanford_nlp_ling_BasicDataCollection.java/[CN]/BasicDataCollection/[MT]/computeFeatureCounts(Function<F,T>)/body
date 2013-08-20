@@ -1,0 +1,12 @@
+{
+  if (featureTransformer == null) {
+    throw new UnsupportedOperationException("Cannot use null function - use the no-arg version.");
+  }
+  ClassicCounter<T> featureCounts=new ClassicCounter<T>();
+  for (  Datum<L,F> d : this) {
+    for (    F f : d.asFeatures()) {
+      featureCounts.incrementCount(featureTransformer.apply(f));
+    }
+  }
+  return (featureCounts);
+}

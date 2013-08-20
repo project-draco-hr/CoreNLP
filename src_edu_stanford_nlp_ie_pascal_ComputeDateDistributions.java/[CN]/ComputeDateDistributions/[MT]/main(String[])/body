@@ -1,0 +1,104 @@
+{
+  BufferedReader reader=new BufferedReader(new FileReader(args[0]));
+  PrintWriter output=new PrintWriter(new FileWriter(OUTPUT_FILENAME));
+  String line;
+  SimpleDateFormat dateFormat=new SimpleDateFormat("M/d/y");
+  int count=0;
+  GaussianParameterComputer gaussians[]=new GaussianParameterComputer[NUM_DATES_CHOOSE_2];
+  ClassLearner nullProbs[]=new ClassLearner[NUM_DATES];
+  ClassLearner dayOfWeekProbs[]=new ClassLearner[NUM_DATES];
+  ClassLearner monthProbs[]=new ClassLearner[NUM_DATES];
+  ClassLearner rangeProbs[]=new ClassLearner[NUM_DATES];
+  for (int i=0; i < NUM_DATES_CHOOSE_2; ++i) {
+    gaussians[i]=new GaussianParameterComputer();
+  }
+  for (int i=0; i < NUM_DATES; ++i) {
+    nullProbs[i]=new ClassLearner(2);
+    dayOfWeekProbs[i]=new ClassLearner(7);
+    monthProbs[i]=new ClassLearner(12);
+    rangeProbs[i]=new ClassLearner(2);
+  }
+  for (; (line=reader.readLine()) != null; ++count) {
+    StringTokenizer tok=new StringTokenizer(line);
+    String nameString=tok.nextToken();
+    System.out.println("Name: " + nameString);
+    Date[] dates=new Date[NUM_DATES];
+    boolean[] ranges=new boolean[NUM_DATES];
+    for (int idx=0; tok.hasMoreTokens(); ++idx) {
+      String dateString=tok.nextToken();
+      dates[idx]=dateFormat.parse(dateString);
+      System.out.println("Date: " + dates[idx].toString());
+      String rangeString=tok.nextToken();
+      if (rangeString.indexOf("true") != -1) {
+        ranges[idx]=true;
+        if (idx < NUM_DATES - 1) {
+          System.out.println(nameString + " has a range");
+        }
+      }
+ else {
+        ranges[idx]=false;
+      }
+    }
+    int gaussIndex=0;
+    for (int i=0; i < NUM_DATES; ++i) {
+      long t0=dates[i].getTime();
+      if (t0 < 0) {
+        nullProbs[i].increment(1);
+      }
+ else {
+        nullProbs[i].increment(0);
+        GregorianCalendar cal=new GregorianCalendar();
+        cal.setTime(dates[i]);
+        dayOfWeekProbs[i].increment(cal.get(Calendar.DAY_OF_WEEK) - 1);
+        monthProbs[i].increment(cal.get(Calendar.MONTH));
+        rangeProbs[i].increment(ranges[i] ? 1 : 0);
+      }
+      if (i < NUM_DATES - 1) {
+        for (int j=i + 1; j < NUM_DATES; ++j, ++gaussIndex) {
+          long t1=dates[j].getTime();
+          if (t1 < 0 || t0 < 0) {
+            continue;
+          }
+          double diff=millisToDays(t1 - t0);
+          gaussians[gaussIndex].addSample(diff);
+        }
+      }
+    }
+  }
+  output.print("gaussian_means=");
+  for (int i=0; i < NUM_DATES_CHOOSE_2; ++i) {
+    output.print(gaussians[i].getMean());
+    if (i < NUM_DATES_CHOOSE_2 - 1) {
+      output.print(",");
+    }
+  }
+  output.print("\ngaussian_deviations=");
+  for (int i=0; i < NUM_DATES_CHOOSE_2; ++i) {
+    output.print(gaussians[i].getStddev());
+    if (i < NUM_DATES_CHOOSE_2 - 1) {
+      output.print(",");
+    }
+  }
+  output.println();
+  for (int i=0; i < NUM_DATES; ++i) {
+    output.print("null_distribution_" + DATE_NAMES[i] + "=");
+    nullProbs[i].computeProbs();
+    output.println(nullProbs[i].dump());
+  }
+  for (int i=0; i < NUM_DATES; ++i) {
+    output.print("day_of_week_distribution_" + DATE_NAMES[i] + "=");
+    dayOfWeekProbs[i].computeProbs();
+    output.println(dayOfWeekProbs[i].dump());
+  }
+  for (int i=0; i < NUM_DATES; ++i) {
+    output.print("month_distribution_" + DATE_NAMES[i] + "=");
+    monthProbs[i].computeProbs();
+    output.println(monthProbs[i].dump());
+  }
+  for (int i=0; i < NUM_DATES; ++i) {
+    output.print("range_distribution_" + DATE_NAMES[i] + "=");
+    rangeProbs[i].computeProbs();
+    output.println(rangeProbs[i].dump());
+  }
+  output.close();
+}

@@ -1,0 +1,13 @@
+{
+  tabulateTrees(trees);
+  negExamples=sampleNegExamples(false);
+  depDumpPrintln(posExamples.toString());
+  depDumpPrintln(negExamples.toString());
+  doInitialThresholding();
+  Dataset<String,IntFeature> data=makeDataset();
+  doJointThresholding(data);
+  System.err.println("Training classifier");
+  depClassifier=new LogisticClassifierFactory<String,IntFeature>().trainClassifier(data);
+  constructCounters();
+  posExamples=null;
+}

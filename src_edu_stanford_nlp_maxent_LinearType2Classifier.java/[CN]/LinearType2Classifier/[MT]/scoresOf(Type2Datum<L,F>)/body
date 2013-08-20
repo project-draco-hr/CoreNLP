@@ -1,0 +1,19 @@
+{
+  ClassicCounter<L> scores=new ClassicCounter<L>();
+  Set<L> classes=d.classes();
+  for (  L key : classes) {
+    scores.incrementCount(key,0);
+  }
+  TwoDimensionalCounter<L,F> classFeatures=d.classFeatureCounts;
+  for (  L thisClass : classes) {
+    double score=0;
+    Counter<F> thisClassFeatures=classFeatures.getCounter(thisClass);
+    for (    F thisFeature : thisClassFeatures.keySet()) {
+      double thisFeatureValue=thisClassFeatures.getCount(thisFeature);
+      double thisFeatureWeight=weights.getCount(thisFeature);
+      score+=thisFeatureValue * thisFeatureWeight;
+    }
+    scores.incrementCount(thisClass,score);
+  }
+  return scores;
+}

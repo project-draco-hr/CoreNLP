@@ -1,0 +1,48 @@
+{
+  if (!splitUnderscores)   return parseToGrammaticalStructure(sentence,dependencyFilter);
+  List<Boolean> wasSplitWord=new ArrayList<Boolean>();
+  List<Integer> splitIndex=new ArrayList<Integer>();
+  List<CoreLabel> splitSentence=new ArrayList<CoreLabel>();
+  for (  CoreLabel word : sentence) {
+    String label=word.word();
+    String[] pieces=label.split("_");
+    if (pieces.length <= 1) {
+      splitSentence.add(word);
+      wasSplitWord.add(false);
+      splitIndex.add(wasSplitWord.size());
+    }
+ else {
+      wasSplitWord.add(true);
+      for (      String piece : pieces) {
+        CoreLabel fakeWord=new CoreLabel(word);
+        fakeWord.setWord(piece);
+        fakeWord.set(LemmaAnnotation.class,piece);
+        fakeWord.set(StemAnnotation.class,piece);
+        fakeWord.setTag(word.tag());
+        splitSentence.add(fakeWord);
+        splitIndex.add(wasSplitWord.size());
+      }
+    }
+  }
+  DependencyStructure structure=parse(splitSentence);
+  List<MaltDependency> dependencies=extractDependencies(structure);
+  List<List<String>> tokens=buildConnlStructure(sentence);
+  boolean[] dependencySet=new boolean[sentence.size()];
+  for (  MaltDependency dependency : dependencies) {
+    int dependent=splitIndex.get(dependency.dependent - 1);
+    int governor=(dependency.governor == 0 ? 0 : splitIndex.get(dependency.governor - 1));
+    if (dependent == governor)     continue;
+    if (dependencySet[dependent - 1])     continue;
+    List<String> token=tokens.get(dependent - 1);
+    if (dependencyFilter != null && !dependencyFilter.accept(dependency.label)) {
+      token.set(6,null);
+      token.set(7,null);
+    }
+ else {
+      token.set(6,Integer.toString(dependency.governor));
+      token.set(7,dependency.label);
+    }
+    dependencySet[dependent - 1]=true;
+  }
+  return EnglishGrammaticalStructure.buildCoNNLXGrammaticStructure(tokens);
+}

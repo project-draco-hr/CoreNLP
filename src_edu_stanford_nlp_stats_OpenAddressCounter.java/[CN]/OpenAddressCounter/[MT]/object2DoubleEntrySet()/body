@@ -1,0 +1,34 @@
+{
+  final ObjectSet<Object2DoubleMap.Entry<E>> set=map.object2DoubleEntrySet();
+  return new AbstractObjectSet<Object2DoubleMap.Entry<E>>(){
+    @Override public ObjectIterator<Object2DoubleMap.Entry<E>> iterator(){
+      return new ObjectIterator<Object2DoubleMap.Entry<E>>(){
+        final ObjectIterator<Object2DoubleMap.Entry<E>> iterator=set.iterator();
+        double lastValue;
+        public int skip(        int n){
+          return iterator.skip(n);
+        }
+        public boolean hasNext(){
+          return iterator.hasNext();
+        }
+        public Object2DoubleMap.Entry<E> next(){
+          final Object2DoubleMap.Entry<E> entry=iterator.next();
+          lastValue=entry.getDoubleValue();
+          return new CounterEntry(entry);
+        }
+        public void remove(){
+          iterator.remove();
+          total-=lastValue;
+        }
+      }
+;
+    }
+    public boolean contains(    Object o){
+      return set.contains(o);
+    }
+    public int size(){
+      return set.size();
+    }
+  }
+;
+}

@@ -1,0 +1,365 @@
+{
+  if (sentence != this.sentence) {
+    this.sentence=sentence;
+    floodTags=false;
+  }
+  if (op.testOptions.verbose) {
+    Timing.tick("Starting pcfg parse.");
+  }
+  if (spillGuts) {
+    tick("Starting PCFG parse...");
+  }
+  length=sentence.size();
+  if (length > arraySize) {
+    if (length > op.testOptions.maxLength + 1 || length >= myMaxLength) {
+      System.err.println(op.testOptions.maxLength + " " + myMaxLength);
+      throw new OutOfMemoryError("Refusal to create such large arrays.");
+    }
+ else {
+      try {
+        createArrays(length + 1);
+      }
+ catch (      OutOfMemoryError e) {
+        myMaxLength=length;
+        if (arraySize > 0) {
+          try {
+            createArrays(arraySize);
+          }
+ catch (          OutOfMemoryError e2) {
+            throw new RuntimeException("CANNOT EVEN CREATE ARRAYS OF ORIGINAL SIZE!!!");
+          }
+        }
+        throw e;
+      }
+    }
+    arraySize=length + 1;
+    if (op.testOptions.verbose) {
+      System.err.println("Created PCFG parser arrays of size " + arraySize);
+    }
+  }
+  int goal=stateIndex.indexOf(goalStr);
+  if (op.testOptions.verbose) {
+    System.out.println(numStates + " states, " + goal+ " is the goal state.");
+    System.out.println(bg.numRules() + " binary rules, " + ug.numRules()+ " unary rules.");
+    System.out.print("Initializing...");
+  }
+  words=new int[length];
+  int unk=0;
+  StringBuffer unkWords=new StringBuffer("[");
+  for (int i=0; i < length; i++) {
+    Object o=sentence.get(i);
+    if (o instanceof HasWord) {
+      o=((HasWord)o).word();
+    }
+ else     if (!(o instanceof String)) {
+      throw new RuntimeException("Needs to have a word!");
+    }
+    if (op.testOptions.verbose && (!wordIndex.contains(o.toString()) || !lex.isKnown(wordIndex.indexOf(o.toString())))) {
+      System.err.println("UNK");
+      unk++;
+      unkWords.append(" ");
+      unkWords.append(o);
+    }
+    words[i]=wordIndex.indexOf(o.toString());
+  }
+  if (spillGuts) {
+    tick("Wiping arrays...");
+  }
+  for (int start=0; start < length; start++) {
+    for (int end=start + 1; end <= length; end++) {
+      Arrays.fill(iScore[start][end],Float.NEGATIVE_INFINITY);
+    }
+  }
+  for (int loc=0; loc <= length; loc++) {
+    Arrays.fill(narrowLExtent[loc],-1);
+    Arrays.fill(wideLExtent[loc],length + 1);
+  }
+  for (int loc=0; loc < length; loc++) {
+    Arrays.fill(narrowRExtent[loc],length + 1);
+    Arrays.fill(wideRExtent[loc],-1);
+  }
+  if (op.testOptions.verbose) {
+    Timing.tick("done.");
+    unkWords.append(" ]");
+    System.out.println("Unknown words: " + unk + " "+ unkWords);
+    System.out.print("Starting filters...");
+  }
+  if (spillGuts) {
+    tick("Tagging...");
+  }
+  for (int start=0; start + 1 <= length; start++) {
+    int word=words[start];
+    int end=start + 1;
+    Arrays.fill(tags[start],false);
+    for (Iterator<IntTaggedWord> taggingI=lex.ruleIteratorByWord(word,start,null); taggingI.hasNext(); ) {
+      IntTaggedWord tagging=taggingI.next();
+      int state=stateIndex.indexOf(tagIndex.get(tagging.tag));
+      try {
+        iScore[start][end][state]=lex.score(tagging,start,wordIndex.get(tagging.word),null);
+        if (iScore[start][end][state] > Float.NEGATIVE_INFINITY) {
+          narrowRExtent[start][state]=end;
+          narrowLExtent[end][state]=start;
+          wideRExtent[start][state]=end;
+          wideLExtent[end][state]=start;
+        }
+      }
+ catch (      Exception e) {
+        System.out.println("State: " + state + " tags "+ tagIndex.get(tagging.tag));
+      }
+      int tag=tagging.tag;
+      tags[start][tag]=true;
+      if (dumpTagging) {
+        System.out.println("Word " + start + " tagging "+ tagging+ " score "+ iScore[start][start + 1][state]+ " -- "+ state+ " = "+ stateIndex.get(state));
+      }
+    }
+    if (!floodTags && sentence.get(start) instanceof HasTag && ((HasTag)sentence.get(start)).tag() != null && ((HasTag)sentence.get(start)).tag().length() > 0) {
+      String tagStr=((HasTag)sentence.get(start)).tag();
+      TreebankLanguagePack tlp=op.langpack();
+      for (int state=0; state < numStates; state++) {
+        if (!isTag[state]) {
+          continue;
+        }
+        String stateStr=stateIndex.get(state);
+        if (!tlp.basicCategory(stateStr).equals(tagStr)) {
+          iScore[start][end][state]-=1000.0f;
+        }
+ else {
+        }
+      }
+    }
+    if (floodTags && (!op.testOptions.noRecoveryTagging)) {
+      for (int state=0; state < numStates; state++) {
+        float iS=iScore[start][end][state];
+        if (iS == Float.NEGATIVE_INFINITY && isTag[state]) {
+          iScore[start][end][state]=-1000.0f;
+          narrowRExtent[start][state]=end;
+          narrowLExtent[end][state]=start;
+          wideRExtent[start][state]=end;
+          wideLExtent[end][state]=start;
+        }
+      }
+    }
+    if (spillGuts) {
+      tick("Terminal Unary...");
+    }
+    for (int state=0; state < numStates; state++) {
+      float iS=iScore[start][end][state];
+      if (iS == Float.NEGATIVE_INFINITY) {
+        continue;
+      }
+      UnaryRule[] unaries=closedRulesUnderSumByChild(state);
+      for (      UnaryRule ur : unaries) {
+        if (ur.parent == ur.child) {
+          continue;
+        }
+        int parentState=ur.parent;
+        float pS=ur.score;
+        float tot=iS + pS;
+        iScore[start][end][parentState]=SloppyMath.logAdd(iScore[start][end][parentState],tot);
+        if (tot > Float.NEGATIVE_INFINITY) {
+          narrowRExtent[start][parentState]=end;
+          narrowLExtent[end][parentState]=start;
+          wideRExtent[start][parentState]=end;
+          wideLExtent[end][parentState]=start;
+        }
+      }
+    }
+    if (spillGuts) {
+      tick("Next word...");
+    }
+  }
+  if (op.testOptions.verbose) {
+    Timing.tick("done.");
+    System.err.print("Starting insides...");
+  }
+  for (int diff=2; diff <= length; diff++) {
+    for (int start=0; start + diff <= length; start++) {
+      if (spillGuts) {
+        tick("Binaries for " + diff + "...");
+      }
+      int end=start + diff;
+      if (end == length && start != 0) {
+        continue;
+      }
+      for (int leftState=0; leftState < numStates; leftState++) {
+        int narrowR=narrowRExtent[start][leftState];
+        boolean iPossibleL=(narrowR < end);
+        if (!iPossibleL) {
+          continue;
+        }
+        BinaryRule[] leftRules=bg.splitRulesWithLC(leftState);
+        for (        BinaryRule r : leftRules) {
+          int narrowL=narrowLExtent[end][r.rightChild];
+          boolean iPossibleR=(narrowL >= narrowR);
+          if (!iPossibleR) {
+            continue;
+          }
+          int min1=narrowR;
+          int min2=wideLExtent[end][r.rightChild];
+          int min=(min1 > min2 ? min1 : min2);
+          if (min > narrowL) {
+            continue;
+          }
+          int max1=wideRExtent[start][leftState];
+          int max2=narrowL;
+          int max=(max1 < max2 ? max1 : max2);
+          if (min > max) {
+            continue;
+          }
+          float pS=r.score;
+          int parentState=r.parent;
+          float oldIScore=iScore[start][end][parentState];
+          float curIScore=oldIScore;
+          for (int split=min; split <= max; split++) {
+            float lS=iScore[start][split][leftState];
+            if (lS == Float.NEGATIVE_INFINITY) {
+              continue;
+            }
+            float rS=iScore[split][end][r.rightChild];
+            if (rS == Float.NEGATIVE_INFINITY) {
+              continue;
+            }
+            float tot=pS + lS + rS;
+            if (tot > curIScore) {
+              curIScore=tot;
+            }
+            iScore[start][end][parentState]=SloppyMath.logAdd(iScore[start][end][parentState],tot);
+          }
+          if (oldIScore == Float.NEGATIVE_INFINITY) {
+            if (start > narrowLExtent[end][parentState]) {
+              narrowLExtent[end][parentState]=start;
+              wideLExtent[end][parentState]=start;
+            }
+ else {
+              if (start < wideLExtent[end][parentState]) {
+                wideLExtent[end][parentState]=start;
+              }
+            }
+            if (end < narrowRExtent[start][parentState]) {
+              narrowRExtent[start][parentState]=end;
+              wideRExtent[start][parentState]=end;
+            }
+ else {
+              if (end > wideRExtent[start][parentState]) {
+                wideRExtent[start][parentState]=end;
+              }
+            }
+          }
+        }
+      }
+      for (int rightState=0; rightState < numStates; rightState++) {
+        int narrowL=narrowLExtent[end][rightState];
+        boolean iPossibleR=(narrowL > start);
+        if (!iPossibleR) {
+          continue;
+        }
+        BinaryRule[] rightRules=bg.splitRulesWithRC(rightState);
+        for (        BinaryRule r : rightRules) {
+          int narrowR=narrowRExtent[start][r.leftChild];
+          boolean iPossibleL=(narrowR <= narrowL);
+          if (!iPossibleL) {
+            continue;
+          }
+          int min1=narrowR;
+          int min2=wideLExtent[end][rightState];
+          int min=(min1 > min2 ? min1 : min2);
+          if (min > narrowL) {
+            continue;
+          }
+          int max1=wideRExtent[start][r.leftChild];
+          int max2=narrowL;
+          int max=(max1 < max2 ? max1 : max2);
+          if (min > max) {
+            continue;
+          }
+          float pS=r.score;
+          int parentState=r.parent;
+          float oldIScore=iScore[start][end][parentState];
+          float curIScore=oldIScore;
+          for (int split=min; split <= max; split++) {
+            float lS=iScore[start][split][r.leftChild];
+            if (lS == Float.NEGATIVE_INFINITY) {
+              continue;
+            }
+            float rS=iScore[split][end][rightState];
+            if (rS == Float.NEGATIVE_INFINITY) {
+              continue;
+            }
+            float tot=pS + lS + rS;
+            if (tot > curIScore) {
+              curIScore=tot;
+            }
+            iScore[start][end][parentState]=SloppyMath.logAdd(iScore[start][end][parentState],tot);
+          }
+          if (oldIScore == Float.NEGATIVE_INFINITY) {
+            if (start > narrowLExtent[end][parentState]) {
+              narrowLExtent[end][parentState]=start;
+              wideLExtent[end][parentState]=start;
+            }
+ else {
+              if (start < wideLExtent[end][parentState]) {
+                wideLExtent[end][parentState]=start;
+              }
+            }
+            if (end < narrowRExtent[start][parentState]) {
+              narrowRExtent[start][parentState]=end;
+              wideRExtent[start][parentState]=end;
+            }
+ else {
+              if (end > wideRExtent[start][parentState]) {
+                wideRExtent[start][parentState]=end;
+              }
+            }
+          }
+        }
+      }
+      if (spillGuts) {
+        tick("Unaries for " + diff + "...");
+      }
+      for (int state=0; state < numStates; state++) {
+        float iS=iScore[start][end][state];
+        if (iS == Float.NEGATIVE_INFINITY) {
+          continue;
+        }
+        UnaryRule[] unaries=closedRulesUnderSumByChild(state);
+        for (        UnaryRule ur : unaries) {
+          if (ur.parent == ur.child) {
+            continue;
+          }
+          int parentState=ur.parent;
+          float pS=ur.score;
+          float tot=iS + pS;
+          float cur=iScore[start][end][parentState];
+          iScore[start][end][parentState]=SloppyMath.logAdd(iScore[start][end][parentState],tot);
+          if (cur == Float.NEGATIVE_INFINITY) {
+            if (start > narrowLExtent[end][parentState]) {
+              narrowLExtent[end][parentState]=start;
+              wideLExtent[end][parentState]=start;
+            }
+ else {
+              if (start < wideLExtent[end][parentState]) {
+                wideLExtent[end][parentState]=start;
+              }
+            }
+            if (end < narrowRExtent[start][parentState]) {
+              narrowRExtent[start][parentState]=end;
+              wideRExtent[start][parentState]=end;
+            }
+ else {
+              if (end > wideRExtent[start][parentState]) {
+                wideRExtent[start][parentState]=end;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  if (op.testOptions.verbose) {
+    Timing.tick("done.");
+    System.out.println("PCFG " + length + " words (incl. stop) iScore "+ iScore[0][length][goal]);
+  }
+  bestScore=iScore[0][length][goal];
+  boolean succeeded=hasParse();
+  return succeeded;
+}

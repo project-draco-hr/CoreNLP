@@ -1,5 +1,5 @@
 {
-  goldCorefClusters=Generics.newHashMap();
+  goldCorefClusters=new HashMap<Integer,CorefCluster>();
   for (  List<Mention> mentions : goldOrderedMentionsBySentence) {
     for (    Mention m : mentions) {
       int id=m.goldCorefClusterID;
@@ -8,9 +8,10 @@
       }
       CorefCluster c=goldCorefClusters.get(id);
       if (c == null) {
-        c=new CorefCluster(id);
-        goldCorefClusters.put(id,c);
+        goldCorefClusters.put(id,new CorefCluster());
       }
+      c=goldCorefClusters.get(id);
+      c.clusterID=id;
       c.corefMentions.add(m);
     }
   }

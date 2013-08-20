@@ -1,0 +1,14 @@
+{
+  Index<F> featureIndex=new HashIndex<F>(examples.features());
+  Index<L> labelIndex=new HashIndex<L>(examples.labels());
+  svm_problem prob=newSVMproblem(examples,featureIndex,labelIndex);
+  double[] target=new double[prob.l];
+  svm.svm_cross_validation(prob,param,folds,target);
+  int numCorrect=0;
+  for (int i=0; i < target.length; i++) {
+    if (prob.y[i] == target[i]) {
+      numCorrect++;
+    }
+  }
+  return (double)numCorrect / prob.l;
+}

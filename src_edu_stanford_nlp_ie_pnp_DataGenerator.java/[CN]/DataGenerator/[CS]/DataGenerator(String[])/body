@@ -1,0 +1,74 @@
+{
+  List[] examples=new List[args.length - 1];
+  String[] categories=new String[args.length - 1];
+  String outdir=args[0];
+  try {
+    for (int i=1; i < args.length; i++) {
+      System.err.println(new Date() + " Reading in file: " + args[i]);
+      examples[i - 1]=new ArrayList();
+      String filename=new File(args[i]).getName();
+      categories[i - 1]=filename.substring(0,filename.lastIndexOf('.'));
+      BufferedReader br=new BufferedReader(new FileReader(args[i]));
+      String line;
+      while ((line=br.readLine()) != null) {
+        examples[i - 1].add(line);
+      }
+    }
+    String dir=outdir + File.separator;
+    for (int i=0; i < categories.length; i++) {
+      dir+=(i > 0 ? "-" : "") + categories[i];
+    }
+    dir+=File.separator;
+    for (int i=0; i < examples.length; i++) {
+      for (int j=i + 1; j < examples.length; j++) {
+        List<Example> all=new ArrayList<Example>();
+        for (int k=0; k < examples[i].size(); k++) {
+          all.add(new Example(1,(String)examples[i].get(k)));
+        }
+        for (int k=0; k < examples[j].size(); k++) {
+          all.add(new Example(2,(String)examples[j].get(k)));
+        }
+        writeFolds(all,2,dir + "pairwise" + File.separator+ categories[i]+ "-"+ categories[j]);
+      }
+    }
+    if (examples.length == 2) {
+      System.exit(0);
+    }
+    for (int i=0; i < examples.length; i++) {
+      List<Example> all=new ArrayList<Example>();
+      for (int j=0; j < examples[i].size(); j++) {
+        all.add(new Example(1,(String)examples[i].get(j)));
+      }
+      for (int j=0; j < examples.length; j++) {
+        if (j == i) {
+          continue;
+        }
+        for (int k=0; k < examples[j].size(); k++) {
+          all.add(new Example(2,(String)examples[j].get(k)));
+        }
+      }
+      String name=categories[i] + "-";
+      for (int j=0; j < categories.length; j++) {
+        if (j != i) {
+          name+=(name.endsWith("-") ? "" : "_") + categories[j];
+        }
+      }
+      writeFolds(all,2,dir + "1-all" + File.separator+ name);
+    }
+    List<Example> all=new ArrayList<Example>();
+    for (int i=0; i < examples.length; i++) {
+      for (int j=0; j < examples[i].size(); j++) {
+        all.add(new Example(i + 1,(String)examples[i].get(j)));
+      }
+    }
+    String name="";
+    for (int i=0; i < examples.length; i++) {
+      name+=(i > 0 ? "-" : "") + categories[i];
+    }
+    writeFolds(all,examples.length,dir + name);
+    System.err.println(new Date() + " Done.");
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+  }
+}

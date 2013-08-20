@@ -1,0 +1,54 @@
+{
+  String pattern=synonym;
+  if (pattern.indexOf('?') != -1) {
+    pattern=pattern.replaceAll("\\?","\\\\?");
+  }
+  if (pattern.indexOf('\\') != -1) {
+    pattern=pattern.replaceAll("\\\\(?=\\b|[^\\?\\[\\]])","[\\\\ ]?");
+  }
+  pattern=pattern.replaceAll(" "," ?");
+  if (pattern.indexOf('[') != -1) {
+    pattern=pattern.replaceAll("\\[","[\\\\[ ]?");
+  }
+  if (pattern.indexOf(']') != -1) {
+    pattern=pattern.replaceAll("\\](?=\\b|[^?])","[\\\\] ]?");
+  }
+  if (pattern.indexOf('{') != -1) {
+    pattern=pattern.replaceAll("\\{","[\\\\{ ]?");
+  }
+  if (pattern.indexOf('}') != -1) {
+    pattern=pattern.replaceAll("\\}","[\\\\} ]?");
+  }
+  if (pattern.indexOf('+') != -1) {
+    pattern=pattern.replaceAll("\\+","\\\\+");
+  }
+  if (pattern.indexOf('*') != -1) {
+    pattern=pattern.replaceAll("\\*","\\\\*");
+  }
+  if (pattern.indexOf('/') != -1) {
+    pattern=pattern.replaceAll("/","[/ ]?");
+  }
+  if (pattern.indexOf(':') != -1) {
+    pattern=pattern.replaceAll(":","[: ]?");
+  }
+  if (pattern.indexOf('.') != -1) {
+    pattern=pattern.replaceAll("\\.","\\\\.?");
+  }
+  if (pattern.indexOf('(') != -1) {
+    pattern=pattern.replaceAll("\\(","[( ]?");
+  }
+  if (pattern.indexOf(')') != -1) {
+    pattern=pattern.replaceAll("\\)","[) ]?");
+  }
+  if (pattern.indexOf('-') != -1) {
+    pattern=pattern.replaceAll("-","[- ]?");
+  }
+  if (pattern.indexOf("aemia") != -1) {
+    pattern=pattern.replaceAll("aemia","a?emia");
+  }
+  if (pattern.indexOf("our") != -1) {
+    pattern=pattern.replaceAll("our","ou?r");
+  }
+  pattern="\\b" + pattern + "\\b";
+  return pattern;
+}

@@ -1,0 +1,50 @@
+{
+  String contextType=props.getProperty("contextType");
+  int numContextStates=Integer.parseInt(props.getProperty("ncs"));
+  int numBackgroundStates=Integer.parseInt(props.getProperty("nbs"));
+  String trainType=props.getProperty("trainType");
+  boolean trainNow=!trainType.equals("conditional");
+  if (verbose) {
+    System.err.println("Training the context HMM");
+  }
+  HMM chmm=null;
+  if (verbose) {
+    System.err.println("Context type: " + contextType);
+  }
+  Corpus contextDocs=new Corpus(trainDocs);
+  contextDocs.isolateContext();
+  if (contextType.equals("learned")) {
+    chmm=learnContextHMM(contextDocs,targetFields,props,verbose);
+  }
+ else   if (contextType.equals("ergodic")) {
+    int stateTypes[]=new int[numBackgroundStates + targetFields.length];
+    for (int i=0; i < numBackgroundStates; i++) {
+      stateTypes[i]=Structure.BACKGROUND_TYPE;
+    }
+    for (int i=0; i < targetFields.length; i++) {
+      stateTypes[i + numBackgroundStates]=i + 1;
+    }
+    Structure structure=new Structure();
+    structure.giveErgodic(stateTypes);
+    chmm=new HMM(structure,HMM.CONTEXT_HMM);
+  }
+ else   if (contextType.equals("flexible")) {
+    int threshold=Integer.parseInt(props.getProperty("clInitThreshold"));
+    MultiStructure ms=new MultiStructure(targetFields,contextDocs,threshold);
+    ms.initializeTransitions(MultiStructure.LEARNING_INIT);
+    chmm=new HMM(ms,HMM.CONTEXT_HMM);
+  }
+ else {
+    if (verbose) {
+      System.err.println("Num context states: " + numContextStates);
+    }
+    MultiStructure ms=new MultiStructure(targetFields,numContextStates);
+    ms.initializeTransitions();
+    chmm=new HMM(ms,HMM.CONTEXT_HMM);
+  }
+  if (trainNow && !contextType.equals("learned")) {
+    chmm.train(contextDocs,props,verbose);
+  }
+  chmm.setTargetFields(contextDocs.getTargetFields());
+  return chmm;
+}

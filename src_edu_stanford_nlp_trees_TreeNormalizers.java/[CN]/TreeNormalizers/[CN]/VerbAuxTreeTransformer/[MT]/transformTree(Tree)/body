@@ -1,0 +1,47 @@
+{
+  if (t.isLeaf()) {
+    return t;
+  }
+  String lab=t.label().value();
+  Tree head=hf.determineHead(t);
+  if (head == null) {
+    return t;
+  }
+  String dlab=head.label().value().toLowerCase();
+  if (lab.equals("VP")) {
+    if (dlab.equals("to")) {
+      t.label().setValue("VP-INF");
+    }
+  }
+ else   if (lab.equals("VBZ")) {
+    if (dlab.equals("is") || dlab.equals("'s")) {
+      t.label().setValue("VBZ-BE");
+    }
+  }
+ else   if (lab.equals("VBD")) {
+    if (dlab.equals("was") || dlab.equals("were")) {
+      t.label().setValue("VBD-BE");
+    }
+  }
+ else   if (lab.equals("VBP")) {
+    if (dlab.equals("am") || dlab.equals("'m") || dlab.equals("are")|| dlab.equals("'re")) {
+      t.label().setValue("VBP-BE");
+    }
+  }
+ else   if (lab.equals("VB")) {
+    if (dlab.equals("be") || dlab.equals("were")) {
+      t.label().setValue("VBD-BE");
+    }
+  }
+ else   if (lab.equals("VBN")) {
+    if (dlab.equals("been")) {
+      t.label().setValue("VBN-BE");
+    }
+  }
+ else   if (lab.equals("VBG")) {
+    if (dlab.equals("being")) {
+      t.label().setValue("VBG-BE");
+    }
+  }
+  return t;
+}

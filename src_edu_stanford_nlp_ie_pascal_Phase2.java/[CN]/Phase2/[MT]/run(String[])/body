@@ -1,0 +1,30 @@
+{
+  Properties props=StringUtils.argsToProperties(args);
+  String serializedClassifier=props.getProperty("serializedClassifier");
+  String dateModelParamFile=props.getProperty("dateModelParamFile");
+  String phase1OutFilename=props.getProperty("phase1OutFilename");
+  String phase2OutFilename=props.getProperty("phase2OutFilename");
+  String numSamplesProp=props.getProperty("numSamples");
+  int numSamples=DEFAULT_NUM_SAMPLES;
+  if (numSamplesProp != null) {
+    numSamples=Integer.parseInt(numSamplesProp);
+  }
+  relationalModels.add(new SimpleDateModel(dateModelParamFile));
+  relationalModels.add(new AcronymModel());
+  AbstractSequenceClassifier classifier;
+  try {
+    classifier=CMMClassifier.getClassifier(serializedClassifier);
+  }
+ catch (  java.lang.ClassCastException e) {
+    classifier=CRFClassifier.getClassifier(serializedClassifier);
+  }
+  PrintWriter phase1Out=new PrintWriter(new FileOutputStream(phase1OutFilename));
+  PrintWriter phase2Out=new PrintWriter(new FileOutputStream(phase2OutFilename));
+  ThreadPool pool=new ThreadPool(NUM_THREADS);
+  for (int inputIdx=2; inputIdx < args.length; ++inputIdx) {
+    pool.insertJob(new SamplingJob(args[inputIdx],classifier,numSamples,relationalModels,phase1Out,phase2Out));
+  }
+  pool.stopWhenEmpty();
+  phase1Out.close();
+  phase2Out.close();
+}

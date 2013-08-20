@@ -1,0 +1,84 @@
+{
+  PrecisionRecallStats prStats=new PrecisionRecallStats();
+  List<String> keySet=new ArrayList<String>(gsMap.keySet());
+  Collections.sort(keySet);
+  for (Iterator<String> iter=keySet.iterator(); iter.hasNext(); ) {
+    String id=iter.next();
+    List<IntPair> answerList=answers.get(id);
+    List<IntPair> goldList=gsMap.get(id);
+    if (answerList == null) {
+      prStats.addFN(goldList.size());
+      continue;
+    }
+    List<IntPair> altList=altMap.get(id);
+    for (Iterator<IntPair> iter2=goldList.iterator(); iter2.hasNext(); ) {
+      IntPair goldAnswer=iter2.next();
+      boolean found=false;
+      for (int i=answerList.size() - 1; i >= 0; i--) {
+        IntPair answer=answerList.get(i);
+        if (goldAnswer.equals(answer)) {
+          if (!found) {
+            prStats.incrementTP();
+          }
+          found=true;
+          continue;
+        }
+        if (altList == null) {
+          continue;
+        }
+        for (Iterator<IntPair> iter3=altList.iterator(); iter3.hasNext(); ) {
+          IntPair altAnswer=iter3.next();
+          if ((altAnswer.getSource() >= goldAnswer.getSource() && altAnswer.getTarget() <= goldAnswer.getTarget()) || (altAnswer.getSource() <= goldAnswer.getSource() && altAnswer.getTarget() >= goldAnswer.getTarget()) || (goldAnswer.getSource() <= altAnswer.getSource() && altAnswer.getSource() <= goldAnswer.getTarget() && goldAnswer.getTarget() <= altAnswer.getTarget())|| (altAnswer.getSource() <= goldAnswer.getSource() && goldAnswer.getSource() <= altAnswer.getTarget() && altAnswer.getTarget() <= goldAnswer.getTarget())) {
+            if (altAnswer.equals(answer)) {
+              if (!found) {
+                prStats.incrementTP();
+              }
+              found=true;
+              break;
+            }
+          }
+        }
+      }
+      if (!found) {
+        prStats.incrementFN();
+      }
+    }
+  }
+  for (Iterator<String> iter=answers.keySet().iterator(); iter.hasNext(); ) {
+    String id=iter.next();
+    List<IntPair> answerList=answers.get(id);
+    List<IntPair> goldList=gsMap.get(id);
+    if (goldList == null) {
+      prStats.addFP(answerList.size());
+      continue;
+    }
+    List<IntPair> altList=altMap.get(id);
+    for (Iterator<IntPair> iter2=answerList.iterator(); iter2.hasNext(); ) {
+      IntPair answer=iter2.next();
+      boolean found=false;
+      for (int i=goldList.size() - 1; i >= 0; i--) {
+        IntPair goldAnswer=goldList.get(i);
+        if (goldAnswer.equals(answer)) {
+          found=true;
+          continue;
+        }
+        if (altList == null) {
+          continue;
+        }
+        for (Iterator<IntPair> iter3=altList.iterator(); iter3.hasNext(); ) {
+          IntPair altAnswer=iter3.next();
+          if ((altAnswer.getSource() >= goldAnswer.getSource() && altAnswer.getTarget() <= goldAnswer.getTarget()) || (altAnswer.getSource() <= goldAnswer.getSource() && altAnswer.getTarget() >= goldAnswer.getTarget()) || (goldAnswer.getSource() <= altAnswer.getSource() && altAnswer.getSource() <= goldAnswer.getTarget() && goldAnswer.getTarget() <= altAnswer.getTarget())|| (altAnswer.getSource() <= goldAnswer.getSource() && goldAnswer.getSource() <= altAnswer.getTarget() && altAnswer.getTarget() <= goldAnswer.getTarget())) {
+            if (altAnswer.equals(answer)) {
+              found=true;
+              break;
+            }
+          }
+        }
+      }
+      if (!found) {
+        prStats.incrementFP();
+      }
+    }
+  }
+  return prStats;
+}

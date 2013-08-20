@@ -1,0 +1,17 @@
+{
+  if (unkModel == UNKMODEL_SINGLE_UNK) {
+    if (verbose) {
+      System.err.println("Adding extra count for single unk to vocab to prevent 0-prob emissions");
+    }
+    vocab.incrementCount(UnknownWordCollapser.defaultUnknownWord);
+  }
+ else   if (unkModel == UNKMODEL_FEATURAL_DECOMP) {
+    if (verbose) {
+      System.err.println("Adding extra count each decomp unk to vocab to prevent 0-prob emissions");
+    }
+    FeatureValue[] allValues=feat.allValues();
+    for (int i=0; i < allValues.length; i++) {
+      vocab.incrementCount(UnknownWordCollapser.defaultUnknownWord + allValues[i]);
+    }
+  }
+}

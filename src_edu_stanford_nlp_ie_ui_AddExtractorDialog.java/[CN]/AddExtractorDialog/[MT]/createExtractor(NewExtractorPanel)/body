@@ -1,0 +1,14 @@
+{
+  extractor=null;
+  try {
+    extractor=newPanel.getFieldExtractorCreator().createFieldExtractor(newPanel.getName());
+    haltProgress();
+    confirmExtractor(extractor);
+  }
+ catch (  IllegalPropertyException e) {
+    haltProgress();
+    String errorMessage="<html>FieldExtractor cannot be created because an illegal property value has been specified:<br>" + "Property Name: <tt><font color=\"red\">" + e.getKey() + "</font></tt><br>"+ "Illegal Value: <tt><font color=\"red\">"+ e.getValue()+ "</font></tt><br>"+ "Error Description:<pre><font color=\"red\">"+ e.getDescription().replaceAll("\r?\n","<br>")+ "</font></pre>"+ "Please correct this error and try again.";
+    JOptionPane.showMessageDialog(AddExtractorDialog.this,errorMessage,"Error Creating FieldExtractor",JOptionPane.ERROR_MESSAGE);
+    newPanel.selectPropertyField(e.getKey());
+  }
+}

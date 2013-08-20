@@ -1,0 +1,42 @@
+{
+  logger.fine("Reading predicted triggers from file: " + annotationFile.getAbsolutePath());
+  BufferedReader in=new BufferedReader(new FileReader(annotationFile));
+  String line;
+  while ((line=in.readLine()) != null) {
+    assert(line.startsWith(ENTITY_TYPE_PREFIX));
+    Quadruple<String,EntityMention,Double,Double> trigInfo=getPredictedTrigger(line,sentences);
+    String eid=trigInfo.first;
+    EntityMention trigger=trigInfo.second;
+    double myProb=trigInfo.third;
+    double firstProb=trigInfo.fourth;
+    EntityMention similar=findSameSpan(trigger);
+    if (similar != null) {
+      similar.attributeMap().set(OriginalGoldAnnotation.class,similar.getType());
+      if (!similar.getType().equals(trigger.getType())) {
+        similar.setType(trigger.getType());
+        logger.fine("Found gold trigger with same span but different type: " + similar);
+      }
+ else {
+        logger.fine("Found similar gold trigger: " + similar);
+      }
+      similar.attributeMap().set(ProbAnnotation.class,myProb);
+      similar.attributeMap().set(FirstProbAnnotation.class,firstProb);
+    }
+ else {
+      logger.fine("Found new trigger: " + trigger);
+      trigger.attributeMap().set(ProbAnnotation.class,myProb);
+      trigger.attributeMap().set(FirstProbAnnotation.class,firstProb);
+      trigger.attributeMap().set(OriginalGoldAnnotation.class,"O");
+      idsToEntities.put(eid,trigger);
+      CoreMap sent=trigger.getSentence();
+      if (sent.get(EntityMentionsAnnotation.class) == null) {
+        List<EntityMention> ents=new ArrayList<EntityMention>();
+        ents.add(trigger);
+        sent.set(EntityMentionsAnnotation.class,ents);
+      }
+ else {
+        sent.get(EntityMentionsAnnotation.class).add(trigger);
+      }
+    }
+  }
+}

@@ -3,11 +3,11 @@
   float[][] E=empty2D();
   value=0.0f;
   Arrays.fill(derivative,0.0f);
-  float[][] sums=new float[labelIndices.size()][];
-  float[][] probs=new float[labelIndices.size()][];
-  float[][] counts=new float[labelIndices.size()][];
+  float[][] sums=new float[labelIndices.length][];
+  float[][] probs=new float[labelIndices.length][];
+  float[][] counts=new float[labelIndices.length][];
   for (int i=0; i < sums.length; i++) {
-    int size=labelIndices.get(i).size();
+    int size=labelIndices[i].size();
     sums[i]=new float[size];
     probs[i]=new float[size];
     counts[i]=new float[size];
@@ -20,7 +20,7 @@
       for (int cl=0; cl < ddata.length; cl++) {
         int[] features=ddata[cl];
         Arrays.fill(sums[cl],0.0f);
-        int numClasses=labelIndices.get(cl).size();
+        int numClasses=labelIndices[cl].size();
         for (int c=0; c < numClasses; c++) {
           for (int f=0; f < features.length; f++) {
             sums[cl][c]+=weights[features[f]][c];
@@ -35,16 +35,16 @@
           label[index1--]=llabels[pos];
         }
         CRFLabel crfLabel=new CRFLabel(label);
-        int labelIndex=labelIndices.get(cl).indexOf(crfLabel);
+        int labelIndex=labelIndices[cl].indexOf(crfLabel);
         float total=ArrayMath.logSum(sums[cl]);
-        int numClasses=labelIndices.get(cl).size();
+        int numClasses=labelIndices[cl].size();
         for (int c=0; c < numClasses; c++) {
           probs[cl][c]=(float)Math.exp(sums[cl][c] - total);
         }
         value-=sums[cl][labelIndex] - total;
       }
       for (int j=0; j < data[d][e].length; j++) {
-        Index labelIndex=labelIndices.get(j);
+        Index labelIndex=labelIndices[j];
         for (int k=0; k < labelIndex.size(); k++) {
           int[] label=((CRFLabel)labelIndex.get(k)).getLabel();
           float p=probs[j][k];

@@ -1,0 +1,59 @@
+{
+  tabulateTrees(trees);
+  negExamples=collapseNegExamples(false);
+  double bestS=0;
+  double bestScore=Double.NEGATIVE_INFINITY;
+  System.err.println("Tuning stopSmooth");
+  for (stopSmooth=0.1; stopSmooth < 10; stopSmooth*=1.25) {
+    double total=0.0;
+    for (    IntDependency dep : stopExamples.keySet()) {
+      double stopProb=getStopProb(dep);
+      if (stopProb > 0.0) {
+        total+=Math.log(stopProb) * stopExamples.getCount(dep);
+      }
+    }
+    for (    IntDependency dep : posExamples.keySet()) {
+      if (!rootTW(dep.head)) {
+        double continueProb=1.0 - getStopProb(dep);
+        if (continueProb > 0.0) {
+          total+=Math.log(continueProb) * posExamples.getCount(dep);
+        }
+      }
+    }
+    if (total > bestScore) {
+      bestS=stopSmooth;
+      bestScore=total;
+    }
+  }
+  stopSmooth=bestS;
+  System.err.println("Tuning selected stopSmooth: " + stopSmooth);
+  System.err.println("Tuning other params...");
+  bestScore=Double.NEGATIVE_INFINITY;
+  double bestW=0;
+  double bestD=0;
+  for (depSmooth=0.1; depSmooth < 100; depSmooth*=1.25) {
+    for (wordSmooth=0.1; wordSmooth < 100; wordSmooth*=1.25) {
+      double total=0.0;
+      for (      IntDependency dep : posExamples.keySet()) {
+        double depProb=getDepProb(dep);
+        if (depProb > 0.0) {
+          total+=Math.log(depProb) * posExamples.getCount(dep);
+        }
+      }
+      for (      IntDependency dep : negExamples.keySet()) {
+        double depProb=1.0 - getDepProb(dep);
+        if (depProb > 0.0) {
+          total+=Math.log(depProb) * negExamples.getCount(dep);
+        }
+      }
+      if (total > bestScore) {
+        bestD=depSmooth;
+        bestW=wordSmooth;
+        bestScore=total;
+      }
+    }
+  }
+  depSmooth=bestD;
+  wordSmooth=bestW;
+  System.out.println("\nTuning selected depSmooth: " + depSmooth + " wordSmooth: "+ wordSmooth);
+}

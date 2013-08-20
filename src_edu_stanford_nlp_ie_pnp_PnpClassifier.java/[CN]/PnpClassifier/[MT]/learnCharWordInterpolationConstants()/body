@@ -1,0 +1,62 @@
+{
+  for (int c=1; c <= numCategories; c++) {
+    if (DEBUG) {
+      System.err.println(new Date() + " learning char-word weights for category " + c);
+    }
+    HashMap<Integer,List> wordsWithContextByLength=new HashMap<Integer,List>();
+    for (int i=0; i < heldOutExamples[c].size(); i++) {
+      String line=(String)heldOutExamples[c].get(i);
+      List<String> wordsWithContext=getWordsWithContext(line);
+      for (int j=0; j < wordsWithContext.size(); j++) {
+        String wordWithContext=wordsWithContext.get(j);
+        int wordLength=wordWithContext.length() - cn;
+        List<String> words=wordsWithContextByLength.get(Integer.valueOf(wordLength));
+        if (words == null) {
+          words=new ArrayList<String>();
+          wordsWithContextByLength.put(Integer.valueOf(wordLength),words);
+        }
+        words.add(wordWithContext);
+      }
+    }
+    Iterator<Integer> iter=wordsWithContextByLength.keySet().iterator();
+    while (iter.hasNext()) {
+      Integer length=iter.next();
+      List wordsWithContext=wordsWithContextByLength.get(length);
+      double totalCharProb=charSequenceTotalsByLength[c].getCount(length);
+      if (totalCharProb == 0) {
+        totalCharProb=0.0001;
+      }
+      double[] ngramProbs=new double[wordsWithContext.size()];
+      double[] wordProbs=new double[wordsWithContext.size()];
+      for (int i=0; i < wordsWithContext.size(); i++) {
+        String wordWithContext=(String)wordsWithContext.get(i);
+        String pureWord=getPureString(wordWithContext);
+        ngramProbs[i]=1.0;
+        for (int j=cn; j <= wordWithContext.length(); j++) {
+          String ngram=wordWithContext.substring(j - cn,j);
+          ngramProbs[i]*=getInterpolatedCharProb(ngram,c);
+        }
+        ngramProbs[i]/=totalCharProb;
+        wordProbs[i]=getEmpiricalWordProb(pureWord,c);
+      }
+      double bestWeight=0.0;
+      double bestScore=-Double.MAX_VALUE;
+      for (int w=1; w <= numCharWordSteps; w++) {
+        double weight=((double)w) / numCharWordSteps;
+        double totalScore=0;
+        for (int i=0; i < wordsWithContext.size(); i++) {
+          double mixedProb=weight * ngramProbs[i] + (1.0 - weight) * wordProbs[i];
+          totalScore+=Math.log(mixedProb);
+        }
+        if (totalScore > bestScore) {
+          bestScore=totalScore;
+          bestWeight=weight;
+        }
+      }
+      charWordInterpolationConstants[c].setCount(length,bestWeight);
+    }
+    if (DEBUG) {
+      System.err.println(charWordInterpolationConstants[c]);
+    }
+  }
+}

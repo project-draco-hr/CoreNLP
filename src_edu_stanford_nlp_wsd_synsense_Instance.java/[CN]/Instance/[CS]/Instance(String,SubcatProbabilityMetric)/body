@@ -1,0 +1,28 @@
+{
+  lexicalElement=instanceString.substring(0,instanceString.indexOf(" "));
+  instanceString=instanceString.substring(instanceString.indexOf(" ") + 1);
+  instanceID=instanceString.substring(0,instanceString.indexOf(" "));
+  instanceString=instanceString.substring(instanceString.indexOf(" ") + 1);
+  instanceString=tokFixer.apply(instanceString);
+  instanceString=extractSenses(instanceString);
+  allWords=(PTBTokenizer.newPTBTokenizer(new StringReader(instanceString))).tokenize();
+  extractTarget();
+  if (sentence == null) {
+    throw new RuntimeException();
+  }
+  if (word == null) {
+    throw new RuntimeException();
+  }
+  if (index == -1) {
+    throw new RuntimeException("Error: instance has no word marked with carat: " + sentence);
+  }
+  subcat=Subcategory.UNASSIGNED;
+  if (subcatParser != null) {
+    try {
+      logSequenceGivenSubcat=subcatParser.getLogSubcatProbs(Words.toStrings(sentence));
+    }
+ catch (    Exception e) {
+      logSequenceGivenSubcat=new ClassicCounter<Subcategory>();
+    }
+  }
+}

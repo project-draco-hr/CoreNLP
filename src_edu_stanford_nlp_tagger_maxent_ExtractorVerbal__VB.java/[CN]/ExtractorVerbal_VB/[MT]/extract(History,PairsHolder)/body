@@ -1,0 +1,36 @@
+{
+  String cword=pH.getWord(h,0);
+  int start=h.start;
+  int allCount=dict.sum(cword);
+  int vBCount=dict.getCount(cword,vbTag);
+  int vBPCount=dict.getCount(cword,vbpTag);
+  if ((allCount > 0) && (vBCount + vBPCount <= allCount / 100)) {
+    return "0";
+  }
+  String lastverb=naWord;
+  String lastvtag="";
+  int current=h.current;
+  int index=current - 1;
+  while ((index >= start) && (index >= current - bound)) {
+    String tag=pH.getTag(index);
+    if ((tag.equals(mdTag)) || (tag.startsWith(vb)) || (tag.startsWith(to))) {
+      lastverb=pH.getWord(index);
+      lastvtag=tag;
+      break;
+    }
+    if (tag.equals("CC")) {
+      break;
+    }
+    index--;
+  }
+  if (DBG) {
+    System.out.println("## VB: last verb is " + lastverb + " last tag is "+ lastvtag);
+  }
+  if (isForVB(h,pH,lastverb,lastvtag)) {
+    if (DBG) {
+      System.out.println("## VB: fired");
+    }
+    return oneSt;
+  }
+  return zeroSt;
+}

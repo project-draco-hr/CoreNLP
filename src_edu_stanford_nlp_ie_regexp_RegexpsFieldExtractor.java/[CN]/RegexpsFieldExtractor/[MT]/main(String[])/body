@@ -1,0 +1,59 @@
+{
+  if (args.length < 2) {
+    System.err.println("Usage: java RegexpsFieldExtractorCreator filename outfile.obj");
+    System.exit(-1);
+  }
+  try {
+    java.util.regex.Pattern lineMatch=java.util.regex.Pattern.compile("^[ \t]*([^\t ]+)[ \t]+([^\t ]+)[ \t]+([^\t ]+)[ \t]+(.*)$");
+    java.util.regex.Pattern comment=java.util.regex.Pattern.compile("^#");
+    System.err.println("Creating new RegexpsFieldExtractor(" + args[0] + ","+ args[1]+ ")");
+    BufferedReader br=new BufferedReader(new FileReader(args[0]));
+    ArrayList<String> conceptNames=new ArrayList<String>();
+    ArrayList<String> fieldNames=new ArrayList<String>();
+    ArrayList<Integer> groupNums=new ArrayList<Integer>();
+    ArrayList<String> res=new ArrayList<String>();
+    String line;
+    while ((line=br.readLine()) != null) {
+      Matcher commMatcher=comment.matcher(line);
+      if (!commMatcher.find()) {
+        System.err.println("Processing |" + line + "|");
+        Matcher matcher=lineMatch.matcher(line);
+        if (matcher.find()) {
+          conceptNames.add(matcher.group(1));
+          fieldNames.add(matcher.group(2));
+          groupNums.add(Integer.valueOf(matcher.group(3)));
+          res.add(matcher.group(4));
+        }
+      }
+    }
+    String[] concepts=conceptNames.toArray(new String[conceptNames.size()]);
+    String[] fields=fieldNames.toArray(new String[fieldNames.size()]);
+    int[] groups=new int[groupNums.size()];
+    for (int i=0; i < groupNums.size(); i++) {
+      groups[i]=groupNums.get(i).intValue();
+    }
+    String[] regex=res.toArray(new String[res.size()]);
+    StringBuilder name=new StringBuilder("RegexpExtractor-");
+    String outfilename=new File(args[1]).getName();
+    int index=outfilename.lastIndexOf('.');
+    if (index == -1) {
+      name.append(outfilename);
+    }
+ else {
+      name.append(outfilename.substring(0,index));
+    }
+    RegexpsFieldExtractor rfe=new RegexpsFieldExtractor(name.toString(),concepts,fields,groups,regex);
+    System.err.println("Serializing extractor to " + args[1]);
+    rfe.storeExtractor(new File(args[1]));
+    System.err.println("Done");
+    System.err.println("Loading and testing extractor");
+    FieldExtractor fe=AbstractFieldExtractor.loadExtractor(new File(args[1]));
+    String sampleText="Jacob Richardson, 221 Bryant St, Palo Alto CA 94301, 650-123-4567";
+    System.err.println("Testing on: " + sampleText);
+    System.err.println("Extracted: " + fe.extractFields(sampleText));
+  }
+ catch (  Exception e) {
+    System.err.println("An error occured while trying to create the RegexpsFieldExtractor:");
+    e.printStackTrace();
+  }
+}

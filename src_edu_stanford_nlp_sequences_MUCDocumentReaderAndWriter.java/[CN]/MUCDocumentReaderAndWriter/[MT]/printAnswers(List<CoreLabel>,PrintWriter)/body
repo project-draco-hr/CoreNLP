@@ -3,30 +3,30 @@
   String prevClass="";
   String afterLast="";
   for (  CoreLabel word : doc) {
-    if (!prevAnswer.equals("O") && !prevAnswer.equals(word.get(CoreAnnotations.AnswerAnnotation.class))) {
+    if (!prevAnswer.equals("O") && !prevAnswer.equals(word.get(AnswerAnnotation.class))) {
       pw.print("</" + prevClass + ">");
       prevClass="";
     }
-    pw.print(word.get(CoreAnnotations.BeforeAnnotation.class));
-    if (!word.get(CoreAnnotations.AnswerAnnotation.class).equals("O") && !word.get(CoreAnnotations.AnswerAnnotation.class).equals(prevAnswer)) {
-      if (word.get(CoreAnnotations.AnswerAnnotation.class).equalsIgnoreCase("PERSON") || word.get(CoreAnnotations.AnswerAnnotation.class).equalsIgnoreCase("ORGANIZATION") || word.get(CoreAnnotations.AnswerAnnotation.class).equalsIgnoreCase("LOCATION")) {
+    pw.print(word.get(BeforeAnnotation.class));
+    if (!word.get(AnswerAnnotation.class).equals("O") && !word.get(AnswerAnnotation.class).equals(prevAnswer)) {
+      if (word.get(AnswerAnnotation.class).equalsIgnoreCase("PERSON") || word.get(AnswerAnnotation.class).equalsIgnoreCase("ORGANIZATION") || word.get(AnswerAnnotation.class).equalsIgnoreCase("LOCATION")) {
         prevClass="ENAMEX";
       }
- else       if (word.get(CoreAnnotations.AnswerAnnotation.class).equalsIgnoreCase("DATE") || word.get(CoreAnnotations.AnswerAnnotation.class).equalsIgnoreCase("TIME")) {
+ else       if (word.get(AnswerAnnotation.class).equalsIgnoreCase("DATE") || word.get(AnswerAnnotation.class).equalsIgnoreCase("TIME")) {
         prevClass="TIMEX";
       }
- else       if (word.get(CoreAnnotations.AnswerAnnotation.class).equalsIgnoreCase("PERCENT") || word.get(CoreAnnotations.AnswerAnnotation.class).equalsIgnoreCase("MONEY")) {
+ else       if (word.get(AnswerAnnotation.class).equalsIgnoreCase("PERCENT") || word.get(AnswerAnnotation.class).equalsIgnoreCase("MONEY")) {
         prevClass="NUMEX";
       }
  else {
-        System.err.println("unknown type: " + word.get(CoreAnnotations.AnswerAnnotation.class));
+        System.err.println("unknown type: " + word.get(AnswerAnnotation.class));
         System.exit(0);
       }
-      pw.print("<" + prevClass + " TYPE=\""+ word.get(CoreAnnotations.AnswerAnnotation.class)+ "\">");
+      pw.print("<" + prevClass + " TYPE=\""+ word.get(AnswerAnnotation.class)+ "\">");
     }
-    pw.print(word.get(CoreAnnotations.OriginalTextAnnotation.class));
-    afterLast=word.get(CoreAnnotations.AfterAnnotation.class);
-    prevAnswer=word.get(CoreAnnotations.AnswerAnnotation.class);
+    pw.print(word.get(OriginalTextAnnotation.class));
+    afterLast=word.get(AfterAnnotation.class);
+    prevAnswer=word.get(AnswerAnnotation.class);
   }
   if (!prevAnswer.equals("O")) {
     pw.print("</" + prevClass + ">");

@@ -1,0 +1,23 @@
+{
+  HashMap<String,PrecisionRecallStats> statsByField=new HashMap<String,PrecisionRecallStats>();
+  for (Iterator<String> iter=answersByField.keySet().iterator(); iter.hasNext(); ) {
+    PrecisionRecallStats stats=new PrecisionRecallStats();
+    String field=iter.next();
+    String guessedAnswer=(String)guessedAnswersByField.get(field);
+    Set answerStrings=answersByField.get(field);
+    if (answerStrings == null && guessedAnswer.length() > 0) {
+      stats.incrementFP();
+    }
+ else {
+      if (answerStrings.contains(guessedAnswer)) {
+        stats.incrementTP();
+      }
+ else {
+        stats.incrementFP();
+        stats.incrementFN();
+      }
+    }
+    statsByField.put(field,stats);
+  }
+  return (statsByField);
+}

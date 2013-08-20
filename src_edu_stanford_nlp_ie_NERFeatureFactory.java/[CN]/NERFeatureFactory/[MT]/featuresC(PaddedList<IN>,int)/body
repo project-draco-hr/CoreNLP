@@ -8,9 +8,9 @@
   String cWord=getWord(c);
   String pWord=getWord(p);
   String nWord=getWord(n);
-  String cShape=c.getString(CoreAnnotations.ShapeAnnotation.class);
-  String pShape=p.getString(CoreAnnotations.ShapeAnnotation.class);
-  String nShape=n.getString(CoreAnnotations.ShapeAnnotation.class);
+  String cShape=c.getString(ShapeAnnotation.class);
+  String pShape=p.getString(ShapeAnnotation.class);
+  String nShape=n.getString(ShapeAnnotation.class);
   Collection<String> featuresC=new ArrayList<String>();
   if (flags.useDistSim) {
     distSimAnnotate(cInfo);
@@ -21,10 +21,10 @@
     }
   }
   if (flags.useDistSim && flags.useMoreTags) {
-    featuresC.add(p.get(CoreAnnotations.DistSimAnnotation.class) + '-' + cWord+ "-PDISTSIM-CWORD");
+    featuresC.add(p.get(DistSimAnnotation.class) + '-' + cWord+ "-PDISTSIM-CWORD");
   }
   if (flags.useDistSim) {
-    featuresC.add(c.get(CoreAnnotations.DistSimAnnotation.class) + "-DISTSIM");
+    featuresC.add(c.get(DistSimAnnotation.class) + "-DISTSIM");
   }
   if (flags.useTitle) {
     Matcher m=titlePattern.matcher(cWord);
@@ -46,19 +46,19 @@
       featuresC.add(nWord.toLowerCase() + "-NL");
     }
     if (flags.useUnknown) {
-      featuresC.add(c.get(CoreAnnotations.UnknownAnnotation.class) + "-UNKNOWN");
-      featuresC.add(p.get(CoreAnnotations.UnknownAnnotation.class) + "-PUNKNOWN");
-      featuresC.add(n.get(CoreAnnotations.UnknownAnnotation.class) + "-NUNKNOWN");
+      featuresC.add(c.get(UnknownAnnotation.class) + "-UNKNOWN");
+      featuresC.add(p.get(UnknownAnnotation.class) + "-PUNKNOWN");
+      featuresC.add(n.get(UnknownAnnotation.class) + "-NUNKNOWN");
     }
     if (flags.useLemmas) {
-      String lem=c.getString(CoreAnnotations.LemmaAnnotation.class);
+      String lem=c.getString(LemmaAnnotation.class);
       if (!"".equals(lem)) {
         featuresC.add(lem + "-LEM");
       }
     }
     if (flags.usePrevNextLemmas) {
-      String plem=p.getString(CoreAnnotations.LemmaAnnotation.class);
-      String nlem=n.getString(CoreAnnotations.LemmaAnnotation.class);
+      String plem=p.getString(LemmaAnnotation.class);
+      String nlem=n.getString(LemmaAnnotation.class);
       if (!"".equals(plem)) {
         featuresC.add(plem + "-PLEM");
       }
@@ -69,21 +69,21 @@
     if (flags.checkNameList) {
       try {
         if (lastNames == null) {
-          lastNames=Generics.newHashSet();
+          lastNames=new HashSet<String>();
           for (          String line : ObjectBank.getLineIterator(flags.lastNameList)) {
             String[] cols=line.split("\\s+");
             lastNames.add(cols[0]);
           }
         }
         if (maleNames == null) {
-          maleNames=Generics.newHashSet();
+          maleNames=new HashSet<String>();
           for (          String line : ObjectBank.getLineIterator(flags.maleNameList)) {
             String[] cols=line.split("\\s+");
             maleNames.add(cols[0]);
           }
         }
         if (femaleNames == null) {
-          femaleNames=Generics.newHashSet();
+          femaleNames=new HashSet<String>();
           for (          String line : ObjectBank.getLineIterator(flags.femaleNameList)) {
             String[] cols=line.split("\\s+");
             femaleNames.add(cols[0]);
@@ -119,61 +119,61 @@
       featuresC.add(featureName);
     }
     if (flags.useABGENE) {
-      featuresC.add(c.get(CoreAnnotations.AbgeneAnnotation.class) + "-ABGENE");
-      featuresC.add(p.get(CoreAnnotations.AbgeneAnnotation.class) + "-PABGENE");
-      featuresC.add(n.get(CoreAnnotations.AbgeneAnnotation.class) + "-NABGENE");
+      featuresC.add(c.get(AbgeneAnnotation.class) + "-ABGENE");
+      featuresC.add(p.get(AbgeneAnnotation.class) + "-PABGENE");
+      featuresC.add(n.get(AbgeneAnnotation.class) + "-NABGENE");
     }
     if (flags.useABSTRFreqDict) {
-      featuresC.add(c.get(CoreAnnotations.AbstrAnnotation.class) + "-ABSTRACT" + c.get(CoreAnnotations.FreqAnnotation.class)+ "-FREQ"+ c.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ "-TAG");
-      featuresC.add(c.get(CoreAnnotations.AbstrAnnotation.class) + "-ABSTRACT" + c.get(CoreAnnotations.DictAnnotation.class)+ "-DICT"+ c.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ "-TAG");
-      featuresC.add(c.get(CoreAnnotations.AbstrAnnotation.class) + "-ABSTRACT" + c.get(CoreAnnotations.DictAnnotation.class)+ "-DICT"+ c.get(CoreAnnotations.FreqAnnotation.class)+ "-FREQ"+ c.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ "-TAG");
+      featuresC.add(c.get(AbstrAnnotation.class) + "-ABSTRACT" + c.get(FreqAnnotation.class)+ "-FREQ"+ c.getString(PartOfSpeechAnnotation.class)+ "-TAG");
+      featuresC.add(c.get(AbstrAnnotation.class) + "-ABSTRACT" + c.get(DictAnnotation.class)+ "-DICT"+ c.getString(PartOfSpeechAnnotation.class)+ "-TAG");
+      featuresC.add(c.get(AbstrAnnotation.class) + "-ABSTRACT" + c.get(DictAnnotation.class)+ "-DICT"+ c.get(FreqAnnotation.class)+ "-FREQ"+ c.getString(PartOfSpeechAnnotation.class)+ "-TAG");
     }
     if (flags.useABSTR) {
-      featuresC.add(c.get(CoreAnnotations.AbstrAnnotation.class) + "-ABSTRACT");
-      featuresC.add(p.get(CoreAnnotations.AbstrAnnotation.class) + "-PABSTRACT");
-      featuresC.add(n.get(CoreAnnotations.AbstrAnnotation.class) + "-NABSTRACT");
+      featuresC.add(c.get(AbstrAnnotation.class) + "-ABSTRACT");
+      featuresC.add(p.get(AbstrAnnotation.class) + "-PABSTRACT");
+      featuresC.add(n.get(AbstrAnnotation.class) + "-NABSTRACT");
     }
     if (flags.useGENIA) {
-      featuresC.add(c.get(CoreAnnotations.GeniaAnnotation.class) + "-GENIA");
-      featuresC.add(p.get(CoreAnnotations.GeniaAnnotation.class) + "-PGENIA");
-      featuresC.add(n.get(CoreAnnotations.GeniaAnnotation.class) + "-NGENIA");
+      featuresC.add(c.get(GeniaAnnotation.class) + "-GENIA");
+      featuresC.add(p.get(GeniaAnnotation.class) + "-PGENIA");
+      featuresC.add(n.get(GeniaAnnotation.class) + "-NGENIA");
     }
     if (flags.useWEBFreqDict) {
-      featuresC.add(c.get(CoreAnnotations.WebAnnotation.class) + "-WEB" + c.get(CoreAnnotations.FreqAnnotation.class)+ "-FREQ"+ c.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ "-TAG");
-      featuresC.add(c.get(CoreAnnotations.WebAnnotation.class) + "-WEB" + c.get(CoreAnnotations.DictAnnotation.class)+ "-DICT"+ c.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ "-TAG");
-      featuresC.add(c.get(CoreAnnotations.WebAnnotation.class) + "-WEB" + c.get(CoreAnnotations.DictAnnotation.class)+ "-DICT"+ c.get(CoreAnnotations.FreqAnnotation.class)+ "-FREQ"+ c.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ "-TAG");
+      featuresC.add(c.get(WebAnnotation.class) + "-WEB" + c.get(FreqAnnotation.class)+ "-FREQ"+ c.getString(PartOfSpeechAnnotation.class)+ "-TAG");
+      featuresC.add(c.get(WebAnnotation.class) + "-WEB" + c.get(DictAnnotation.class)+ "-DICT"+ c.getString(PartOfSpeechAnnotation.class)+ "-TAG");
+      featuresC.add(c.get(WebAnnotation.class) + "-WEB" + c.get(DictAnnotation.class)+ "-DICT"+ c.get(FreqAnnotation.class)+ "-FREQ"+ c.getString(PartOfSpeechAnnotation.class)+ "-TAG");
     }
     if (flags.useWEB) {
-      featuresC.add(c.get(CoreAnnotations.WebAnnotation.class) + "-WEB");
-      featuresC.add(p.get(CoreAnnotations.WebAnnotation.class) + "-PWEB");
-      featuresC.add(n.get(CoreAnnotations.WebAnnotation.class) + "-NWEB");
+      featuresC.add(c.get(WebAnnotation.class) + "-WEB");
+      featuresC.add(p.get(WebAnnotation.class) + "-PWEB");
+      featuresC.add(n.get(WebAnnotation.class) + "-NWEB");
     }
     if (flags.useIsURL) {
-      featuresC.add(c.get(CoreAnnotations.IsURLAnnotation.class) + "-ISURL");
+      featuresC.add(c.get(IsURLAnnotation.class) + "-ISURL");
     }
     if (flags.useEntityRule) {
-      featuresC.add(c.get(CoreAnnotations.EntityRuleAnnotation.class) + "-ENTITYRULE");
+      featuresC.add(c.get(EntityRuleAnnotation.class) + "-ENTITYRULE");
     }
     if (flags.useEntityTypes) {
-      featuresC.add(c.get(CoreAnnotations.EntityTypeAnnotation.class) + "-ENTITYTYPE");
+      featuresC.add(c.get(EntityTypeAnnotation.class) + "-ENTITYTYPE");
     }
     if (flags.useIsDateRange) {
-      featuresC.add(c.get(CoreAnnotations.IsDateRangeAnnotation.class) + "-ISDATERANGE");
+      featuresC.add(c.get(IsDateRangeAnnotation.class) + "-ISDATERANGE");
     }
     if (flags.useABSTRFreq) {
-      featuresC.add(c.get(CoreAnnotations.AbstrAnnotation.class) + "-ABSTRACT" + c.get(CoreAnnotations.FreqAnnotation.class)+ "-FREQ");
+      featuresC.add(c.get(AbstrAnnotation.class) + "-ABSTRACT" + c.get(FreqAnnotation.class)+ "-FREQ");
     }
     if (flags.useFREQ) {
-      featuresC.add(c.get(CoreAnnotations.FreqAnnotation.class) + "-FREQ");
+      featuresC.add(c.get(FreqAnnotation.class) + "-FREQ");
     }
     if (flags.useMoreTags) {
-      featuresC.add(p.getString(CoreAnnotations.PartOfSpeechAnnotation.class) + '-' + cWord+ "-PTAG-CWORD");
+      featuresC.add(p.getString(PartOfSpeechAnnotation.class) + '-' + cWord+ "-PTAG-CWORD");
     }
     if (flags.usePosition) {
-      featuresC.add(c.get(CoreAnnotations.PositionAnnotation.class) + "-POSITION");
+      featuresC.add(c.get(PositionAnnotation.class) + "-POSITION");
     }
     if (flags.useBeginSent) {
-      String pos=c.get(CoreAnnotations.PositionAnnotation.class);
+      String pos=c.get(PositionAnnotation.class);
       if ("0".equals(pos)) {
         featuresC.add("BEGIN-SENT");
         featuresC.add(cShape + "-BEGIN-SENT");
@@ -188,7 +188,7 @@
       }
     }
     if (flags.useTags) {
-      featuresC.add(c.getString(CoreAnnotations.PartOfSpeechAnnotation.class) + "-TAG");
+      featuresC.add(c.getString(PartOfSpeechAnnotation.class) + "-TAG");
     }
     if (flags.useOrdinal) {
       if (isOrdinal(cInfo,loc)) {
@@ -204,31 +204,31 @@
     if (flags.usePrev) {
       featuresC.add(pWord + "-PW");
       if (flags.useTags) {
-        featuresC.add(p.getString(CoreAnnotations.PartOfSpeechAnnotation.class) + "-PTAG");
+        featuresC.add(p.getString(PartOfSpeechAnnotation.class) + "-PTAG");
       }
       if (flags.useDistSim) {
-        featuresC.add(p.get(CoreAnnotations.DistSimAnnotation.class) + "-PDISTSIM");
+        featuresC.add(p.get(DistSimAnnotation.class) + "-PDISTSIM");
       }
       if (flags.useIsURL) {
-        featuresC.add(p.get(CoreAnnotations.IsURLAnnotation.class) + "-PISURL");
+        featuresC.add(p.get(IsURLAnnotation.class) + "-PISURL");
       }
       if (flags.useEntityTypes) {
-        featuresC.add(p.get(CoreAnnotations.EntityTypeAnnotation.class) + "-PENTITYTYPE");
+        featuresC.add(p.get(EntityTypeAnnotation.class) + "-PENTITYTYPE");
       }
     }
     if (flags.useNext) {
       featuresC.add(nWord + "-NW");
       if (flags.useTags) {
-        featuresC.add(n.getString(CoreAnnotations.PartOfSpeechAnnotation.class) + "-NTAG");
+        featuresC.add(n.getString(PartOfSpeechAnnotation.class) + "-NTAG");
       }
       if (flags.useDistSim) {
-        featuresC.add(n.get(CoreAnnotations.DistSimAnnotation.class) + "-NDISTSIM");
+        featuresC.add(n.get(DistSimAnnotation.class) + "-NDISTSIM");
       }
       if (flags.useIsURL) {
-        featuresC.add(n.get(CoreAnnotations.IsURLAnnotation.class) + "-NISURL");
+        featuresC.add(n.get(IsURLAnnotation.class) + "-NISURL");
       }
       if (flags.useEntityTypes) {
-        featuresC.add(n.get(CoreAnnotations.EntityTypeAnnotation.class) + "-NENTITYTYPE");
+        featuresC.add(n.get(EntityTypeAnnotation.class) + "-NENTITYTYPE");
       }
     }
     if (flags.useEitherSideWord) {
@@ -241,72 +241,72 @@
     }
     if (flags.useSymTags) {
       if (flags.useTags) {
-        featuresC.add(p.getString(CoreAnnotations.PartOfSpeechAnnotation.class) + '-' + c.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ '-'+ n.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ "-PCNTAGS");
-        featuresC.add(c.getString(CoreAnnotations.PartOfSpeechAnnotation.class) + '-' + n.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ "-CNTAGS");
-        featuresC.add(p.getString(CoreAnnotations.PartOfSpeechAnnotation.class) + '-' + c.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ "-PCTAGS");
+        featuresC.add(p.getString(PartOfSpeechAnnotation.class) + '-' + c.getString(PartOfSpeechAnnotation.class)+ '-'+ n.getString(PartOfSpeechAnnotation.class)+ "-PCNTAGS");
+        featuresC.add(c.getString(PartOfSpeechAnnotation.class) + '-' + n.getString(PartOfSpeechAnnotation.class)+ "-CNTAGS");
+        featuresC.add(p.getString(PartOfSpeechAnnotation.class) + '-' + c.getString(PartOfSpeechAnnotation.class)+ "-PCTAGS");
       }
       if (flags.useDistSim) {
-        featuresC.add(p.get(CoreAnnotations.DistSimAnnotation.class) + '-' + c.get(CoreAnnotations.DistSimAnnotation.class)+ '-'+ n.get(CoreAnnotations.DistSimAnnotation.class)+ "-PCNDISTSIM");
-        featuresC.add(c.get(CoreAnnotations.DistSimAnnotation.class) + '-' + n.get(CoreAnnotations.DistSimAnnotation.class)+ "-CNDISTSIM");
-        featuresC.add(p.get(CoreAnnotations.DistSimAnnotation.class) + '-' + c.get(CoreAnnotations.DistSimAnnotation.class)+ "-PCDISTSIM");
+        featuresC.add(p.get(DistSimAnnotation.class) + '-' + c.get(DistSimAnnotation.class)+ '-'+ n.get(DistSimAnnotation.class)+ "-PCNDISTSIM");
+        featuresC.add(c.get(DistSimAnnotation.class) + '-' + n.get(DistSimAnnotation.class)+ "-CNDISTSIM");
+        featuresC.add(p.get(DistSimAnnotation.class) + '-' + c.get(DistSimAnnotation.class)+ "-PCDISTSIM");
       }
     }
     if (flags.useSymWordPairs) {
       featuresC.add(pWord + '-' + nWord+ "-SWORDS");
     }
     if (flags.useGazFeatures) {
-      if (!c.get(CoreAnnotations.GazAnnotation.class).equals(flags.dropGaz)) {
-        featuresC.add(c.get(CoreAnnotations.GazAnnotation.class) + "-GAZ");
+      if (!c.get(GazAnnotation.class).equals(flags.dropGaz)) {
+        featuresC.add(c.get(GazAnnotation.class) + "-GAZ");
       }
-      if (!n.get(CoreAnnotations.GazAnnotation.class).equals(flags.dropGaz)) {
-        featuresC.add(n.get(CoreAnnotations.GazAnnotation.class) + "-NGAZ");
+      if (!n.get(GazAnnotation.class).equals(flags.dropGaz)) {
+        featuresC.add(n.get(GazAnnotation.class) + "-NGAZ");
       }
-      if (!p.get(CoreAnnotations.GazAnnotation.class).equals(flags.dropGaz)) {
-        featuresC.add(p.get(CoreAnnotations.GazAnnotation.class) + "-PGAZ");
+      if (!p.get(GazAnnotation.class).equals(flags.dropGaz)) {
+        featuresC.add(p.get(GazAnnotation.class) + "-PGAZ");
       }
     }
     if (flags.useMoreGazFeatures) {
-      if (!c.get(CoreAnnotations.GazAnnotation.class).equals(flags.dropGaz)) {
-        featuresC.add(c.get(CoreAnnotations.GazAnnotation.class) + '-' + cWord+ "-CG-CW-GAZ");
-        if (!n.get(CoreAnnotations.GazAnnotation.class).equals(flags.dropGaz)) {
-          featuresC.add(c.get(CoreAnnotations.GazAnnotation.class) + '-' + n.get(CoreAnnotations.GazAnnotation.class)+ "-CNGAZ");
+      if (!c.get(GazAnnotation.class).equals(flags.dropGaz)) {
+        featuresC.add(c.get(GazAnnotation.class) + '-' + cWord+ "-CG-CW-GAZ");
+        if (!n.get(GazAnnotation.class).equals(flags.dropGaz)) {
+          featuresC.add(c.get(GazAnnotation.class) + '-' + n.get(GazAnnotation.class)+ "-CNGAZ");
         }
-        if (!p.get(CoreAnnotations.GazAnnotation.class).equals(flags.dropGaz)) {
-          featuresC.add(p.get(CoreAnnotations.GazAnnotation.class) + '-' + c.get(CoreAnnotations.GazAnnotation.class)+ "-PCGAZ");
+        if (!p.get(GazAnnotation.class).equals(flags.dropGaz)) {
+          featuresC.add(p.get(GazAnnotation.class) + '-' + c.get(GazAnnotation.class)+ "-PCGAZ");
         }
       }
     }
     if (flags.useAbbr || flags.useMinimalAbbr) {
-      featuresC.add(c.get(CoreAnnotations.AbbrAnnotation.class) + "-ABBR");
+      featuresC.add(c.get(AbbrAnnotation.class) + "-ABBR");
     }
     if (flags.useAbbr1 || flags.useMinimalAbbr1) {
-      if (!c.get(CoreAnnotations.AbbrAnnotation.class).equals("XX")) {
-        featuresC.add(c.get(CoreAnnotations.AbbrAnnotation.class) + "-ABBR");
+      if (!c.get(AbbrAnnotation.class).equals("XX")) {
+        featuresC.add(c.get(AbbrAnnotation.class) + "-ABBR");
       }
     }
     if (flags.useAbbr) {
-      featuresC.add(p.get(CoreAnnotations.AbbrAnnotation.class) + '-' + c.get(CoreAnnotations.AbbrAnnotation.class)+ "-PCABBR");
-      featuresC.add(c.get(CoreAnnotations.AbbrAnnotation.class) + '-' + n.get(CoreAnnotations.AbbrAnnotation.class)+ "-CNABBR");
-      featuresC.add(p.get(CoreAnnotations.AbbrAnnotation.class) + '-' + c.get(CoreAnnotations.AbbrAnnotation.class)+ '-'+ n.get(CoreAnnotations.AbbrAnnotation.class)+ "-PCNABBR");
+      featuresC.add(p.get(AbbrAnnotation.class) + '-' + c.get(AbbrAnnotation.class)+ "-PCABBR");
+      featuresC.add(c.get(AbbrAnnotation.class) + '-' + n.get(AbbrAnnotation.class)+ "-CNABBR");
+      featuresC.add(p.get(AbbrAnnotation.class) + '-' + c.get(AbbrAnnotation.class)+ '-'+ n.get(AbbrAnnotation.class)+ "-PCNABBR");
     }
     if (flags.useAbbr1) {
-      if (!c.get(CoreAnnotations.AbbrAnnotation.class).equals("XX")) {
-        featuresC.add(p.get(CoreAnnotations.AbbrAnnotation.class) + '-' + c.get(CoreAnnotations.AbbrAnnotation.class)+ "-PCABBR");
-        featuresC.add(c.get(CoreAnnotations.AbbrAnnotation.class) + '-' + n.get(CoreAnnotations.AbbrAnnotation.class)+ "-CNABBR");
-        featuresC.add(p.get(CoreAnnotations.AbbrAnnotation.class) + '-' + c.get(CoreAnnotations.AbbrAnnotation.class)+ '-'+ n.get(CoreAnnotations.AbbrAnnotation.class)+ "-PCNABBR");
+      if (!c.get(AbbrAnnotation.class).equals("XX")) {
+        featuresC.add(p.get(AbbrAnnotation.class) + '-' + c.get(AbbrAnnotation.class)+ "-PCABBR");
+        featuresC.add(c.get(AbbrAnnotation.class) + '-' + n.get(AbbrAnnotation.class)+ "-CNABBR");
+        featuresC.add(p.get(AbbrAnnotation.class) + '-' + c.get(AbbrAnnotation.class)+ '-'+ n.get(AbbrAnnotation.class)+ "-PCNABBR");
       }
     }
     if (flags.useChunks) {
-      featuresC.add(p.get(CoreAnnotations.ChunkAnnotation.class) + '-' + c.get(CoreAnnotations.ChunkAnnotation.class)+ "-PCCHUNK");
-      featuresC.add(c.get(CoreAnnotations.ChunkAnnotation.class) + '-' + n.get(CoreAnnotations.ChunkAnnotation.class)+ "-CNCHUNK");
-      featuresC.add(p.get(CoreAnnotations.ChunkAnnotation.class) + '-' + c.get(CoreAnnotations.ChunkAnnotation.class)+ '-'+ n.get(CoreAnnotations.ChunkAnnotation.class)+ "-PCNCHUNK");
+      featuresC.add(p.get(ChunkAnnotation.class) + '-' + c.get(ChunkAnnotation.class)+ "-PCCHUNK");
+      featuresC.add(c.get(ChunkAnnotation.class) + '-' + n.get(ChunkAnnotation.class)+ "-CNCHUNK");
+      featuresC.add(p.get(ChunkAnnotation.class) + '-' + c.get(ChunkAnnotation.class)+ '-'+ n.get(ChunkAnnotation.class)+ "-PCNCHUNK");
     }
     if (flags.useMinimalAbbr) {
-      featuresC.add(cWord + '-' + c.get(CoreAnnotations.AbbrAnnotation.class)+ "-CWABB");
+      featuresC.add(cWord + '-' + c.get(AbbrAnnotation.class)+ "-CWABB");
     }
     if (flags.useMinimalAbbr1) {
-      if (!c.get(CoreAnnotations.AbbrAnnotation.class).equals("XX")) {
-        featuresC.add(cWord + '-' + c.get(CoreAnnotations.AbbrAnnotation.class)+ "-CWABB");
+      if (!c.get(AbbrAnnotation.class).equals("XX")) {
+        featuresC.add(cWord + '-' + c.get(AbbrAnnotation.class)+ "-CWABB");
       }
     }
     String prevVB="", nextVB="";
@@ -318,7 +318,7 @@
           featuresC.add("X-PVB");
           break;
         }
- else         if (wi.getString(CoreAnnotations.PartOfSpeechAnnotation.class).startsWith("VB")) {
+ else         if (wi.getString(PartOfSpeechAnnotation.class).startsWith("VB")) {
           featuresC.add(getWord(wi) + "-PVB");
           prevVB=getWord(wi);
           break;
@@ -333,7 +333,7 @@
           nextVB="X";
           break;
         }
- else         if (wi.getString(CoreAnnotations.PartOfSpeechAnnotation.class).startsWith("VB")) {
+ else         if (wi.getString(PartOfSpeechAnnotation.class).startsWith("VB")) {
           featuresC.add(getWord(wi) + "-NVB");
           nextVB=getWord(wi);
           break;
@@ -344,39 +344,39 @@
       featuresC.add(prevVB + '-' + nextVB+ "-PNVB");
     }
     if (flags.useShapeConjunctions) {
-      featuresC.add(c.get(CoreAnnotations.PositionAnnotation.class) + cShape + "-POS-SH");
+      featuresC.add(c.get(PositionAnnotation.class) + cShape + "-POS-SH");
       if (flags.useTags) {
         featuresC.add(c.tag() + cShape + "-TAG-SH");
       }
       if (flags.useDistSim) {
-        featuresC.add(c.get(CoreAnnotations.DistSimAnnotation.class) + cShape + "-DISTSIM-SH");
+        featuresC.add(c.get(DistSimAnnotation.class) + cShape + "-DISTSIM-SH");
       }
     }
     if (flags.useWordTag) {
-      featuresC.add(cWord + '-' + c.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ "-W-T");
-      featuresC.add(cWord + '-' + p.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ "-W-PT");
-      featuresC.add(cWord + '-' + n.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ "-W-NT");
+      featuresC.add(cWord + '-' + c.getString(PartOfSpeechAnnotation.class)+ "-W-T");
+      featuresC.add(cWord + '-' + p.getString(PartOfSpeechAnnotation.class)+ "-W-PT");
+      featuresC.add(cWord + '-' + n.getString(PartOfSpeechAnnotation.class)+ "-W-NT");
     }
     if (flags.useNPHead) {
       featuresC.add(c.get(TreeCoreAnnotations.HeadWordAnnotation.class) + "-HW");
       if (flags.useTags) {
-        featuresC.add(c.get(TreeCoreAnnotations.HeadWordAnnotation.class) + "-" + c.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ "-HW-T");
+        featuresC.add(c.get(TreeCoreAnnotations.HeadWordAnnotation.class) + "-" + c.getString(PartOfSpeechAnnotation.class)+ "-HW-T");
       }
       if (flags.useDistSim) {
-        featuresC.add(c.get(TreeCoreAnnotations.HeadWordAnnotation.class) + "-" + c.get(CoreAnnotations.DistSimAnnotation.class)+ "-HW-DISTSIM");
+        featuresC.add(c.get(TreeCoreAnnotations.HeadWordAnnotation.class) + "-" + c.get(DistSimAnnotation.class)+ "-HW-DISTSIM");
       }
     }
     if (flags.useNPGovernor) {
-      featuresC.add(c.get(CoreAnnotations.GovernorAnnotation.class) + "-GW");
+      featuresC.add(c.get(GovernorAnnotation.class) + "-GW");
       if (flags.useTags) {
-        featuresC.add(c.get(CoreAnnotations.GovernorAnnotation.class) + '-' + c.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ "-GW-T");
+        featuresC.add(c.get(GovernorAnnotation.class) + '-' + c.getString(PartOfSpeechAnnotation.class)+ "-GW-T");
       }
       if (flags.useDistSim) {
-        featuresC.add(c.get(CoreAnnotations.GovernorAnnotation.class) + '-' + c.get(CoreAnnotations.DistSimAnnotation.class)+ "-DISTSIM-T1");
+        featuresC.add(c.get(GovernorAnnotation.class) + '-' + c.get(DistSimAnnotation.class)+ "-DISTSIM-T1");
       }
     }
     if (flags.useHeadGov) {
-      featuresC.add(c.get(TreeCoreAnnotations.HeadWordAnnotation.class) + "-" + c.get(CoreAnnotations.GovernorAnnotation.class)+ "-HW_GW");
+      featuresC.add(c.get(TreeCoreAnnotations.HeadWordAnnotation.class) + "-" + c.get(GovernorAnnotation.class)+ "-HW_GW");
     }
     if (flags.useClassFeature) {
       featuresC.add("###");
@@ -510,26 +510,26 @@
     }
     if (flags.useDisjShape) {
       for (int i=1; i <= flags.disjunctionWidth; i++) {
-        featuresC.add(cInfo.get(loc + i).get(CoreAnnotations.ShapeAnnotation.class) + "-NDISJSHAPE");
-        featuresC.add(cShape + '-' + cInfo.get(loc + i).get(CoreAnnotations.ShapeAnnotation.class)+ "-CNDISJSHAPE");
+        featuresC.add(cInfo.get(loc + i).get(ShapeAnnotation.class) + "-NDISJSHAPE");
+        featuresC.add(cShape + '-' + cInfo.get(loc + i).get(ShapeAnnotation.class)+ "-CNDISJSHAPE");
       }
     }
     if (flags.useExtraTaggySequences) {
       if (flags.useTags) {
-        featuresC.add(p2.getString(CoreAnnotations.PartOfSpeechAnnotation.class) + '-' + p.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ '-'+ c.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ "-TTS");
-        featuresC.add(p3.getString(CoreAnnotations.PartOfSpeechAnnotation.class) + '-' + p2.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ '-'+ p.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ '-'+ c.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ "-TTTS");
+        featuresC.add(p2.getString(PartOfSpeechAnnotation.class) + '-' + p.getString(PartOfSpeechAnnotation.class)+ '-'+ c.getString(PartOfSpeechAnnotation.class)+ "-TTS");
+        featuresC.add(p3.getString(PartOfSpeechAnnotation.class) + '-' + p2.getString(PartOfSpeechAnnotation.class)+ '-'+ p.getString(PartOfSpeechAnnotation.class)+ '-'+ c.getString(PartOfSpeechAnnotation.class)+ "-TTTS");
       }
       if (flags.useDistSim) {
-        featuresC.add(p2.get(CoreAnnotations.DistSimAnnotation.class) + '-' + p.get(CoreAnnotations.DistSimAnnotation.class)+ '-'+ c.get(CoreAnnotations.DistSimAnnotation.class)+ "-DISTSIM_TTS1");
-        featuresC.add(p3.get(CoreAnnotations.DistSimAnnotation.class) + '-' + p2.get(CoreAnnotations.DistSimAnnotation.class)+ '-'+ p.get(CoreAnnotations.DistSimAnnotation.class)+ '-'+ c.get(CoreAnnotations.DistSimAnnotation.class)+ "-DISTSIM_TTTS1");
+        featuresC.add(p2.get(DistSimAnnotation.class) + '-' + p.get(DistSimAnnotation.class)+ '-'+ c.get(DistSimAnnotation.class)+ "-DISTSIM_TTS1");
+        featuresC.add(p3.get(DistSimAnnotation.class) + '-' + p2.get(DistSimAnnotation.class)+ '-'+ p.get(DistSimAnnotation.class)+ '-'+ c.get(DistSimAnnotation.class)+ "-DISTSIM_TTTS1");
       }
     }
     if (flags.useMUCFeatures) {
-      featuresC.add(c.get(CoreAnnotations.SectionAnnotation.class) + "-SECTION");
-      featuresC.add(c.get(CoreAnnotations.WordPositionAnnotation.class) + "-WORD_POSITION");
+      featuresC.add(c.get(SectionAnnotation.class) + "-SECTION");
+      featuresC.add(c.get(WordPositionAnnotation.class) + "-WORD_POSITION");
       featuresC.add(c.get(CoreAnnotations.SentencePositionAnnotation.class) + "-SENT_POSITION");
-      featuresC.add(c.get(CoreAnnotations.ParaPositionAnnotation.class) + "-PARA_POSITION");
-      featuresC.add(c.get(CoreAnnotations.WordPositionAnnotation.class) + '-' + c.get(CoreAnnotations.ShapeAnnotation.class)+ "-WORD_POSITION_SHAPE");
+      featuresC.add(c.get(ParaPositionAnnotation.class) + "-PARA_POSITION");
+      featuresC.add(c.get(WordPositionAnnotation.class) + '-' + c.get(ShapeAnnotation.class)+ "-WORD_POSITION_SHAPE");
     }
   }
  else   if (flags.useInternal) {
@@ -567,7 +567,7 @@
       }
       featuresC.addAll(subs);
       if (flags.conjoinShapeNGrams) {
-        String shape=c.get(CoreAnnotations.ShapeAnnotation.class);
+        String shape=c.get(ShapeAnnotation.class);
         for (        String str : subs) {
           String feat=str + '-' + shape+ "-CNGram-CS";
           featuresC.add(feat);
@@ -638,8 +638,8 @@
     }
     if (flags.useDisjShape) {
       for (int i=1; i <= flags.disjunctionWidth; i++) {
-        featuresC.add(cInfo.get(loc + i).get(CoreAnnotations.ShapeAnnotation.class) + "-NDISJSHAPE");
-        featuresC.add(c.get(CoreAnnotations.ShapeAnnotation.class) + '-' + cInfo.get(loc + i).get(CoreAnnotations.ShapeAnnotation.class)+ "-CNDISJSHAPE");
+        featuresC.add(cInfo.get(loc + i).get(ShapeAnnotation.class) + "-NDISJSHAPE");
+        featuresC.add(c.get(ShapeAnnotation.class) + '-' + cInfo.get(loc + i).get(ShapeAnnotation.class)+ "-CNDISJSHAPE");
       }
     }
   }
@@ -664,41 +664,39 @@
     if (genericAnnotationKeys == null) {
       makeGenericKeyCache(c);
     }
-    for (    Class key : genericAnnotationKeys) {
-      if (c.get(key) != null && c.get(key) instanceof Collection) {
-        for (        Object ob : (Collection)c.get(key))         featuresC.add(ob + "-" + CoreLabel.genericValues.get(key));
-      }
- else       featuresC.add(c.get(key) + "-" + CoreLabel.genericValues.get(key));
+    for (    Class<? extends GenericAnnotation> key : genericAnnotationKeys) {
+      System.err.println("Adding feature: " + CoreLabel.genericValues.get(key) + " with value "+ c.get(key));
+      featuresC.add(c.get(key) + "-" + CoreLabel.genericValues.get(key));
     }
   }
   if (flags.useTopics) {
-    featuresC.add(c.get(CoreAnnotations.TopicAnnotation.class) + "-TopicID");
-    featuresC.add(p.get(CoreAnnotations.TopicAnnotation.class) + "-PTopicID");
-    featuresC.add(n.get(CoreAnnotations.TopicAnnotation.class) + "-NTopicID");
+    featuresC.add(c.get(TopicAnnotation.class) + "-TopicID");
+    featuresC.add(p.get(TopicAnnotation.class) + "-PTopicID");
+    featuresC.add(n.get(TopicAnnotation.class) + "-NTopicID");
   }
-  if (c.get(CoreAnnotations.StackedNamedEntityTagAnnotation.class) != null) {
-    featuresC.add(c.get(CoreAnnotations.StackedNamedEntityTagAnnotation.class) + "-CStackedNERTag");
-    featuresC.add(cWord + "-" + c.get(CoreAnnotations.StackedNamedEntityTagAnnotation.class)+ "-WCStackedNERTag");
+  if (c.get(StackedNamedEntityTagAnnotation.class) != null) {
+    featuresC.add(c.get(StackedNamedEntityTagAnnotation.class) + "-CStackedNERTag");
+    featuresC.add(cWord + "-" + c.get(StackedNamedEntityTagAnnotation.class)+ "-WCStackedNERTag");
     if (flags.useNext) {
-      featuresC.add(c.get(CoreAnnotations.StackedNamedEntityTagAnnotation.class) + '-' + n.get(CoreAnnotations.StackedNamedEntityTagAnnotation.class)+ "-CNStackedNERTag");
-      featuresC.add(cWord + "-" + c.get(CoreAnnotations.StackedNamedEntityTagAnnotation.class)+ '-'+ n.get(CoreAnnotations.StackedNamedEntityTagAnnotation.class)+ "-WCNStackedNERTag");
+      featuresC.add(c.get(StackedNamedEntityTagAnnotation.class) + '-' + n.get(StackedNamedEntityTagAnnotation.class)+ "-CNStackedNERTag");
+      featuresC.add(cWord + "-" + c.get(StackedNamedEntityTagAnnotation.class)+ '-'+ n.get(StackedNamedEntityTagAnnotation.class)+ "-WCNStackedNERTag");
       if (flags.usePrev) {
-        featuresC.add(p.get(CoreAnnotations.StackedNamedEntityTagAnnotation.class) + '-' + c.get(CoreAnnotations.StackedNamedEntityTagAnnotation.class)+ '-'+ n.get(CoreAnnotations.StackedNamedEntityTagAnnotation.class)+ "-PCNStackedNERTag");
-        featuresC.add(p.get(CoreAnnotations.StackedNamedEntityTagAnnotation.class) + '-' + cWord+ " -"+ c.get(CoreAnnotations.StackedNamedEntityTagAnnotation.class)+ '-'+ n.get(CoreAnnotations.StackedNamedEntityTagAnnotation.class)+ "-PWCNStackedNERTag");
+        featuresC.add(p.get(StackedNamedEntityTagAnnotation.class) + '-' + c.get(StackedNamedEntityTagAnnotation.class)+ '-'+ n.get(StackedNamedEntityTagAnnotation.class)+ "-PCNStackedNERTag");
+        featuresC.add(p.get(StackedNamedEntityTagAnnotation.class) + '-' + cWord+ " -"+ c.get(StackedNamedEntityTagAnnotation.class)+ '-'+ n.get(StackedNamedEntityTagAnnotation.class)+ "-PWCNStackedNERTag");
       }
     }
     if (flags.usePrev) {
-      featuresC.add(p.get(CoreAnnotations.StackedNamedEntityTagAnnotation.class) + '-' + c.get(CoreAnnotations.StackedNamedEntityTagAnnotation.class)+ "-PCStackedNERTag");
+      featuresC.add(p.get(StackedNamedEntityTagAnnotation.class) + '-' + c.get(StackedNamedEntityTagAnnotation.class)+ "-PCStackedNERTag");
     }
   }
-  if (flags.useWordnetFeatures)   featuresC.add(c.get(CoreAnnotations.WordnetSynAnnotation.class) + "-WordnetSyn");
-  if (flags.useProtoFeatures)   featuresC.add(c.get(CoreAnnotations.ProtoAnnotation.class) + "-Proto");
-  if (flags.usePhraseWordTags)   featuresC.add(c.get(CoreAnnotations.PhraseWordsTagAnnotation.class) + "-PhraseTag");
+  if (flags.useWordnetFeatures)   featuresC.add(c.get(WordnetSynAnnotation.class) + "-WordnetSyn");
+  if (flags.useProtoFeatures)   featuresC.add(c.get(ProtoAnnotation.class) + "-Proto");
+  if (flags.usePhraseWordTags)   featuresC.add(c.get(PhraseWordsTagAnnotation.class) + "-PhraseTag");
   if (flags.usePhraseWords) {
-    for (    String w : c.get(CoreAnnotations.PhraseWordsAnnotation.class))     featuresC.add(w + "-PhraseWord");
+    for (    String w : c.get(PhraseWordsAnnotation.class))     featuresC.add(w + "-PhraseWord");
   }
-  if (flags.useCommonWordsFeature)   featuresC.add(c.get(CoreAnnotations.CommonWordsAnnotation.class));
-  if (flags.useRadical && cWord.length() > 0) {
+  if (flags.useCommonWordsFeature)   featuresC.add(c.get(CommonWordsAnnotation.class));
+  if (flags.useRadical) {
     if (cWord.length() == 1) {
       featuresC.add(RadicalMap.getRadical(cWord.charAt(0)) + "-SINGLE-CHAR-RADICAL");
     }
@@ -708,12 +706,6 @@
     }
     for (int i=0; i < cWord.length(); ++i) {
       featuresC.add(RadicalMap.getRadical(cWord.charAt(i)) + "-RADICAL");
-    }
-  }
-  if (flags.splitWordRegex != null && !flags.splitWordRegex.isEmpty()) {
-    String[] ws=c.word().split(flags.splitWordRegex);
-    for (    String s : ws) {
-      featuresC.add(s + "-SPLITWORD");
     }
   }
   return featuresC;

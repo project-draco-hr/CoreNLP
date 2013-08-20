@@ -1,0 +1,33 @@
+{
+  if (labelTags.containsKey(qName)) {
+    assert(pascalTag.equals(qName));
+    pascalTag=BACKGROUND;
+  }
+ else   if (qName.equalsIgnoreCase("token") || isNewLine) {
+    assert(currentToken != null);
+    currentToken.set(EntityTypeAnnotation.class,wrapper);
+    currentToken.set(EntityRuleAnnotation.class,entityRule);
+    if (DEBUG)     System.err.println("found wrapper : " + wrapper);
+    if (wrapperInsideToken) {
+      wrapper=EMPTY_VALUE;
+      wrapperInsideToken=false;
+      entityRule=EMPTY_VALUE;
+    }
+    currentToken.set(AnswerAnnotation.class,pascalTag);
+    if (!pascalTag.equals(BACKGROUND)) {
+      lastTagged=pascalTag;
+    }
+    outputArray.add(currentToken);
+    isNewLine=false;
+    currentToken=null;
+  }
+ else   if (entityTags.containsKey(qName)) {
+    assert(wrapper.equals(qName));
+    if (DEBUG)     System.err.println("Ending element: " + qName);
+    if (!wrapperInsideToken) {
+      if (DEBUG)       System.err.println("Resetting wrapper at p2");
+      wrapper=EMPTY_VALUE;
+      entityRule=EMPTY_VALUE;
+    }
+  }
+}

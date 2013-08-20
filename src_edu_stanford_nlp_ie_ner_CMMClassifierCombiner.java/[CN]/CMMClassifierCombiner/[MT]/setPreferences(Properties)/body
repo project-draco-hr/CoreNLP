@@ -1,0 +1,27 @@
+{
+  if (props.containsKey("labels")) {
+    labelOrder=new HashIndex();
+    String[] labels=props.getProperty("labels").split(";");
+    for (int i=0; i < labels.length; i++) {
+      labelOrder.add(labels[i]);
+    }
+  }
+  props.remove("classifiers");
+  props.remove("labels");
+  props.remove("testFile");
+  props.remove("testOutput");
+  for (Iterator iter=props.keySet().iterator(); iter.hasNext(); ) {
+    String key=(String)iter.next();
+    preferred.remove(key);
+    String value=props.getProperty(key);
+    String[] preferredIndices=value.split(";");
+    for (int i=0; i < preferredIndices.length; i++) {
+      try {
+        int classifier=Integer.parseInt(preferredIndices[i]);
+        preferred.add(key,Integer.valueOf(classifier));
+      }
+ catch (      Exception e) {
+      }
+    }
+  }
+}

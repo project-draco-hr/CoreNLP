@@ -1,0 +1,25 @@
+{
+  final File WORK_DIR_FILE=File.createTempFile("NFLitest","");
+  final String WORK_DIR=WORK_DIR_FILE.getPath();
+  final String PROPS_PATH=WORK_DIR + File.separator + "nfl.properties";
+  System.out.println("Working in directory " + WORK_DIR);
+  WORK_DIR_FILE.delete();
+  WORK_DIR_FILE.mkdir();
+  WORK_DIR_FILE.deleteOnExit();
+  makePropsFile(PROPS_PATH,WORK_DIR);
+  System.out.println("Made props file " + PROPS_PATH);
+  MachineReading mr=MachineReading.makeMachineReading(new String[]{"--arguments",PROPS_PATH});
+  List<String> returnMsg=mr.run();
+  String entityResults=returnMsg.get(1);
+  System.out.println("Got the following results:");
+  System.out.println(entityResults);
+  String[] resultsLines=entityResults.trim().split("\\n");
+  String totalResultsLine=resultsLines[resultsLines.length - 1];
+  System.out.println("Final result line:");
+  System.out.println(totalResultsLine);
+  String[] scores=totalResultsLine.trim().split("\\s+");
+  String totalF1=scores[scores.length - 1];
+  System.out.println("Total results F1 score: " + totalF1);
+  double finalScore=Double.valueOf(totalF1);
+  assertEquals(59.5,finalScore,1.0);
+}

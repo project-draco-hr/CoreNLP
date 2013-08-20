@@ -1,0 +1,90 @@
+{
+  StringBuilder sb=new StringBuilder();
+  int wlen=word.length();
+  int numCaps=0;
+  boolean hasDigit=false;
+  boolean hasDash=false;
+  boolean hasLower=false;
+  for (int i=0; i < wlen; i++) {
+    char ch=word.charAt(i);
+    if (Character.isDigit(ch)) {
+      hasDigit=true;
+    }
+ else     if (ch == '-') {
+      hasDash=true;
+    }
+ else     if (Character.isLetter(ch)) {
+      if (Character.isLowerCase(ch)) {
+        hasLower=true;
+      }
+ else       if (Character.isTitleCase(ch)) {
+        hasLower=true;
+        numCaps++;
+      }
+ else {
+        numCaps++;
+      }
+    }
+  }
+  char ch0=word.charAt(0);
+  String lowered=word.toLowerCase();
+  if (Character.isUpperCase(ch0) || Character.isTitleCase(ch0)) {
+    if (loc == 0 && numCaps == 1) {
+      sb.append("-INITC");
+      if (isKnown(lowered)) {
+        sb.append("-KNOWNLC");
+      }
+    }
+ else {
+      sb.append("-CAPS");
+    }
+  }
+ else   if (!Character.isLetter(ch0) && numCaps > 0) {
+    sb.append("-CAPS");
+  }
+ else   if (hasLower) {
+    sb.append("-LC");
+  }
+  if (hasDigit) {
+    sb.append("-NUM");
+  }
+  if (hasDash) {
+    sb.append("-DASH");
+  }
+  if (lowered.endsWith("s") && wlen >= 3) {
+    char ch2=lowered.charAt(wlen - 2);
+    if (ch2 != 's' && ch2 != 'i' && ch2 != 'u') {
+      sb.append("-s");
+    }
+  }
+ else   if (word.length() >= 5 && !hasDash && !(hasDigit && numCaps > 0)) {
+    if (lowered.endsWith("ed")) {
+      sb.append("-ed");
+    }
+ else     if (lowered.endsWith("ing")) {
+      sb.append("-ing");
+    }
+ else     if (lowered.endsWith("ion")) {
+      sb.append("-ion");
+    }
+ else     if (lowered.endsWith("er")) {
+      sb.append("-er");
+    }
+ else     if (lowered.endsWith("est")) {
+      sb.append("-est");
+    }
+ else     if (lowered.endsWith("ly")) {
+      sb.append("-ly");
+    }
+ else     if (lowered.endsWith("ity")) {
+      sb.append("-ity");
+    }
+ else     if (lowered.endsWith("y")) {
+      sb.append("-y");
+    }
+ else     if (lowered.endsWith("al")) {
+      sb.append("-al");
+    }
+  }
+  return sb.toString();
+}

@@ -1,0 +1,21 @@
+{
+  System.out.print("                                        \t");
+  if (marginal != null) {
+    System.out.print("ALL      \t");
+  }
+  for (  Subcategory subcat : Subcategory.SUBCATEGORIES) {
+    System.out.print(StringUtils.pad(subcat,9) + "\t");
+  }
+  System.out.println();
+  for (  String sense : allSenses) {
+    System.out.print(StringUtils.pad(sense,40) + "\t");
+    if (marginal != null) {
+      System.out.print(StringUtils.pad(formatter.format(marginal.probabilityOf(sense)),9) + "\t");
+    }
+    for (    Subcategory subcat : Subcategory.SUBCATEGORIES) {
+      double jointProb=m.getCount(sense,subcat);
+      System.out.print(StringUtils.pad(formatter.format(jointProb),9) + "\t");
+    }
+    System.out.println();
+  }
+}

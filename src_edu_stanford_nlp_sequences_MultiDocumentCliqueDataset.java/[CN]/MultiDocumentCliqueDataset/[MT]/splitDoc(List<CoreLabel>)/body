@@ -1,0 +1,21 @@
+{
+  List<List<CoreLabel>> docs=new ArrayList<List<CoreLabel>>();
+  List<CoreLabel> newDoc=new ArrayList<CoreLabel>();
+  for (int i=0; i < doc.size(); i++) {
+    if (i % flags.maxDocSize == 0) {
+      while (!doc.get(i).get(AnswerAnnotation.class).equals(flags.backgroundSymbol)) {
+        newDoc.add(doc.get(i++));
+      }
+      newDoc.add(doc.get(i));
+      docs.add(newDoc);
+      newDoc=new ArrayList<CoreLabel>();
+    }
+ else {
+      newDoc.add(doc.get(i));
+    }
+  }
+  if (newDoc.size() > 0) {
+    docs.add(newDoc);
+  }
+  return docs;
+}

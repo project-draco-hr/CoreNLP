@@ -1,0 +1,32 @@
+{
+  logger.info(header);
+  StringBuffer buf=new StringBuffer();
+  for (  CoreMap sent : sentences) {
+    List<EntityMention> ents=sent.get(EntityMentionsAnnotation.class);
+    if (ents != null) {
+      for (      EntityMention e : ents) {
+        buf.append(e.getObjectId() + " ");
+      }
+    }
+  }
+  logger.info("Entity summary: " + buf.toString());
+  buf=new StringBuffer();
+  for (  CoreMap sent : sentences) {
+    List<EventMention> events=sent.get(EventMentionsAnnotation.class);
+    if (events != null) {
+      for (      EventMention e : events) {
+        buf.append(e.getObjectId() + "-" + e.getAnchor().getObjectId());
+        for (        ExtractionObject p : e.getParents()) {
+          buf.append("^" + p.getObjectId());
+        }
+        buf.append("(");
+        for (int i=0; i < e.getArgs().size(); i++) {
+          if (i > 0)           buf.append(",");
+          buf.append(e.getArg(i).getObjectId());
+        }
+        buf.append(") ");
+      }
+    }
+  }
+  logger.info("Event summary: " + buf.toString());
+}

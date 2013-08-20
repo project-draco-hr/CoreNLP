@@ -2,7 +2,7 @@
   PaddedList<IN> pInfo=new PaddedList<IN>(info,pad);
   ArrayList<List<String>> features=new ArrayList<List<String>>();
   List<double[]> featureVals=new ArrayList<double[]>();
-  Collection<Clique> done=Generics.newHashSet();
+  Collection<Clique> done=new HashSet<Clique>();
   for (int i=0; i < windowSize; i++) {
     List<String> featuresC=new ArrayList<String>();
     List<Clique> windowCliques=FeatureFactory.getCliques(i,0);
@@ -16,7 +16,7 @@
       for (int currLoc=loc - 2; currLoc <= loc + 2; currLoc++) {
         double[] embedding=null;
         if (currLoc >= 0 && currLoc < info.size()) {
-          currentWord=info.get(loc).get(CoreAnnotations.TextAnnotation.class);
+          currentWord=info.get(loc).get(TextAnnotation.class);
           String word=currentWord.toLowerCase();
           word=word.replaceAll("(-)?\\d+(\\.\\d*)?","0");
           if (embeddings.containsKey(word))           embedding=embeddings.get(word);
@@ -93,7 +93,7 @@
   }
   int[] labels=new int[windowSize];
   for (int i=0; i < windowSize; i++) {
-    String answer=pInfo.get(loc + i - windowSize + 1).get(CoreAnnotations.AnswerAnnotation.class);
+    String answer=pInfo.get(loc + i - windowSize + 1).get(AnswerAnnotation.class);
     labels[i]=classIndex.indexOf(answer);
   }
   printFeatureLists(pInfo.get(loc),features);

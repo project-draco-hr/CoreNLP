@@ -1,0 +1,23 @@
+{
+  if (hasNull) {
+    return;
+  }
+  if (nextObject == null) {
+    return;
+  }
+  int cIndex=length - 1;
+  boolean canAdvance=false;
+  while (cIndex >= 0) {
+    if (iterators[cIndex].hasNext()) {
+      nextObject.set(cIndex,ErasureUtils.<T>uncheckedCast(iterators[cIndex].next()));
+      canAdvance=true;
+      break;
+    }
+    iterators[cIndex]=collections[cIndex].iterator();
+    nextObject.set(cIndex,ErasureUtils.<T>uncheckedCast(iterators[cIndex].next()));
+    cIndex--;
+  }
+  if (!canAdvance) {
+    nextObject=null;
+  }
+}

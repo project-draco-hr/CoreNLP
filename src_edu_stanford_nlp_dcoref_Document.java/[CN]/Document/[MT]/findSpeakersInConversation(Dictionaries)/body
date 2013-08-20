@@ -4,7 +4,7 @@
       if (m.predicateNominatives == null)       continue;
       for (      Mention a : m.predicateNominatives) {
         if (a.spanToString().toLowerCase().equals("i")) {
-          speakers.put(m.headWord.get(CoreAnnotations.UtteranceAnnotation.class),Integer.toString(m.mentionID));
+          speakers.put(m.headWord.get(UtteranceAnnotation.class),Integer.toString(m.mentionID));
         }
       }
     }
@@ -13,8 +13,8 @@
   int paragraphUtterIndex=0;
   String nextParagraphSpeaker="";
   int paragraphOffset=0;
-  for (  CoreMap sent : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
-    int currentUtter=sent.get(CoreAnnotations.TokensAnnotation.class).get(0).get(CoreAnnotations.UtteranceAnnotation.class);
+  for (  CoreMap sent : annotation.get(SentencesAnnotation.class)) {
+    int currentUtter=sent.get(TokensAnnotation.class).get(0).get(UtteranceAnnotation.class);
     if (paragraphUtterIndex != currentUtter) {
       nextParagraphSpeaker=findParagraphSpeaker(paragraph,paragraphUtterIndex,nextParagraphSpeaker,paragraphOffset,dict);
       paragraphUtterIndex=currentUtter;

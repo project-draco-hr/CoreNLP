@@ -6,7 +6,7 @@
   List<CoreLabel> srcSentence=srcMention.sentenceWords;
   List<CoreLabel> dstSentence=dstMention.sentenceWords;
   printLink(logger,header,src,dst,orderedMentionsBySentence);
-  printList(logger,"Mention:" + srcMention.spanToString(),"Gender:" + srcMention.gender.toString(),"Number:" + srcMention.number.toString(),"Animacy:" + srcMention.animacy.toString(),"Person:" + srcMention.person.toString(),"NER:" + srcMention.nerString,"Head:" + srcMention.headString,"Type:" + srcMention.mentionType.toString(),"utter: " + srcMention.headWord.get(CoreAnnotations.UtteranceAnnotation.class),"speakerID: " + srcMention.headWord.get(CoreAnnotations.SpeakerAnnotation.class),"twinless:" + srcMention.twinless);
+  printList(logger,"Mention:" + srcMention.spanToString(),"Gender:" + srcMention.gender.toString(),"Number:" + srcMention.number.toString(),"Animacy:" + srcMention.animacy.toString(),"Person:" + srcMention.person.toString(),"NER:" + srcMention.nerString,"Head:" + srcMention.headString,"Type:" + srcMention.mentionType.toString(),"utter: " + srcMention.headWord.get(UtteranceAnnotation.class),"speakerID: " + srcMention.headWord.get(SpeakerAnnotation.class),"twinless:" + srcMention.twinless);
   logger.fine("Context:");
   String p="";
   for (int i=0; i < srcSentence.size(); i++) {
@@ -27,7 +27,7 @@
     mBegin.incrementCount(m.startIndex);
     mEnd.incrementCount(m.endIndex);
   }
-  List<CoreLabel> l=document.annotation.get(CoreAnnotations.SentencesAnnotation.class).get(src.get(0)).get(CoreAnnotations.TokensAnnotation.class);
+  List<CoreLabel> l=document.annotation.get(SentencesAnnotation.class).get(src.get(0)).get(TokensAnnotation.class);
   for (int i=0; i < l.size(); i++) {
     for (int j=0; j < mEnd.getCount(i); j++) {
       golds.append("]");
@@ -35,11 +35,11 @@
     for (int j=0; j < mBegin.getCount(i); j++) {
       golds.append("[");
     }
-    golds.append(l.get(i).get(CoreAnnotations.TextAnnotation.class));
+    golds.append(l.get(i).get(TextAnnotation.class));
     golds.append(" ");
   }
   logger.fine(golds.toString());
-  printList(logger,"\nAntecedent:" + dstMention.spanToString(),"Gender:" + dstMention.gender.toString(),"Number:" + dstMention.number.toString(),"Animacy:" + dstMention.animacy.toString(),"Person:" + dstMention.person.toString(),"NER:" + dstMention.nerString,"Head:" + dstMention.headString,"Type:" + dstMention.mentionType.toString(),"utter: " + dstMention.headWord.get(CoreAnnotations.UtteranceAnnotation.class),"speakerID: " + dstMention.headWord.get(CoreAnnotations.SpeakerAnnotation.class),"twinless:" + dstMention.twinless);
+  printList(logger,"\nAntecedent:" + dstMention.spanToString(),"Gender:" + dstMention.gender.toString(),"Number:" + dstMention.number.toString(),"Animacy:" + dstMention.animacy.toString(),"Person:" + dstMention.person.toString(),"NER:" + dstMention.nerString,"Head:" + dstMention.headString,"Type:" + dstMention.mentionType.toString(),"utter: " + dstMention.headWord.get(UtteranceAnnotation.class),"speakerID: " + dstMention.headWord.get(SpeakerAnnotation.class),"twinless:" + dstMention.twinless);
   logger.fine("Context:");
   p="";
   for (int i=0; i < dstSentence.size(); i++) {
@@ -60,7 +60,7 @@
     mBegin.incrementCount(m.startIndex);
     mEnd.incrementCount(m.endIndex);
   }
-  l=document.annotation.get(CoreAnnotations.SentencesAnnotation.class).get(dst.get(0)).get(CoreAnnotations.TokensAnnotation.class);
+  l=document.annotation.get(SentencesAnnotation.class).get(dst.get(0)).get(TokensAnnotation.class);
   for (int i=0; i < l.size(); i++) {
     for (int j=0; j < mEnd.getCount(i); j++) {
       golds.append("]");
@@ -68,7 +68,7 @@
     for (int j=0; j < mBegin.getCount(i); j++) {
       golds.append("[");
     }
-    golds.append(l.get(i).get(CoreAnnotations.TextAnnotation.class));
+    golds.append(l.get(i).get(TextAnnotation.class));
     golds.append(" ");
   }
   logger.fine(golds.toString());

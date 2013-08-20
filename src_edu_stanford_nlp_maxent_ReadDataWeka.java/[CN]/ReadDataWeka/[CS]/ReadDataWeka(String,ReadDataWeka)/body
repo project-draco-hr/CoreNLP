@@ -1,0 +1,41 @@
+{
+  Exception e1=new Exception("Incorrect data format");
+  BufferedReader in=new BufferedReader(new FileReader(wekaFileName));
+  String s;
+  while ((s=in.readLine()) != null) {
+    if (ignore(s)) {
+      continue;
+    }
+    if (s.startsWith("@relation")) {
+      continue;
+    }
+    if (s.startsWith("@attribute") || s.startsWith("@ATTRIBUTE")) {
+      continue;
+    }
+    if (s.startsWith("@data") || s.startsWith("@DATA")) {
+      break;
+    }
+  }
+  this.numAttributes=train.numAttributes;
+  this.numClasses=train.numClasses;
+  this.hashMaps=train.hashMaps;
+  this.attrNames=train.attrNames;
+  this.attrTypes=train.attrTypes;
+  if (numAttributes == 0) {
+    throw e1;
+  }
+  if (numClasses == 0) {
+    throw e1;
+  }
+  while ((s=in.readLine()) != null) {
+    if (ignore(s)) {
+      continue;
+    }
+    v.add(readData(s));
+  }
+  vArray=new int[v.size()][2];
+  for (int i=0; i < v.size(); i++) {
+    vArray[i][0]=i;
+    vArray[i][1]=v.get(i).getYNo();
+  }
+}

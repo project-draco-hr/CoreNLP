@@ -1,0 +1,14 @@
+{
+  Timing.startTime();
+  Sentencebank<ArrayList<HasWord>,HasWord> sentencebank=new MemorySentencebank<HasWord>(new SentenceReaderFactory<HasWord>(){
+    public SentenceReader<HasWord> newSentenceReader(    Reader in){
+      return new SentenceReader<HasWord>(in,new TaggedWordFactory(),new PennSentenceNormalizer<HasWord>(),new PennTagbankStreamTokenizer(in));
+    }
+  }
+);
+  sentencebank.loadPath(args[0]);
+  Timing.endTime();
+  System.out.println(sentencebank);
+  System.out.println();
+  System.out.println("This Sentencebank contains " + sentencebank.size() + " sentences.");
+}

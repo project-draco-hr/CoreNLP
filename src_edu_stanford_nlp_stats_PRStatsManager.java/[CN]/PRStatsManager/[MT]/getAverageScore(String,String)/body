@@ -1,0 +1,19 @@
+{
+  double average=0.0;
+  try {
+    Method scoringMethod=PrecisionRecallStats.class.getMethod(scoringMethodName);
+    List<PrecisionRecallStats> statList=statListsByName.get(name);
+    if (statList != null) {
+      for (int i=0; i < statList.size(); i++) {
+        PrecisionRecallStats stats=statList.get(i);
+        Double score=(Double)scoringMethod.invoke(stats);
+        average+=score.doubleValue();
+      }
+      average/=statList.size();
+    }
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+  }
+  return (average);
+}

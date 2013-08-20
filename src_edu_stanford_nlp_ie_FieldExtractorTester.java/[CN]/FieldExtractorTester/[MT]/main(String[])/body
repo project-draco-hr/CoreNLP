@@ -1,0 +1,20 @@
+{
+  if (args.length < 1 || args.length > 2) {
+    System.err.println("Usage: FieldExtractorTester serializedFieldExtractor [testFile");
+    System.exit(1);
+  }
+  FieldExtractor extractor=null;
+  try {
+    ObjectInputStream in=new ObjectInputStream(new FileInputStream(args[0]));
+    extractor=(FieldExtractor)in.readObject();
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+  }
+  if (args.length == 1) {
+    System.out.println(extractor);
+  }
+ else {
+    FieldExtractorTester.testFieldExtractor(extractor,args[1],true);
+  }
+}

@@ -1,0 +1,26 @@
+{
+  boolean useStemming=false;
+  if (attribName == BestCliquesAnnotation.class)   useStemming=true;
+  ArrayList fields=(ArrayList)generateFieldsToLabel(template,useStemming,cmmSampler);
+  for (int wiIdx=0; wiIdx < wordInfos.size(); ++wiIdx) {
+    CoreLabel wi=(CoreLabel)wordInfos.get(wiIdx);
+    for (int fieldIdx=0; fieldIdx < fields.size(); ++fieldIdx) {
+      Field field=(Field)fields.get(fieldIdx);
+      if (!wi.get(IsURLAnnotation.class).equals("isURL") || field.isURL) {
+        field.nextToken(wi.word());
+        if (field.haveMatch()) {
+          for (int tagIdx=wiIdx - field.matchingTokens() + 1; tagIdx <= wiIdx; ++tagIdx) {
+            CoreLabel toBeTagged=(CoreLabel)wordInfos.get(tagIdx);
+            toBeTagged.set(attribName,field.getLabel());
+          }
+        }
+      }
+    }
+  }
+  for (int wiIdx=0; wiIdx < wordInfos.size(); ++wiIdx) {
+    CoreLabel wi=(CoreLabel)wordInfos.get(wiIdx);
+    if (wi.get(attribName).equals("")) {
+      wi.set(attribName,"0");
+    }
+  }
+}

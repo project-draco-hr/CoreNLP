@@ -1,0 +1,13 @@
+{
+  System.err.println("Executing: " + cmd);
+  Process proc=Runtime.getRuntime().exec(new String[]{"/bin/sh","-c",cmd});
+  CommandLineCall errGobbler=new CommandLineCall(proc.getErrorStream(),"ERR");
+  CommandLineCall outGobbler=new CommandLineCall(proc.getInputStream(),"OUT");
+  errGobbler.start();
+  outGobbler.start();
+  int exitVal=proc.waitFor();
+  if (exitVal != 0) {
+    System.err.println("Command `" + cmd + "` failed with exit value: "+ exitVal);
+    System.exit(exitVal);
+  }
+}

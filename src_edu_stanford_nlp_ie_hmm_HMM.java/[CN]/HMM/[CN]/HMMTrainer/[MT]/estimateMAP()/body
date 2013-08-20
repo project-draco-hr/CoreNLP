@@ -1,0 +1,122 @@
+{
+  double lambda=0.0;
+  double sumLogSquared=0.0;
+  for (int i=0; i < totalP.length; i++) {
+    for (int j=0; j < totalP[i].length; j++) {
+      lambda-=totalP[i][j];
+      if (totalP[i][j] > 0) {
+        double log=Math.log(totalP[i][j]);
+        sumLogSquared+=log * log;
+      }
+    }
+  }
+  for (int i=0; i < totalOP.length; i++) {
+    for (Iterator iter=vocab.keySet().iterator(); iter.hasNext(); ) {
+      String word=(String)iter.next();
+      lambda-=totalOP[i].getCount(word);
+      if (totalOP[i].getCount(word) > 0) {
+        double log=Math.log(totalOP[i].getCount(word));
+        sumLogSquared+=log * log;
+      }
+    }
+  }
+  lambda-=Math.sqrt(sumLogSquared);
+  System.err.println("Initial lambda: " + lambda);
+  for (int k=0; k < 5; k++) {
+    for (int i=0; i < numStates; i++) {
+      if (totalFrom[i] != 0.0) {
+        for (int j=0; j < numStates; j++) {
+          double newVal;
+          if (totalP[i][j] != 0.0) {
+            newVal=-totalP[i][j] / lambertW(-1 - lambda - Math.log(totalP[i][j]));
+          }
+ else {
+            newVal=0.0;
+          }
+          if (newVal > 0.00001) {
+            states[i].transition[j]=newVal;
+          }
+ else {
+            states[i].transition[j]=0.0;
+          }
+        }
+        ArrayMath.normalize(states[i].transition);
+      }
+    }
+    for (int i=State.BKGRNDIDX; i < states.length; i++) {
+      if (states[i].emit instanceof ConstantEmitMap) {
+        continue;
+      }
+      if (totalFrom[i] != 0.0) {
+        for (Iterator it=vocab.keySet().iterator(); it.hasNext(); ) {
+          String s=(String)it.next();
+          double newVal;
+          if (totalOP[i].getCount(s) != 0.0) {
+            newVal=-totalOP[i].getCount(s) / lambertW(-1 - lambda - Math.log(totalOP[i].getCount(s)));
+          }
+ else {
+            newVal=0.0;
+          }
+          if (newVal > 0.00001) {
+            states[i].emit.set(s,newVal);
+          }
+ else {
+            states[i].emit.set(s,0.0);
+          }
+        }
+        Counters.normalize(states[i].emit.getCounter());
+      }
+ else {
+        states[i].emit=new ConstantEmitMap("_GHOST_TOWN_");
+      }
+    }
+    double sumLambda=0.0;
+    int numNonZero=0;
+    for (int i=0; i < numStates; i++) {
+      if (totalFrom[i] != 0.0) {
+        for (int j=0; j < numStates; j++) {
+          if (states[i].transition[j] < 0.0) {
+            System.err.println("transition[" + i + "]["+ j+ "] less than zero!");
+            System.err.println("transition[" + i + "]["+ j+ "]="+ states[i].transition[j]);
+            System.exit(1);
+          }
+          if (states[i].transition[j] != 0.0) {
+            sumLambda+=-totalP[i][j] / states[i].transition[j] - Math.log(states[i].transition[j]) - 1;
+            numNonZero++;
+          }
+        }
+      }
+    }
+    for (int i=State.BKGRNDIDX; i < states.length; i++) {
+      if (states[i].emit instanceof ConstantEmitMap) {
+        continue;
+      }
+      if (totalFrom[i] != 0.0) {
+        for (Iterator it=vocab.keySet().iterator(); it.hasNext(); ) {
+          String s=(String)it.next();
+          if (states[i].emit.get(s) < 0.0) {
+            System.err.println("emission[" + i + "]["+ s+ "] less than zero!");
+            System.exit(1);
+          }
+          if (states[i].emit.get(s) != 0.0) {
+            sumLambda+=-totalOP[i].getCount(s) / states[i].emit.get(s) - Math.log(states[i].emit.get(s)) - 1;
+            numNonZero++;
+          }
+        }
+      }
+    }
+    if (numNonZero == 0) {
+      System.err.println("No nonzero parameters?");
+      System.exit(1);
+    }
+    sumLambda/=numNonZero;
+    double lambdaChange=Math.abs(lambda - sumLambda);
+    lambda=sumLambda;
+    if (lambdaChange < CONVERGE_SIZE) {
+      if (verbose) {
+        System.err.println("Lambda converged");
+      }
+      break;
+    }
+  }
+}

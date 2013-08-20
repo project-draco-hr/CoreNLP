@@ -1,0 +1,19 @@
+{
+  String lastTag="";
+  for (  CoreLabel wi : doc) {
+    String answer=wi.get(AnswerAnnotation.class);
+    if (!answer.equals(flags.backgroundSymbol) && answer.indexOf('-') < 0) {
+      if (!lastTag.equals(answer)) {
+        answer="B-" + answer;
+      }
+ else {
+        answer="I-" + answer;
+      }
+      lastTag=answer.substring(2);
+    }
+ else {
+      lastTag=answer;
+    }
+    wi.set(AnswerAnnotation.class,answer);
+  }
+}

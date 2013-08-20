@@ -5,112 +5,112 @@
     CoreLabel prev=pl.get(i - 1);
     CoreLabel next=pl.get(i + 1);
     CoreLabel next2=pl.get(i + 2);
-    me.set(CoreAnnotations.AnswerAnnotation.class,flags.backgroundSymbol);
-    if (CURRENCY_SYMBOL_PATTERN.matcher(me.word()).matches() && (prev.getString(CoreAnnotations.PartOfSpeechAnnotation.class).equals("CD") || next.getString(CoreAnnotations.PartOfSpeechAnnotation.class).equals("CD"))) {
+    me.set(AnswerAnnotation.class,flags.backgroundSymbol);
+    if (CURRENCY_SYMBOL_PATTERN.matcher(me.word()).matches() && (prev.getString(PartOfSpeechAnnotation.class).equals("CD") || next.getString(PartOfSpeechAnnotation.class).equals("CD"))) {
       if (DEBUG) {
         System.err.println("Found currency sign:" + me.word());
       }
-      me.set(CoreAnnotations.AnswerAnnotation.class,"MONEY");
+      me.set(AnswerAnnotation.class,"MONEY");
     }
- else     if (me.getString(CoreAnnotations.PartOfSpeechAnnotation.class).equals("CD")) {
+ else     if (me.getString(PartOfSpeechAnnotation.class).equals("CD")) {
       if (DEBUG) {
         System.err.println("Tagging CD:" + me.word());
       }
       if (TIME_PATTERN.matcher(me.word()).matches()) {
-        me.set(CoreAnnotations.AnswerAnnotation.class,"TIME");
+        me.set(AnswerAnnotation.class,"TIME");
       }
  else       if (TIME_PATTERN2.matcher(me.word()).matches()) {
-        me.set(CoreAnnotations.AnswerAnnotation.class,"TIME");
+        me.set(AnswerAnnotation.class,"TIME");
       }
  else       if (DATE_PATTERN.matcher(me.word()).matches()) {
-        me.set(CoreAnnotations.AnswerAnnotation.class,"DATE");
+        me.set(AnswerAnnotation.class,"DATE");
       }
  else       if (DATE_PATTERN2.matcher(me.word()).matches()) {
-        me.set(CoreAnnotations.AnswerAnnotation.class,"DATE");
+        me.set(AnswerAnnotation.class,"DATE");
       }
- else       if (next.get(CoreAnnotations.TextAnnotation.class) != null && me.get(CoreAnnotations.TextAnnotation.class) != null && DAY_PATTERN.matcher(me.get(CoreAnnotations.TextAnnotation.class)).matches() && MONTH_PATTERN.matcher(next.get(CoreAnnotations.TextAnnotation.class)).matches()) {
-        me.set(CoreAnnotations.AnswerAnnotation.class,"DATE");
+ else       if (next.get(TextAnnotation.class) != null && me.get(TextAnnotation.class) != null && DAY_PATTERN.matcher(me.get(TextAnnotation.class)).matches() && MONTH_PATTERN.matcher(next.get(TextAnnotation.class)).matches()) {
+        me.set(AnswerAnnotation.class,"DATE");
       }
- else       if (prev.get(CoreAnnotations.TextAnnotation.class) != null && MONTH_PATTERN.matcher(prev.get(CoreAnnotations.TextAnnotation.class)).matches() && me.get(CoreAnnotations.TextAnnotation.class) != null && DAY_PATTERN.matcher(me.get(CoreAnnotations.TextAnnotation.class)).matches()) {
-        me.set(CoreAnnotations.AnswerAnnotation.class,"DATE");
+ else       if (prev.get(TextAnnotation.class) != null && MONTH_PATTERN.matcher(prev.get(TextAnnotation.class)).matches() && me.get(TextAnnotation.class) != null && DAY_PATTERN.matcher(me.get(TextAnnotation.class)).matches()) {
+        me.set(AnswerAnnotation.class,"DATE");
       }
  else       if (rightScanFindsMoneyWord(pl,i) && !leftScanFindsWeightWord(pl,i)) {
-        me.set(CoreAnnotations.AnswerAnnotation.class,"MONEY");
+        me.set(AnswerAnnotation.class,"MONEY");
       }
  else       if (ARMY_TIME_MORNING.matcher(me.word()).matches()) {
-        me.set(CoreAnnotations.AnswerAnnotation.class,"TIME");
+        me.set(AnswerAnnotation.class,"TIME");
       }
- else       if (YEAR_PATTERN.matcher(me.word()).matches() && prev.getString(CoreAnnotations.AnswerAnnotation.class).equals("DATE") && (MONTH_PATTERN.matcher(prev.word()).matches() || pl.get(i - 2).get(CoreAnnotations.AnswerAnnotation.class).equals("DATE"))) {
-        me.set(CoreAnnotations.AnswerAnnotation.class,"DATE");
+ else       if (YEAR_PATTERN.matcher(me.word()).matches() && prev.getString(AnswerAnnotation.class).equals("DATE") && (MONTH_PATTERN.matcher(prev.word()).matches() || pl.get(i - 2).get(AnswerAnnotation.class).equals("DATE"))) {
+        me.set(AnswerAnnotation.class,"DATE");
       }
  else {
         if (DEBUG) {
           System.err.println("Found number:" + me.word());
         }
-        if (prev.getString(CoreAnnotations.AnswerAnnotation.class).equals("MONEY")) {
-          me.set(CoreAnnotations.AnswerAnnotation.class,"MONEY");
+        if (prev.getString(AnswerAnnotation.class).equals("MONEY")) {
+          me.set(AnswerAnnotation.class,"MONEY");
         }
  else {
-          me.set(CoreAnnotations.AnswerAnnotation.class,"NUMBER");
+          me.set(AnswerAnnotation.class,"NUMBER");
         }
       }
     }
- else     if (AM_PM.matcher(me.word()).matches() && prev.get(CoreAnnotations.AnswerAnnotation.class).equals("TIME")) {
-      me.set(CoreAnnotations.AnswerAnnotation.class,"TIME");
+ else     if (AM_PM.matcher(me.word()).matches() && prev.get(AnswerAnnotation.class).equals("TIME")) {
+      me.set(AnswerAnnotation.class,"TIME");
     }
- else     if (me.getString(CoreAnnotations.PartOfSpeechAnnotation.class) != null && me.getString(CoreAnnotations.PartOfSpeechAnnotation.class).equals(",") && prev.getString(CoreAnnotations.AnswerAnnotation.class).equals("DATE") && next.word() != null && YEAR_PATTERN.matcher(next.word()).matches()) {
-      me.set(CoreAnnotations.AnswerAnnotation.class,"DATE");
+ else     if (me.getString(PartOfSpeechAnnotation.class) != null && me.getString(PartOfSpeechAnnotation.class).equals(",") && prev.getString(AnswerAnnotation.class).equals("DATE") && next.word() != null && YEAR_PATTERN.matcher(next.word()).matches()) {
+      me.set(AnswerAnnotation.class,"DATE");
     }
- else     if (me.getString(CoreAnnotations.PartOfSpeechAnnotation.class).equals("NNP") && MONTH_PATTERN.matcher(me.word()).matches()) {
-      if (prev.getString(CoreAnnotations.AnswerAnnotation.class).equals("DATE") || next.getString(CoreAnnotations.PartOfSpeechAnnotation.class).equals("CD")) {
-        me.set(CoreAnnotations.AnswerAnnotation.class,"DATE");
+ else     if (me.getString(PartOfSpeechAnnotation.class).equals("NNP") && MONTH_PATTERN.matcher(me.word()).matches()) {
+      if (prev.getString(AnswerAnnotation.class).equals("DATE") || next.getString(PartOfSpeechAnnotation.class).equals("CD")) {
+        me.set(AnswerAnnotation.class,"DATE");
       }
     }
- else     if (me.getString(CoreAnnotations.PartOfSpeechAnnotation.class) != null && me.getString(CoreAnnotations.PartOfSpeechAnnotation.class).equals("CC")) {
-      if (prev.tag() != null && prev.tag().equals("CD") && next.tag() != null && next.tag().equals("CD") && me.get(CoreAnnotations.TextAnnotation.class) != null && me.get(CoreAnnotations.TextAnnotation.class).equalsIgnoreCase("and")) {
+ else     if (me.getString(PartOfSpeechAnnotation.class) != null && me.getString(PartOfSpeechAnnotation.class).equals("CC")) {
+      if (prev.tag() != null && prev.tag().equals("CD") && next.tag() != null && next.tag().equals("CD") && me.get(TextAnnotation.class) != null && me.get(TextAnnotation.class).equalsIgnoreCase("and")) {
         if (DEBUG) {
           System.err.println("Found number and:" + me.word());
         }
         String wd=prev.word();
         if (wd.equalsIgnoreCase("hundred") || wd.equalsIgnoreCase("thousand") || wd.equalsIgnoreCase("million")|| wd.equalsIgnoreCase("billion")|| wd.equalsIgnoreCase("trillion")) {
-          me.set(CoreAnnotations.AnswerAnnotation.class,"NUMBER");
+          me.set(AnswerAnnotation.class,"NUMBER");
         }
       }
     }
- else     if (me.getString(CoreAnnotations.PartOfSpeechAnnotation.class) != null && (me.getString(CoreAnnotations.PartOfSpeechAnnotation.class).equals("NN") || me.getString(CoreAnnotations.PartOfSpeechAnnotation.class).equals("NNS"))) {
+ else     if (me.getString(PartOfSpeechAnnotation.class) != null && (me.getString(PartOfSpeechAnnotation.class).equals("NN") || me.getString(PartOfSpeechAnnotation.class).equals("NNS"))) {
       if (CURRENCY_WORD_PATTERN.matcher(me.word()).matches()) {
-        if (prev.getString(CoreAnnotations.PartOfSpeechAnnotation.class).equals("CD") && prev.getString(CoreAnnotations.AnswerAnnotation.class).equals("MONEY")) {
-          me.set(CoreAnnotations.AnswerAnnotation.class,"MONEY");
+        if (prev.getString(PartOfSpeechAnnotation.class).equals("CD") && prev.getString(AnswerAnnotation.class).equals("MONEY")) {
+          me.set(AnswerAnnotation.class,"MONEY");
         }
       }
  else       if (me.word().equals("m") || me.word().equals("b")) {
-        if (prev.getString(CoreAnnotations.AnswerAnnotation.class).equals("MONEY")) {
-          me.set(CoreAnnotations.AnswerAnnotation.class,"MONEY");
+        if (prev.getString(AnswerAnnotation.class).equals("MONEY")) {
+          me.set(AnswerAnnotation.class,"MONEY");
         }
  else {
-          me.set(CoreAnnotations.AnswerAnnotation.class,"NUMBER");
+          me.set(AnswerAnnotation.class,"NUMBER");
         }
       }
  else       if (ORDINAL_PATTERN.matcher(me.word()).matches()) {
         if ((next.word() != null && MONTH_PATTERN.matcher(next.word()).matches()) || (next.word() != null && next.word().equalsIgnoreCase("of") && next2.word() != null && MONTH_PATTERN.matcher(next2.word()).matches())) {
-          me.set(CoreAnnotations.AnswerAnnotation.class,"DATE");
+          me.set(AnswerAnnotation.class,"DATE");
         }
       }
  else       if (GENERIC_TIME_WORDS.matcher(me.word()).matches()) {
-        me.set(CoreAnnotations.AnswerAnnotation.class,"TIME");
+        me.set(AnswerAnnotation.class,"TIME");
       }
     }
- else     if (me.getString(CoreAnnotations.PartOfSpeechAnnotation.class).equals("JJ")) {
+ else     if (me.getString(PartOfSpeechAnnotation.class).equals("JJ")) {
       if ((next.word() != null && MONTH_PATTERN.matcher(next.word()).matches()) || next.word() != null && next.word().equalsIgnoreCase("of") && next2.word() != null && MONTH_PATTERN.matcher(next2.word()).matches()) {
-        me.set(CoreAnnotations.AnswerAnnotation.class,"DATE");
+        me.set(AnswerAnnotation.class,"DATE");
       }
  else       if (ORDINAL_PATTERN.matcher(me.word()).matches()) {
-        me.set(CoreAnnotations.AnswerAnnotation.class,"ORDINAL");
+        me.set(AnswerAnnotation.class,"ORDINAL");
       }
     }
- else     if (me.getString(CoreAnnotations.PartOfSpeechAnnotation.class).equals("IN") && me.word().equalsIgnoreCase("of")) {
-      if (prev.get(CoreAnnotations.TextAnnotation.class) != null && ORDINAL_PATTERN.matcher(prev.get(CoreAnnotations.TextAnnotation.class)).matches() && next.get(CoreAnnotations.TextAnnotation.class) != null && MONTH_PATTERN.matcher(next.get(CoreAnnotations.TextAnnotation.class)).matches()) {
-        me.set(CoreAnnotations.AnswerAnnotation.class,"DATE");
+ else     if (me.getString(PartOfSpeechAnnotation.class).equals("IN") && me.word().equalsIgnoreCase("of")) {
+      if (prev.get(TextAnnotation.class) != null && ORDINAL_PATTERN.matcher(prev.get(TextAnnotation.class)).matches() && next.get(TextAnnotation.class) != null && MONTH_PATTERN.matcher(next.get(TextAnnotation.class)).matches()) {
+        me.set(AnswerAnnotation.class,"DATE");
       }
     }
   }

@@ -1,0 +1,19 @@
+{
+  String n=JOptionPane.showInputDialog(this,"Name of new tag","Tag creation",JOptionPane.INFORMATION_MESSAGE);
+  if (n != null) {
+    tagsChanged=true;
+    tags.add(n);
+    Color newColor=getColor(n,defaultColors.get(defaultColorIndex % NUM_TAGS));
+    if (newColor == null) {
+      newColor=defaultColors.get(defaultColorIndex % NUM_TAGS);
+    }
+    defaultColorIndex++;
+    SimpleAttributeSet attr=new SimpleAttributeSet();
+    StyleConstants.setForeground(attr,newColor);
+    colorMaps.put(n,attr);
+    JButton button=new JButton(n,new ColorIcon(newColor));
+    button.addActionListener(actor);
+    toolbar.add(button);
+    buttons.add(button);
+  }
+}

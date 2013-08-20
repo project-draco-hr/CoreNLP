@@ -1,0 +1,157 @@
+{
+  toolBar=new javax.swing.JToolBar();
+  newButton=new javax.swing.JButton();
+  openButton=new javax.swing.JButton();
+  saveButton=new javax.swing.JButton();
+  saveAsButton=new javax.swing.JButton();
+  fecButton=new javax.swing.JButton();
+  mediatorSplitPane=new javax.swing.JSplitPane();
+  jPanel1=new javax.swing.JPanel();
+  jPanel2=new javax.swing.JPanel();
+  addExtractorButton=new javax.swing.JButton();
+  removeExtractorButton=new javax.swing.JButton();
+  jScrollPane1=new javax.swing.JScrollPane();
+  extractorList=new javax.swing.JList(){
+    /** 
+ */
+    private static final long serialVersionUID=-4508707834306125912L;
+    public String getToolTipText(    MouseEvent e){
+      int index=locationToIndex(e.getPoint());
+      return (getExtractorToolTipText(index,e.getX()));
+    }
+  }
+;
+  jPanel3=new javax.swing.JPanel();
+  jPanel4=new javax.swing.JPanel();
+  assignExtractorButton=new javax.swing.JButton();
+  removeAssignmentButton=new javax.swing.JButton();
+  jScrollPane2=new javax.swing.JScrollPane();
+  assignmentTree=new javax.swing.JTree();
+  jPanel6=new javax.swing.JPanel();
+  statusLabel=new javax.swing.JLabel();
+  jLabel1=new javax.swing.JLabel();
+  setLayout(new java.awt.BorderLayout());
+  toolBar.setName("Extractor Mediator");
+  newButton.setText("New");
+  newButton.setToolTipText("New ExtractorMediator");
+  newButton.addActionListener(new java.awt.event.ActionListener(){
+    public void actionPerformed(    java.awt.event.ActionEvent evt){
+      newButtonActionPerformed(evt);
+    }
+  }
+);
+  toolBar.add(newButton);
+  openButton.setText("Open...");
+  openButton.setToolTipText("Open ExtractorMediator");
+  openButton.addActionListener(new java.awt.event.ActionListener(){
+    public void actionPerformed(    java.awt.event.ActionEvent evt){
+      openButtonActionPerformed(evt);
+    }
+  }
+);
+  toolBar.add(openButton);
+  saveButton.setText("Save");
+  saveButton.setToolTipText("Save ExtractorMediator");
+  saveButton.addActionListener(new java.awt.event.ActionListener(){
+    public void actionPerformed(    java.awt.event.ActionEvent evt){
+      saveButtonActionPerformed(evt);
+    }
+  }
+);
+  toolBar.add(saveButton);
+  saveAsButton.setText("Save As...");
+  saveAsButton.setToolTipText("Save ExtractorMediator As");
+  saveAsButton.addActionListener(new java.awt.event.ActionListener(){
+    public void actionPerformed(    java.awt.event.ActionEvent evt){
+      saveAsButtonActionPerformed(evt);
+    }
+  }
+);
+  toolBar.add(saveAsButton);
+  toolBar.addSeparator();
+  fecButton.setText("Manage FECs...");
+  fecButton.setToolTipText("Manage FieldExtractorCreators");
+  fecButton.addActionListener(new java.awt.event.ActionListener(){
+    public void actionPerformed(    java.awt.event.ActionEvent evt){
+      fecButtonActionPerformed(evt);
+    }
+  }
+);
+  toolBar.add(fecButton);
+  add(toolBar,java.awt.BorderLayout.NORTH);
+  mediatorSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
+  mediatorSplitPane.setContinuousLayout(true);
+  jPanel1.setLayout(new java.awt.BorderLayout());
+  jPanel1.setBorder(new javax.swing.border.TitledBorder("Extractors"));
+  addExtractorButton.setText("Add Extractor...");
+  addExtractorButton.setEnabled(false);
+  addExtractorButton.addActionListener(new java.awt.event.ActionListener(){
+    public void actionPerformed(    java.awt.event.ActionEvent evt){
+      addExtractorButtonActionPerformed(evt);
+    }
+  }
+);
+  jPanel2.add(addExtractorButton);
+  removeExtractorButton.setText("Remove Selected Extractor(s)");
+  removeExtractorButton.setEnabled(false);
+  removeExtractorButton.addActionListener(new java.awt.event.ActionListener(){
+    public void actionPerformed(    java.awt.event.ActionEvent evt){
+      removeExtractorButtonActionPerformed(evt);
+    }
+  }
+);
+  jPanel2.add(removeExtractorButton);
+  jPanel1.add(jPanel2,java.awt.BorderLayout.SOUTH);
+  extractorList.setModel(listModel);
+  extractorList.setVisibleRowCount(4);
+  extractorList.addListSelectionListener(new javax.swing.event.ListSelectionListener(){
+    public void valueChanged(    javax.swing.event.ListSelectionEvent evt){
+      extractorListValueChanged(evt);
+    }
+  }
+);
+  jScrollPane1.setViewportView(extractorList);
+  jPanel1.add(jScrollPane1,java.awt.BorderLayout.CENTER);
+  mediatorSplitPane.setLeftComponent(jPanel1);
+  jPanel3.setLayout(new java.awt.BorderLayout());
+  jPanel3.setBorder(new javax.swing.border.TitledBorder("Assignments"));
+  assignExtractorButton.setText("Assign Extractor...");
+  assignExtractorButton.setEnabled(false);
+  assignExtractorButton.addActionListener(new java.awt.event.ActionListener(){
+    public void actionPerformed(    java.awt.event.ActionEvent evt){
+      assignExtractorButtonActionPerformed(evt);
+    }
+  }
+);
+  jPanel4.add(assignExtractorButton);
+  removeAssignmentButton.setText("Remove Selected Assignment(s)");
+  removeAssignmentButton.setEnabled(false);
+  removeAssignmentButton.addActionListener(new java.awt.event.ActionListener(){
+    public void actionPerformed(    java.awt.event.ActionEvent evt){
+      removeAssignmentButtonActionPerformed(evt);
+    }
+  }
+);
+  jPanel4.add(removeAssignmentButton);
+  jPanel3.add(jPanel4,java.awt.BorderLayout.SOUTH);
+  assignmentTree.setModel(treeModel);
+  assignmentTree.setRootVisible(false);
+  assignmentTree.setShowsRootHandles(true);
+  assignmentTree.setVisibleRowCount(8);
+  assignmentTree.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener(){
+    public void valueChanged(    javax.swing.event.TreeSelectionEvent evt){
+      assignmentTreeValueChanged(evt);
+    }
+  }
+);
+  jScrollPane2.setViewportView(assignmentTree);
+  jPanel3.add(jScrollPane2,java.awt.BorderLayout.CENTER);
+  mediatorSplitPane.setRightComponent(jPanel3);
+  add(mediatorSplitPane,java.awt.BorderLayout.CENTER);
+  jPanel6.setLayout(new java.awt.BorderLayout());
+  statusLabel.setToolTipText("Status");
+  jPanel6.add(statusLabel,java.awt.BorderLayout.CENTER);
+  jLabel1.setText(" ");
+  jPanel6.add(jLabel1,java.awt.BorderLayout.WEST);
+  add(jPanel6,java.awt.BorderLayout.SOUTH);
+}

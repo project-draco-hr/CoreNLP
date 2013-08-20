@@ -1,11 +1,11 @@
 {
   BufferedReader reader=null;
   try {
-    reader=IOUtils.readerFromString(demonymFile);
+    reader=new BufferedReader(new InputStreamReader(IOUtils.getInputStreamFromURLOrClasspathOrFileSystem(demonymFile)));
     while (reader.ready()) {
       String[] line=reader.readLine().split("\t");
       if (line[0].startsWith("#"))       continue;
-      Set<String> set=Generics.newHashSet();
+      Set<String> set=new HashSet<String>();
       for (      String s : line) {
         set.add(s.toLowerCase());
         demonymSet.add(s.toLowerCase());

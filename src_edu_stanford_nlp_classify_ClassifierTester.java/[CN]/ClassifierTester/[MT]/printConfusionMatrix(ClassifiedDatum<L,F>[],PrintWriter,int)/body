@@ -1,0 +1,66 @@
+{
+  if (cellWidth < 2) {
+    throw new IllegalArgumentException("cellWidth too narrow");
+  }
+  DecimalFormat df=new DecimalFormat("#.000");
+  out.println("Score " + numCorrect(results) + " right out of "+ results.length+ " ("+ df.format(accuracy(results) * 100)+ "%).");
+  out.println();
+  out.println("Confusions: (rows correct answer, columns guesses)");
+  out.println();
+  Set<L> allLabels=labels(results);
+  allLabels.addAll(predictedLabels(results));
+  List<L> labels=new ArrayList<L>(allLabels);
+  Collections.sort(labels);
+  int rowLabelCellWidth=0;
+  for (  L label : labels) {
+    int thisLabelLeng=label.toString().length();
+    if (thisLabelLeng > rowLabelCellWidth) {
+      rowLabelCellWidth=thisLabelLeng;
+    }
+  }
+  int max=Math.min(cellWidth * 2,7);
+  if (rowLabelCellWidth < cellWidth) {
+    rowLabelCellWidth=cellWidth;
+  }
+ else   if (rowLabelCellWidth > max) {
+    rowLabelCellWidth=max;
+  }
+  for (int i=0; i < rowLabelCellWidth; i++) {
+    out.print(' ');
+  }
+  for (Iterator<L> colIter=labels.iterator(); colIter.hasNext(); ) {
+    out.print(StringUtils.padLeft(StringUtils.trim(colIter.next(),cellWidth - 1),cellWidth - 1));
+    if (colIter.hasNext()) {
+      out.print(" ");
+    }
+  }
+  out.println();
+  for (  L correctLabel : labels) {
+    out.print(StringUtils.pad(StringUtils.trim(correctLabel,rowLabelCellWidth - 1),rowLabelCellWidth));
+    ClassifiedDatum<L,F>[] curResults=resultsWithLabel(results,correctLabel);
+    for (Iterator<L> colIter=labels.iterator(); colIter.hasNext(); ) {
+      L predictedLabel=colIter.next();
+      int count=numPredicted(curResults,predictedLabel);
+      String temp=Integer.toString(count);
+      if (temp.length() <= cellWidth - 1) {
+        out.print(StringUtils.padLeft(count,cellWidth - 1));
+      }
+ else {
+        StringBuffer tempSB=new StringBuffer();
+        int k=1;
+        for (int p=1; p < cellWidth; p++) {
+          k*=10;
+        }
+        while (tempSB.length() < cellWidth - 1 && count > k) {
+          tempSB.append("#");
+          k*=2;
+        }
+        out.print(StringUtils.padLeft(tempSB,cellWidth - 1));
+      }
+      if (colIter.hasNext()) {
+        out.print(" ");
+      }
+    }
+    out.println();
+  }
+}

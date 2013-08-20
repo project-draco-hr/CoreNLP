@@ -1,0 +1,22 @@
+{
+  Collections.sort(taggedStrings,tsCmp);
+  for (  TaggedString ts : taggedStrings) {
+    int index=doc.getLength();
+    try {
+      while ((index=doc.getText(0,doc.getLength()).lastIndexOf(ts.string,index)) != -1) {
+        String text=doc.getText(0,doc.getLength());
+        if (text.lastIndexOf("\"start\"",index) <= text.lastIndexOf("\"end\"",index)) {
+          SimpleAttributeSet attr=colorMaps.get(ts.tag);
+          if (attr != null) {
+            doc.remove(index,ts.string.length());
+            doc.insertString(index,"<tag name=\"" + ts.tag + "\" value=\"start\"/>"+ ts.string+ "<tag name=\""+ ts.tag+ "\" value=\"end\"/>",attr);
+          }
+        }
+        index--;
+      }
+    }
+ catch (    BadLocationException e) {
+      throw new RuntimeException(e);
+    }
+  }
+}

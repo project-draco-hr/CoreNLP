@@ -3,20 +3,20 @@
   String[] bits=line.split("\t",-1);
   if (bits.length < 7)   throw new RuntimeIOException("ERROR: Invalid format token for serialized token (only " + bits.length + " tokens): "+ line);
   String word=bits[0].replaceAll(SPACE_HOLDER," ");
-  token.set(CoreAnnotations.TextAnnotation.class,word);
+  token.set(TextAnnotation.class,word);
   if (bits[1].length() > 0 || bits[0].length() == 0) {
     String lemma=bits[1].replaceAll(SPACE_HOLDER," ");
-    token.set(CoreAnnotations.LemmaAnnotation.class,lemma);
+    token.set(LemmaAnnotation.class,lemma);
   }
-  if (bits[2].length() > 0)   token.set(CoreAnnotations.PartOfSpeechAnnotation.class,bits[2]);
-  if (bits[3].length() > 0)   token.set(CoreAnnotations.NamedEntityTagAnnotation.class,bits[3]);
-  if (bits[4].length() > 0)   token.set(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class,bits[4]);
-  if (bits[5].length() > 0)   token.set(CoreAnnotations.CharacterOffsetBeginAnnotation.class,Integer.parseInt(bits[5]));
-  if (bits[6].length() > 0)   token.set(CoreAnnotations.CharacterOffsetEndAnnotation.class,Integer.parseInt(bits[6]));
+  if (bits[2].length() > 0)   token.set(PartOfSpeechAnnotation.class,bits[2]);
+  if (bits[3].length() > 0)   token.set(NamedEntityTagAnnotation.class,bits[3]);
+  if (bits[4].length() > 0)   token.set(NormalizedNamedEntityTagAnnotation.class,bits[4]);
+  if (bits[5].length() > 0)   token.set(CharacterOffsetBeginAnnotation.class,Integer.parseInt(bits[5]));
+  if (bits[6].length() > 0)   token.set(CharacterOffsetEndAnnotation.class,Integer.parseInt(bits[6]));
   if (haveExplicitAntecedent) {
     if (bits.length > 7) {
       String aa=bits[7].replaceAll(SPACE_HOLDER," ");
-      if (aa.length() > 0)       token.set(CoreAnnotations.AntecedentAnnotation.class,aa);
+      if (aa.length() > 0)       token.set(AntecedentAnnotation.class,aa);
     }
   }
   return token;

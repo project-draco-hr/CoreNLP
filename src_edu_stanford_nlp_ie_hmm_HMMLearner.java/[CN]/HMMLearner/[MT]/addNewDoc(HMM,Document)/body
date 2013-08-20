@@ -1,0 +1,45 @@
+{
+  State[] baseStates=baseHmm.getStates();
+  int numStates=baseStates.length + newDoc.size();
+  ArrayList stateList=new ArrayList(numStates);
+  data.add(newDoc);
+  double numTargetChains=data.size();
+  double initProb=1.0 / numTargetChains;
+  double oldPercent=(numTargetChains - 1) / numTargetChains;
+  for (int i=0; i < baseStates.length; i++) {
+    double[] t=new double[numStates];
+    for (int j=0; j < baseStates.length; j++) {
+      t[j]=baseStates[i].transition[j];
+      if (i == State.STARTIDX) {
+        t[j]=t[j] * oldPercent;
+      }
+    }
+    baseStates[i].transition=t;
+    stateList.add(baseStates[i]);
+  }
+  int stateNum=baseStates.length;
+  String[] vocab=new String[1];
+  int[] counts=new int[1];
+  ((State)stateList.get(State.STARTIDX)).transition[stateNum]=initProb;
+  for (int i=0, dsize=newDoc.size(); i < dsize; i++) {
+    TypedTaggedWord ttw=(TypedTaggedWord)newDoc.get(i);
+    String word=ttw.word();
+    vocab[0]=word;
+    counts[0]=1;
+    EmitMap initailEmitMap=new CountedEmitMap(vocab,counts);
+    State target=new State(Structure.TARGET_TYPE,initailEmitMap,numStates);
+    stateList.add(target);
+    stateNum++;
+    if (i < dsize - 1) {
+      target.transition[stateNum]=1.0;
+    }
+ else {
+      target.transition[State.FINISHIDX]=1.0;
+    }
+  }
+  State[] states=(State[])stateList.toArray(new State[0]);
+  HMM hmm=new HMM(states,HMM.TARGET_HMM);
+  hmm.setTargetFields(data.getTargetFields());
+  hmm.setVocab(new ClassicCounter(data.getVocab()));
+  return hmm;
+}

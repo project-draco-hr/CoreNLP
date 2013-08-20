@@ -1,0 +1,85 @@
+{
+  String trainFile="train.tmp", validationFile="validation.tmp";
+  int time=0;
+  int maxTime=ftNum;
+  double rate=.8;
+  split(trainFileName,trainFile,validationFile);
+  readTrainingInstances(trainFile);
+  ReadDataWeka test=new ReadDataWeka(validationFile,train);
+  makeFeatures("n");
+  mE=new MaxEntModel(p.data,p.functions,0.001,gaincutoff);
+  boolean increases=true;
+  double oldAcc=0, newAcc=0;
+  double probAccept;
+  int countDown=2 * train.numClasses * train.numClasses;
+  while ((time < maxTime) && (countDown > 0)) {
+    int nextFt=mE.addFeature(gaincutoff);
+    gaincutoff*=rate;
+    if (nextFt == -1) {
+      System.out.println(" Can't add more features \n");
+      break;
+    }
+    String key=reverseMap.get(Integer.valueOf(nextFt));
+    mE.fAssociations.put(key,Integer.valueOf(mE.activeFeats.size() - 1));
+    int res=0;
+    model=mE.prob;
+    for (int d=0; d < test.v.size(); d++) {
+      DataDouble dD=test.getData(d);
+      int y=getClassification(dD);
+      if (y == dD.getYNo()) {
+        res++;
+      }
+    }
+    newAcc=res / (double)test.numSamples();
+    System.out.println("Accuracy " + newAcc);
+    increases=(newAcc > oldAcc);
+    if (increases) {
+      probAccept=.95;
+    }
+ else     if (newAcc == oldAcc) {
+      probAccept=.8;
+    }
+ else {
+      probAccept=Math.exp((newAcc - oldAcc) * time);
+    }
+    System.out.println(" Probability of accepting is " + probAccept + " fts "+ mE.p.fSize);
+    double ran=Math.random();
+    if (ran > probAccept) {
+      mE.p.removeLast();
+      mE.fAssociations.remove(key);
+      mE.correspondences[nextFt]=-1;
+    }
+ else {
+      System.out.println(" Added " + key);
+      oldAcc=newAcc;
+      if (!increases) {
+        countDown--;
+      }
+ else {
+        countDown=train.numClasses * train.numClasses;
+      }
+      System.out.println(" Count down is " + countDown);
+    }
+    time++;
+  }
+  System.out.println("Number features are " + mE.activeFeats.size());
+  HashMap<Object,Integer> survived=new HashMap<Object,Integer>();
+  Object[] keys=fAssociations.keySet().toArray();
+  for (int num=0; num < keys.length; num++) {
+    int numF=fAssociations.get(keys[num]).intValue();
+    if (mE.correspondences[numF] > -1) {
+      survived.put(keys[num],Integer.valueOf(mE.correspondences[numF]));
+      int f=mE.correspondences[numF];
+      System.out.println(keys[num] + " lambda " + f+ ' '+ model.lambda[f]);
+    }
+  }
+  save(trainFile);
+  fAssociations.clear();
+  fAssociations=survived;
+  readTrainingInstances(trainFileName);
+  makeFeaturesAssociations();
+  mE.fAssociations=fAssociations;
+  mE.prob=new LambdaSolve(p,.0001,.0001);
+  mE.prob.improvedIterative(iters);
+  eraseTmps();
+}

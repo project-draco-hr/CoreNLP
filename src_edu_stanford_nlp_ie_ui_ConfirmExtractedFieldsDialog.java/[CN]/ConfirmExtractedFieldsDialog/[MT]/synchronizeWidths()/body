@@ -1,0 +1,56 @@
+{
+  if (fieldPanels == null) {
+    return;
+  }
+  int[] widths=new int[NUM_COLUMNS];
+  for (int col=0; col < NUM_COLUMNS; col++) {
+    int maxWidth=0;
+switch (col) {
+case SLOT_COLUMN:
+      maxWidth=fm.stringWidth(slotLabel.getText());
+    break;
+case CURRENT_COLUMN:
+  maxWidth=fm.stringWidth(currentValueLabel.getText());
+break;
+case EXTRACTED_COLUMN:
+maxWidth=fm.stringWidth(extractedValueLabel.getText());
+break;
+case OVERWRITE_COLUMN:
+maxWidth=fm.stringWidth(overwriteLabel.getText());
+break;
+}
+for (int i=0; i < fieldPanels.length; i++) {
+maxWidth=Math.max(maxWidth,fieldPanels[i].getPreferredWidth(col));
+}
+widths[col]=maxWidth;
+}
+int width=getWidth() - widths[SLOT_COLUMN] - widths[OVERWRITE_COLUMN];
+if (width > 0) {
+int curWidth=width * widths[CURRENT_COLUMN] / (widths[CURRENT_COLUMN] + widths[EXTRACTED_COLUMN]);
+if (widths[CURRENT_COLUMN] <= curWidth) {
+widths[EXTRACTED_COLUMN]=width - widths[CURRENT_COLUMN] - 25;
+}
+ else {
+widths[EXTRACTED_COLUMN]=width - curWidth - 25;
+}
+}
+for (int col=0; col < NUM_COLUMNS; col++) {
+switch (col) {
+case SLOT_COLUMN:
+slotLabel.setPreferredSize(new Dimension(widths[col],slotLabel.getPreferredSize().height));
+break;
+case CURRENT_COLUMN:
+currentValueLabel.setPreferredSize(new Dimension(widths[col],currentValueLabel.getPreferredSize().height));
+break;
+case EXTRACTED_COLUMN:
+extractedValueLabel.setPreferredSize(new Dimension(widths[col],extractedValueLabel.getPreferredSize().height));
+break;
+case OVERWRITE_COLUMN:
+overwriteLabel.setPreferredSize(new Dimension(widths[col],overwriteLabel.getPreferredSize().height));
+break;
+}
+for (int i=0; i < fieldPanels.length; i++) {
+fieldPanels[i].setPreferredWidth(col,widths[col]);
+}
+}
+}

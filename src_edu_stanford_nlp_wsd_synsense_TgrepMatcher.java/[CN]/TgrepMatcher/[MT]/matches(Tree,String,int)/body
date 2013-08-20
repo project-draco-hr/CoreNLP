@@ -1,0 +1,179 @@
+{
+  String subExpr=null;
+  if (pattern.charAt(position) != '(') {
+    subExpr=readSubExpr(pattern,position);
+    return tree.label().toString().matches(subExpr);
+  }
+  boolean negate=false;
+  boolean returnVal=false;
+  Tree parent;
+  Tree[] kids, sibs;
+  int relnship=0;
+  int nextIndex=-1;
+  position++;
+  while (position < pattern.length()) {
+switch (pattern.charAt(position)) {
+case '!':
+      if (negate) {
+        tgrepExprError(position,pattern,"double negation");
+      }
+    negate=true;
+  position++;
+break;
+case '>':
+if (relnship != -1) {
+tgrepExprError(position,pattern,"Twice defined relationship");
+}
+relnship=1;
+position++;
+break;
+case '<':
+if (relnship != -1) {
+tgrepExprError(position,pattern,"Twice defined relationship");
+}
+if (pattern.charAt(++position) == '<') {
+if (pattern.charAt(++position) == ',') {
+relnship=7;
+position++;
+}
+ else if (pattern.charAt(position) == '+') {
+relnship=8;
+position++;
+subExpr=readSubExpr(pattern,position);
+position+=subExpr.length();
+}
+ else {
+relnship=6;
+}
+}
+ else {
+relnship=2;
+}
+if (Character.isDigit(pattern.charAt(position))) {
+nextIndex=Character.getNumericValue(pattern.charAt(position++)) - 1;
+}
+break;
+case '%':
+if (relnship != -1) {
+tgrepExprError(position,pattern,"Twice defined relationship");
+}
+if (pattern.charAt(++position) == '.') {
+if (pattern.charAt(++position) == '.') {
+relnship=4;
+position++;
+}
+ else {
+relnship=5;
+}
+}
+ else {
+relnship=3;
+}
+break;
+case ')':
+return true;
+case '(':
+default :
+relnswitch: switch (relnship) {
+case 0:
+returnVal=matches(tree,pattern,position);
+break;
+case 1:
+parent=parentMap.get(tree);
+if (parent == null) {
+returnVal=false;
+}
+ else {
+returnVal=matches(parent,pattern,position);
+}
+break;
+case 2:
+if (tree.isLeaf()) {
+returnVal=false;
+break relnswitch;
+}
+kids=tree.children();
+for (int i=0; i < kids.length; i++) {
+if (nextIndex >= 0 && i != nextIndex) {
+continue;
+}
+if (matches(kids[i],pattern,position)) {
+returnVal=true;
+break relnswitch;
+}
+}
+returnVal=false;
+break;
+case 3:
+case 4:
+case 5:
+if (!parentMap.containsKey(tree)) {
+returnVal=false;
+break relnswitch;
+}
+parent=parentMap.get(tree);
+sibs=parent.children();
+boolean afterthis=false;
+for (int i=0; i < sibs.length; i++) {
+if (sibs[i] == tree) {
+afterthis=true;
+continue;
+}
+if (relnship == 4 && !afterthis) {
+continue;
+}
+if (relnship == 5) {
+if (afterthis) {
+if (matches(sibs[i],pattern,position)) {
+returnVal=true;
+}
+ else {
+returnVal=false;
+}
+break relnswitch;
+}
+ else {
+continue;
+}
+}
+if (matches(sibs[i],pattern,position)) {
+returnVal=true;
+break relnswitch;
+}
+if (stopSisterSearchAtComma && sibs[i].label().value().matches(",|:")) {
+break;
+}
+}
+returnVal=false;
+break;
+case 6:
+returnVal=descendantMatches(tree,pattern,position);
+break;
+case 7:
+returnVal=descendantMatches(tree,pattern,position,true);
+break;
+case 8:
+returnVal=descendantMatches(tree,pattern,position,subExpr);
+break;
+default :
+tgrepExprError(position,pattern,"Undefined relationship");
+}
+if (negate) {
+if (returnVal) {
+return false;
+}
+}
+ else {
+if (!returnVal) {
+return false;
+}
+}
+position+=readSubExpr(pattern,position).length();
+negate=false;
+relnship=-1;
+nextIndex=-1;
+break;
+}
+}
+return (true);
+}

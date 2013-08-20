@@ -1,0 +1,24 @@
+{
+  System.err.println("Making counters.");
+  stopCounter=new ClassicCounter<IntDependency>();
+  for (  IntDependency dep : stopExamples.keySet()) {
+    double count=stopExamples.getCount(dep);
+    stopCounter.incrementCount(dep,count);
+    IntTaggedWord hT=new IntTaggedWord(-1,dep.head.tag);
+    stopCounter.incrementCount(intern(hT,stopTW,dep.leftHeaded,dep.distance),count);
+  }
+  depCounter=new ClassicCounter<IntDependency>();
+  nonDepCounter=collapseNegExamples(true);
+  negExamplesPerSentence=null;
+  for (  IntDependency dep : posExamples.keySet()) {
+    double count=posExamples.getCount(dep);
+    depCounter.incrementCount(intern(dep.head,dep.arg,dep.leftHeaded,valenceBin(dep.distance)),count);
+    stopCounter.incrementCount(intern(dep.head,wildTW,dep.leftHeaded,dep.distance),count);
+    IntTaggedWord hT=new IntTaggedWord(-1,dep.head.tag);
+    stopCounter.incrementCount(intern(hT,wildTW,dep.leftHeaded,dep.distance),count);
+  }
+  System.err.println("stopCounter has " + stopCounter.size() + " elements.");
+  System.err.println("depCounter has " + depCounter.size() + " elements.");
+  System.err.println("nonDepCounter has " + nonDepCounter.size() + " elements.");
+  posExamples=null;
+}

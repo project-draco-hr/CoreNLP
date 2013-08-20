@@ -1,0 +1,32 @@
+{
+  if (sampleTemplates) {
+    this.templateCounter=new ClassicCounter<PascalTemplate>();
+  }
+  if (useCRF) {
+    CRFClassifier crf=(CRFClassifier)classifier;
+    System.err.println("Collecting samples");
+    SequenceGibbsSampler gibbsSampler=null;
+    List<int[]> samples=gibbsSampler.collectSamples(null,this.numSamples,50);
+    for (    int[] answers : samples) {
+      int i=0;
+      for (      CoreLabel wi : wordInfos) {
+        wi.set(AnswerAnnotation.class,classifier.classIndex.get(answers[i++]));
+      }
+      extractTemplate(wordInfos);
+    }
+    System.err.println("Done Sampling");
+    return templateCounter;
+  }
+ else {
+    for (int i=0; i < this.numSamples; i++) {
+      samples[i]=sampleOneDocument();
+      if (sampleTemplates) {
+        extractTemplate(samples[i]);
+      }
+ else {
+        countFields(samples[i]);
+      }
+    }
+    return templateCounter;
+  }
+}

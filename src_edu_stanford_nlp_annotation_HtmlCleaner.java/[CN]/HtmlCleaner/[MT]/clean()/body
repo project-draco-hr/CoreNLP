@@ -1,0 +1,15 @@
+{
+  HtmlDocument document;
+  if (reader != null) {
+    document=new HtmlParser(reader).HtmlDocument();
+  }
+ else   if (instream != null) {
+    document=new HtmlParser(instream).HtmlDocument();
+  }
+ else {
+    return;
+  }
+  document.accept(new HtmlCollector());
+  document.accept(new HtmlScrubber(HtmlScrubber.ATTR_DOWNCASE | HtmlScrubber.TAGS_DOWNCASE | HtmlScrubber.TRIM_SPACES));
+  document.accept(new CleanerHtmlVisitor());
+}

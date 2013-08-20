@@ -11,18 +11,17 @@
       if (sentenceTokens.isEmpty()) {
         throw new RuntimeException("unexpected empty sentence: " + sentenceTokens);
       }
-      int begin=sentenceTokens.get(0).get(CoreAnnotations.CharacterOffsetBeginAnnotation.class);
+      int begin=sentenceTokens.get(0).get(CharacterOffsetBeginAnnotation.class);
       int last=sentenceTokens.size() - 1;
-      int end=sentenceTokens.get(last).get(CoreAnnotations.CharacterOffsetEndAnnotation.class);
+      int end=sentenceTokens.get(last).get(CharacterOffsetEndAnnotation.class);
       String sentenceText=text.substring(begin,end);
       Annotation sentence=new Annotation(sentenceText);
-      sentence.set(CoreAnnotations.CharacterOffsetBeginAnnotation.class,begin);
-      sentence.set(CoreAnnotations.CharacterOffsetEndAnnotation.class,end);
+      sentence.set(CharacterOffsetBeginAnnotation.class,begin);
+      sentence.set(CharacterOffsetEndAnnotation.class,end);
       sentence.set(CoreAnnotations.TokensAnnotation.class,sentenceTokens);
       sentence.set(CoreAnnotations.TokenBeginAnnotation.class,tokenOffset);
       tokenOffset+=sentenceTokens.size();
       sentence.set(CoreAnnotations.TokenEndAnnotation.class,tokenOffset);
-      sentence.set(CoreAnnotations.SentenceIndexAnnotation.class,sentences.size());
       sentences.add(sentence);
     }
     annotation.set(CoreAnnotations.SentencesAnnotation.class,sentences);

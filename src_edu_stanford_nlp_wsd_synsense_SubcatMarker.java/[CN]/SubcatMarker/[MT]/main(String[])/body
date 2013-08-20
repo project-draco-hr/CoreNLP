@@ -1,0 +1,41 @@
+{
+  if (argv.length < 1) {
+    System.err.println("Error: must specify filename.");
+    System.exit(1);
+  }
+  int number=0;
+  if (argv.length == 2) {
+    number=Integer.parseInt(argv[1]);
+  }
+  if (argv.length > 2) {
+    System.err.println("Error: Too many arguments.");
+    System.exit(1);
+  }
+  String filename=argv[0];
+  DiskTreebank treebank=new DiskTreebank(new TreeReaderFactory(){
+    public TreeReader newTreeReader(    Reader in){
+      return new PennTreeReader(in,new LabeledScoredTreeFactory(new WordFactory()),new NPTmpRetainingTreeNormalizer(NPTmpRetainingTreeNormalizer.TEMPORAL_ANY_TMP_PERCOLATED,false,0,false));
+    }
+  }
+);
+  treebank.loadPath(filename);
+  Iterator<Tree> iter=treebank.iterator();
+  SubcatMarker m=new SubcatMarker();
+  int count=0;
+  while (iter.hasNext()) {
+    Tree tree=iter.next();
+    if (number > 0 && count++ < number) {
+      continue;
+    }
+    System.out.println();
+    m.transformTree(tree);
+    tree.pennPrint();
+    if (number > 0) {
+      break;
+    }
+  }
+  System.out.println("Total marked:" + numMarked);
+  System.out.println("Total passive upgrades: " + Subcategory.numPassUpgrades);
+  System.out.println("Part counter:");
+  System.out.println(Subcategory.partCounter.toString());
+}

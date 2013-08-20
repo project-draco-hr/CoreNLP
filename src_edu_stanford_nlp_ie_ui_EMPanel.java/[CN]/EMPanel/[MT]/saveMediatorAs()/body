@@ -1,0 +1,22 @@
+{
+  jfc.setDialogTitle("Save Mediator As");
+  if (mediator.getMediatorFile() != null) {
+    jfc.setSelectedFile(mediator.getMediatorFile());
+  }
+  if (jfc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+    File mediatorFile=jfc.getSelectedFile();
+    if (!mediatorFile.getName().endsWith(".xml")) {
+      mediatorFile=new File(mediatorFile.getParent(),mediatorFile.getName() + ".xml");
+      jfc.setSelectedFile(mediatorFile);
+    }
+    if (mediator.setMediatorFile(mediatorFile)) {
+      return (saveMediator());
+    }
+ else {
+      JOptionPane.showMessageDialog(this,"An error occured while trying to save mediator to:\n" + mediatorFile,"Error saving mediator",JOptionPane.ERROR_MESSAGE);
+      setStatus("Error saving mediator");
+      return (false);
+    }
+  }
+  return (false);
+}

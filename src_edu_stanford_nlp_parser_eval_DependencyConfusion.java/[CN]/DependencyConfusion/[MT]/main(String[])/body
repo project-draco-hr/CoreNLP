@@ -1,0 +1,60 @@
+{
+  EquivalenceClassEval.EqualityChecker eq=EquivalenceClassEval.DEFAULT_CHECKER;
+  Map<String,Integer> flagMap=new HashMap<String,Integer>();
+  flagMap.put(LANG_OPTION,Integer.valueOf(1));
+  flagMap.put("-word",Integer.valueOf(0));
+  flagMap.put("-tag",Integer.valueOf(0));
+  flagMap.put("-cat",Integer.valueOf(0));
+  flagMap.put("-show",4);
+  flagMap.put("-showOut",1);
+  flagMap.put(TYPED_DEPS_OPTION,0);
+  Map<String,String[]> argsMap=StringUtils.argsToMap(args,flagMap);
+  args=argsMap.get(null);
+  if (args.length == 0) {
+    System.out.println("Usage: DependencyConfusion [-word|-tag|-cat] [-show <guess-dep> <guess-governor> <gold-dep> <gold-governor> [-showOut <filename>]] <gold-file> <guess-file>");
+    System.exit(0);
+  }
+  System.out.println("A dependency of the form (X,Y) is a word-word dependency of a type-X dependent on a type-Y governor.");
+  TreebankLangParserParams tlpp=null;
+  if (argsMap.containsKey(TYPED_DEPS_OPTION))   eq=new TypedEqualityChecker();
+  if (argsMap.keySet().contains(LANG_OPTION)) {
+    tlpp=(TreebankLangParserParams)Class.forName((argsMap.get(LANG_OPTION))[0]).newInstance();
+    System.err.println("Using treebank language parameters " + tlpp.getClass().getName());
+  }
+ else {
+    tlpp=new EnglishTreebankParserParams();
+  }
+  GroupByType gbt;
+  if (argsMap.keySet().contains("-word")) {
+    gbt=GroupByType.DEPWORD;
+  }
+ else   if (argsMap.keySet().contains("-cat")) {
+    gbt=GroupByType.DEPCAT;
+  }
+ else {
+    gbt=GroupByType.DEPTAG;
+  }
+  Treebank goldTrees=tlpp.diskTreebank();
+  Treebank guessTrees=tlpp.diskTreebank();
+  goldTrees.loadPath(args[0]);
+  guessTrees.loadPath(args[1]);
+  System.out.println("Recall-oriented results (gold is target, guess is proposed):");
+  DependencyConfusion dcRecall=new DependencyConfusion(tlpp,eq);
+  dcRecall.setGroupType(gbt);
+  dcRecall.processTreebanks(goldTrees,guessTrees);
+  dcRecall.printConfusions();
+  if (argsMap.keySet().contains("-show")) {
+    String[] showArgs=argsMap.get("-show");
+    Pair<Pair<String,String>,Pair<String,String>> showConfusion=Generics.newPair(Generics.newPair(showArgs[0],showArgs[1]),Generics.newPair(showArgs[2],showArgs[3]));
+    if (argsMap.keySet().contains("-showOut")) {
+      PrintWriter pw=new PrintWriter(new FileOutputStream(argsMap.get("-showOut")[0]),true);
+      dcRecall.showConfusions(showConfusion,pw);
+    }
+ else     dcRecall.showConfusions(showConfusion);
+  }
+  System.out.println("Precision-oriented results (guess is target, gold is proposed):");
+  DependencyConfusion dcPrecision=new DependencyConfusion(tlpp);
+  dcPrecision.setGroupType(gbt);
+  dcPrecision.processTreebanks(guessTrees,goldTrees);
+  dcPrecision.printConfusions();
+}

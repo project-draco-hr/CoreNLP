@@ -1,0 +1,52 @@
+{
+  features=new CliqueDatum[doc.size()];
+  labels=new int[doc.size()];
+  possibleLabels=new int[doc.size()][];
+  maxCliqueLabels=new LabeledClique[doc.size()];
+  boolean pa=false;
+  for (int i=0; i < doc.size(); i++) {
+    String ans=doc.get(i).get(AnswerAnnotation.class);
+    if (doc.get(i).get(PossibleAnswersAnnotation.class) != null && !pa) {
+      if (i != 0) {
+        throw new RuntimeException("Must specify possible answers for either all or none of the datums!");
+      }
+      pa=true;
+    }
+ else     if (doc.get(i).get(PossibleAnswersAnnotation.class) == null && pa) {
+      System.err.println(i + " >> " + doc.get(i));
+      throw new RuntimeException("Must specify possible answers for either all or none of the datums!");
+    }
+    metaInfo.addLabel(ans);
+    labels[i]=metaInfo.indexOfLabel(ans);
+    if (labels[i] < 0) {
+      labels[i]=metaInfo.backgroundIndex();
+    }
+  }
+  if (!flags.useObservedSequencesOnly) {
+    metaInfo.setAllowedSequences(metaInfo.allSequences());
+  }
+  if (pa) {
+    for (int i=0; i < doc.size(); i++) {
+      List possibleAnswers=Arrays.asList(doc.get(i).get(PossibleAnswersAnnotation.class).split(","));
+      possibleLabels[i]=new int[possibleAnswers.size()];
+      int j=0;
+      for (      Object possibleAnswer : possibleAnswers) {
+        metaInfo.addLabel(possibleAnswer);
+        possibleLabels[i][j++]=metaInfo.indexOfLabel(possibleAnswer);
+      }
+    }
+  }
+ else {
+    int[] pl=new int[metaInfo.numLabels()];
+    for (int i=0; i < pl.length; i++) {
+      pl[i]=i;
+    }
+    for (int i=0; i < doc.size(); i++) {
+      possibleLabels[i]=pl;
+    }
+    cacheMaxCliqueLabels=true;
+  }
+  for (int i=0; i < doc.size(); i++) {
+    setDatum(doc,i);
+  }
+}

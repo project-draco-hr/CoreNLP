@@ -1,0 +1,23 @@
+{
+  double[] cToTry=new double[5];
+  for (int k=-2; k <= 1; k++) {
+    cToTry[k + 3]=Math.pow(10,(k) / 2.0);
+  }
+  double defaultC=0.0;
+  for (  int[] d : train.getDataArray()) {
+    defaultC+=d.length * d.length;
+  }
+  defaultC=Math.sqrt(1 / (defaultC / train.size()));
+  cToTry[0]=defaultC;
+  cToTry=new double[]{defaultC,0.5,1.0,5.0,10.0};
+  GridMinimizer gridMinimizer=new GridMinimizer(cToTry);
+  System.out.println("*** SVM ***");
+  System.out.println("training...");
+  SVMLightClassifierFactory<String,F> fact=new SVMLightClassifierFactory<String,F>();
+  timer.restart();
+  fact.heldOutSetC(train,0.3,basicScorer,gridMinimizer);
+  SVMLightClassifier<String,F> svm=fact.trainClassifier(train);
+  C=fact.getC();
+  System.out.println("Picked C: " + C);
+  test(svm,test);
+}

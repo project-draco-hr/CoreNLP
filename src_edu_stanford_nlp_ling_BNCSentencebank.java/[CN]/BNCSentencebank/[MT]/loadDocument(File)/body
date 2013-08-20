@@ -1,0 +1,13 @@
+{
+  if (VERBOSE) {
+    System.err.printf("reading %s\n",file);
+  }
+  BufferedReader reader=new BufferedReader(new FileReader(file));
+  Pattern p=Pattern.compile("^<s n=\".*");
+  for (String inline=reader.readLine(); inline != null; inline=reader.readLine()) {
+    if (!p.matcher(inline).matches())     continue;
+    Pair<List<String>,List<String>> word_tag=processText(inline);
+    sentences.add(Sentence.toTaggedList(word_tag.first(),word_tag.second()));
+  }
+  reader.close();
+}

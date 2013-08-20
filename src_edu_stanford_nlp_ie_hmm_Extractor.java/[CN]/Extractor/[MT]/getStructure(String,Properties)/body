@@ -1,0 +1,55 @@
+{
+  Structure struc=null;
+  if ("simple01".equals(hmmType)) {
+    struc=new Structure();
+    struc.giveSimplest();
+    struc.initializeTransitions();
+  }
+ else   if ("simple11".equals(hmmType)) {
+    struc=new Structure();
+    struc.giveDefault();
+    struc.initializeTransitions();
+  }
+ else   if ("simple34".equals(hmmType)) {
+    struc=new Structure();
+    struc.giveDefault();
+    struc.lengthenPrefix(0);
+    struc.lengthenPrefix(0);
+    struc.lengthenTarget(0);
+    struc.addTarget(2);
+    struc.lengthenSuffix(0);
+    struc.lengthenSuffix(0);
+    struc.initializeTransitions();
+  }
+ else   if ("ergodic".equals(hmmType)) {
+    struc=new Structure();
+    int nbs=Integer.parseInt(props.getProperty("nbs"));
+    int nts=Integer.parseInt(props.getProperty("nts"));
+    int[] stateTypes=new int[nbs + nts];
+    for (int i=0; i < nbs; i++) {
+      stateTypes[i]=Structure.BACKGROUND_TYPE;
+    }
+    for (int i=nbs; i < nbs + nts; i++) {
+      stateTypes[i]=Structure.TARGET_TYPE;
+    }
+    struc.giveErgodic(stateTypes);
+  }
+ else   if ("jim".equals(hmmType)) {
+    struc=new Structure(Structure.jimDefaultStates());
+  }
+ else   if ("chris".equals(hmmType)) {
+    struc=new Structure(Structure.chrisDefaultStates());
+  }
+ else   if ("chris2".equals(hmmType)) {
+    struc=new Structure(Structure.chrisDefaultStates2());
+  }
+ else   if ("frmc".equals(hmmType)) {
+    struc=Structure.frmcComplexStructure();
+  }
+ else {
+    throw (new IllegalArgumentException("Invalid hmm type: " + hmmType));
+  }
+  double frac=Double.parseDouble(props.getProperty("uniformTransSmoothing"));
+  struc.addUniformSmoothing(frac);
+  return (struc);
+}

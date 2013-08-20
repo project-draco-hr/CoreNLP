@@ -11,11 +11,11 @@
   for (  List<CoreLabel> line : lines) {
     line=classifier.classify(line);
     for (    CoreLabel label : line) {
-      String observation=label.get(CoreAnnotations.CharAnnotation.class);
+      String observation=label.get(CharAnnotation.class);
       if (!observation.equals(IOBUtils.getBoundaryCharacter())) {
         total++;
-        String hypothesis=label.get(CoreAnnotations.AnswerAnnotation.class);
-        String reference=label.get(CoreAnnotations.GoldAnswerAnnotation.class);
+        String hypothesis=label.get(AnswerAnnotation.class);
+        String reference=label.get(GoldAnswerAnnotation.class);
         labelTotal.incrementCount(reference);
         if (hypothesis.equals(reference)) {
           correct++;

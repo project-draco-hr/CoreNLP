@@ -1,0 +1,21 @@
+{
+  this.wordInfos=wordInfos;
+  this.classifier=classifier;
+  useCRF=(classifier.getClass().getName().equals("edu.stanford.nlp.ie.crf.CRFClassifier"));
+  System.err.println("useCRF : " + useCRF);
+  if (useCRF) {
+    CRFClassifier crf=(CRFClassifier)classifier;
+  }
+  this.numSamples=numToSample;
+  this.samples=new List[numToSample];
+  this.sampleTemplates=sampleTemplates;
+  if (this.sampleTemplates) {
+  }
+ else {
+    System.err.println("Sampling individual field values.");
+  }
+  this.fieldValueCounter=new ClassicCounter[PascalTemplate.fields.length - 1];
+  for (int i=0; i < PascalTemplate.fields.length - 1; i++) {
+    fieldValueCounter[i]=new ClassicCounter<String>();
+  }
+}

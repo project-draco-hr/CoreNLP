@@ -1,0 +1,18 @@
+{
+  int type=stateTypes.get(state).intValue();
+  if (type == PREFIX_TYPE) {
+    removeAllFromList(prefixes,Integer.valueOf(state));
+  }
+ else   if (type == SUFFIX_TYPE) {
+    removeAllFromList(suffixes,Integer.valueOf(state));
+  }
+ else   if (type > 0) {
+    removeAllFromList(targets,Integer.valueOf(state));
+  }
+  for (int i=0; i < transitions.size(); i++) {
+    List<Double> curTransitions=transitions.get(i);
+    curTransitions.remove(state);
+  }
+  transitions.remove(state);
+  stateTypes.remove(state);
+}

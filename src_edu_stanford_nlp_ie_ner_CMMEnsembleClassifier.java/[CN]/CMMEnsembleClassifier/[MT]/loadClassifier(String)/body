@@ -1,0 +1,17 @@
+{
+  try {
+    BufferedReader br=new BufferedReader(new FileReader(loadPath));
+    String line;
+    while ((line=br.readLine()) != null) {
+      String[] pair=line.split("=",2);
+      if (pair.length == 2) {
+        CMMClassifier c=new CMMClassifier();
+        c.loadClassifier(pair[0]);
+        addClassifier(c,Double.parseDouble(pair[1]));
+      }
+    }
+  }
+ catch (  Exception e) {
+    throw new RuntimeException(e);
+  }
+}

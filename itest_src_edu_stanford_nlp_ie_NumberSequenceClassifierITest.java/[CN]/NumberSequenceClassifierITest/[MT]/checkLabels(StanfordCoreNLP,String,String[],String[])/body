@@ -1,14 +1,14 @@
 {
   Annotation doc=new Annotation(text);
   pipe.annotate(doc);
-  assertTrue(doc.get(CoreAnnotations.SentencesAnnotation.class) != null);
-  assertTrue(doc.get(CoreAnnotations.SentencesAnnotation.class).size() > 0);
-  CoreMap sent=doc.get(CoreAnnotations.SentencesAnnotation.class).get(0);
-  assertTrue(sent.get(CoreAnnotations.TokensAnnotation.class) != null);
-  List<CoreLabel> tokens=sent.get(CoreAnnotations.TokensAnnotation.class);
+  assertTrue(doc.get(SentencesAnnotation.class) != null);
+  assertTrue(doc.get(SentencesAnnotation.class).size() > 0);
+  CoreMap sent=doc.get(SentencesAnnotation.class).get(0);
+  assertTrue(sent.get(TokensAnnotation.class) != null);
+  List<CoreLabel> tokens=sent.get(TokensAnnotation.class);
   if (VERBOSE) {
     for (    CoreLabel token : tokens) {
-      System.out.println("\t" + token.word() + " "+ token.tag()+ " "+ token.ner()+ " "+ (token.containsKey(CoreAnnotations.NumericCompositeTypeAnnotation.class) ? token.get(CoreAnnotations.NumericCompositeValueAnnotation.class) + " " : "")+ (token.containsKey(TimeAnnotations.TimexAnnotation.class) ? token.get(TimeAnnotations.TimexAnnotation.class) + " " : ""));
+      System.out.println("\t" + token.word() + " "+ token.tag()+ " "+ token.ner()+ " "+ (token.containsKey(NumericCompositeTypeAnnotation.class) ? token.get(NumericCompositeValueAnnotation.class) + " " : "")+ (token.containsKey(TimexAnnotation.class) ? token.get(TimexAnnotation.class) + " " : ""));
     }
   }
   assertTrue(tokens.size() == labels.length);
@@ -28,11 +28,11 @@
     assertTrue(tokens.size() == normed.length);
     for (int i=0; i < normed.length; i++) {
       if (normed[i] == null) {
-        assertTrue(tokens.get(i).get(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class) == null);
+        assertTrue(tokens.get(i).get(NormalizedNamedEntityTagAnnotation.class) == null);
       }
  else {
         Pattern p=Pattern.compile(normed[i]);
-        String n=tokens.get(i).get(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class);
+        String n=tokens.get(i).get(NormalizedNamedEntityTagAnnotation.class);
         System.err.println("COMPARING NORMED \"" + normed[i] + "\" with \""+ n+ "\"");
         System.err.flush();
         assertTrue(n != null);

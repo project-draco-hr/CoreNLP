@@ -1,0 +1,24 @@
+{
+  Type2FeatureFactory featureFactory=null;
+  try {
+    Object ff=(Class.forName(flags.featureFactory).newInstance());
+    if (ff instanceof FeatureFactory) {
+      FeatureFactory<CoreLabel> ffcl=(FeatureFactory<CoreLabel>)ff;
+      ffcl.init(flags);
+      if (flags.iobWrapper) {
+        featureFactory=new IOBFeatureFactoryWrapper(ffcl);
+      }
+ else {
+        featureFactory=new FeatureFactoryWrapper<CoreLabel>(ffcl);
+      }
+    }
+ else {
+      featureFactory=(Type2FeatureFactory)ff;
+    }
+  }
+ catch (  Exception e) {
+    throw new RuntimeException(e);
+  }
+  featureFactory.init(flags);
+  return featureFactory;
+}

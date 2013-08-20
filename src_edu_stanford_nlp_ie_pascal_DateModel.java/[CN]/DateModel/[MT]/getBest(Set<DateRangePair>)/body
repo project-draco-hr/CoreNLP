@@ -1,0 +1,43 @@
+{
+  List<DateRangePair> bestList=null;
+  double bestProb=Double.NEGATIVE_INFINITY;
+  DateRangePair workshopDate;
+  DateRangePair cameraReadyDate;
+  DateRangePair notificationDate;
+  DateRangePair paperSubmitDate;
+  Iterator<DateRangePair> workshopDateIterator=dates.iterator();
+  while (workshopDateIterator.hasNext()) {
+    workshopDate=workshopDateIterator.next();
+    Iterator<DateRangePair> cameraReadyDateIterator=dates.iterator();
+    while (cameraReadyDateIterator.hasNext()) {
+      cameraReadyDate=cameraReadyDateIterator.next();
+      if (cameraReadyDate == workshopDate) {
+        continue;
+      }
+      Iterator<DateRangePair> notificationDateIterator=dates.iterator();
+      while (notificationDateIterator.hasNext()) {
+        notificationDate=notificationDateIterator.next();
+        if (notificationDate == workshopDate || notificationDate == cameraReadyDate) {
+          continue;
+        }
+        Iterator<DateRangePair> paperSubmitDateIterator=dates.iterator();
+        while (paperSubmitDateIterator.hasNext()) {
+          paperSubmitDate=paperSubmitDateIterator.next();
+          if (paperSubmitDate == workshopDate || paperSubmitDate == cameraReadyDate || paperSubmitDate == notificationDate) {
+            continue;
+          }
+          double prob=prob(workshopDate,cameraReadyDate,notificationDate,paperSubmitDate);
+          if (prob >= bestProb) {
+            bestProb=prob;
+            bestList=new ArrayList<DateRangePair>();
+            bestList.add(paperSubmitDate);
+            bestList.add(notificationDate);
+            bestList.add(cameraReadyDate);
+            bestList.add(workshopDate);
+          }
+        }
+      }
+    }
+  }
+  return bestList;
+}

@@ -1,6 +1,6 @@
 {
   int endIdx=m.endIndex;
-  String lastWord=m.originalSpan.get(m.originalSpan.size() - 1).get(CoreAnnotations.TextAnnotation.class);
+  String lastWord=m.originalSpan.get(m.originalSpan.size() - 1).get(TextAnnotation.class);
   if ((lastWord.equals("'s") || lastWord.equals("'")) && m.originalSpan.size() != 1)   endIdx--;
   Tree exactMatch=findTreeWithSpan(root,m.startIndex,endIdx);
   if (exactMatch != null) {
@@ -30,7 +30,7 @@
   Tree extentHead=safeHead(subtree);
   assert(extentHead != null);
   CoreLabel l=(CoreLabel)extentHead.label();
-  Tree realHead=funkyFindLeafWithApproximateSpan(root,l.value(),l.get(CoreAnnotations.BeginIndexAnnotation.class),approximateness);
+  Tree realHead=funkyFindLeafWithApproximateSpan(root,l.value(),l.get(BeginIndexAnnotation.class),approximateness);
   assert(realHead != null);
   return realHead;
 }

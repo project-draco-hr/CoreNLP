@@ -1,0 +1,23 @@
+{
+  initLIndex();
+  FeatureFactoryWrapper.ImmutablePairOfImmutables p=o;
+  if (fIndex.add(p.first())) {
+    Clique c=((LabeledClique)p.second()).clique;
+    HashIndex<LabeledClique> labels=lIndex.get(c);
+    if (labels == null) {
+      labels=new HashIndex<LabeledClique>();
+      for (      LabeledClique lc : maxLabels) {
+        LabeledClique newLC=LabeledClique.valueOf(c,lc,0);
+        labels.add(newLC);
+      }
+      lIndex.put(c,labels);
+    }
+    numFeatures.add(currentSize);
+    currentSize+=labels.size();
+    featureCliques.add(c);
+    return true;
+  }
+ else {
+    return false;
+  }
+}

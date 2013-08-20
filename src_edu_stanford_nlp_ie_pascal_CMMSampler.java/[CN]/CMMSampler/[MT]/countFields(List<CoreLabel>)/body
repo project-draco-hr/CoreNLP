@@ -1,0 +1,29 @@
+{
+  String fieldValue=null;
+  String lastTag=null;
+  for (  CoreLabel w : l) {
+    String tag=w.get(AnswerAnnotation.class);
+    if (lastTag != null && !lastTag.equals("0") && !lastTag.equals(tag)) {
+      int index=PascalTemplate.getFieldIndex(lastTag);
+      fieldValueCounter[index].incrementCount(fieldValue);
+    }
+    if (!tag.equals("0")) {
+      String value=w.word();
+      if (value.equals("*NewLine*")) {
+        value="";
+      }
+      if (lastTag == null) {
+        fieldValue=value;
+      }
+ else       if (lastTag.equals(tag)) {
+        if (!value.equals("")) {
+          fieldValue=fieldValue.concat(" " + value);
+        }
+      }
+ else {
+        fieldValue=value;
+      }
+    }
+    lastTag=tag;
+  }
+}

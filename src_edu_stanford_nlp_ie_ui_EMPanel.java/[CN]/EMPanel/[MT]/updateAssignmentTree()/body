@@ -1,0 +1,15 @@
+{
+  rootNode=new DefaultMutableTreeNode();
+  String[] classNames=mediator.getExtractableClassNames();
+  for (int i=0; i < classNames.length; i++) {
+    DefaultMutableTreeNode classNode=new DefaultMutableTreeNode(classNames[i]);
+    rootNode.add(classNode);
+    String[] slotNames=mediator.getExtractableSlots(classNames[i]);
+    for (int j=0; j < slotNames.length; j++) {
+      ExtractorMediator.ExtractorField ef=mediator.getAssignedExtractorField(classNames[i],slotNames[j]);
+      DefaultMutableTreeNode slotNode=createSlotNode(slotNames[j],ef.getExtractorName(),ef.getFieldName());
+      classNode.add(slotNode);
+    }
+  }
+  treeModel.setRoot(rootNode);
+}

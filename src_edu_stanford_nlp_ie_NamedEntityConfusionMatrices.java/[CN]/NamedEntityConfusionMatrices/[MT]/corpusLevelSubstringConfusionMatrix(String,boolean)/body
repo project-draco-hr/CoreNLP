@@ -1,0 +1,48 @@
+{
+  boolean entityLevel=true;
+  BufferedReader br=new BufferedReader(new FileReader(file));
+  HashMap entities=namedEntitiesLabelCounts(br,true,1,3,ignoreCase,entityLevel);
+  br.close();
+  int[][] confusionMatrix=new int[5][5];
+  int[][][] enhancedConfusionMatrix=new int[5][5][3];
+  String[] entityTokens=(String[])entities.keySet().toArray(new String[0]);
+  for (int i=0; i < entityTokens.length; i++) {
+    int[] superCounts=(int[])entities.get(entityTokens[i]);
+    String[] eTokens=entityTokens[i].split("~");
+    for (int t=0; t < eTokens.length; t++) {
+      String sub="";
+      for (int j=t; j < eTokens.length; j++) {
+        if (j > t) {
+          sub=sub + "~";
+        }
+        sub=sub + eTokens[j];
+        if (entityTokens[i].equals(sub)) {
+          continue;
+        }
+        int[] counts=(int[])entities.get(sub);
+        if (counts != null) {
+          for (int x=0; x < superCounts.length; x++) {
+            for (int y=0; y < counts.length; y++) {
+              confusionMatrix[x][y]+=superCounts[x] * counts[y];
+              int temp=1;
+              if (entityTokens[i].startsWith(sub)) {
+                temp=0;
+              }
+              if (entityTokens[i].endsWith(sub)) {
+                temp=2;
+              }
+              enhancedConfusionMatrix[x][y][temp]+=superCounts[x] * counts[y];
+            }
+          }
+        }
+      }
+    }
+  }
+  for (int j=0; j < 4; j++) {
+    for (int k=0; k < 4; k++) {
+      System.out.print(numToName(j) + ":" + numToName(k)+ " "+ confusionMatrix[j][k]+ "\t");
+    }
+    System.out.println("");
+  }
+  return confusionMatrix;
+}

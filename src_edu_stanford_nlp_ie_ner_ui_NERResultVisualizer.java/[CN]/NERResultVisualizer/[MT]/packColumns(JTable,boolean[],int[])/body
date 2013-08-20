@@ -1,0 +1,32 @@
+{
+  int arm=table.getAutoResizeMode();
+  table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+  int margin=2;
+  for (int c=0; c < table.getColumnCount(); c++) {
+    TableColumn col=table.getColumnModel().getColumn(c);
+    int width=0;
+    TableCellRenderer renderer=col.getHeaderRenderer();
+    if (renderer == null) {
+      renderer=table.getTableHeader().getDefaultRenderer();
+    }
+    width=renderer.getTableCellRendererComponent(table,col.getHeaderValue(),false,false,0,0).getPreferredSize().width;
+    for (int r=0; r < table.getRowCount(); r++) {
+      width=Math.max(width,table.getCellRenderer(r,c).getTableCellRendererComponent(table,table.getValueAt(r,c),false,false,r,c).getPreferredSize().width);
+    }
+    col.setPreferredWidth(width + 2 * margin);
+    if (resizable != null && !resizable[c]) {
+      col.setMinWidth(width + 2 * margin);
+      col.setMaxWidth(width + 2 * margin);
+    }
+    if (alignments != null && alignments[c] != -1) {
+      renderer=col.getCellRenderer();
+      if (renderer == null) {
+        renderer=new DefaultTableCellRenderer();
+        col.setCellRenderer(renderer);
+      }
+      ((DefaultTableCellRenderer)renderer).setHorizontalAlignment(alignments[c]);
+    }
+  }
+  table.setPreferredScrollableViewportSize(table.getPreferredSize());
+  table.setAutoResizeMode(arm);
+}

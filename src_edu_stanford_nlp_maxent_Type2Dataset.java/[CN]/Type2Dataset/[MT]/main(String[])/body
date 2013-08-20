@@ -1,0 +1,37 @@
+{
+  Type2Dataset<String,String> data=new Type2Dataset<String,String>();
+  TwoDimensionalCounter<String,String> gc1=new TwoDimensionalCounter<String,String>();
+  Set<String> possible=new HashSet<String>();
+  possible.add("NP");
+  possible.add("VP");
+  possible.add("NONE");
+  gc1.incrementCount("NP","dog-with",1.0);
+  gc1.incrementCount("NP","dog-telescope",1.0);
+  gc1.incrementCount("VP","saw-with",1.0);
+  gc1.incrementCount("VP","saw-telescope",1.0);
+  gc1.incrementCount("NP","saw",1.0);
+  gc1.incrementCount("VP","saw",1.0);
+  gc1.incrementCount("NP","with",1.0);
+  gc1.incrementCount("VP","with",1.0);
+  gc1.incrementCount("NP","telescope",1.0);
+  gc1.incrementCount("VP","telescope",1.0);
+  data.add(new Type2Datum<String,String>(gc1,possible,"VP"));
+  TwoDimensionalCounter<String,String> gc2=new TwoDimensionalCounter<String,String>();
+  gc2.incrementCount("NP","girl-with",1.0);
+  gc2.incrementCount("NP","girl-telescope",1.0);
+  gc2.incrementCount("VP","met-with",1.0);
+  gc2.incrementCount("VP","met-telescope",1.0);
+  gc2.incrementCount("NP","met",1.0);
+  gc2.incrementCount("VP","met",1.0);
+  gc2.incrementCount("NP","with",1.0);
+  gc2.incrementCount("VP","with",1.0);
+  gc2.incrementCount("NP","telescope",1.0);
+  gc2.incrementCount("VP","telescope",1.0);
+  data.add(new Type2Datum<String,String>(gc2,possible,"NP"));
+  data.summaryStatistics();
+  LinearType2Classifier<String,String> classifier=LinearType2Classifier.trainClassifier(data);
+  ClassicCounter<String> scores=classifier.scoresOf(new Type2Datum<String,String>(gc1,possible,"VP"));
+  System.out.println(scores.toString());
+  scores=classifier.scoresOf(new Type2Datum<String,String>(gc2,possible,"NP"));
+  System.out.println(scores.toString());
+}

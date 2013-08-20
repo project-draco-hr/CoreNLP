@@ -1,0 +1,19 @@
+{
+  requestID=requestID == Integer.MAX_VALUE ? 0 : requestID + 1;
+  try {
+    out.reset();
+    out.writeInt(requestID);
+    out.writeUnshared(request);
+    out.flush();
+  }
+ catch (  NotSerializableException e) {
+    e.printStackTrace();
+    System.exit(1);
+  }
+catch (  IOException e) {
+    e.printStackTrace();
+    disconnect();
+    throw new ServiceException("Unexpected disconnect or error while sending request");
+  }
+  return requestID;
+}

@@ -1,14 +1,15 @@
 {
-  List<CoreLabel> sent=s.get(CoreAnnotations.TokensAnnotation.class);
-  SemanticGraph dependency=s.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class);
+  List<CoreLabel> sent=s.get(TokensAnnotation.class);
+  SemanticGraph dependency=s.get(CollapsedDependenciesAnnotation.class);
   String preNE="O";
   int beginIndex=-1;
+  int endIndex=-1;
   for (  CoreLabel w : sent) {
-    String nerString=w.get(CoreAnnotations.NamedEntityTagAnnotation.class);
+    String nerString=w.get(NamedEntityTagAnnotation.class);
     if (!nerString.equals(preNE)) {
-      int endIndex=w.get(CoreAnnotations.IndexAnnotation.class) - 1;
+      endIndex=w.get(IndexAnnotation.class) - 1;
       if (!preNE.equals("O") && !preNE.equals("QUANTITY") && !preNE.equals("CARDINAL")&& !preNE.equals("PERCENT")) {
-        if (w.get(CoreAnnotations.TextAnnotation.class).equals("'s"))         endIndex++;
+        if (w.get(TextAnnotation.class).equals("'s"))         endIndex++;
         IntPair mSpan=new IntPair(beginIndex,endIndex);
         if (beginIndex < endIndex && !mentionSpanSet.contains(mSpan)) {
           int mentionId=assignIds ? ++maxID : -1;

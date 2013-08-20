@@ -1,0 +1,16 @@
+{
+  if (obj instanceof EntityMention) {
+    if (isTrigger((EntityMention)obj)) {
+      return triggerHead((EntityMention)obj,tokens);
+    }
+ else {
+      return entityHead((EntityMention)obj,tokens);
+    }
+  }
+ else   if (obj instanceof EventMention) {
+    return triggerHead(((EventMention)obj).getAnchor(),tokens);
+  }
+ else {
+    throw new RuntimeException("Unknown argument/anchor type.");
+  }
+}

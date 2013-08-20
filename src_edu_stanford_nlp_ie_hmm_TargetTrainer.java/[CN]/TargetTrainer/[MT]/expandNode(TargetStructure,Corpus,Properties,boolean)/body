@@ -1,0 +1,64 @@
+{
+  HMM hmm;
+  double max=Double.NEGATIVE_INFINITY;
+  double result;
+  int argmax=-1;
+  boolean lchain="lchain".equals(props.getProperty("curTargetType"));
+  int numOps=(lchain) ? 1 : 1 + parent.numTargets();
+  TargetStructure[] children=new TargetStructure[numOps];
+  if (verbose) {
+    System.err.println();
+    System.err.println("Expanding structure: " + numOps + " children to check");
+    System.err.println("-------------------");
+  }
+  if (lchain) {
+    children[0]=(TargetStructure)parent.copy();
+    children[0].lengthenTarget(0);
+    children[0].initializeTransitions();
+    hmm=new HMM(children[0],HMM.TARGET_HMM);
+    hmm.train(train,props,verbose);
+    max=hmm.mdlScore(train);
+    argmax=0;
+  }
+ else {
+    for (int k=0; k < numOps; k++) {
+      children[k]=doOp(parent,k,verbose);
+      children[k].addSelfLoops();
+      hmm=new HMM(children[k],HMM.TARGET_HMM);
+      hmm.train(train,props,verbose);
+      result=hmm.mdlScore(train);
+      if (verbose) {
+        System.err.println("..............................");
+        System.err.println("log likelihood = " + hmm.logLikelihood(train));
+        System.err.println("..............................");
+        System.err.println("mdl Score: " + result);
+      }
+      if (result > max) {
+        max=result;
+        argmax=k;
+      }
+    }
+  }
+  if (verbose) {
+    System.err.println("-------------------------------------------");
+    System.err.println("Done expanding");
+    System.err.println("-------------------------------------------");
+    System.err.println("Max was " + argmax);
+    System.err.println("likelihood score = " + max);
+    System.err.println("State structure (rows are sequences)");
+    System.err.println(children[argmax]);
+    System.err.println("-------------------------------------------");
+  }
+  if (max > bestResult) {
+    bestResult=max;
+    argBest=children[argmax];
+    oneWorse=false;
+  }
+ else   if (oneWorse) {
+    improving=false;
+  }
+ else {
+    oneWorse=true;
+  }
+  return children[argmax];
+}
