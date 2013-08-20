@@ -15,7 +15,6 @@
   List<CoreLabel> docTypeTokens=new ArrayList<CoreLabel>();
   List<CoreLabel> docIdTokens=new ArrayList<CoreLabel>();
   CoreMap tokenAnnotations=(tokenAnnotationPatterns != null && !tokenAnnotationPatterns.isEmpty()) ? new ArrayCoreMap() : null;
-  Map<Class,Stack<Pair<String,String>>> savedTokenAnnotations=new ArrayMap<Class,Stack<Pair<String,String>>>();
   XMLUtils.XMLTag sectionStartTag=null;
   CoreLabel sectionStartToken=null;
   CoreMap sectionAnnotations=null;
@@ -90,12 +89,12 @@
       if (currentRemoval != null)       removedText.append(currentRemoval);
     }
     if (!toAnnotate.isEmpty() && tag.attributes != null) {
-      Set<Class> foundAnnotations=annotateWithTag(annotation,annotation,tag,docAnnotationPatterns,null,toAnnotate,null);
+      Set<Class> foundAnnotations=annotateWithTag(annotation,annotation,tag,docAnnotationPatterns,null,toAnnotate,false);
       toAnnotate.removeAll(foundAnnotations);
     }
     if (sectionTagMatcher != null && sectionTagMatcher.matcher(tag.name).matches()) {
       if (tag.isEndTag) {
-        annotateWithTag(annotation,sectionAnnotations,tag,sectionAnnotationPatterns,savedTokensForSection,null,null);
+        annotateWithTag(annotation,sectionAnnotations,tag,sectionAnnotationPatterns,savedTokensForSection,null,false);
         if (sectionStartToken != null) {
           sectionStartToken.set(CoreAnnotations.SectionStartAnnotation.class,sectionAnnotations);
         }
@@ -116,10 +115,10 @@
       }
     }
     if (sectionStartTag != null) {
-      annotateWithTag(annotation,sectionAnnotations,tag,sectionAnnotationPatterns,savedTokensForSection,null,null);
+      annotateWithTag(annotation,sectionAnnotations,tag,sectionAnnotationPatterns,savedTokensForSection,null,false);
     }
     if (tokenAnnotations != null) {
-      annotateWithTag(annotation,tokenAnnotations,tag,tokenAnnotationPatterns,null,null,savedTokenAnnotations);
+      annotateWithTag(annotation,tokenAnnotations,tag,tokenAnnotationPatterns,null,null,true);
     }
     if (sentenceEndingTagMatcher != null && sentenceEndingTagMatcher.matcher(tag.name).matches() && newTokens.size() > 0) {
       CoreLabel previous=newTokens.get(newTokens.size() - 1);

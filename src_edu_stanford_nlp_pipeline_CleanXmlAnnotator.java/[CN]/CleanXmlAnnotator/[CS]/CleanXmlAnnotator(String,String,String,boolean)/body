@@ -1,9 +1,9 @@
 {
   this.allowFlawedXml=allowFlawedXml;
   if (xmlTagsToRemove != null) {
-    xmlTagMatcher=toCaseInsensitivePattern(xmlTagsToRemove);
+    xmlTagMatcher=Pattern.compile(xmlTagsToRemove);
     if (sentenceEndingTags != null && sentenceEndingTags.length() > 0) {
-      sentenceEndingTagMatcher=toCaseInsensitivePattern(sentenceEndingTags);
+      sentenceEndingTagMatcher=Pattern.compile(sentenceEndingTags);
     }
  else {
       sentenceEndingTagMatcher=null;
@@ -13,5 +13,10 @@
     xmlTagMatcher=null;
     sentenceEndingTagMatcher=null;
   }
-  dateTagMatcher=toCaseInsensitivePattern(dateTags);
+  if (dateTags != null) {
+    dateTagMatcher=Pattern.compile(dateTags,Pattern.CASE_INSENSITIVE);
+  }
+ else {
+    dateTagMatcher=null;
+  }
 }
