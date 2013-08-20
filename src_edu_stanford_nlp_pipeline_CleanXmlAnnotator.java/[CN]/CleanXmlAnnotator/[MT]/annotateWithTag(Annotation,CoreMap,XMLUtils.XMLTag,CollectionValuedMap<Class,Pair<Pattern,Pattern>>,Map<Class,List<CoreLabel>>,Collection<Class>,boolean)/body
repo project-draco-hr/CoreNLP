@@ -1,5 +1,8 @@
 {
   Set<Class> foundAnnotations=new HashSet<Class>();
+  if (annotationPatterns == null) {
+    return foundAnnotations;
+  }
   if (toAnnotate == null) {
     toAnnotate=annotationPatterns.keySet();
   }
@@ -18,6 +21,11 @@
                 matched=true;
                 break;
               }
+            }
+          }
+          if (clearAnnotationFromAttrOnTagEnd) {
+            if (tag.isEndTag) {
+              cm.remove(key);
             }
           }
         }
