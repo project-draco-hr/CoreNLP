@@ -1,17 +1,25 @@
 {
   int patternFlags=ignoreCase ? Pattern.CASE_INSENSITIVE : 0;
+  Env env=TokenSequencePattern.getNewEnv();
+  env.setDefaultStringPatternFlags(patternFlags);
   NodePattern<String> posTagPattern=(validPosPattern != null && PosMatchType.MATCH_ALL_TOKENS.equals(posMatchType)) ? new CoreMapNodePattern.StringAnnotationRegexPattern(validPosPattern) : null;
   List<TokenSequencePattern> patterns=new ArrayList<TokenSequencePattern>(entries.size());
   for (  Entry entry : entries) {
-    List<SequencePattern.PatternExpr> nodePatterns=new ArrayList<SequencePattern.PatternExpr>();
-    for (    String p : entry.regex) {
-      CoreMapNodePattern c=CoreMapNodePattern.valueOf(p,patternFlags);
-      if (posTagPattern != null) {
-        c.add(CoreAnnotations.PartOfSpeechAnnotation.class,posTagPattern);
-      }
-      nodePatterns.add(new SequencePattern.NodePatternExpr(c));
+    TokenSequencePattern pattern;
+    if (entry.tokensRegex != null) {
+      pattern=TokenSequencePattern.compile(env,entry.tokensRegex);
     }
-    TokenSequencePattern pattern=TokenSequencePattern.compile(new SequencePattern.SequencePatternExpr(nodePatterns));
+ else {
+      List<SequencePattern.PatternExpr> nodePatterns=new ArrayList<SequencePattern.PatternExpr>();
+      for (      String p : entry.regex) {
+        CoreMapNodePattern c=CoreMapNodePattern.valueOf(p,patternFlags);
+        if (posTagPattern != null) {
+          c.add(CoreAnnotations.PartOfSpeechAnnotation.class,posTagPattern);
+        }
+        nodePatterns.add(new SequencePattern.NodePatternExpr(c));
+      }
+      pattern=TokenSequencePattern.compile(new SequencePattern.SequencePatternExpr(nodePatterns));
+    }
     pattern.setPriority(entry.priority);
     patterns.add(pattern);
     patternToEntry.put(pattern,entry);
