@@ -1,0 +1,47 @@
+{
+  int pos=tp.getCaretPosition();
+  int selectionStart=tp.getSelectionStart();
+  int selectionEnd=tp.getSelectionEnd();
+  String text;
+  try {
+    text=doc.getText(0,doc.getLength());
+  }
+ catch (  BadLocationException e) {
+    e.printStackTrace();
+    return;
+  }
+  int nextTagStart=text.indexOf("<tag ",pos);
+  if (nextTagStart == -1) {
+    return;
+  }
+  int nextTagEnd=text.indexOf('>',nextTagStart);
+  if (nextTagEnd == -1) {
+    return;
+  }
+  int endValue=text.indexOf(" value=\"end\"/>",nextTagStart);
+  if (endValue == -1 || endValue > nextTagEnd) {
+    return;
+  }
+  int prevTagStart=text.lastIndexOf("<tag ",pos - 1);
+  if (prevTagStart == -1) {
+    return;
+  }
+  int prevTagEnd=text.indexOf('>',prevTagStart);
+  if (prevTagEnd == -1 || prevTagEnd > pos) {
+    return;
+  }
+  int startValue=text.indexOf(" value=\"start\"/>",prevTagStart);
+  if (startValue == -1 || startValue > prevTagEnd) {
+    return;
+  }
+  try {
+    String content=text.substring(prevTagEnd + 1,nextTagStart);
+    doc.remove(prevTagStart,nextTagEnd + 1 - prevTagStart);
+    doc.insertString(prevTagStart,content,null);
+    tp.setSelectionStart(selectionStart - prevTagEnd + prevTagStart - 1);
+    tp.setSelectionEnd(selectionEnd - prevTagEnd + prevTagStart - 1);
+  }
+ catch (  BadLocationException e) {
+    e.printStackTrace();
+  }
+}

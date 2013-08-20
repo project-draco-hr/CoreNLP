@@ -1,0 +1,50 @@
+{
+  ClassicCounter<IntPair> empirical=new ClassicCounter<IntPair>();
+  ClassicCounter<IntPair> all=new ClassicCounter<IntPair>();
+  for (  InternalSectionedType2Datum instance : instances) {
+    int correctOption=instance.correctOption();
+    for (int bno=0; bno < instance.numBlocks(); bno++) {
+      InternalFeatureBlock block=instance.get(bno);
+      for (int index=0; index < block.numFeatures(); index++) {
+        int fIndex=block.getFIndex(index);
+        double value=block.getFValue(index);
+        for (int opt=0; opt < block.numLocations(); opt++) {
+          IntPair loc=block.location(opt);
+          int cNo=loc.get(0);
+          int oNo=loc.get(1);
+          IntPair feature=new IntPair(fIndex,cNo);
+          all.incrementCount(feature,value);
+          if (oNo == correctOption) {
+            empirical.incrementCount(feature,value);
+          }
+        }
+      }
+    }
+  }
+  Set<IntPair> possibleKeys=Counters.keysAbove(empirical,lowerCorrectBound);
+  empirical.clear();
+  if (lowerCorrectBound < 0) {
+    possibleKeys=all.keySet();
+  }
+  List<IntPair> tmp=new ArrayList<IntPair>(possibleKeys.size());
+  for (  IntPair pair : possibleKeys) {
+    if (all.getCount(pair) > lowerAllBound) {
+      tmp.add(pair);
+    }
+  }
+  possibleKeys.clear();
+  pairsIndex.addAll(tmp);
+  all.clear();
+  if (makeIndexArray) {
+    indices=new int[inputFeatureIndex.size()][];
+    for (int i=0; i < indices.length; i++) {
+      indices[i]=new int[labelIndex.size()];
+      for (int j=0; j < labelIndex.size(); j++) {
+        temp.set(0,i);
+        temp.set(1,j);
+        int fIndex=pairsIndex.indexOf(temp);
+        indices[i][j]=fIndex;
+      }
+    }
+  }
+}

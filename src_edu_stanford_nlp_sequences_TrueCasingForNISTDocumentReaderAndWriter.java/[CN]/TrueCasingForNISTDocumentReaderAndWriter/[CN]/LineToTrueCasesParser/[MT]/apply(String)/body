@@ -6,14 +6,14 @@
     CoreLabel wi=new CoreLabel();
     Matcher lowerMatcher=allLower.matcher(word);
     if (lowerMatcher.matches()) {
-      wi.set(CoreAnnotations.AnswerAnnotation.class,"LOWER");
-      wi.set(CoreAnnotations.GoldAnswerAnnotation.class,"LOWER");
+      wi.set(AnswerAnnotation.class,"LOWER");
+      wi.set(GoldAnswerAnnotation.class,"LOWER");
     }
  else {
       Matcher upperMatcher=allUpper.matcher(word);
       if (!THREE_CLASSES && upperMatcher.matches()) {
-        wi.set(CoreAnnotations.AnswerAnnotation.class,"UPPER");
-        wi.set(CoreAnnotations.GoldAnswerAnnotation.class,"UPPER");
+        wi.set(AnswerAnnotation.class,"UPPER");
+        wi.set(GoldAnswerAnnotation.class,"UPPER");
       }
  else {
         Matcher startUpperMatcher=startUpper.matcher(word);
@@ -27,17 +27,17 @@
           isINIT_UPPER=false;
         }
         if (startUpperMatcher.matches() && isINIT_UPPER) {
-          wi.set(CoreAnnotations.AnswerAnnotation.class,"INIT_UPPER");
-          wi.set(CoreAnnotations.GoldAnswerAnnotation.class,"INIT_UPPER");
+          wi.set(AnswerAnnotation.class,"INIT_UPPER");
+          wi.set(GoldAnswerAnnotation.class,"INIT_UPPER");
         }
  else {
-          wi.set(CoreAnnotations.AnswerAnnotation.class,"O");
-          wi.set(CoreAnnotations.GoldAnswerAnnotation.class,"O");
+          wi.set(AnswerAnnotation.class,"O");
+          wi.set(GoldAnswerAnnotation.class,"O");
         }
       }
     }
     wi.setWord(word.toLowerCase());
-    wi.set(CoreAnnotations.PositionAnnotation.class,pos + "");
+    wi.set(PositionAnnotation.class,pos + "");
     doc.add(wi);
     pos++;
   }

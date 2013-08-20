@@ -1,0 +1,77 @@
+{
+  Timing.startTime();
+  System.out.println("Reading data instances from serialized file " + word + ".ser...");
+  FileInputStream fis=null;
+  try {
+    fis=new FileInputStream(word + ".ser");
+    ObjectInputStream ois=new ObjectInputStream(fis);
+    senseTrainData[i]=(List)ois.readObject();
+    senseTestData[i]=(List)ois.readObject();
+    subcatTrainData[i]=(List)ois.readObject();
+    subcatTestData[i]=(List)ois.readObject();
+    ois.close();
+    System.out.println("Found " + senseTrainData[i].size() + " senseTrain.");
+    System.out.println("Found " + senseTestData[i].size() + " senseTest.");
+    System.out.println("Found " + subcatTrainData[i].size() + " subcatTrain.");
+    System.out.println("Found " + subcatTestData[i].size() + " subcatTest.");
+    Timing.tick("done.");
+  }
+ catch (  FileNotFoundException e) {
+    e.printStackTrace();
+  }
+catch (  IOException e) {
+    e.printStackTrace();
+  }
+catch (  ClassNotFoundException e) {
+    e.printStackTrace();
+  }
+  int illegal=0;
+  int unparsed=0;
+  for (int j=0; j < subcatTrainData[i].size(); j++) {
+    if (((Instance)subcatTrainData[i].get(j)).logSequenceGivenSubcat.isEmpty()) {
+      unparsed++;
+    }
+    if (((Instance)subcatTrainData[i].get(j)).subcat == Subcategory.ILLEGAL) {
+      ((Instance)subcatTrainData[i].get(j)).subcat=Subcategory.OTHER;
+      illegal++;
+    }
+  }
+  System.out.println("illegal " + illegal + " unparsed: "+ unparsed);
+  illegal=0;
+  unparsed=0;
+  for (int j=0; j < subcatTestData[i].size(); j++) {
+    if (((Instance)subcatTestData[i].get(j)).logSequenceGivenSubcat.isEmpty()) {
+      unparsed++;
+    }
+    if (((Instance)subcatTestData[i].get(j)).subcat == Subcategory.ILLEGAL) {
+      ((Instance)subcatTestData[i].get(j)).subcat=Subcategory.OTHER;
+      illegal++;
+    }
+  }
+  System.out.println("illegal " + illegal + " unparsed: "+ unparsed);
+  if (senseGranularity == 2) {
+    System.out.println("Loading coarse-grained senses.");
+    for (int j=0; j < senseTrainData[i].size(); j++) {
+      Instance ins=(Instance)senseTrainData[i].get(j);
+      for (int k=0; k < ins.sense.length; k++) {
+        if (senseMap.containsKey(ins.sense[k])) {
+          ins.sense[k]=senseMap.get(ins.sense[k]);
+        }
+ else {
+          senseMap.put(ins.sense[k],ins.sense[k]);
+        }
+      }
+    }
+    for (int j=0; j < senseTestData[i].size(); j++) {
+      Instance ins=(Instance)senseTestData[i].get(j);
+      for (int k=0; k < ins.sense.length; k++) {
+        if (senseMap.containsKey(ins.sense[k])) {
+          ins.sense[k]=senseMap.get(ins.sense[k]);
+        }
+ else {
+          senseMap.put(ins.sense[k],ins.sense[k]);
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  tokens.get(currentIndex).set(AnswerAnnotation.class,answerAnnotation);
+  if (SeqClassifierFlags.DEFAULT_BACKGROUND_SYMBOL.equals(answerAnnotation)) {
+    return;
+  }
+  String currentNerAnnotation=tokens.get(currentIndex).ner();
+  if (currentNerAnnotation == null || SeqClassifierFlags.DEFAULT_BACKGROUND_SYMBOL.equals(currentNerAnnotation)) {
+    return;
+  }
+  int low=currentIndex - 1;
+  while (low >= 0) {
+    if (currentNerAnnotation.equals(tokens.get(low).ner()) && tokens.get(low).get(AnswerAnnotation.class) == null) {
+      printIfVerbose("Setting answer annotation on adjacent similar ner left token: " + answerAnnotation);
+      tokens.get(low).set(AnswerAnnotation.class,answerAnnotation);
+    }
+ else {
+      break;
+    }
+    low--;
+  }
+  int high=currentIndex + 1;
+  while (high < tokens.size()) {
+    if (currentNerAnnotation.equals(tokens.get(high).ner())) {
+      printIfVerbose("Setting answer annotation on adjacent similar ner right token: " + answerAnnotation);
+      tokens.get(high).set(AnswerAnnotation.class,answerAnnotation);
+    }
+ else {
+      break;
+    }
+    high++;
+  }
+}

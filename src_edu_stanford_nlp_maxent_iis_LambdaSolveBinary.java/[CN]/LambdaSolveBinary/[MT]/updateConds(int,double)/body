@@ -1,0 +1,19 @@
+{
+  for (int i=0; i < p.functions.get(index).len(); i++) {
+    double s=0;
+    int x=p.functions.get(index).getX(i);
+    int y=p.functions.get(index).getY(i);
+    double zlambdaX=zlambda[x] + pcond(y,x) * zlambda[x] * (Math.exp(deltaL) - 1);
+    for (int y1=0; y1 < p.data.ySize; y1++) {
+      probConds[x][y1]=(probConds[x][y1] * zlambda[x]) / zlambdaX;
+      s=s + probConds[x][y1];
+    }
+    s=s - probConds[x][y];
+    probConds[x][y]=probConds[x][y] * Math.exp(deltaL);
+    s=s + probConds[x][y];
+    zlambda[x]=zlambdaX;
+    if (Math.abs(s - 1) > 0.001) {
+      System.out.println(x + " index " + i+ " deltaL "+ deltaL+ " tag "+ y+ " zlambda "+ zlambda[x]);
+    }
+  }
+}

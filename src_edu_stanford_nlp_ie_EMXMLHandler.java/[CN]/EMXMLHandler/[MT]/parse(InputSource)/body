@@ -1,0 +1,37 @@
+{
+  if (handler == null) {
+    throw new SAXException("No content handler");
+  }
+  handler.startDocument();
+  handler.startElement(nsu,extractorMediatorName,extractorMediatorName,noAtts);
+  outputStart(extractorsName,1);
+  Iterator<String> extractorNamesIter=mediator.getExtractorNames().iterator();
+  while (extractorNamesIter.hasNext()) {
+    String name=extractorNamesIter.next();
+    outputStart(extractorName,2);
+    outputElement(nameName,name,3);
+    outputElement(classNameName,mediator.getClassName(name),3);
+    outputElement(descriptionName,mediator.getDescription(name),3);
+    outputElement(extractableFieldsName,StringUtils.join(mediator.getExtractableFields(name)),3);
+    outputEnd(extractorName,2);
+  }
+  outputEnd(extractorsName,1);
+  outputStart(associationsName,1);
+  String[] classNames=mediator.getExtractableClassNames();
+  for (int i=0; i < classNames.length; i++) {
+    String[] slotNames=mediator.getExtractableSlots(classNames[i]);
+    for (int j=0; j < slotNames.length; j++) {
+      ExtractorMediator.ExtractorField ef=mediator.getAssignedExtractorField(classNames[i],slotNames[j]);
+      outputStart(associationName,2);
+      outputElement(className,classNames[i],3);
+      outputElement(slotName,slotNames[j],3);
+      outputElement(extractorName,ef.getExtractorName(),3);
+      outputElement(fieldName,ef.getFieldName(),3);
+      outputEnd(associationName,2);
+    }
+  }
+  outputEnd(associationsName,1);
+  handler.ignorableWhitespace(indent0.toCharArray(),0,indent0.length());
+  handler.endElement(nsu,extractorMediatorName,extractorMediatorName);
+  handler.endDocument();
+}

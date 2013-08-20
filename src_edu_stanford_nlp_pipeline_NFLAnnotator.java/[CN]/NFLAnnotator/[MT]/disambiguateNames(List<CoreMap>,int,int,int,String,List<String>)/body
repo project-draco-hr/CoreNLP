@@ -1,0 +1,28 @@
+{
+  List<String> stringsToMatch=new ArrayList<String>();
+  for (  String fullName : fullNames) {
+    String diff=fullName.toLowerCase().replaceAll(nameCandidate,"").trim();
+    stringsToMatch.add(diff);
+  }
+  assert(stringsToMatch.size() == fullNames.size());
+  if (verbose)   System.err.println("stringsToMatch: " + stringsToMatch);
+  startToken--;
+  while (sentPosition >= 0) {
+    List<CoreLabel> tokens=sentences.get(sentPosition).get(TokensAnnotation.class);
+    assert(tokens != null);
+    assert(startToken < tokens.size());
+    for (; startToken >= 0; startToken--) {
+      for (int i=0; i < stringsToMatch.size(); i++) {
+        if (matches(stringsToMatch.get(i),tokens,startToken)) {
+          System.err.println("Name " + nameCandidate + " disambiguated to: "+ fullNames.get(i));
+          Set<String> disambiguated=new HashSet<String>();
+          disambiguated.add(fullNames.get(i));
+          return disambiguated;
+        }
+      }
+    }
+    sentPosition--;
+    if (sentPosition >= 0)     startToken=sentences.get(sentPosition).get(TokensAnnotation.class).size() - 1;
+  }
+  return new HashSet<String>(fullNames);
+}

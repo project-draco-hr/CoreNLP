@@ -1,0 +1,21 @@
+{
+  if ((model.param.svm_type == svm_parameter.C_SVC || model.param.svm_type == svm_parameter.NU_SVC) && model.probA != null && model.probB != null) {
+    Collection<F> features=example.asFeatures();
+    ArrayList<svm_node> nodes=new ArrayList<svm_node>();
+    for (    F feature : features) {
+      int featInt=featureIndex.indexOf(feature);
+      nodes.add(newSVMnode(featInt,getFeatureScore(example,feature)));
+    }
+    Collections.sort(nodes,new NodeComparator());
+    svm_node[] nodeArray=new svm_node[nodes.size()];
+    nodes.toArray(nodeArray);
+    double[] prob=new double[labels().size()];
+    svm.svm_predict_probability(model,nodeArray,prob);
+    Counter<L> scoresC=new ClassicCounter<L>();
+    for (int i=0; i < prob.length; i++) {
+      scoresC.setCount(labelIndex.get(model.label[i]),prob[i]);
+    }
+    return scoresC;
+  }
+ else   throw new RuntimeException("you can only use this function for some kinds of SVMs. Also check that the probability flag is true");
+}

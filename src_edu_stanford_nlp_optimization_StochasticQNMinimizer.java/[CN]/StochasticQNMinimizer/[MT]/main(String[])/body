@@ -1,0 +1,77 @@
+{
+  final int dim=500000;
+  final double maxVar=5;
+  final double[] var=new double[dim];
+  final float[] varF=new float[dim];
+  double[] init=new double[dim];
+  for (int i=0; i < dim; i++) {
+    init[i]=((i + 1) / (double)dim - 0.5);
+    var[i]=maxVar * (i + 1) / dim;
+    varF[i]=(float)var[i];
+  }
+  float[] initF=ArrayMath.doubleArrayToFloatArray(init);
+  final double[] grads=new double[dim];
+  final float[] gradsF=new float[dim];
+  final DiffFunction f=new DiffFunction(){
+    public double[] derivativeAt(    double[] x){
+      double val=Math.PI * valuePow(x,Math.PI - 1);
+      for (int i=0; i < dim; i++) {
+        grads[i]=x[i] * var[i] * val;
+      }
+      return grads;
+    }
+    public double valueAt(    double[] x){
+      return 1.0 + valuePow(x,Math.PI);
+    }
+    private double valuePow(    double[] x,    double pow){
+      double val=0.0;
+      for (int i=0; i < dim; i++) {
+        val+=x[i] * x[i] * var[i];
+      }
+      return Math.pow(val * 0.5,pow);
+    }
+    public int domainDimension(){
+      return dim;
+    }
+  }
+;
+  final DiffFloatFunction fF=new DiffFloatFunction(){
+    public float[] derivativeAt(    float[] x){
+      float val=(float)Math.PI * valuePow(x,Math.PI - 1);
+      for (int i=0; i < dim; i++) {
+        gradsF[i]=x[i] * varF[i] * val;
+      }
+      return gradsF;
+    }
+    public float valueAt(    float[] x){
+      return 1.0f + valuePow(x,Math.PI);
+    }
+    private float valuePow(    float[] x,    double pow){
+      float val=0.0f;
+      for (int i=0; i < dim; i++) {
+        val+=x[i] * x[i] * varF[i];
+      }
+      return (float)Math.pow(val * 0.5,pow);
+    }
+    public int domainDimension(){
+      return dim;
+    }
+  }
+;
+  StochasticQNMinimizer min=new StochasticQNMinimizer();
+  System.out.println("-------------------------");
+  System.out.println("-----               -----");
+  System.out.println("-----    DOUBLE     -----");
+  System.out.println("-----               -----");
+  System.out.println("-------------------------");
+  System.out.println();
+  min.minimize(f,1.0E-4,init);
+  System.out.println("-------------------------");
+  System.out.println("-----               -----");
+  System.out.println("-----     FLOAT     -----");
+  System.out.println("-----               -----");
+  System.out.println("-------------------------");
+  System.out.println();
+  min.setM(0);
+  min.minimize(fF,1.0E-4f,initF);
+}

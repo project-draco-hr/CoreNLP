@@ -1,0 +1,34 @@
+{
+  if (DEBUG)   System.err.println("marking up dates");
+  boolean insideDate=false;
+  for (int i=0; i < l.size(); i++) {
+    CoreLabel currWord=l.get(i);
+    currWord.set(NormalizedNamedEntityTagAnnotation.class,"null");
+    String curEntityType=currWord.get(EntityTypeAnnotation.class);
+    if (curEntityType != null && curEntityType.equalsIgnoreCase("Date")) {
+      insideDate=true;
+      DateInstance di=new DateInstance();
+      di.add(currWord.get(TextAnnotation.class));
+      List<CoreLabel> constituentHolder=new ArrayList<CoreLabel>();
+      constituentHolder.add(currWord);
+      for (int j=i + 1; insideDate; j++) {
+        CoreLabel nextWord=l.get(j);
+        String entityType=nextWord.get(EntityTypeAnnotation.class);
+        if (entityType != null && entityType.equalsIgnoreCase("Date")) {
+          di.add(nextWord.get(TextAnnotation.class));
+          constituentHolder.add(nextWord);
+        }
+ else {
+          insideDate=false;
+          String s=di.getDateString();
+          for (Iterator<CoreLabel> iter=constituentHolder.iterator(); iter.hasNext(); ) {
+            CoreLabel w=iter.next();
+            w.set(NormalizedNamedEntityTagAnnotation.class,s);
+          }
+          ;
+          i=j - 1;
+        }
+      }
+    }
+  }
+}

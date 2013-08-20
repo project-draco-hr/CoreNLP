@@ -1,0 +1,60 @@
+{
+  double maxChange=0.0;
+  for (int i=0; i < numStates; i++) {
+    if (totalFrom[i] != 0.0) {
+      for (int j=0; j < numStates; j++) {
+        if (sanityCheck && SloppyMath.isVeryDangerous(totalP[i][j])) {
+          System.err.println("Dangerous: totalP[" + i + "]["+ j+ "] is "+ totalP[i][j]+ "; totalFrom[i] = "+ totalFrom[i]);
+        }
+        double newVal=(totalP[i][j] + pseudoTransitionsCount) / (totalFrom[i] + pseudoTransitionsCount * (numStates - 1));
+        double change=Math.abs(states[i].transition[j] - newVal);
+        if (change > maxChange) {
+          maxChange=change;
+        }
+        states[i].transition[j]=newVal;
+      }
+    }
+  }
+  for (int i=State.BKGRNDIDX; i < states.length; i++) {
+    if (states[i].emit instanceof ConstantEmitMap) {
+      continue;
+    }
+    if (totalFrom[i] != 0.0) {
+      ClassicCounter expectedEmissions=new ClassicCounter();
+      Counters.addInPlace(expectedEmissions,totalOP[i]);
+      expectedEmissions.removeAll(Counters.keysBelow(expectedEmissions,0.000001));
+      for (      Object key : expectedEmissions.keySet()) {
+        expectedEmissions.incrementCount(key,pseudoEmissionsCount);
+      }
+      double change=states[i].emit.tuneParameters(expectedEmissions,getHMM());
+      if (change > maxChange) {
+        maxChange=change;
+      }
+      if (unseenMode == UNSEENMODE_HOLD_OUT_MASS) {
+        UnseenEmitMap uem=null;
+        if (unseenMode == UNSEENMODE_HOLD_OUT_MASS) {
+          if (states[i].emit instanceof UnseenEmitMap) {
+            uem=(UnseenEmitMap)states[i].emit;
+          }
+ else {
+            uem=(UnseenEmitMap)((ShrinkedEmitMap)states[i].emit).getBase();
+          }
+        }
+        uem.setFeatureMap(featureMaps[i],trainDocs.wordCount());
+      }
+    }
+ else {
+      states[i].emit=new ConstantEmitMap("_GHOST_TOWN_");
+    }
+  }
+  for (Iterator it=vocab.keySet().iterator(); it.hasNext(); ) {
+    String s=(String)it.next();
+    for (int i=0; i < targetFields.length; i++) {
+      if (totalTargetOD[i] != 0.0) {
+        targetParents[i].set(s,totalTargetOP[i].getCount(s) / totalTargetOD[i]);
+      }
+    }
+  }
+  globalMaxChange=maxChange;
+  return maxChange < CONVERGE_SIZE;
+}

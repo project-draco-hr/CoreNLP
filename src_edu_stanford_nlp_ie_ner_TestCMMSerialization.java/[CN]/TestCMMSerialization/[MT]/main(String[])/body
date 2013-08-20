@@ -1,0 +1,26 @@
+{
+  System.out.println("TESTING CMM CLASSIFIER....");
+  String propsPathname="/u/nlp/data/iedata/fruit.props";
+  String serPathname="/u/nlp/data/iedata/fruitClassifier.ser.gz";
+  String testPathname="/u/nlp/data/iedata/fruit.test";
+  Properties p=new Properties();
+  p.load(new BufferedInputStream(new FileInputStream(propsPathname)));
+  CMMClassifier classifier=new CMMClassifier(p);
+  classifier.train();
+  classifier.serializeClassifier(serPathname);
+  CMMClassifier deserClassifier=CMMClassifier.getClassifier(serPathname);
+  ObjectBank<List<CoreLabel>> ob1=classifier.makeObjectBankFromFile(testPathname,classifier.makeReaderAndWriter());
+  ObjectBank<List<CoreLabel>> ob2=deserClassifier.makeObjectBankFromString(testPathname,deserClassifier.makeReaderAndWriter());
+  boolean ok=true;
+  Iterator<List<CoreLabel>> iter2=ob2.iterator();
+  for (  List<CoreLabel> doc1 : ob1) {
+    List<CoreLabel> doc2=iter2.next();
+    if (!compareLists(doc1,doc2)) {
+      ok=false;
+      break;
+    }
+  }
+  if (ok) {
+    System.out.println("Serialization test OK");
+  }
+}

@@ -1,0 +1,54 @@
+{
+  try {
+    if (qName.equalsIgnoreCase("date")) {
+      normalized=findAttribute(attributes,"normalized");
+      range=findAttribute(attributes,"range");
+      occurrence=findAttribute(attributes,"occurrence");
+      stickyDateIndex=dateIndex;
+      if (normalized.equals("1/1/1000")) {
+        goodDate=0;
+      }
+ else {
+        goodDate=1;
+      }
+      if (goodDate == 1) {
+        currentDate=new PascalDate();
+        currentDate.date=normalized;
+        currentDate.documentName=filename;
+        currentDate.isRange=range.equalsIgnoreCase("true");
+        currentDate.occurrenceIndex=Integer.parseInt(occurrence);
+        currentDate.orderOnPageIndex=numCountedDates;
+        if (!orderOfFirst.containsKey(currentDate.date)) {
+          orderOfFirst.put(currentDate.date,Integer.valueOf(numCountedDates));
+        }
+        currentDate.orderOfFirst=orderOfFirst.get(currentDate.date).intValue();
+        if (stickyDateIndex < dateFields.length) {
+          currentDate.pascalTag=dateFields[stickyDateIndex];
+        }
+        currentDate.posTag=findAttribute(attributes,"POS");
+        currentDate.prevTokens=tokenCache.toArray(new String[numTokensToCache]);
+        currentDate.tokenIndex=numCountedTokens;
+        dateCollector.add(currentDate);
+        processTemporalOrdering(normalized);
+      }
+    }
+ else     if (qName.equalsIgnoreCase("token")) {
+      tokenCache.add(findAttribute(attributes,"string"));
+      if (tokenCache.size() > numTokensToCache) {
+        tokenCache.removeFirst();
+      }
+      numCountedTokens++;
+    }
+ else     if (trainMode) {
+      int openingIndex=computeDateIndex(qName);
+      if (openingIndex != NUM_TYPES - 1) {
+        dateIndex=openingIndex;
+        stickyDateIndex=dateIndex;
+      }
+    }
+  }
+ catch (  RuntimeException e) {
+    e.printStackTrace();
+    throw e;
+  }
+}

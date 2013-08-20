@@ -1,0 +1,29 @@
+{
+  double d=logProbOf(sequenceLabels,positions);
+  int[] joint=new int[positions.length + conditionOnPositions.length];
+  int j=0, k=0;
+  int numRepeats=0;
+  for (int i=0; i < joint.length - numRepeats; i++) {
+    if (positions[j] == conditionOnPositions[k]) {
+      joint[i]=positions[j];
+      j++;
+      k++;
+      numRepeats++;
+    }
+ else     if (positions[j] < conditionOnPositions[k]) {
+      joint[i]=positions[j];
+      j++;
+    }
+ else {
+      joint[i]=conditionOnPositions[k];
+      k++;
+    }
+  }
+  if (numRepeats > 0) {
+    int[] tmp=new int[joint.length - numRepeats];
+    System.arraycopy(joint,0,tmp,0,tmp.length);
+    joint=tmp;
+  }
+  double n=logProbOf(sequenceLabels,joint);
+  return n - d;
+}

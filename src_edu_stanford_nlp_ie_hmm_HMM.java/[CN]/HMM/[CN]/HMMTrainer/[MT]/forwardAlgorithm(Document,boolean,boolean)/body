@@ -1,0 +1,77 @@
+{
+  boolean canGenerate=true;
+  int numTimes=doc.size() + 2;
+  for (int i=0; i < states.length; i++) {
+    alpha[i]=new double[numTimes];
+  }
+  alpha[State.STARTIDX][0]=1.0;
+  if (useScaling) {
+    scale=new double[numTimes];
+    scale[0]=1.0;
+  }
+  for (int t=1; t < numTimes; t++) {
+    TypedTaggedWord ttw=null;
+    if (t < numTimes - 1) {
+      ttw=(TypedTaggedWord)doc.get(t - 1);
+    }
+    double alphaSum=0.0;
+    for (int j=0; j < states.length; j++) {
+      if (ttw != null && (respectTypes && states[j].type != ttw.type() || states[j].emit == null)) {
+        alpha[j][t]=0.0;
+      }
+ else       if (ttw == null && states[j].emit != null) {
+        alpha[j][t]=0.0;
+      }
+ else {
+        double sum=0.0;
+        for (int i=0; i < states.length; i++) {
+          if (printAllTrellises && alpha[i][t - 1] * states[i].transition[j] != 0.0) {
+            System.err.println("Adding to pre-alpha[" + j + "]["+ t+ "] from state "+ i+ ": "+ alpha[i][t - 1] * states[i].transition[j]);
+          }
+          sum+=alpha[i][t - 1] * states[i].transition[j];
+        }
+        if (ttw == null) {
+          if (printAllTrellises && sum != 0.0) {
+            System.err.println("No emission, Alpha[s=" + j + "][t="+ t+ "] = "+ sum);
+          }
+          alpha[j][t]=sum;
+        }
+ else {
+          if (printAllTrellises && sum != 0.0) {
+            System.err.println("Pre-alpha is " + sum);
+            System.err.println("Emission probability for " + ttw.word() + " is "+ states[j].emit.get(ttw.word()));
+            System.err.println("Alpha[s=" + j + "][t="+ t+ "] = "+ sum * states[j].emit.get(ttw.word()));
+          }
+          alpha[j][t]=sum * states[j].emit.get(ttw.word());
+        }
+      }
+      alphaSum+=alpha[j][t];
+    }
+    if (alphaSum == 0) {
+      canGenerate=false;
+      if (verbose) {
+        System.err.println("forwardAlgorithm: No path at time " + t + " of "+ numTimes+ " (word: "+ ((ttw == null) ? "NULL" : ttw.word())+ ")");
+        if (numTimes < 10) {
+          System.err.println("  Document is: " + doc);
+        }
+      }
+      if (false && spillEmissions) {
+        for (int i=0; i < states.length; i++) {
+          if (ttw != null && states[i].emit != null) {
+            System.err.println("P(ttw|s=" + i + ") = "+ states[i].emit.get(ttw.word()));
+          }
+        }
+      }
+    }
+    if (useScaling) {
+      for (int i=0; i < states.length; i++) {
+        alpha[i][t]=alpha[i][t] / alphaSum;
+      }
+      scale[t]=1 / alphaSum;
+      if (printAllTrellises) {
+        System.err.println("alphaTildeSum = " + alphaSum + "; C["+ t+ "] = "+ scale[t]);
+      }
+    }
+  }
+  return canGenerate;
+}

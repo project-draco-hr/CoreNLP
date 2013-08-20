@@ -1,0 +1,43 @@
+{
+  try {
+    OutDataStreamFile file=new OutDataStreamFile(filename);
+    config.saveConfig(file);
+    file.writeInt(xSize);
+    file.writeInt(ySize);
+    dict.save(file);
+    tags.save(file,tagTokens);
+    saveExtractors(file);
+    int sizeAssoc=0;
+    for (    Map<String,int[]> fValueAssociations : fAssociations) {
+      for (      int[] fTagAssociations : fValueAssociations.values()) {
+        for (        int association : fTagAssociations) {
+          if (association >= 0) {
+            ++sizeAssoc;
+          }
+        }
+      }
+    }
+    file.writeInt(sizeAssoc);
+    for (int i=0; i < fAssociations.size(); ++i) {
+      Map<String,int[]> fValueAssociations=fAssociations.get(i);
+      for (      Map.Entry<String,int[]> item : fValueAssociations.entrySet()) {
+        String featureValue=item.getKey();
+        int[] fTagAssociations=item.getValue();
+        for (int j=0; j < fTagAssociations.length; ++j) {
+          int association=fTagAssociations[j];
+          if (association >= 0) {
+            file.writeInt(association);
+            FeatureKey fk=new FeatureKey(i,featureValue,tags.getTag(j));
+            fk.save(file);
+          }
+        }
+      }
+    }
+    LambdaSolve.save_lambdas(file,prob.lambda);
+    file.close();
+  }
+ catch (  IOException ioe) {
+    System.err.println("Error saving tagger to file " + filename);
+    ioe.printStackTrace();
+  }
+}

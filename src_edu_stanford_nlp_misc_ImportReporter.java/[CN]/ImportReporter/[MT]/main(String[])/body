@@ -1,0 +1,13 @@
+{
+  TransducerGraph depGraph=null;
+  String outFile=null;
+  if (args.length > 1) {
+    depGraph=new TransducerGraph();
+    outFile=args[1];
+  }
+  ImportReporter reporter=new ImportReporter(depGraph);
+  reporter.processFile(new File(args[0]),0);
+  if (outFile != null && depGraph != null) {
+    StringUtils.printToFile(outFile,depGraph.asDOTString(),false);
+  }
+}

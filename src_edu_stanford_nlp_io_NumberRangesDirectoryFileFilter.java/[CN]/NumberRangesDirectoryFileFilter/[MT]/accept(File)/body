@@ -1,0 +1,42 @@
+{
+  if (file.isDirectory()) {
+    String filename=file.getName();
+    int k=filename.length() - 1;
+    char c=filename.charAt(k);
+    while (k >= 0 && !Character.isDigit(c)) {
+      k--;
+      if (k >= 0) {
+        c=filename.charAt(k);
+      }
+    }
+    if (k < 0) {
+      return false;
+    }
+    int j=k;
+    c=filename.charAt(j);
+    while (j >= 0 && Character.isDigit(c)) {
+      j--;
+      if (j >= 0) {
+        c=filename.charAt(j);
+      }
+    }
+    j++;
+    k++;
+    String theNumber=filename.substring(j,k);
+    int number=Integer.parseInt(theNumber);
+    for (    Pair<Integer,Integer> p : ranges) {
+      int low=p.first().intValue();
+      int high=p.second().intValue();
+      if (number >= low && number <= high) {
+        return true;
+      }
+    }
+    return false;
+  }
+ else {
+    if (fileFilter != null) {
+      return fileFilter.accept(file);
+    }
+    return false;
+  }
+}

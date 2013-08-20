@@ -1,0 +1,29 @@
+{
+  HashMap entities=new HashMap();
+  String line;
+  String entitySoFar="", prevEntityLabel="";
+  int linesScanned=0;
+  while ((line=br.readLine()) != null) {
+    if (!corpusLevel && line.trim().equals(""))     break;
+    linesScanned++;
+    String word=entryAtColumnNumber(line,tokenColumn);
+    String currEntityLabel=entryAtColumnNumber(line,labelColumn);
+    if (currEntityLabel.equals("O") || currEntityLabel.equals("")) {
+      if (!(entitySoFar.trim().equals("") || entitySoFar.trim().equals("~")))       if (!prevEntityLabel.equals(""))       updateEntities(entities,entitySoFar,prevEntityLabel,ignoreCase);
+      entitySoFar=word;
+      prevEntityLabel=currEntityLabel;
+    }
+ else     if (sameEntity(prevEntityLabel,currEntityLabel,entityLevel)) {
+      entitySoFar=entitySoFar + "~" + word;
+      prevEntityLabel=currEntityLabel;
+    }
+ else {
+      if (!(entitySoFar.trim().equals("") || entitySoFar.trim().equals("~")))       if (!prevEntityLabel.equals(""))       updateEntities(entities,entitySoFar,prevEntityLabel,ignoreCase);
+      entitySoFar=word;
+      prevEntityLabel=currEntityLabel;
+    }
+  }
+  updateEntities(entities,entitySoFar,prevEntityLabel,ignoreCase);
+  if (linesScanned == 0)   entities=null;
+  return entities;
+}

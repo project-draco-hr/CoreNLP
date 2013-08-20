@@ -1,0 +1,33 @@
+{
+  System.err.println(StringUtils.toInvocationString("SequenceClassifier",args));
+  SequenceClassifier seq=getClassifier(args);
+  if (seq.flags.verboseMode) {
+    System.err.println(seq.toString());
+  }
+  if (seq.flags.testFile != null || seq.flags.testFiles != null) {
+    ObjectBank<List<CoreLabel>> data=seq.getObjectBank(false);
+    if (seq.flags.useKBest) {
+      for (      List<CoreLabel> datum : data) {
+        seq.testKBest(datum,true,CoreAnnotations.AnswerAnnotation.class,seq.flags.kBest);
+      }
+    }
+ else {
+      seq.test(data);
+    }
+  }
+ else   if (seq.flags.textFile != null) {
+    DocumentReaderAndWriter<CoreLabel> oldRW=seq.readerAndWriter;
+    seq.readerAndWriter=new PlainTextDocumentReaderAndWriter<CoreLabel>();
+    seq.readerAndWriter.init(seq.flags);
+    ObjectBank<List<CoreLabel>> data=seq.getObjectBank(new File(seq.flags.textFile));
+    if (seq.flags.useKBest) {
+      for (      List<CoreLabel> datum : data) {
+        seq.testKBest(datum,true,CoreAnnotations.AnswerAnnotation.class,seq.flags.kBest);
+      }
+    }
+ else {
+      seq.test(data);
+    }
+    seq.readerAndWriter=oldRW;
+  }
+}

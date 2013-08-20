@@ -1,0 +1,60 @@
+{
+  Pattern[] how=nonTerminalInfo.get(motherKey);
+  Tree theHead=null;
+  int headIdx=0;
+  CategoryWordTag childLabel;
+  String childCat;
+  boolean found=false;
+  if (how == null) {
+    return null;
+  }
+  if (how[0] == LEFT) {
+    twoloop:     for (int i=1; i < how.length; i++) {
+      for (headIdx=0; headIdx < daughterTrees.length; headIdx++) {
+        childLabel=(CategoryWordTag)daughterTrees[headIdx].label();
+        childCat=childLabel.category();
+        if ((how[i].matcher("not").matches() && !how[i].matcher(childCat).matches()) || (!how[i].matcher("not").matches() && how[i].matcher(childCat).matches())) {
+          theHead=daughterTrees[headIdx];
+          found=true;
+          break twoloop;
+        }
+      }
+    }
+    if (!found) {
+      if (deflt) {
+        headIdx=0;
+        theHead=daughterTrees[headIdx];
+      }
+ else {
+        return null;
+      }
+    }
+  }
+ else {
+    twoloop:     for (int i=1; i < how.length; i++) {
+      for (headIdx=daughterTrees.length - 1; headIdx >= 0; headIdx--) {
+        childLabel=(CategoryWordTag)daughterTrees[headIdx].label();
+        childCat=childLabel.category();
+        if ((how[i].matcher("not").matches() && !how[i].matcher(childCat).matches()) || (!how[i].matcher("not").matches()) && how[i].matcher(childCat).matches()) {
+          theHead=daughterTrees[headIdx];
+          found=true;
+          break twoloop;
+        }
+      }
+    }
+    if (!found) {
+      if (deflt) {
+        headIdx=daughterTrees.length - 1;
+        theHead=daughterTrees[headIdx];
+      }
+ else {
+        return null;
+      }
+    }
+  }
+  if (DEBUG) {
+    Tree hptr=theHead;
+    System.err.println("Head for " + motherKey + " chose index "+ headIdx+ " "+ hptr.label().toString()+ "["+ "]");
+  }
+  return theHead;
+}

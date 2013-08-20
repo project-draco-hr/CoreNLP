@@ -1,0 +1,101 @@
+{
+  this.maxCliqueLabels[datumNum]=LabeledClique.valueOf(metaInfo.getMaxClique(),labels,datumNum,metaInfo.backgroundIndex());
+  List<LabeledClique> maxCliqueLabels=getMaxCliqueLabels(datumNum);
+  CliqueDatum cd;
+  Type2FeatureFactory featureFactory=metaInfo.featureFactory();
+  if (featureFactory instanceof FeatureFactoryWrapper && (flags.memoryThrift || flags.timitDatum)) {
+    if (flags.timitDatum) {
+      cd=new TIMITCliqueDatum(datumNum < flags.maxLeft || flags.restrictTransitionsTimit);
+    }
+ else {
+      cd=new CliqueDatumType1(metaInfo.fm,maxCliqueLabels);
+    }
+  }
+ else {
+    cd=new CliqueDatumType2();
+  }
+  this.features[datumNum]=cd;
+  if (flags.timitDatum) {
+    float[] values=null;
+    for (    LabeledClique maxCliqueLabel : maxCliqueLabels) {
+      for (int i=0; i < maxCliqueLabel.size(); i++) {
+        doc.get(datumNum + maxCliqueLabel.clique.relativeIndex(i)).set(AnswerObjectAnnotation.class,metaInfo.getLabel(maxCliqueLabel.label(i)));
+      }
+      int[] features=timitMap.get(maxCliqueLabel);
+      if (features == null || values == null) {
+        ClassicCounter datumFeatures=featureFactory.getFeatures(doc,datumNum,maxCliqueLabel);
+        metaInfo.addFeatures(datumFeatures.keySet());
+        int[] tmpFeatures=new int[datumFeatures.keySet().size()];
+        float[] tmpValues=new float[datumFeatures.keySet().size()];
+        Collection keys=datumFeatures.keySet();
+        List l=new ArrayList(keys);
+        Collections.sort(l);
+        keys=l;
+        int featureNum=0;
+        for (        Object feature : keys) {
+          int index=metaInfo.indexOfFeature(feature);
+          if (index >= 0) {
+            tmpFeatures[featureNum]=index;
+            if (values == null) {
+              tmpValues[featureNum]=(float)datumFeatures.getCount(feature);
+            }
+            featureNum++;
+          }
+        }
+        features=new int[featureNum];
+        System.arraycopy(tmpFeatures,0,features,0,featureNum);
+        if (values == null) {
+          values=new float[featureNum];
+          System.arraycopy(tmpValues,0,values,0,featureNum);
+        }
+        timitMap.put(maxCliqueLabel,features);
+      }
+      cd.setFeatures(maxCliqueLabel,features,values);
+    }
+  }
+ else {
+    for (    LabeledClique maxCliqueLabel : maxCliqueLabels) {
+      for (int i=0; i < maxCliqueLabel.size(); i++) {
+        doc.get(datumNum + maxCliqueLabel.clique.relativeIndex(i)).set(AnswerObjectAnnotation.class,metaInfo.getLabel(maxCliqueLabel.label(i)));
+      }
+      ClassicCounter datumFeatures;
+      if (flags.useReverse) {
+        int offset=maxCliqueLabel.clique.maxLeft() + maxCliqueLabel.clique.maxRight();
+        datumFeatures=featureFactory.getFeatures(new PaddedList(new ReversedList(doc),doc.getPad()),doc.size() - 1 - datumNum- offset,maxCliqueLabel.reversedLabels());
+      }
+ else {
+        datumFeatures=featureFactory.getFeatures(doc,datumNum,maxCliqueLabel);
+      }
+      metaInfo.addFeatures(datumFeatures.keySet());
+      int[] tmpFeatures=new int[datumFeatures.keySet().size()];
+      float[] tmpValues=new float[datumFeatures.keySet().size()];
+      Collection keys=datumFeatures.keySet();
+      if (cd instanceof CliqueDatumType1 || cd instanceof TIMITCliqueDatum) {
+        List l=new ArrayList(keys);
+        Collections.sort(l);
+        keys=l;
+      }
+      int featureNum=0;
+      for (      Object feature : keys) {
+        int index=metaInfo.indexOfFeature(feature);
+        if (index >= 0) {
+          tmpFeatures[featureNum]=index;
+          if (!flags.booleanFeatures) {
+            tmpValues[featureNum]=(float)datumFeatures.getCount(feature);
+          }
+          featureNum++;
+        }
+      }
+      int[] features=new int[featureNum];
+      System.arraycopy(tmpFeatures,0,features,0,featureNum);
+      if (flags.booleanFeatures) {
+        cd.setFeatures(maxCliqueLabel,features);
+      }
+ else {
+        float[] values=new float[featureNum];
+        System.arraycopy(tmpValues,0,values,0,featureNum);
+        cd.setFeatures(maxCliqueLabel,features,values);
+      }
+    }
+  }
+}

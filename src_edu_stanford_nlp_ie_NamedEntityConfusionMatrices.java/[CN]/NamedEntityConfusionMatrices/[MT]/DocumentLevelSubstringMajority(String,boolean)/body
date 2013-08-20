@@ -1,0 +1,40 @@
+{
+  boolean entityLevel=true;
+  Vector hashMapsofDocuments=new Vector();
+  BufferedReader br=new BufferedReader(new FileReader(file));
+  while (true) {
+    HashMap entities=namedEntitiesLabelCounts(br,false,1,3,ignoreCase,entityLevel);
+    if (entities == null)     break;
+ else     hashMapsofDocuments.add(entities);
+  }
+  br.close();
+  int tokenColumn=1;
+  int labelColumn=3;
+  br=new BufferedReader(new FileReader(file));
+  String line;
+  String entitySoFar="", prevEntityLabel="";
+  int lineNo=0;
+  int docNo=0;
+  while ((line=br.readLine()) != null) {
+    lineNo++;
+    String word=entryAtColumnNumber(line,tokenColumn);
+    String currEntityLabel=entryAtColumnNumber(line,labelColumn);
+    if (currEntityLabel.equals("O") || currEntityLabel.equals("")) {
+      if (lineNo > 1)       printMajoritySubString((HashMap)hashMapsofDocuments.get(docNo),entitySoFar,prevEntityLabel);
+      entitySoFar=word;
+      prevEntityLabel=currEntityLabel;
+    }
+ else     if (sameEntity(prevEntityLabel,currEntityLabel,entityLevel)) {
+      entitySoFar=entitySoFar + "~" + word;
+      prevEntityLabel=currEntityLabel;
+    }
+ else {
+      if (lineNo > 1)       printMajoritySubString((HashMap)hashMapsofDocuments.get(docNo),entitySoFar,prevEntityLabel);
+      entitySoFar=word;
+      prevEntityLabel=currEntityLabel;
+    }
+    if (line.trim().equals(""))     docNo++;
+  }
+  printMajoritySubString((HashMap)hashMapsofDocuments.get(hashMapsofDocuments.size() - 1),entitySoFar,prevEntityLabel);
+  br.close();
+}

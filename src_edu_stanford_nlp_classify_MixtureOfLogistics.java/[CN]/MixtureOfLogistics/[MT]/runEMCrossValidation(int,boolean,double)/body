@@ -1,0 +1,35 @@
+{
+  double[][] cvDataWeights=new double[numComponents][dataSize];
+  double lhood=0;
+  for (int iter=0; iter < maxIter; iter++) {
+    lhood=0;
+    int foldLen=dataSize / FOLD_COUNT;
+    for (int fold=0; fold < FOLD_COUNT; fold++) {
+      List<GeneralDataset<L,F>> foldTrainDatasets=new ArrayList<GeneralDataset<L,F>>(numComponents);
+      int foldStart=foldLen * fold;
+      int foldEnd=foldLen * (fold + 1);
+      double[][] foldDataWeights=new double[numComponents][dataSize - foldLen];
+      for (int j=0; j < numComponents; j++) {
+        Arrays.fill(foldDataWeights[j],-1);
+        GeneralDataset<L,F> foldTrainData=null;
+        if (datasets.get(j) instanceof Dataset<?,?>)         foldTrainData=new Dataset<L,F>(dataSize - foldLen,datasets.get(j).featureIndex,datasets.get(j).labelIndex);
+ else         if (datasets.get(j) instanceof RVFDataset<?,?>)         foldTrainData=new RVFDataset<L,F>(dataSize - foldLen,datasets.get(j).featureIndex,datasets.get(j).labelIndex);
+        for (int i=0; i < foldStart; i++) {
+          foldTrainData.add(datasets.get(j).getDatum(i));
+          foldDataWeights[j][i]=dataWeights[j][i];
+        }
+        for (int i=foldEnd; i < dataSize; i++) {
+          foldTrainData.add(datasets.get(j).getDatum(i));
+          foldDataWeights[j][i - foldEnd + foldStart]=dataWeights[j][i];
+        }
+        foldTrainDatasets.add(foldTrainData);
+      }
+      runMstep1(foldTrainDatasets,foldDataWeights);
+      lhood+=runEstep(foldStart,foldEnd,cvDataWeights,beta);
+    }
+    for (int j=0; j < numComponents; j++)     System.arraycopy(cvDataWeights[j],0,dataWeights[j],0,dataSize);
+    runMstep2();
+  }
+  if (trainOnAllDataAtFinish)   runMstep1(datasets,dataWeights);
+  return lhood;
+}

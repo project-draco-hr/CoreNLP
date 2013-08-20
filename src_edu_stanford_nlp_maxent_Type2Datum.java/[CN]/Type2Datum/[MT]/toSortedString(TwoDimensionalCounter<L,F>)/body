@@ -1,0 +1,21 @@
+{
+  ArrayList<L> topLevel=new ArrayList<L>(c.firstKeySet());
+  topLevel=new ArrayList<L>(ErasureUtils.sortedIfPossible(topLevel));
+  StringBuffer b=new StringBuffer();
+  for (int i=0; i < topLevel.size(); i++) {
+    L key=topLevel.get(i);
+    b.append(key + "\t");
+    ClassicCounter<F> result=c.getCounter(key);
+    ArrayList<F> innerKeys=new ArrayList<F>(result.keySet());
+    String[] resultArray=new String[innerKeys.size()];
+    for (int j=0; j < innerKeys.size(); j++) {
+      resultArray[j]=innerKeys.get(j) + ":" + result.getCount(innerKeys.get(j));
+    }
+    Arrays.sort(resultArray);
+    for (int i1=0; i1 < resultArray.length; i1++) {
+      b.append(resultArray[i1] + "\t");
+    }
+    b.append("\n");
+  }
+  return b.toString();
+}

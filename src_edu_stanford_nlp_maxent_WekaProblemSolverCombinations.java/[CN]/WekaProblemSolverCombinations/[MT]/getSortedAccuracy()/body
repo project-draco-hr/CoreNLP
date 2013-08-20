@@ -1,0 +1,117 @@
+{
+  accuracies=new double[train.numAttributes];
+  chrisweights=new double[train.numAttributes];
+  int indbaseline=0;
+  diff=new byte[train.numAttributes][train.numAttributes];
+  for (int i=0; i < train.numSamples(); i++) {
+    double[] a=train.getData(i).x;
+    int y=train.getClass(i);
+    String cls=train.getYName(y);
+    int right=0;
+    for (int j=0; j < a.length; j++) {
+      if (train.getAttrName(j,(int)a[j]).equals(cls)) {
+        accuracies[j]++;
+        right++;
+      }
+    }
+    for (int j=0; j < a.length; j++) {
+      if (train.getAttrName(j,(int)a[j]).equals(cls)) {
+        chrisweights[j]+=1 / (double)right;
+      }
+    }
+  }
+  for (int i=0; i < train.numSamples(); i++) {
+    double[] a=train.getData(i).x;
+    for (int j=0; j < train.numAttributes; j++) {
+      for (int g=j + 1; g < train.numAttributes; g++) {
+        if (!(train.getAttrName(j,(int)a[j]).equals(train.getAttrName(g,(int)a[g])))) {
+          diff[j][g]=1;
+        }
+      }
+    }
+  }
+  int[] indexes=new int[train.numAttributes];
+  for (int ind=1; ind < train.numAttributes; ind++) {
+    double val=accuracies[ind];
+    int current=ind;
+    while ((current > 0) && (val > accuracies[indexes[current - 1]])) {
+      indexes[current]=indexes[current - 1];
+      current--;
+    }
+    if (current > 0) {
+      if (val == accuracies[indexes[current - 1]]) {
+        if ((diff[ind][indexes[current - 1]] == 0) && (diff[indexes[current - 1]][ind] == 0)) {
+          if (!clean) {
+            System.out.println(" Not different " + ind + " "+ indexes[current - 1]);
+          }
+        }
+      }
+    }
+    indexes[current]=ind;
+  }
+  for (int j=0; j < accuracies.length; j++) {
+    accuracies[indexes[j]]=accuracies[indexes[j]] / (double)train.numSamples();
+    if (!clean) {
+      System.out.println(indexes[j] + " " + accuracies[indexes[j]]);
+    }
+  }
+  for (int s=0; s < accuracies.length; s++) {
+    if (indexes[s] == 0) {
+      indbaseline=s;
+      break;
+    }
+  }
+  double mean=0;
+  for (int i=0; i < train.numAttributes; i++) {
+    mean+=accuracies[i];
+  }
+  mean=mean / train.numAttributes;
+  double stdev=0;
+  for (int i=0; i < train.numAttributes; i++) {
+    stdev+=(accuracies[i] - mean) * (accuracies[i] - mean);
+  }
+  stdev=stdev / train.numAttributes;
+  stdev=Math.sqrt(stdev);
+  if (!clean) {
+    System.out.println("Mean is " + mean + " stdev "+ stdev);
+  }
+  double gap=0;
+  int maxGapIndex=top;
+  if (WekaProblemSolverCombinations.fitNumClassifiers) {
+    int middle=3;
+    if (top > middle + 1) {
+      gap=stdev;
+      if (!clean) {
+        System.out.println(" Standard deviation " + gap);
+      }
+      for (int k=middle + 1; k < train.numAttributes; k++) {
+        double currGap=-accuracies[indexes[k]] + accuracies[indexes[middle]];
+        if (currGap > gap) {
+          maxGapIndex=k;
+          gap=currGap;
+          break;
+        }
+      }
+    }
+  }
+  if (!clean) {
+    System.out.println(" The stopping gap is " + gap + " index "+ maxGapIndex);
+  }
+  top=(maxGapIndex < 20 ? maxGapIndex : top);
+  if (!clean) {
+    System.out.println("Using top " + top);
+  }
+  for (int i=0; i < train.numAttributes; i++) {
+    for (int j=i + 1; j < train.numAttributes; j++) {
+      if ((diff[i][j] == 0) && (diff[j][i] == 0)) {
+        if (!clean) {
+          System.out.println(" Not different " + i + " "+ j);
+        }
+      }
+    }
+  }
+  if (WekaProblemSolverCombinations.selectAboveBaseline && (indbaseline > 5) && (fitNumClassifiers)) {
+    top=indbaseline + 1;
+  }
+  return indexes;
+}

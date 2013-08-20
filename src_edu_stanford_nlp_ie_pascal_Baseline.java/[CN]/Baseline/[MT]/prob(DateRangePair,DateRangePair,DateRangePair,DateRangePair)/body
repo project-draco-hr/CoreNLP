@@ -1,0 +1,132 @@
+{
+  if (FORCE_ORDERING || FORCE_STRICT_ORDERING) {
+    if (delta(paperSubmitDate,workshopDate) < 0.0) {
+      return Double.NEGATIVE_INFINITY;
+    }
+    if (delta(notificationDate,workshopDate) < 0.0) {
+      return Double.NEGATIVE_INFINITY;
+    }
+    if (FORCE_STRICT_ORDERING) {
+      if (delta(cameraReadyDate,workshopDate) < 0.0) {
+        return Double.NEGATIVE_INFINITY;
+      }
+    }
+    if (delta(paperSubmitDate,cameraReadyDate) < 0.0) {
+      return Double.NEGATIVE_INFINITY;
+    }
+    if (delta(notificationDate,cameraReadyDate) < 0.0) {
+      return Double.NEGATIVE_INFINITY;
+    }
+    if (delta(paperSubmitDate,notificationDate) < 0.0) {
+      return Double.NEGATIVE_INFINITY;
+    }
+  }
+  double prob;
+  if (workshopDate.isNull) {
+    prob=nulls[WS][NULL];
+  }
+ else {
+    prob=nulls[WS][NOT_NULL];
+    if (USE_MONTH) {
+      prob+=months[WS][workshopDate.date.get(Calendar.MONTH)];
+    }
+  }
+  if (cameraReadyDate.isNull) {
+    prob+=nulls[CR][NULL];
+  }
+ else {
+    prob+=nulls[CR][NOT_NULL];
+    if (!workshopDate.isNull) {
+      prob+=gaussian(delta(cameraReadyDate,workshopDate),means[CR][WS],sds[CR][WS]);
+    }
+ else {
+      if (USE_MONTH) {
+        prob+=months[CR][cameraReadyDate.date.get(Calendar.MONTH)];
+      }
+    }
+  }
+  if (notificationDate.isNull) {
+    prob+=nulls[NOA][NULL];
+  }
+ else {
+    prob+=nulls[NOA][NOT_NULL];
+    if (!cameraReadyDate.isNull) {
+      prob+=gaussian(delta(notificationDate,cameraReadyDate),means[NOA][CR],sds[NOA][CR]);
+    }
+ else     if (!workshopDate.isNull) {
+      prob+=gaussian(delta(notificationDate,workshopDate),means[NOA][WS],sds[NOA][WS]);
+    }
+ else {
+      if (USE_MONTH) {
+        prob+=months[NOA][notificationDate.date.get(Calendar.MONTH)];
+      }
+    }
+  }
+  if (paperSubmitDate.isNull) {
+    prob+=nulls[PS][NULL];
+  }
+ else {
+    prob+=nulls[PS][NOT_NULL];
+    if (!notificationDate.isNull) {
+      prob+=gaussian(delta(paperSubmitDate,notificationDate),means[PS][NOA],sds[PS][NOA]);
+    }
+ else     if (!cameraReadyDate.isNull) {
+      prob+=gaussian(delta(paperSubmitDate,cameraReadyDate),means[PS][CR],sds[PS][CR]);
+    }
+ else     if (!workshopDate.isNull) {
+      prob+=gaussian(delta(paperSubmitDate,workshopDate),means[PS][WS],sds[PS][WS]);
+    }
+ else {
+      if (USE_MONTH) {
+        prob+=months[PS][paperSubmitDate.date.get(Calendar.MONTH)];
+      }
+    }
+  }
+  if (USE_NUM_OCCURRENCES) {
+    prob/=workshopDate.numOccurrences;
+    prob/=cameraReadyDate.numOccurrences;
+    prob/=notificationDate.numOccurrences;
+    prob/=paperSubmitDate.numOccurrences;
+  }
+  if (USE_DAY_OF_WEEK) {
+    if (!workshopDate.isNull) {
+      prob+=dayOfWeeks[WS][workshopDate.date.get(Calendar.DAY_OF_WEEK) - 1];
+    }
+    if (!cameraReadyDate.isNull) {
+      prob+=dayOfWeeks[CR][cameraReadyDate.date.get(Calendar.DAY_OF_WEEK) - 1];
+    }
+    if (!notificationDate.isNull) {
+      prob+=dayOfWeeks[NOA][notificationDate.date.get(Calendar.DAY_OF_WEEK) - 1];
+    }
+    if (!paperSubmitDate.isNull) {
+      prob+=dayOfWeeks[PS][paperSubmitDate.date.get(Calendar.DAY_OF_WEEK) - 1];
+    }
+  }
+  if (USE_RANGE) {
+    if (workshopDate.range) {
+      prob+=ranges[WS][RANGE];
+    }
+ else {
+      prob+=ranges[WS][NOT_RANGE];
+    }
+    if (cameraReadyDate.range) {
+      prob+=ranges[CR][RANGE];
+    }
+ else {
+      prob+=ranges[CR][NOT_RANGE];
+    }
+    if (notificationDate.range) {
+      prob+=ranges[NOA][RANGE];
+    }
+ else {
+      prob+=ranges[NOA][NOT_RANGE];
+    }
+    if (paperSubmitDate.range) {
+      prob+=ranges[PS][RANGE];
+    }
+ else {
+      prob+=ranges[PS][NOT_RANGE];
+    }
+  }
+  return prob;
+}

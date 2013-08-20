@@ -1,0 +1,22 @@
+{
+  int underscore=s.indexOf('_');
+  int lastUnderscore=underscore;
+  if (underscore < 0) {
+    return s;
+  }
+  for (int i=underscore + 1; i < s.length(); i++) {
+    char current=s.charAt(i);
+    if (current == '_') {
+      subcats.add(Integer.valueOf(s.substring(lastUnderscore + 1,i)));
+      lastUnderscore=i;
+    }
+ else {
+      if (tlp.isLabelAnnotationIntroducingCharacter(current)) {
+        subcats.add(Integer.valueOf(s.substring(lastUnderscore + 1,i)));
+        return s.substring(0,underscore) + s.substring(i,s.length());
+      }
+    }
+  }
+  subcats.add(Integer.valueOf(s.substring(lastUnderscore + 1,s.length())));
+  return s.substring(0,underscore);
+}

@@ -1,0 +1,16 @@
+{
+  StringBuffer os=new StringBuffer();
+  for (int i=start; i < end; i++) {
+    if (i > start)     os.append(" ");
+    os.append(tokens[i].toLowerCase());
+  }
+  String name=os.toString();
+  if (!STOP_WORDS.contains(name)) {
+    Set<String> fullNames=partialToFullTeamNames.get(name);
+    if (fullNames == null) {
+      fullNames=new HashSet<String>();
+      partialToFullTeamNames.put(name,fullNames);
+    }
+    fullNames.add(fullName.replace(".",""));
+  }
+}

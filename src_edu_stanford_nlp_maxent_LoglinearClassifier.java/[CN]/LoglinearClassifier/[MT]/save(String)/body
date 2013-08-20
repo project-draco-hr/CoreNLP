@@ -1,0 +1,19 @@
+{
+  try {
+    OutDataStreamFile rf=new OutDataStreamFile(filename);
+    rf.writeInt(numClasses);
+    rf.writeInt(numFeatures);
+    LambdaSolve.save_lambdas(rf,lambdas);
+    if (hasPriors) {
+      rf.writeInt(1);
+      LambdaSolve.save_lambdas(rf,priors);
+    }
+ else {
+      rf.writeInt(0);
+    }
+    rf.close();
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+  }
+}

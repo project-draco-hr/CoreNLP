@@ -1,0 +1,46 @@
+{
+  if (file == null) {
+    return;
+  }
+  if (confirmNoSave()) {
+    String contents="";
+    try {
+      BufferedReader input=new BufferedReader(new FileReader(file));
+      if (cleanHtml) {
+        ByteArrayOutputStream buffer=new ByteArrayOutputStream((int)file.length());
+        HtmlCleaner cleaner=new HtmlCleaner(input,buffer);
+        cleaner.setAcceptableTags(HtmlCleaner.getDefaultAcceptableTags());
+        cleaner.setIgnoreAttributes(true);
+        cleaner.clean();
+        contents=buffer.toString();
+      }
+ else {
+        StringBuilder b=new StringBuilder();
+        for (String line; (line=input.readLine()) != null; ) {
+          b.append(line);
+          b.append("\n");
+        }
+        contents=b.toString();
+      }
+      input.close();
+      curFile=file;
+    }
+ catch (    FileNotFoundException e) {
+      errorMessage("Could not find file " + file.getPath());
+    }
+catch (    IOException ie) {
+      errorMessage("There was a problem reading in the file.");
+    }
+catch (    com.quiotix.html.parser.ParseException pe) {
+      errorMessage("Could not parse file " + file.getName());
+    }
+catch (    com.quiotix.html.parser.TokenMgrError e) {
+      errorMessage("Could not open file " + file.getPath() + ".  Probably error parsing HTML.");
+    }
+    setDocument(contents);
+    cache=tp.getText();
+    setTitle("Annotator - " + (annotated ? "(Annotated) " : "") + file.getName());
+    undoManager.discardAllEdits();
+    taggedStrings.clear();
+  }
+}

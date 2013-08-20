@@ -1,0 +1,9 @@
+{
+  if (announceLoadsAndSaves)   RA.stream.line("MemoFn",String.format("Saving memos to %s...",path));
+  OutputStream os=new FileOutputStream(path);
+  if (path.endsWith("gz"))   os=new GZIPOutputStream(os);
+  ObjectOutputStream oos=new ObjectOutputStream(new BufferedOutputStream(os));
+  oos.writeObject(memos);
+  oos.close();
+  if (announceLoadsAndSaves)   RA.stream.line("MemoFn",String.format("Saved %d memos.",memos.size()));
+}

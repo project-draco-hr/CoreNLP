@@ -1,0 +1,29 @@
+{
+  this.reln=r;
+  this.negDesc=negDesc;
+  attributes=new HashMap<String,Pattern>();
+  descString="{";
+  for (  Map.Entry<String,String> entry : attrs.entrySet()) {
+    if (!descString.equals("{"))     descString+=";";
+    String key=entry.getKey();
+    String value=entry.getValue();
+    if (value.equals("__")) {
+      attributes.put(key,Pattern.compile(".*"));
+    }
+ else     if (value.matches("/.*/")) {
+      attributes.put(key,Pattern.compile(value.substring(1,value.length() - 1)));
+    }
+ else {
+      attributes.put(key,Pattern.compile("^(" + value + ")$"));
+    }
+    descString+=(key + ':' + value);
+  }
+  if (root)   descString+="$";
+ else   if (empty)   descString+="#";
+  descString+='}';
+  this.name=name;
+  this.child=null;
+  this.isRoot=root;
+  this.isEmpty=empty;
+  this.variableGroups=variableGroups;
+}

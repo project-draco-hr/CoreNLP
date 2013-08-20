@@ -1,0 +1,15 @@
+{
+  Pattern pat=Pattern.compile("(?:.|\n){30}(?:" + args[0] + ")(?:.|\n){30}");
+  for (int i=1; i < args.length; i++) {
+    String fContents=IOUtils.slurpFile(args[i]);
+    String padContents=padding + fContents + padding;
+    Matcher mat=pat.matcher(padContents);
+    int ind=0;
+    while (mat.find(ind)) {
+      String match=mat.group();
+      match=match.replace('\n',' ');
+      System.out.println(match);
+      ind=mat.start() + 1;
+    }
+  }
+}

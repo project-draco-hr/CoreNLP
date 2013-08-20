@@ -1,0 +1,40 @@
+{
+  Token t;
+  if (eofReached) {
+    return getEOF();
+  }
+  if (cache.isEmpty()) {
+    t=parser.getNextToken();
+  }
+ else {
+    t=cache.elementAt(0);
+    cache.removeElementAt(0);
+  }
+switch (t.kind) {
+case (HtmlLexerConstants.EOF):
+    return getEOF();
+case (HtmlLexerConstants.COMMENT_START):
+  return getComment();
+case (HtmlLexerConstants.ESCAPE_CHARACTER):
+return getEscapeCharacter(t.toString());
+case (HtmlLexerConstants.CODE_TAG):
+return getCodeTag(t.toString());
+case (HtmlLexerConstants.HTML_TAG):
+return getTag(t.toString());
+case (HtmlLexerConstants.RUNAWAY_TAG):
+return getTag(t.toString().trim() + ">");
+case (HtmlLexerConstants.WORD):
+case (HtmlLexerConstants.APOST_WORD):
+case (HtmlLexerConstants.DOT_WORD):
+case (HtmlLexerConstants.EMAIL_WORD):
+case (HtmlLexerConstants.DEC_COMMA_NUM):
+case (HtmlLexerConstants.DEC_NUM):
+case (HtmlLexerConstants.QUALIFIED_NUM):
+case (HtmlLexerConstants.MONEY_NUM):
+case (HtmlLexerConstants.ALPHANUM):
+case (HtmlLexerConstants.TIME):
+return getWord(t.toString());
+default :
+return getOther(t.toString(),t.kind);
+}
+}

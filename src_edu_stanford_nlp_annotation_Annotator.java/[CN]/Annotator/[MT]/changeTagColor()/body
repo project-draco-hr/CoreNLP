@@ -1,0 +1,53 @@
+{
+  if (tags.isEmpty()) {
+    return;
+  }
+  final JList list=new JList(tags);
+  final JScrollPane sp=new JScrollPane(list);
+  sp.setPreferredSize(new Dimension(200,100));
+  sp.setMinimumSize(new Dimension(200,100));
+  sp.setAlignmentX(LEFT_ALIGNMENT);
+  JPanel jp=new JPanel();
+  jp.setLayout(new BoxLayout(jp,BoxLayout.Y_AXIS));
+  jp.add(sp);
+  jp.add(Box.createRigidArea(new Dimension(0,5)));
+  jp.setBorder(BorderFactory.createEmptyBorder(10,10,10,100));
+  JPanel buttonPane=new JPanel();
+  buttonPane.setLayout(new BoxLayout(buttonPane,BoxLayout.X_AXIS));
+  buttonPane.setBorder(BorderFactory.createEmptyBorder(0,10,10,10));
+  buttonPane.add(Box.createHorizontalGlue());
+  final JButton changeButton=new JButton("Select");
+  final JButton cancelButton=new JButton("Cancel");
+  buttonPane.add(changeButton);
+  buttonPane.add(Box.createRigidArea(new Dimension(10,0)));
+  buttonPane.add(cancelButton);
+  final JDialog d=new JDialog(this,"Choose a tag");
+  d.getContentPane().add(sp,BorderLayout.CENTER);
+  d.getContentPane().add(buttonPane,BorderLayout.SOUTH);
+  cancelButton.addActionListener(new ActionListener(){
+    public void actionPerformed(    ActionEvent e){
+      d.setVisible(false);
+    }
+  }
+);
+  changeButton.addActionListener(new ActionListener(){
+    public void actionPerformed(    ActionEvent e){
+      int n=list.getSelectedIndex();
+      d.setVisible(false);
+      if (n != -1) {
+        SimpleAttributeSet attr=colorMaps.get(tags.get(n));
+        Color c=getColor(tags.get(n),StyleConstants.getForeground(attr));
+        if (c != null) {
+          StyleConstants.setForeground(attr,c);
+          buttons.get(n).setIcon(new ColorIcon(c));
+          setDocument(tp.getText());
+          tagsChanged=true;
+        }
+      }
+    }
+  }
+);
+  d.pack();
+  d.setLocationRelativeTo(this);
+  d.setVisible(true);
+}

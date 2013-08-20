@@ -1,0 +1,23 @@
+{
+  Index<F> featureIndex=data.featureIndex();
+  for (  Pair<F,F> featureParentPair : feature2parentList) {
+    F feature=featureParentPair.first();
+    if (!featureIndex.contains(feature)) {
+      featureIndex.add(feature);
+    }
+    F parent=featureParentPair.second();
+    if (!featureIndex.contains(parent)) {
+      featureIndex.add(parent);
+    }
+  }
+  int[] feature2parentArray=new int[featureIndex.size()];
+  Arrays.fill(feature2parentArray,-1);
+  for (  Pair<F,F> featureParentPair : feature2parentList) {
+    F feature=featureParentPair.first();
+    int featureID=featureIndex.indexOf(feature);
+    F parent=featureParentPair.second();
+    int parentID=featureIndex.indexOf(parent);
+    feature2parentArray[featureID]=parentID;
+  }
+  return feature2parentArray;
+}

@@ -1,0 +1,16 @@
+{
+  int beginSense=s.indexOf("_");
+  String temp=s.substring(beginSense);
+  int endSense=temp.indexOf(" ");
+  String senseString=temp.substring(0,endSense);
+  List<String> senses=new ArrayList<String>();
+  while (senseString.length() > 0) {
+    int paren=senseString.lastIndexOf('(');
+    String newSense=senseString.substring(paren + 1,senseString.length() - 1);
+    senses.add(newSense);
+    senseString=senseString.substring(0,paren - 1);
+    number(lexicalElement,newSense);
+  }
+  sense=senses.toArray(new String[]{});
+  return s.substring(0,beginSense + 1) + "1" + temp.substring(endSense);
+}

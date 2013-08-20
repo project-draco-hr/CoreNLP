@@ -1,0 +1,28 @@
+{
+  if (fastMap != null) {
+    return;
+  }
+  fastMap=new int[slowMap.size()][];
+  for (int i=0; i < fastMap.length; i++) {
+    if (fastMap[i] == null) {
+      fastMap[i]=new int[lcIndex.size()];
+      Map<LabeledClique,Integer> map=slowMap.get(i);
+      for (int j=0; j < lcIndex.size(); j++) {
+        LabeledClique lc=lcIndex.get(j);
+        Integer k=map.get(lc);
+        if (k == null) {
+          FeatureFactoryWrapper.ImmutablePairOfImmutables<String,LabeledClique> p=(FeatureFactoryWrapper.ImmutablePairOfImmutables<String,LabeledClique>)metaInfo.getFeature(i);
+          LabeledClique newLC=LabeledClique.valueOf(p.second().clique,lc,0);
+          p=new FeatureFactoryWrapper.ImmutablePairOfImmutables<String,LabeledClique>(p.first(),newLC);
+          k=metaInfo.indexOfFeature(p);
+          fastMap[i][j]=k;
+        }
+ else {
+          fastMap[i][j]=k;
+        }
+        fastMap[k]=fastMap[i];
+      }
+    }
+  }
+  slowMap=null;
+}

@@ -1,0 +1,42 @@
+{
+  RobustTokenizer.AbbreviationMap abbrevs=new RobustTokenizer.AbbreviationMap(true);
+  StringBuffer content=simpleSplit();
+  String text=content.toString();
+  Matcher m=EOS.matcher(text);
+  int start=-2;
+  while ((m.find(start + 2))) {
+    start=m.start();
+    String word=null;
+    for (int i=start; i >= 0; i--) {
+      if (Character.isWhitespace(text.charAt(i))) {
+        word=text.substring(i + 1,start + 1);
+        break;
+      }
+    }
+    if (word == null || !abbrevs.contains(word.toLowerCase())) {
+      content.setCharAt(start + 1,'\n');
+      if (word != null) {
+        content.setCharAt(start,CHANGE_EOS);
+      }
+    }
+  }
+  text=content.toString();
+  m=SGML_START.matcher(text);
+  start=0;
+  while (m.find(start)) {
+    start=m.start();
+    int end=m.end();
+    content.setCharAt(end - 1,'\n');
+    start=end;
+  }
+  text=content.toString();
+  m=SGML_END.matcher(text);
+  start=0;
+  while (m.find(start)) {
+    start=m.start();
+    int end=m.end();
+    content.setCharAt(start,'\n');
+    start=end;
+  }
+  System.out.print(content.toString());
+}

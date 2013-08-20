@@ -1,0 +1,14 @@
+{
+  if (tree == null) {
+    return null;
+  }
+  Set subTrees=tree.subTrees();
+  for (Iterator iter=subTrees.iterator(); iter.hasNext(); ) {
+    Tree t=(Tree)iter.next();
+    Tree[] kids=t.children();
+    if ((t.label() != null) && (t.label().value().equals(Category.EMPTYSTRING)) && !t.isLeaf()&& kids.length == 1 && kids[0].isLeaf()) {
+      kids[0].setLabel(tf.newLeaf(Word.EMPTY).label());
+    }
+  }
+  return tree;
+}

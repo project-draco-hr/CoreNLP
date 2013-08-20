@@ -1,0 +1,50 @@
+{
+  String pureWord=getPureString(wordWithContext);
+  int wordLength=pureWord.length();
+  if (PRINT_RUNNING_SCORES) {
+    System.err.println("\t(cumulative) char n-gram prob:");
+  }
+  double ngramProb=1.0;
+  if (useCharModel) {
+    for (int j=cn; j <= wordWithContext.length(); j++) {
+      String ngram=wordWithContext.substring(j - cn,j);
+      ngramProb*=getInterpolatedCharProb(ngram,category);
+      if (PRINT_RUNNING_SCORES) {
+        System.err.println("\t\t[" + ngram.charAt(ngram.length() - 1) + "|"+ ngram.substring(0,ngram.length() - 1)+ "]: "+ ngramProb);
+      }
+    }
+    if (useLengthModel) {
+      double totalCharProb=charSequenceTotalsByLength[category].getCount(Integer.valueOf(wordLength));
+      if (totalCharProb == 0) {
+        totalCharProb=0.0001;
+      }
+      ngramProb/=totalCharProb;
+      if (PRINT_RUNNING_SCORES) {
+        System.err.println("\tnormalizing factor (length=" + wordLength + "): "+ totalCharProb);
+      }
+      if (PRINT_RUNNING_SCORES) {
+        System.err.println("\tfinal char n-gram prob: " + ngramProb);
+      }
+    }
+  }
+  double mixedProb=ngramProb;
+  if (useWordModel) {
+    double wordProb=getEmpiricalWordProb(pureWord,category);
+    if (PRINT_RUNNING_SCORES) {
+      System.err.println("\tword prob: " + wordProb);
+    }
+    double weight=charWordInterpolationConstants[category].getCount(Integer.valueOf(wordLength));
+    if (weight == 0 && useCharModel) {
+      weight=1.0;
+    }
+    mixedProb=weight * mixedProb + (1 - weight) * wordProb;
+    mixedProb+=.00001;
+    if (PRINT_RUNNING_SCORES) {
+      System.err.println("\tchar-word mixing weight (length=" + wordLength + "): "+ weight);
+    }
+    if (PRINT_RUNNING_SCORES) {
+      System.err.println("\tmixed char-word prob: " + mixedProb);
+    }
+  }
+  return (Math.log(mixedProb));
+}

@@ -72,7 +72,7 @@
   do {
     try {
       sayln();
-      boolean doEval=(its > 0 && its >= startEvaluateIters && evaluateIters > 0 && its % evaluateIters == 0);
+      boolean doEval=(its > 0 && evaluateIters > 0 && its % evaluateIters == 0);
       double evalScore=Double.NEGATIVE_INFINITY;
       if (doEval) {
         evalScore=doEvaluation(x);
@@ -167,8 +167,7 @@ throw oome;
 }
  while ((state=rec.toContinue()) == eState.CONTINUE);
 if (evaluateIters > 0) {
-double evalScore=(useEvalImprovement ? doEvaluation(rec.getBest()) : doEvaluation(x));
-sayln("final evalScore is: " + evalScore);
+doEvaluation(x);
 }
 System.err.println();
 switch (state) {
@@ -184,14 +183,9 @@ case TERMINATE_AVERAGEIMPROVE:
 System.err.println("QNMinimizer terminated due to average improvement: | newest_val - previous_val | / |newestVal| < TOL ");
 success=true;
 break;
-case TERMINATE_MAXITR:
-System.err.println("QNMinimizer terminated due to reached max iteration " + maxItr);
-success=true;
-break;
 case TERMINATE_EVALIMPROVE:
 System.err.println("QNMinimizer terminated due to no improvement on eval ");
 success=true;
-x=rec.getBest();
 break;
 default :
 System.err.println("QNMinimizer terminated without converging");

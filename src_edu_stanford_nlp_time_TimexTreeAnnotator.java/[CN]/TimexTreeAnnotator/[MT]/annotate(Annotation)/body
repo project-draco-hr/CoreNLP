@@ -1,9 +1,9 @@
 {
   for (  CoreMap sentence : document.get(CoreAnnotations.SentencesAnnotation.class)) {
     final List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
-    Tree tree=sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+    Tree tree=sentence.get(TreeAnnotation.class);
     tree.indexSpans(0);
-    for (    CoreMap timexAnn : sentence.get(TimeAnnotations.TimexAnnotations.class)) {
+    for (    CoreMap timexAnn : sentence.get(TimexAnnotations.class)) {
       Tree subtree;
       final int timexBegin=beginOffset(timexAnn);
       final int timexEnd=endOffset(timexAnn);
@@ -45,7 +45,7 @@ default :
 throw new RuntimeException("unexpected match type");
 }
 if (subtree != null) {
-timexAnn.set(TreeCoreAnnotations.TreeAnnotation.class,subtree);
+timexAnn.set(TreeAnnotation.class,subtree);
 }
 }
 }

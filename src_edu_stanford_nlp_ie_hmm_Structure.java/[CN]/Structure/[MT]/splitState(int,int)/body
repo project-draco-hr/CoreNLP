@@ -1,0 +1,30 @@
+{
+  if (state == 0 || state == 1) {
+    System.err.println("Can't split start or end states");
+    return -1;
+  }
+  ArrayList<Double> newTransitions=new ArrayList<Double>();
+  for (int i=0; i < transitions.size(); i++) {
+    newTransitions.add(ZERO);
+  }
+  transitions.add(newTransitions);
+  for (int i=0; i < transitions.size(); i++) {
+    ArrayList<Double> inTransitions=(ArrayList<Double>)transitions.get(i);
+    Double tProb=inTransitions.get(state);
+    if (tProb.doubleValue() != 0.0 && i != state) {
+      inTransitions.add(new Double(tProb.doubleValue()));
+    }
+ else {
+      inTransitions.add(ZERO);
+    }
+  }
+  List<Double> outTransitions=transitions.get(state);
+  for (int i=0; i < outTransitions.size(); i++) {
+    Double tProb=outTransitions.get(i);
+    if (tProb.doubleValue() != 0.0) {
+      newTransitions.set(i,new Double(tProb.doubleValue()));
+    }
+  }
+  stateTypes.add(Integer.valueOf(type));
+  return transitions.size() - 1;
+}

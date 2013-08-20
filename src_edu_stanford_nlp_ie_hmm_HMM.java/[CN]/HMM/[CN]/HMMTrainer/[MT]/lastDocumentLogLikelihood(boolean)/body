@@ -1,0 +1,36 @@
+{
+  double docLike=0.0;
+  int numTimes=alpha[0].length;
+  if (useScaling) {
+    for (int t=0; t < numTimes; t++) {
+      docLike-=Math.log(scale[t]);
+    }
+  }
+ else {
+    if (sanityCheck) {
+      double[] docLikelihood=new double[numTimes];
+      for (int t=0; t < numTimes; t++) {
+        for (int i=0; i < numStates; i++) {
+          docLikelihood[t]+=alpha[i][t] * beta[i][t];
+        }
+      }
+      docLike=docLikelihood[0];
+      for (int t=1; t < numTimes; t++) {
+        if (Math.abs(docLikelihood[t] - docLike) > TOLERANCE) {
+          System.err.println("logLikelihood bung: for time " + t + " likelihood is "+ docLikelihood[t]+ "; for time 0, "+ docLike);
+        }
+      }
+    }
+ else {
+      int lastTime=numTimes - 1;
+      for (int j=0; j < states.length; j++) {
+        docLike+=alpha[j][lastTime];
+      }
+    }
+    docLike=Math.log(docLike);
+  }
+  if (printAllTrellises) {
+    System.err.println("" + docLike);
+  }
+  return docLike;
+}

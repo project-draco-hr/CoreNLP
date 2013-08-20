@@ -1,0 +1,28 @@
+{
+  ArrayList results=new ArrayList();
+  try {
+    for (    String line : ObjectBank.getLineIterator(file)) {
+      if (line.startsWith("@@")) {
+        int index=line.indexOf(' ');
+        if (index != -1) {
+          String id=line.substring(2,index);
+          String text=line.substring(index + 1);
+          NERResult result=new NERResult(id);
+          result.setText(text);
+          results.add(result);
+        }
+ else {
+          break;
+        }
+      }
+ else {
+        break;
+      }
+    }
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+  }
+  setResults(results);
+  return (results.size());
+}

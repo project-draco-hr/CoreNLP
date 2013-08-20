@@ -1,0 +1,25 @@
+{
+  boolean[] features=new boolean[trainMetaInfo.numFeatures()];
+  Set trainFeatureSet=new HashSet();
+  Set testFeatureSet=new HashSet();
+  for (  Object o : trainMetaInfo.getFeatures().objectsList()) {
+    trainFeatureSet.add(((Pair)o).first);
+  }
+  for (  Object o : testMetaInfo.getFeatures().objectsList()) {
+    testFeatureSet.add(((Pair)o).first);
+  }
+  System.err.println("# of Feature Types in Training:" + trainFeatureSet.size());
+  System.err.println("# of Feature Types in  Testing:" + testFeatureSet.size());
+  trainFeatureSet.retainAll(testFeatureSet);
+  System.err.println("# of Feature Types in Intersection:" + trainFeatureSet.size());
+  for (int i=0; i < features.length; i++) {
+    Object feat=trainMetaInfo.getFeature(i);
+    if (trainFeatureSet.contains(((Pair)feat).first())) {
+      features[i]=true;
+    }
+ else {
+      features[i]=false;
+    }
+  }
+  return features;
+}

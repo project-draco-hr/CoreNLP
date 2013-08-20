@@ -1,0 +1,100 @@
+{
+  Timing.startTime();
+  System.err.println("Starting to close rules");
+  IntArrayList decompressionList=new IntArrayList();
+  int[] compressionArray=new int[numStates];
+  for (int i=0; i < numStates; i++) {
+    compressionArray[i]=-1;
+  }
+  int index;
+  List<UnaryRule>[] rulesWithParent=ug.rulesWithParent();
+  for (int i=0; i < rulesWithParent.length; i++) {
+    if (rulesWithParent[i].size() > 0) {
+      decompressionList.add(i);
+      index=decompressionList.size() - 1;
+      compressionArray[i]=index;
+    }
+  }
+  decompressionList=null;
+  int numCompressed=decompressionList.size();
+  System.err.println("numStates: " + numStates + " numCompressed "+ numCompressed);
+  RCDoubleMatrix2D p=new RCDoubleMatrix2D(numStates,numStates);
+  RCDoubleMatrix2D pprime=new RCDoubleMatrix2D(numCompressed,numCompressed);
+  for (int i=0; i < numCompressed; i++) {
+    pprime.setQuick(i,i,1.0);
+  }
+  UnaryRule tempRule;
+  double linearScore;
+  int compressedParent, compressedChild;
+  for (Iterator<UnaryRule> ruleIter=ug.iterator(); ruleIter.hasNext(); ) {
+    tempRule=ruleIter.next();
+    if (tempRule.parent == tempRule.child) {
+      System.err.println("Uhoh, reflexive rule");
+    }
+    linearScore=Math.exp(tempRule.score);
+    p.setQuick(tempRule.parent,tempRule.child,linearScore);
+    compressedParent=compressionArray[tempRule.parent];
+    compressedChild=compressionArray[tempRule.child];
+    if (compressedChild >= 0) {
+      pprime.setQuick(compressedParent,compressedChild,-linearScore);
+    }
+  }
+  System.err.print("Inverting matrix...");
+  Timing.startTime();
+  Algebra alg=new Algebra();
+  DoubleMatrix2D rprime=alg.inverse(pprime);
+  pprime=null;
+  Timing.tick("done");
+  IntArrayList parentList=new IntArrayList();
+  IntArrayList childList=new IntArrayList();
+  DoubleArrayList scoreList=new DoubleArrayList();
+  rprime.getNonZeros(parentList,childList,scoreList);
+  RCDoubleMatrix2D rprimebig=new RCDoubleMatrix2D(numStates,numStates);
+  for (int i=0; i < scoreList.size(); i++) {
+    rprimebig.setQuick(decompressionList.get(parentList.get(i)),decompressionList.get(childList.get(i)),scoreList.get(i));
+  }
+  rprime=null;
+  parentList=null;
+  childList=null;
+  scoreList=null;
+  System.err.print("Doing matrix multiplication...");
+  Timing.startTime();
+  RCDoubleMatrix2D result=(RCDoubleMatrix2D)rprimebig.zMult(p,new RCDoubleMatrix2D(numStates,numStates),1.0,0.0,false,false);
+  Timing.tick("done");
+  rprimebig=null;
+  p=null;
+  rprimebig=null;
+  for (int i=0; i < numStates; i++) {
+    result.setQuick(i,i,(1.0 + result.getQuick(i,i)));
+  }
+  closedRulesUnderSumWithParent=new List[numStates];
+  closedRulesUnderSumWithChild=new List[numStates];
+  for (int i=0; i < numStates; i++) {
+    closedRulesUnderSumWithParent[i]=new ArrayList<UnaryRule>();
+    closedRulesUnderSumWithChild[i]=new ArrayList<UnaryRule>();
+  }
+  System.err.println("Starting to populate data structures");
+  parentList=new IntArrayList();
+  childList=new IntArrayList();
+  scoreList=new DoubleArrayList();
+  result.getNonZeros(parentList,childList,scoreList);
+  result=null;
+  int numClosedRules=scoreList.size();
+  for (int i=0; i < numClosedRules; i++) {
+    tempRule=new UnaryRule(parentList.get(i),childList.get(i),Math.log(scoreList.get(i)));
+    closedRulesUnderSumWithParent[tempRule.parent].add(tempRule);
+    closedRulesUnderSumWithChild[tempRule.child].add(tempRule);
+  }
+  System.err.println("done");
+  result=null;
+  parentList=null;
+  childList=null;
+  scoreList=null;
+  closedRulesUnderSumWithP=new UnaryRule[numStates][];
+  closedRulesUnderSumWithC=new UnaryRule[numStates][];
+  for (int i=0; i < numStates; i++) {
+    closedRulesUnderSumWithP[i]=closedRulesUnderSumWithParent[i].toArray(new UnaryRule[closedRulesUnderSumWithParent[i].size()]);
+    closedRulesUnderSumWithC[i]=closedRulesUnderSumWithChild[i].toArray(new UnaryRule[closedRulesUnderSumWithChild[i].size()]);
+  }
+  System.err.println("Finished closing rules");
+}

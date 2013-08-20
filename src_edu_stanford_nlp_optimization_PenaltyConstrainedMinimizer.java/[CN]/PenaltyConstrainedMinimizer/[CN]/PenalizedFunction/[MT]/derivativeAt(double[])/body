@@ -1,0 +1,27 @@
+{
+  double[] deriv=copyArray(function.derivativeAt(x));
+  for (int i=0; i < eqConstraints.length; i++) {
+    double[] cDeriv=eqConstraints[i].derivativeAt(x);
+    double cVal=eqConstraints[i].valueAt(x);
+    for (int d=0; d < domainDimension(); d++) {
+      deriv[d]+=eqLagrange[i] * cDeriv[d];
+      deriv[d]+=eqPenalties[i] * cVal * cDeriv[d];
+    }
+  }
+  for (int i=0; i < ineqConstraints.length; i++) {
+    double[] cDeriv=ineqConstraints[i].derivativeAt(x);
+    double cVal=ineqConstraints[i].valueAt(x);
+    for (int d=0; d < domainDimension(); d++) {
+      double tmp=cVal;
+      double tmpD=cDeriv[d];
+      double crit=cVal + ineqLagrange[i] / ineqPenalties[i];
+      if (crit > 0) {
+        tmp+=crit;
+        tmpD+=cDeriv[d];
+      }
+      deriv[d]+=ineqLagrange[i] * tmpD;
+      deriv[d]+=ineqPenalties[i] * tmp * tmpD;
+    }
+  }
+  return deriv;
+}

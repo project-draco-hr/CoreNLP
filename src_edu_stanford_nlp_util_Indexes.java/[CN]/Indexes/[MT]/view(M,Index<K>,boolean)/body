@@ -1,0 +1,60 @@
+{
+  return new AbstractMap<K,V>(){
+    @Override public Set<Map.Entry<K,V>> entrySet(){
+      return new AbstractSet<Map.Entry<K,V>>(){
+        final Set<Map.Entry<Integer,V>> entrySet=map.entrySet();
+        @Override public Iterator<Map.Entry<K,V>> iterator(){
+          return new Iterator<Map.Entry<K,V>>(){
+            final Iterator<Map.Entry<Integer,V>> it=entrySet.iterator();
+            public boolean hasNext(){
+              return it.hasNext();
+            }
+            public java.util.Map.Entry<K,V> next(){
+              return new Map.Entry<K,V>(){
+                final Map.Entry<Integer,V> entry=it.next();
+                public K getKey(){
+                  return index.get(entry.getKey());
+                }
+                public V getValue(){
+                  return entry.getValue();
+                }
+                public V setValue(                V value){
+                  return entry.setValue(value);
+                }
+              }
+;
+            }
+            public void remove(){
+              it.remove();
+            }
+          }
+;
+        }
+        @Override public int size(){
+          return entrySet.size();
+        }
+      }
+;
+    }
+    @SuppressWarnings("unchecked") @Override public boolean containsKey(    Object key){
+      final int i=index.indexOf((K)key);
+      return i >= 0 && map.containsKey(i);
+    }
+    @SuppressWarnings("unchecked") @Override public V get(    Object key){
+      final int i=index.indexOf((K)key);
+      return i >= 0 ? map.get(i) : null;
+    }
+    @Override public V put(    K key,    V value){
+      final int i=index.indexOf(key,mutableIndex);
+      if (i < 0) {
+        throw new IllegalArgumentException("Attempt to set value for key with no corresponding index entry");
+      }
+      return map.put(i,value);
+    }
+    @SuppressWarnings("unchecked") @Override public V remove(    Object key){
+      final int i=index.indexOf((K)key);
+      return i >= 0 ? map.remove(i) : null;
+    }
+  }
+;
+}

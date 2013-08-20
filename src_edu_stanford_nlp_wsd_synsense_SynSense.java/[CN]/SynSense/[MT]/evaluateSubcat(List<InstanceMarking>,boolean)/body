@@ -1,0 +1,32 @@
+{
+  List<ClassifiedDatum> markedSubcatData=new ArrayList<ClassifiedDatum>();
+  int numCorrect=0;
+  for (Iterator<InstanceMarking> iter=guesses.iterator(); iter.hasNext(); ) {
+    InstanceMarking m=iter.next();
+    Instance ins=m.getInstance();
+    if (ins.subcat != Subcategory.UNASSIGNED) {
+      Subcategory guess=m.getSubcat();
+      if (verbose) {
+        System.out.println("subcat: " + ins.subcat + ":"+ guess+ (ins.subcat == guess ? "  CORRECT" : "  INCORRECT"));
+        String just=m.getSubcatJustification();
+        if (just != null) {
+          System.out.println(just);
+        }
+      }
+      if (ins.subcat == guess) {
+        numCorrect++;
+      }
+      markedSubcatData.add(new ClassifiedDatum(new BasicDatum(),guess,ins.subcat));
+    }
+ else {
+      throw new RuntimeException("Error: unmarked instance.");
+    }
+  }
+  if (verbose) {
+    if (!markedSubcatData.isEmpty()) {
+      System.out.println("Subcat Confusion Matrix");
+      ClassifierTester.printConfusionMatrix(markedSubcatData.toArray(new ClassifiedDatum[0]),new PrintWriter(System.out,true),8);
+    }
+  }
+  return numCorrect;
+}

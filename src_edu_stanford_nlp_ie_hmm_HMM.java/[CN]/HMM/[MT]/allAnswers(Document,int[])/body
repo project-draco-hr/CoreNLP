@@ -1,0 +1,16 @@
+{
+  int[] typeSequence=getLabelsForSequence(stateSequence);
+  HashMap answerRangesByType=AnswerChecker.getAnswerRanges(typeSequence);
+  HashMap answerByType=new HashMap();
+  for (Iterator iter=answerRangesByType.keySet().iterator(); iter.hasNext(); ) {
+    Integer type=(Integer)iter.next();
+    ArrayList answers=new ArrayList();
+    List answerRanges=(List)answerRangesByType.get(type);
+    for (Iterator iter2=answerRanges.iterator(); iter2.hasNext(); ) {
+      AnswerChecker.Range range=(AnswerChecker.Range)iter.next();
+      answers.add(StringUtils.join(range.extractRange(doc)," "));
+    }
+    answerByType.put(type,answers);
+  }
+  return (answerByType);
+}

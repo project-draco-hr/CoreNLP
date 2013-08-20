@@ -1,0 +1,24 @@
+{
+  double score=0;
+  setValues(x);
+  if (getCmd() != null) {
+    evaluateCmd(getCmd());
+  }
+ else {
+    try {
+      MultiClassChunkEvalStats stats=new MultiClassChunkEvalStats("O");
+      stats.clearCounts();
+      for (      CliqueDataset c : dataset.getDatasets()) {
+        List<String> gold=modelFactory.getGold(c);
+        List<String> guesses=modelFactory.getGuesses(c);
+        stats.addGuesses(guesses,gold);
+      }
+      score=stats.score();
+      System.err.println(stats.getConllEvalString());
+    }
+ catch (    Exception ex) {
+      throw new RuntimeException(ex);
+    }
+  }
+  return score;
+}

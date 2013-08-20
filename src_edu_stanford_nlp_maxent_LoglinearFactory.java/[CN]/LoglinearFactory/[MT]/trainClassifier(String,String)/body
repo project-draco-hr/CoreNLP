@@ -1,0 +1,24 @@
+{
+  Experiments e=new DenseExperiments(experimentsFile);
+  Features feat=new Features(featuresFile,e);
+  Problem p=new Problem(e,feat);
+  LambdaSolve prob=new LambdaSolve(p,.0001,.0001);
+  prob.setNonBinary();
+  int index=experimentsFile.lastIndexOf('/');
+  String path=experimentsFile.substring(0,index) + "/temp_lambdas";
+  System.out.println(" path is " + path);
+  CGRunner runner=new CGRunner(prob,path,1e-4,1.0);
+  runner.solve();
+  LoglinearClassifier classifier=new LoglinearClassifier(e.ySize,feat.size(),prob.lambda);
+  if (hasPriors) {
+    double[] vals=new double[e.ySize];
+    Feature f=feat.get(0);
+    for (int j=0; j < f.len(); j++) {
+      int y=f.getY(j);
+      vals[y]=f.getVal(j);
+    }
+    classifier.setPriors(vals);
+  }
+  classifier.print(System.out);
+  return classifier;
+}

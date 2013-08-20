@@ -1,0 +1,36 @@
+{
+  if (strict) {
+    return checkAnswersStrict(guesses);
+  }
+  HashMap<Integer,PrecisionRecallStats> statsByType=new HashMap<Integer,PrecisionRecallStats>();
+  Map<Integer,Set<List<String>>> guessWordSequencesByType=getWordSequences(getAnswerRanges(guesses),true);
+  Map<Integer,Set<List<String>>> answerWordSequencesByType=getWordSequences(answerRangesByType,true);
+  for (  Integer type : guessWordSequencesByType.keySet()) {
+    PrecisionRecallStats stats=new PrecisionRecallStats();
+    Set<List<String>> guessWordSequences=guessWordSequencesByType.get(type);
+    Set<List<String>> answerWordSequences=answerWordSequencesByType.get(type);
+    if (answerWordSequences == null) {
+      stats.addFP(guessWordSequences.size());
+    }
+ else {
+      for (      List<String> guessWordSequence : guessWordSequences) {
+        if (answerWordSequences.contains(guessWordSequence)) {
+          stats.incrementTP();
+        }
+ else {
+          stats.incrementFP();
+        }
+      }
+      stats.addFN(answerWordSequences.size() - stats.getTP());
+    }
+    statsByType.put(type,stats);
+  }
+  for (  Integer type : answerWordSequencesByType.keySet()) {
+    if (guessWordSequencesByType.get(type) == null) {
+      PrecisionRecallStats stats=new PrecisionRecallStats();
+      stats.addFN(answerWordSequencesByType.get(type).size());
+      statsByType.put(type,stats);
+    }
+  }
+  return statsByType;
+}

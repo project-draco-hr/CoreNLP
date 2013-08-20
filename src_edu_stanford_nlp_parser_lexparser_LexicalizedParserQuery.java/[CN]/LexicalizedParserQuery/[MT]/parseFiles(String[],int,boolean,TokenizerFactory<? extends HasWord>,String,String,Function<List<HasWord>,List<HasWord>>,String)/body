@@ -1,0 +1,217 @@
+{
+  final TreebankLanguagePack tlp=op.tlpParams.treebankLanguagePack();
+  final PrintWriter pwOut=op.tlpParams.pw();
+  final PrintWriter pwErr=op.tlpParams.pw(System.err);
+  final TreePrint treePrint=getTreePrint();
+  final Timing timer=new Timing();
+  int numWords=0;
+  int numSents=0;
+  int numUnparsable=0;
+  int numNoMemory=0;
+  int numFallback=0;
+  int numSkipped=0;
+  boolean saidMemMessage=false;
+  if (op.testOptions.verbose) {
+    if (tokenizerFactory != null)     pwErr.println("parseFiles: Tokenizer factory is: " + tokenizerFactory);
+    pwErr.println("Sentence final words are: " + Arrays.asList(tlp.sentenceFinalPunctuationWords()));
+    pwErr.println("File encoding is: " + op.tlpParams.getInputEncoding());
+  }
+  boolean runningAverages=Boolean.parseBoolean(op.testOptions.evals.getProperty("runningAverages"));
+  boolean summary=Boolean.parseBoolean(op.testOptions.evals.getProperty("summary"));
+  AbstractEval.ScoreEval pcfgLL=null;
+  if (Boolean.parseBoolean(op.testOptions.evals.getProperty("pcfgLL"))) {
+    pcfgLL=new AbstractEval.ScoreEval("pcfgLL",runningAverages);
+  }
+  AbstractEval.ScoreEval depLL=null;
+  if (Boolean.parseBoolean(op.testOptions.evals.getProperty("depLL"))) {
+    depLL=new AbstractEval.ScoreEval("depLL",runningAverages);
+  }
+  AbstractEval.ScoreEval factLL=null;
+  if (Boolean.parseBoolean(op.testOptions.evals.getProperty("factLL"))) {
+    factLL=new AbstractEval.ScoreEval("factLL",runningAverages);
+  }
+  timer.start();
+  final DocType docType=(elementDelimiter == null) ? DocType.Plain : DocType.XML;
+  for (int i=argIndex; i < args.length; i++) {
+    final String filename=args[i];
+    final DocumentPreprocessor documentPreprocessor;
+    if (filename.equals("-")) {
+      try {
+        documentPreprocessor=new DocumentPreprocessor(new BufferedReader(new InputStreamReader(System.in,op.tlpParams.getInputEncoding())),docType);
+      }
+ catch (      IOException e) {
+        throw new RuntimeIOException(e);
+      }
+    }
+ else {
+      documentPreprocessor=new DocumentPreprocessor(filename,docType,op.tlpParams.getInputEncoding());
+    }
+    documentPreprocessor.setSentenceFinalPuncWords(tlp.sentenceFinalPunctuationWords());
+    documentPreprocessor.setEscaper(escaper);
+    documentPreprocessor.setSentenceDelimiter(sentenceDelimiter);
+    documentPreprocessor.setTagDelimiter(tagDelimiter);
+    documentPreprocessor.setElementDelimiter(elementDelimiter);
+    if (tokenizerFactory == null)     documentPreprocessor.setTokenizerFactory((tokenized) ? null : tlp.getTokenizerFactory());
+ else     documentPreprocessor.setTokenizerFactory(tokenizerFactory);
+    PrintWriter pwo=pwOut;
+    if (op.testOptions.writeOutputFiles) {
+      String normalizedName=filename;
+      try {
+        URL url=new URL(normalizedName);
+        normalizedName=normalizedName.replaceAll("/","_");
+      }
+ catch (      MalformedURLException e) {
+      }
+      String ext=(op.testOptions.outputFilesExtension == null) ? "stp" : op.testOptions.outputFilesExtension;
+      String fname=normalizedName + '.' + ext;
+      if (op.testOptions.outputFilesDirectory != null && !op.testOptions.outputFilesDirectory.equals("")) {
+        String fseparator=System.getProperty("file.separator");
+        if (fseparator == null || "".equals(fseparator)) {
+          fseparator="/";
+        }
+        File fnameFile=new File(fname);
+        fname=op.testOptions.outputFilesDirectory + fseparator + fnameFile.getName();
+      }
+      try {
+        pwo=op.tlpParams.pw(new FileOutputStream(fname));
+      }
+ catch (      IOException ioe) {
+        ioe.printStackTrace();
+      }
+    }
+    treePrint.printHeader(pwo,op.tlpParams.getOutputEncoding());
+    pwErr.println("Parsing file: " + filename);
+    int num=0;
+    for (    List<HasWord> sentence : documentPreprocessor) {
+      num++;
+      numSents++;
+      int len=sentence.size();
+      numWords+=len;
+      pwErr.println("Parsing [sent. " + num + " len. "+ len+ "]: "+ Sentence.listToString(sentence,true));
+      Tree ansTree=null;
+      try {
+        if (!parse(sentence)) {
+          pwErr.print("Sentence couldn't be parsed by grammar.");
+          if (pparser != null && pparser.hasParse() && fallbackToPCFG) {
+            pwErr.println("... falling back to PCFG parse.");
+            ansTree=getBestPCFGParse();
+            numFallback++;
+          }
+ else {
+            pwErr.println();
+            numUnparsable++;
+          }
+        }
+ else {
+          ansTree=getBestParse();
+        }
+        if (pcfgLL != null && pparser != null) {
+          pcfgLL.recordScore(pparser,pwErr);
+        }
+        if (depLL != null && dparser != null) {
+          depLL.recordScore(dparser,pwErr);
+        }
+        if (factLL != null && bparser != null) {
+          factLL.recordScore(bparser,pwErr);
+        }
+      }
+ catch (      OutOfMemoryError e) {
+        if (op.testOptions.maxLength != -0xDEADBEEF) {
+          pwErr.println("NOT ENOUGH MEMORY TO PARSE SENTENCES OF LENGTH " + op.testOptions.maxLength);
+          pwo.println("(())");
+          throw e;
+        }
+ else {
+          if (!saidMemMessage) {
+            printOutOfMemory(pwErr);
+            saidMemMessage=true;
+          }
+          if (pparser.hasParse() && fallbackToPCFG) {
+            try {
+              String what="dependency";
+              if (dparser.hasParse()) {
+                what="factored";
+              }
+              pwErr.println("Sentence too long for " + what + " parser.  Falling back to PCFG parse...");
+              ansTree=getBestPCFGParse();
+              numFallback++;
+            }
+ catch (            OutOfMemoryError oome) {
+              oome.printStackTrace();
+              numNoMemory++;
+              pwErr.println("No memory to gather PCFG parse. Skipping...");
+              pwo.println("(())");
+              pparser.nudgeDownArraySize();
+            }
+          }
+ else {
+            pwErr.println("Sentence has no parse using PCFG grammar (or no PCFG fallback).  Skipping...");
+            pwo.println("(())");
+            numSkipped++;
+          }
+        }
+      }
+catch (      UnsupportedOperationException uoe) {
+        pwErr.println("Sentence too long (or zero words).");
+        pwo.println("(())");
+        numWords-=len;
+        numSkipped++;
+      }
+      try {
+        treePrint.printTree(ansTree,Integer.toString(num),pwo);
+      }
+ catch (      RuntimeException re) {
+        pwErr.println("TreePrint.printTree skipped: out of memory (or other error)");
+        re.printStackTrace();
+        numNoMemory++;
+        try {
+          treePrint.printTree(null,Integer.toString(num),pwo);
+        }
+ catch (        Exception e) {
+          pwErr.println("Sentence skipped: out of memory and error calling TreePrint.");
+          pwo.println("(())");
+          e.printStackTrace();
+        }
+      }
+      if (op.testOptions.printPCFGkBest > 0 && pparser.hasParse()) {
+        List<ScoredObject<Tree>> trees=getKBestPCFGParses(op.testOptions.printPCFGkBest);
+        treePrint.printTrees(trees,Integer.toString(num),pwo);
+      }
+ else       if (op.testOptions.printFactoredKGood > 0 && bparser.hasParse()) {
+        List<ScoredObject<Tree>> trees=getKGoodFactoredParses(op.testOptions.printFactoredKGood);
+        treePrint.printTrees(trees,Integer.toString(num),pwo);
+      }
+    }
+    treePrint.printFooter(pwo);
+    if (op.testOptions.writeOutputFiles)     pwo.close();
+    pwErr.println("Parsed file: " + filename + " ["+ num+ " sentences].");
+  }
+  long millis=timer.stop();
+  if (summary) {
+    if (pcfgLL != null)     pcfgLL.display(false,pwErr);
+    if (depLL != null)     depLL.display(false,pwErr);
+    if (factLL != null)     factLL.display(false,pwErr);
+  }
+  if (saidMemMessage) {
+    printOutOfMemory(pwErr);
+  }
+  double wordspersec=numWords / (((double)millis) / 1000);
+  double sentspersec=numSents / (((double)millis) / 1000);
+  NumberFormat nf=new DecimalFormat("0.00");
+  pwErr.println("Parsed " + numWords + " words in "+ numSents+ " sentences ("+ nf.format(wordspersec)+ " wds/sec; "+ nf.format(sentspersec)+ " sents/sec).");
+  if (numFallback > 0) {
+    pwErr.println("  " + numFallback + " sentences were parsed by fallback to PCFG.");
+  }
+  if (numUnparsable > 0 || numNoMemory > 0 || numSkipped > 0) {
+    pwErr.println("  " + (numUnparsable + numNoMemory + numSkipped) + " sentences were not parsed:");
+    if (numUnparsable > 0) {
+      pwErr.println("    " + numUnparsable + " were not parsable with non-zero probability.");
+    }
+    if (numNoMemory > 0) {
+      pwErr.println("    " + numNoMemory + " were skipped because of insufficient memory.");
+    }
+    if (numSkipped > 0) {
+      pwErr.println("    " + numSkipped + " were skipped as length 0 or greater than "+ op.testOptions.maxLength);
+    }
+  }
+}

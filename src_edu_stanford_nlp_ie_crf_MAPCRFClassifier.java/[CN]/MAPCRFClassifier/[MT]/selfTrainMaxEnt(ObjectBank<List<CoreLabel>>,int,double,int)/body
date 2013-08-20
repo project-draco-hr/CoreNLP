@@ -1,0 +1,75 @@
+{
+  List<List<CoreLabel>> docs=new ArrayList<List<CoreLabel>>();
+  for (  List<CoreLabel> doc : documents) {
+    docs.add(doc);
+  }
+  for (int nIter=0; nIter < numIterations; nIter++) {
+    System.err.println("SelfTraining: NumIteration: " + nIter);
+    selfTrainDatums=new ArrayList<CRFDatum<? extends Collection<String>,? extends CharSequence>>();
+    for (int j=0; j < docs.size(); j++) {
+      List<CoreLabel> document=docs.get(j);
+      Triple<int[][][],int[],double[][][]> p=documentToDataAndLabels(document);
+      int[][][] data=p.first();
+      CliquePotentialFunction cliquePotentialFunc=new LinearCliquePotentialFunction(weights);
+      CRFCliqueTree<String> cliqueTree=CRFCliqueTree.getCalibratedCliqueTree(data,labelIndices,classIndex.size(),classIndex,flags.backgroundSymbol,cliquePotentialFunc,null);
+      TestSequenceModel testSequenceModel=new TestSequenceModel(cliqueTree);
+      ExactBestSequenceFinder tagInference=new ExactBestSequenceFinder();
+      int[] bestSequence=tagInference.bestSequence(testSequenceModel);
+      if (flags.useReverse) {
+        Collections.reverse(document);
+      }
+      for (int l=0, docSize=document.size(); l < docSize; l++) {
+        CoreLabel wi=document.get(l);
+        String guess=classIndex.get(bestSequence[l + windowSize - 1]);
+        wi.set(AnswerAnnotation.class,guess);
+      }
+      if (flags.useReverse) {
+        Collections.reverse(document);
+      }
+      featureIndex=testIndex;
+      p=documentToDataAndLabels(document);
+      data=p.first();
+      System.err.println("---Extracted Datums---\n");
+      int[] labels=new int[gramSize];
+      for (int docIndex=0; docIndex < cliqueTree.length(); docIndex++) {
+        System.arraycopy(bestSequence,docIndex,labels,0,gramSize);
+        double prob=cliqueTree.prob(docIndex,labels);
+        boolean nonOther=false;
+        for (int lIndex=0; lIndex < gramSize; lIndex++) {
+          if (!classIndex.get(labels[lIndex]).equals(flags.backgroundSymbol)) {
+            nonOther=true;
+            break;
+          }
+        }
+        if (prob >= threshold && nonOther) {
+          int beginPos=Math.max(0,docIndex - gramSize + 1);
+          List<CRFDatum<? extends Collection<String>,? extends CharSequence>> datums=extractDatumSequence(data,beginPos,docIndex,document);
+          System.err.print(docIndex + "  ");
+          for (int ind=beginPos; ind <= docIndex; ind++)           System.err.print((document.get(ind)).word() + "  ");
+          for (          CRFDatum datum : datums)           System.err.print(datum.label() + " ");
+          System.err.println(" prob " + prob);
+          selfTrainDatums.add(datums);
+        }
+      }
+      docs.set(j,document);
+    }
+    System.err.println("SelfTraining: NumIteration: " + nIter + " NumDatumsAdded: "+ selfTrainDatums.size());
+    trainMaxEnt(docs,selfTrainDatums);
+    saveProcessedData(selfTrainDatums,"selfTrainDatums" + nIter);
+    File featIndexFile=null;
+    if (flags.saveFeatureIndexToDisk) {
+      try {
+        System.err.println("SelfTraining: Writing feature index to temporary file.");
+        featIndexFile=File.createTempFile("selfTrainFeatIndex" + nIter,".tmp");
+        featIndexFile.deleteOnExit();
+        ObjectOutputStream oos=new ObjectOutputStream(new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(featIndexFile))));
+        oos.writeObject(featureIndex);
+        oos.close();
+        featureIndex=null;
+      }
+ catch (      IOException e) {
+        throw new RuntimeException("Could not open temporary feature index file for writing.");
+      }
+    }
+  }
+}

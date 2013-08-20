@@ -1,0 +1,105 @@
+{
+  jPanel2=new javax.swing.JPanel();
+  jPanel1=new javax.swing.JPanel();
+  jLabel1=new javax.swing.JLabel();
+  sourceDirField=new javax.swing.JTextField();
+  sourceDirButton=new javax.swing.JButton();
+  jPanel11=new javax.swing.JPanel();
+  jLabel11=new javax.swing.JLabel();
+  targetDirField=new javax.swing.JTextField();
+  targetDirButton=new javax.swing.JButton();
+  jPanel4=new javax.swing.JPanel();
+  unannotatedBox=new javax.swing.JCheckBox();
+  jPanel3=new javax.swing.JPanel();
+  okButton=new javax.swing.JButton();
+  cancelButton=new javax.swing.JButton();
+  setTitle("Batch Process");
+  addWindowListener(new java.awt.event.WindowAdapter(){
+    @Override public void windowClosing(    java.awt.event.WindowEvent evt){
+      closeDialog(evt);
+    }
+  }
+);
+  jPanel2.setLayout(new javax.swing.BoxLayout(jPanel2,javax.swing.BoxLayout.Y_AXIS));
+  jPanel2.setBorder(new javax.swing.border.TitledBorder("Batch Processing Options"));
+  jLabel1.setText("Source Directory:");
+  jLabel1.setToolTipText("Directory containing files to be annotated.");
+  jPanel1.add(jLabel1);
+  sourceDirField.setPreferredSize(new java.awt.Dimension(200,20));
+  sourceDirField.getDocument().addDocumentListener(new DocumentListener(){
+    public void changedUpdate(    DocumentEvent e){
+      enableOkButton();
+    }
+    public void insertUpdate(    DocumentEvent e){
+      enableOkButton();
+    }
+    public void removeUpdate(    DocumentEvent e){
+      enableOkButton();
+    }
+  }
+);
+  jPanel1.add(sourceDirField);
+  sourceDirButton.setText("Select...");
+  sourceDirButton.setToolTipText("Open file chooser to select source directory.");
+  sourceDirButton.addActionListener(new java.awt.event.ActionListener(){
+    public void actionPerformed(    java.awt.event.ActionEvent evt){
+      sourceDirButtonActionPerformed(evt);
+    }
+  }
+);
+  jPanel1.add(sourceDirButton);
+  jPanel2.add(jPanel1);
+  jLabel11.setText("Target Directory: ");
+  jLabel11.setToolTipText("Directory where annotated files will be saved.");
+  jPanel11.add(jLabel11);
+  targetDirField.setPreferredSize(new java.awt.Dimension(200,20));
+  targetDirField.getDocument().addDocumentListener(new DocumentListener(){
+    public void changedUpdate(    DocumentEvent e){
+      enableOkButton();
+    }
+    public void insertUpdate(    DocumentEvent e){
+      enableOkButton();
+    }
+    public void removeUpdate(    DocumentEvent e){
+      enableOkButton();
+    }
+  }
+);
+  jPanel11.add(targetDirField);
+  targetDirButton.setText("Select...");
+  targetDirButton.setToolTipText("Open file chooser to select target directory.");
+  targetDirButton.addActionListener(new java.awt.event.ActionListener(){
+    public void actionPerformed(    java.awt.event.ActionEvent evt){
+      targetDirButtonActionPerformed(evt);
+    }
+  }
+);
+  jPanel11.add(targetDirButton);
+  jPanel2.add(jPanel11);
+  unannotatedBox.setSelected(true);
+  unannotatedBox.setText("Unannotated Only");
+  unannotatedBox.setToolTipText("If selected, only opens currently unannotated files.");
+  jPanel4.add(unannotatedBox);
+  jPanel2.add(jPanel4);
+  getContentPane().add(jPanel2,java.awt.BorderLayout.CENTER);
+  okButton.setText("OK");
+  okButton.setToolTipText("Confirm and close this dialog.");
+  okButton.addActionListener(new java.awt.event.ActionListener(){
+    public void actionPerformed(    java.awt.event.ActionEvent evt){
+      okButtonActionPerformed(evt);
+    }
+  }
+);
+  jPanel3.add(okButton);
+  cancelButton.setText("Cancel");
+  cancelButton.setToolTipText("Cancel and close this dialog.");
+  cancelButton.addActionListener(new java.awt.event.ActionListener(){
+    public void actionPerformed(    java.awt.event.ActionEvent evt){
+      cancelButtonActionPerformed(evt);
+    }
+  }
+);
+  jPanel3.add(cancelButton);
+  getContentPane().add(jPanel3,java.awt.BorderLayout.SOUTH);
+  pack();
+}

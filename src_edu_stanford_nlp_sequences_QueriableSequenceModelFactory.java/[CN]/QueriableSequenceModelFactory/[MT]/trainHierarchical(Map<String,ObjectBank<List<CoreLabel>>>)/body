@@ -1,0 +1,78 @@
+{
+  Map<String,ObjectiveFunctionInterface> objFuncs=new HashMap();
+  Map<String,MultiDocumentCliqueDataset> datasets=new HashMap();
+  Map<String,Double> adaptSigmas=new HashMap();
+  if (flags.transferSigmas != null) {
+    for (    String bit : flags.transferSigmas.split(",")) {
+      String[] bits=bit.split("=");
+      adaptSigmas.put(bits[0],Double.parseDouble(bits[1]));
+    }
+  }
+  Counter<String> domainSizes=new ClassicCounter();
+  for (  Map.Entry<String,ObjectBank<List<CoreLabel>>> entry : trainingData.entrySet()) {
+    String domainName=entry.getKey();
+    ObjectBank<List<CoreLabel>> data=entry.getValue();
+    Set<String> possibleAnswers=new HashSet();
+    for (    List<CoreLabel> doc : data) {
+      for (      CoreLabel word : doc) {
+        possibleAnswers.add(word.get(AnswerAnnotation.class));
+        domainSizes.incrementCount(domainName);
+      }
+    }
+    if (flags.restrictLabels) {
+      String pa=StringUtils.join(possibleAnswers,",");
+      System.err.println("======> " + pa);
+      answersByDomain.put(domainName,pa);
+      for (      List<CoreLabel> doc : data) {
+        for (        CoreLabel word : doc) {
+          word.set(PossibleAnswersAnnotation.class,pa);
+        }
+      }
+    }
+    MultiDocumentCliqueDataset dataset=new MultiDocumentCliqueDataset(metaInfo,flags,data);
+    datasets.put(domainName,dataset);
+  }
+  for (  Map.Entry<String,ObjectBank<List<CoreLabel>>> entry : trainingData.entrySet()) {
+    String domainName=entry.getKey();
+    if (!adaptSigmas.containsKey(domainName)) {
+      double mult=domainSizes.totalCount() / domainSizes.getCount(domainName);
+      adaptSigmas.put(domainName,mult * flags.adaptSigma);
+    }
+  }
+  System.err.println(adaptSigmas);
+  PrintWriter pw=new PrintWriter(System.err,true);
+  for (  Map.Entry<String,MultiDocumentCliqueDataset> entry : datasets.entrySet()) {
+    String domainName=entry.getKey();
+    MultiDocumentCliqueDataset dataset=entry.getValue();
+    ObjectiveFunctionInterface objFunc=provider.getObjectiveFunction(dataset);
+    objFuncs.put(domainName,objFunc);
+    System.err.println("==========================================================");
+    System.err.println("domain = " + domainName);
+    System.err.println("==========================================================");
+    dataset.printStats(pw);
+  }
+  Interner.getGlobal().clear();
+  metaInfo.fm.makeFaster();
+  HierarchicalObjectiveFunction func=new HierarchicalObjectiveFunction(objFuncs,metaInfo,flags.sigma,adaptSigmas);
+  Minimizer minimizer;
+  if (flags.useQN) {
+    minimizer=new QNMinimizer(flags.QNsize,flags.useRobustQN);
+  }
+ else   if (flags.useSGD) {
+    if (flags.tuneSGD) {
+      StochasticMinimizer sgd=new SGDMinimizer(flags.gainSGD,flags.stochasticBatchSize,flags.SGDPasses);
+      Pair<Integer,Double> ret=sgd.tune(func,func.initial(),5 * 60 * 1000);
+      flags.stochasticBatchSize=ret.first();
+      flags.gainSGD=ret.second();
+      sgd=null;
+    }
+    minimizer=new SGDMinimizer(flags.gainSGD,flags.stochasticBatchSize,flags.SGDPasses,flags.outputIterationsToFile);
+  }
+ else {
+    minimizer=new CGMinimizer();
+  }
+  hierarchicalWeights=func.convertWeights(minimizer.minimize(func,flags.tolerance,func.initial(),flags.maxIterations));
+  if (flags.saveFeatureIndexToDisk) {
+    metaInfo.readFromDisk();
+  }
+}

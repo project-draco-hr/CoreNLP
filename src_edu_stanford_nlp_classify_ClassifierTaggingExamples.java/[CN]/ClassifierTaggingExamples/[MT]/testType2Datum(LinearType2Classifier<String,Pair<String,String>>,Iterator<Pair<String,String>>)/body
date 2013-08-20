@@ -1,0 +1,16 @@
+{
+  int total=0;
+  int correct=0;
+  for (; examples.hasNext(); ) {
+    Pair<String,String> next=examples.next();
+    Object correctLabel=integers.get(labelIndex.indexOf(next.second()));
+    Type2Datum<String,Pair<String,String>> datum=makeType2Datum(next.first(),next.second());
+    Object guess=lC.classOf(datum);
+    if (correctLabel.equals(guess)) {
+      correct++;
+    }
+    total++;
+  }
+  System.err.println("correct " + correct + " out of "+ total);
+  return correct / (double)total;
+}

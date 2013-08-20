@@ -20,7 +20,7 @@
         words.add(tw.word());
         tags.add(tw.tag());
         if (!maxentTagger.tagTokens.containsKey(tw.tag())) {
-          maxentTagger.tagTokens.put(tw.tag(),Generics.<String>newHashSet());
+          maxentTagger.tagTokens.put(tw.tag(),new HashSet<String>());
         }
         maxentTagger.tagTokens.get(tw.tag()).add(tw.word());
       }
@@ -35,8 +35,8 @@
       String tag=tags.get(i);
       String word=words.get(i);
       pairs.add(new WordTag(word,tag));
-      int y=maxentTagger.addTag(tag);
-      DataWordTag dat=new DataWordTag(h,y,tag);
+      int y=maxentTagger.tags.add(tag);
+      DataWordTag dat=new DataWordTag(h,y,maxentTagger.tags);
       v.add(dat);
       IntCounter<String> tagCounts=wordTagCounts.get(word);
       if (tagCounts == null) {

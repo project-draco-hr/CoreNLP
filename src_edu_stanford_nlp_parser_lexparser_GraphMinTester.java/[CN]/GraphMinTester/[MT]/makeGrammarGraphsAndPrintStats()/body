@@ -1,0 +1,48 @@
+{
+  Map<String,List<List<String>>> allPaths=extractPaths("/u/nlp/stuff/corpora/Treebank3/parsed/mrg/wsj",200,2199);
+  TransducerGraph.ArcProcessor ocp=new TransducerGraph.OutputCombiningProcessor();
+  System.out.println("symb\tN\tminN\tM\tK\tKN/M\tEM\tSEM\tFEM");
+  int pathLength=5;
+  AutomatonMinimizer exactMinimizer=new ExactAutomatonMinimizer(false);
+  AutomatonMinimizer sparseExactMinimizer=new ExactAutomatonMinimizer(true);
+  AutomatonMinimizer fastExactMinimizer=new FastExactAutomatonMinimizer();
+  for (  String symbol : allPaths.keySet()) {
+    List<List<String>> paths=allPaths.get(symbol);
+    TransducerGraph graph=TransducerGraph.createGraphFromPaths(paths,3);
+    graph=new TransducerGraph(graph,ocp);
+    int numNodes=graph.getNodes().size();
+    int numArcs=graph.getArcs().size();
+    int numActualInputs=graph.getInputs().size();
+    System.out.print(symbol + "\t" + numNodes+ "\t");
+    long startTime;
+    long elapsedTime;
+    TransducerGraph graph1=new TransducerGraph(graph);
+    System.gc();
+    startTime=System.currentTimeMillis();
+    TransducerGraph result1=exactMinimizer.minimizeFA(graph1);
+    elapsedTime=System.currentTimeMillis() - startTime;
+    long time1=elapsedTime;
+    long sqtime1=elapsedTime * elapsedTime;
+    int numNodes1=result1.getNodes().size();
+    TransducerGraph graph2=new TransducerGraph(graph);
+    System.gc();
+    startTime=System.currentTimeMillis();
+    TransducerGraph result2=sparseExactMinimizer.minimizeFA(graph2);
+    elapsedTime=System.currentTimeMillis() - startTime;
+    long time2=elapsedTime;
+    long sqtime2=elapsedTime * elapsedTime;
+    long numNodes2=result2.getNodes().size();
+    TransducerGraph graph3=new TransducerGraph(graph);
+    System.gc();
+    startTime=System.currentTimeMillis();
+    TransducerGraph result3=fastExactMinimizer.minimizeFA(graph3);
+    elapsedTime=System.currentTimeMillis() - startTime;
+    long time3=elapsedTime;
+    long sqtime3=elapsedTime * elapsedTime;
+    long numNodes3=result3.getNodes().size();
+    if (numNodes1 != numNodes2 || numNodes1 != numNodes3) {
+      System.out.println("Minimizers don't agree on the number of nodes.");
+    }
+    System.out.println(numNodes1 + "\t" + numArcs+ "\t"+ numActualInputs+ "\t"+ ((double)numActualInputs * (double)numNodes / numArcs)+ "\t"+ (time1 / 1000.0)+ "\t"+ (time2 / 1000.0)+ "\t"+ (time3 / 1000.0));
+  }
+}

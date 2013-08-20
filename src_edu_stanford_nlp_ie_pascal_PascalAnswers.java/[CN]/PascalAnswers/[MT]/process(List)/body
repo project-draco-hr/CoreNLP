@@ -1,0 +1,39 @@
+{
+  List canonical=new ArrayList();
+  for (Iterator iter=orig.iterator(); iter.hasNext(); ) {
+    String s=(String)iter.next();
+    s=s.toLowerCase();
+    if (s.endsWith("-")) {
+      s=s.substring(0,s.length() - 1);
+      if (s.length() == 0) {
+        continue;
+      }
+    }
+    int index=s.indexOf("-");
+    if (index >= 0) {
+      String s1=s.substring(0,index);
+      String s2=s.substring(index + 1);
+      if (!stopwords.contains(s1)) {
+        Matcher m=removePattern.matcher(s1);
+        if (!m.matches()) {
+          canonical.add(s1);
+        }
+      }
+      if (!stopwords.contains(s2)) {
+        Matcher m=removePattern.matcher(s2);
+        if (!m.matches()) {
+          canonical.add(s2);
+        }
+      }
+    }
+ else {
+      if (!stopwords.contains(s)) {
+        Matcher m=removePattern.matcher(s);
+        if (!m.matches()) {
+          canonical.add(s);
+        }
+      }
+    }
+  }
+  return canonical;
+}

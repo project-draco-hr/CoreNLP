@@ -1,0 +1,24 @@
+{
+  super.tally(golds,guesses);
+  if (bestByClass) {
+    Set keys=Sets.union(eval.lastPrecision().keySet(),eval.lastRecall().keySet());
+    for (    Object key : keys) {
+      double thisF1=EquivalenceClassEval.f1(eval.lastPrecision(key),eval.lastRecall(key));
+      if (thisF1 >= resultF1.getCount(key) || resultF1.getCount(null) == 0.0) {
+        resultPrecision.setCount(key,eval.lastPrecision(key));
+        resultRecall.setCount(key,eval.lastRecall(key));
+        resultF1.setCount(key,thisF1);
+        resultNumGuesses.setCount(key,eval.lastNumGuessed(key));
+      }
+    }
+  }
+ else {
+    double thisF1=EquivalenceClassEval.f1(eval.lastNumGuessedCorrect().totalCount() / eval.lastNumGuessed().totalCount(),eval.lastNumGoldsCorrect().totalCount() / eval.lastNumGolds().totalCount());
+    if (thisF1 >= resultF1.getCount(null) || resultF1.getCount(null) == 0.0) {
+      resultF1.setCount(null,thisF1);
+      resultPrecision=eval.lastPrecision();
+      resultRecall=eval.lastRecall();
+      resultNumGuesses=eval.lastNumGuessed();
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  if (classInstance == null || classInstance instanceof String || classInstance instanceof Integer || classInstance instanceof Double || classInstance instanceof Long || classInstance instanceof Float) {
+    valuePanel.removeAll();
+    valuePanel.add("Center",valueField);
+    valueField.setValue(classInstance);
+  }
+ else   if (classInstance instanceof File) {
+    JButton browseButton=new JButton();
+    browseButton.setText("...");
+    browseButton.setToolTipText("Browse for file");
+    browseButton.setMargin(new java.awt.Insets(0,4,0,4));
+    browseButton.addActionListener(new java.awt.event.ActionListener(){
+      final JFileChooser jfc=new JFileChooser();
+      public void actionPerformed(      java.awt.event.ActionEvent evt){
+        jfc.setSelectedFile(new File(valueField.getText()));
+        jfc.setDialogTitle("Select File");
+        if (jfc.showOpenDialog(PropertyPanel.this) == JFileChooser.APPROVE_OPTION) {
+          valueField.setText(jfc.getSelectedFile().getAbsolutePath());
+        }
+      }
+    }
+);
+    valuePanel.removeAll();
+    valuePanel.add("Center",valueField);
+    valuePanel.add("East",browseButton);
+  }
+ else   if (classInstance instanceof List) {
+    JComboBox chooser=new JComboBox(((List)classInstance).toArray());
+    chooser.addItemListener(new ItemListener(){
+      public void itemStateChanged(      ItemEvent e){
+        valueField.setText(e.getItem().toString());
+      }
+    }
+);
+    valuePanel.removeAll();
+    valuePanel.add("Center",chooser);
+  }
+ else   if (classInstance instanceof Boolean) {
+    setPropertyClass(Arrays.asList(new String[]{"True","False"}));
+  }
+}

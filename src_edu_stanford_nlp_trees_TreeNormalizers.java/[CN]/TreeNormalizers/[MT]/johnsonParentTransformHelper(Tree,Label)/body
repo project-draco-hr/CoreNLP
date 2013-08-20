@@ -1,0 +1,16 @@
+{
+  if (tree == null || tree.isLeaf()) {
+    return;
+  }
+  Label label=tree.label();
+  StringBuffer newLabelSB=new StringBuffer();
+  newLabelSB.append(label.toString());
+  newLabelSB.append("^");
+  newLabelSB.append(parentLabel.toString());
+  tree.setLabel(new Word(newLabelSB.toString()));
+  Tree[] kids=tree.children();
+  for (int i=0; i < kids.length; i++) {
+    Tree child=kids[i];
+    johnsonParentTransformHelper(child,label);
+  }
+}

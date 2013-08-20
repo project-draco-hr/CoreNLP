@@ -1,0 +1,19 @@
+{
+  ArrayList<String> sorted=new ArrayList<String>(packageNames.keySet());
+  Collections.sort(sorted);
+  for (  String packageName : sorted) {
+    System.out.print('\t');
+    int count=(int)packageNames.getCount(packageName);
+    System.out.print(packageName + ": " + count+ " ");
+    StringBuilder buff=new StringBuilder();
+    buff.append("[" + packageUser.get(packageName));
+    if ((int)packageNames.getCount(packageName) > 1) {
+      buff.append(", ...");
+    }
+    buff.append("]");
+    System.out.println(buff.toString());
+    if (depGraph != null) {
+      depGraph.addArc(sourcePackage,packageName,Integer.valueOf(count),buff.toString());
+    }
+  }
+}

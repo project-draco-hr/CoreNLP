@@ -1,0 +1,19 @@
+{
+  value=0.0;
+  if (derivative == null) {
+    derivative=new double[w.length];
+  }
+ else {
+    Arrays.fill(derivative,0.0);
+  }
+  ArrayMath.addMultInPlace(derivative,sumDeltaXDeltaY,-1.0);
+  value-=ArrayMath.innerProduct(w,sumDeltaXDeltaY);
+  for (int i=0; i < numData; i++) {
+    double[] deltaX=new double[numFeatures];
+    for (int j=0; j < numFeatures; j++)     deltaX[j]=-xAvg[j];
+    for (int j=0; j < data[i].length; j++)     deltaX[data[i][j]]+=values[i][j];
+    double wTDeltaX=ArrayMath.innerProduct(w,deltaX);
+    value+=0.5 * regularizationCoeff * Math.pow(wTDeltaX,2);
+    ArrayMath.addMultInPlace(derivative,deltaX,regularizationCoeff * wTDeltaX);
+  }
+}

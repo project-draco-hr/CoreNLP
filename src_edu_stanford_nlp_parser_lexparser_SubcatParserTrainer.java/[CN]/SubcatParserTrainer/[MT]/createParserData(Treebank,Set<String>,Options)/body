@@ -1,0 +1,69 @@
+{
+  List<Tree> subcatMarkedTrees=new ArrayList<Tree>();
+  TreebankLangParserParams tlpParams=op.tlpParams;
+  TreebankLanguagePack tlp=op.langpack();
+  TreeTransformer annotator=new TreeAnnotator(tlpParams.headFinder(),tlpParams,op);
+  TreeTransformer subcatmarker=new SubcatMarker();
+  Extractor<ClassicCounter<Tree>> localTreeExtractor=new SubcatMarkedLocalTreeExtractor(op.langpack(),op);
+  TreeBinarizer binarizer=new TreeBinarizer(tlpParams.headFinder(),tlp,!op.trainOptions.outsideFactor(),op.trainOptions.markovFactor,op.trainOptions.markovOrder,op.trainOptions.compactGrammar() > 0,op.trainOptions.compactGrammar() > 1,op.trainOptions.HSEL_CUT,op.trainOptions.markFinalStates,op.trainOptions.simpleBinarizedLabels,op.trainOptions.noRebinarization);
+  TreeAnnotatorAndBinarizer rootAdder=new TreeAnnotatorAndBinarizer(tlpParams,op.forceCNF,false,false,op);
+  if (op.trainOptions.selectiveSplit) {
+    op.trainOptions.splitters=ParentAnnotationStats.getSplitCategories(trainTreebank,op.trainOptions.selectiveSplitCutOff,tlpParams.treebankLanguagePack());
+  }
+  if (op.trainOptions.selectivePostSplit) {
+    TreeTransformer myTransformer=new TreeAnnotator(tlpParams.headFinder(),tlpParams,op);
+    Treebank annotatedTB=trainTreebank.transform(myTransformer);
+    op.trainOptions.postSplitters=ParentAnnotationStats.getSplitCategories(annotatedTB,op.trainOptions.selectivePostSplitCutOff,tlpParams.treebankLanguagePack());
+  }
+  Timing.startTime();
+  System.out.print("Annotating trees...");
+  for (  Tree tree : trainTreebank) {
+    tree=subcatmarker.transformTree(tree);
+    tree=annotator.transformTree(tree);
+    rootAdder.addRoot(tree);
+    subcatMarkedTrees.add(tree);
+  }
+  Timing.tick("done.");
+  Timing.startTime();
+  System.out.print("Extracting local subcat trees...");
+  ClassicCounter<Tree> localTrees=localTreeExtractor.extract(subcatMarkedTrees);
+  Timing.tick("done.");
+  Timing.startTime();
+  System.out.print("Binarizing trees...");
+  if (op.trainOptions.hSelSplit) {
+    binarizer.setDoSelectiveSplit(false);
+    for (    Tree localTree : localTrees.keySet()) {
+      binarizer.transformTree(localTree);
+    }
+    binarizer.setDoSelectiveSplit(true);
+  }
+  ClassicCounter<Tree> binarizedLocalTrees=new ClassicCounter<Tree>();
+  for (  Tree localTree : localTrees.keySet()) {
+    Tree binarizedTree=binarizer.transformTree(localTree);
+    binarizedLocalTrees.incrementCount(binarizedTree,localTrees.getCount(localTree));
+  }
+  Timing.tick("done.");
+  Index<String> stateIndex=new HashIndex<String>();
+  Extractor<Pair<UnaryGrammar,BinaryGrammar>> wbgExtractor=new WeightedBinaryGrammarExtractor(op,binarizedLocalTrees,stateIndex);
+  System.out.print("Extracting PCFG...");
+  Pair<UnaryGrammar,BinaryGrammar> bgug=wbgExtractor.extract(new ArrayList<Tree>(binarizedLocalTrees.keySet()));
+  BinaryGrammar bg=bgug.second;
+  bg.splitRules();
+  UnaryGrammar ug=bgug.first;
+  ug.purgeRules();
+  Timing.tick("done.");
+  System.out.print("Extracting Lexicon...");
+  Index<String> wordIndex=new HashIndex<String>();
+  Index<String> tagIndex=new HashIndex<String>();
+  SubcatLexicon lex=new SubcatLexicon(targetWords,op.langpack(),op,wordIndex,tagIndex);
+  lex.initializeTraining(subcatMarkedTrees.size());
+  lex.train(subcatMarkedTrees);
+  lex.finishTraining();
+  Timing.tick("done.");
+  String[] goalStrings=makeGoalStrings();
+  for (  String goalString : goalStrings) {
+    stateIndex.indexOf(goalString,true);
+  }
+  System.out.println("numStates: " + stateIndex.size());
+  return new LexicalizedParser(lex,bg,ug,null,stateIndex,wordIndex,tagIndex,op);
+}

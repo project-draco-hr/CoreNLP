@@ -1,0 +1,38 @@
+{
+  String dateFields[]={subdate,notedate,camdate,wsdate};
+  boolean nullFields[]=new boolean[4];
+  long dates[]=new long[4];
+  double prob=1.0;
+  HashSet presentFields=new HashSet();
+  for (int i=0; i < dateFields.length; i++) {
+    if (dateFields[i].trim().equals(INVALID_DATE)) {
+      dateFields[i]=null;
+      nullFields[i]=true;
+    }
+ else {
+      presentFields.add(PascalTemplate.fields[i]);
+      nullFields[i]=false;
+      try {
+        Date dateDate=dateFormat.parse(dateFields[i]);
+        Calendar date=Calendar.getInstance();
+        date.setTime(dateDate);
+        dates[i]=date.getTimeInMillis();
+      }
+ catch (      ParseException e) {
+        prob=0;
+      }
+    }
+  }
+  prob*=priors.get(presentFields);
+  for (int i=0; i < 4; i++) {
+    if (!nullFields[i]) {
+      for (int j=i + 1; j < 4; j++) {
+        if (!nullFields[j]) {
+          if (dates[i] == dates[j])           prob*=.05;
+          if ((dates[i] > dates[j]) && i != 2)           prob*=.05;
+        }
+      }
+    }
+  }
+  return prob;
+}

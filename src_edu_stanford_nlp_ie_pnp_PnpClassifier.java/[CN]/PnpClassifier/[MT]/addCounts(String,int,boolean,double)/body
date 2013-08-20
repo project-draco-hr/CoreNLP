@@ -1,0 +1,45 @@
+{
+  if (padBeginning) {
+    line=getEndMarkedString(line);
+  }
+ else   if (!line.endsWith("" + endSymbol)) {
+    line+=endSymbol;
+  }
+  if (!parametersTuned) {
+    if (++numExamples % (Math.round(100.0 / heldOutPercent)) == 0) {
+      heldOutExamples[category].add(line);
+      heldOutWeights[category].add(new Double(weight));
+      return;
+    }
+  }
+  categoryCounts[category]++;
+  if (useWordModel) {
+    List<String> words=getWordsWithContext(line);
+    for (int i=0; i < words.size(); i++) {
+      String wordWithContext=words.get(i);
+      String pureWord=getPureString(wordWithContext);
+      int wordLength=pureWord.length();
+      wordCounts[category].incrementCount(pureWord,weight);
+      wordTotalsByLength[category].incrementCount(Integer.valueOf(wordLength),weight);
+    }
+  }
+  if (useLengthModel) {
+    String wordLengths=getWordLengthsString(line);
+    for (int i=ln - 1; i <= wordLengths.length(); i++) {
+      wordTotalCounts[category]++;
+      int max=Math.min(ln,i);
+      for (int j=1; j <= max; j++) {
+        lengthSequenceCounts[category].incrementCount(wordLengths.substring(i - j,i),weight);
+      }
+    }
+  }
+  if (useCharModel) {
+    for (int i=cn - 1; i <= line.length(); i++) {
+      charTotalCounts[category]++;
+      int max=Math.min(cn,i);
+      for (int j=1; j <= max; j++) {
+        charSequenceCounts[category].incrementCount(line.substring(i - j,i),weight);
+      }
+    }
+  }
+}

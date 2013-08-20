@@ -1,0 +1,19 @@
+{
+  setStatus("Loading classifier from " + path + "...");
+  try {
+    InputStream in;
+    if (path.endsWith(".gz")) {
+      in=new GZIPInputStream(new FileInputStream(path));
+    }
+ else {
+      in=new FileInputStream(path);
+    }
+    classifier=CMMClassifier.getClassifier(new BufferedInputStream(new ProgressMonitorInputStream(this,"Loading serialized classifier from " + path,in)));
+  }
+ catch (  Exception e) {
+    setStatus("Error loading classifier.");
+    return;
+  }
+  setStatus("Classifier successfully loaded.");
+  processButton.setEnabled(true);
+}

@@ -1,0 +1,17 @@
+{
+  Collection<String> feat=getCharFeatures(cInfo,loc,true);
+  addSingletonFeatures(feat,cInfo,loc);
+  addReverseAffixFeatures(feat,cInfo,loc);
+  if (flags.useNumberFeature && loc > 0) {
+    String c=cInfo.get(loc).get(ChineseCharAnnotation.class);
+    String p=cInfo.get(loc - 1).get(ChineseCharAnnotation.class);
+    if (c != null && p != null && c.length() == 1 && p.length() == 1) {
+      char c1=c.charAt(0);
+      char p1=p.charAt(0);
+      if (c1 >= '0' && c1 <= '9' && p1 >= '0' && p1 <= '9') {
+        feat.add("P#_C#");
+      }
+    }
+  }
+  return feat;
+}

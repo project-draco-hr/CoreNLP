@@ -1,0 +1,18 @@
+{
+  RVFDataset<Double,String> trainData=new RVFDataset<Double,String>();
+  for (double i=0; i < 20; i+=2) {
+    trainData.add(newRVFDatum(Math.pow(i,2),"foo",i));
+  }
+  RVFDataset<Double,String> testData=new RVFDataset<Double,String>();
+  testData.add(newRVFDatum(6.0,"bar",3.0));
+  testData.add(newRVFDatum((Double)null,"foo",0.0));
+  testData.add(newRVFDatum(1.0,"foo",3.0));
+  testData.add(newRVFDatum(1.0,"foo",11.0));
+  List<Long> expected=Arrays.asList(0L,0L,9L,121L);
+  SVMLightRegressionFactory<String> factory=new SVMLightRegressionFactory<String>();
+  factory.setKernelType(SVMLightRegressionFactory.KernelType.Polynomial);
+  factory.setDegree(2);
+  factory.setCost(100.0);
+  Regressor<String> svm=factory.train(trainData,this.modelFile);
+  Assert.assertEquals(expected,rounded(svm.valuesOf(testData)));
+}

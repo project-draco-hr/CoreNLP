@@ -1,0 +1,36 @@
+{
+  if (respectTypes) {
+    badDocs=new HashSet();
+  }
+  if (unseenMode == UNSEENMODE_UNK_LOW_COUNTS) {
+    observedDocs=new UnknownWordCollapser(vocab.keySet(),unkModel == UNKMODEL_FEATURAL_DECOMP,feat).processCorpus(observedDocs);
+  }
+  double loglike=0.0;
+  for (int d=0, size=observedDocs.size(); d < size; d++) {
+    if (!respectTypes && badDocs.contains(Integer.valueOf(d))) {
+      if (verbose) {
+        System.err.println("Skipping doc " + d + " because constrained logLikelihood couldn't generate it");
+      }
+      continue;
+    }
+    Document doc=(Document)observedDocs.get(d);
+    forwardAlgorithm(doc,useScaling,respectTypes);
+    if (sanityCheck) {
+      backwardAlgorithm(doc,useScaling,respectTypes);
+    }
+    double docLike=lastDocumentLogLikelihood(useScaling);
+    if (!Double.isNaN(docLike)) {
+      loglike+=docLike;
+    }
+ else     if (!ignoreUngeneratableDocs) {
+      if (verbose) {
+        System.err.print("Document " + d + " likelihood is NaN");
+      }
+      return Double.NEGATIVE_INFINITY;
+    }
+ else {
+      badDocs.add(Integer.valueOf(d));
+    }
+  }
+  return loglike;
+}

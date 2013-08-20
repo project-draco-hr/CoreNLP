@@ -1,0 +1,21 @@
+{
+  int totalExamples=posExamples.size() + negExamples.size();
+  Dataset<String,IntFeature> data=new Dataset<String,IntFeature>(totalExamples);
+  System.err.println("Compiling examples");
+  for (  IntDependency dep : posExamples.keySet()) {
+    Collection<IntFeature> features=makeFeatures(dep.head.word,dep.head.tag,dep.arg.word,dep.arg.tag,dep.leftHeaded,dep.distance);
+    data.add(features,posLabel);
+    if (data.size() % 1000 == 0) {
+      System.err.println(data.size() + "/" + totalExamples+ " examples processed.  joint features: "+ data.numFeatureTypes());
+    }
+  }
+  for (  IntDependency dep : negExamples.keySet()) {
+    Collection<IntFeature> features=makeFeatures(dep.head.word,dep.head.tag,dep.arg.word,dep.arg.tag,dep.leftHeaded,dep.distance);
+    data.add(features,negLabel);
+    if (data.size() % 1000 == 0) {
+      System.err.println(data.size() + "/" + totalExamples+ " examples processed.  joint features: "+ data.numFeatureTypes());
+    }
+  }
+  negExamples=null;
+  return data;
+}

@@ -79,6 +79,7 @@
       try {
         System.err.println("Writing feature index to temporary file.");
         featIndexFile=IOUtils.writeObjectToTempFile(featureIndex,"featIndex" + i + ".tmp");
+        featureIndex=null;
       }
  catch (      IOException e) {
         throw new RuntimeException("Could not open temporary feature index file for writing.");
@@ -131,9 +132,6 @@
       }
  else {
         CRFNonLinearLogConditionalObjectiveFunction func=new CRFNonLinearLogConditionalObjectiveFunction(data,labels,windowSize,classIndex,labelIndices,map,flags,nodeFeatureIndicesMap.size(),edgeFeatureIndicesMap.size(),featureVals);
-        if (flags.useAdaGradFOBOS) {
-          func.gradientsOnly=true;
-        }
         cliquePotentialFunctionHelper=func;
         double[] allWeights=trainWeightsUsingNonLinearCRF(func,evaluators);
         Triple<double[][],double[][],double[][]> params=func.separateWeights(allWeights);
@@ -177,24 +175,9 @@
         oneDimWeights=trainWeightsUsingLopCRF(numFeatures,data,labels,evaluators,i);
       }
  else {
-        int[][][][] unsupDropoutData=null;
-        if (flags.unsupDropoutFile != null) {
-          System.err.println("Reading unsupervised dropout data from file: " + flags.unsupDropoutFile);
-          timer.start();
-          ObjectBank<List<IN>> unsupObjBank=makeObjectBankFromFile(flags.unsupDropoutFile,readerAndWriter);
-          List<List<IN>> unsupDocs=new ArrayList<List<IN>>();
-          for (          List<IN> doc : unsupObjBank) {
-            unsupDocs.add(doc);
-          }
-          List<Triple<int[][][],int[],double[][][]>> unsupDataAndLabels=documentsToDataAndLabelsList(unsupDocs);
-          unsupDropoutData=new int[unsupDataAndLabels.size()][][][];
-          for (int q=0; q < unsupDropoutData.length; q++)           unsupDropoutData[q]=unsupDataAndLabels.get(q).first();
-          elapsedMs=timer.stop();
-          System.err.println("Time to read unsupervised dropout data: " + Timing.toSecondsString(elapsedMs) + " seconds, read "+ unsupDropoutData.length+ " files");
-        }
-        oneDimWeights=trainWeightsUsingDoubleCRF(data,labels,evaluators,i,featureVals,unsupDropoutData);
+        oneDimWeights=trainWeightsUsingDoubleCRF(data,labels,evaluators,i,featureVals);
       }
-      this.weights=to2D(oneDimWeights,labelIndices,map);
+      this.weights=CRFLogConditionalObjectiveFunction.to2D(oneDimWeights,labelIndices,map);
     }
     if (flags.saveFeatureIndexToDisk) {
       try {

@@ -1,0 +1,63 @@
+{
+  if (urlOrFile.startsWith("/") || urlOrFile.startsWith("\\") || urlOrFile.startsWith(":",1)) {
+    urlOrFile="file://" + urlOrFile;
+  }
+ else   if (urlOrFile.indexOf("://") == -1) {
+    urlOrFile="http://" + urlOrFile;
+  }
+  urlField.setText(urlOrFile);
+  current=urlOrFile;
+  setStatus("Loading " + urlOrFile + "...");
+  try {
+    URL url=new URL(urlOrFile);
+    URLConnection connection=url.openConnection();
+    if (connection instanceof HttpURLConnection) {
+      HttpURLConnection httpConnection=(HttpURLConnection)connection;
+      httpConnection.setRequestMethod("HEAD");
+      httpConnection.connect();
+      int response=httpConnection.getResponseCode();
+      if (response >= HTTP_REDIRECT_MIN && response <= HTTP_REDIRECT_MAX) {
+        String location=httpConnection.getHeaderField("Location");
+        if (location != null && location.length() > 0) {
+          return setPage(location);
+        }
+ else {
+          return false;
+        }
+      }
+ else       if (response >= HTTP_ERROR_MIN) {
+        editorPane.setText(httpConnection.getResponseMessage());
+        setStatus("Error");
+        return (true);
+      }
+    }
+    InputStream in=url.openStream();
+    ByteArrayOutputStream out=new ByteArrayOutputStream();
+    HtmlCleaner htmlCleaner=new HtmlCleaner(in,out);
+    htmlCleaner.clean();
+    in=new ByteArrayInputStream(out.toByteArray());
+    HTMLDocument htmlDoc=new HTMLDocument();
+    htmlDoc.setBase(url);
+    editorPane.read(in,htmlDoc);
+    editorPane.setCaretPosition(0);
+    setStatus("Done.");
+    return true;
+  }
+ catch (  MalformedURLException mue) {
+    setStatus("Malformed URL: " + urlOrFile);
+  }
+catch (  FileNotFoundException fnfex) {
+    setStatus("File not found: " + urlOrFile);
+  }
+catch (  UnknownHostException uhe) {
+    editorPane.setText("The page could not be found.");
+    setStatus("Error");
+    return (true);
+  }
+catch (  Exception ex) {
+    editorPane.setText(ex.toString());
+    setStatus("Error");
+    return (true);
+  }
+  return false;
+}

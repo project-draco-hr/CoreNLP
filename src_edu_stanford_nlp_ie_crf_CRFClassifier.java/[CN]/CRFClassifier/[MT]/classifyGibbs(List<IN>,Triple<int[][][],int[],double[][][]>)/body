@@ -1,22 +1,18 @@
 {
+  Triple<int[][][],int[],double[][][]> p=documentDataAndLabels;
   List<IN> newDocument=document;
   if (flags.useReverse) {
     Collections.reverse(document);
     newDocument=new ArrayList<IN>(document);
     Collections.reverse(document);
   }
-  CRFCliqueTree<? extends CharSequence> cliqueTree=getCliqueTree(documentDataAndLabels);
+  CRFCliqueTree<? extends CharSequence> cliqueTree=getCliqueTree(p);
   SequenceModel model=cliqueTree;
   SequenceListener listener=cliqueTree;
   SequenceModel priorModel=null;
   SequenceListener priorListener=null;
   if (flags.useNERPrior) {
     EntityCachingAbstractSequencePrior<IN> prior=new EmpiricalNERPrior<IN>(flags.backgroundSymbol,classIndex,newDocument);
-    priorModel=prior;
-    priorListener=prior;
-  }
- else   if (flags.useNERPriorBIO) {
-    EntityCachingAbstractSequencePriorBIO<IN> prior=new EmpiricalNERPriorBIO<IN>(flags.backgroundSymbol,classIndex,tagIndex,newDocument,entityMatrices,flags);
     priorModel=prior;
     priorListener=prior;
   }
@@ -69,7 +65,7 @@
     IN wi=document.get(j);
     if (wi == null)     throw new RuntimeException("");
     if (classIndex == null)     throw new RuntimeException("");
-    wi.set(CoreAnnotations.AnswerAnnotation.class,classIndex.get(sequence[j]));
+    wi.set(AnswerAnnotation.class,classIndex.get(sequence[j]));
   }
   if (flags.useReverse) {
     Collections.reverse(document);

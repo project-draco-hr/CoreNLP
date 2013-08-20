@@ -1,0 +1,23 @@
+{
+  QueriableSequenceModel model=provider.getModel(dataset);
+  model.setParameters(weights);
+  BestSequenceFinder tagInference;
+  if (flags.inferenceType.equalsIgnoreCase("Viterbi")) {
+    tagInference=new ExactBestSequenceFinder();
+  }
+ else   if (flags.inferenceType.equalsIgnoreCase("Beam")) {
+    tagInference=new BeamBestSequenceFinder(flags.beamSize);
+  }
+ else {
+    throw new RuntimeException("Unknown inference type: " + flags.inferenceType + ". Your options are Viterbi|Beam.");
+  }
+  int[] bestSequence=tagInference.bestSequence(model);
+  List<String> list=new ArrayList<String>(dataset.numDatums());
+  int pos=model.leftWindow();
+  for (int i=0; i < dataset.numDatums(); i++) {
+    String guess=(String)metaInfo.getLabel(bestSequence[pos]);
+    list.add(guess);
+    pos++;
+  }
+  return list;
+}

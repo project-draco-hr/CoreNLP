@@ -1,0 +1,67 @@
+{
+  BufferedInputStream in=new BufferedInputStream(inFileName.endsWith(".gz") ? new GZIPInputStream(new FileInputStream(inFileName)) : new FileInputStream(inFileName),MAX_CLASS_NAME_LEN);
+  BufferedOutputStream out=new BufferedOutputStream(outFileName.endsWith(".gz") ? new GZIPOutputStream(new FileOutputStream(outFileName)) : new FileOutputStream(outFileName));
+  System.err.println("Input file: " + inFileName);
+  System.err.println("Output file: " + outFileName);
+  StringBuilder sb=new StringBuilder();
+  byte[] id=new byte[8];
+  while (in.available() > 0) {
+    in.mark(3);
+    int s1=in.read();
+    int s2=in.read();
+    int s=(s1 << 8) + s2;
+    char c=(char)(in.read() & 0xFF);
+    if (Character.isLetter(c) && s > 0 && s <= MAX_CLASS_NAME_LEN) {
+      boolean isJavaString=true;
+      if (VERBOSE)       System.err.printf("possible string of length %d.\n",s);
+      sb.setLength(0);
+      in.reset();
+      in.mark(s + 2);
+      ErasureUtils.noop(in.read());
+      ErasureUtils.noop(in.read());
+      for (int i=0; i < s; ++i) {
+        c=(char)(in.read() & 0xFF);
+        if (!Character.isLetterOrDigit(c) && c != '.') {
+          isJavaString=false;
+          break;
+        }
+        sb.append(c);
+      }
+      if (isJavaString) {
+        if (sb.toString().equals(oldName)) {
+          System.err.printf("renamed class: %s (%d) -> %s (%d)\n",oldName,oldName.length(),newName,newName.length());
+          ByteBuffer b=ByteBuffer.allocate(newName.length() + 10);
+          b.putShort((short)newName.length());
+          b.put(newName.getBytes());
+          ByteBuffer oldb=ByteBuffer.allocate(8);
+          if (in.read(id) != 8)           throw new RuntimeException("couldn't read full UID");
+          oldb.mark();
+          oldb.put(id);
+          oldb.reset();
+          b.mark();
+          if (serialVersionUID != null) {
+            b.putLong(serialVersionUID);
+          }
+ else {
+            b.put(id);
+          }
+          out.write(b.array());
+          b.reset();
+          long oldUID=oldb.getLong();
+          long newUID=b.getLong();
+          if (oldUID != newUID)           System.err.printf("changed serial version UID: %d -> %d\n",oldUID,newUID);
+          continue;
+        }
+      }
+    }
+    in.reset();
+    try {
+      out.write(in.read());
+    }
+ catch (    EOFException e) {
+      throw new RuntimeException(e);
+    }
+  }
+  in.close();
+  out.close();
+}

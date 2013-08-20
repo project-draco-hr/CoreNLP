@@ -9,15 +9,15 @@
   List<CoreMap> sentences=anno.get(CoreAnnotations.SentencesAnnotation.class);
   for (  CoreMap sentence : sentences) {
     if (!Constants.USE_GOLD_PARSES && !replicateCoNLL) {
-      sentence.remove(TreeCoreAnnotations.TreeAnnotation.class);
+      sentence.remove(TreeAnnotation.class);
     }
  else {
-      Tree tree=sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+      Tree tree=sentence.get(TreeAnnotation.class);
       try {
         SemanticGraph deps=SemanticGraphFactory.makeFromTree(tree,collapse,ccProcess,includeExtras,lemmatize,threadSafe);
         SemanticGraph basicDeps=SemanticGraphFactory.makeFromTree(tree,!collapse,ccProcess,includeExtras,lemmatize,threadSafe);
-        sentence.set(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class,basicDeps);
-        sentence.set(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class,deps);
+        sentence.set(BasicDependenciesAnnotation.class,basicDeps);
+        sentence.set(CollapsedDependenciesAnnotation.class,deps);
       }
  catch (      Exception e) {
         logger.log(Level.WARNING,"Exception caught during extraction of Stanford dependencies. Will ignore and continue...",e);
@@ -25,12 +25,13 @@
     }
   }
   String preSpeaker=null;
+  String curSpeaker=null;
   int utterance=-1;
   for (  CoreLabel token : anno.get(CoreAnnotations.TokensAnnotation.class)) {
     if (!token.containsKey(CoreAnnotations.SpeakerAnnotation.class)) {
       token.set(CoreAnnotations.SpeakerAnnotation.class,"");
     }
-    String curSpeaker=token.get(CoreAnnotations.SpeakerAnnotation.class);
+    curSpeaker=token.get(CoreAnnotations.SpeakerAnnotation.class);
     if (!curSpeaker.equals(preSpeaker)) {
       utterance++;
       preSpeaker=curSpeaker;
@@ -40,7 +41,7 @@
   stanfordProcessor.annotate(anno);
   for (  CoreMap sentence : anno.get(CoreAnnotations.SentencesAnnotation.class)) {
     allWords.add(sentence.get(CoreAnnotations.TokensAnnotation.class));
-    allTrees.add(sentence.get(TreeCoreAnnotations.TreeAnnotation.class));
+    allTrees.add(sentence.get(TreeAnnotation.class));
   }
   List<List<Mention>> allGoldMentions=extractGoldMentions(conllDoc);
   List<List<Mention>> allPredictedMentions;

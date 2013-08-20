@@ -1,7 +1,7 @@
 {
   try {
     System.err.println("TaggerExperiments.getFeaturesNew: initializing fnumArr.");
-    fnumArr=new byte[xSize][ySize];
+    maxentTagger.fnumArr=new byte[xSize][ySize];
     File hFile=File.createTempFile("temp",".x",new File("./"));
     RandomAccessFile hF=new RandomAccessFile(hFile,"rw");
     System.err.println("  length of sTemplates keys: " + sTemplates.size());
@@ -30,7 +30,7 @@
         if (maxentTagger.possibleTagsOnly) {
           String word=ExtractorFrames.cWord.extract(tHistories.getHistory(xValue));
           String[] tags=maxentTagger.dict.getTags(word);
-          Set<String> s=Generics.newHashSet(Arrays.asList(maxentTagger.tags.deterministicallyExpandTags(tags)));
+          Set<String> s=new HashSet<String>(Arrays.asList(maxentTagger.tags.deterministicallyExpandTags(tags)));
           if (DEBUG)           System.err.printf("possible tags for %s: %s\n",word,Arrays.toString(s.toArray()));
           if (!s.contains(fK.tag))           continue;
         }
@@ -53,14 +53,14 @@
             if (maxentTagger.possibleTagsOnly) {
               String word=ExtractorFrames.cWord.extract(tHistories.getHistory(x));
               String[] tags=maxentTagger.dict.getTags(word);
-              Set<String> s=Generics.newHashSet(Arrays.asList(maxentTagger.tags.deterministicallyExpandTags(tags)));
+              Set<String> s=new HashSet<String>(Arrays.asList(maxentTagger.tags.deterministicallyExpandTags(tags)));
               if (!s.contains(fK.tag))               continue;
             }
             numElements++;
             hF.writeInt(x);
-            fnumArr[x][y]++;
+            maxentTagger.fnumArr[x][y]++;
           }
-          TaggerFeature tF=new TaggerFeature(current,current + numElements - 1,fK,maxentTagger.getTagIndex(fK.tag),this);
+          TaggerFeature tF=new TaggerFeature(current,current + numElements - 1,fK,maxentTagger.tags,this);
           tFeature.addPositions(current,current + numElements - 1,fK);
           current=current + numElements;
           feats.add(tF);
@@ -70,9 +70,9 @@
         }
  else {
           for (          int x : xValues) {
-            fnumArr[x][y]++;
+            maxentTagger.fnumArr[x][y]++;
           }
-          TaggerFeature tF=new TaggerFeature(positions[0],positions[1],fK,maxentTagger.getTagIndex(fK.tag),this);
+          TaggerFeature tF=new TaggerFeature(positions[0],positions[1],fK,maxentTagger.tags,this);
           feats.add(tF);
           if (VERBOSE) {
             System.err.println("  added feature with key " + fK.toString() + " has support "+ xValues.length);
@@ -80,7 +80,7 @@
         }
         if (maxentTagger.fAssociations.size() <= fK.num) {
           for (int i=maxentTagger.fAssociations.size(); i <= fK.num; ++i) {
-            maxentTagger.fAssociations.add(Generics.<String,int[]>newHashMap());
+            maxentTagger.fAssociations.add(new HashMap<String,int[]>());
           }
         }
         Map<String,int[]> fValueAssociations=maxentTagger.fAssociations.get(fK.num);
@@ -113,10 +113,10 @@
     for (int x=0; x < xSize; x++) {
       int numGt=0;
       for (int y=0; y < ySize; y++) {
-        if (fnumArr[x][y] > 0) {
+        if (maxentTagger.fnumArr[x][y] > 0) {
           numGt++;
-          if (max < fnumArr[x][y]) {
-            max=fnumArr[x][y];
+          if (max < maxentTagger.fnumArr[x][y]) {
+            max=maxentTagger.fnumArr[x][y];
           }
         }
  else {

@@ -1,0 +1,15 @@
+{
+  Collection<IntFeature> features=makeFeatures(dep.head.word,dep.head.tag,dep.arg.word,dep.arg.tag,dep.leftHeaded,distanceBin(dep.distance));
+  double maxentProb=depClassifier.probabilityOf(features,posLabel);
+  depDumpPrintf("Maxent score: %5g\n",Math.log(maxentProb));
+  Pair<IntTaggedWord,IntTaggedWord> p=new Pair<IntTaggedWord,IntTaggedWord>(dep.head,dep.arg);
+  double pairCount=wordPairCounter.getCount(p);
+  p.first=dep.arg;
+  p.second=dep.head;
+  pairCount+=wordPairCounter.getCount(p);
+  double headCount=wordCounter.getCount(dep.head);
+  depDumpPrintln("pairCount / headCount: " + (int)pairCount + "/"+ (int)headCount);
+  double wordProb=(pairCount + wordSmooth) / (headCount + wordSmooth * wordCounter.size());
+  depDumpPrintf("MLE arg|head score: %5g\n",Math.log(wordProb));
+  return maxentProb * wordProb;
+}

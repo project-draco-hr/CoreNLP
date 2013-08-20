@@ -14,39 +14,39 @@
       }
       if (removedText.length() > 0) {
         boolean added=false;
-        String before=token.get(CoreAnnotations.BeforeAnnotation.class);
+        String before=token.get(BeforeAnnotation.class);
         if (before != null) {
-          token.set(CoreAnnotations.BeforeAnnotation.class,removedText + before);
+          token.set(BeforeAnnotation.class,removedText + before);
           added=true;
         }
         if (added && newTokens.size() > 1) {
           CoreLabel previous=newTokens.get(newTokens.size() - 2);
-          String after=previous.get(CoreAnnotations.AfterAnnotation.class);
-          if (after != null)           previous.set(CoreAnnotations.AfterAnnotation.class,after + removedText);
- else           previous.set(CoreAnnotations.AfterAnnotation.class,removedText.toString());
+          String after=previous.get(AfterAnnotation.class);
+          if (after != null)           previous.set(AfterAnnotation.class,after + removedText);
+ else           previous.set(AfterAnnotation.class,removedText.toString());
         }
         removedText=new StringBuilder();
       }
       if (currentTagSet == null) {
         currentTagSet=Collections.unmodifiableList(new ArrayList<String>(enclosingTags));
       }
-      token.set(CoreAnnotations.XmlContextAnnotation.class,currentTagSet);
+      token.set(XmlContextAnnotation.class,currentTagSet);
       if (dateTagMatcher != null && currentTagSet.size() > 0 && dateTagMatcher.matcher(currentTagSet.get(currentTagSet.size() - 1)).matches()) {
         dateTokens.add(token);
       }
       continue;
     }
-    String currentRemoval=token.get(CoreAnnotations.BeforeAnnotation.class);
+    String currentRemoval=token.get(BeforeAnnotation.class);
     if (currentRemoval != null)     removedText.append(currentRemoval);
-    currentRemoval=token.get(CoreAnnotations.OriginalTextAnnotation.class);
+    currentRemoval=token.get(OriginalTextAnnotation.class);
     if (currentRemoval != null)     removedText.append(currentRemoval);
     if (token == tokens.get(tokens.size() - 1)) {
-      currentRemoval=token.get(CoreAnnotations.AfterAnnotation.class);
+      currentRemoval=token.get(AfterAnnotation.class);
       if (currentRemoval != null)       removedText.append(currentRemoval);
     }
     if (sentenceEndingTagMatcher != null && sentenceEndingTagMatcher.matcher(tag.name).matches() && newTokens.size() > 0) {
       CoreLabel previous=newTokens.get(newTokens.size() - 1);
-      previous.set(CoreAnnotations.ForcedSentenceEndAnnotation.class,true);
+      previous.set(ForcedSentenceEndAnnotation.class,true);
     }
     if (xmlTagMatcher == null)     continue;
     if (tag.isSingleTag) {
@@ -55,7 +55,7 @@
     currentTagSet=null;
     if (tag.isEndTag) {
       while (true) {
-        if (enclosingTags.isEmpty()) {
+        if (enclosingTags.size() == 0) {
           throw new IllegalArgumentException("Got a close tag " + tag.name + "which does not match "+ "any open tag");
         }
         String lastTag=enclosingTags.pop();
@@ -79,8 +79,8 @@
   }
   if (newTokens.size() > 0 && removedText.length() > 0) {
     CoreLabel lastToken=newTokens.get(newTokens.size() - 1);
-    if (lastToken.get(CoreAnnotations.OriginalTextAnnotation.class) != null) {
-      lastToken.set(CoreAnnotations.AfterAnnotation.class,removedText.toString());
+    if (lastToken.get(OriginalTextAnnotation.class) != null) {
+      lastToken.set(AfterAnnotation.class,removedText.toString());
     }
   }
   return newTokens;

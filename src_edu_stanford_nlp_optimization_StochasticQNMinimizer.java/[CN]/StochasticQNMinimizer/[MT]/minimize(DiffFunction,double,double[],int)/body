@@ -1,0 +1,161 @@
+{
+  say("Stochastic QNMinimizer called on double function of " + function.domainDimension() + " variables;");
+  if (M > 0) {
+    sayln(" Using m = " + M);
+  }
+ else {
+    sayln(" Using dynamic setting of M.");
+  }
+  AbstractStochasticCachingDiffFunction dfunction=(AbstractStochasticCachingDiffFunction)function;
+  dfunction.method=StochasticCalculateMethods.GradientOnly;
+  double numBatches=dfunction.dataDimension() / batchSize;
+  sayln("       Batchsize of: " + batchSize);
+  sayln("       Batches per pass through data:  " + numBatches);
+  sayln("       Max iterations is = " + maxIterations);
+  sayln("       All calculations will be made using " + dfunction.method.toString());
+  if (outputIterationsToFile) {
+    outputInitializeFiles();
+    infoFile.println(function.domainDimension() + "; DomainDimension ");
+    infoFile.println(batchSize + "; batchSize ");
+    infoFile.println(cPosDef + "; c");
+    infoFile.println(lambda + "; lambda ");
+    infoFile.println(initGain + "; initGain");
+    infoFile.println(maxIterations + "; maxIterations");
+    infoFile.println(numBatches + "; numBatches ");
+    infoFile.println(dfunction.method.toString() + "; calculationMethod");
+    infoFile.println(outputFrequency + "; outputFrequency");
+  }
+  Queue<Double> previousVals=new LinkedList<Double>();
+  double[] x, newX, grad, newGrad, newGradSameBatch, dir, gainVect;
+  double ro, value, gain, tmp;
+  int i;
+  double[] Hv, v;
+  x=initial;
+  value=dfunction.valueAt(x,batchSize);
+  if (monitor != null) {
+    System.err.println("Monitor not supported yet.");
+    System.exit(1);
+  }
+  grad=new double[x.length];
+  gainVect=new double[x.length];
+  dfunction.returnPreviousValues=true;
+  System.arraycopy(dfunction.derivativeAt(x,batchSize),0,grad,0,grad.length);
+  newGrad=new double[x.length];
+  newGradSameBatch=new double[x.length];
+  Hv=new double[x.length];
+  v=new double[x.length];
+  Arrays.fill(gainVect,initGain);
+  double mu=0.1;
+  double lam=1;
+  newX=new double[x.length];
+  dir=new double[x.length];
+  sList=new ArrayList<double[]>();
+  yList=new ArrayList<double[]>();
+  roList=new ArrayList<Double>();
+  dirList=new ArrayList<double[]>();
+  tmpList=new ArrayList<Double>();
+  double[] nextS;
+  double[] nextY;
+  double[] lastS=new double[x.length];
+  double[] hist=new double[x.length];
+  Arrays.fill(hist,1.0);
+  double[] nextDir=new double[x.length];
+  double mixingConst=0.5;
+  int histCount=0;
+  int updateFreq=10;
+  sayln("Iter: n <chooseDir> [(derivInDir) chooseNewPoint] newValue (relAvgImprovement)\n");
+  boolean have_max=(maxIterations > 0);
+  for (k=0; ; k++) {
+    double newValue=0;
+    try {
+      say("Iter: " + k + " ");
+      say("<");
+      try {
+        computeDir(dir,grad);
+      }
+ catch (      StochasticQNMinimizer.SurpriseConvergence s) {
+        clearStuff();
+        return x;
+      }
+      say("> ");
+      if (M > 0 && sList.size() == M || sList.size() == 20) {
+        nextS=sList.remove(0);
+        nextY=yList.remove(0);
+        tmpList.remove(0);
+        roList.remove(0);
+      }
+ else {
+        nextS=new double[x.length];
+        nextY=new double[x.length];
+      }
+      for (i=0; i < x.length; i++) {
+        newX[i]=x[i] + gainVect[i] * dir[i];
+      }
+    }
+ catch (    OutOfMemoryError e) {
+      sayln(" --- Reached memory limit.  Setting m and redoing iteration...");
+      M=sList.size();
+      k--;
+      continue;
+    }
+    dfunction.recalculatePrevBatch=true;
+    System.arraycopy(dfunction.derivativeAt(newX,batchSize),0,newGradSameBatch,0,newGradSameBatch.length);
+    dfunction.hasNewVals=true;
+    System.arraycopy(dfunction.derivativeAt(newX,batchSize),0,newGrad,0,newGrad.length);
+    ro=0;
+    tmp=0;
+    histCount+=1;
+    int thisInd=sList.size() - 1;
+    if (k > 2) {
+      lastS=sList.get(thisInd);
+    }
+    for (i=0; i < x.length; i++) {
+      nextS[i]=newX[i] - x[i];
+      nextY[i]=newGradSameBatch[i] - grad[i] + lambda * nextS[i];
+      ro+=nextS[i] * nextY[i];
+      tmp+=nextS[i] * nextS[i];
+    }
+    ro=1.0 / ro;
+    if (tmp < 1e-4)     tmp=1;
+    tmp=1.0 / Math.sqrt(tmp);
+    sList.add(nextS);
+    yList.add(nextY);
+    roList.add(ro);
+    tmpList.add(tmp);
+    if (k > 2) {
+      for (i=0; i < x.length; i++) {
+        hist[i]=(1 - mixingConst) * hist[i] + mixingConst * (1 - tmp * tmpList.get(thisInd) * lastS[i]* nextS[i]);
+        double what=tmp * tmpList.get(thisInd) * lastS[i]* nextS[i];
+        gainVect[i]*=hist[i];
+      }
+    }
+    previousVals.add(ArrayMath.norm(newGrad));
+    int size=previousVals.size();
+    double previousVal=size == 10 ? previousVals.remove() : previousVals.peek();
+    double averageNorm=(previousVal - newValue) / size;
+    say(" (" + nf.format(averageNorm) + ")");
+    Arrays.fill(nextDir,0.0);
+    if ((size > 5 && averageNorm < functionTolerance) || (have_max && k >= maxIterations)) {
+      System.err.println(" DONT TRUST RESULTS!!! ASK ALEX 'Whats wrong with the SQN convergence critera?'!");
+    }
+    if (outputIterationsToFile && (k % outputFrequency == 0)) {
+      calcTime=(System.currentTimeMillis() - calcTime);
+      double curVal=dfunction.valueAt(x);
+      say("TrueVal = " + nf.format(curVal));
+      file.println(k + " , " + curVal+ " , "+ averageNorm+ " , "+ calcTime+ " , "+ ArrayMath.norm(ArrayMath.pairwiseSubtract(x,newX)));
+      calcTime=System.currentTimeMillis();
+    }
+    sayln("");
+    if (monitor != null) {
+      monitor.valueAt(newX);
+    }
+    value=newValue;
+    double[] temp=x;
+    x=newX;
+    newX=temp;
+    System.arraycopy(newGrad,0,grad,0,newGrad.length);
+    if (quiet) {
+      System.err.print(".");
+    }
+  }
+}

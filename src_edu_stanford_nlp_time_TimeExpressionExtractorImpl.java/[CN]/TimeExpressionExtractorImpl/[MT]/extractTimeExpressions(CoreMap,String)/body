@@ -1,13 +1,7 @@
 {
   List<CoreMap> mergedNumbers=NumberNormalizer.findAndMergeNumbers(annotation);
   annotation.set(CoreAnnotations.NumerizedTokensAnnotation.class,mergedNumbers);
-  SUTime.Time docDate;
-  try {
-    docDate=SUTime.parseDateTime(docDateStr);
-  }
- catch (  Exception e) {
-    throw new RuntimeException("Could not parse date string: [" + docDateStr + "]",e);
-  }
+  SUTime.Time docDate=SUTime.parseDateTime(docDateStr);
   List<? extends MatchedExpression> matchedExpressions=expressionExtractor.extractExpressions(annotation);
   List<TimeExpression> timeExpressions=new ArrayList<TimeExpression>(matchedExpressions.size());
   for (  MatchedExpression expr : matchedExpressions) {
@@ -18,7 +12,9 @@
       timeExpressions.add(new TimeExpression(expr));
     }
   }
-  resolveTimeExpressions(annotation,timeExpressions,docDate);
+  if (timeExpressions != null) {
+    resolveTimeExpressions(annotation,timeExpressions,docDate);
+  }
   if (options.restrictToTimex3) {
     List<TimeExpression> kept=new ArrayList<TimeExpression>(timeExpressions.size());
     for (    TimeExpression te : timeExpressions) {
@@ -61,6 +57,8 @@
     timeExpressions.addAll(nestedTimeExpressions);
   }
   Collections.sort(timeExpressions,MatchedExpression.EXPR_TOKEN_OFFSETS_NESTED_FIRST_COMPARATOR);
-  resolveTimeExpressions(annotation,timeExpressions,docDate);
+  if (timeExpressions != null) {
+    resolveTimeExpressions(annotation,timeExpressions,docDate);
+  }
   return timeExpressions;
 }

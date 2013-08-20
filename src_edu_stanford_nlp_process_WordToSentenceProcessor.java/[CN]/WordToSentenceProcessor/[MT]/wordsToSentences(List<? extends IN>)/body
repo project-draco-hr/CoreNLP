@@ -3,70 +3,59 @@
   List<IN> currentSentence=new ArrayList<IN>();
   List<IN> lastSentence=null;
   boolean insideRegion=false;
-  boolean lastTokenWasNewline=false;
   for (  IN o : words) {
-    String word=getString(o);
-    boolean forcedEnd=isForcedEndToken(o);
+    String word;
+    if (o instanceof HasWord) {
+      HasWord h=(HasWord)o;
+      word=h.word();
+    }
+ else     if (o instanceof String) {
+      word=(String)o;
+    }
+ else     if (o instanceof CoreMap) {
+      word=((CoreMap)o).get(CoreAnnotations.TextAnnotation.class);
+    }
+ else {
+      throw new RuntimeException("Expected token to be either Word or String.");
+    }
+    boolean forcedEnd=false;
+    if (o instanceof CoreMap) {
+      Boolean forcedEndValue=((CoreMap)o).get(CoreAnnotations.ForcedSentenceEndAnnotation.class);
+      if (forcedEndValue != null)       forcedEnd=forcedEndValue;
+    }
     if (DEBUG) {
       EncodingPrintWriter.err.println("Word is " + word,"UTF-8");
     }
     if (sentenceRegionBeginPattern != null && !insideRegion) {
-      if (DEBUG) {
-        System.err.println("  outside region; deleted");
-      }
       if (sentenceRegionBeginPattern.matcher(word).matches()) {
         insideRegion=true;
-        if (DEBUG) {
-          System.err.println("  entering region");
-        }
       }
-      lastTokenWasNewline=false;
+      if (DEBUG) {
+        System.err.println("  outside region");
+      }
       continue;
     }
-    if (lastSentence != null && currentSentence.isEmpty() && sentenceBoundaryFollowers.contains(word)) {
+    if (sentenceBoundaryFollowers.contains(word) && lastSentence != null && currentSentence.isEmpty()) {
       lastSentence.add(o);
       if (DEBUG) {
-        System.err.println("  added to last sentence");
-      }
-      lastTokenWasNewline=false;
-      continue;
-    }
-    boolean newSent=false;
-    if (sentenceBoundaryToDiscard.contains(word)) {
-      if (newlineIsSentenceBreak == NewlineIsSentenceBreak.ALWAYS) {
-        newSent=true;
-      }
- else       if (newlineIsSentenceBreak == NewlineIsSentenceBreak.TWO_CONSECUTIVE) {
-        if (lastTokenWasNewline) {
-          newSent=true;
-        }
-      }
-      lastTokenWasNewline=true;
-      if (DEBUG) {
-        System.err.println("  discarded sentence boundary");
+        System.err.println("  added to last");
       }
     }
  else {
-      lastTokenWasNewline=false;
-      if (xmlBreakElementsToDiscard != null && matchesXmlBreakElementToDiscard(word)) {
+      boolean newSent=false;
+      if (matchesSentenceBoundaryToDiscard(word)) {
         newSent=true;
-        if (DEBUG) {
-          System.err.println("  is XML break element; discarded");
-        }
       }
  else       if (sentenceRegionEndPattern != null && sentenceRegionEndPattern.matcher(word).matches()) {
         insideRegion=false;
         newSent=true;
-        if (DEBUG) {
-          System.err.println("  discarded; exiting region");
-        }
       }
  else       if (sentenceBoundaryTokenPattern.matcher(word).matches()) {
         currentSentence.add(o);
-        newSent=true;
         if (DEBUG) {
           System.err.println("  is sentence boundary; added to current");
         }
+        newSent=true;
       }
  else       if (forcedEnd) {
         currentSentence.add(o);
@@ -81,14 +70,14 @@
           System.err.println("  added to current");
         }
       }
-    }
-    if (newSent && (!currentSentence.isEmpty() || allowEmptySentences)) {
-      if (DEBUG) {
-        System.err.println("  beginning new sentence");
+      if (newSent && !currentSentence.isEmpty()) {
+        if (DEBUG) {
+          System.err.println("  beginning new sentence");
+        }
+        sentences.add(currentSentence);
+        lastSentence=currentSentence;
+        currentSentence=new ArrayList<IN>();
       }
-      sentences.add(currentSentence);
-      lastSentence=currentSentence;
-      currentSentence=new ArrayList<IN>();
     }
   }
   if (!currentSentence.isEmpty()) {

@@ -1,0 +1,69 @@
+{
+  Exception e1=new Exception("Incorrect data format");
+  String s;
+  if (numAttributes == 0) {
+    throw e1;
+  }
+  if (numClasses == 0) {
+    throw e1;
+  }
+  if (!collectCountsOnly) {
+    feats=new Features();
+    Experiments data=new Experiments(vArray,maxY);
+    data.ySize=maxY;
+    instanceIndex=createIndex();
+    Feature emptyFeature=new Feature(data,new int[0],new double[0],instanceIndex);
+    for (int i=0; i < numAttributes + 1; i++) {
+      if (counts[i] > cutoff) {
+        feats.add(new Feature(data,counts[i],instanceIndex));
+      }
+ else {
+        feats.add(emptyFeature);
+      }
+    }
+  }
+  classinstances=ErasureUtils.mkTArray(ArrayList.class,numClasses);
+  for (int i=0; i < numClasses; i++) {
+    classinstances[i]=new ArrayList<Integer>();
+  }
+  currentSentence=-1;
+  numCurrentSentence=0;
+  sNoLast=-1;
+  boolean seenThisHundred=false;
+  while ((s=in.readLine()) != null) {
+    if (ignore(s)) {
+      continue;
+    }
+    if ((currentSentence % 100) == 0) {
+      if (!seenThisHundred) {
+        System.out.print("Have read " + currentSentence + " sentences;");
+        System.out.println(" object count is " + objcount);
+        seenThisHundred=true;
+      }
+    }
+ else {
+      seenThisHundred=false;
+    }
+    readData(s,collectCountsOnly);
+  }
+  if (collectCountsOnly) {
+    maxYsList.add(Integer.valueOf(numCurrentSentence));
+  }
+  if (collectCountsOnly) {
+    int numAllInstances=0;
+    for (int i=0; i < 1; i++) {
+      numAllInstances+=classinstances[i].size();
+    }
+    vArray=new int[numAllInstances][2];
+    for (int i=0; i < numClasses; i++) {
+      for (int j=0; j < classinstances[i].size(); j++) {
+        int index=classinstances[i].get(j).intValue();
+        vArray[index][0]=index;
+        vArray[index][1]=classesInstances.get(index).intValue();
+      }
+    }
+  }
+  if (!collectCountsOnly) {
+    setFeatures();
+  }
+}

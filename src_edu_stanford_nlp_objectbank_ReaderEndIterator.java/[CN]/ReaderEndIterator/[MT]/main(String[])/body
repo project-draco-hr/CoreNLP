@@ -1,0 +1,23 @@
+{
+  if (args.length != 1) {
+    System.err.println("Usage: ReaderIteratorFactory <file>");
+    System.exit(1);
+  }
+  IteratorFromReaderFactory<String> oif=ReaderEndIterator.factory();
+  ReaderIteratorFactory rif=new ReaderIteratorFactory();
+  rif.add(new File(args[0]));
+  ObjectBank<String> ob=new ObjectBank<String>(rif,oif);
+  for (  Object obj : ob) {
+    System.out.println(obj);
+  }
+  oif=ReaderEndIterator.factory(new Function<String,String>(){
+    public String apply(    String in){
+      return new StringBuffer(in).reverse().toString();
+    }
+  }
+);
+  ob=new ObjectBank<String>(rif,oif);
+  for (  String str : ob) {
+    System.out.println(str);
+  }
+}

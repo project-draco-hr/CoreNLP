@@ -1,0 +1,25 @@
+{
+  if (charSequence.length() > pnpc.cn) {
+    charSequence=charSequence.substring(charSequence.length() - pnpc.cn);
+  }
+  StringBuffer sb=new StringBuffer(charSequence);
+  int start=charSequence.length() - charPosition - 1;
+  if (charPosition == -1) {
+    start=0;
+  }
+  for (int i=0; i < start; i++) {
+    if (ignoreContext || i == start - 1) {
+      sb.setCharAt(i,pnpc.startSymbol);
+    }
+  }
+  if (charPosition == -1) {
+    if (charSequence.charAt(charSequence.length() - 1) == ' ') {
+      sb.setCharAt(charSequence.length() - 1,pnpc.endSymbol);
+    }
+ else {
+      return (0.0);
+    }
+  }
+  double prob=pnpc.getInterpolatedCharProb(sb.toString());
+  return (prob);
+}

@@ -1,0 +1,14 @@
+{
+  Problem p=data.toProblem();
+  LambdaSolve prob=new LambdaSolve(p,.0001,.0001);
+  prob.setNonBinary();
+  String path="/tmp" + "/temp_lambdas";
+  System.out.println(" path is " + path);
+  CGRunner runner=new CGRunner(prob,path,1e-3,sigma);
+  runner.solve();
+  ClassicCounter<F> weights=new ClassicCounter<F>();
+  for (int ind=0; ind < prob.lambda.length; ind++) {
+    weights.incrementCount(featureIndex.get(ind),prob.lambda[ind]);
+  }
+  return new LinearType2Classifier<L,F>(weights);
+}

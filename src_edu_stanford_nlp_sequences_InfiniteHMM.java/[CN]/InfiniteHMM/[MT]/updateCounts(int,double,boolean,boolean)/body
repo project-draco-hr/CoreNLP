@@ -1,0 +1,17 @@
+{
+  if (countEmissions) {
+    observationCounts.incrementCount(z[i],observations.get(i),count);
+    ClassicCounter<E> newObs=new ClassicCounter<E>();
+    newObs.incrementCount(observations.get(i),count);
+    ConjugatePrior oldDist=posteriors.get(z[i]);
+    if (oldDist == null) {
+      oldDist=prior;
+    }
+    ConjugatePrior posterior=oldDist.getPosteriorDistribution(newObs);
+    posteriors.put(z[i],posterior);
+  }
+  n.incrementCount(z[i - 1],z[i],count);
+  if (countOutbound) {
+    n.incrementCount(z[i],z[i + 1],count);
+  }
+}

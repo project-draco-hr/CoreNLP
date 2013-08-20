@@ -1,14 +1,8 @@
 {
-  if (dparser == null || parseSkipped || parseUnparsable) {
-    return null;
+  Tree t=dparser != null ? dparser.getBestParse() : null;
+  if (debinarize && t != null) {
+    t=debinarizer.transformTree(t);
   }
-  Tree t=dparser.getBestParse();
-  if (t != null) {
-    if (debinarize) {
-      t=debinarizer.transformTree(t);
-    }
-    t=boundaryRemover.transformTree(t);
-    restoreOriginalWords(t);
-  }
+  restoreOriginalWords(t);
   return t;
 }

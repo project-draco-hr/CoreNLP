@@ -1,0 +1,38 @@
+{
+  for (  List<CoreLabel> doc : docs) {
+    for (    CoreLabel word : doc) {
+      metaInfo.addLabel(word.get(AnswerAnnotation.class));
+    }
+  }
+  System.err.println(metaInfo.getLabels());
+  datasets=new ArrayList<CliqueDataset>();
+  int i=0;
+  CliqueDataset dataset=null;
+  for (  List<CoreLabel> doc : docs) {
+    System.err.println("DOC " + (i++) + " ("+ doc.size()+ " words)");
+    dataset=new CliqueDataset(metaInfo,flags,doc);
+    if (!flags.purgeDatasets) {
+      datasets.add(dataset);
+    }
+ else {
+      if (flags.serializeDatasetsDir != null) {
+        serializeDataset(dataset);
+        if (i == 1) {
+          Ehat=new double[metaInfo.numFeatures()];
+        }
+        ObjectiveFunction.updateEhatForDataset(Ehat,dataset);
+      }
+      datasets.add(new CliqueDataset(metaInfo,flags,new LinkedList<CoreLabel>()));
+    }
+    checkNumFeatures();
+  }
+  if (flags.serializeDatasetsDir != null) {
+    serializeGlobalParams();
+    if (!flags.purgeDatasets) {
+      for (      CliqueDataset d : datasets) {
+        serializeDataset(d);
+      }
+    }
+    serializeDataset(null);
+  }
+}

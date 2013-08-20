@@ -1,0 +1,35 @@
+{
+  State first=(State)stateList.get(firstIndex);
+  State second=(State)stateList.get(secondIndex);
+  double ratio=((CountedEmitMap)first.emit).merge((CountedEmitMap)second.emit);
+  double[] weights=new double[2];
+  weights[0]=1.0 / (1.0 + ratio);
+  weights[1]=1.0 - weights[0];
+  for (int i=0; i < stateList.size(); i++) {
+    if (i != firstIndex && i != secondIndex && ((State)stateList.get(i)).transition[secondIndex] > 0.0) {
+      ((State)stateList.get(i)).transition[firstIndex]+=((State)stateList.get(i)).transition[secondIndex];
+    }
+  }
+  for (int i=0; i < stateList.size(); i++) {
+    if (i != firstIndex && i != secondIndex && (first.transition[i] > 0.0 || second.transition[i] > 0.0)) {
+      first.transition[i]=weights[0] * first.transition[i] + weights[1] * second.transition[i];
+    }
+  }
+  first.transition[firstIndex]=weights[0] * (first.transition[firstIndex] + first.transition[secondIndex]) + weights[1] * (second.transition[secondIndex] + second.transition[firstIndex]);
+  stateList.remove(secondIndex);
+  for (int i=0; i < stateList.size(); i++) {
+    State s=(State)stateList.get(i);
+    double[] t=new double[stateList.size()];
+    for (int j=0; j < t.length; j++) {
+      if (j < secondIndex) {
+        t[j]=s.transition[j];
+      }
+ else {
+        t[j]=s.transition[j + 1];
+      }
+    }
+    s.transition=t;
+  }
+  State[] states=(State[])stateList.toArray(new State[0]);
+  return states;
+}
