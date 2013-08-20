@@ -1,13 +1,6 @@
 {
   List<CoreMap> mergedNumbers=NumberNormalizer.findAndMergeNumbers(annotation);
   annotation.set(CoreAnnotations.NumerizedTokensAnnotation.class,mergedNumbers);
-  SUTime.Time docDate=null;
-  try {
-    docDate=SUTime.parseDateTime(docDateStr);
-  }
- catch (  Exception e) {
-    throw new RuntimeException("Could not parse date string: [" + docDateStr + "]",e);
-  }
   List<? extends MatchedExpression> matchedExpressions=expressionExtractor.extractExpressions(annotation);
   List<TimeExpression> timeExpressions=new ArrayList<TimeExpression>(matchedExpressions.size());
   for (  MatchedExpression expr : matchedExpressions) {
@@ -18,8 +11,15 @@
       timeExpressions.add(new TimeExpression(expr));
     }
   }
+  if (timeIndex.docDate == null) {
+    if (refDate != null)     timeIndex.docDate=refDate;
+ else     if (options.searchForDocDate) {
+      timeIndex.docDate=findReferenceDate(timeExpressions);
+    }
+  }
+  if (refDate == null)   refDate=timeIndex.docDate;
   if (timeExpressions != null) {
-    resolveTimeExpressions(annotation,timeExpressions,docDate);
+    resolveTimeExpressions(annotation,timeExpressions,refDate);
   }
   if (options.restrictToTimex3) {
     List<TimeExpression> kept=new ArrayList<TimeExpression>(timeExpressions.size());
@@ -33,7 +33,7 @@
           for (          CoreMap child : children) {
             TimeExpression childTe=child.get(TimeExpression.Annotation.class);
             if (childTe != null) {
-              resolveTimeExpression(annotation,childTe,docDate);
+              resolveTimeExpression(annotation,childTe,refDate);
               if (childTe.getTemporal() != null && childTe.getTemporal().getTimexValue() != null) {
                 kept.add(childTe);
               }
@@ -59,12 +59,12 @@
         }
       }
     }
-    resolveTimeExpressions(annotation,nestedTimeExpressions,docDate);
+    resolveTimeExpressions(annotation,nestedTimeExpressions,refDate);
     timeExpressions.addAll(nestedTimeExpressions);
   }
   Collections.sort(timeExpressions,MatchedExpression.EXPR_TOKEN_OFFSETS_NESTED_FIRST_COMPARATOR);
   if (timeExpressions != null) {
-    resolveTimeExpressions(annotation,timeExpressions,docDate);
+    resolveTimeExpressions(annotation,timeExpressions,refDate);
   }
   return timeExpressions;
 }
