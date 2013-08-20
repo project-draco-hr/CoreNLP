@@ -22,16 +22,12 @@
   boolean untok=PropertiesUtils.getBool(options,"untok",false);
   String charset=options.getProperty("encoding","utf-8");
   String parseInsideKey=options.getProperty("parseInside",null);
-  Pattern parseInsideBegin=null;
-  Pattern parseInsideEnd=null;
+  Pattern parseInsidePattern=null;
   if (parseInsideKey != null) {
     try {
-      parseInsideBegin=Pattern.compile("<(?:" + parseInsideKey + ")(?:\\s[^>]*?)?>");
-      parseInsideEnd=Pattern.compile("</(?:" + parseInsideKey + ")(?:\\s[^>]*?)?>");
+      parseInsidePattern=Pattern.compile("<(/?)(?:" + parseInsideKey + ")(?:\\s[^>]*?)?>");
     }
- catch (    Exception e) {
-      parseInsideBegin=null;
-      parseInsideEnd=null;
+ catch (    PatternSyntaxException e) {
     }
   }
   String parsedArgStr=options.getProperty("",null);
@@ -62,6 +58,6 @@
     untok(inputFileList,outputFileList,charset);
   }
  else {
-    tok(inputFileList,outputFileList,charset,parseInsideBegin,parseInsideEnd,optionsSB.toString(),preserveLines,dump,lowerCase);
+    tok(inputFileList,outputFileList,charset,parseInsidePattern,optionsSB.toString(),preserveLines,dump,lowerCase);
   }
 }

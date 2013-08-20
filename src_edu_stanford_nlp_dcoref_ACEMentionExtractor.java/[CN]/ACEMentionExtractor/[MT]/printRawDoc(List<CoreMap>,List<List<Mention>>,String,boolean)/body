@@ -10,18 +10,18 @@
   for (int i=0; i < sentences.size(); i++) {
     CoreMap sentence=sentences.get(i);
     List<Mention> mentions=allMentions.get(i);
-    String[] tokens=sentence.get(TextAnnotation.class).split(" ");
+    String[] tokens=sentence.get(CoreAnnotations.TextAnnotation.class).split(" ");
     String sent="";
-    List<CoreLabel> t=sentence.get(TokensAnnotation.class);
-    if (previousOffset + 2 < t.get(0).get(CharacterOffsetBeginAnnotation.class))     sent+="\n";
-    previousOffset=t.get(t.size() - 1).get(CharacterOffsetEndAnnotation.class);
+    List<CoreLabel> t=sentence.get(CoreAnnotations.TokensAnnotation.class);
+    if (previousOffset + 2 < t.get(0).get(CoreAnnotations.CharacterOffsetBeginAnnotation.class))     sent+="\n";
+    previousOffset=t.get(t.size() - 1).get(CoreAnnotations.CharacterOffsetEndAnnotation.class);
     Counter<Integer> startCounts=new ClassicCounter<Integer>();
     Counter<Integer> endCounts=new ClassicCounter<Integer>();
-    HashMap<Integer,Set<Integer>> endID=new HashMap<Integer,Set<Integer>>();
+    Map<Integer,Set<Integer>> endID=Generics.newHashMap();
     for (    Mention m : mentions) {
       startCounts.incrementCount(m.startIndex);
       endCounts.incrementCount(m.endIndex);
-      if (!endID.containsKey(m.endIndex))       endID.put(m.endIndex,new HashSet<Integer>());
+      if (!endID.containsKey(m.endIndex))       endID.put(m.endIndex,Generics.<Integer>newHashSet());
       endID.get(m.endIndex).add(m.goldCorefClusterID);
     }
     for (int j=0; j < tokens.length; j++) {

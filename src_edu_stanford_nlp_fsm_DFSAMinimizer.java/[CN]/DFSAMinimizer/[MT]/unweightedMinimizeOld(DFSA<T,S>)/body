@@ -1,7 +1,7 @@
 {
   Set<DFSAState<T,S>> states=dfsa.states();
-  Map<UnorderedPair<DFSAState<T,S>,DFSAState<T,S>>,List<UnorderedPair<DFSAState<T,S>,DFSAState<T,S>>>> stateUPairToDependentUPairList=new HashMap<UnorderedPair<DFSAState<T,S>,DFSAState<T,S>>,List<UnorderedPair<DFSAState<T,S>,DFSAState<T,S>>>>(states.size() * states.size() / 2 + 1);
-  Map<UnorderedPair<DFSAState<T,S>,DFSAState<T,S>>,Boolean> stateUPairToDistinguished=new HashMap<UnorderedPair<DFSAState<T,S>,DFSAState<T,S>>,Boolean>(states.size() * states.size() / 2 + 1);
+  Map<UnorderedPair<DFSAState<T,S>,DFSAState<T,S>>,List<UnorderedPair<DFSAState<T,S>,DFSAState<T,S>>>> stateUPairToDependentUPairList=Generics.newHashMap(states.size() * states.size() / 2 + 1);
+  Map<UnorderedPair<DFSAState<T,S>,DFSAState<T,S>>,Boolean> stateUPairToDistinguished=Generics.newHashMap(states.size() * states.size() / 2 + 1);
   int[] c=new int[states.size() * states.size() / 2 + 1];
   int streak=0;
   int collisions=0;
@@ -54,10 +54,10 @@
     if (stateUPairToDistinguished.get(up).equals(Boolean.TRUE)) {
       continue;
     }
-    Set<T> inputs=new HashSet<T>(state1.continuingInputs());
+    Set<T> inputs=Generics.newHashSet(state1.continuingInputs());
     inputs.addAll(state2.continuingInputs());
     boolean distinguishable=false;
-    Set<UnorderedPair<DFSAState<T,S>,DFSAState<T,S>>> pendingUPairs=new HashSet<UnorderedPair<DFSAState<T,S>,DFSAState<T,S>>>();
+    Set<UnorderedPair<DFSAState<T,S>,DFSAState<T,S>>> pendingUPairs=Generics.newHashSet();
     Iterator<T> inputI=inputs.iterator();
     while (inputI.hasNext() && !distinguishable) {
       T input=inputI.next();
@@ -117,7 +117,7 @@
       stateClasses.union(state1,state2);
     }
   }
-  Map<DFSAState<T,S>,DFSAState<T,S>> stateToRep=new HashMap<DFSAState<T,S>,DFSAState<T,S>>();
+  Map<DFSAState<T,S>,DFSAState<T,S>> stateToRep=Generics.newHashMap();
   for (  DFSAState<T,S> state : states) {
     DFSAState<T,S> rep=stateClasses.find(state);
     stateToRep.put(state,rep);

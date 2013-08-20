@@ -2,7 +2,12 @@
   int i=0;
   while (i < args.length) {
     Tree tree=Tree.valueOf(args[i]);
-    System.out.println(escape(texTree(tree)));
+    if (tree == null) {
+      tree=Tree.valueOf(IOUtils.slurpFile(args[i]));
+    }
+    if (tree != null) {
+      System.out.println(escape(texTree(tree)));
+    }
     i++;
   }
   if (i == 0) {

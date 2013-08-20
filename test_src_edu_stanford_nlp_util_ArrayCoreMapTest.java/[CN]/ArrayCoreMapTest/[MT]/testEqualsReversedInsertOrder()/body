@@ -1,0 +1,23 @@
+{
+  ArrayCoreMap foo=new ArrayCoreMap();
+  List<CoreMap> paragraphs=new ArrayList<CoreMap>();
+  ArrayCoreMap f1=new ArrayCoreMap();
+  f1.set(CoreAnnotations.TextAnnotation.class,"f");
+  paragraphs.add(f1);
+  ArrayCoreMap f2=new ArrayCoreMap();
+  f2.set(CoreAnnotations.TextAnnotation.class,"o");
+  paragraphs.add(f2);
+  foo.set(CoreAnnotations.ParagraphsAnnotation.class,paragraphs);
+  foo.set(CoreAnnotations.TextAnnotation.class,"A");
+  foo.set(CoreAnnotations.PartOfSpeechAnnotation.class,"B");
+  ArrayCoreMap bar=new ArrayCoreMap();
+  List<CoreMap> paragraphs2=new ArrayList<CoreMap>(paragraphs);
+  bar.set(CoreAnnotations.TextAnnotation.class,"A");
+  bar.set(CoreAnnotations.PartOfSpeechAnnotation.class,"B");
+  bar.set(CoreAnnotations.ParagraphsAnnotation.class,paragraphs2);
+  assertEquals(foo,bar);
+  assertEquals(bar,foo);
+  assertFalse(foo.equals(f1));
+  assertFalse(foo.equals(f2));
+  assertEquals(3,foo.size());
+}

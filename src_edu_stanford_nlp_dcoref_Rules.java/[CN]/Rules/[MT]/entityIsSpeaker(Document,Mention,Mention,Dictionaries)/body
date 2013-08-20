@@ -1,16 +1,12 @@
 {
-  if (document.speakerPairs.contains(new Pair<Integer,Integer>(mention.mentionID,ant.mentionID)) || document.speakerPairs.contains(new Pair<Integer,Integer>(ant.mentionID,mention.mentionID))) {
+  if (document.speakerPairs.contains(new Pair<Integer,Integer>(mention.mentionID,ant.mentionID))) {
     return true;
   }
-  if (mention.headWord.containsKey(SpeakerAnnotation.class)) {
-    for (    String s : mention.headWord.get(SpeakerAnnotation.class).split(" ")) {
-      if (ant.headString.equalsIgnoreCase(s))       return true;
-    }
+  if (mentionMatchesSpeakerAnnotation(mention,ant)) {
+    return true;
   }
-  if (ant.headWord.containsKey(SpeakerAnnotation.class)) {
-    for (    String s : ant.headWord.get(SpeakerAnnotation.class).split(" ")) {
-      if (mention.headString.equalsIgnoreCase(s))       return true;
-    }
+  if (mentionMatchesSpeakerAnnotation(ant,mention)) {
+    return true;
   }
   return false;
 }

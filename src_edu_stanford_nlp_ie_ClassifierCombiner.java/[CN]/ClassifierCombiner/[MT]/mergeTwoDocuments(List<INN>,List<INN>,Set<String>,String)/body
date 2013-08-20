@@ -5,15 +5,15 @@
   Collection<INN> constituents=new ArrayList<INN>();
   Iterator<INN> auxIterator=auxDocument.listIterator();
   for (  INN wMain : mainDocument) {
-    String mainAnswer=wMain.get(AnswerAnnotation.class);
+    String mainAnswer=wMain.get(CoreAnnotations.AnswerAnnotation.class);
     INN wAux=auxIterator.next();
-    String auxAnswer=wAux.get(AnswerAnnotation.class);
+    String auxAnswer=wAux.get(CoreAnnotations.AnswerAnnotation.class);
     boolean insideMainTag=!mainAnswer.equals(background);
     if (auxLabels.contains(auxAnswer)) {
       if (!prevAnswer.equals(auxAnswer) && !prevAnswer.equals(background)) {
         if (auxTagValid) {
           for (          INN wi : constituents) {
-            wi.set(AnswerAnnotation.class,prevAnswer);
+            wi.set(CoreAnnotations.AnswerAnnotation.class,prevAnswer);
           }
         }
         auxTagValid=true;
@@ -30,7 +30,7 @@
       if (insideAuxTag) {
         if (auxTagValid) {
           for (          INN wi : constituents) {
-            wi.set(AnswerAnnotation.class,prevAnswer);
+            wi.set(CoreAnnotations.AnswerAnnotation.class,prevAnswer);
           }
         }
         constituents=new ArrayList<INN>();
@@ -42,7 +42,7 @@
   }
   if (auxTagValid) {
     for (    INN wi : constituents) {
-      wi.set(AnswerAnnotation.class,prevAnswer);
+      wi.set(CoreAnnotations.AnswerAnnotation.class,prevAnswer);
     }
   }
 }

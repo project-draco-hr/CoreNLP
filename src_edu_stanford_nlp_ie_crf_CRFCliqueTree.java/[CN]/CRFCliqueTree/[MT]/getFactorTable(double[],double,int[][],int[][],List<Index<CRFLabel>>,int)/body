@@ -1,0 +1,21 @@
+{
+  FactorTable factorTable=null;
+  for (int j=0; j < labelIndices.size(); j++) {
+    Index labelIndex=labelIndices.get(j);
+    FactorTable ft=new FactorTable(numClasses,j + 1);
+    for (int k=0, liSize=labelIndex.size(); k < liSize; k++) {
+      int[] label=((CRFLabel)labelIndex.get(k)).getLabel();
+      double weight=0.0;
+      for (int m=0; m < data[j].length; m++) {
+        int wi=weightIndices[data[j][m]][k];
+        weight+=wscale * weights[wi];
+      }
+      ft.setValue(label,weight);
+    }
+    if (j > 0) {
+      ft.multiplyInEnd(factorTable);
+    }
+    factorTable=ft;
+  }
+  return factorTable;
+}

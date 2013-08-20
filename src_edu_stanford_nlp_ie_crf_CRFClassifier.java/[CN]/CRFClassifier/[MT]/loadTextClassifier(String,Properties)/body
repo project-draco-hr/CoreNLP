@@ -7,7 +7,7 @@
     throw new RuntimeException("format error");
   }
   int size=Integer.parseInt(toks[1]);
-  labelIndices=new HashIndex[size];
+  labelIndices=new ArrayList<Index<CRFLabel>>(size);
   for (int labelIndicesIdx=0; labelIndicesIdx < size; labelIndicesIdx++) {
     line=br.readLine();
     toks=line.split("\\t");
@@ -15,7 +15,7 @@
       throw new RuntimeException("format error");
     }
     int labelIndexSize=Integer.parseInt(toks[1]);
-    labelIndices[labelIndicesIdx]=new HashIndex<CRFLabel>();
+    labelIndices.add(new HashIndex<CRFLabel>());
     int count=0;
     while (count < labelIndexSize) {
       line=br.readLine();
@@ -30,15 +30,15 @@
         crflabel[i]=Integer.parseInt(crflabelstr[i]);
       }
       CRFLabel crfL=new CRFLabel(crflabel);
-      labelIndices[labelIndicesIdx].add(crfL);
+      labelIndices.get(labelIndicesIdx).add(crfL);
       count++;
     }
   }
-  System.err.printf("DEBUG: labelIndices.length=\t%d\n",labelIndices.length);
-  for (int i=0; i < labelIndices.length; i++) {
-    System.err.printf("DEBUG: labelIndices[%d].size()=\t%d\n",i,labelIndices[i].size());
-    for (int j=0; j < labelIndices[i].size(); j++) {
-      int[] label=labelIndices[i].get(j).getLabel();
+  System.err.printf("DEBUG: labelIndices.length=\t%d\n",labelIndices.size());
+  for (int i=0; i < labelIndices.size(); i++) {
+    System.err.printf("DEBUG: labelIndices[%d].size()=\t%d\n",i,labelIndices.get(i).size());
+    for (int j=0; j < labelIndices.get(i).size(); j++) {
+      int[] label=labelIndices.get(i).get(j).getLabel();
       List<Integer> list=new ArrayList<Integer>();
       for (      int l : label) {
         list.add(l);
@@ -109,7 +109,7 @@
       throw new RuntimeException("format error in embeddings");
     }
     int embeddingSize=Integer.parseInt(toks[1]);
-    embeddings=new HashMap<String,double[]>(embeddingSize);
+    embeddings=Generics.newHashMap(embeddingSize);
     count=0;
     while (count < embeddingSize) {
       line=br.readLine().trim();
@@ -117,6 +117,7 @@
       String word=toks[0];
       double[] arr=ArrayUtils.toDoubleArray(toks[1].split(" "));
       embeddings.put(word,arr);
+      count++;
     }
   }
   if (flags.nonLinearCRF) {

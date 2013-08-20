@@ -16,14 +16,14 @@
     Annotation annotation=new Annotation(sent.text);
     annotation.set(CoreAnnotations.DocDateAnnotation.class,sent.docPubDate);
     pipeline.annotate(annotation);
-    List<CoreMap> timexes=annotation.get(TimexAnnotations.class);
+    List<CoreMap> timexes=annotation.get(TimeAnnotations.TimexAnnotations.class);
     int i=0;
     for (    CoreMap t : timexes) {
       String[] newFields;
       if (sent.timexes.size() > i) {
         String res;
         TimebankTimex goldTimex=sent.timexes.get(i);
-        Timex guessTimex=t.get(TimexAnnotation.class);
+        Timex guessTimex=t.get(TimeAnnotations.TimexAnnotation.class);
         String s1=goldTimex.timexStr.replaceAll("\\s+","");
         String s2=guessTimex.text().replaceAll("\\s+","");
         if (s1.equals(s2)) {
@@ -35,11 +35,11 @@
           evalStats.estPrStats.incrementFN();
           res="BAD";
         }
-        newFields=new String[]{res,goldTimex.timexId,goldTimex.timexVal,goldTimex.timexOrigVal,goldTimex.timexStr,t.get(TimexAnnotation.class).toString()};
+        newFields=new String[]{res,goldTimex.timexId,goldTimex.timexVal,goldTimex.timexOrigVal,goldTimex.timexStr,t.get(TimeAnnotations.TimexAnnotation.class).toString()};
         i++;
       }
  else {
-        newFields=new String[]{"NONE",t.get(TimexAnnotation.class).toString()};
+        newFields=new String[]{"NONE",t.get(TimeAnnotations.TimexAnnotation.class).toString()};
         evalStats.estPrStats.incrementFP();
       }
       pw.println("GOT | " + StringUtils.join(newFields,"|"));
@@ -62,7 +62,7 @@
           if (t.get(CoreAnnotations.CharacterOffsetBeginAnnotation.class) >= index) {
             found=true;
             evalStats.prStats.incrementTP();
-            if (goldTimex.timexOrigVal.equals(t.get(TimexAnnotation.class).value())) {
+            if (goldTimex.timexOrigVal.equals(t.get(TimeAnnotations.TimexAnnotation.class).value())) {
               evalStats.valPrStats.incrementTP();
             }
  else {

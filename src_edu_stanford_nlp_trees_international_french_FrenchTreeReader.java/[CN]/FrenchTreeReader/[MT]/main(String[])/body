@@ -7,7 +7,7 @@
   for (int i=0; i < args.length; i++)   fileList.add(new File(args[i]));
   TreeReaderFactory trf=new FrenchTreeReaderFactory(true);
   int totalTrees=0;
-  Set<String> morphAnalyses=new HashSet<String>();
+  Set<String> morphAnalyses=Generics.newHashSet();
   try {
     for (    File file : fileList) {
       TreeReader tr=trf.newTreeReader(new BufferedReader(new InputStreamReader(new FileInputStream(file),"UTF-8")));
@@ -15,7 +15,7 @@
       int numTrees;
       String canonicalFileName=file.getName().substring(0,file.getName().lastIndexOf('.'));
       for (numTrees=0; (t=tr.readTree()) != null; numTrees++) {
-        String ftbID=((CoreLabel)t.label()).get(SentenceIDAnnotation.class);
+        String ftbID=((CoreLabel)t.label()).get(CoreAnnotations.SentenceIDAnnotation.class);
         System.out.printf("%s-%s\t%s%n",canonicalFileName,ftbID,t.toString());
         List<Label> leaves=t.yield();
         for (        Label label : leaves) {

@@ -10,7 +10,7 @@
       int max=maxFlagArgs == null ? 1 : maxFlagArgs;
       int min=maxFlagArgs == null ? 0 : maxFlagArgs;
       List<String> flagArgs=new ArrayList<String>();
-      for (int j=0; j < max && i + 1 < args.length && (j < min || args[i + 1].length() == 0 || args[i + 1].length() > 0 && args[i + 1].charAt(0) != '-'); i++, j++) {
+      for (int j=0; j < max && i + 1 < args.length && (j < min || args[i + 1].length() == 0 || args[i + 1].charAt(0) != '-'); i++, j++) {
         flagArgs.add(args[i + 1]);
       }
       if (flagArgs.isEmpty()) {
@@ -21,8 +21,9 @@
         if (key.equalsIgnoreCase(PROP) || key.equalsIgnoreCase(PROPS) || key.equalsIgnoreCase(PROPERTIES)|| key.equalsIgnoreCase(ARGUMENTS)|| key.equalsIgnoreCase(ARGS)) {
           try {
             InputStream is=new BufferedInputStream(new FileInputStream(result.getProperty(key)));
+            InputStreamReader reader=new InputStreamReader(is,"utf-8");
             result.remove(key);
-            result.load(is);
+            result.load(reader);
             for (            Object propKey : result.keySet()) {
               String newVal=result.getProperty((String)propKey);
               result.setProperty((String)propKey,newVal.trim());

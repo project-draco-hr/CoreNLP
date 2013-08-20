@@ -1,0 +1,28 @@
+{
+  readWhiteSpace();
+  if (!isLeftBracket(peek())) {
+    String label=readName();
+    IndexedWord dep=makeVertex(label);
+    sg.addVertex(dep);
+    if (gov == null)     sg.roots.add(dep);
+    sg.addEdge(gov,dep,GrammaticalRelation.valueOf(reln),Double.NEGATIVE_INFINITY,false);
+  }
+ else {
+    readLeftBracket();
+    String label=readName();
+    IndexedWord dep=makeVertex(label);
+    sg.addVertex(dep);
+    if (gov == null)     sg.roots.add(dep);
+    if (gov != null && reln != null) {
+      sg.addEdge(gov,dep,GrammaticalRelation.valueOf(reln),Double.NEGATIVE_INFINITY,false);
+    }
+    readWhiteSpace();
+    while (!isRightBracket(peek()) && !isEOF) {
+      reln=readName();
+      readColon();
+      readDep(dep,reln);
+      readWhiteSpace();
+    }
+    readRightBracket();
+  }
+}

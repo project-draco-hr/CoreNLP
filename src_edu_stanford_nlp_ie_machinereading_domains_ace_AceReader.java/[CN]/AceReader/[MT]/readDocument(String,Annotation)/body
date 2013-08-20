@@ -9,18 +9,17 @@
     aceDocument=AceDocument.parseDocument(prefix,false);
   }
   String docId=aceDocument.getId();
-  Map<String,EntityMention> entityMentionMap=new HashMap<String,EntityMention>();
+  Map<String,EntityMention> entityMentionMap=Generics.newHashMap();
   int tokenOffset=0;
   for (int sentenceIndex=0; sentenceIndex < aceDocument.getSentenceCount(); sentenceIndex++) {
     List<AceToken> tokens=aceDocument.getSentence(sentenceIndex);
     List<CoreLabel> words=new ArrayList<CoreLabel>();
-    StringBuffer textContent=new StringBuffer();
+    StringBuilder textContent=new StringBuilder();
     for (int i=0; i < tokens.size(); i++) {
       CoreLabel l=new CoreLabel();
       l.setWord(tokens.get(i).getLiteral());
-      l.set(CoreAnnotations.TextAnnotation.class,l.word());
-      l.set(CharacterOffsetBeginAnnotation.class,tokens.get(i).getByteStart());
-      l.set(CharacterOffsetEndAnnotation.class,tokens.get(i).getByteEnd());
+      l.set(CoreAnnotations.CharacterOffsetBeginAnnotation.class,tokens.get(i).getByteStart());
+      l.set(CoreAnnotations.CharacterOffsetEndAnnotation.class,tokens.get(i).getByteEnd());
       words.add(l);
       if (i > 0)       textContent.append(" ");
       textContent.append(tokens.get(i).getLiteral());

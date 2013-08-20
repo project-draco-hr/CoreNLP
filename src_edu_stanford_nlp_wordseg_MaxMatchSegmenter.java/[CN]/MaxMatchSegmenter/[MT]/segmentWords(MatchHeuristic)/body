@@ -2,26 +2,29 @@
   if (lattice == null || len < 0)   throw new UnsupportedOperationException("segmentWords must be run first");
   List<Word> segmentedWords=new ArrayList<Word>();
   double costs[]=new double[len + 1];
-  DFSATransition[] bptrs=new DFSATransition[len + 1];
+  List<DFSATransition<Word,Integer>> bptrs=new ArrayList<DFSATransition<Word,Integer>>();
+  for (int i=0; i < len + 1; ++i) {
+    bptrs.add(null);
+  }
   costs[0]=0.0;
   for (int i=1; i <= len; ++i)   costs[i]=Double.MAX_VALUE;
   for (int start=0; start < len; ++start) {
-    DFSAState fromState=states[start];
-    Collection<DFSATransition> trs=fromState.transitions();
-    for (    DFSATransition tr : trs) {
-      DFSAState toState=tr.getTarget();
+    DFSAState<Word,Integer> fromState=states.get(start);
+    Collection<DFSATransition<Word,Integer>> trs=fromState.transitions();
+    for (    DFSATransition<Word,Integer> tr : trs) {
+      DFSAState<Word,Integer> toState=tr.getTarget();
       double lcost=tr.score();
-      int end=((Integer)toState.stateID()).intValue();
+      int end=toState.stateID();
       if (h == MatchHeuristic.MINWORDS) {
         if (costs[start] + 1 < costs[end]) {
           costs[end]=costs[start] + lcost;
-          bptrs[end]=tr;
+          bptrs.set(end,tr);
         }
       }
  else       if (h == MatchHeuristic.MAXWORDS) {
         if (costs[start] + 1 < costs[end]) {
           costs[end]=costs[start] - lcost;
-          bptrs[end]=tr;
+          bptrs.set(end,tr);
         }
       }
  else {
@@ -31,11 +34,11 @@
   }
   int i=len;
   while (i > 0) {
-    DFSATransition tr=bptrs[i];
-    DFSAState fromState=tr.getSource();
-    Word word=(Word)tr.getInput();
+    DFSATransition<Word,Integer> tr=bptrs.get(i);
+    DFSAState<Word,Integer> fromState=tr.getSource();
+    Word word=tr.getInput();
     if (!word.word().equals(" "))     segmentedWords.add(0,word);
-    i=((Integer)fromState.stateID()).intValue();
+    i=fromState.stateID();
   }
   if (DEBUG) {
     double density=edgesNb * 1.0 / segmentedWords.size();

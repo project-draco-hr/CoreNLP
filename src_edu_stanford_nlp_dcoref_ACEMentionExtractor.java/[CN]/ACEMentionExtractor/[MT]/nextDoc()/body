@@ -20,17 +20,17 @@
     if (files.length <= fileIndex && filename.equals(""))     return null;
     anno=aceReader.parse(corpusPath + filename);
     stanfordProcessor.annotate(anno);
-    List<CoreMap> sentences=anno.get(SentencesAnnotation.class);
+    List<CoreMap> sentences=anno.get(CoreAnnotations.SentencesAnnotation.class);
     for (    CoreMap s : sentences) {
       int i=1;
-      for (      CoreLabel w : s.get(TokensAnnotation.class)) {
-        w.set(IndexAnnotation.class,i++);
-        if (!w.containsKey(UtteranceAnnotation.class)) {
-          w.set(UtteranceAnnotation.class,0);
+      for (      CoreLabel w : s.get(CoreAnnotations.TokensAnnotation.class)) {
+        w.set(CoreAnnotations.IndexAnnotation.class,i++);
+        if (!w.containsKey(CoreAnnotations.UtteranceAnnotation.class)) {
+          w.set(CoreAnnotations.UtteranceAnnotation.class,0);
         }
       }
-      allTrees.add(s.get(TreeAnnotation.class));
-      allWords.add(s.get(TokensAnnotation.class));
+      allTrees.add(s.get(TreeCoreAnnotations.TreeAnnotation.class));
+      allWords.add(s.get(CoreAnnotations.TokensAnnotation.class));
       EntityComparator comparator=new EntityComparator();
       extractGoldMentions(s,allGoldMentions,comparator);
     }
