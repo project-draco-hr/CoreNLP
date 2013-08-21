@@ -31,6 +31,12 @@
   makeAnswerArraysAndTagIndex(totalDocs);
   long elapsedMs=timer.stop();
   System.err.println("Time to convert docs to feature indices: " + Timing.toSecondsString(elapsedMs) + " seconds");
+  if (flags.serializeClassIndexTo != null) {
+    timer.start();
+    serializeClassIndex(flags.serializeClassIndexTo);
+    elapsedMs=timer.stop();
+    System.err.println("Time to export class index : " + Timing.toSecondsString(elapsedMs) + " seconds");
+  }
   if (flags.exportFeatures != null) {
     timer.start();
     CRFFeatureExporter<IN> featureExporter=new CRFFeatureExporter<IN>(this);
