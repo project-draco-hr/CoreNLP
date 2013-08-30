@@ -4,32 +4,35 @@
   }
   Set<String> locationM=Generics.newHashSet();
   Set<String> locationA=Generics.newHashSet();
-  String mString=m.spanToString().toLowerCase();
-  String aString=a.spanToString().toLowerCase();
-  Set<String> locationModifier=Generics.newHashSet(Arrays.asList("east","west","north","south","eastern","western","northern","southern","northwestern","southwestern","northeastern","southeastern","upper","lower"));
+  String mString=m.lowercaseNormalizedSpanString();
+  String aString=a.lowercaseNormalizedSpanString();
   for (  CoreLabel w : m.originalSpan) {
-    if (locationModifier.contains(w.get(CoreAnnotations.TextAnnotation.class).toLowerCase()))     return true;
+    String text=w.get(CoreAnnotations.TextAnnotation.class);
+    String lowercased=text.toLowerCase();
+    if (locationModifier.contains(lowercased))     return true;
     if (w.get(CoreAnnotations.NamedEntityTagAnnotation.class).equals("LOCATION")) {
-      String loc=w.get(CoreAnnotations.TextAnnotation.class);
+      String loc=text;
       if (dict.statesAbbreviation.containsKey(loc))       loc=dict.statesAbbreviation.get(loc);
-      locationM.add(loc);
+      locationM.add(lowercased);
     }
   }
   for (  CoreLabel w : a.originalSpan) {
-    if (locationModifier.contains(w.get(CoreAnnotations.TextAnnotation.class).toLowerCase()))     return true;
+    String text=w.get(CoreAnnotations.TextAnnotation.class);
+    String lowercased=text.toLowerCase();
+    if (locationModifier.contains(lowercased))     return true;
     if (w.get(CoreAnnotations.NamedEntityTagAnnotation.class).equals("LOCATION")) {
-      String loc=w.get(CoreAnnotations.TextAnnotation.class);
+      String loc=text;
       if (dict.statesAbbreviation.containsKey(loc))       loc=dict.statesAbbreviation.get(loc);
-      locationA.add(loc);
+      locationA.add(lowercased);
     }
   }
   boolean mHasExtra=false;
   boolean aHasExtra=false;
   for (  String s : locationM) {
-    if (!aString.contains(s.toLowerCase()))     mHasExtra=true;
+    if (!aString.contains(s))     mHasExtra=true;
   }
   for (  String s : locationA) {
-    if (!mString.contains(s.toLowerCase()))     aHasExtra=true;
+    if (!mString.contains(s))     aHasExtra=true;
   }
   if (mHasExtra && aHasExtra) {
     return true;
