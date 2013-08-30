@@ -9,6 +9,7 @@
   Set<Integer> positionsChanged=null;
   if (speedUpThreshold > 0)   positionsChanged=Generics.newHashSet();
   for (int i=0; i < schedule.numIterations(); i++) {
+    if (BisequenceEmpiricalNERPrior.DEBUG)     System.err.println("\n\niteration: " + i);
     double temperature=schedule.getTemperature(i);
     if (speedUpThreshold <= 0) {
       score=sampleSequenceForward(model,sequence,temperature,null);
@@ -24,6 +25,8 @@
         score=sampleSequenceForward(model,sequence,temperature,positionsChanged);
       }
     }
+    if (BisequenceEmpiricalNERPrior.DEBUG)     System.err.println(priorEn);
+    if (BisequenceEmpiricalNERPrior.DEBUG)     System.err.println(priorCh);
     result.add(sequence);
     if (returnLastFoundSequence) {
       best=sequence;
