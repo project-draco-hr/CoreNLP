@@ -1,6 +1,7 @@
 {
-  os=new BufferedOutputStream(os);
-  if (compress)   os=new GZIPOutputStream(os);
+  if (!(os instanceof GZIPOutputStream)) {
+    if (compress)     os=new GZIPOutputStream(os);
+  }
   PrintWriter pw=new PrintWriter(os);
   Map<Integer,CorefChain> chains=corpus.get(CorefCoreAnnotations.CorefChainAnnotation.class);
   saveCorefChains(chains,pw);
@@ -38,5 +39,6 @@
     }
     pw.println();
   }
-  pw.close();
+  pw.flush();
+  return os;
 }

@@ -1,6 +1,5 @@
 {
-  is=new BufferedInputStream(is);
-  if (compress)   is=new GZIPInputStream(is);
+  if (compress && !(is instanceof GZIPInputStream))   is=new GZIPInputStream(is);
   BufferedReader reader=new BufferedReader(new InputStreamReader(is));
   Annotation doc=new Annotation("");
   String line;
@@ -48,6 +47,5 @@
     sentences.add(sentence);
   }
   doc.set(CoreAnnotations.SentencesAnnotation.class,sentences);
-  reader.close();
-  return doc;
+  return Pair.makePair(doc,is);
 }
