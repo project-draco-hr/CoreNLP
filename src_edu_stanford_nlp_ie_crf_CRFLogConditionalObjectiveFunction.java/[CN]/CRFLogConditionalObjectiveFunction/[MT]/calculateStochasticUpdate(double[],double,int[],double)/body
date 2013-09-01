@@ -1,7 +1,6 @@
 {
   double prob=0.0;
-  to2D(x,xscale,weights);
-  setWeights(weights);
+  double[][] weights=to2D(x,xscale);
   if (eHat4Update == null) {
     eHat4Update=empty2D();
     e4Update=new double[eHat4Update.length][];
@@ -12,7 +11,7 @@
   }
   for (  int ind : batch) {
     empiricalCountsForADoc(eHat4Update,ind);
-    prob+=valueForADoc(ind);
+    prob+=expectedCountsAndValueForADoc(weights,ind).second();
   }
   if (Double.isNaN(prob)) {
     throw new RuntimeException("Got NaN for prob in CRFLogConditionalObjectiveFunction.calculate()");
