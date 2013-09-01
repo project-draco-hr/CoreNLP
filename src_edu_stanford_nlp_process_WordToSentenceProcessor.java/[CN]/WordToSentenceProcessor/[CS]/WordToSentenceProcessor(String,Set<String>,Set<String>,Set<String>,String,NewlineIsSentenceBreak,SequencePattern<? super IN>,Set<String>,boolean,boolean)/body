@@ -1,0 +1,54 @@
+{
+  sentenceBoundaryTokenPattern=Pattern.compile(boundaryTokenRegex);
+  sentenceBoundaryFollowers=Collections.unmodifiableSet(boundaryFollowers);
+  sentenceBoundaryToDiscard=Collections.unmodifiableSet(boundariesToDiscard);
+  if (xmlBreakElementsToDiscard == null || xmlBreakElementsToDiscard.isEmpty()) {
+    this.xmlBreakElementsToDiscard=null;
+  }
+ else {
+    this.xmlBreakElementsToDiscard=new ArrayList<Pattern>(xmlBreakElementsToDiscard.size());
+    for (    String s : xmlBreakElementsToDiscard) {
+      String regex="<\\s*(?:/\\s*)?(?:" + s + ")(?:\\s+[^>]+?|\\s*(?:/\\s*)?)>";
+      this.xmlBreakElementsToDiscard.add(Pattern.compile(regex,Pattern.CASE_INSENSITIVE));
+    }
+  }
+  if (regionElementRegex != null) {
+    sentenceRegionBeginPattern=Pattern.compile("<\\s*(?:" + regionElementRegex + ")(?:\\s+[^>]+?)?>");
+    sentenceRegionEndPattern=Pattern.compile("<\\s*/\\s*(?:" + regionElementRegex + ")\\s*>");
+  }
+ else {
+    sentenceRegionBeginPattern=null;
+    sentenceRegionEndPattern=null;
+  }
+  this.newlineIsSentenceBreak=newlineIsSentenceBreak;
+  this.isOneSentence=isOneSentence;
+  this.allowEmptySentences=allowEmptySentences;
+  if (sentenceBoundaryMultiTokenPattern != null) {
+    this.sentenceBoundaryMultiTokenPattern=sentenceBoundaryMultiTokenPattern;
+  }
+ else {
+    this.sentenceBoundaryMultiTokenPattern=null;
+  }
+  if (tokenRegexesToDiscard != null) {
+    this.tokenPatternsToDiscard=new ArrayList<Pattern>(tokenRegexesToDiscard.size());
+    for (    String s : tokenRegexesToDiscard) {
+      this.tokenPatternsToDiscard.add(Pattern.compile(s));
+    }
+  }
+ else {
+    this.tokenPatternsToDiscard=null;
+  }
+  if (DEBUG) {
+    EncodingPrintWriter.err.println("WordToSentenceProcessor: boundaryTokens=" + boundaryTokenRegex,"UTF-8");
+    EncodingPrintWriter.err.println("  boundaryFollowers=" + boundaryFollowers,"UTF-8");
+    EncodingPrintWriter.err.println("  boundariesToDiscard=" + boundariesToDiscard,"UTF-8");
+    EncodingPrintWriter.err.println("  xmlBreakElementsToDiscard=" + xmlBreakElementsToDiscard,"UTF-8");
+    EncodingPrintWriter.err.println("  regionBeginPattern=" + sentenceRegionBeginPattern,"UTF-8");
+    EncodingPrintWriter.err.println("  regionEndPattern=" + sentenceRegionEndPattern,"UTF-8");
+    EncodingPrintWriter.err.println("  newlineIsSentenceBreak=" + newlineIsSentenceBreak,"UTF-8");
+    EncodingPrintWriter.err.println("  sentenceBoundaryMultiTokenPattern=" + sentenceBoundaryMultiTokenPattern,"UTF-8");
+    EncodingPrintWriter.err.println("  tokenPatternsToDiscard=" + tokenPatternsToDiscard,"UTF-8");
+    EncodingPrintWriter.err.println("  isOneSentence=" + isOneSentence,"UTF-8");
+    EncodingPrintWriter.err.println("  allowEmptySentences=" + allowEmptySentences,"UTF-8");
+  }
+}
