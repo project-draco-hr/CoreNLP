@@ -1,0 +1,16 @@
+{
+  try {
+    Document domDoc=createPatternXMLDoc(patterns);
+    if (domDoc != null) {
+      Transformer tformer=TransformerFactory.newInstance().newTransformer();
+      tformer.setOutputProperty(OutputKeys.INDENT,"yes");
+      tformer.transform(new DOMSource(domDoc),new StreamResult(tgtFile));
+    }
+ else {
+      log.warning("Was not able to create XML document for pattern list, file not written.");
+    }
+  }
+ catch (  Exception e) {
+    log.throwing(Ssurgeon.class.getName(),"writeToFile",e);
+  }
+}

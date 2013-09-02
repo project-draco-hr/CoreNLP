@@ -44,12 +44,7 @@
       return new CleanXmlAnnotator(xmlTags,sentenceEndingTags,dateTags,allowFlawed);
     }
     @Override public String signature(){
-      StringBuilder os=new StringBuilder();
-      os.append("clean.xmltags:" + properties.getProperty("clean.xmltags",CleanXmlAnnotator.DEFAULT_XML_TAGS));
-      os.append("clean.sentenceendingtags:" + properties.getProperty("clean.sentenceendingtags",CleanXmlAnnotator.DEFAULT_SENTENCE_ENDERS));
-      os.append("clean.allowflawedxml:" + properties.getProperty("clean.allowflawedxml",""));
-      os.append("clean.datetags:" + properties.getProperty("clean.datetags",CleanXmlAnnotator.DEFAULT_DATE_TAGS));
-      return os.toString();
+      return "clean.xmltags:" + properties.getProperty("clean.xmltags",CleanXmlAnnotator.DEFAULT_XML_TAGS) + "clean.sentenceendingtags:"+ properties.getProperty("clean.sentenceendingtags",CleanXmlAnnotator.DEFAULT_SENTENCE_ENDERS)+ "clean.allowflawedxml:"+ properties.getProperty("clean.allowflawedxml","")+ "clean.datetags:"+ properties.getProperty("clean.datetags",CleanXmlAnnotator.DEFAULT_DATE_TAGS);
     }
   }
 );
@@ -128,10 +123,7 @@
       }
     }
     @Override public String signature(){
-      StringBuilder os=new StringBuilder();
-      os.append("pos.maxlen:" + properties.getProperty("pos.maxlen",""));
-      os.append("pos.model:" + properties.getProperty("pos.model",DefaultPaths.DEFAULT_POS_MODEL));
-      return os.toString();
+      return "pos.maxlen:" + properties.getProperty("pos.maxlen","") + "pos.model:"+ properties.getProperty("pos.model",DefaultPaths.DEFAULT_POS_MODEL);
     }
   }
 );
@@ -141,8 +133,7 @@
       return new MorphaAnnotator(false);
     }
     @Override public String signature(){
-      StringBuilder os=new StringBuilder();
-      return os.toString();
+      return "";
     }
   }
 );
@@ -167,19 +158,12 @@
         nerCombiner=new NERClassifierCombiner(applyNumericClassifiers,useSUTime,properties,models.toArray(new String[models.size()]));
       }
  catch (      FileNotFoundException e) {
-        throw new RuntimeException(e);
+        throw new RuntimeIOException(e);
       }
       return new NERCombinerAnnotator(nerCombiner,false);
     }
     @Override public String signature(){
-      StringBuilder os=new StringBuilder();
-      os.append("ner.model:" + properties.getProperty("ner.model",""));
-      os.append("ner.model.3class:" + properties.getProperty("ner.model.3class",DefaultPaths.DEFAULT_NER_THREECLASS_MODEL));
-      os.append("ner.model.7class:" + properties.getProperty("ner.model.7class",DefaultPaths.DEFAULT_NER_MUC_MODEL));
-      os.append("ner.model.MISCclass:" + properties.getProperty("ner.model.MISCclass",DefaultPaths.DEFAULT_NER_CONLL_MODEL));
-      os.append(NERClassifierCombiner.APPLY_NUMERIC_CLASSIFIERS_PROPERTY + ":" + properties.getProperty(NERClassifierCombiner.APPLY_NUMERIC_CLASSIFIERS_PROPERTY,Boolean.toString(NERClassifierCombiner.APPLY_NUMERIC_CLASSIFIERS_DEFAULT)));
-      os.append(NumberSequenceClassifier.USE_SUTIME_PROPERTY + ":" + properties.getProperty(NumberSequenceClassifier.USE_SUTIME_PROPERTY,Boolean.toString(NumberSequenceClassifier.USE_SUTIME_DEFAULT)));
-      return os.toString();
+      return "ner.model:" + properties.getProperty("ner.model","") + "ner.model.3class:"+ properties.getProperty("ner.model.3class",DefaultPaths.DEFAULT_NER_THREECLASS_MODEL)+ "ner.model.7class:"+ properties.getProperty("ner.model.7class",DefaultPaths.DEFAULT_NER_MUC_MODEL)+ "ner.model.MISCclass:"+ properties.getProperty("ner.model.MISCclass",DefaultPaths.DEFAULT_NER_CONLL_MODEL)+ NERClassifierCombiner.APPLY_NUMERIC_CLASSIFIERS_PROPERTY+ ":"+ properties.getProperty(NERClassifierCombiner.APPLY_NUMERIC_CLASSIFIERS_PROPERTY,Boolean.toString(NERClassifierCombiner.APPLY_NUMERIC_CLASSIFIERS_DEFAULT))+ NumberSequenceClassifier.USE_SUTIME_PROPERTY+ ":"+ properties.getProperty(NumberSequenceClassifier.USE_SUTIME_PROPERTY,Boolean.toString(NumberSequenceClassifier.USE_SUTIME_DEFAULT));
     }
   }
 );
@@ -192,11 +176,7 @@
       return new RegexNERAnnotator(mapping,Boolean.valueOf(ignoreCase),validPosPattern);
     }
     @Override public String signature(){
-      StringBuilder os=new StringBuilder();
-      os.append("regexner.mapping:" + properties.getProperty("regexner.mapping",DefaultPaths.DEFAULT_REGEXNER_RULES));
-      os.append("regexner.ignorecase:" + properties.getProperty("regexner.ignorecase","false"));
-      os.append("regexner.validpospattern:" + properties.getProperty("regexner.validpospattern",RegexNERSequenceClassifier.DEFAULT_VALID_POS));
-      return os.toString();
+      return "regexner.mapping:" + properties.getProperty("regexner.mapping",DefaultPaths.DEFAULT_REGEXNER_RULES) + "regexner.ignorecase:"+ properties.getProperty("regexner.ignorecase","false")+ "regexner.validpospattern:"+ properties.getProperty("regexner.validpospattern",RegexNERSequenceClassifier.DEFAULT_VALID_POS);
     }
   }
 );
@@ -206,9 +186,7 @@
       return new GenderAnnotator(false,properties.getProperty("gender.firstnames",DefaultPaths.DEFAULT_GENDER_FIRST_NAMES));
     }
     @Override public String signature(){
-      StringBuilder os=new StringBuilder();
-      os.append("gender.firstnames:" + properties.getProperty("gender.firstnames",DefaultPaths.DEFAULT_GENDER_FIRST_NAMES));
-      return os.toString();
+      return "gender.firstnames:" + properties.getProperty("gender.firstnames",DefaultPaths.DEFAULT_GENDER_FIRST_NAMES);
     }
   }
 );
@@ -221,11 +199,7 @@
       return new TrueCaseAnnotator(model,bias,mixed,false);
     }
     @Override public String signature(){
-      StringBuilder os=new StringBuilder();
-      os.append("truecase.model:" + properties.getProperty("truecase.model",DefaultPaths.DEFAULT_TRUECASE_MODEL));
-      os.append("truecase.bias:" + properties.getProperty("truecase.bias",TrueCaseAnnotator.DEFAULT_MODEL_BIAS));
-      os.append("truecase.mixedcasefile:" + properties.getProperty("truecase.mixedcasefile",DefaultPaths.DEFAULT_TRUECASE_DISAMBIGUATION_LIST));
-      return os.toString();
+      return "truecase.model:" + properties.getProperty("truecase.model",DefaultPaths.DEFAULT_TRUECASE_MODEL) + "truecase.bias:"+ properties.getProperty("truecase.bias",TrueCaseAnnotator.DEFAULT_MODEL_BIAS)+ "truecase.mixedcasefile:"+ properties.getProperty("truecase.mixedcasefile",DefaultPaths.DEFAULT_TRUECASE_DISAMBIGUATION_LIST);
     }
   }
 );
@@ -236,8 +210,7 @@
       return ReflectionLoading.loadByReflection(className);
     }
     @Override public String signature(){
-      StringBuilder os=new StringBuilder();
-      return os.toString();
+      return "";
     }
   }
 );
@@ -248,15 +221,7 @@
       return ReflectionLoading.loadByReflection(className,properties);
     }
     @Override public String signature(){
-      StringBuilder os=new StringBuilder();
-      os.append("nfl.verbose:" + properties.getProperty("nfl.verbose","false"));
-      os.append("nfl.relations.use.max.recall:" + properties.getProperty("nfl.relations.use.max.recall","false"));
-      os.append("nfl.relations.use.model.merging:" + properties.getProperty("nfl.relations.use.model.merging","false"));
-      os.append("nfl.relations.use.basic.inference:" + properties.getProperty("nfl.relations.use.basic.inference","true"));
-      os.append("nfl.gazetteer:" + properties.getProperty("nfl.gazetteer",DefaultPaths.DEFAULT_NFL_GAZETTEER));
-      os.append("nfl.entity.model:" + properties.getProperty("nfl.entity.model",DefaultPaths.DEFAULT_NFL_ENTITY_MODEL));
-      os.append("nfl.relation.model:" + properties.getProperty("nfl.relation.model",DefaultPaths.DEFAULT_NFL_RELATION_MODEL));
-      return os.toString();
+      return "nfl.verbose:" + properties.getProperty("nfl.verbose","false") + "nfl.relations.use.max.recall:"+ properties.getProperty("nfl.relations.use.max.recall","false")+ "nfl.relations.use.model.merging:"+ properties.getProperty("nfl.relations.use.model.merging","false")+ "nfl.relations.use.basic.inference:"+ properties.getProperty("nfl.relations.use.basic.inference","true")+ "nfl.gazetteer:"+ properties.getProperty("nfl.gazetteer",DefaultPaths.DEFAULT_NFL_GAZETTEER)+ "nfl.entity.model:"+ properties.getProperty("nfl.entity.model",DefaultPaths.DEFAULT_NFL_ENTITY_MODEL)+ "nfl.relation.model:"+ properties.getProperty("nfl.relation.model",DefaultPaths.DEFAULT_NFL_RELATION_MODEL);
     }
   }
 );
@@ -292,11 +257,7 @@
         return ParserAnnotator.signature("parser",properties);
       }
  else       if (type.equalsIgnoreCase("charniak")) {
-        StringBuilder os=new StringBuilder();
-        os.append("parse.model:" + properties.getProperty("parse.model",""));
-        os.append("parse.executable:" + properties.getProperty("parse.executable",""));
-        os.append("parse.maxlen:" + properties.getProperty("parse.maxlen",""));
-        return os.toString();
+        return "parse.model:" + properties.getProperty("parse.model","") + "parse.executable:"+ properties.getProperty("parse.executable","")+ "parse.maxlen:"+ properties.getProperty("parse.maxlen","");
       }
  else {
         throw new RuntimeException("Unknown parser type: " + type + " (currently supported: stanford and charniak)");

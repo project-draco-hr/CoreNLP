@@ -1,23 +1,23 @@
 {
+  final long start=System.nanoTime();
   long numTokens=0;
   int numFiles=inputFileList.size();
-  final long start=System.nanoTime();
   if (numFiles == 0) {
     BufferedReader stdin=new BufferedReader(new InputStreamReader(System.in,charset));
-    PrintWriter out=new PrintWriter(new OutputStreamWriter(System.out,charset),true);
+    BufferedWriter writer=new BufferedWriter(new OutputStreamWriter(System.out,charset));
     for (String line; (line=stdin.readLine()) != null; ) {
-      numTokens+=tokReader(new StringReader(line),out,parseInsideBegin,parseInsideEnd,options,preserveLines,dump,lowerCase);
-      if (preserveLines)       out.println();
+      numTokens+=tokReader(new StringReader(line),writer,parseInsideBegin,parseInsideEnd,options,preserveLines,dump,lowerCase);
+      if (preserveLines)       writer.newLine();
     }
-    IOUtils.closeIgnoringExceptions(out);
+    IOUtils.closeIgnoringExceptions(writer);
   }
  else {
     for (int j=0; j < numFiles; j++) {
       Reader r=IOUtils.readReaderFromString(inputFileList.get(j),charset);
-      PrintWriter out=(outputFileList == null) ? new PrintWriter(new OutputStreamWriter(System.out,charset),true) : new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFileList.get(j)),charset)),true);
+      BufferedWriter out=(outputFileList == null) ? new BufferedWriter(new OutputStreamWriter(System.out,charset)) : new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outputFileList.get(j)),charset));
       numTokens+=tokReader(r,out,parseInsideBegin,parseInsideEnd,options,preserveLines,dump,lowerCase);
       r.close();
-      if (j == numFiles - 1 || outputFileList != null)       IOUtils.closeIgnoringExceptions(out);
+      IOUtils.closeIgnoringExceptions(out);
     }
   }
   final long duration=System.nanoTime() - start;

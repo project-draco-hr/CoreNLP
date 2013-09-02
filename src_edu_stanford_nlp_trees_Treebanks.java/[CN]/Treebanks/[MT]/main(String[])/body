@@ -28,6 +28,7 @@
   String suffix=Treebank.DEFAULT_TREE_FILE_SUFFIX;
   TreeReaderFactory trf=null;
   TreebankLanguagePack tlp=null;
+  Filter<Tree> filter=null;
   while (i < args.length && args[i].startsWith("-")) {
     if (args[i].equals("-maxLength") && i + 1 < args.length) {
       maxL=Integer.parseInt(args[i + 1]);
@@ -133,6 +134,10 @@
       removeCodeTrees=true;
       i++;
     }
+ else     if (args[i].equals("-filter")) {
+      filter=ReflectionLoading.loadByReflection(args[i + 1]);
+      i+=2;
+    }
  else {
       System.err.println("Unknown option: " + args[i]);
       i++;
@@ -154,6 +159,9 @@
   }
  else {
     treebank=new DiskTreebank(trf,encoding);
+  }
+  if (filter != null) {
+    treebank=new FilteringTreebank(treebank,filter);
   }
   final PrintWriter pw=new PrintWriter(new OutputStreamWriter(System.out,encoding),true);
   if (i + 1 < args.length) {

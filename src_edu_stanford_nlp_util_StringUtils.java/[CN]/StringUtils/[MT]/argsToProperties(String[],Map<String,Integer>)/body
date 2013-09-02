@@ -21,8 +21,9 @@
         if (key.equalsIgnoreCase(PROP) || key.equalsIgnoreCase(PROPS) || key.equalsIgnoreCase(PROPERTIES)|| key.equalsIgnoreCase(ARGUMENTS)|| key.equalsIgnoreCase(ARGS)) {
           try {
             InputStream is=new BufferedInputStream(new FileInputStream(result.getProperty(key)));
+            InputStreamReader reader=new InputStreamReader(is,"utf-8");
             result.remove(key);
-            result.load(is);
+            result.load(reader);
             for (            Object propKey : result.keySet()) {
               String newVal=result.getProperty((String)propKey);
               result.setProperty((String)propKey,newVal.trim());

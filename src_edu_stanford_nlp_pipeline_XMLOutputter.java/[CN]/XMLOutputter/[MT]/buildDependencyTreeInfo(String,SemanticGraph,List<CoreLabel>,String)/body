@@ -1,0 +1,30 @@
+{
+  if (graph != null) {
+    Element depInfo=new Element("dependencies",curNS);
+    depInfo.addAttribute(new Attribute("type",dependencyType));
+    for (    IndexedWord root : graph.getRoots()) {
+      String rel=GrammaticalRelation.ROOT.getLongName();
+      rel=rel.replaceAll("\\s+","");
+      int source=0;
+      int target=root.index();
+      String sourceWord="ROOT";
+      String targetWord=tokens.get(target - 1).word();
+      boolean isExtra=false;
+      addDependencyInfo(depInfo,rel,isExtra,source,sourceWord,null,target,targetWord,null,curNS);
+    }
+    for (    SemanticGraphEdge edge : graph.edgeListSorted()) {
+      String rel=edge.getRelation().toString();
+      rel=rel.replaceAll("\\s+","");
+      int source=edge.getSource().index();
+      int target=edge.getTarget().index();
+      String sourceWord=tokens.get(source - 1).word();
+      String targetWord=tokens.get(target - 1).word();
+      Integer sourceCopy=edge.getSource().get(CopyAnnotation.class);
+      Integer targetCopy=edge.getTarget().get(CopyAnnotation.class);
+      boolean isExtra=edge.isExtra();
+      addDependencyInfo(depInfo,rel,isExtra,source,sourceWord,sourceCopy,target,targetWord,targetCopy,curNS);
+    }
+    return depInfo;
+  }
+  return null;
+}

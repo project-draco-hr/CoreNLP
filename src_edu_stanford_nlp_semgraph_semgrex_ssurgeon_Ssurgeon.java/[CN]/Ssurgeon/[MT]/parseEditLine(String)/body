@@ -1,0 +1,44 @@
+{
+  SsurgeonEdit retEdit=null;
+  String[] tuples1=editLine.split("\\s+",2);
+  if (tuples1.length < 2) {
+    throw new Exception("Error in SsurgeonEdit.parseEditLine: invalid number of arguments");
+  }
+  String command=tuples1[0];
+  String[] argsArray=parseArgs(tuples1[1]);
+  SsurgeonArgs argsBox=new SsurgeonArgs();
+  Arguments.parse(argsArray,argsBox);
+  if (command.equalsIgnoreCase(AddDep.LABEL)) {
+    retEdit=AddDep.createEngAddDep(argsBox.govNodeName,argsBox.reln,argsBox.nodeString);
+  }
+ else   if (command.equalsIgnoreCase(AddNode.LABEL)) {
+    retEdit=AddNode.createAddNode(argsBox.nodeString,argsBox.name);
+  }
+ else   if (command.equalsIgnoreCase(AddEdge.LABEL)) {
+    retEdit=AddEdge.createEngAddEdge(argsBox.govNodeName,argsBox.dep,argsBox.reln);
+  }
+ else   if (command.equalsIgnoreCase(DeleteGraphFromNode.LABEL)) {
+    retEdit=new DeleteGraphFromNode(argsBox.node);
+  }
+ else   if (command.equalsIgnoreCase(RemoveEdge.LABEL)) {
+    retEdit=new RemoveEdge(GrammaticalRelation.valueOf(argsBox.reln),argsBox.govNodeName,argsBox.dep);
+  }
+ else   if (command.equalsIgnoreCase(RemoveNamedEdge.LABEL)) {
+    retEdit=new RemoveNamedEdge(argsBox.edge,argsBox.govNodeName,argsBox.dep);
+  }
+ else   if (command.equalsIgnoreCase(SetRoots.LABEL)) {
+    String[] names=tuples1[1].split("\\s+");
+    List<String> newRoots=Arrays.asList(names);
+    retEdit=new SetRoots(newRoots);
+  }
+ else   if (command.equalsIgnoreCase(KillNonRootedNodes.LABEL)) {
+    retEdit=new KillNonRootedNodes();
+  }
+ else   if (command.equalsIgnoreCase(KillAllIncomingEdges.LABEL)) {
+    retEdit=new KillAllIncomingEdges(argsBox.node);
+  }
+ else {
+    throw new Exception("Error in SsurgeonEdit.parseEditLine: command '" + command + "' is not supported");
+  }
+  return retEdit;
+}

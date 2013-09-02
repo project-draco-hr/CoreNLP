@@ -37,33 +37,13 @@
   while (argIndex < args.length && args[argIndex].charAt(0) == '-') {
     if (args[argIndex].equalsIgnoreCase("-train") || args[argIndex].equalsIgnoreCase("-trainTreebank")) {
       train=true;
-      int numSubArgs=numSubArgs(args,argIndex);
-      argIndex++;
-      if (numSubArgs >= 1) {
-        treebankPath=args[argIndex];
-        argIndex++;
-      }
- else {
-        throw new RuntimeException("Error: -train option must have treebankPath as first argument.");
-      }
-      if (numSubArgs == 2) {
-        trainFilter=new NumberRangesFileFilter(args[argIndex++],true);
-      }
- else       if (numSubArgs >= 3) {
-        try {
-          int low=Integer.parseInt(args[argIndex]);
-          int high=Integer.parseInt(args[argIndex + 1]);
-          trainFilter=new NumberRangeFileFilter(low,high,true);
-          argIndex+=2;
-        }
- catch (        NumberFormatException e) {
-          trainFilter=new NumberRangesFileFilter(args[argIndex],true);
-          argIndex++;
-        }
-      }
+      Pair<String,FileFilter> treebankDescription=ArgUtils.getTreebankDescription(args,argIndex,"-test");
+      argIndex=argIndex + ArgUtils.numSubArgs(args,argIndex) + 1;
+      treebankPath=treebankDescription.first();
+      trainFilter=treebankDescription.second();
     }
  else     if (args[argIndex].equalsIgnoreCase("-train2")) {
-      int numSubArgs=numSubArgs(args,argIndex);
+      int numSubArgs=ArgUtils.numSubArgs(args,argIndex);
       argIndex++;
       if (numSubArgs < 2) {
         throw new RuntimeException("Error: -train2 <treebankPath> [<ranges>] <weight>.");
@@ -136,7 +116,7 @@ catch (      IllegalAccessException e) {
       tagDelimiter=args[argIndex + 1];
       argIndex+=2;
     }
- else     if (args[argIndex].equalsIgnoreCase("-loadFromSerializedFile")) {
+ else     if (args[argIndex].equalsIgnoreCase("-loadFromSerializedFile") || args[argIndex].equalsIgnoreCase("-model")) {
       serializedInputFileOrUrl=args[argIndex + 1];
       argIndex+=2;
     }
@@ -146,7 +126,7 @@ catch (      IllegalAccessException e) {
     }
  else     if (args[argIndex].equalsIgnoreCase("-saveToSerializedFile")) {
       saveToSerializedFile=true;
-      if (numSubArgs(args,argIndex) < 1) {
+      if (ArgUtils.numSubArgs(args,argIndex) < 1) {
         System.err.println("Missing path: -saveToSerialized filename");
       }
  else {
@@ -164,52 +144,16 @@ catch (      IllegalAccessException e) {
       argIndex+=2;
     }
  else     if (args[argIndex].equalsIgnoreCase("-treebank") || args[argIndex].equalsIgnoreCase("-testTreebank") || args[argIndex].equalsIgnoreCase("-test")) {
-      int numSubArgs=numSubArgs(args,argIndex);
-      if (numSubArgs > 0 && numSubArgs < 3) {
-        argIndex++;
-        testPath=args[argIndex++];
-        if (numSubArgs == 2) {
-          testFilter=new NumberRangesFileFilter(args[argIndex++],true);
-        }
- else         if (numSubArgs == 3) {
-          try {
-            int low=Integer.parseInt(args[argIndex]);
-            int high=Integer.parseInt(args[argIndex + 1]);
-            testFilter=new NumberRangeFileFilter(low,high,true);
-            argIndex+=2;
-          }
- catch (          NumberFormatException e) {
-            testFilter=new NumberRangesFileFilter(args[argIndex++],true);
-          }
-        }
-      }
- else {
-        throw new IllegalArgumentException("Bad arguments after -testTreebank");
-      }
+      Pair<String,FileFilter> treebankDescription=ArgUtils.getTreebankDescription(args,argIndex,"-test");
+      argIndex=argIndex + ArgUtils.numSubArgs(args,argIndex) + 1;
+      testPath=treebankDescription.first();
+      testFilter=treebankDescription.second();
     }
  else     if (args[argIndex].equalsIgnoreCase("-tune")) {
-      int numSubArgs=numSubArgs(args,argIndex);
-      argIndex++;
-      if (numSubArgs == 1) {
-        tuneFilter=new NumberRangesFileFilter(args[argIndex++],true);
-      }
- else       if (numSubArgs > 1) {
-        tunePath=args[argIndex++];
-        if (numSubArgs == 2) {
-          tuneFilter=new NumberRangesFileFilter(args[argIndex++],true);
-        }
- else         if (numSubArgs >= 3) {
-          try {
-            int low=Integer.parseInt(args[argIndex]);
-            int high=Integer.parseInt(args[argIndex + 1]);
-            tuneFilter=new NumberRangeFileFilter(low,high,true);
-            argIndex+=2;
-          }
- catch (          NumberFormatException e) {
-            tuneFilter=new NumberRangesFileFilter(args[argIndex++],true);
-          }
-        }
-      }
+      Pair<String,FileFilter> treebankDescription=ArgUtils.getTreebankDescription(args,argIndex,"-tune");
+      argIndex=argIndex + ArgUtils.numSubArgs(args,argIndex) + 1;
+      tunePath=treebankDescription.first();
+      tuneFilter=treebankDescription.second();
     }
  else {
       int oldIndex=argIndex;
@@ -254,7 +198,7 @@ catch (    InvocationTargetException e) {
       throw new RuntimeException(e);
     }
   }
-  if (tuneFilter != null) {
+  if (tuneFilter != null || tunePath != null) {
     if (tunePath == null) {
       if (treebankPath == null) {
         throw new RuntimeException("No tune treebank path specified...");
@@ -363,7 +307,8 @@ catch (    InvocationTargetException e) {
     printOptions(false,op);
   }
   if (testTreebank != null) {
-    lp.parserQuery().testOnTreebank(testTreebank);
+    EvaluateTreebank evaluator=new EvaluateTreebank(lp);
+    evaluator.testOnTreebank(testTreebank,lp.parserQuery());
   }
  else   if (argIndex >= args.length) {
     PrintWriter pwOut=op.tlpParams.pw();

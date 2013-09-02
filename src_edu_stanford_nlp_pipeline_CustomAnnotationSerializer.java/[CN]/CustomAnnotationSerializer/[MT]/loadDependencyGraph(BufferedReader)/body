@@ -26,13 +26,14 @@
     String[] bits=line.split("\t");
     for (    String bit : bits) {
       String[] bbits=bit.split(" ");
-      if (bbits.length != 3) {
+      if (bbits.length < 3 || bbits.length > 4) {
         throw new RuntimeException("ERROR: Invalid format for dependency graph: " + line);
       }
       String dep=bbits[0];
       int source=Integer.valueOf(bbits[1]);
       int target=Integer.valueOf(bbits[2]);
-      graph.edges.add(new IntermediateEdge(dep,source,target));
+      boolean isExtra=(bbits.length == 4) ? Boolean.valueOf(bbits[3]) : false;
+      graph.edges.add(new IntermediateEdge(dep,source,target,isExtra));
     }
   }
   return graph;

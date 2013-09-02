@@ -1,5 +1,15 @@
 {
-  labelIndices=(Index<CRFLabel>[])ois.readObject();
+  Object o=ois.readObject();
+  if (o instanceof List) {
+    labelIndices=(List<Index<CRFLabel>>)o;
+  }
+ else {
+    Index<CRFLabel>[] indexArray=(Index<CRFLabel>[])o;
+    labelIndices=new ArrayList<Index<CRFLabel>>(indexArray.length);
+    for (int i=0; i < indexArray.length; ++i) {
+      labelIndices.add(indexArray[i]);
+    }
+  }
   classIndex=(Index<String>)ois.readObject();
   featureIndex=(Index<String>)ois.readObject();
   flags=(SeqClassifierFlags)ois.readObject();

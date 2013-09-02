@@ -10,7 +10,6 @@
   int numNoMemory=0;
   int numFallback=0;
   int numSkipped=0;
-  boolean saidMemMessage=false;
   if (op.testOptions.verbose) {
     if (tokenizerFactory != null)     pwErr.println("parseFiles: Tokenizer factory is: " + tokenizerFactory);
     pwErr.println("Sentence final words are: " + Arrays.asList(tlp.sentenceFinalPunctuationWords()));
@@ -123,7 +122,7 @@
         }
  else {
           if (!saidMemMessage) {
-            printOutOfMemory(pwErr);
+            ParserUtils.printOutOfMemory(pwErr);
             saidMemMessage=true;
           }
           if (pparser.hasParse() && fallbackToPCFG) {
@@ -193,7 +192,7 @@ catch (      UnsupportedOperationException uoe) {
     if (factLL != null)     factLL.display(false,pwErr);
   }
   if (saidMemMessage) {
-    printOutOfMemory(pwErr);
+    ParserUtils.printOutOfMemory(pwErr);
   }
   double wordspersec=numWords / (((double)millis) / 1000);
   double sentspersec=numSents / (((double)millis) / 1000);

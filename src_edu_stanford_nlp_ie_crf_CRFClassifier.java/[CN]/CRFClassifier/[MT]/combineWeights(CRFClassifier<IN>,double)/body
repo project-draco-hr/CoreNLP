@@ -2,9 +2,9 @@
   int numFeatures=featureIndex.size();
   int oldNumFeatures=weights.length;
   Map<CRFLabel,CRFLabel> crfLabelMap=new HashMap<CRFLabel,CRFLabel>();
-  for (int i=0; i < crf.labelIndices.length; i++) {
-    for (int j=0; j < crf.labelIndices[i].size(); j++) {
-      CRFLabel labels=crf.labelIndices[i].get(j);
+  for (int i=0; i < crf.labelIndices.size(); i++) {
+    for (int j=0; j < crf.labelIndices.get(i).size(); j++) {
+      CRFLabel labels=crf.labelIndices.get(i).get(j);
       int[] newLabelIndices=new int[i + 1];
       for (int ci=0; ci <= i; ci++) {
         String classLabel=crf.classIndex.get(labels.getLabel()[ci]);
@@ -12,7 +12,7 @@
       }
       CRFLabel newLabels=new CRFLabel(newLabelIndices);
       crfLabelMap.put(labels,newLabels);
-      int k=this.labelIndices[i].indexOf(newLabels);
+      int k=this.labelIndices.get(i).indexOf(newLabels);
     }
   }
   map=new int[numFeatures];
@@ -21,7 +21,7 @@
   }
   double[][] newWeights=new double[numFeatures][];
   for (int i=0; i < numFeatures; i++) {
-    int length=labelIndices[map[i]].size();
+    int length=labelIndices.get(map[i]).size();
     newWeights[i]=new double[length];
     if (i < oldNumFeatures) {
       assert(length >= weights[i].length);
@@ -37,9 +37,9 @@
     }
     int featureTypeIndex=map[newIndex];
     for (int j=0; j < crf.weights[i].length; j++) {
-      CRFLabel labels=crf.labelIndices[featureTypeIndex].get(j);
+      CRFLabel labels=crf.labelIndices.get(featureTypeIndex).get(j);
       CRFLabel newLabels=crfLabelMap.get(labels);
-      int k=this.labelIndices[featureTypeIndex].indexOf(newLabels);
+      int k=this.labelIndices.get(featureTypeIndex).indexOf(newLabels);
       weights[newIndex][k]+=crf.weights[i][j] * weight;
     }
   }
