@@ -1,0 +1,27 @@
+{
+  SentenceReader<T> sr=null;
+  ArrayList<T> s;
+  if (PRINT_FILENAMES) {
+    System.err.println(file);
+  }
+  currentFile=file;
+  try {
+    sr=sentenceReaderFactory().newSentenceReader(new BufferedReader(new FileReader(file)));
+    while ((s=sr.readSentence()) != null) {
+      sp.visitSentence(s);
+    }
+  }
+ catch (  IOException e) {
+    System.err.println("loadSentence IO Exception: " + e + " in "+ getCurrentFile());
+  }
+ finally {
+    currentFile=null;
+    try {
+      if (sr != null) {
+        sr.close();
+      }
+    }
+ catch (    IOException e) {
+    }
+  }
+}

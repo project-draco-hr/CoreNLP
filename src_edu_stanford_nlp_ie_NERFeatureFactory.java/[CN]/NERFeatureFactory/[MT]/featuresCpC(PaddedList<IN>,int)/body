@@ -4,10 +4,10 @@
   CoreLabel n=cInfo.get(loc + 1);
   String cWord=getWord(c);
   String pWord=getWord(p);
-  String cDS=c.getString(CoreAnnotations.DistSimAnnotation.class);
-  String pDS=p.getString(CoreAnnotations.DistSimAnnotation.class);
-  String cShape=c.getString(CoreAnnotations.ShapeAnnotation.class);
-  String pShape=p.getString(CoreAnnotations.ShapeAnnotation.class);
+  String cDS=c.getString(DistSimAnnotation.class);
+  String pDS=p.getString(DistSimAnnotation.class);
+  String cShape=c.getString(ShapeAnnotation.class);
+  String pShape=p.getString(ShapeAnnotation.class);
   Collection<String> featuresCpC=new ArrayList<String>();
   if (flags.noEdgeFeature)   return featuresCpC;
   if (flags.transitionEdgeOnly) {
@@ -49,15 +49,15 @@
       }
     }
     if (flags.useAbbr || flags.useMinimalAbbr) {
-      featuresCpC.add(p.get(CoreAnnotations.AbbrAnnotation.class) + '-' + c.get(CoreAnnotations.AbbrAnnotation.class)+ "-PABBRANS");
+      featuresCpC.add(p.get(AbbrAnnotation.class) + '-' + c.get(AbbrAnnotation.class)+ "-PABBRANS");
     }
     if (flags.useAbbr1 || flags.useMinimalAbbr1) {
-      if (!c.get(CoreAnnotations.AbbrAnnotation.class).equals("XX")) {
-        featuresCpC.add(p.get(CoreAnnotations.AbbrAnnotation.class) + '-' + c.get(CoreAnnotations.AbbrAnnotation.class)+ "-PABBRANS");
+      if (!c.get(AbbrAnnotation.class).equals("XX")) {
+        featuresCpC.add(p.get(AbbrAnnotation.class) + '-' + c.get(AbbrAnnotation.class)+ "-PABBRANS");
       }
     }
     if (flags.useChunkySequences) {
-      featuresCpC.add(p.get(CoreAnnotations.ChunkAnnotation.class) + '-' + c.get(CoreAnnotations.ChunkAnnotation.class)+ '-'+ n.get(CoreAnnotations.ChunkAnnotation.class)+ "-PCNCHUNK");
+      featuresCpC.add(p.get(ChunkAnnotation.class) + '-' + c.get(ChunkAnnotation.class)+ '-'+ n.get(ChunkAnnotation.class)+ "-PCNCHUNK");
     }
     if (flags.usePrev) {
       if (flags.useSequences && flags.usePrevSequences) {
@@ -77,27 +77,27 @@
     }
     if (((flags.wordShape > WordShapeClassifier.NOWORDSHAPE) || flags.useShapeStrings) && flags.useTypeSeqs && (flags.useTypeSeqs2 || flags.useTypeSeqs3)) {
       if (flags.useTypeSeqs3) {
-        featuresCpC.add(pShape + '-' + cShape+ '-'+ n.get(CoreAnnotations.ShapeAnnotation.class)+ "-PCNSHAPES");
+        featuresCpC.add(pShape + '-' + cShape+ '-'+ n.get(ShapeAnnotation.class)+ "-PCNSHAPES");
       }
       if (flags.useTypeSeqs2) {
         featuresCpC.add(pShape + '-' + cShape+ "-TYPES");
       }
       if (flags.useYetMoreCpCShapes) {
-        String p2Shape=cInfo.get(loc - 2).getString(CoreAnnotations.ShapeAnnotation.class);
+        String p2Shape=cInfo.get(loc - 2).getString(ShapeAnnotation.class);
         featuresCpC.add(p2Shape + '-' + pShape+ '-'+ cShape+ "-YMS");
-        featuresCpC.add(pShape + '-' + cShape+ "-"+ n.getString(CoreAnnotations.ShapeAnnotation.class)+ "-YMSPCN");
+        featuresCpC.add(pShape + '-' + cShape+ "-"+ n.getString(ShapeAnnotation.class)+ "-YMSPCN");
       }
     }
     if (flags.useTypeySequences) {
       featuresCpC.add(cShape + "-TPS2");
-      featuresCpC.add(n.get(CoreAnnotations.ShapeAnnotation.class) + "-TNS1");
+      featuresCpC.add(n.get(ShapeAnnotation.class) + "-TNS1");
     }
     if (flags.useTaggySequences) {
       if (flags.useTags) {
-        featuresCpC.add(p.getString(CoreAnnotations.PartOfSpeechAnnotation.class) + '-' + c.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ "-TS");
+        featuresCpC.add(p.getString(PartOfSpeechAnnotation.class) + '-' + c.getString(PartOfSpeechAnnotation.class)+ "-TS");
       }
       if (flags.useDistSim) {
-        featuresCpC.add(p.get(CoreAnnotations.DistSimAnnotation.class) + '-' + c.get(CoreAnnotations.DistSimAnnotation.class)+ "-DISTSIM_TS1");
+        featuresCpC.add(p.get(DistSimAnnotation.class) + '-' + c.get(DistSimAnnotation.class)+ "-DISTSIM_TS1");
       }
     }
     if (flags.useParenMatching) {
@@ -117,10 +117,10 @@
       }
     }
     if (flags.useEntityTypeSequences) {
-      featuresCpC.add(p.get(CoreAnnotations.EntityTypeAnnotation.class) + '-' + c.get(CoreAnnotations.EntityTypeAnnotation.class)+ "-ETSEQ");
+      featuresCpC.add(p.get(EntityTypeAnnotation.class) + '-' + c.get(EntityTypeAnnotation.class)+ "-ETSEQ");
     }
     if (flags.useURLSequences) {
-      featuresCpC.add(p.get(CoreAnnotations.IsURLAnnotation.class) + '-' + c.get(CoreAnnotations.IsURLAnnotation.class)+ "-URLSEQ");
+      featuresCpC.add(p.get(IsURLAnnotation.class) + '-' + c.get(IsURLAnnotation.class)+ "-URLSEQ");
     }
   }
  else   if (flags.useInternal) {
@@ -135,15 +135,15 @@
  else   if (flags.useExternal) {
     if (((flags.wordShape > WordShapeClassifier.NOWORDSHAPE) || flags.useShapeStrings) && flags.useTypeSeqs && (flags.useTypeSeqs2 || flags.useTypeSeqs3)) {
       if (flags.useTypeSeqs3) {
-        featuresCpC.add(pShape + '-' + cShape+ '-'+ n.get(CoreAnnotations.ShapeAnnotation.class)+ "-PCNSHAPES");
+        featuresCpC.add(pShape + '-' + cShape+ '-'+ n.get(ShapeAnnotation.class)+ "-PCNSHAPES");
       }
       if (flags.useTypeSeqs2) {
         featuresCpC.add(pShape + '-' + cShape+ "-TYPES");
       }
     }
     if (flags.useTypeySequences) {
-      featuresCpC.add(n.get(CoreAnnotations.ShapeAnnotation.class) + "-TNS1");
-      featuresCpC.add(pShape + '-' + c.get(CoreAnnotations.ShapeAnnotation.class)+ "-TPS");
+      featuresCpC.add(n.get(ShapeAnnotation.class) + "-TNS1");
+      featuresCpC.add(pShape + '-' + c.get(ShapeAnnotation.class)+ "-TPS");
     }
   }
   return featuresCpC;

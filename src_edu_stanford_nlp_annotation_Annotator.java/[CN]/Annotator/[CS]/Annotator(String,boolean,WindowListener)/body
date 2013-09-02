@@ -1,0 +1,38 @@
+{
+  super("Annotator");
+  this.cleanHtml=cleanHtml;
+  StyleConstants.setForeground(invisible,new Color(230,230,230));
+  tp=new JTextPane(doc);
+  tp.setCaret(new SmartCaret());
+  JScrollPane scrollPane=new JScrollPane(tp);
+  scrollPane.setPreferredSize(new Dimension(WIDTH,HEIGHT));
+  getContentPane().add(scrollPane,BorderLayout.CENTER);
+  toolbar=initButtons(tagFile);
+  getContentPane().add(toolbar,BorderLayout.EAST);
+  JMenuBar menubar=addMenuBar();
+  setJMenuBar(menubar);
+  undoManager=new MenuSavvyUndoManager(undo,redo);
+  tp.getDocument().addUndoableEditListener(undoManager);
+  tp.addKeyListener(new KeyAdapter(){
+    public void keyReleased(    KeyEvent ke){
+      int code=ke.getKeyCode();
+      if (code >= KeyEvent.VK_1 && code <= KeyEvent.VK_9 && ke.isControlDown()) {
+        int tagIndex=code - KeyEvent.VK_1;
+        if (tagIndex < tags.size()) {
+          tagText(tags.get(tagIndex));
+        }
+      }
+    }
+  }
+);
+  if (listener != null) {
+    addWindowListener(listener);
+  }
+  Random rnd=new Random();
+  setLocation(20 + rnd.nextInt(40),20 + rnd.nextInt(40));
+  bpDlg=new BatchProcessDialog(this,true);
+  bpDlg.setFileChooser(fc);
+  batchBar=makeBatchToolbar();
+  enableBatchProcess(false);
+  getContentPane().add(batchBar,BorderLayout.NORTH);
+}

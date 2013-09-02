@@ -1,0 +1,35 @@
+{
+  if (name.equals("lexelt")) {
+    lexElt=new String(attrs.getValue("item"));
+    nakedLexElt=new String(lexElt.substring(0,lexElt.indexOf('.')));
+    if (numMap.containsKey(nakedLexElt)) {
+      senseNum=numMap.get(nakedLexElt);
+    }
+ else {
+      numMap.put(nakedLexElt,senseNum=new HashIndex<String>());
+    }
+  }
+ else   if (name.equals("instance")) {
+    instId=new String(attrs.getValue("id"));
+    if (attrs.getValue("docsrc") != null) {
+      docSource=new String(attrs.getValue("docsrc"));
+    }
+ else {
+      docSource=new String();
+    }
+    senseIDs=new ArrayList<String>();
+  }
+ else   if (name.equals("answer")) {
+    String senseID=new String(attrs.getValue("senseid"));
+    if (!noNonIntSenses || senseID.length() > 1) {
+      senseIDs.add(senseID);
+    }
+    if (senseID.length() > 1) {
+      senseNum.indexOf(senseID,true);
+    }
+  }
+ else   if (name.equals("context")) {
+    context=new ArrayList<String>();
+    currentString=new String("");
+  }
+}

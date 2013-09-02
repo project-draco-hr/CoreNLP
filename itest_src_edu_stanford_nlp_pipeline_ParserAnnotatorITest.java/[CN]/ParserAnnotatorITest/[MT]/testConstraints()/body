@@ -2,15 +2,15 @@
   String expectedResult="(ROOT (S (NP (PRP$ My) (NN dog)) (ADVP (RB also)) (VP (VBZ likes) (S (VP (VBG eating) (NP (NN sausage))))) (. .)))";
   Annotation annotation=new Annotation("My dog also likes eating sausage.");
   noParserPipeline.annotate(annotation);
-  CoreMap sentence=annotation.get(CoreAnnotations.SentencesAnnotation.class).get(0);
+  CoreMap sentence=annotation.get(SentencesAnnotation.class).get(0);
   parserOnlyPipeline.annotate(annotation);
-  assertEquals(expectedResult,sentence.get(TreeCoreAnnotations.TreeAnnotation.class).toString());
+  assertEquals(expectedResult,sentence.get(TreeAnnotation.class).toString());
   ParserConstraint constraint=new ParserConstraint(0,2,"SBAR|SBAR[^a-zA-Z].*");
   List<ParserConstraint> constraints=new ArrayList<ParserConstraint>();
   constraints.add(constraint);
   sentence.set(ConstraintAnnotation.class,constraints);
   parserOnlyPipeline.annotate(annotation);
-  String result=sentence.get(TreeCoreAnnotations.TreeAnnotation.class).toString();
+  String result=sentence.get(TreeAnnotation.class).toString();
   assertFalse("Tree should not match the original tree any more",expectedResult.equals(result));
   assertTrue("Tree should be forced to contain SBAR",result.indexOf("SBAR") >= 0);
 }

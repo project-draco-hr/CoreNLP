@@ -1,0 +1,107 @@
+{
+  if (args.length < 3) {
+    System.err.println("Usage: BasicIDExtractor <synonym file> <test file> <tagged file> [-all] [-disambiguate <train file>] [-acceptNN] [-acceptCD] [-acceptJJ]");
+    System.exit(1);
+  }
+  boolean printAll=false;
+  boolean acceptNN=false;
+  boolean acceptJJ=false;
+  boolean acceptCD=false;
+  boolean disambiguate=false;
+  String trainFile=null;
+  for (int arg=3; arg < args.length; arg++) {
+    if ("-all".equals(args[arg])) {
+      printAll=true;
+      continue;
+    }
+ else     if ("-acceptNN".equals(args[arg])) {
+      acceptNN=true;
+      continue;
+    }
+ else     if ("-acceptJJ".equals(args[arg])) {
+      acceptJJ=true;
+      continue;
+    }
+ else     if ("-acceptCD".equals(args[arg])) {
+      acceptCD=true;
+      continue;
+    }
+ else     if ("-disambiguate".equals(args[arg])) {
+      disambiguate=true;
+      arg++;
+      trainFile=args[arg];
+      continue;
+    }
+ else {
+      System.err.println("Unrecognized command-line argument: " + args[arg]);
+    }
+  }
+  if (disambiguate) {
+    BioCreativeGeneNormalizer.cm=new CooccurrenceModel();
+    BioCreativeGeneNormalizer.cm.initialize(trainFile);
+  }
+  boolean filter=acceptNN || acceptJJ || acceptCD;
+  BioRegexpDictionary dictionary=new BioRegexpDictionary(false);
+  try {
+    BufferedReader br=new BufferedReader(new FileReader(args[0]));
+    String line;
+    while ((line=br.readLine()) != null) {
+      String[] columns=line.split("\t");
+      if (columns.length == 0) {
+        break;
+      }
+      String id=columns[0];
+      for (int i=1; i < columns.length; i++) {
+        String synonym=columns[i];
+        dictionary.add(synonym,id);
+      }
+    }
+    BufferedReader tr=new BufferedReader(new FileReader(args[2]));
+    br=new BufferedReader(new FileReader(args[1]));
+    while ((line=br.readLine()) != null) {
+      String tl=tr.readLine();
+      String[] tw=tl.split(" ");
+      String fileName=tw[0].substring(2);
+      int index=0;
+      int wordIndex=0;
+      Set<GeneEvidencePair> ids=new HashSet<GeneEvidencePair>();
+      Set<GeneIDPair> ambiguities=new HashSet<GeneIDPair>();
+      while (index != -1) {
+        int nextIndex=line.indexOf(' ',index);
+        if (nextIndex == -1) {
+          break;
+        }
+        index=nextIndex + 1;
+        wordIndex++;
+        if (dictionary.lookingAt(line,index)) {
+          String evidence=line.substring(index,dictionary.end());
+          String[] ew=evidence.split(" ");
+          String tag=tw[wordIndex].substring(tw[wordIndex].lastIndexOf('/') + 1);
+          if (!filter || ew.length > 1 || (acceptNN && tag.startsWith("NN")) || (acceptCD && tag.equals("CD")) || (acceptJJ && tag.startsWith("JJ"))) {
+            if (printAll || dictionary.data().size() == 1) {
+              for (Iterator iter=dictionary.data().iterator(); iter.hasNext(); ) {
+                ids.add(new BioCreativeGeneNormalizer.GeneEvidencePair((String)iter.next(),evidence));
+              }
+            }
+ else             if (disambiguate) {
+              ambiguities.add(new BioCreativeGeneNormalizer.GeneIDPair(evidence,dictionary.data()));
+            }
+          }
+          wordIndex+=ew.length - 1;
+          index=dictionary.end();
+        }
+      }
+      if (disambiguate) {
+        BioCreativeGeneNormalizer.disambiguate(ids,ambiguities);
+      }
+      List<GeneEvidencePair> sorted=new ArrayList<GeneEvidencePair>(ids);
+      Collections.sort(sorted);
+      for (Iterator<GeneEvidencePair> iter=sorted.iterator(); iter.hasNext(); ) {
+        System.out.println(fileName + iter.next().toString());
+      }
+    }
+  }
+ catch (  Exception e) {
+    throw new RuntimeException(e);
+  }
+}

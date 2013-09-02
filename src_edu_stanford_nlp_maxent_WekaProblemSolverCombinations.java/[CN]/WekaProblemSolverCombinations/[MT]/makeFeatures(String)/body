@@ -1,0 +1,60 @@
+{
+  data=new Experiments(train.vArray,train.numClasses);
+  train.makeStringsClasses();
+  inds=getSortedAccuracy();
+  marked=new byte[train.numAttributes];
+  if (fitNumClassifiers && selectOverlap) {
+    selectClassifiers();
+  }
+  functions=new Features();
+  int maxA=train.numAttributes;
+  if (usetop) {
+    maxA=top;
+  }
+  for (int indA=0; indA < maxA; indA++) {
+    int a=inds[indA];
+    if (train.nominal(a)) {
+      int numTrue=0;
+      double[][] v1=new double[data.size()][data.ySize];
+      for (int i=0; i < data.size(); i++) {
+        int val=(int)train.getFValue(a,i);
+        String cls=train.getAttrName(a,val);
+        int clsNo=train.getYIndex(cls);
+        if (clsNo > -1) {
+          v1[i][clsNo]=1;
+        }
+        if (train.getClass(i) == clsNo) {
+          numTrue++;
+        }
+      }
+      if ((numTrue > cutoff) && (marked[a] < 2)) {
+        functions.add(new BinaryFeature(data,v1,instanceIndex));
+        fAssociations.put(a + "",Integer.valueOf(functions.size() - 1));
+        reverseMap.put(Integer.valueOf(functions.size() - 1),String.valueOf(a));
+        for (int k=0; k < train.numAttributes; k++) {
+          if ((diff[a][k] == 0) && (diff[k][a] == 0)) {
+            marked[k]++;
+          }
+        }
+      }
+    }
+    if (train.numeric(a)) {
+      for (int y=0; y < data.ySize; y++) {
+        int numTrue=0;
+        double[][] v1=new double[data.size()][data.ySize];
+        for (int i=0; i < data.size(); i++) {
+          if (train.getFValue(a,i) > 0) {
+            v1[i][y]=train.getFValue(a,i);
+            numTrue++;
+          }
+        }
+        if (numTrue > cutoff) {
+          functions.add(new Feature(data,v1,instanceIndex));
+          fAssociations.put(a + "|" + "num"+ "|"+ y,Integer.valueOf(functions.size() - 1));
+          reverseMap.put(Integer.valueOf(functions.size() - 1),a + "|" + "num"+ "|"+ y);
+        }
+      }
+    }
+  }
+  p=new Problem(data,functions);
+}

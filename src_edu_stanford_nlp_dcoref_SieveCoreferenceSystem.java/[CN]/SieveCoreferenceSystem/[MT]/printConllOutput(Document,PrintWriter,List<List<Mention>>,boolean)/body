@@ -1,16 +1,16 @@
 {
   Annotation anno=document.annotation;
   List<List<String[]>> conllDocSentences=document.conllDoc.sentenceWordLists;
-  String docID=anno.get(CoreAnnotations.DocIDAnnotation.class);
+  String docID=anno.get(DocIDAnnotation.class);
   StringBuilder sb=new StringBuilder();
   sb.append("#begin document ").append(docID).append("\n");
-  List<CoreMap> sentences=anno.get(CoreAnnotations.SentencesAnnotation.class);
+  List<CoreMap> sentences=anno.get(SentencesAnnotation.class);
   for (int sentNum=0; sentNum < sentences.size(); sentNum++) {
-    List<CoreLabel> sentence=sentences.get(sentNum).get(CoreAnnotations.TokensAnnotation.class);
+    List<CoreLabel> sentence=sentences.get(sentNum).get(TokensAnnotation.class);
     List<String[]> conllSentence=conllDocSentences.get(sentNum);
-    Map<Integer,Set<Mention>> mentionBeginOnly=Generics.newHashMap();
-    Map<Integer,Set<Mention>> mentionEndOnly=Generics.newHashMap();
-    Map<Integer,Set<Mention>> mentionBeginEnd=Generics.newHashMap();
+    Map<Integer,Set<Mention>> mentionBeginOnly=new HashMap<Integer,Set<Mention>>();
+    Map<Integer,Set<Mention>> mentionEndOnly=new HashMap<Integer,Set<Mention>>();
+    Map<Integer,Set<Mention>> mentionBeginEnd=new HashMap<Integer,Set<Mention>>();
     for (int i=0; i < sentence.size(); i++) {
       mentionBeginOnly.put(i,new LinkedHashSet<Mention>());
       mentionEndOnly.put(i,new LinkedHashSet<Mention>());

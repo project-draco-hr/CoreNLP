@@ -1,0 +1,20 @@
+{
+  SynsetID id=synsets.get(string);
+  if (id == null) {
+    int split=string.lastIndexOf('#');
+    if (split >= 1) {
+      int num;
+      try {
+        num=Integer.parseInt(string.substring(split + 1));
+      }
+ catch (      NumberFormatException e) {
+        return null;
+      }
+      WordTagID wordTagId=wordtags.get(string.substring(0,split));
+      if (wordTagId != null) {
+        id=wordTagId.getSynset(num);
+      }
+    }
+  }
+  return id;
+}

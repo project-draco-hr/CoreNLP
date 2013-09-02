@@ -1,0 +1,57 @@
+{
+  int lwiSize=lwi.size();
+  if (lwiSize != nonspaceLine.length()) {
+    throw new RuntimeException();
+  }
+  int[] lbegin=new int[lwiSize];
+  int[] lmiddle=new int[lwiSize];
+  int[] lend=new int[lwiSize];
+  for (int i=0; i < lwiSize; i++) {
+    lbegin[i]=lmiddle[i]=lend[i]=0;
+  }
+  for (int i=0; i < lwiSize; i++) {
+    for (int leng=ChineseDictionary.MAX_LEXICON_LENGTH; leng >= 1; leng--) {
+      if (i + leng - 1 < lwiSize) {
+        if (dict.contains(nonspaceLine.substring(i,i + leng))) {
+          if (leng > lbegin[i]) {
+            lbegin[i]=leng;
+          }
+          int last=i + leng - 1;
+          if (leng == ChineseDictionary.MAX_LEXICON_LENGTH) {
+            last+=1;
+          }
+          for (int mid=i + 1; mid < last; mid++) {
+            if (leng > lmiddle[mid]) {
+              lmiddle[mid]=leng;
+            }
+          }
+          if (leng < ChineseDictionary.MAX_LEXICON_LENGTH) {
+            if (leng > lend[i + leng - 1]) {
+              lend[i + leng - 1]=leng;
+            }
+          }
+        }
+      }
+    }
+  }
+  for (int i=0; i < lwiSize; i++) {
+    StringBuilder sb=new StringBuilder();
+    sb.append(lbegin[i]);
+    if (lbegin[i] == ChineseDictionary.MAX_LEXICON_LENGTH) {
+      sb.append("+");
+    }
+    lwi.get(i).set(lbeginFieldName,sb.toString());
+    sb=new StringBuilder();
+    sb.append(lmiddle[i]);
+    if (lmiddle[i] == ChineseDictionary.MAX_LEXICON_LENGTH) {
+      sb.append("+");
+    }
+    lwi.get(i).set(lmiddleFieldName,sb.toString());
+    sb=new StringBuilder();
+    sb.append(lend[i]);
+    if (lend[i] == ChineseDictionary.MAX_LEXICON_LENGTH) {
+      sb.append("+");
+    }
+    lwi.get(i).set(lendFieldName,sb.toString());
+  }
+}

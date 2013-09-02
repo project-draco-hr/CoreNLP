@@ -1,0 +1,53 @@
+{
+  String segtext=printAnswersWithoutNR(doc);
+  List<String> isNR=new ArrayList<String>();
+  for (  CoreLabel c : doc) {
+    String label=c.get(AnswerAnnotation.class);
+    if (label.startsWith("NR")) {
+      isNR.add("NR");
+    }
+ else {
+      isNR.add("O");
+    }
+  }
+  char[] chars=segtext.toCharArray();
+  int ptr=0;
+  String seg="1";
+  List<String> annotatedChars=new ArrayList<String>();
+  List<String> annotationOnly=new ArrayList<String>();
+  char prevC=' ';
+  String prevLabel="";
+  for (  char c : chars) {
+    if (prevC == ' ') {
+      seg="1";
+    }
+ else {
+      seg="0";
+    }
+    if (c == ' ') {
+      prevC=c;
+      continue;
+    }
+    StringBuilder sb=new StringBuilder();
+    sb.append(c).append("/").append(isNR.get(ptr)).append("-").append(seg);
+    StringBuilder ann=new StringBuilder();
+    ann.append(isNR.get(ptr)).append("-").append(seg);
+    String curLabel=ann.toString();
+    if ((curLabel.equals("NR-0") && prevLabel.startsWith("O")) || (curLabel.equals("O-0") && prevLabel.startsWith("NR"))) {
+    }
+    annotatedChars.add(sb.toString());
+    ptr++;
+    prevLabel=curLabel;
+    prevC=c;
+  }
+  if (ptr != doc.size()) {
+    System.err.println("segtext=");
+    System.err.println(segtext);
+    System.err.println("ptr=" + ptr);
+    System.err.println("doc.size=" + doc.size());
+    System.err.println("doc=");
+    System.err.println(doc);
+    throw new RuntimeException("??");
+  }
+  return StringUtils.join(annotatedChars," ");
+}

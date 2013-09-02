@@ -1,0 +1,42 @@
+{
+  Matcher m=q.matcher(line);
+  Matcher m2=q2.matcher(line);
+  LineInfo li=new LineInfo();
+  li.line=line;
+  if (m2.matches()) {
+    li.word=intern(m2.group(1));
+    if (useLemmas) {
+      li.word=intern(m2.group(2));
+    }
+    li.tag=intern(m2.group(3));
+    li.chunk=intern(m2.group(4));
+    li.answer=intern(m2.group(5));
+    if (li.answer.length() > 2 && !useEnds) {
+      li.answer=intern("I-" + li.answer.substring(2,li.answer.length()));
+    }
+  }
+ else   if (m.matches()) {
+    li.word=intern(m.group(1));
+    li.tag=intern(m.group(2));
+    li.chunk=intern(m.group(3));
+    li.answer=intern(m.group(4));
+    if (li.answer.length() > 2 && !useEnds) {
+      li.answer=intern("I-" + li.answer.substring(2,li.answer.length()));
+    }
+  }
+ else {
+    li.word=BOUNDARY;
+    li.answer="O";
+  }
+  li.word=fix(li.word);
+  if (useChrisWordTypes) {
+    li.type=WordShapeClassifier.wordShape(li.word,WordShapeClassifier.WORDSHAPECHRIS1,knownLCwords);
+  }
+ else   if (useBetterWordTypes) {
+    li.type=WordShapeClassifier.wordShape(li.word,WordShapeClassifier.WORDSHAPEDAN2,knownLCwords);
+  }
+ else {
+    li.type=WordShapeClassifier.wordShape(li.word,WordShapeClassifier.WORDSHAPEDAN1,knownLCwords);
+  }
+  return li;
+}

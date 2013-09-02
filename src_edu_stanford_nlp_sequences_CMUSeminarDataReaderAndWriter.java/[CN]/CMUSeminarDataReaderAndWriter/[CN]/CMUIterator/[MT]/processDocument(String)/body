@@ -1,0 +1,91 @@
+{
+  if (true) {
+    List<CoreLabel> words=new ArrayList<CoreLabel>();
+    String[] lines=doc.split("\n");
+    for (    String line : lines) {
+      String[] bits=line.split("\t");
+      CoreLabel fl=new CoreLabel();
+      fl.setWord(bits[0]);
+      fl.setTag(bits[1]);
+      fl.set(AnswerAnnotation.class,bits[2]);
+      words.add(fl);
+    }
+    if (flags.usePrediction) {
+      predModel.testSentence(words,PredictedAnswerAnnotation.class);
+    }
+    return words;
+  }
+  if (tagger == null) {
+    try {
+      tagger=new MaxentTagger(modelFile);
+    }
+ catch (    Exception e) {
+      throw new RuntimeException(e.getMessage());
+    }
+  }
+  List<CoreLabel> words=new ArrayList<CoreLabel>();
+  Pattern xmlP=Pattern.compile("<.*?>");
+  Matcher xmlM=xmlP.matcher(doc);
+  Pattern entityP=Pattern.compile("<(speaker|location|stime|etime)>");
+  Pattern endEntityP=Pattern.compile("</(speaker|location|stime|etime)>");
+  Pattern startSent=Pattern.compile("<sentence>",Pattern.CASE_INSENSITIVE);
+  Pattern endSent=Pattern.compile("</sentence>",Pattern.CASE_INSENSITIVE);
+  int loc=0;
+  String ans=flags.backgroundSymbol;
+  ArrayList<CoreLabel> posSentence=new ArrayList<CoreLabel>();
+  while (true) {
+    boolean found=xmlM.find();
+    String prev;
+    if (found) {
+      prev=doc.substring(loc,xmlM.start());
+    }
+ else {
+      prev=doc.substring(loc);
+    }
+    PTBTokenizer ptb=PTBTokenizer.newPTBTokenizer(new BufferedReader(new StringReader(prev)));
+    while (ptb.hasNext()) {
+      String w=ptb.next().toString();
+      CoreLabel fl=new CoreLabel();
+      fl.set(TextAnnotation.class,w);
+      fl.set(AnswerAnnotation.class,ans);
+      posSentence.add(fl);
+    }
+    if (found) {
+      String tag=xmlM.group(0);
+      loc=xmlM.end();
+      Matcher m=endEntityP.matcher(tag);
+      if (m.matches()) {
+        ans=flags.backgroundSymbol;
+      }
+ else {
+        m=entityP.matcher(tag);
+        if (m.matches()) {
+          if (!ans.equals(flags.backgroundSymbol)) {
+            throw new RuntimeException("Unterminated tag!\n\n" + doc);
+          }
+          ans=m.group(1);
+        }
+ else {
+          m=startSent.matcher(tag);
+          Matcher m1=startSent.matcher(tag);
+          if (m.matches() || m1.matches()) {
+            if (posSentence.size() > 0) {
+              posTagAndAdd(posSentence,words);
+              posSentence=new ArrayList<CoreLabel>();
+            }
+          }
+        }
+      }
+    }
+ else {
+      if (posSentence.size() > 0) {
+        posTagAndAdd(posSentence,words);
+      }
+      break;
+    }
+  }
+  if (!ans.equals(flags.backgroundSymbol)) {
+    throw new RuntimeException("Unterminated tag!\n\n" + doc);
+  }
+  return words;
+}

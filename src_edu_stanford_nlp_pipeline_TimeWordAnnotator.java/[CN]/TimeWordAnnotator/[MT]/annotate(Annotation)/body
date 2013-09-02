@@ -1,0 +1,25 @@
+{
+  if (VERBOSE) {
+    System.err.print("Adding extra \"time word\" NER...");
+  }
+  if (annotation.containsKey(CoreAnnotations.SentencesAnnotation.class)) {
+    for (    CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
+      List<CoreLabel> words=sentence.get(CoreAnnotations.TokensAnnotation.class);
+      for (      CoreLabel word : words) {
+        String text=word.word();
+        String ner=word.ner();
+        if (timeWords.contains(text.toLowerCase()) && (ner == null || ner.equals("TIME")))         word.setNER("TIME");
+ else {
+          Matcher m=armyTimeMorning.matcher(text);
+          if (m.matches()) {
+            word.setNER("TIME");
+            word.set(NormalizedNamedEntityTagAnnotation.class,m.group(1) + ":" + m.group(2)+ "am");
+          }
+        }
+      }
+    }
+  }
+ else {
+    throw new RuntimeException("unable to find sentences in: " + annotation);
+  }
+}

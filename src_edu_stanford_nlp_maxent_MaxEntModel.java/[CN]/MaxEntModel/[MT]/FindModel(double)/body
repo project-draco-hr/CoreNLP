@@ -1,0 +1,38 @@
+{
+  correspondences=new int[feats.size()];
+  for (int j=0; j < correspondences.length; j++) {
+    correspondences[j]=-1;
+  }
+  int iters=0;
+  if (gainlimit == 0) {
+    for (int i=0; i < feats.size(); i++) {
+      int nextFeat=i;
+      active[nextFeat]=true;
+      p.add(feats.get(nextFeat));
+      correspondences[nextFeat]=p.fSize - 1;
+    }
+    prob=new LambdaSolve(p,0.0001,0.00001);
+    return;
+  }
+  while (iters < 1) {
+    iters++;
+    int nextFeat=-1;
+    double temp=0.0;
+    for (int i=0; i < feats.size(); i++) {
+      if (!active[i]) {
+        temp=prob.GainCompute(feats.get(i),gainerror);
+        if (temp > gainlimit) {
+          nextFeat=i;
+          System.out.println(" Adding " + nextFeat + " "+ temp);
+          active[nextFeat]=true;
+          p.add(feats.get(nextFeat));
+          correspondences[nextFeat]=p.fSize - 1;
+          prob=new LambdaSolve(p,0.0001,0.00001);
+          prob.improvedIterative(50);
+        }
+      }
+    }
+  }
+  prob=new LambdaSolve(p,0.0001,0.00001);
+  prob.improvedIterative(300);
+}

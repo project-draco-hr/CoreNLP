@@ -1,0 +1,26 @@
+{
+  if (example.label().equals("NONE") && classification) {
+    return inner.scoresOf(example);
+  }
+  Counter<L> probs=inner.probabilityOf(example);
+  totalCalls++;
+  Counter<L> scores=inner.scoresOf(example);
+  Object oldMaxLabel=Counters.argmax(scores);
+  Collection<F> feats=example.asFeatures();
+  int nf=feats.size();
+  for (  L label : probs.keySet()) {
+    double indicator=label.equals(example.label()) ? 1.0 : 0.0;
+    double adjustment=alpha * nf * (indicator - probs.getCount(label));
+    double oldScore=scores.getCount(label);
+    double newScore=oldScore - adjustment;
+    if (Math.random() < .001) {
+      System.err.println("old score " + oldScore + " adjustment "+ adjustment+ " label "+ label+ " example label "+ example.label());
+    }
+    scores.setCount(label,newScore);
+  }
+  Object newMaxLabel=Counters.argmax(scores);
+  if (oldMaxLabel.equals(newMaxLabel)) {
+    argMaxChanged++;
+  }
+  return scores;
+}

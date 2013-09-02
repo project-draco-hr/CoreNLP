@@ -1,0 +1,43 @@
+{
+  History h=new History(pairs,maxentTagger.extractors);
+  double sum=0.0;
+  boolean hasHistory=true;
+  double[] histories=null;
+  boolean unknown=maxentTagger.dict.isUnknown(sent.get(current));
+  for (int hyp=0; hyp < kBestSize; hyp++) {
+    try {
+      getHistory(current,h,hyp);
+    }
+ catch (    Exception e) {
+      System.err.println("Error: num hyp " + hyp);
+      System.err.println(sent.get(current));
+    }
+    hasHistory=false;
+    if (!hasHistory) {
+      String[] tags=stringTagsAt(h.current - h.start + leftWindow());
+      histories=getHistories(tags,h);
+      sum=0;
+      for (      double history1 : histories) {
+        sum=sum + history1;
+      }
+    }
+    int x=0;
+    if (unknown) {
+      for (int y=0; y < maxentTagger.ySize; y++) {
+        String tag=maxentTagger.tags.getTag(y);
+        if (maxentTagger.tags.isClosed(tag)) {
+          continue;
+        }
+        insertArray(current,hyp,x,y,hCurrent,pCurrent,tag,hasHistory,histories,sum);
+      }
+    }
+ else {
+      String[] tags1=maxentTagger.dict.getTags(sent.get(current));
+      String[] tags=maxentTagger.tags.deterministicallyExpandTags(tags1);
+      for (      String tag : tags) {
+        int y=maxentTagger.tags.getIndex(tag);
+        insertArray(current,hyp,x,y,hCurrent,pCurrent,tag,hasHistory,histories,sum);
+      }
+    }
+  }
+}

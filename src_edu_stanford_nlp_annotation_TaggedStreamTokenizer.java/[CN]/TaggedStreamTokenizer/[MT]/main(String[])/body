@@ -1,0 +1,49 @@
+{
+  System.err.println("TaggedStreamTokenizer test, 5/12/02");
+  if (argv.length < 1) {
+    System.err.println("Needs the filename of the html file");
+    System.exit(-1);
+  }
+  BufferedReader f=new BufferedReader(new FileReader(argv[0]));
+  TaggedStreamTokenizer tsr=new TaggedStreamTokenizer(f);
+  tsr.setKeeperCharacters("*:.");
+  tsr.addTarget("<post_date>","</post_date>",true);
+  tsr.addTarget("<area>","</area>",true);
+  tsr.addTarget("<title>","</title>",true);
+  tsr.addTarget("<country>","</country>",false);
+  tsr.addKeeperTag("tag");
+  tsr.addKeeperTag("html");
+  tsr.addKeeperTag("script");
+  tsr.addKeeperTag("!--");
+  tsr.setDiscardInactiveTags(false);
+  tsr.setDiscardHtml(false);
+  int blah=0;
+  while (blah != -1) {
+    blah=tsr.nextToken();
+    if (blah == TaggedStreamTokenizer.TT_TARGET_TAG) {
+      System.out.println("target tag " + tsr.attr + ": "+ tsr.sval);
+    }
+    if (blah == TaggedStreamTokenizer.TT_TARGET_TAG_END) {
+      System.out.println("target tag end " + tsr.attr + ": "+ tsr.sval);
+    }
+ else     if (blah == TaggedStreamTokenizer.TT_TARGET_HTML) {
+      System.out.println("target html" + tsr.attr + ": "+ tsr.sval);
+    }
+ else     if (blah == TaggedStreamTokenizer.TT_TARGET_WORD) {
+      System.out.println("target word" + tsr.attr + ": "+ tsr.sval);
+    }
+ else     if (blah == TaggedStreamTokenizer.TT_BACKGROUND_WORD) {
+      System.out.println("background word: " + tsr.sval);
+    }
+ else     if (blah == TaggedStreamTokenizer.TT_BACKGROUND_HTML) {
+      System.out.println("background html: " + tsr.sval);
+    }
+ else     if (blah == TaggedStreamTokenizer.TT_BACKGROUND_INACTIVE_TAG) {
+      System.out.println("background inactive tag: " + tsr.sval);
+    }
+ else     if (blah == TaggedStreamTokenizer.TT_TARGET_INACTIVE_TAG) {
+      System.out.println("target inac" + tsr.attr + ": "+ tsr.sval);
+    }
+  }
+  f.close();
+}

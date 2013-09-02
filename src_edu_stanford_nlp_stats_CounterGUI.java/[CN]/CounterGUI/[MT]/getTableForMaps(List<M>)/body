@@ -1,0 +1,14 @@
+{
+  JTable table=new JTable(new MapTableModel<E>(maps));
+  table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+  try {
+    String[] version=System.getProperty("java.version").split("\\.");
+    if (Integer.parseInt(version[0]) >= 1 && Integer.parseInt(version[1]) >= 6) {
+      table.getClass().getMethod("setAutoCreateRowSorter",Boolean.TYPE).invoke(table,true);
+      table.getClass().getMethod("setFillsViewportHeight",Boolean.TYPE).invoke(table,true);
+    }
+  }
+ catch (  Exception e) {
+  }
+  return table;
+}

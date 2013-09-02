@@ -1,0 +1,12 @@
+{
+  resetValue();
+  for (int bInd=0; bInd < batch.length; bInd++) {
+    int docNum=batch[bInd];
+    CliqueDataset doc=dataset.getDocument(docNum);
+    CRF model=models[docNum];
+    value=updateWeightsForDoc(model,doc,value,x,xscale,gain);
+    CliqueDataset data=dataset.getDocument(docNum);
+    updateWeightsForDataset(data,x,xscale,gain);
+  }
+  return value;
+}

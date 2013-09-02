@@ -1,0 +1,19 @@
+{
+  int numMarkedVerbsLocal=getNumMarkedVerbsInTree(lt);
+  Tree genericTree=makeGenericTreeCopy(lt);
+  double weight=1.0;
+  if (numMarkedVerbsTotal > 0) {
+    weight=numMarkedVerbsTotal - numMarkedVerbsLocal;
+  }
+  counter.incrementCount(genericTree,weight);
+  Tree[] children=lt.children();
+  for (int i=0; i < children.length; i++) {
+    List<Integer> subcats=new ArrayList<Integer>();
+    removeSubcatMarkersFromString(children[i].label().value(),subcats);
+    for (    Integer subcat : subcats) {
+      int tempSubcat=subcat.intValue();
+      Tree customTree=makeCustomTreeCopy(genericTree,tempSubcat,i);
+      counter.incrementCount(customTree,1.0);
+    }
+  }
+}

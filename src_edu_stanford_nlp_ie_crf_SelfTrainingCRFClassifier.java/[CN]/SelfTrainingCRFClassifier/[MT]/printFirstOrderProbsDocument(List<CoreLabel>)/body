@@ -8,12 +8,12 @@
   nGram.offer("junk");
   for (int i=0; i < gramSize - 1; i++) {
     CoreLabel wi=document.get(i);
-    nGram.offer(wi.get(CoreAnnotations.GoldAnswerAnnotation.class));
+    nGram.offer(wi.get(GoldAnswerAnnotation.class));
   }
   int[] labels=new int[gramSize];
   for (int docIndex=gramSize - 1; docIndex < cliqueTree.length(); docIndex++) {
     CoreLabel wi=document.get(docIndex);
-    nGram.offer(wi.get(CoreAnnotations.GoldAnswerAnnotation.class));
+    nGram.offer(wi.get(GoldAnswerAnnotation.class));
     nGram.remove();
     for (int i=0; i < labels.length; i++)     labels[i]=0;
     double highestProb=0.0;
@@ -40,8 +40,8 @@
       gold+=nGram.get(i);
       highest+=classIndex.get(highestLabels[i]).toString();
     }
-    highest=highest.replaceAll("\\s","2");
-    gold=gold.replaceAll("\\s","2");
+    highest.replaceAll("\\s","2");
+    gold.replaceAll("\\s","2");
     int errorType=gold.equals(highest) ? 0 : 1;
     System.out.println(highestProb + "\t" + errorType+ "\t"+ (gold.equals(others) ? 1 : 0));
   }

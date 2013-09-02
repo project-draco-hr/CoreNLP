@@ -1,0 +1,44 @@
+{
+  List<String> ancestors=getAncestors(ontology,className);
+  for (int i=0; i < ancestors.size(); i++) {
+    className=ancestors.get(i);
+    Map extractorFieldsBySlotName=extractableSlotsByClassName.get(className);
+    if (extractorFieldsBySlotName == null || extractorFieldsBySlotName.size() == 0) {
+      if (verbose) {
+        System.err.println("No extractors have been assigned to any slots for " + className);
+      }
+      continue;
+    }
+    List extractorFields=(List)extractorFieldsBySlotName.get(slotName);
+    if (extractorFields == null || extractorFields.size() == 0) {
+      if (verbose) {
+        System.err.println("No extractors have been assigned to " + slotName + " for class "+ className);
+      }
+      continue;
+    }
+    if (verbose) {
+      System.err.println("Attempting to extract slot for " + className);
+    }
+    ExtractorField ef=(ExtractorField)extractorFields.get(0);
+    String extractorName=ef.getExtractorName();
+    FieldExtractor extractor=getExtractor(extractorName);
+    if (extractor == null) {
+      if (verbose) {
+        System.err.println("ERROR: unable to load extractor: " + extractorName);
+      }
+      continue;
+    }
+    if (verbose) {
+      System.err.println("Extracting from " + extractorName);
+    }
+    Map extractedFields=extractor.extractFields(text);
+    String extractedValue=(String)extractedFields.get(ef.getFieldName());
+    if (extractedValue != null && extractedValue.length() > 0) {
+      if (verbose) {
+        System.err.println(slotName + ": " + extractedValue);
+      }
+      return (extractedValue);
+    }
+  }
+  return ("");
+}

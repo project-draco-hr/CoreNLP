@@ -1,9 +1,9 @@
 {
   int position=0;
   for (  IN fl : doc) {
-    fl.set(CoreAnnotations.PositionAnnotation.class,Integer.toString((position++)));
+    fl.set(PositionAnnotation.class,Integer.toString((position++)));
     if ((flags.wordShape > WordShapeClassifier.NOWORDSHAPE) && (!flags.useShapeStrings)) {
-      String word=fl.get(CoreAnnotations.TextAnnotation.class);
+      String word=fl.get(TextAnnotation.class);
       if (flags.wordFunction != null) {
         word=flags.wordFunction.apply(word);
       }
@@ -14,14 +14,14 @@
         }
       }
       String s=intern(WordShapeClassifier.wordShape(word,flags.wordShape,knownLCWords));
-      fl.set(CoreAnnotations.ShapeAnnotation.class,s);
+      fl.set(ShapeAnnotation.class,s);
     }
     if ("edu.stanford.nlp.wordseg.Sighan2005DocumentReaderAndWriter".equalsIgnoreCase(flags.readerAndWriter)) {
-      fl.set(CoreAnnotations.CharAnnotation.class,intern(fix(fl.get(CoreAnnotations.CharAnnotation.class))));
+      fl.set(CharAnnotation.class,intern(fix(fl.get(CharAnnotation.class))));
     }
  else {
-      fl.set(CoreAnnotations.TextAnnotation.class,intern(fix(fl.get(CoreAnnotations.TextAnnotation.class))));
-      fl.set(CoreAnnotations.GoldAnswerAnnotation.class,fl.get(CoreAnnotations.AnswerAnnotation.class));
+      fl.set(TextAnnotation.class,intern(fix(fl.get(TextAnnotation.class))));
+      fl.set(GoldAnswerAnnotation.class,fl.get(AnswerAnnotation.class));
     }
   }
 }

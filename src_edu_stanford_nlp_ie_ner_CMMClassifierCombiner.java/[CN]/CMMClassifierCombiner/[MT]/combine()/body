@@ -1,0 +1,29 @@
+{
+  List<CoreLabel> combined=new ArrayList<CoreLabel>();
+  int numCols=labels.size();
+  List<CoreLabel> firstCol=(List<CoreLabel>)labels.get(0);
+  int length=firstCol.size();
+  for (Iterator<CoreLabel> iter=firstCol.iterator(); iter.hasNext(); ) {
+    CoreLabel wi=iter.next();
+    combined.add(new CoreLabel(wi));
+  }
+  for (int i=0; i < length; i++) {
+    List<String> proposed=new ArrayList<String>();
+    for (int j=0; j < numCols; j++) {
+      List<CoreLabel> l=(List<CoreLabel>)labels.get(j);
+      CoreLabel wi=l.get(i);
+      if (isPreferredClassifier(wi.get(AnswerAnnotation.class),j)) {
+        proposed.add(wi.get(AnswerAnnotation.class));
+      }
+    }
+    CoreLabel copy=combined.get(i);
+    if (proposed.size() > 0) {
+      Collections.sort(proposed,cmp);
+      copy.set(AnswerAnnotation.class,proposed.get(0));
+    }
+ else {
+      copy.set(AnswerAnnotation.class,"O");
+    }
+  }
+  return combined;
+}

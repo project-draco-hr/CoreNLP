@@ -11,23 +11,22 @@
         if (flags.sloppyGazette) {
           Collection<String> entries=wordToGazetteEntries.get(word);
           if (entries == null) {
-            entries=Generics.newHashSet();
+            entries=new HashSet<String>();
             wordToGazetteEntries.put(word,entries);
           }
           String feature=intern(type + "-GAZ" + words.length);
-          entries.add(feature);
-          feature=intern(type + "-GAZ");
           entries.add(feature);
         }
         if (flags.cleanGazette) {
           Collection<GazetteInfo> infos=wordToGazetteInfos.get(word);
           if (infos == null) {
-            infos=Generics.newHashSet();
+            infos=new HashSet<GazetteInfo>();
             wordToGazetteInfos.put(word,infos);
           }
-          GazetteInfo info=new GazetteInfo(intern(type + "-GAZ" + words.length),i,words);
-          infos.add(info);
-          info=new GazetteInfo(intern(type + "-GAZ"),i,words);
+          GazetteInfo info=new GazetteInfo();
+          info.loc=i;
+          info.words=words;
+          info.feature=intern(type + "-GAZ" + words.length);
           infos.add(info);
         }
       }

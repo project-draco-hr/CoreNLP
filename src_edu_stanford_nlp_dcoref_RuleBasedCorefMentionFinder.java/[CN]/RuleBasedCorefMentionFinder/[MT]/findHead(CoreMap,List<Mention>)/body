@@ -1,18 +1,18 @@
 {
-  Tree tree=s.get(TreeCoreAnnotations.TreeAnnotation.class);
-  List<CoreLabel> sent=s.get(CoreAnnotations.TokensAnnotation.class);
+  Tree tree=s.get(TreeAnnotation.class);
+  List<CoreLabel> sent=s.get(TokensAnnotation.class);
   tree.indexSpans(0);
   for (  Mention m : mentions) {
     Tree head=findSyntacticHead(m,tree,sent);
-    m.headIndex=((CoreLabel)head.label()).get(CoreAnnotations.IndexAnnotation.class) - 1;
+    m.headIndex=((CoreLabel)head.label()).get(IndexAnnotation.class) - 1;
     m.headWord=sent.get(m.headIndex);
-    m.headString=m.headWord.get(CoreAnnotations.TextAnnotation.class).toLowerCase();
+    m.headString=m.headWord.get(TextAnnotation.class).toLowerCase();
     int start=m.headIndex - m.startIndex;
     if (start < 0 || start >= m.originalSpan.size()) {
       SieveCoreferenceSystem.logger.warning("Invalid index for head " + start + "="+ m.headIndex+ "-"+ m.startIndex+ ": originalSpan=["+ StringUtils.joinWords(m.originalSpan," ")+ "], head="+ m.headWord);
       SieveCoreferenceSystem.logger.warning("Setting head string to entire mention");
       m.headIndex=m.startIndex;
-      m.headWord=m.originalSpan.size() > 0 ? m.originalSpan.get(0) : sent.get(m.startIndex);
+      m.headWord=m.originalSpan.get(0);
       m.headString=m.originalSpan.toString();
     }
   }

@@ -1,0 +1,46 @@
+{
+  if (isConnected()) {
+    throw new ServiceException("Connection to " + address + ":"+ port+ " already established");
+  }
+  try {
+    this.socket=new Socket(address,port);
+    this.socket.setSoTimeout(0);
+    this.out=new ObjectOutputStream(socket.getOutputStream());
+    this.in=new ObjectInputStream(socket.getInputStream());
+  }
+ catch (  IOException e) {
+    this.socket=null;
+    this.out=null;
+    this.in=null;
+    throw new ServiceException(e);
+  }
+  Thread thread=new Thread(new Runnable(){
+    @SuppressWarnings("unchecked") public void run(){
+      while (isConnected()) {
+        try {
+          int id=in.readInt();
+          V value=(V)in.readUnshared();
+          if (id < 0) {
+            throw new RuntimeException((Exception)value);
+          }
+          if (id >= 0) {
+            processed.put(id,value);
+synchronized (processed) {
+              processed.notifyAll();
+            }
+          }
+        }
+ catch (        IOException e) {
+          disconnect();
+        }
+catch (        ClassNotFoundException e) {
+          disconnect();
+          throw new ServiceException(e);
+        }
+      }
+    }
+  }
+);
+  thread.setDaemon(true);
+  thread.start();
+}

@@ -1,0 +1,13 @@
+{
+  boolean[] seen=new boolean[data.metaInfo().numFeatures()];
+  for (int docNum=0; docNum < data.numDocuments(); docNum++) {
+    CliqueDataset doc=data.getDocument(docNum);
+    for (int datumNum=0; datumNum < doc.numDatums(); datumNum++) {
+      int[] features=doc.features[datumNum].get(doc.maxCliqueLabels[datumNum]).features;
+      for (int featureNum=0; featureNum < features.length; featureNum++) {
+        seen[features[featureNum]]=true;
+      }
+    }
+  }
+  return seen;
+}

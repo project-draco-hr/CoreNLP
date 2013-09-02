@@ -1,21 +1,22 @@
 {
-  List<CoreLabel> sent=s.get(CoreAnnotations.TokensAnnotation.class);
-  Tree tree=s.get(TreeCoreAnnotations.TreeAnnotation.class);
-  SemanticGraph dependency=s.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class);
-  TregexPattern tgrepPattern=enumerationsMentionPattern;
+  List<CoreLabel> sent=s.get(TokensAnnotation.class);
+  Tree tree=s.get(TreeAnnotation.class);
+  SemanticGraph dependency=s.get(CollapsedDependenciesAnnotation.class);
+  final String mentionPattern="NP < (/^(?:NP|NNP|NML)/=m1 $.. (/^CC|,/ $.. /^(?:NP|NNP|NML)/=m2))";
+  TregexPattern tgrepPattern=TregexPattern.compile(mentionPattern);
   TregexMatcher matcher=tgrepPattern.matcher(tree);
-  Map<IntPair,Tree> spanToMentionSubTree=Generics.newHashMap();
+  Map<IntPair,Tree> spanToMentionSubTree=new HashMap<IntPair,Tree>();
   while (matcher.find()) {
     matcher.getMatch();
     Tree m1=matcher.getNode("m1");
     Tree m2=matcher.getNode("m2");
     List<Tree> mLeaves=m1.getLeaves();
-    int beginIdx=((CoreLabel)mLeaves.get(0).label()).get(CoreAnnotations.IndexAnnotation.class) - 1;
-    int endIdx=((CoreLabel)mLeaves.get(mLeaves.size() - 1).label()).get(CoreAnnotations.IndexAnnotation.class);
+    int beginIdx=((CoreLabel)mLeaves.get(0).label()).get(IndexAnnotation.class) - 1;
+    int endIdx=((CoreLabel)mLeaves.get(mLeaves.size() - 1).label()).get(IndexAnnotation.class);
     spanToMentionSubTree.put(new IntPair(beginIdx,endIdx),m1);
     mLeaves=m2.getLeaves();
-    beginIdx=((CoreLabel)mLeaves.get(0).label()).get(CoreAnnotations.IndexAnnotation.class) - 1;
-    endIdx=((CoreLabel)mLeaves.get(mLeaves.size() - 1).label()).get(CoreAnnotations.IndexAnnotation.class);
+    beginIdx=((CoreLabel)mLeaves.get(0).label()).get(IndexAnnotation.class) - 1;
+    endIdx=((CoreLabel)mLeaves.get(mLeaves.size() - 1).label()).get(IndexAnnotation.class);
     spanToMentionSubTree.put(new IntPair(beginIdx,endIdx),m2);
   }
   for (  IntPair mSpan : spanToMentionSubTree.keySet()) {

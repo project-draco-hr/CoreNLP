@@ -1,0 +1,20 @@
+{
+  super();
+  giveEmpty();
+  int backgroundState=insertStateAfter(State.STARTIDX,BACKGROUND_TYPE);
+  int firstTargetState=insertStateAfter(backgroundState,1);
+  setWeight(firstTargetState,backgroundState,1.0);
+  for (int i=1; i < targetFields.length; i++) {
+    int targetState=splitState(firstTargetState,i + 1);
+    for (int j=0; j < numContextStates; j++) {
+      insertStateBefore(targetState,PREFIX_TYPE);
+      insertStateAfter(targetState,SUFFIX_TYPE);
+    }
+  }
+  for (int i=0; i < numContextStates; i++) {
+    insertStateBefore(firstTargetState,PREFIX_TYPE);
+    insertStateAfter(firstTargetState,SUFFIX_TYPE);
+  }
+  setWeight(backgroundState,State.FINISHIDX,1.0);
+  setWeight(backgroundState,backgroundState,1.0);
+}

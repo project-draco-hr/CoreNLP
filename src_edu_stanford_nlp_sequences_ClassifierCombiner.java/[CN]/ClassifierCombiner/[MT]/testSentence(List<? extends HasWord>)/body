@@ -1,0 +1,20 @@
+{
+  List<CoreLabel> toLabelAux=new ArrayList<CoreLabel>();
+  List<CoreLabel> toLabelMain=new ArrayList<CoreLabel>();
+  for (  HasWord ml : s) {
+    CoreLabel ml1=new CoreLabel();
+    ml1.setWord(ml.word());
+    toLabelAux.add(ml1);
+    CoreLabel ml2=new CoreLabel();
+    ml2.setWord(ml.word());
+    toLabelMain.add(ml2);
+  }
+  mainClassifier.testSentence(toLabelMain,NamedEntityTagAnnotation.class);
+  auxClassifier.testSentence(toLabelAux,NamedEntityTagAnnotation.class);
+  List<CoreLabel> nerOutput=mergeDocuments(toLabelMain,toLabelAux);
+  for (  CoreLabel fl : nerOutput) {
+    System.err.print(fl.word() + "[" + fl.ner()+ "] ");
+  }
+  System.err.println();
+  return nerOutput;
+}

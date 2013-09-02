@@ -1,0 +1,13 @@
+{
+  Trie<String,Boolean> trie=new Trie<String,Boolean>();
+  trie.append(Arrays.asList("o","n","e"),true);
+  assertEquals("\no:\n n:\n  e:[true]",trie.toString());
+  trie.insert(Arrays.asList("o","n","e"),Arrays.asList(true,false));
+  assertEquals("\no:\n n:\n  e:[true, true, false]",trie.toString());
+  trie.insert(Arrays.asList("o","n","l","y"),Arrays.asList(true,false));
+  assertEquals("\no:\n n:\n  e:[true, true, false]\n  l:\n   y:[true, false]",trie.toString());
+  trie.append(Arrays.asList("o","n","l","y"),true);
+  assertEquals("\no:\n n:\n  e:[true, true, false]\n  l:\n   y:[true, false, true]",trie.toString());
+  assertEquals("[true, false, true]",trie.findAll(Arrays.asList("o","n","l","y")).toString());
+  assertEquals("[true, true, false]",trie.findAll(Arrays.asList("o","n","e")).toString());
+}

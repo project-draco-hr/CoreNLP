@@ -1,8 +1,8 @@
 {
-  pad.set(CoreAnnotations.AnswerAnnotation.class,flags.backgroundSymbol);
+  pad.set(AnswerAnnotation.class,flags.backgroundSymbol);
   PaddedList<IN> pInfo=new PaddedList<IN>(info,pad);
   List<List<String>> features=new ArrayList<List<String>>();
-  Collection<Clique> done=Generics.newHashSet();
+  Collection<Clique> done=new HashSet<Clique>();
   for (int i=0; i < windowSize; i++) {
     List<String> featuresC=new ArrayList<String>();
     List<Clique> windowCliques=featureFactory.getCliques(i,0);
@@ -16,7 +16,7 @@
   }
   int[] labels=new int[windowSize];
   for (int i=0; i < windowSize; i++) {
-    String answer=pInfo.get(loc + i - windowSize + 1).get(CoreAnnotations.AnswerAnnotation.class);
+    String answer=pInfo.get(loc + i - windowSize + 1).get(AnswerAnnotation.class);
     labels[i]=classIndex.indexOf(answer);
   }
   return new CRFDatum<List<String>,CRFLabel>(features,new CRFLabel(labels),null);

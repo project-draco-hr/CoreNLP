@@ -1,0 +1,14 @@
+{
+  SocketService service=new SocketService(new ExceptionService(),port);
+  new Thread(service).start();
+  SocketClient<String,String> client=SocketClient.connect(localhost,port);
+  try {
+    client.apply("hi");
+    assertTrue("Should have thrown exception",false);
+  }
+ catch (  RuntimeException e) {
+    assertTrue("Wrong exception",e.getMessage().equals(ExceptionService.message));
+  }
+  client.disconnect();
+  service.stop();
+}

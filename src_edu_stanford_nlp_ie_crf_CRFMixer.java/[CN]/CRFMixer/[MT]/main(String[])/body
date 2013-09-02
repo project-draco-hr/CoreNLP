@@ -1,0 +1,27 @@
+{
+  Timing timer=new Timing();
+  StringUtils.printErrInvocationString("CRFMixer",args);
+  Properties props=StringUtils.argsToProperties(args);
+  String loadClassifiers=props.getProperty("loadClassifiers");
+  if (loadClassifiers == null) {
+    System.err.println("Please specify -loadClassifiers");
+    System.exit(-1);
+  }
+  String serializeTo=props.getProperty("serializeTo");
+  String serializeToText=props.getProperty("serializeToText");
+  if (serializeTo == null && serializeToText == null) {
+    System.err.println("Please specify -serializeTo or -serializeToText");
+    System.exit(-1);
+  }
+  List<String> paths=StringUtils.split(loadClassifiers,"[ ,;\t]");
+  CRFMixer crfMixer=new CRFMixer(paths);
+  CRFClassifier crf=crfMixer.getModel();
+  if (serializeTo != null) {
+    crf.serializeClassifier(serializeTo);
+  }
+  if (serializeToText != null) {
+    crf.serializeTextClassifier(serializeToText);
+  }
+  long elapsedMs=timer.stop();
+  System.err.println("Time to combine " + paths.size() + " models: "+ Timing.toSecondsString(elapsedMs)+ " seconds");
+}

@@ -1,0 +1,34 @@
+{
+  HashMap<Integer,PrecisionRecallStats> statsByType=new HashMap<Integer,PrecisionRecallStats>();
+  Map<Integer,Set<List<String>>> answerWordSequencesByType=getWordSequences(answerRangesByType,false);
+  for (  Integer type : bestGuessWordSequenceByType.keySet()) {
+    PrecisionRecallStats stats=new PrecisionRecallStats();
+    List<String> bestGuessWordSequence=bestGuessWordSequenceByType.get(type);
+    List<String> lcBestGuessWordSequence=new ArrayList<String>(bestGuessWordSequence.size());
+    for (    String str : bestGuessWordSequence) {
+      lcBestGuessWordSequence.add(str);
+    }
+    Set<List<String>> answerWordSequences=answerWordSequencesByType.get(type);
+    if (answerWordSequences == null) {
+      stats.incrementFP();
+    }
+ else {
+      if (answerWordSequences.contains(lcBestGuessWordSequence)) {
+        stats.incrementTP();
+      }
+ else {
+        stats.incrementFP();
+        stats.incrementFN();
+      }
+    }
+    statsByType.put(type,stats);
+  }
+  for (  Integer type : answerWordSequencesByType.keySet()) {
+    if (bestGuessWordSequenceByType.get(type) == null) {
+      PrecisionRecallStats stats=new PrecisionRecallStats();
+      stats.incrementFN();
+      statsByType.put(type,stats);
+    }
+  }
+  return statsByType;
+}

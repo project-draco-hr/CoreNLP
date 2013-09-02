@@ -1,25 +1,22 @@
 {
   return new Iterator<Annotation>(){
     private Iterator<BufferedReader> readers=Iterables.transform(files,new Function<File,BufferedReader>(){
-      @Override public BufferedReader apply(      File file){
+      public BufferedReader apply(      File file){
         return new BufferedReader(new InputStreamReader(IOUtils.openFile(file)));
       }
     }
 ).iterator();
     private BufferedReader reader=findReader();
     private Annotation annotation=findAnnotation();
-    @Override public boolean hasNext(){
+    public boolean hasNext(){
       return this.annotation != null;
     }
-    @Override public Annotation next(){
-      if (this.annotation == null) {
-        throw new NoSuchElementException();
-      }
-      Annotation toReturn=this.annotation;
+    public Annotation next(){
+      Annotation annotation=this.annotation;
       this.annotation=this.findAnnotation();
-      return toReturn;
+      return annotation;
     }
-    @Override public void remove(){
+    public void remove(){
       throw new UnsupportedOperationException();
     }
     private BufferedReader findReader(){
@@ -47,7 +44,7 @@
           this.reader=findReader();
         }
         String xml=doc.toString().replaceAll("&","&amp;");
-        if (xml == null || xml.equals("")) {
+        if (xml.equals(null) || xml.equals("")) {
           return findAnnotation();
         }
         xml=xml.replaceAll("num=([0-9]+) (.*)","num=\"$1\" $2");

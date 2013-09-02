@@ -1,0 +1,57 @@
+{
+  if (defaultColors == null) {
+    initColors();
+  }
+  tags.clear();
+  toolbar.removeAll();
+  buttons.clear();
+  toolbar.setFloatable(false);
+  try {
+    toolbar.setOrientation(javax.swing.JToolBar.VERTICAL);
+  }
+ catch (  IllegalArgumentException e) {
+  }
+  colorMaps=new HashMap<String,SimpleAttributeSet>();
+  if (f == null) {
+    return toolbar;
+  }
+  try {
+    for (    String line : ObjectBank.getLineIterator(f)) {
+      if (line.equals("")) {
+        continue;
+      }
+      StringTokenizer st=new StringTokenizer(line,"\t");
+      String tagName=st.nextToken();
+      Color newColor=null;
+      if (st.hasMoreTokens()) {
+        int r=Integer.parseInt(st.nextToken()) % 256;
+        int g=0, b=0;
+        if (st.hasMoreTokens()) {
+          g=Integer.parseInt(st.nextToken()) % 256;
+        }
+        if (st.hasMoreTokens()) {
+          b=Integer.parseInt(st.nextToken()) % 256;
+        }
+        newColor=new Color(r,g,b);
+      }
+      tags.add(tagName);
+      if (newColor == null) {
+        newColor=defaultColors.get(defaultColorIndex % NUM_TAGS);
+        defaultColorIndex++;
+      }
+      SimpleAttributeSet attr=new SimpleAttributeSet();
+      StyleConstants.setForeground(attr,newColor);
+      colorMaps.put(tagName,attr);
+      JButton button=new JButton(tagName,new ColorIcon(newColor));
+      button.addActionListener(actor);
+      toolbar.add(button);
+      buttons.add(button);
+    }
+  }
+ catch (  NumberFormatException nfe) {
+    errorMessage("The tag file is not formatted properly");
+  }
+  toolbar.revalidate();
+  toolbar.repaint();
+  return toolbar;
+}

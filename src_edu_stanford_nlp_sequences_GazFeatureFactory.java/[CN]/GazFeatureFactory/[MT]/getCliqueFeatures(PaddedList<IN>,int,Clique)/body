@@ -1,0 +1,76 @@
+{
+  Collection<String> features=new ArrayList<String>();
+  if (clique == cliqueC) {
+    String cWord=info.get(position).word();
+    for (    String gazName : gazNames) {
+      Pair<String,String> wordGaz=new Pair<String,String>(cWord,gazName);
+      Collection<String[]> possibleEntries=gazMap.get(wordGaz);
+      boolean matches=false;
+      LOOP:       for (      String[] entry : possibleEntries) {
+        for (int i=position - entry.length + 1; i <= position; i++) {
+          matches=true;
+          for (int j=0; j < entry.length; j++) {
+            if (!info.get(i + j).word().equalsIgnoreCase(entry[j])) {
+              matches=false;
+              break;
+            }
+          }
+          if (matches) {
+            break LOOP;
+          }
+        }
+      }
+      if (matches) {
+        features.add(gazName);
+      }
+    }
+  }
+ else   if (clique == cliqueCpC) {
+    String cWord=info.get(position).word();
+    String pWord=info.get(position - 1).word();
+    Collection<String> cGaz=new ArrayList<String>();
+    Collection<String> pGaz=new ArrayList<String>();
+    for (    String gazName : gazNames) {
+      Collection<String> gaz=null;
+      String word=null;
+      for (int p=0; p <= 1; p++) {
+        if (p == 1) {
+          gaz=cGaz;
+          word=cWord;
+        }
+ else         if (p == 0) {
+          gaz=pGaz;
+          word=pWord;
+        }
+        Pair<String,String> wordGaz=new Pair<String,String>(word,gazName);
+        Collection<String[]> possibleEntries=gazMap.get(wordGaz);
+        boolean matches=false;
+        LOOP:         for (        String[] entry : possibleEntries) {
+          for (int i=position - entry.length + p; i <= position; i++) {
+            matches=true;
+            for (int j=0; j < entry.length; j++) {
+              if (!info.get(i + j).word().equalsIgnoreCase(entry[j])) {
+                matches=false;
+                break;
+              }
+            }
+            if (matches) {
+              break LOOP;
+            }
+          }
+        }
+        if (matches) {
+          gaz.add(gazName);
+        }
+      }
+    }
+    for (    String g1 : pGaz) {
+      for (      String g2 : cGaz) {
+        if (g1.equals("stopwords") == g2.equals("stopwords")) {
+          features.add(g1 + " :: " + g2);
+        }
+      }
+    }
+  }
+  return features;
+}

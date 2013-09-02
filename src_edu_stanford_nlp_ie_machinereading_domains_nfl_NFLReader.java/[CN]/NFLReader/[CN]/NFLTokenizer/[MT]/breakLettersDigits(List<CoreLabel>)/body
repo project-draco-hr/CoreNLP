@@ -1,0 +1,18 @@
+{
+  List<CoreLabel> output=new ArrayList<CoreLabel>();
+  for (int i=0; i < tokens.size(); i++) {
+    CoreLabel t=tokens.get(i);
+    Matcher m=LETTERS_DIGITS_PATTERN.matcher(t.word());
+    if (m.matches()) {
+      int digitPos=m.start(1);
+      String s1=t.word().substring(0,digitPos);
+      output.add(tokenFactory.makeToken(s1,t.beginPosition(),digitPos));
+      String s2=t.word().substring(digitPos);
+      output.add(tokenFactory.makeToken(s2,t.beginPosition() + digitPos,t.endPosition() - t.beginPosition() - digitPos));
+    }
+ else {
+      output.add(t);
+    }
+  }
+  return output;
+}

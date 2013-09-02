@@ -1,0 +1,21 @@
+{
+  double mp=Gaussian.probabilityOf(mean,mean,var);
+  assertTrue(mp > Gaussian.probabilityOf(mean - var,mean,var));
+  assertTrue(mp > Gaussian.probabilityOf(mean + var,mean,var));
+  assertTrue(mp > Gaussian.probabilityOf(mean + 0.0001,mean,var));
+  assertTrue(mp > Gaussian.probabilityOf(mean - 0.0001,mean,var));
+  assertTrue(Gaussian.probabilityOf(1e100,mean,var) == 0.0);
+  double mass=0.0;
+  double stdev=Math.sqrt(var);
+  for (int i=0; i < 1000; i++) {
+    double x=mean - (stdev * i / 1000.0);
+    double prob=Gaussian.probabilityOf(x,mean,var);
+    mass+=prob * stdev / 1000.0;
+  }
+  for (int i=0; i < 1000; i++) {
+    double x=mean + (stdev * i / 1000.0);
+    double prob=Gaussian.probabilityOf(x,mean,var);
+    mass+=prob * stdev / 1000.0;
+  }
+  assertTrue(Math.abs(mass - 0.66) < 0.05);
+}

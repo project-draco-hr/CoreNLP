@@ -1,0 +1,27 @@
+{
+  readTrainingInstances(trainFileName);
+  makeFeatures("n");
+  mE=new MaxEntModel(p.data,p.functions,0.001,gaincutoff);
+  if (select) {
+    mE.FindModel(gaincutoff);
+  }
+ else {
+    mE.FindModel(0);
+  }
+  model=mE.prob;
+  model.improvedIterative(iters);
+  model.checkCorrectness();
+  HashMap<Object,Integer> survived=new HashMap<Object,Integer>();
+  Object[] keys=fAssociations.keySet().toArray();
+  for (int num=0; num < keys.length; num++) {
+    int numF=fAssociations.get(keys[num]).intValue();
+    if (mE.correspondences[numF] > -1) {
+      survived.put(keys[num],Integer.valueOf(mE.correspondences[numF]));
+      int f=mE.correspondences[numF];
+      System.out.println(keys[num] + " lambda " + f+ " "+ model.lambda[f]);
+    }
+  }
+  fAssociations.clear();
+  fAssociations=survived;
+  mE.fAssociations=fAssociations;
+}

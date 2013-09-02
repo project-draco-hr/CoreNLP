@@ -1,0 +1,41 @@
+{
+  TwoStageNER ner=new TwoStageNER();
+  ner.setClassPath(System.getProperties().getProperty("java.class.path"));
+  ner.setOptions("-mx16g");
+  if (args.length > 0 && args[0].equalsIgnoreCase("train")) {
+    if (args.length != 5 && args.length != 6) {
+      System.err.println("Wrong no. of arguments");
+      usage();
+    }
+ else {
+      String trainFile=args[1];
+      String basicPropFile=args[2];
+      String directory=args[3];
+      int colsInDataFile=Integer.parseInt(args[4]);
+      boolean skipRound1=false;
+      if (args.length == 6) {
+        skipRound1=Boolean.parseBoolean(args[5]);
+      }
+      ner.train(trainFile,basicPropFile,directory,colsInDataFile,skipRound1);
+    }
+  }
+ else   if (args.length > 0 && args[0].equalsIgnoreCase("test")) {
+    if (args.length != 8) {
+      System.err.println("Wrong no. of arguments");
+      usage();
+    }
+ else {
+      String round1SerializedFile=args[1];
+      String round2SerializedFile=args[2];
+      String testFile=args[3];
+      String basicPropFile=args[4];
+      String directory=args[5];
+      int colsInDataFile=Integer.parseInt(args[6]);
+      String finalResultsFile=args[7];
+      ner.test(round1SerializedFile,round2SerializedFile,testFile,basicPropFile,directory,colsInDataFile,finalResultsFile);
+    }
+  }
+ else {
+    usage();
+  }
+}

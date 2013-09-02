@@ -1,0 +1,26 @@
+{
+  Pattern datePattern=Pattern.compile("(?:<Date(.*?)>)(.*?)(?:</Date>)",Pattern.DOTALL);
+  String inputAsString=new String();
+  BufferedReader br=new BufferedReader(infile);
+  String str;
+  Map datesEncountered=new HashMap();
+  try {
+    str=br.readLine();
+    while (str != null) {
+      inputAsString=inputAsString.concat(str + "\n");
+      str=br.readLine();
+    }
+  }
+ catch (  IOException e) {
+    System.err.println("error" + e.getMessage());
+  }
+  Matcher m=datePattern.matcher(inputAsString);
+  StringBuffer sb=new StringBuffer();
+  DateInstance.lastYearSet=1000;
+  while (m.find()) {
+    String stringToWrite=extractNextDate(m,datesEncountered);
+    m.appendReplacement(sb,"<Date$1 " + stringToWrite + ">)$2</Date>");
+  }
+  m.appendTail(sb);
+  return sb;
+}

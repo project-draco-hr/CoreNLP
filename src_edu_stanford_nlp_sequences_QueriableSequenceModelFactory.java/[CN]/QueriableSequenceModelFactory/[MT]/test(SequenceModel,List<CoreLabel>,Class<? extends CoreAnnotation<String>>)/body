@@ -1,0 +1,20 @@
+{
+  BestSequenceFinder tagInference;
+  if (flags.inferenceType.equalsIgnoreCase("Viterbi")) {
+    tagInference=new ExactBestSequenceFinder();
+  }
+ else   if (flags.inferenceType.equalsIgnoreCase("Beam")) {
+    tagInference=new BeamBestSequenceFinder(flags.beamSize);
+  }
+ else {
+    throw new RuntimeException("Unknown inference type: " + flags.inferenceType + ". Your options are Viterbi|Beam.");
+  }
+  int[] bestSequence=tagInference.bestSequence(model);
+  int pos=model.leftWindow();
+  for (  CoreLabel fi : doc) {
+    String guess=(String)metaInfo.getLabel(bestSequence[pos]);
+    fi.remove(AnswerAnnotation.class);
+    fi.set(answerField,guess);
+    pos++;
+  }
+}

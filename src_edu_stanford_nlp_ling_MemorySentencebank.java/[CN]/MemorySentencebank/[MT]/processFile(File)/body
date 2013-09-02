@@ -1,0 +1,24 @@
+{
+  SentenceReader<T> sr=null;
+  try {
+    if (PRINT_FILENAMES) {
+      System.err.println(file);
+    }
+    sr=sentenceReaderFactory().newSentenceReader(new BufferedReader(new FileReader(file)));
+    for (ArrayList<T> pt; (pt=sr.readSentence()) != null; ) {
+      parseSentences.add(pt);
+    }
+  }
+ catch (  IOException e) {
+    System.err.println("loadSentence IO Exception" + e);
+  }
+ finally {
+    try {
+      if (sr != null) {
+        sr.close();
+      }
+    }
+ catch (    IOException e) {
+    }
+  }
+}

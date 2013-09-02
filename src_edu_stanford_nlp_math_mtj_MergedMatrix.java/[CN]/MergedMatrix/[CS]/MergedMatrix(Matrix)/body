@@ -1,0 +1,24 @@
+{
+  super(maxRows(underlying),maxColumns(underlying));
+  this.underlying=underlying;
+  this.which=new Int2ObjectOpenHashMap<Int2IntOpenHashMap>();
+  for (int i=0; i < underlying.length; i++) {
+    for (    MatrixEntry entry : underlying[i]) {
+      if (entry.get() == 0.0) {
+        continue;
+      }
+      final int row=entry.row();
+      final int col=entry.column();
+      Int2IntOpenHashMap colpointers=which.get(row);
+      if (colpointers == null) {
+        colpointers=new Int2IntOpenHashMap();
+        colpointers.defaultReturnValue(-1);
+        which.put(row,colpointers);
+      }
+      if (colpointers.containsKey(col)) {
+        throw new IllegalArgumentException("Entry " + row + ","+ col+ " seen in "+ "more than one matrix: in "+ i+ " and "+ colpointers.get(col));
+      }
+      colpointers.put(col,i);
+    }
+  }
+}

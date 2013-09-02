@@ -1,0 +1,18 @@
+{
+  String cword=pH.getWord(h,0);
+  int allCount=dict.sum(cword);
+  int rpCount=dict.getCount(cword,"RP");
+  int rbCount=dict.getCount(cword,"RB");
+  int inCount=dict.getCount(cword,"IN");
+  if ((allCount == 0) || ((allCount > 0) && (rpCount + rbCount + inCount <= allCount / 100))) {
+    return zeroSt;
+  }
+  String lastverb=extractLV(h,pH,bound);
+  if (lastverb.startsWith("NA")) {
+    return "2";
+  }
+  if (dict.sum(lastverb) < 2) {
+    return rareVerb + '|' + cword;
+  }
+  return lastverb + '|' + cword;
+}

@@ -1,0 +1,32 @@
+{
+  if (fromTime < 0) {
+    fromTime=0;
+  }
+  if (trellis.length > 0 && toTime >= trellis[0].length) {
+    toTime=trellis[0].length - 1;
+  }
+  System.err.println();
+  if (name != null && !name.equals("")) {
+    System.err.print(name + " ");
+  }
+  System.err.println("Trellis");
+  System.err.println();
+  System.err.println("Finish state is 0, start state is 1, " + "(bkgrnd state is 2).");
+  System.err.println();
+  NumberFormat nf=NumberFormat.getNumberInstance();
+  nf.setMaximumFractionDigits(decimalPlaces);
+  nf.setMinimumFractionDigits(decimalPlaces);
+  System.err.print("    ");
+  for (int j=fromTime; j <= toTime; j++) {
+    System.err.print(StringUtils.padLeft(Integer.toString(j),decimalPlaces + 2) + " ");
+  }
+  System.err.println();
+  for (int i=0; i < trellis.length; i++) {
+    System.err.print(StringUtils.padLeft(Integer.toString(i),3) + " ");
+    for (int j=fromTime; j <= toTime; j++) {
+      System.err.print(nf.format(trellis[i][j]) + " ");
+    }
+    System.err.println();
+  }
+  System.err.println();
+}

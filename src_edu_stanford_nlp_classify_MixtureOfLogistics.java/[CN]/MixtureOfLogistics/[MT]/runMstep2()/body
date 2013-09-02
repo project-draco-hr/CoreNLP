@@ -1,0 +1,8 @@
+{
+  for (int j=0; j < numComponents; j++) {
+    logMixtureWeights[j]=ArrayMath.logSum(dataWeights[j]);
+    logMixtureWeights[j]=SloppyMath.logAdd(logMixtureWeights[j],Math.log(priorScale / numComponents));
+    ArrayMath.expInPlace(dataWeights[j]);
+  }
+  ArrayMath.logNormalize(logMixtureWeights);
+}

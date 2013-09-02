@@ -1,0 +1,18 @@
+{
+  if (loadedEdges.contains(type)) {
+    throw new IllegalArgumentException("Unexpected error: trying to load " + type + " twice");
+  }
+  loadedEdges.add(type);
+  for (  String line : ObjectBank.getLineIterator(new File(path,"wn_" + relation + ".pl"))) {
+    if (line.length() == 0)     continue;
+    String[] fields=line.substring(relation.length() + 1,line.length() - 2).split(",");
+    final SynsetID sid1=getSynsetID(fields[0]);
+    final SynsetID sid2=getSynsetID(fields[2]);
+    if (sid1 == sid2) {
+      System.err.println("WordNet.loadWordRelation(" + relation + "): skipping self-loop on "+ sid1);
+    }
+ else {
+      sid1.add(type,sid2);
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  int word=iTW.word();
+  int tag=iTW.tag();
+  double wc=wordCounter.getCount(word);
+  double totalSeen=tagCounter.totalCount();
+  double totalUnseen=unseenTagCounter.totalCount();
+  if (wc > 0.0) {
+    double probTagGivenWord=Double.NEGATIVE_INFINITY;
+    double twc=tagAndWordCounter.getCount(iTW);
+    if (wc > smoothInUnknownsThreshold) {
+      probTagGivenWord=twc / wc;
+    }
+ else {
+      double probTagGivenUnseen=unseenTagCounter.getCount(tag) / totalUnseen;
+      probTagGivenWord=(twc + (smooth * probTagGivenUnseen)) / (wc + smooth);
+    }
+    double tc=tagCounter.getCount(tag);
+    double probTag=tc / totalSeen;
+    double probWord=wc / totalSeen;
+    return (float)(probTagGivenWord * probWord / probTag);
+  }
+ else {
+    int signature=getSignatureIndex(wordStr,loc);
+    double sc=wordCounter.getCount(signature);
+    IntTaggedWord siTW=new IntTaggedWord(signature,tag);
+    double tsc=unseenTagAndSignatureCounter.getCount(siTW);
+    double probTagGivenUnseen=unseenTagCounter.getCount(tag) / totalUnseen;
+    double probTagGivenWord=(tsc + (smooth * probTagGivenUnseen)) / (sc + smooth);
+    double tc=unseenTagCounter.getCount(tag);
+    double probTag=tc / totalUnseen;
+    double probWord=wc / totalUnseen;
+    return (float)(probTagGivenWord * probWord / probTag);
+  }
+}

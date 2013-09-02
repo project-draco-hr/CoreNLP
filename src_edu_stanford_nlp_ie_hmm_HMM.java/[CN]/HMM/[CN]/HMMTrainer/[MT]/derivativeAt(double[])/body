@@ -1,0 +1,95 @@
+{
+  applyParams(x);
+  double[] deriv=new double[numParams];
+  double[] expc=new double[numParams];
+  double[] expu=new double[numParams];
+  double constrLogLike=expectations(true,true);
+  if (verbose) {
+    NumberFormat nf=NumberFormat.getNumberInstance();
+    nf.setMaximumFractionDigits(5);
+    System.err.println("Constrained train loglikelihood log P(O|mu) = " + nf.format(constrLogLike));
+  }
+  int index=0;
+  for (int i=0; i < numStates; i++) {
+    if (i == State.FINISHIDX) {
+      continue;
+    }
+    for (int j=0; j < numStates; j++) {
+      if (nonZeroTransitions[i][j]) {
+        expc[index++]=totalP[i][j];
+      }
+    }
+    if (i != State.FINISHIDX && i != State.STARTIDX && !(states[i].emit instanceof ConstantEmitMap)) {
+      int j=0;
+      for (Iterator iter=vocab.keySet().iterator(); iter.hasNext(); j++) {
+        String emit=(String)iter.next();
+        if (nonZeroEmissions[i][j]) {
+          expc[index++]=totalOP[i].getCount(emit);
+        }
+      }
+    }
+  }
+  double unconstrLogLike=expectations(true,false);
+  if (verbose) {
+    NumberFormat nf=NumberFormat.getNumberInstance();
+    nf.setMaximumFractionDigits(5);
+    System.err.println("Unconstrained train loglikelihood log P(O|mu) = " + nf.format(unconstrLogLike));
+  }
+  index=0;
+  for (int i=0; i < numStates; i++) {
+    if (i == State.FINISHIDX) {
+      continue;
+    }
+    for (int j=0; j < numStates; j++) {
+      if (nonZeroTransitions[i][j]) {
+        expu[index++]=totalP[i][j];
+      }
+    }
+    if (i != State.FINISHIDX && i != State.STARTIDX && !(states[i].emit instanceof ConstantEmitMap)) {
+      int j=0;
+      for (Iterator iter=vocab.keySet().iterator(); iter.hasNext(); j++) {
+        String emit=(String)iter.next();
+        if (nonZeroEmissions[i][j]) {
+          expu[index++]=totalOP[i].getCount(emit);
+        }
+      }
+    }
+  }
+  for (int i=0; i < numParams; i++) {
+    deriv[i]=-(expc[i] - expu[i]);
+  }
+  index=0;
+  for (int i=0; i < numStates; i++) {
+    if (i == State.FINISHIDX) {
+      continue;
+    }
+    State s=states[i];
+    int numNonZeroTransitions=0;
+    for (int j=0; j < numStates; j++) {
+      if (nonZeroTransitions[i][j]) {
+        numNonZeroTransitions++;
+      }
+    }
+    double meanTransition=Math.log(1.0 / numNonZeroTransitions);
+    for (int j=0; j < s.transition.length; j++) {
+      if (nonZeroTransitions[i][j]) {
+        deriv[index]+=2 * (x[index++] - meanTransition) / sigmaSquared;
+      }
+    }
+    if (i != State.FINISHIDX && i != State.STARTIDX && !(s.emit instanceof ConstantEmitMap)) {
+      int numNonZeroEmissions=0;
+      for (int j=0; j < vocab.size(); j++) {
+        if (nonZeroEmissions[i][j]) {
+          numNonZeroEmissions++;
+        }
+      }
+      double meanEmission=Math.log(1.0 / numNonZeroEmissions);
+      for (int j=0; j < vocab.size(); j++) {
+        if (nonZeroEmissions[i][j]) {
+          deriv[index]+=2 * (x[index++] - meanEmission) / sigmaSquared;
+        }
+      }
+    }
+  }
+  return (deriv);
+}

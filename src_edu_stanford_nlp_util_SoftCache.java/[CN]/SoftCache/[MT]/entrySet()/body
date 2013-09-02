@@ -1,0 +1,36 @@
+{
+  return new AbstractSet<Map.Entry<K,V>>(){
+    @Override public Iterator<Map.Entry<K,V>> iterator(){
+      return new Iterator<Map.Entry<K,V>>(){
+        Iterator<Map.Entry<K,SoftReference<V>>> iterator=map.entrySet().iterator();
+        Map.Entry<K,V> next=prepare();
+        public boolean hasNext(){
+          return next != null;
+        }
+        public java.util.Map.Entry<K,V> next(){
+          Map.Entry<K,V> rv=next;
+          next=prepare();
+          return rv;
+        }
+        public void remove(){
+          throw new UnsupportedOperationException("Cannot remove from" + " iterator on a SoftCache because of map consistency issues.");
+        }
+        public Map.Entry<K,V> prepare(){
+          Map.Entry<K,SoftReference<V>> ref=null;
+          while (ref == null || ref.getValue().get() == null) {
+            if (!iterator.hasNext()) {
+              return null;
+            }
+            ref=iterator.next();
+          }
+          return new ImmutableEntry<K,V>(ref.getKey(),ref.getValue().get());
+        }
+      }
+;
+    }
+    @Override public int size(){
+      return map.size();
+    }
+  }
+;
+}

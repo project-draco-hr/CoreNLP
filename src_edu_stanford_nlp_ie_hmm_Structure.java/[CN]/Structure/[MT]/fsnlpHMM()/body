@@ -1,0 +1,21 @@
+{
+  String[] vocab={"cola","ice_t","lem"};
+  double[] cpEmit={0.6,0.1,0.3};
+  double[] ipEmit={0.1,0.7,0.2};
+  int numStates=4;
+  State[] states=new State[numStates];
+  for (int i=0; i < numStates; i++) {
+    states[i]=new State(numStates);
+  }
+  states[State.FINISHIDX].type=State.FINISHTYPE;
+  states[State.STARTIDX].type=State.STARTTYPE;
+  states[State.FINISHIDX].transition[State.FINISHIDX]=1.0;
+  states[State.STARTIDX].transition[2]=1.0;
+  states[2].transition[2]=0.7;
+  states[2].transition[3]=0.3;
+  states[2].emit=new PlainEmitMap(vocab,cpEmit);
+  states[3].transition[2]=0.5;
+  states[3].transition[3]=0.5;
+  states[3].emit=new PlainEmitMap(vocab,ipEmit);
+  return states;
+}

@@ -1,0 +1,32 @@
+{
+  HashSet<String> ids=new HashSet<String>();
+  if (gene.length() == 0) {
+    return ids;
+  }
+  Pattern genePattern=makePattern(gene);
+  double maxRatio=0.0;
+  for (Iterator<String> iter=regexpMap.keySet().iterator(); iter.hasNext(); ) {
+    String synonym=iter.next();
+    Pattern pattern=regexpMap.get(synonym);
+    Matcher m=pattern.matcher(gene);
+    boolean matches=false;
+    if (substringMatch) {
+      matches=m.find() && isValidMatch(gene,m);
+    }
+ else {
+      matches=m.matches();
+    }
+    if (matches) {
+      double ratio=(m.end() - m.start()) / (double)gene.length();
+      if (ratio > maxRatio) {
+        maxRatio=ratio;
+        ids=new HashSet<String>();
+        ids.addAll(map.getIDs(synonym));
+      }
+ else       if (ratio == maxRatio && ratio > 0.0) {
+        ids.addAll(map.getIDs(synonym));
+      }
+    }
+  }
+  return ids;
+}

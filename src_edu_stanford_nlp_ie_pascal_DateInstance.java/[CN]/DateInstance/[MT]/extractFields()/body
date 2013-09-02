@@ -1,0 +1,23 @@
+{
+  setDateToDefaults();
+  fieldsExtracted=true;
+  if (tokens.size() < 2) {
+    tokenizeDate();
+  }
+  if (dateSB.length() == 0) {
+    setDateToDefaults();
+  }
+  if (DEBUG)   System.err.println("Extracting date: " + dateSB);
+  if (extractMMDDYY()) {
+    return true;
+  }
+  boolean passed=false;
+  passed=extractYear() || passed;
+  passed=extractMonth() || passed;
+  passed=extractDay() || passed;
+  if (!passed) {
+    return false;
+  }
+  extractRange();
+  return true;
+}

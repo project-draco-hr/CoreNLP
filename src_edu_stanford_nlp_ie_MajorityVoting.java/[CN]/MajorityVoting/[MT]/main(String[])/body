@@ -1,0 +1,23 @@
+{
+  String[] inputFiles=new String[12];
+  String baseDirectory="/u/kvijay/data/ner/results/";
+  if (args.length > 0)   baseDirectory=args[0];
+  inputFiles[0]="CMM_forward/IOB1_converted_to_IOB1.res";
+  inputFiles[1]="CMM_forward/IOB2_converted_to_IOB1.res";
+  inputFiles[2]="CMM_forward/IOBES_converted_to_IOB1.res";
+  inputFiles[3]="CMM_forward/IO_converted_to_IOB1.res";
+  inputFiles[4]="CMM_forward/IOE1_converted_to_IOB1.res";
+  inputFiles[5]="CMM_forward/IOE2_converted_to_IOB1.res";
+  inputFiles[6]="CMM_reverse/IOB1_converted_to_IOB1.res";
+  inputFiles[7]="CMM_reverse/IOB2_converted_to_IOB1.res";
+  inputFiles[8]="CMM_reverse/IOBES_converted_to_IOB1.res";
+  inputFiles[9]="CMM_reverse/IO_converted_to_IOB1.res";
+  inputFiles[10]="CMM_reverse/IOE1_converted_to_IOB1.res";
+  inputFiles[11]="CMM_reverse/IOE2_converted_to_IOB1.res";
+  for (int i=0; i < inputFiles.length; i++)   inputFiles[i]=baseDirectory + inputFiles[i];
+  String outputFile=baseDirectory + "CMM_majority_vote_of_12_labelings.res";
+  int columns=3;
+  if (args.length > 1)   columns=Integer.parseInt(args[1]);
+  MajorityVoting.majorityVoting(inputFiles,outputFile,columns);
+  System.out.println("done");
+}

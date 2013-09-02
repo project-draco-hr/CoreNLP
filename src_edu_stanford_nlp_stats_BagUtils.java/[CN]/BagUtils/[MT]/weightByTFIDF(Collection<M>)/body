@@ -1,0 +1,15 @@
+{
+  Object2IntCounter<E> df=getDocumentFrequencies(docs);
+  final double numDocs=docs.size();
+  for (  Map<E,Double> doc : docs) {
+    double doctotal=0;
+    for (    Map.Entry<E,Double> e : doc.entrySet()) {
+      final double weight=Math.log(e.getValue()) * Math.log(numDocs / df.getInt(e.getKey()));
+      e.setValue(weight);
+      doctotal+=weight;
+    }
+    for (    Map.Entry<E,Double> e : doc.entrySet()) {
+      e.setValue(e.getValue() / doctotal);
+    }
+  }
+}

@@ -1,0 +1,97 @@
+{
+  double gain=.002;
+  boolean train=false, test=false, validation=false;
+  String trainFile="NO_TRAIN_FILE", testFile="NO_TEST_FILE";
+  try {
+    WekaProblemSolverCombinations wPS=new WekaProblemSolverCombinations();
+    int crnt=0;
+    while (crnt < args.length) {
+      String token=args[crnt];
+      if (token.equals("-train")) {
+        trainFile=args[++crnt];
+        train=true;
+        crnt++;
+      }
+      if (token.equals("-test")) {
+        trainFile=args[++crnt];
+        testFile=args[++crnt];
+        test=true;
+        crnt++;
+      }
+      if (token.equals("-gain")) {
+        gain=Double.parseDouble(args[++crnt]);
+        crnt++;
+      }
+      if (token.equals("-support")) {
+        cutoff=Integer.parseInt(args[++crnt]);
+        System.out.println(" cutoff is " + cutoff);
+        crnt++;
+      }
+      if (token.equals("-usetop")) {
+        usetop=true;
+        top=Integer.parseInt(args[++crnt]);
+        crnt++;
+      }
+      if (token.equals("-kind")) {
+        kind=args[++crnt];
+        crnt++;
+      }
+      if (token.equals("-iters")) {
+        iters=Integer.parseInt(args[++crnt]);
+        crnt++;
+      }
+      if (token.equals("-ftNum")) {
+        ftNum=Integer.parseInt(args[++crnt]);
+        crnt++;
+      }
+      if (token.equals("-binary")) {
+        binary=true;
+        crnt++;
+      }
+      if (token.equals("-fixedtop")) {
+        fitNumClassifiers=false;
+        crnt++;
+      }
+      if (token.equals("-crossval")) {
+        crossvalidation=true;
+        fitNumClassifiers=false;
+        crnt++;
+      }
+      if (token.equals("-validation")) {
+        validation=true;
+        crnt++;
+      }
+      if (token.equals("-clean")) {
+        clean=true;
+        crnt++;
+      }
+      if (token.equals("-no_sel")) {
+        select=false;
+        crnt++;
+      }
+    }
+    if (train) {
+      if (crossvalidation) {
+        wPS.buildClassifierCrossValidation(trainFile,iters,gain);
+        wPS.save(trainFile);
+      }
+ else {
+        if (!validation) {
+          wPS.buildClassifier(trainFile,iters,gain);
+        }
+ else {
+          wPS.buildClassifierValidation(trainFile,iters,gain);
+        }
+        wPS.save(trainFile);
+      }
+    }
+    if (test) {
+      wPS.read(trainFile);
+      wPS.test(testFile);
+    }
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+    System.out.println(" Format :\n [-train fileName] [-test trainFile testFile] [-gain doubleVal] [-iters numIters] [-support minsupport ] \n");
+  }
+}

@@ -1,0 +1,30 @@
+{
+  System.err.println("==> " + file);
+  dataMap=new TwoDimensionalMap<List<CoreLabel>,SequenceClassifier,List<CoreLabel>>(MapFactory.<List<CoreLabel>,Map<SequenceClassifier,List<CoreLabel>>>identityHashMapFactory(),MapFactory.<SequenceClassifier,List<CoreLabel>>identityHashMapFactory());
+  for (  SequenceClassifier sc : classifiersToCombine) {
+    sc.flags.inputEncoding=flags.inputEncoding;
+    ObjectBank<List<CoreLabel>> scData=sc.getObjectBank(file);
+    Iterator<List<CoreLabel>> mainIter=data.iterator();
+    Iterator<List<CoreLabel>> scIter=scData.iterator();
+    int ii=0;
+    while (mainIter.hasNext()) {
+      List<CoreLabel> mainDatum=mainIter.next();
+      List<CoreLabel> scDatum=scIter.next();
+      if (mainDatum.size() != scDatum.size()) {
+        System.err.println(ii);
+        System.err.println(mainDatum.size() + "\t" + scDatum.size());
+        for (int i=0; i < 10; i++) {
+          System.err.print(mainDatum.get(i).get(AnswerAnnotation.class));
+          System.err.print(" ");
+        }
+        System.err.println();
+        for (int i=0; i < 10; i++) {
+          System.err.print(scDatum.get(i).get(AnswerAnnotation.class) + " ");
+        }
+        System.err.println();
+        throw new RuntimeException();
+      }
+      dataMap.put(mainDatum,sc,scDatum);
+    }
+  }
+}

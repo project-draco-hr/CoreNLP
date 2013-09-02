@@ -1,0 +1,23 @@
+{
+  if (args.length < 4) {
+    System.err.println("Usage: java edu.stanford.nlp.ie.hmm.HMMFieldExtractor extractorName hmmFilename useFirstAnswers serializedExtractorFilename");
+    System.exit(1);
+  }
+  try {
+    String name=args[0];
+    String hmmFilename=args[1];
+    boolean useFirstAnswers=Boolean.parseBoolean(args[2]);
+    String outFilename=args[3];
+    System.err.println("Loading serialized HMM from " + hmmFilename + "...");
+    ObjectInputStream ois=new ObjectInputStream(new FileInputStream(hmmFilename));
+    HMM hmm=(HMM)ois.readObject();
+    ois.close();
+    HMMFieldExtractor hmmfe=new HMMFieldExtractor(hmm,name,useFirstAnswers);
+    System.err.println("Storing HMMFieldExtractor named \"" + name + "\" to "+ outFilename+ "...");
+    hmmfe.storeExtractor(new File(outFilename));
+  }
+ catch (  Exception e) {
+    System.err.println("An error occurred while trying to create the HMMFieldExtractor:");
+    e.printStackTrace();
+  }
+}

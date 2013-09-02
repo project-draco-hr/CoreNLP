@@ -1,0 +1,20 @@
+{
+  if (args.filename != null) {
+    setDataNoRecount(readData(args.filename,args.useHeaders));
+  }
+ else {
+    System.err.println("[Reading data from stdin...]");
+    setDataNoRecount(readData(System.in,args.useHeaders));
+  }
+  setBucketsNoRecount(args.buckets);
+  if (args.sigma > 0.0) {
+    setRangeNoRecount(args.sigma);
+  }
+ else   if (Double.isInfinite(args.min) || Double.isInfinite(args.max) || Double.isNaN(args.min)|| Double.isNaN(args.max)) {
+    setRangeNoRecount();
+  }
+ else {
+    setRangeNoRecount(args.min,args.max);
+  }
+  recount();
+}

@@ -1,0 +1,25 @@
+{
+  TwoDimensionalCounter<String,F> justificationCounter=new TwoDimensionalCounter<String,F>();
+  Counter<F> fCounter=datum.asFeaturesCounter();
+  Counter<Integer> nearestNeighborIDs=new ClassicCounter<Integer>();
+  for (int i=0; i < dataset.size(); i++) {
+    RVFDatum<Double,F> datumi=dataset.getRVFDatum(i);
+    double cosine=Counters.cosine(datumi.asFeaturesCounter(),fCounter);
+    nearestNeighborIDs.incrementCount(i,cosine);
+  }
+  Counters.retainTop(nearestNeighborIDs,numNeighbors);
+  for (  int docID : Counters.toSortedList(nearestNeighborIDs)) {
+    String docName=docsList.get(docID);
+    Counter<F> neighborFCounter=dataset.getRVFDatum(docID).asFeaturesCounter();
+    for (    F feature : fCounter.keySet()) {
+      if (neighborFCounter.containsKey(feature))       justificationCounter.incrementCount(docName,feature,fCounter.getCount(feature) * neighborFCounter.getCount(feature));
+    }
+  }
+  Counter<String> nearestNeighborSims=new ClassicCounter<String>();
+  Counter<String> nearestNeighborRatings=new ClassicCounter<String>();
+  for (  int docID : nearestNeighborIDs.keySet()) {
+    nearestNeighborSims.incrementCount(docsList.get(docID),nearestNeighborIDs.getCount(docID));
+    nearestNeighborRatings.incrementCount(docsList.get(docID),dataset.getDatum(docID).label());
+  }
+  return new Triple<TwoDimensionalCounter<String,F>,Counter<String>,Counter<String>>(justificationCounter,nearestNeighborSims,nearestNeighborRatings);
+}

@@ -1,0 +1,22 @@
+{
+  if (cmfs != null) {
+    char c1=getCharFromWordInfo(cInfo.get(loc1));
+    char c2=getCharFromWordInfo(cInfo.get(loc2));
+    for (    Map.Entry<String,Pair<Set<Character>,Set<Character>>> e : cmfs.getAffixFeatures().entrySet()) {
+      boolean both=false;
+      if (e.getValue().first().contains(c1)) {
+        features.add(e.getKey() + "-Pre");
+        both=true;
+      }
+      if (e.getValue().second().contains(c2)) {
+        features.add(e.getKey() + "-Suf");
+      }
+ else {
+        both=false;
+      }
+      if (both) {
+        features.add(e.getKey() + "-PreAndSuf");
+      }
+    }
+  }
+}

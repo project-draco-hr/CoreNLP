@@ -1,0 +1,34 @@
+{
+  SensevalHandler handler=new SensevalHandler(allInstances,numMap,noNonIntSenses);
+  XMLReader parser=null;
+  try {
+    String parserName="org.apache.xerces.parsers.SAXParser";
+    parser=(XMLReader)Class.forName(parserName).newInstance();
+  }
+ catch (  Exception e) {
+    System.err.println("Can't find the class: " + e);
+    System.err.println("You must have xerces package on your classpath.");
+    System.exit(1);
+  }
+  try {
+    parser.setContentHandler(handler);
+    parser.setErrorHandler(handler);
+    for (int i=0; i < inFilenames.size(); i++) {
+      String inFilename=inFilenames.get(i);
+      try {
+        Reader reader=new BufferedReader(new FileReader(inFilename));
+        InputSource inputSource=new InputSource(reader);
+        System.out.println("Processing input file \"" + inFilename + "\".");
+        parser.parse(inputSource);
+      }
+ catch (      FileNotFoundException e) {
+        System.err.println("Cannot find input file \"" + inFilename + "\"");
+        parseError();
+      }
+    }
+  }
+ catch (  Exception e) {
+    System.err.println("parse problem: " + e);
+    System.exit(1);
+  }
+}

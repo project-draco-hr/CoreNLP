@@ -4,14 +4,14 @@
   int posWH=-1;
   for (int i=0; i < this.originalSpan.size(); i++) {
     CoreLabel w=this.originalSpan.get(i);
-    if (posComma == -1 && w.get(CoreAnnotations.PartOfSpeechAnnotation.class).equals(","))     posComma=this.startIndex + i;
-    if (posWH == -1 && w.get(CoreAnnotations.PartOfSpeechAnnotation.class).startsWith("W"))     posWH=this.startIndex + i;
+    if (posComma == -1 && w.get(PartOfSpeechAnnotation.class).equals(","))     posComma=this.startIndex + i;
+    if (posWH == -1 && w.get(PartOfSpeechAnnotation.class).startsWith("W"))     posWH=this.startIndex + i;
   }
   if (posComma != -1 && this.headIndex < posComma) {
     StringBuilder os=new StringBuilder();
     for (int i=0; i < posComma - this.startIndex; i++) {
       if (i > 0)       os.append(" ");
-      os.append(this.originalSpan.get(i).get(CoreAnnotations.TextAnnotation.class));
+      os.append(this.originalSpan.get(i).get(TextAnnotation.class));
     }
     removed=os.toString();
   }
@@ -19,7 +19,7 @@
     StringBuilder os=new StringBuilder();
     for (int i=0; i < posWH - this.startIndex; i++) {
       if (i > 0)       os.append(" ");
-      os.append(this.originalSpan.get(i).get(CoreAnnotations.TextAnnotation.class));
+      os.append(this.originalSpan.get(i).get(TextAnnotation.class));
     }
     removed=os.toString();
   }

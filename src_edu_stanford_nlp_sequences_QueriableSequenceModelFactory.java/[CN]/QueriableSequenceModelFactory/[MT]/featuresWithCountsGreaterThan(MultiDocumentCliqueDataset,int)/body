@@ -1,0 +1,17 @@
+{
+  int[] counts=new int[data.metaInfo().numFeatures()];
+  for (int docNum=0; docNum < data.numDocuments(); docNum++) {
+    CliqueDataset doc=data.getDocument(docNum);
+    for (int datumNum=0; datumNum < doc.numDatums(); datumNum++) {
+      int[] features=doc.features[datumNum].get(doc.maxCliqueLabels[datumNum]).features;
+      for (int featureNum=0; featureNum < features.length; featureNum++) {
+        counts[features[featureNum]]++;
+      }
+    }
+  }
+  boolean[] features=new boolean[counts.length];
+  for (int i=0; i < features.length; i++) {
+    features[i]=(counts[i] > threshhold);
+  }
+  return features;
+}

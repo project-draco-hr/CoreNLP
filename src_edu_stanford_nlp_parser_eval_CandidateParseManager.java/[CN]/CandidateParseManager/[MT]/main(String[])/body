@@ -1,0 +1,117 @@
+{
+  Pattern spliceOut=null;
+  Pattern lengthPrune=null;
+  Pattern ignoreBracketings=null;
+  String rootCategory="TOP";
+  boolean bagEval=false;
+  int maxLength=Integer.MAX_VALUE;
+  int bufferNum=11;
+  NumberFormat nf=new DecimalFormat();
+  nf.setMaximumFractionDigits(3);
+  nf.setMinimumFractionDigits(3);
+  HeadFinder hf=null;
+  if (args.length < 2) {
+    System.err.println("Usage: java CandidateParseManager [-single|-lang tLPP|-root <root-category>] goldFile candidateFile");
+    System.exit(0);
+  }
+  Map<String,Integer> flagMap=new HashMap<String,Integer>();
+  flagMap.put(LANG_OPTION,Integer.valueOf(1));
+  flagMap.put(TLPP_OPTION,Integer.valueOf(1));
+  flagMap.put(HEAD_FINDER_OPTION,Integer.valueOf(1));
+  flagMap.put(ROOT_CATEGORY_OPTION,Integer.valueOf(1));
+  flagMap.put(MAXLENGTH_OPTION,Integer.valueOf(1));
+  flagMap.put(LENGTHPRUNE_OPTION,Integer.valueOf(1));
+  flagMap.put(SPLICEOUT_OPTION,Integer.valueOf(1));
+  flagMap.put(IGNORE_BRACKETINGS_OPTION,Integer.valueOf(1));
+  Map<String,String[]> argsMap=StringUtils.argsToMap(args,flagMap);
+  args=argsMap.get(null);
+  TreebankLangParserParams tlpp=new EnglishTreebankParserParams();
+  if (argsMap.containsKey(BAG_EVAL_OPTION))   bagEval=true;
+  if (argsMap.containsKey(MAXLENGTH_OPTION))   maxLength=Integer.parseInt(argsMap.get(MAXLENGTH_OPTION)[0]);
+  if (argsMap.containsKey(SPLICEOUT_OPTION))   spliceOut=Pattern.compile(argsMap.get(SPLICEOUT_OPTION)[0]);
+  if (argsMap.containsKey(LENGTHPRUNE_OPTION))   lengthPrune=Pattern.compile(argsMap.get(LENGTHPRUNE_OPTION)[0]);
+  if (argsMap.containsKey(IGNORE_BRACKETINGS_OPTION))   ignoreBracketings=Pattern.compile(argsMap.get(IGNORE_BRACKETINGS_OPTION)[0]);
+  if (argsMap.keySet().contains(LANG_OPTION)) {
+    tlpp=(TreebankLangParserParams)Class.forName(argsMap.get(LANG_OPTION)[0]).newInstance();
+    System.err.println("Using treebank language parameters " + tlpp.getClass().getName());
+  }
+  if (argsMap.containsKey(TLPP_OPTION)) {
+    String[] tlppArgs=argsMap.get(TLPP_OPTION);
+    for (int i=0; i < tlppArgs.length; i++)     tlppArgs[i]='-' + tlppArgs[i];
+    tlpp.setOptionFlag(tlppArgs,0);
+  }
+  if (argsMap.containsKey(HEAD_FINDER_OPTION)) {
+    hf=(HeadFinder)Class.forName(argsMap.get(HEAD_FINDER_OPTION)[0]).newInstance();
+    System.err.println("Using head-finder " + hf.getClass().getName());
+  }
+ else {
+    hf=tlpp.headFinder();
+  }
+  if (argsMap.containsKey(ROOT_CATEGORY_OPTION))   rootCategory=argsMap.get(ROOT_CATEGORY_OPTION)[0];
+  Reader rTrue=new BufferedReader(new FileReader(args[0]));
+  Reader rCand=new BufferedReader(new FileReader(args[1]));
+  TreeReaderFactory trf=new PennTreeReaderFactory();
+  CandidateParseManager manager=new CandidateParseManager(maxLength,lengthPrune,spliceOut,rootCategory);
+  if (argsMap.keySet().contains("-single")) {
+    manager.readSingletonCandidates(trf,rTrue,rCand);
+  }
+ else {
+    manager.readCandidateSets(trf,rTrue,rCand);
+  }
+  if (DEBUG)   manager.display();
+  Counter[] stats;
+  System.out.println("Summary statistics:");
+  System.out.println("Tagging evaluation:");
+  stats=manager.performance(tagObjectifier(tlpp.collinizerEvalb(),ignoreBracketings),EquivalenceClassEval.DEFAULT_CHECKER,new BestTallierFactory(),bagEval);
+  for (int i=0; i < statistics.length; i++) {
+    System.out.println(statistics[i] + ": " + stats[i]);
+  }
+  System.out.println("Unlabeled PARSEVAL evaluation:");
+  System.out.println("Best by F1:");
+  stats=manager.performance(parsevalObjectifier(tlpp.collinizerEvalb(),ignoreBracketings),unlabeledBracketingEqualityChecker,new BestTallierFactory(),bagEval);
+  for (int i=0; i < statistics.length; i++) {
+    System.out.println(statistics[i] + ": " + stats[i]);
+  }
+  System.out.println("PARSEVAL evaluation:");
+  System.out.println("Best by F1:");
+  stats=manager.performance(parsevalObjectifier(tlpp.collinizerEvalb(),ignoreBracketings),EquivalenceClassEval.DEFAULT_CHECKER,new BestTallierFactory(),bagEval);
+  for (int i=0; i < statistics.length; i++) {
+    System.out.println(statistics[i] + ": " + stats[i]);
+  }
+  System.out.println("Untyped dependency evaluation:");
+  System.out.println("Best by F1:");
+  stats=manager.performance(untypedDependencyObjectifier(tlpp.collinizerEvalb(),hf),EquivalenceClassEval.DEFAULT_CHECKER,new BestTallierFactory(),bagEval);
+  for (int i=0; i < statistics.length; i++) {
+    System.out.println(statistics[i] + ": " + stats[i]);
+  }
+  System.out.println("Unordered untyped dependency evaluation:");
+  System.out.println("Best by F1:");
+  stats=manager.performance(unorderedUntypedDependencyObjectifier(tlpp.collinizerEvalb(),hf),EquivalenceClassEval.DEFAULT_CHECKER,new BestTallierFactory(),bagEval);
+  for (int i=0; i < statistics.length; i++) {
+    System.out.println(statistics[i] + ": " + stats[i]);
+  }
+  System.out.println("Typed dependency evaluation:");
+  System.out.println("Best by F1:");
+  stats=manager.performance(typedDependencyObjectifier(tlpp.collinizerEvalb(),hf),EquivalenceClassEval.DEFAULT_CHECKER,new BestTallierFactory(),bagEval);
+  for (int i=0; i < statistics.length; i++) {
+    System.out.println(statistics[i] + ": " + stats[i]);
+  }
+  System.out.println("Unordered Typed dependency evaluation:");
+  System.out.println("Best by F1:");
+  stats=manager.performance(unorderedTypedDependencyObjectifier(tlpp.collinizerEvalb(),hf),EquivalenceClassEval.DEFAULT_CHECKER,new BestTallierFactory(),bagEval);
+  for (int i=0; i < statistics.length; i++) {
+    System.out.println(statistics[i] + ": " + stats[i]);
+  }
+  System.out.println("\nDetailed statistics:");
+  System.out.println("Tagging evaluation by POS tag:");
+  stats=manager.performance(tagObjectifier(tlpp.collinizerEvalb(),ignoreBracketings),parsevalCategoryClasser(),(EquivalenceClassEval.EqualityChecker<Constituent>)EquivalenceClassEval.DEFAULT_CHECKER,new BestTallierFactory(),bagEval);
+  prettyPrintStats(stats,bufferNum,nf);
+  System.out.println("PARSEVAL evaluation by category:");
+  System.out.println("Best by F1:");
+  stats=manager.performance(parsevalObjectifier(tlpp.collinizerEvalb(),ignoreBracketings),parsevalCategoryClasser(),(EquivalenceClassEval.EqualityChecker<Constituent>)EquivalenceClassEval.DEFAULT_CHECKER,new BestTallierFactory(),bagEval);
+  prettyPrintStats(stats,bufferNum,nf);
+  System.out.println("Typed dependency evaluation by dependency type:");
+  System.out.println("Best by F1:");
+  stats=manager.performance(typedDependencyObjectifier(tlpp.collinizerEvalb(),hf),AbstractTreebankParserParams.typedDependencyClasser(),(EquivalenceClassEval.EqualityChecker<List<String>>)EquivalenceClassEval.DEFAULT_CHECKER,new BestTallierFactory(),bagEval);
+  prettyPrintStats(stats,bufferNum,nf);
+}

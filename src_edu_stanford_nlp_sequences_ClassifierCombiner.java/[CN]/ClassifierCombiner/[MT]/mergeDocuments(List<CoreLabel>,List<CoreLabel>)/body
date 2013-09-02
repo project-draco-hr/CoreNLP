@@ -1,0 +1,69 @@
+{
+  Set mainLabels=new HashSet(mainClassifier.getModelFactory().metaInfo().getLabels());
+  Set auxLabels=new HashSet(auxClassifier.getModelFactory().metaInfo().getLabels());
+  String background=(String)mainClassifier.getModelFactory().metaInfo().backgroundLabel();
+  auxLabels.removeAll(mainLabels);
+  if (DEBUG) {
+    System.err.println("mergeDocuments: Using main classifier for " + mainLabels);
+    System.err.println("mergeDocuments: Using aux classifier for " + auxLabels);
+  }
+  if (DEBUG_VERBOSE) {
+    int sz1=mainDocument.size();
+    int sz2=auxDocument.size();
+    if (sz1 != sz2) {
+      System.err.println("ClassifierCombiner: size mismatch!");
+    }
+    System.err.println("----------");
+    for (int i=0; i < sz1; i++) {
+      CoreLabel f1=mainDocument.get(i);
+      CoreLabel f2=auxDocument.get(i);
+      if (!f1.word().equals(f2.word())) {
+        System.err.println("NER: word mismatch " + f1.word() + " != "+ f2.word());
+      }
+      System.err.println(f1.word() + "\t" + f1.ner()+ "\t"+ f2.ner());
+    }
+    System.err.println("----------");
+  }
+  boolean insideMainTag=false;
+  boolean insideAuxTag=false;
+  boolean auxTagValid=true;
+  String prevAnswer=background;
+  Collection<CoreLabel> constituents=new ArrayList<CoreLabel>();
+  Iterator<CoreLabel> auxIterator=auxDocument.listIterator();
+  for (  CoreLabel wMain : mainDocument) {
+    CoreLabel wAux=auxIterator.next();
+    String auxAnswer=wAux.ner();
+    String mainAnswer=wMain.ner();
+    insideMainTag=!mainAnswer.equals(background);
+    if (auxLabels.contains(auxAnswer)) {
+      if (!prevAnswer.equals(auxAnswer) && !prevAnswer.equals(background)) {
+        if (auxTagValid) {
+          for (          CoreLabel wi : constituents) {
+            wi.setNER(prevAnswer);
+          }
+        }
+        constituents=new ArrayList<CoreLabel>();
+      }
+      insideAuxTag=true;
+      if (insideMainTag) {
+        auxTagValid=false;
+      }
+      prevAnswer=auxAnswer;
+      constituents.add(wMain);
+    }
+ else {
+      if (insideAuxTag) {
+        if (auxTagValid) {
+          for (          CoreLabel wi : constituents) {
+            wi.setNER(prevAnswer);
+          }
+        }
+        constituents=new ArrayList<CoreLabel>();
+      }
+      insideAuxTag=false;
+      auxTagValid=true;
+      prevAnswer=background;
+    }
+  }
+  return mainDocument;
+}

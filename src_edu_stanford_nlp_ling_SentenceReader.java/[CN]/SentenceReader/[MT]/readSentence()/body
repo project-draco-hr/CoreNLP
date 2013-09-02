@@ -1,0 +1,52 @@
+{
+  ArrayList<T> sent=new ArrayList<T>();
+  String prev=null;
+  boolean continuing=true;
+  boolean isEOF=false;
+  if (DEBUG) {
+    System.err.println("In readSentence");
+  }
+  while (continuing) {
+    int code=st.nextToken();
+    if (DEBUG) {
+      System.err.println("Read token" + code + " "+ st.sval);
+    }
+    if (code == StreamTokenizer.TT_WORD) {
+      String current=st.sval;
+      String name=sn.normalizeString(current);
+      sent.add(ErasureUtils.<T>uncheckedCast(lf.newLabelFromString(name)));
+      if (!eolIsSentenceEnd) {
+        st.nextToken();
+        if (sn.endSentenceToken(current,prev,st.sval)) {
+          continuing=false;
+        }
+        st.pushBack();
+      }
+      prev=current;
+    }
+ else     if (code == StreamTokenizer.TT_EOF) {
+      if (sent.size() > 0) {
+        System.err.println("Warning: Sentence ended by EOF.");
+      }
+ else {
+        isEOF=true;
+      }
+      continuing=false;
+    }
+ else     if (code == StreamTokenizer.TT_EOL) {
+      if (eolIsSentenceEnd) {
+        continuing=false;
+      }
+    }
+ else {
+      throw (new IOException("expecting word or eof, found: " + code + "/"+ st.sval));
+    }
+  }
+  if (DEBUG) {
+    System.err.println("Sentence normalized to " + sn.normalizeSentence(sent,lf));
+  }
+  if (isEOF) {
+    return null;
+  }
+  return sn.normalizeSentence(sent,lf);
+}

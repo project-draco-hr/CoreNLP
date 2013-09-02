@@ -1,0 +1,50 @@
+{
+  if (input.size() == 1) {
+    String word=input.get(0);
+    if (isSalutation(word)) {
+      salutation=word;
+    }
+ else     if (girlNames.contains(word.toLowerCase()) || boyNames.contains(word.toLowerCase())) {
+      firstName=word;
+    }
+ else {
+      lastName=word;
+    }
+  }
+  if (input.size() == 2) {
+    String word1=input.get(0);
+    String word2=input.get(1);
+    if (isSalutation(word1) && !isSalutation(word2)) {
+      salutation=word1;
+      lastName=word2;
+    }
+ else     if (isSalutation(word1) && isSalutation(word2)) {
+      salutation=word1 + " " + word2;
+    }
+ else {
+      firstName=word1;
+      lastName=word2;
+    }
+  }
+  if (input.size() > 2) {
+    int afterSal=0;
+    for (int i=0; i < input.size(); i++) {
+      String word=input.get(i);
+      if (isSalutation(word)) {
+        afterSal++;
+        if (!salutation.equals("")) {
+          salutation=salutation + " " + word;
+        }
+ else {
+          salutation=word;
+        }
+      }
+ else       if (i == input.size() - 1) {
+        lastName=word;
+      }
+ else       if (i == afterSal) {
+        firstName=word;
+      }
+    }
+  }
+}

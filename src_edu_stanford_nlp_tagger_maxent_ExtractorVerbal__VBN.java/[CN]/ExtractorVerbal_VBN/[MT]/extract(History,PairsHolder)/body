@@ -1,0 +1,35 @@
+{
+  String cword=pH.getWord(h,0);
+  int start=h.start;
+  int allCount=dict.sum(cword);
+  int vBNCount=dict.getCount(cword,vbnTag);
+  int vBDCount=dict.getCount(cword,vbdTag);
+  String cwordnice=TestSentence.toNice(cword);
+  if ((allCount == 0) && (!(cwordnice.endsWith(edSuff) || cwordnice.endsWith(enSuff)))) {
+    return zeroSt;
+  }
+  if ((allCount > 0) && (vBNCount + vBDCount <= allCount / 100)) {
+    return zeroSt;
+  }
+  String lastverb=naWord;
+  int current=h.current;
+  int index=current - 1;
+  while ((index >= start) && (index >= current - 8)) {
+    String tag=pH.getTag(index);
+    if ((tag.startsWith("VB"))) {
+      lastverb=pH.getWord(index);
+      break;
+    }
+    if (tag.startsWith(",")) {
+      break;
+    }
+    index--;
+  }
+  if (lastverb.equals(naWord)) {
+    return zeroSt;
+  }
+  if (isForVBN(lastverb)) {
+    return oneSt;
+  }
+  return zeroSt;
+}

@@ -1,0 +1,78 @@
+{
+  Properties props=new Properties(propertyDefaults);
+  props.putAll(properties);
+  boolean verbose=false;
+  HMM hmm=null;
+  String dataFilename=props.getProperty("dataFile");
+  if (dataFilename == null || !new File(dataFilename).canRead()) {
+    throw (new IllegalPropertyException(this,"must specify valid data file","dataFile",dataFilename));
+  }
+  String allTargetFields=props.getProperty("targetFields");
+  if (allTargetFields == null || allTargetFields.length() == 0) {
+    throw (new IllegalPropertyException(this,"must specify at least one target field","targetFields",allTargetFields));
+  }
+  String[] targetFields=allTargetFields.split(" ");
+  String hmmType=props.getProperty("hmmType");
+  if (hmmType != null) {
+    boolean useMerged=hmmType.equals("merged");
+    boolean useSMerged=hmmType.equals("s-merged");
+    Structure structure=null;
+    if (!useMerged && !useSMerged) {
+      try {
+        structure=Extractor.getStructure(hmmType,props);
+      }
+ catch (      IllegalArgumentException e) {
+        throw (new IllegalPropertyException(this,"invalid hmmType: " + hmmType,"hmmType",hmmType));
+      }
+    }
+    Corpus trainDocs=new Corpus(dataFilename,targetFields);
+    double bestScore=Double.NEGATIVE_INFINITY;
+    int numCandidates=Integer.parseInt(props.getProperty("numCandidates"));
+    boolean trainConditionally=props.getProperty("trainType").equals("conditional");
+    for (int k=0; k < numCandidates; k++) {
+      if (verbose && numCandidates > 1) {
+        System.err.println("Training candidate HMM " + (k + 1) + " of "+ numCandidates);
+      }
+      HMM candidateHMM;
+      if (useMerged || useSMerged) {
+        candidateHMM=MergeTrainer.mergeTrain(trainDocs,props,verbose);
+      }
+ else {
+        candidateHMM=new HMM(structure,HMM.REGULAR_HMM);
+        candidateHMM.train(trainDocs,props,verbose);
+      }
+      double candidateScore=trainConditionally ? candidateHMM.logConditionalLikelihood(trainDocs) : candidateHMM.logLikelihood(trainDocs);
+      if (verbose && numCandidates > 1) {
+        System.err.println("Score for candidate HMM " + (k + 1) + " of "+ numCandidates+ ": "+ candidateScore);
+      }
+      if (k == 0 || candidateScore > bestScore) {
+        hmm=candidateHMM;
+        bestScore=candidateScore;
+        if (verbose && numCandidates > 1) {
+          System.err.println("Candidate " + (k + 1) + " is best HMM so far");
+        }
+      }
+    }
+    if (hmm == null) {
+      throw (new IllegalStateException("No candidate HMM was selected!"));
+    }
+  }
+ else   if (props.getProperty("hmmFile") != null) {
+    File hmmFile=new File(props.getProperty("hmmFile"));
+    if (!hmmFile.canRead()) {
+      throw (new IllegalPropertyException(this,"cannot read hmmFile: " + hmmFile,"hmmFile",hmmFile.toString()));
+    }
+    try {
+      System.err.println("Loading HMM from " + hmmFile + "...");
+      hmm=(HMM)new ObjectInputStream(new FileInputStream(hmmFile)).readObject();
+      if (verbose) {
+        hmm.printProbs();
+      }
+    }
+ catch (    Exception e) {
+      e.printStackTrace();
+    }
+  }
+  boolean useFirstAnswers="first_match".equals(props.getProperty("singleMatchStrategy"));
+  return (new HMMFieldExtractor(hmm,name,useFirstAnswers));
+}

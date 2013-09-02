@@ -1,0 +1,37 @@
+{
+  double logHighestScore=Double.NEGATIVE_INFINITY;
+  String bestSense=Instance.UNASSIGNED;
+  TwoDimensionalCounter<String,Subcategory> joint=new TwoDimensionalCounter<String,Subcategory>();
+  ClassicCounter<String> sensePosterior=new ClassicCounter<String>();
+  for (  String sense : allSenses) {
+    double logSensePart=logP_seqGivenSense(ins,sense) + Math.log(sensePrior.probabilityOf(sense));
+    sensePosterior.setCount(sense,logSensePart);
+    double[] posteriors=new double[Subcategory.SUBCATEGORIES.size()];
+    int j=0;
+    for (    Subcategory subcat : Subcategory.SUBCATEGORIES) {
+      double thisSubcatGivenThisSense=logP_subcatGivenSense(subcat,sense);
+      if (thisSubcatGivenThisSense == Double.NEGATIVE_INFINITY) {
+        throw new RuntimeException("got -infty");
+      }
+      double thisSequenceGivenThisSubcat=logP_seqGivenSub(ins,subcat);
+      double logThisScore=logSensePart + thisSubcatGivenThisSense + thisSequenceGivenThisSubcat;
+      joint.incrementCount(sense,subcat,logThisScore);
+      posteriors[j++]=logThisScore;
+    }
+    double totalThisSense=ArrayMath.logSum(posteriors);
+    if (totalThisSense > logHighestScore) {
+      logHighestScore=totalThisSense;
+      bestSense=sense;
+    }
+  }
+  if (verbose) {
+    System.out.println("instance:");
+    System.out.println(ins);
+    System.out.println("joint:");
+    printJoint(null,joint);
+    System.out.println("logPSense: " + Counters.toString(sensePosterior,formatter));
+    System.out.println("bestSense=" + bestSense);
+    System.out.println();
+  }
+  return new InstanceMarking(ins,bestSense,null,null,null);
+}

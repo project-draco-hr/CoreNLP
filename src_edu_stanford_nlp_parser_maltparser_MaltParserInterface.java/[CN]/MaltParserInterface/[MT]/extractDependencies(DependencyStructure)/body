@@ -1,0 +1,31 @@
+{
+  List<MaltDependency> dependencies=new ArrayList<MaltDependency>();
+  for (  Edge e : structure.getEdges()) {
+    if (!(e instanceof GraphEdge))     throw new RuntimeException("Expected all the dependency edges " + "to be of type GraphEdge");
+    GraphEdge ge=(GraphEdge)e;
+    int governor=ge.getSource().getIndex();
+    int dependent=ge.getTarget().getIndex();
+    String label=null;
+    if (ge.getLabelSet() == null && governor == 0) {
+      label="root";
+      System.err.println(" --- Warning: Unlabeled root from " + governor + " to "+ dependent);
+    }
+ else     if (ge.getLabelSet() == null) {
+      throw new RuntimeException("No label set at all with a non-root " + "governor; don't know what label to use");
+    }
+ else     if (ge.getLabelSet().size() != 1) {
+      throw new RuntimeException("Expected the dependency edges to have " + "exactly one label");
+    }
+ else {
+      for (      SymbolTable table : ge.getLabelSet().keySet()) {
+        label=ge.getLabelSymbol(table);
+      }
+    }
+    if (governor != 0 && label.equals("root")) {
+      label="dep";
+      System.err.println(" --- Warning: Unexpected root label changed to " + "'dep' for an edge " + governor + "->"+ dependent);
+    }
+    dependencies.add(new MaltDependency(governor,dependent,label));
+  }
+  return dependencies;
+}

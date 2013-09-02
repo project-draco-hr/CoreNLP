@@ -5,7 +5,7 @@
     List<TreeNodeProxy> leafProxies=TreeNodeProxy.create(child,tree);
     for (    TreeNodeProxy proxy : leafProxies)     lexToTreeNode.add(proxy.lex,proxy);
   }
-  Map<IndexedWord,Integer> depthMap=Generics.newHashMap();
+  Map<IndexedWord,Integer> depthMap=new HashMap<IndexedWord,Integer>();
   for (  IndexedWord node : sg.vertexSet()) {
     List<IndexedWord> path=sg.getPathToRoot(node);
     if (path != null)     depthMap.put(node,path.size());
@@ -13,7 +13,7 @@
     List<IndexedWordProxy> nodeProxies=IndexedWordProxy.create(node);
     for (    IndexedWordProxy proxy : nodeProxies)     lexToSemNode.add(proxy.lex,proxy);
   }
-  Map<PositionedTree,IndexedWord> map=Generics.newHashMap();
+  Map<PositionedTree,IndexedWord> map=new HashMap<PositionedTree,IndexedWord>();
   for (  String lex : lexToTreeNode.keySet()) {
     for (int i=0; i < lexToTreeNode.size(lex) && i < lexToSemNode.size(lex); i++) {
       map.put(new PositionedTree(lexToTreeNode.get(lex,i).treeNode,tree),lexToSemNode.get(lex,i).node);

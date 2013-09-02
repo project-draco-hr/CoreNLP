@@ -1,0 +1,24 @@
+{
+  ppanels=new ArrayList<PropertyPanel>(creator.propertyNames().size());
+  List pNames=new ArrayList(creator.propertyNames());
+  Collections.sort(pNames);
+  for (Iterator iter=pNames.iterator(); iter.hasNext(); ) {
+    String key=(String)iter.next();
+    String value=creator.getProperty(key);
+    String defaultValue=creator.getPropertyDefault(key);
+    String description=creator.getPropertyDescription(key);
+    boolean required=creator.isRequired(key);
+    Object propertyClass=creator.getPropertyClass(key);
+    ppanels.add(new PropertyPanel(key,value,defaultValue,description,required,propertyClass));
+  }
+  PropertyPanel.synchronizeLabelWidths(ppanels.toArray(new PropertyPanel[0]));
+  propertiesPanel.add(Box.createVerticalGlue());
+  for (int i=0; i < ppanels.size(); i++) {
+    PropertyPanel ppanel=ppanels.get(i);
+    propertiesPanel.add(ppanel);
+  }
+  if (ppanels.size() > defaultNumVisibleProperties) {
+    Dimension psize=ppanels.get(0).getPreferredSize();
+    propertiesScrollPane.setPreferredSize(new Dimension(psize.width,defaultNumVisibleProperties * psize.height));
+  }
+}

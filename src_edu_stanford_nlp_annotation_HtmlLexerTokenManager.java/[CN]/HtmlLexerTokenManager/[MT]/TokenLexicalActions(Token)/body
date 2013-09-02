@@ -1,0 +1,43 @@
+{
+switch (jjmatchedKind) {
+case 20:
+    if (image == null) {
+      image=new StringBuffer(new String(input_stream.GetSuffix(jjimageLen + (lengthOfMatch=jjmatchedPos + 1))));
+    }
+ else {
+      image.append(new String(input_stream.GetSuffix(jjimageLen + (lengthOfMatch=jjmatchedPos + 1))));
+    }
+  String temp=matchedToken.image;
+StringTokenizer s=new StringTokenizer(temp,",");
+try {
+String str=s.nextToken();
+matchedToken.image=str;
+matchedToken.kind=WORD;
+matchedToken.endColumn=matchedToken.beginColumn + str.length() - 1;
+str=s.nextToken();
+Token t=new Token();
+t.image=str;
+t.next=matchedToken.next;
+t.kind=WORD;
+t.beginLine=matchedToken.beginLine;
+t.beginColumn=matchedToken.endColumn + 2;
+t.endLine=matchedToken.endLine;
+t.endColumn=matchedToken.endColumn + 1 + str.length();
+matchedToken.next=t;
+t=new Token();
+t.image=",";
+t.next=matchedToken.next;
+t.kind=ANY;
+t.beginLine=matchedToken.beginLine;
+t.beginColumn=matchedToken.endColumn + 1;
+t.endLine=matchedToken.endLine;
+t.endColumn=matchedToken.endColumn + 1;
+matchedToken.next=t;
+}
+ catch (Exception e) {
+}
+break;
+default :
+break;
+}
+}

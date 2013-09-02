@@ -1,0 +1,24 @@
+{
+  this(targetFields,0);
+  int numTargets=targetFields.length;
+  baseContexts=new ArrayList<Index>();
+  contexts=new ArrayList<Integer>();
+  prefixes=new ArrayList<Integer>();
+  suffixes=new ArrayList<Integer>();
+  int[][] minDistances=minTypeDistances(targetFields,trainCorpus);
+  int firstTarget=3;
+  for (int i=0; i < minDistances.length; i++) {
+    for (int j=0; j < minDistances[i].length; j++) {
+      int dist=minDistances[i][j];
+      if (dist < threshold) {
+        int newState=insertStateBetween(i + firstTarget,j + firstTarget,BACKGROUND_TYPE);
+        setWeight(newState,newState,0.2);
+        baseContexts.add(new Index(i,j));
+        contexts.add(Integer.valueOf(newState));
+      }
+      if (dist == 0) {
+        setWeight(i + firstTarget,j + firstTarget,1.0);
+      }
+    }
+  }
+}

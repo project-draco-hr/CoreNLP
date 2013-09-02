@@ -1,0 +1,25 @@
+{
+  List<Integer> sorted=Counters.toSortedList(beta);
+  int numClusters=0;
+  System.err.println("Transition Counts");
+  for (  int k : sorted) {
+    if (k == newK || k == UNSEEN)     continue;
+    ClassicCounter<Integer> counts=n.getCounter(k);
+    double totalCount=counts.totalCount();
+    if (totalCount == 0.0)     continue;
+    numClusters++;
+    System.err.println("Cluster " + k + " ("+ totalCount+ "): "+ Counters.toBiggestValuesFirstString(counts));
+  }
+  System.err.println("Number of clusters: " + numClusters);
+  System.err.println();
+  System.err.println("Observation Counts");
+  for (  int k : sorted) {
+    if (k == newK || k == UNSEEN || k == 0)     continue;
+    ClassicCounter<E> counts=observationCounts.getCounter(k);
+    double totalCount=counts.totalCount();
+    if (totalCount == 0.0)     continue;
+    P posterior=(P)prior.getPosteriorDistribution(counts);
+    System.err.println("Cluster " + k + ": "+ posterior.toString());
+  }
+  System.err.println();
+}

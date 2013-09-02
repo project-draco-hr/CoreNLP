@@ -1,0 +1,16 @@
+{
+  Map answers=getUseFirstAnswers() ? hmm.firstAnswers(text) : hmm.bestAnswers(text);
+  Map extractedFields=new HashMap();
+  Iterator iter=answers.keySet().iterator();
+  while (iter.hasNext()) {
+    Integer type=(Integer)iter.next();
+    String fieldName=hmm.getTargetFields()[type.intValue()];
+    extractedFields.put(fieldName,answers.get(type));
+  }
+  for (int i=0; i < extractableFields.length; i++) {
+    if (!extractedFields.containsKey(extractableFields[i])) {
+      extractedFields.put(extractableFields[i],"");
+    }
+  }
+  return (extractedFields);
+}

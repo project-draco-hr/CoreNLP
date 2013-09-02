@@ -1,0 +1,38 @@
+{
+  if (frac < 0 || frac > 1) {
+    throw (new IllegalArgumentException("frac must be between 0.0 and 1.0; " + frac));
+  }
+  if (initializedTransitions == null) {
+    for (int i=0; i < transitions.size(); i++) {
+      if (stateTypes.get(i).intValue() == END_TYPE) {
+        continue;
+      }
+      List<Double> curTransitions=transitions.get(i);
+      int numTrans=curTransitions.size() - 1;
+      for (int j=0; j < curTransitions.size(); j++) {
+        if (stateTypes.get(j).intValue() == START_TYPE) {
+          continue;
+        }
+        double trans=curTransitions.get(j).doubleValue();
+        trans=frac / numTrans + (1.0 - frac) * trans;
+        curTransitions.set(j,new Double(trans));
+      }
+    }
+  }
+ else {
+    for (int i=0; i < initializedTransitions.length; i++) {
+      if (stateTypes.get(i).intValue() == END_TYPE) {
+        continue;
+      }
+      int numTrans=initializedTransitions[i].length - 1;
+      for (int j=0; j < initializedTransitions[i].length; j++) {
+        if (stateTypes.get(j).intValue() == START_TYPE) {
+          continue;
+        }
+        double trans=initializedTransitions[i][j];
+        trans=frac / numTrans + (1.0 - frac) * trans;
+        initializedTransitions[i][j]=trans;
+      }
+    }
+  }
+}

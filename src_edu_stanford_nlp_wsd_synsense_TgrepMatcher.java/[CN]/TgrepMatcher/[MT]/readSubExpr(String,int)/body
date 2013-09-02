@@ -1,0 +1,29 @@
+{
+  StringBuilder buf=new StringBuilder();
+  if (position < pattern.length() && pattern.charAt(position) == '(') {
+    int parenDepth=0;
+    do {
+      buf.append(pattern.charAt(position));
+      if (pattern.charAt(position) == '(') {
+        parenDepth++;
+      }
+ else       if (pattern.charAt(position) == ')') {
+        parenDepth--;
+      }
+      position++;
+    }
+ while (parenDepth > 0);
+  }
+ else {
+    while (position < pattern.length() && !tGrepDelimiterChars.contains(new Character(pattern.charAt(position)))) {
+      if (pattern.charAt(position) == '\\' && tGrepDelimiterChars.contains(new Character(pattern.charAt(position + 1)))) {
+        position++;
+      }
+      buf.append(pattern.charAt(position++));
+    }
+    if (buf.length() == 0 || !tGrepDelimiterChars.contains(new Character(pattern.charAt(position)))) {
+      tgrepExprError(position,pattern,"Illegal character");
+    }
+  }
+  return buf.toString();
+}

@@ -1,0 +1,10 @@
+{
+  Map<String,Counter<String>> map=DefaultValuedMap.counterValuedMap();
+  map.get("b").incrementCount("X");
+  map.get("a").incrementCount("Y");
+  map.get("a").incrementCount("Y",2);
+  map.get("b").incrementCount("Y",2);
+  Assert.assertEquals(map.get("a"),Counters.asCounter(Arrays.asList("Y Y Y".split(" "))));
+  Assert.assertEquals(map.get("b"),Counters.asCounter(Arrays.asList("X Y Y".split(" "))));
+  Assert.assertEquals(map.get("C"),new ClassicCounter<String>());
+}

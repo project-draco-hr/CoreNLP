@@ -1,0 +1,21 @@
+{
+  Counter<E> counter=new ClassicCounter<E>();
+  if (r instanceof ArrayRealVector) {
+    ArrayRealVector ar=(ArrayRealVector)r;
+    double[] vals=ar.getDataRef();
+    int entries=keyIndex.size();
+    for (int i=0; i < entries; i++) {
+      counter.setCount(keyIndex.get(i),vals[i]);
+    }
+  }
+ else {
+    for (Iterator<RealVector.Entry> itr=r.sparseIterator(); itr.hasNext(); ) {
+      RealVector.Entry entry=itr.next();
+      double v=entry.getValue();
+      if (v != 0) {
+        counter.setCount(keyIndex.get(entry.getIndex()),v);
+      }
+    }
+  }
+  return counter;
+}

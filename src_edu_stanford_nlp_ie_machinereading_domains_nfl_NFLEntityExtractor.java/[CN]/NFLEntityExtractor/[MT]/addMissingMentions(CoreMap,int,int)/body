@@ -1,0 +1,27 @@
+{
+  List<CoreLabel> words=sentence.get(CoreAnnotations.TokensAnnotation.class);
+  List<EntityMention> mentions=sentence.get(EntityMentionsAnnotation.class);
+  if (PREFER_TEAMS_FROM_GAZETTEER) {
+    for (int start=0; start < words.size(); start++) {
+      String label=null;
+      int end=-1;
+      for (end=Math.min(start + NFLGazetteer.MAX_MENTION_LENGTH,words.size()); end > start; end--) {
+        String text=join(words,start,end);
+        String gazTag=gazetteer.get(text);
+        if (gazTag != null && gazTag.equals("NFLTeam")) {
+          logger.fine("Found entity mention candidate from gazetteer: " + text);
+          label=gazTag;
+          break;
+        }
+      }
+      if (label != null) {
+        String id=BasicEntityExtractor.makeEntityMentionIdentifier(sentence,sentCount,identifierOffset);
+        identifierOffset++;
+        EntityMention m=makeEntityMention(sentence,start,end,label,id);
+        logger.info("ADDED ENTITY MENTION (from gazetteer): " + m);
+        start=end - 1;
+        mentions.add(m);
+      }
+    }
+  }
+}

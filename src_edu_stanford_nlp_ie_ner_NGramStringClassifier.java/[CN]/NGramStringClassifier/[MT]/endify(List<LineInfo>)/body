@@ -1,0 +1,36 @@
+{
+  lineInfos=new CircleList<LineInfo>(lineInfos);
+  int k=lineInfos.size();
+  String[] newAnswers=new String[k];
+  for (int i=0; i < k; i++) {
+    LineInfo c=lineInfos.get(i);
+    LineInfo p=lineInfos.get(i - 1);
+    LineInfo n=lineInfos.get(i + 1);
+    if (c.answer.length() > 1 && c.answer.charAt(1) == '-') {
+      String base=c.answer.substring(2,c.answer.length());
+      String pBase=(p.answer.length() > 2 ? p.answer.substring(2,p.answer.length()) : p.answer);
+      String nBase=(n.answer.length() > 2 ? n.answer.substring(2,n.answer.length()) : n.answer);
+      boolean isFirst=(!base.equals(pBase)) || c.answer.charAt(0) == 'B';
+      boolean isLast=(!base.equals(nBase)) || n.answer.charAt(0) == 'B';
+      if (isFirst && isLast) {
+        newAnswers[i]=intern("S-" + base);
+      }
+      if ((!isFirst) && isLast) {
+        newAnswers[i]=intern("E-" + base);
+      }
+      if (isFirst && (!isLast)) {
+        newAnswers[i]=intern("B-" + base);
+      }
+      if ((!isFirst) && (!isLast)) {
+        newAnswers[i]=intern("I-" + base);
+      }
+    }
+ else {
+      newAnswers[i]=c.answer;
+    }
+  }
+  for (int i=0; i < k; i++) {
+    LineInfo c=lineInfos.get(i);
+    c.answer=newAnswers[i];
+  }
+}

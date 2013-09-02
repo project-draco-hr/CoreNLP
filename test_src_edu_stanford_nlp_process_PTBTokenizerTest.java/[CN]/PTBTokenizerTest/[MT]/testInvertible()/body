@@ -3,27 +3,27 @@
   PTBTokenizer<CoreLabel> tokenizer=PTBTokenizer.newPTBTokenizer(new StringReader(text),false,true);
   List<CoreLabel> tokens=tokenizer.tokenize();
   assertEquals(6,tokens.size());
-  assertEquals("  ",tokens.get(0).get(CoreAnnotations.BeforeAnnotation.class));
-  assertEquals("     ",tokens.get(0).get(CoreAnnotations.AfterAnnotation.class));
+  assertEquals("  ",tokens.get(0).get(BeforeAnnotation.class));
+  assertEquals("     ",tokens.get(0).get(AfterAnnotation.class));
   assertEquals("Wrong begin char offset",2,(int)tokens.get(0).get(CoreAnnotations.CharacterOffsetBeginAnnotation.class));
   assertEquals("Wrong end char offset",6,(int)tokens.get(0).get(CoreAnnotations.CharacterOffsetEndAnnotation.class));
-  assertEquals("This",tokens.get(0).get(CoreAnnotations.OriginalTextAnnotation.class));
-  assertEquals("     ",tokens.get(0).get(CoreAnnotations.AfterAnnotation.class));
-  assertEquals("     ",tokens.get(1).get(CoreAnnotations.BeforeAnnotation.class));
+  assertEquals("This",tokens.get(0).get(OriginalTextAnnotation.class));
+  assertEquals("     ",tokens.get(0).get(AfterAnnotation.class));
+  assertEquals("     ",tokens.get(1).get(BeforeAnnotation.class));
   assertEquals("colorful",tokens.get(3).get(CoreAnnotations.TextAnnotation.class));
-  assertEquals("colourful",tokens.get(3).get(CoreAnnotations.OriginalTextAnnotation.class));
+  assertEquals("colourful",tokens.get(3).get(OriginalTextAnnotation.class));
   assertEquals("",tokens.get(4).after());
   assertEquals("",tokens.get(5).before());
-  assertEquals("    ",tokens.get(5).get(CoreAnnotations.AfterAnnotation.class));
+  assertEquals("    ",tokens.get(5).get(AfterAnnotation.class));
   StringBuilder result=new StringBuilder();
-  result.append(tokens.get(0).get(CoreAnnotations.BeforeAnnotation.class));
+  result.append(tokens.get(0).get(BeforeAnnotation.class));
   for (  CoreLabel token : tokens) {
     result.append(token.get(CoreAnnotations.OriginalTextAnnotation.class));
-    String after=token.get(CoreAnnotations.AfterAnnotation.class);
+    String after=token.get(AfterAnnotation.class);
     if (after != null)     result.append(after);
   }
   assertEquals(text,result.toString());
   for (int i=0; i < tokens.size() - 1; ++i) {
-    assertEquals(tokens.get(i).get(CoreAnnotations.AfterAnnotation.class),tokens.get(i + 1).get(CoreAnnotations.BeforeAnnotation.class));
+    assertEquals(tokens.get(i).get(AfterAnnotation.class),tokens.get(i + 1).get(BeforeAnnotation.class));
   }
 }

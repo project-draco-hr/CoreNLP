@@ -1,0 +1,36 @@
+{
+  TargetStructure start=new TargetStructure(1,false);
+  start.addSelfLoops();
+  HMM hmm=new HMM(start,HMM.TARGET_HMM);
+  hmm.train(trainDocs,props,verbose);
+  double result=hmm.mdlScore(trainDocs);
+  if (verbose) {
+    System.err.println("..............................");
+    System.err.println("Initial structure:");
+    System.err.println(start);
+    System.err.println("mdl score = " + result);
+  }
+  bestResult=result;
+  argBest=start;
+  int depth=0;
+  TargetStructure current=start;
+  improving=true;
+  oneWorse=false;
+  while (improving && depth < 10) {
+    if (verbose) {
+      System.err.println("expanding Nodes...");
+    }
+    current=expandNode(current,trainDocs,props,verbose);
+    depth++;
+  }
+  best=new HMM(argBest,HMM.TARGET_HMM);
+  best.train(trainDocs,props,verbose);
+  if (verbose) {
+    System.err.println();
+    System.err.println("Search concluded");
+    System.err.println(argBest);
+    System.err.println("Likelihood= " + bestResult);
+    System.err.println("Depth reached " + depth);
+  }
+  return (best);
+}

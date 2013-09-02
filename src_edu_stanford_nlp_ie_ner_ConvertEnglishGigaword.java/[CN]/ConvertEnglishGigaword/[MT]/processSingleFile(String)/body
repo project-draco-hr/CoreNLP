@@ -1,0 +1,23 @@
+{
+  try {
+    InputStream is=new FileInputStream(filename);
+    if (filename.endsWith(".gz")) {
+      is=new GZIPInputStream(is);
+    }
+    BufferedReader in=new BufferedReader(new InputStreamReader(new BufferedInputStream(is)));
+    for (String line; (line=in.readLine()) != null; ) {
+      Matcher m=sgmlP.matcher(line);
+      line=m.replaceAll(" ");
+      PTBTokenizer<Word> ptb=PTBTokenizer.newPTBTokenizer(new StringReader(line));
+      List<Word> words=ptb.tokenize();
+      for (      Word w : words) {
+        System.out.println(w.toString().toUpperCase());
+      }
+    }
+    in.close();
+  }
+ catch (  Exception e) {
+    System.err.println("Error for file " + filename);
+    e.printStackTrace();
+  }
+}

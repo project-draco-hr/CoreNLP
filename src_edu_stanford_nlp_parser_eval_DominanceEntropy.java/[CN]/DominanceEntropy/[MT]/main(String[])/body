@@ -1,0 +1,71 @@
+{
+  if (args.length < minArgs) {
+    System.out.println(usage.toString());
+    System.exit(-1);
+  }
+  TreebankLangParserParams tlpp=new EnglishTreebankParserParams();
+  boolean VERBOSE=false;
+  boolean collapseUnaries=false;
+  File treeFile=null;
+  for (int i=0; i < args.length; i++) {
+    if (args[i].startsWith("-")) {
+      if (args[i].equals("-l")) {
+        Language lang=Language.valueOf(args[++i].trim());
+        tlpp=Languages.getLanguageParams(lang);
+      }
+ else       if (args[i].equals("-v")) {
+        VERBOSE=true;
+      }
+ else       if (args[i].equals("-u")) {
+        collapseUnaries=true;
+      }
+ else {
+        System.out.println(usage.toString());
+        System.exit(-1);
+      }
+    }
+ else {
+      treeFile=new File(args[i]);
+      break;
+    }
+  }
+  final PrintWriter pwOut=tlpp.pw();
+  final Treebank tb=tlpp.diskTreebank();
+  tb.loadPath(treeFile);
+  if (VERBOSE)   pwOut.println(tb.textualSummary());
+  pwOut.println("Reading trees:");
+  final Map<String,Counter<String>> precMap=new HashMap<String,Counter<String>>();
+  int numTrees=0;
+  for (  final Tree tree : tb) {
+    if (collapseUnaries)     collapseUnaries(tree);
+    for (    Tree subTree : tree) {
+      if (!subTree.isPhrasal())       continue;
+      String precRelation=getPrecRelation(subTree.getChildrenAsList());
+      if (!precMap.containsKey(precRelation))       precMap.put(precRelation,new ClassicCounter<String>());
+      precMap.get(precRelation).incrementCount(subTree.value());
+    }
+    numTrees++;
+    if ((numTrees % 200) == 0) {
+      System.out.print(".");
+    }
+    if ((numTrees % 4000) == 0) {
+      System.out.println();
+    }
+  }
+  final Set<Triple<Double,String,Set<String>>> nucleiSet=new HashSet<Triple<Double,String,Set<String>>>();
+  double entropies=0.0;
+  for (  String pRelation : precMap.keySet()) {
+    Counter<String> cnt=precMap.get(pRelation);
+    if (cnt.keySet().size() > 1) {
+      double entropy=Counters.entropy(cnt);
+      entropies+=entropy;
+      nucleiSet.add(new Triple<Double,String,Set<String>>(entropy,pRelation,cnt.keySet()));
+    }
+  }
+  pwOut.println("\n\n=======================================================================");
+  pwOut.println("Variation nuclei:     " + nucleiSet.size());
+  pwOut.println("Macro Avg. entropy:   " + entropies / (double)nucleiSet.size());
+  pwOut.println("\nEntropy\t\tRelation\tDominating Nodes");
+  for (  Triple<Double,String,Set<String>> nucleus : nucleiSet)   pwOut.printf("%f\t%s\t\t%s\n",nucleus.first(),nucleus.second(),nucleus.third().toString());
+  pwOut.println();
+}

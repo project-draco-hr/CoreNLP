@@ -1,0 +1,24 @@
+{
+  if (!extractorNames.contains(extractorName)) {
+    if (verbose) {
+      System.err.println("Can't get unknown extractor: " + extractorName);
+    }
+    return (null);
+  }
+  FieldExtractor extractor=extractorsByName.get(extractorName);
+  if (extractor == null) {
+    if (verbose) {
+      System.err.println("Loading serialized extractor: " + extractorName);
+    }
+    extractor=ExtractorUtilities.loadExtractor(getSerializedExtractorFile(extractorName));
+    if (extractor == null) {
+      if (verbose) {
+        System.err.println("Unable to load extractor: " + extractorName);
+      }
+    }
+ else {
+      cacheExtractor(extractorName,extractor);
+    }
+  }
+  return (extractor);
+}

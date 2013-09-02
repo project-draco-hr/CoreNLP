@@ -1,11 +1,11 @@
 {
-  List<CoreLabel> sent=sentences.get(sentNum).get(CoreAnnotations.TokensAnnotation.class);
+  List<CoreLabel> sent=sentences.get(sentNum).get(TokensAnnotation.class);
   for (int i=startIndex; i < endIndex; i++) {
-    if (sent.get(i).get(CoreAnnotations.UtteranceAnnotation.class) != 0)     continue;
-    String lemma=sent.get(i).get(CoreAnnotations.LemmaAnnotation.class);
-    String word=sent.get(i).get(CoreAnnotations.TextAnnotation.class);
+    if (sent.get(i).get(UtteranceAnnotation.class) != 0)     continue;
+    String lemma=sent.get(i).get(LemmaAnnotation.class);
+    String word=sent.get(i).get(TextAnnotation.class);
     if (dict.reportVerb.contains(lemma)) {
-      SemanticGraph dependency=sentences.get(sentNum).get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class);
+      SemanticGraph dependency=sentences.get(sentNum).get(CollapsedDependenciesAnnotation.class);
       IndexedWord w=dependency.getNodeByWordPattern(word);
       if (w != null) {
         for (        Pair<GrammaticalRelation,IndexedWord> child : dependency.childPairs(w)) {

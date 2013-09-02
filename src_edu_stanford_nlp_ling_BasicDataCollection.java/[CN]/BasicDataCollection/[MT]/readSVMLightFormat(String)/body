@@ -1,0 +1,19 @@
+{
+  DataCollection<String,String> data=new BasicDataCollection<String,String>();
+  try {
+    for (    String line : ObjectBank.getLineIterator(new File(file))) {
+      String[] columns=line.split("\\s+");
+      ClassicCounter<String> features=new ClassicCounter<String>();
+      for (int i=1; i < columns.length; i++) {
+        String[] f=columns[i].split(":");
+        double val=Double.parseDouble(f[1]);
+        features.incrementCount(f[0],val);
+      }
+      data.add(new RVFDatum<String,String>(features,columns[0]));
+    }
+  }
+ catch (  Exception e) {
+    System.out.println("Exception: " + e);
+  }
+  return data;
+}

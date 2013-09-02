@@ -1,0 +1,35 @@
+{
+  ExtractorMediator mediator=getExtractorMediator();
+  if (mediator != null) {
+    if (cls != null) {
+      String text=editorPane.getSelectedText();
+      if (text == null) {
+        try {
+          text=editorPane.getDocument().getText(0,editorPane.getDocument().getLength());
+        }
+ catch (        BadLocationException e) {
+          e.printStackTrace();
+        }
+      }
+      mediator.setOntologyMediator(getEMPanel().getOntologyMediator());
+      Map<String,String> valuesBySlot=mediator.extractSlotFillers(cls,text);
+      int highlightColor=0;
+      clearHighlight();
+      for (Iterator<String> iter=valuesBySlot.keySet().iterator(); iter.hasNext(); ) {
+        String slot=iter.next();
+        String value=valuesBySlot.get(slot);
+        if (value != null) {
+          highlightText(value,highlightColor);
+          highlightColor=(highlightColor + 1) % numHighlighters();
+        }
+      }
+      fireAllSlotsFilled(valuesBySlot);
+    }
+ else {
+      JOptionPane.showMessageDialog(this,"You must select a class to extract.","No class selected",JOptionPane.ERROR_MESSAGE);
+    }
+  }
+ else {
+    JOptionPane.showMessageDialog(this,"You must load an extractor mediator before you can extract from text.","No extractor mediator loaded",JOptionPane.ERROR_MESSAGE);
+  }
+}

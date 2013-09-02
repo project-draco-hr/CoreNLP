@@ -1,0 +1,69 @@
+{
+  checkbox=new JCheckBox();
+  keyLabel=new JLabel();
+  keyLabel.setVerticalTextPosition(SwingConstants.TOP);
+  valueField=new JFormattedTextField();
+  checkbox.addItemListener(new ItemListener(){
+    public void itemStateChanged(    ItemEvent e){
+      for (int i=0; i < valuePanel.getComponentCount(); i++) {
+        valuePanel.getComponent(i).setEnabled(checkbox.isSelected());
+      }
+    }
+  }
+);
+  keyLabel.addMouseListener(new MouseAdapter(){
+    @Override public void mouseClicked(    MouseEvent me){
+      if (checkbox.isEnabled()) {
+        checkbox.setSelected(!checkbox.isSelected());
+      }
+    }
+  }
+);
+  valueField.setColumns(20);
+  valueField.getDocument().addDocumentListener(new DocumentListener(){
+    public void insertUpdate(    DocumentEvent e){
+      if (!isOn()) {
+        setOn(true);
+      }
+    }
+    public void removeUpdate(    DocumentEvent e){
+    }
+    public void changedUpdate(    DocumentEvent e){
+    }
+  }
+);
+  valueField.addFocusListener(new FocusAdapter(){
+    @Override public void focusGained(    FocusEvent fe){
+      scrollRectToVisible(getBounds());
+    }
+  }
+);
+  JPanel boxAndLabelPanel=new JPanel(new FlowLayout(FlowLayout.CENTER,0,0));
+  boxAndLabelPanel.add(checkbox);
+  boxAndLabelPanel.add(keyLabel);
+  defaultButton=new JButton("D");
+  defaultButton.setMargin(new Insets(0,0,0,0));
+  defaultButton.setToolTipText("Revert to default value");
+  defaultButton.addActionListener(new ActionListener(){
+    public void actionPerformed(    ActionEvent ae){
+      setValue(defaultValue);
+    }
+  }
+);
+  valuePanel=new JPanel(new BorderLayout());
+  valuePanel.add("Center",valueField);
+  JPanel valueAndDefaultPanel=new JPanel(new FlowLayout(FlowLayout.LEFT,2,0));
+  valueAndDefaultPanel.add(valuePanel);
+  valueAndDefaultPanel.add(defaultButton);
+  setLayout(new BorderLayout());
+  add("West",boxAndLabelPanel);
+  add("Center",valueAndDefaultPanel);
+  addFocusListener(new FocusAdapter(){
+    @Override public void focusGained(    FocusEvent fe){
+      valueField.requestFocus();
+    }
+  }
+);
+  setDefaultValue(null);
+  setPropertyClass(null);
+}

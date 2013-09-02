@@ -1,0 +1,12 @@
+{
+  SuffixNode<E> parent=child.parent;
+  SuffixNode<E> middle=new SuffixNode<E>(parent,suffixStart,splittingPos);
+  E x=sequences.get(child.labelStart + getPathLength(child) - getEdgeLength(child));
+  E y=sequences.get(child.labelStart + getPathLength(child) - getEdgeLength(child) + getEdgeLength(middle));
+  parent.children.remove(x);
+  parent.children.put(x,middle);
+  middle.children.put(y,child);
+  child.parent=middle;
+  doExtendInternal(middle,splittingPos,suffixStart);
+  return middle;
+}

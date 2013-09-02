@@ -1,0 +1,152 @@
+{
+  if (props == null) {
+    props=Extractor.getDefaultProperties();
+  }
+  int nts=Integer.parseInt(props.getProperty("nts"));
+  Feature f=null;
+  try {
+    f=(Feature)Class.forName(props.getProperty("unkFeature")).newInstance();
+  }
+ catch (  Exception e) {
+    System.err.println("Feature class specified in properties file not found: " + e);
+    System.err.println("Using default edu.stanford.nlp.ie.hmm.NumAndCapFeature instead.");
+    f=new NumAndCapFeature();
+  }
+  Structure ts=new TargetStructure(nts,true);
+  HMM hmm=new HMM(ts,HMM.TARGET_HMM);
+  hmm.train(trainDocs,props,verbose);
+  double mdlScore=hmm.mdlScore(trainDocs);
+  System.err.println("Pre-pruned MDL: " + mdlScore);
+  while (hmm.getStates().length > 0) {
+    State[] states=hmm.getStates();
+    double[] gammas=hmm.getGammas();
+    for (int i=states.length - 1; i >= 0; i--) {
+      if (states[i].emit instanceof ConstantEmitMap && ((ConstantEmitMap)states[i].emit).getString().equals("GHOST_TOWN")) {
+        System.err.println("Removing GHOST_TOWN state: " + i);
+        states[i].emit.printEmissions(new PrintWriter(System.err,true),false);
+        for (int j=0; j < states.length; j++) {
+          states[j].transition=ArrayUtils.removeAt(states[j].transition,i);
+        }
+        gammas=ArrayUtils.removeAt(gammas,i);
+        states=(State[])ArrayUtils.removeAt(states,i);
+      }
+    }
+    double[][] backTransitions=new double[states.length][states.length];
+    for (int i=0; i < states.length; i++) {
+      double[] transitions=states[i].transition;
+      for (int j=0; j < states.length; j++) {
+        if (gammas[j] == 0) {
+          backTransitions[i][j]=0.0;
+        }
+ else {
+          backTransitions[i][j]=transitions[j] * gammas[i] / gammas[j];
+        }
+      }
+    }
+    FeatureMap[] featureMaps=new FeatureMap[states.length];
+    for (int i=0; i < featureMaps.length; i++) {
+      featureMaps[i]=new FeatureMap(f);
+    }
+    for (int i=State.STARTIDX + 1; i < states.length; i++) {
+      EmitMap emit=states[i].emit;
+      if (!(emit instanceof ConstantEmitMap)) {
+        for (Iterator iter=emit.getCounter().keySet().iterator(); iter.hasNext(); ) {
+          String word=(String)iter.next();
+          double val=emit.get(word);
+          featureMaps[i].addToCount(word,val);
+        }
+      }
+    }
+    double minIRad=Double.POSITIVE_INFINITY;
+    int argminIRadi=-1;
+    int argminIRadj=-1;
+    for (int i=State.STARTIDX + 1; i < states.length; i++) {
+      for (int j=i + 1; j < states.length; j++) {
+        double iRad=0.0;
+        FeatureValue[] features=f.allValues();
+        for (int k=0; k < features.length; k++) {
+          double p=featureMaps[i].getProb(features[k]);
+          double q=featureMaps[j].getProb(features[k]);
+          iRad+=irad(p,q);
+        }
+        ClassicCounter vocab=hmm.getVocab();
+        Iterator it=vocab.keySet().iterator();
+        while (it.hasNext()) {
+          String word=(String)it.next();
+          double p=states[i].emit.get(word);
+          double q=states[j].emit.get(word);
+          iRad+=irad(p,q);
+        }
+        double[] t1=states[i].transition;
+        double[] t2=states[j].transition;
+        for (int k=0; k < t1.length; k++) {
+          double p=t1[k];
+          double q=t2[k];
+          iRad+=irad(p,q);
+          p=backTransitions[i][k];
+          q=backTransitions[j][k];
+          iRad+=irad(p,q);
+        }
+        if (iRad < minIRad) {
+          minIRad=iRad;
+          argminIRadi=i;
+          argminIRadj=j;
+        }
+      }
+    }
+    ts=new Structure(states);
+    int mergeTarget=argminIRadi;
+    int mergeSource=argminIRadj;
+    System.err.println("merging states: " + mergeTarget + " and "+ mergeSource);
+    State[] newStates=new State[states.length - 1];
+    for (int i=0; i < states.length; i++) {
+      if (i == mergeSource) {
+        continue;
+      }
+      int newStateIndex=(i > mergeSource) ? (i - 1) : i;
+      newStates[newStateIndex]=new State(states[i].type,states[i].emit,states.length - 1);
+      if (i == mergeTarget) {
+        for (int j=0; j < states[mergeTarget].transition.length; j++) {
+          int newIndex=(j > mergeSource) ? (j - 1) : j;
+          double avgTransition=average(states[mergeTarget].transition[j],states[mergeSource].transition[j]);
+          if (j == mergeSource) {
+            newStates[mergeTarget].transition[mergeTarget]=(avgTransition + newStates[mergeTarget].transition[mergeTarget]) * 0.5;
+          }
+ else {
+            newStates[mergeTarget].transition[newIndex]=avgTransition;
+          }
+        }
+        ClassicCounter vocab=hmm.getVocab();
+        Iterator it=vocab.keySet().iterator();
+        while (it.hasNext()) {
+          String word=(String)it.next();
+          newStates[mergeTarget].emit.set(word,average(states[mergeTarget].emit.get(word),states[mergeSource].emit.get(word)));
+        }
+      }
+ else {
+        for (int j=0; j < states[i].transition.length; j++) {
+          int newIndex=(j > mergeSource) ? (j - 1) : j;
+          if (j == mergeTarget) {
+            newStates[newStateIndex].transition[mergeTarget]=states[i].transition[mergeTarget] + states[i].transition[mergeSource];
+          }
+ else           if (j != mergeSource) {
+            newStates[newStateIndex].transition[newIndex]=states[i].transition[j];
+          }
+        }
+      }
+    }
+    hmm=new HMM(newStates,HMM.TARGET_HMM);
+    Properties props2=new Properties(props);
+    props2.setProperty("initEmissions","false");
+    hmm.train(trainDocs,props2,verbose);
+    double newScore=hmm.mdlScore(trainDocs);
+    System.err.println("MDL Score: " + newScore);
+    if (newScore >= mdlScore) {
+      mdlScore=newScore;
+    }
+ else {
+      break;
+    }
+  }
+  return hmm;
+}

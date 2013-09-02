@@ -1,25 +1,9 @@
 {
-  IdentityHashSet<CoreMap> calledSet=hashCodeCalled.get();
-  boolean createdCalledSet=(calledSet == null);
-  if (createdCalledSet) {
-    calledSet=new IdentityHashSet<CoreMap>();
-    hashCodeCalled.set(calledSet);
-  }
-  if (calledSet.contains(this)) {
-    return 0;
-  }
-  calledSet.add(this);
   int keysCode=0;
   int valuesCode=0;
   for (int i=0; i < size; i++) {
-    keysCode+=(i < keys.length ? keys[i].hashCode() : 0);
-    valuesCode+=(i < values.length && values[i] != null ? values[i].hashCode() : 0);
-  }
-  if (createdCalledSet) {
-    hashCodeCalled.set(null);
-  }
- else {
-    calledSet.remove(this);
+    keysCode+=keys[i].hashCode();
+    valuesCode+=(values[i] != null ? values[i].hashCode() : 0);
   }
   return keysCode * 37 + valuesCode;
 }

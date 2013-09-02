@@ -1,0 +1,40 @@
+{
+  if (path == null) {
+    return;
+  }
+  File file=new File(path);
+  String urlOrFile=path;
+  if (!file.exists() && path.indexOf("://") == -1) {
+    urlOrFile="http://" + path;
+  }
+ else   if (path.indexOf("://") == -1) {
+    urlOrFile="file://" + path;
+  }
+  edu.stanford.nlp.ling.Document doc=null;
+  try {
+    if (urlOrFile.startsWith("http://") || urlOrFile.endsWith(".htm") || urlOrFile.endsWith(".html")) {
+      Document docPre=new BasicDocument().init(new URL(urlOrFile));
+      DocumentProcessor noTags=new StripTagsProcessor();
+      doc=noTags.processDocument(docPre);
+    }
+ else {
+      doc=new BasicDocument().init(new InputStreamReader(new FileInputStream(path)));
+    }
+  }
+ catch (  Exception e) {
+    JOptionPane.showMessageDialog(this,"Could not load file " + path + ";"+ e,null,JOptionPane.ERROR_MESSAGE);
+    setStatus("Error loading document.");
+    return;
+  }
+  StringBuffer docStr=new StringBuffer();
+  Iterator it=doc.iterator();
+  while (it.hasNext()) {
+    if (docStr.length() > 0) {
+      docStr.append(' ');
+    }
+    docStr.append(it.next().toString());
+  }
+  textPane.setText(docStr.toString());
+  textPane.setCaretPosition(0);
+  setStatus("Ready to process.");
+}

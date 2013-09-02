@@ -1,0 +1,36 @@
+{
+  boolean inGene=false;
+  String start="", end="", gene="";
+  String lastID="";
+  Iterator<List<CoreLabel>> docIter=l.iterator();
+  while (docIter.hasNext()) {
+    List<CoreLabel> doc=docIter.next();
+    Iterator<CoreLabel> wordIter=doc.iterator();
+    while (wordIter.hasNext()) {
+      CoreLabel lineInfo=wordIter.next();
+      if (inGene) {
+        if (lineInfo.get(AnswerAnnotation.class).equals("G")) {
+          gene+=" " + lineInfo.word();
+          end=lineInfo.get(PositionAnnotation.class);
+        }
+ else {
+          System.out.println(lineInfo.get(IDAnnotation.class) + "|" + start+ " "+ end+ "|"+ gene);
+          inGene=false;
+        }
+      }
+ else       if (lineInfo.get(AnswerAnnotation.class).equals("G")) {
+        gene=lineInfo.word();
+        start=lineInfo.get(PositionAnnotation.class);
+        end=lineInfo.get(PositionAnnotation.class);
+        inGene=true;
+      }
+      lastID=lineInfo.get(IDAnnotation.class);
+    }
+    if (inGene) {
+      if (gene.trim().length() > 0) {
+        System.out.println(lastID + "|" + start+ " "+ end+ "|"+ gene);
+      }
+      inGene=false;
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  try {
+    if (mediatorFile != null) {
+      File extractorDir=mediatorFile.getParentFile();
+      File newExtractorDir=newMediatorFile.getParentFile();
+      newExtractorDir.mkdirs();
+      for (Iterator<String> iter=getExtractorNames().iterator(); iter.hasNext(); ) {
+        String name=iter.next();
+        File serializedExtractor=getSerializedExtractorFile(name);
+        if (serializedExtractor.canRead()) {
+          File newSerializedExtractor=new File(newExtractorDir,serializedExtractor.getName());
+          FileCopier.copyFile(serializedExtractor,newSerializedExtractor);
+        }
+      }
+    }
+    mediatorFile=newMediatorFile;
+    if (verbose) {
+      System.err.println("Sucessfully set mediator file to " + mediatorFile);
+    }
+    return (true);
+  }
+ catch (  Exception e) {
+    if (verbose) {
+      e.printStackTrace();
+    }
+    return (false);
+  }
+}
