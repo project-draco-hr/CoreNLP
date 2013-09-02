@@ -2,12 +2,21 @@
   try {
     List<Tree> trees=new ArrayList<Tree>();
     List<List<CoreLabel>> sentences=new ArrayList<List<CoreLabel>>();
+    boolean hasSpeakerAnnotations=false;
     if (annotation.containsKey(CoreAnnotations.SentencesAnnotation.class)) {
       for (      CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
         List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
         sentences.add(tokens);
-        Tree tree=sentence.get(TreeAnnotation.class);
+        Tree tree=sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
         trees.add(tree);
+        if (!hasSpeakerAnnotations) {
+          for (          CoreLabel t : tokens) {
+            if (t.get(CoreAnnotations.SpeakerAnnotation.class) != null) {
+              hasSpeakerAnnotations=true;
+              break;
+            }
+          }
+        }
         MentionExtractor.mergeLabels(tree,tokens);
         MentionExtractor.initializeUtterance(tokens);
       }
@@ -15,6 +24,9 @@
  else {
       System.err.println("ERROR: this coreference resolution system requires SentencesAnnotation!");
       return;
+    }
+    if (hasSpeakerAnnotations) {
+      annotation.set(CoreAnnotations.UseMarkedDiscourseAnnotation.class,true);
     }
     RuleBasedCorefMentionFinder finder=new RuleBasedCorefMentionFinder();
     List<List<Mention>> allUnprocessedMentions=finder.extractPredictedMentions(annotation,0,corefSystem.dictionaries());
@@ -29,7 +41,7 @@
       }
     }
     Map<Integer,CorefChain> result=corefSystem.coref(document);
-    annotation.set(CorefChainAnnotation.class,result);
+    annotation.set(CorefCoreAnnotations.CorefChainAnnotation.class,result);
     if (OLD_FORMAT) {
       List<Pair<IntTuple,IntTuple>> links=SieveCoreferenceSystem.getLinks(result);
       if (VERBOSE) {
@@ -52,17 +64,17 @@
         src.set(1,srcTok);
         graph.add(new Pair<IntTuple,IntTuple>(src,dst));
       }
-      annotation.set(CorefGraphAnnotation.class,graph);
+      annotation.set(CorefCoreAnnotations.CorefGraphAnnotation.class,graph);
       for (      CorefChain corefChain : result.values()) {
         if (corefChain.getMentionsInTextualOrder().size() < 2)         continue;
-        Set<CoreLabel> coreferentTokens=new HashSet<CoreLabel>();
+        Set<CoreLabel> coreferentTokens=Generics.newHashSet();
         for (        CorefMention mention : corefChain.getMentionsInTextualOrder()) {
-          CoreMap sentence=annotation.get(SentencesAnnotation.class).get(mention.sentNum - 1);
-          CoreLabel token=sentence.get(TokensAnnotation.class).get(mention.headIndex - 1);
+          CoreMap sentence=annotation.get(CoreAnnotations.SentencesAnnotation.class).get(mention.sentNum - 1);
+          CoreLabel token=sentence.get(CoreAnnotations.TokensAnnotation.class).get(mention.headIndex - 1);
           coreferentTokens.add(token);
         }
         for (        CoreLabel token : coreferentTokens) {
-          token.set(CorefClusterAnnotation.class,coreferentTokens);
+          token.set(CorefCoreAnnotations.CorefClusterAnnotation.class,coreferentTokens);
         }
       }
     }

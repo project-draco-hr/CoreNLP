@@ -1,12 +1,12 @@
 {
   CoreMap sent=new Annotation("");
-  sent.set(TokensAnnotation.class,tokens);
-  sent.set(ConstraintAnnotation.class,constraints);
+  sent.set(CoreAnnotations.TokensAnnotation.class,tokens);
+  sent.set(ParserAnnotations.ConstraintAnnotation.class,constraints);
   Annotation doc=new Annotation("");
-  List<CoreMap> sents=new ArrayList<CoreMap>();
+  List<CoreMap> sents=new ArrayList<CoreMap>(1);
   sents.add(sent);
-  doc.set(SentencesAnnotation.class,sents);
+  doc.set(CoreAnnotations.SentencesAnnotation.class,sents);
   getParser().annotate(doc);
-  sents=doc.get(SentencesAnnotation.class);
-  return sents.get(0).get(TreeAnnotation.class);
+  sents=doc.get(CoreAnnotations.SentencesAnnotation.class);
+  return sents.get(0).get(TreeCoreAnnotations.TreeAnnotation.class);
 }

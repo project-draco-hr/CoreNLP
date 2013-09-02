@@ -2,12 +2,48 @@
   SsurgeonEdit retEdit=null;
   String[] tuples1=editLine.split("\\s+",2);
   if (tuples1.length < 2) {
-    throw new Exception("Error in SsurgeonEdit.parseEditLine: invalid number of arguments");
+    throw new IllegalArgumentException("Error in SsurgeonEdit.parseEditLine: invalid number of arguments");
   }
   String command=tuples1[0];
   String[] argsArray=parseArgs(tuples1[1]);
   SsurgeonArgs argsBox=new SsurgeonArgs();
-  Arguments.parse(argsArray,argsBox);
+  for (int argIndex=0; argIndex < argsArray.length; ++argIndex) {
+    if (argsArray[argIndex].equals(GOV_NODENAME_ARG)) {
+      argsBox.govNodeName=argsArray[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (argsArray[argIndex].equals(DEP_NODENAME_ARG)) {
+      argsBox.dep=argsArray[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (argsArray[argIndex].equals(EDGE_NAME_ARG)) {
+      argsBox.edge=argsArray[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (argsArray[argIndex].equals(RELN_ARG)) {
+      argsBox.reln=argsArray[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (argsArray[argIndex].equals(NODENAME_ARG)) {
+      argsBox.node=argsArray[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (argsArray[argIndex].equals(NODE_PROTO_ARG)) {
+      argsBox.nodeString=argsArray[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (argsArray[argIndex].equals(WEIGHT_ARG)) {
+      argsBox.weight=Double.valueOf(argsArray[argIndex + 1]);
+      argIndex+=2;
+    }
+ else     if (argsArray[argIndex].equals(NAME_ARG)) {
+      argsBox.name=argsArray[argIndex + 1];
+      argIndex+=2;
+    }
+ else {
+      throw new IllegalArgumentException("Parsing Ssurgeon args: unknown flag " + argsArray[argIndex]);
+    }
+  }
   if (command.equalsIgnoreCase(AddDep.LABEL)) {
     retEdit=AddDep.createEngAddDep(argsBox.govNodeName,argsBox.reln,argsBox.nodeString);
   }
@@ -38,7 +74,7 @@
     retEdit=new KillAllIncomingEdges(argsBox.node);
   }
  else {
-    throw new Exception("Error in SsurgeonEdit.parseEditLine: command '" + command + "' is not supported");
+    throw new IllegalArgumentException("Error in SsurgeonEdit.parseEditLine: command '" + command + "' is not supported");
   }
   return retEdit;
 }

@@ -5,7 +5,7 @@
   }
   Map<Label,Set<Constituent>> guessDeps=makeObjectsByCat(guess);
   Map<Label,Set<Constituent>> goldDeps=makeObjectsByCat(gold);
-  Set<Label> cats=new HashSet<Label>(guessDeps.keySet());
+  Set<Label> cats=Generics.newHashSet(guessDeps.keySet());
   cats.addAll(goldDeps.keySet());
   if (pw != null && runningAverages) {
     pw.println("========================================");
@@ -14,8 +14,8 @@
   }
   ++num;
   for (  Label cat : cats) {
-    Set<Constituent> thisGuessDeps=guessDeps.containsKey(cat) ? guessDeps.get(cat) : new HashSet<Constituent>();
-    Set<Constituent> thisGoldDeps=goldDeps.containsKey(cat) ? goldDeps.get(cat) : new HashSet<Constituent>();
+    Set<Constituent> thisGuessDeps=guessDeps.containsKey(cat) ? guessDeps.get(cat) : Generics.<Constituent>newHashSet();
+    Set<Constituent> thisGoldDeps=goldDeps.containsKey(cat) ? goldDeps.get(cat) : Generics.<Constituent>newHashSet();
     double currentPrecision=precision(thisGuessDeps,thisGoldDeps);
     double currentRecall=precision(thisGoldDeps,thisGuessDeps);
     double currentF1=(currentPrecision > 0.0 && currentRecall > 0.0 ? 2.0 / (1.0 / currentPrecision + 1.0 / currentRecall) : 0.0);

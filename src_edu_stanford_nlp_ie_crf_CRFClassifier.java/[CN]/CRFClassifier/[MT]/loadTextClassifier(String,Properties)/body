@@ -34,16 +34,16 @@
       count++;
     }
   }
-  System.err.printf("DEBUG: labelIndices.length=\t%d\n",labelIndices.size());
+  System.err.printf("DEBUG: labelIndices.length=\t%d%n",labelIndices.size());
   for (int i=0; i < labelIndices.size(); i++) {
-    System.err.printf("DEBUG: labelIndices[%d].size()=\t%d\n",i,labelIndices.get(i).size());
+    System.err.printf("DEBUG: labelIndices[%d].size()=\t%d%n",i,labelIndices.get(i).size());
     for (int j=0; j < labelIndices.get(i).size(); j++) {
       int[] label=labelIndices.get(i).get(j).getLabel();
       List<Integer> list=new ArrayList<Integer>();
       for (      int l : label) {
         list.add(l);
       }
-      System.err.printf("DEBUG: %d\t%s\n",j,StringUtils.join(list," "));
+      System.err.printf("DEBUG: %d\t%s%n",j,StringUtils.join(list," "));
     }
   }
   line=br.readLine();
@@ -64,9 +64,9 @@
     classIndex.add(toks[1]);
     count++;
   }
-  System.err.printf("DEBUG: classIndex.size()=\t%d\n",classIndex.size());
+  System.err.printf("DEBUG: classIndex.size()=\t%d%n",classIndex.size());
   for (int i=0; i < classIndex.size(); i++) {
-    System.err.printf("DEBUG: %d\t%s\n",i,classIndex.get(i));
+    System.err.printf("DEBUG: %d\t%s%n",i,classIndex.get(i));
   }
   line=br.readLine();
   toks=line.split("\\t");
@@ -86,7 +86,7 @@
     featureIndex.add(toks[1]);
     count++;
   }
-  System.err.printf("DEBUG: featureIndex.size()=\t%d\n",featureIndex.size());
+  System.err.printf("DEBUG: featureIndex.size()=\t%d%n",featureIndex.size());
   line=br.readLine();
   if (!line.equals("<flags>")) {
     throw new RuntimeException("format error");
@@ -109,7 +109,7 @@
       throw new RuntimeException("format error in embeddings");
     }
     int embeddingSize=Integer.parseInt(toks[1]);
-    embeddings=new HashMap<String,double[]>(embeddingSize);
+    embeddings=Generics.newHashMap(embeddingSize);
     count=0;
     while (count < embeddingSize) {
       line=br.readLine().trim();
@@ -117,6 +117,7 @@
       String word=toks[0];
       double[] arr=ArrayUtils.toDoubleArray(toks[1].split(" "));
       embeddings.put(word,arr);
+      count++;
     }
   }
   if (flags.nonLinearCRF) {
@@ -138,7 +139,7 @@
       nodeFeatureIndicesMap.add(Integer.parseInt(toks[1]));
       count++;
     }
-    System.err.printf("DEBUG: nodeFeatureIndicesMap.size()=\t%d\n",nodeFeatureIndicesMap.size());
+    System.err.printf("DEBUG: nodeFeatureIndicesMap.size()=\t%d%n",nodeFeatureIndicesMap.size());
     line=br.readLine();
     toks=line.split("\\t");
     if (!toks[0].equals("edgeFeatureIndicesMap.size()=")) {
@@ -157,7 +158,7 @@
       edgeFeatureIndicesMap.add(Integer.parseInt(toks[1]));
       count++;
     }
-    System.err.printf("DEBUG: edgeFeatureIndicesMap.size()=\t%d\n",edgeFeatureIndicesMap.size());
+    System.err.printf("DEBUG: edgeFeatureIndicesMap.size()=\t%d%n",edgeFeatureIndicesMap.size());
     int weightsLength=-1;
     if (flags.secondOrderNonLinear) {
       line=br.readLine();
@@ -182,7 +183,7 @@
         }
         count++;
       }
-      System.err.printf("DEBUG: double[%d][] inputLayerWeights4Edge loaded\n",weightsLength);
+      System.err.printf("DEBUG: double[%d][] inputLayerWeights4Edge loaded%n",weightsLength);
       line=br.readLine();
       toks=line.split("\\t");
       if (!toks[0].equals("outputLayerWeights4Edge.length=")) {
@@ -205,7 +206,7 @@
         }
         count++;
       }
-      System.err.printf("DEBUG: double[%d][] outputLayerWeights loaded\n",weightsLength);
+      System.err.printf("DEBUG: double[%d][] outputLayerWeights loaded%n",weightsLength);
     }
  else {
       line=br.readLine();
@@ -230,7 +231,7 @@
         }
         count++;
       }
-      System.err.printf("DEBUG: double[%d][] linearWeights loaded\n",weightsLength);
+      System.err.printf("DEBUG: double[%d][] linearWeights loaded%n",weightsLength);
     }
     line=br.readLine();
     toks=line.split("\\t");
@@ -254,7 +255,7 @@
       }
       count++;
     }
-    System.err.printf("DEBUG: double[%d][] inputLayerWeights loaded\n",weightsLength);
+    System.err.printf("DEBUG: double[%d][] inputLayerWeights loaded%n",weightsLength);
     line=br.readLine();
     toks=line.split("\\t");
     if (!toks[0].equals("outputLayerWeights.length=")) {
@@ -277,7 +278,7 @@
       }
       count++;
     }
-    System.err.printf("DEBUG: double[%d][] outputLayerWeights loaded\n",weightsLength);
+    System.err.printf("DEBUG: double[%d][] outputLayerWeights loaded%n",weightsLength);
   }
   line=br.readLine();
   String[] featureFactoryName=line.split(" ");
@@ -315,7 +316,7 @@
     }
     count++;
   }
-  System.err.printf("DEBUG: double[%d][] weights loaded\n",weightsLength);
+  System.err.printf("DEBUG: double[%d][] weights loaded%n",weightsLength);
   line=br.readLine();
   if (line != null) {
     throw new RuntimeException("weights format error");

@@ -32,7 +32,7 @@
     return;
   }
   Options op=new Options();
-  ArrayList<String> optionArgs=new ArrayList<String>();
+  List<String> optionArgs=new ArrayList<String>();
   String encoding=null;
   while (argIndex < args.length && args[argIndex].charAt(0) == '-') {
     if (args[argIndex].equalsIgnoreCase("-train") || args[argIndex].equalsIgnoreCase("-trainTreebank")) {
@@ -158,7 +158,7 @@ catch (      IllegalAccessException e) {
  else {
       int oldIndex=argIndex;
       argIndex=op.setOptionOrWarn(args,argIndex);
-      for (int i=oldIndex; i < argIndex; ++i) {
+      for (int i=oldIndex; i < argIndex; i++) {
         optionArgs.add(args[i]);
       }
     }
@@ -278,7 +278,7 @@ catch (    InvocationTargetException e) {
     testTreebank=op.tlpParams.testMemoryTreebank();
     testTreebank.loadPath(testPath,testFilter);
   }
-  op.trainOptions.sisterSplitters=new HashSet<String>(Arrays.asList(op.tlpParams.sisterSplitters()));
+  op.trainOptions.sisterSplitters=Generics.newHashSet(Arrays.asList(op.tlpParams.sisterSplitters()));
   if (saveToTextFile) {
     if (textOutputFileOrUrl != null) {
       lp.saveParserToTextFile(textOutputFileOrUrl);
@@ -308,20 +308,20 @@ catch (    InvocationTargetException e) {
   }
   if (testTreebank != null) {
     EvaluateTreebank evaluator=new EvaluateTreebank(lp);
-    evaluator.testOnTreebank(testTreebank,lp.parserQuery());
+    evaluator.testOnTreebank(testTreebank);
   }
  else   if (argIndex >= args.length) {
     PrintWriter pwOut=op.tlpParams.pw();
     PrintWriter pwErr=op.tlpParams.pw(System.err);
-    LexicalizedParserQuery pq=lp.parserQuery();
+    ParserQuery pq=lp.parserQuery();
     if (pq.parse(op.tlpParams.defaultTestSentence())) {
-      pq.getTreePrint().printTree(pq.getBestParse(),pwOut);
+      lp.getTreePrint().printTree(pq.getBestParse(),pwOut);
     }
  else {
       pwErr.println("Error. Can't parse test sentence: " + op.tlpParams.defaultTestSentence());
     }
   }
  else {
-    lp.parserQuery().parseFiles(args,argIndex,tokenized,tokenizerFactory,elementDelimiter,sentenceDelimiter,escaper,tagDelimiter);
+    ParseFiles.parseFiles(args,argIndex,tokenized,tokenizerFactory,elementDelimiter,sentenceDelimiter,escaper,tagDelimiter,op,lp.getTreePrint(),lp);
   }
 }

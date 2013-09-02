@@ -2,7 +2,7 @@
   logger.severe("GenericDataSetReader: Started pre-processing the corpus...");
   if (processor != null) {
     List<CoreMap> sentences=dataset.get(CoreAnnotations.SentencesAnnotation.class);
-    if (sentences.size() > 0 && !sentences.get(0).containsKey(TreeAnnotation.class)) {
+    if (sentences.size() > 0 && !sentences.get(0).containsKey(TreeCoreAnnotations.TreeAnnotation.class)) {
       logger.info("Annotating dataset with " + processor);
       processor.annotate(dataset);
     }
@@ -15,11 +15,11 @@
   for (  CoreMap sentence : sentences) {
     List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
     logger.fine("Processing sentence " + tokens);
-    Tree tree=sentence.get(TreeAnnotation.class);
+    Tree tree=sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
     if (tree == null)     throw new RuntimeException("ERROR: MR requires full syntactic analysis!");
     convertToCoreLabels(tree);
     CoreLabel l=(CoreLabel)tree.label();
-    if (forceGenerationOfIndexSpans || (!l.containsKey(BeginIndexAnnotation.class) && !l.containsKey(EndIndexAnnotation.class))) {
+    if (forceGenerationOfIndexSpans || (!l.containsKey(CoreAnnotations.BeginIndexAnnotation.class) && !l.containsKey(CoreAnnotations.EndIndexAnnotation.class))) {
       tree.indexSpans(0);
       logger.fine("Index spans were generated.");
     }

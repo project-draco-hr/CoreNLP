@@ -20,6 +20,13 @@
       System.err.println(flags[i].binnedLengthsCounter.toString());
     }
   }
+  if (Flags.printSVMLightFormatTo != null) {
+    PrintWriter pw=new PrintWriter(IOUtils.getPrintWriter(Flags.printSVMLightFormatTo,Flags.encoding));
+    train.printSVMLightFormat(pw);
+    IOUtils.closeIgnoringExceptions(pw);
+    train.featureIndex().saveToFilename(Flags.printSVMLightFormatTo + ".featureIndex");
+    train.labelIndex().saveToFilename(Flags.printSVMLightFormatTo + ".labelIndex");
+  }
   if (globalFlags.exitAfterTrainingFeaturization) {
     return false;
   }

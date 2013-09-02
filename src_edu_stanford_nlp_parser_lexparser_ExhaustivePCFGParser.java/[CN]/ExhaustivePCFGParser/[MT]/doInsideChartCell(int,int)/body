@@ -20,16 +20,14 @@
   float[] iScore_start_end=iScore_start[end];
   for (int leftState=0; leftState < numStates; leftState++) {
     int narrowR=narrowRExtent_start[leftState];
-    boolean iPossibleL=(narrowR < end);
-    if (!iPossibleL) {
+    if (narrowR >= end) {
       continue;
     }
     BinaryRule[] leftRules=bg.splitRulesWithLC(leftState);
     for (    BinaryRule rule : leftRules) {
       int rightChild=rule.rightChild;
       int narrowL=narrowLExtent_end[rightChild];
-      boolean iPossibleR=(narrowL >= narrowR);
-      if (!iPossibleR) {
+      if (narrowL < narrowR) {
         continue;
       }
       int min2=wideLExtent_end[rightChild];
@@ -124,22 +122,16 @@
         if (spillGuts)         System.err.println("Could build " + stateIndex.get(parentState) + " from "+ start+ " to "+ end+ " score "+ bestIScore);
         if (oldIScore == Float.NEGATIVE_INFINITY) {
           if (start > narrowLExtent_end[parentState]) {
-            narrowLExtent_end[parentState]=start;
+            narrowLExtent_end[parentState]=wideLExtent_end[parentState]=start;
+          }
+ else           if (start < wideLExtent_end[parentState]) {
             wideLExtent_end[parentState]=start;
           }
- else {
-            if (start < wideLExtent_end[parentState]) {
-              wideLExtent_end[parentState]=start;
-            }
-          }
           if (end < narrowRExtent_start[parentState]) {
-            narrowRExtent_start[parentState]=end;
-            wideRExtent_start[parentState]=end;
+            narrowRExtent_start[parentState]=wideRExtent_start[parentState]=end;
           }
- else {
-            if (end > wideRExtent_start[parentState]) {
-              wideRExtent_start[parentState]=end;
-            }
+ else           if (end > wideRExtent_start[parentState]) {
+            wideRExtent_start[parentState]=end;
           }
         }
       }
@@ -147,16 +139,14 @@
   }
   for (int rightState=0; rightState < numStates; rightState++) {
     int narrowL=narrowLExtent_end[rightState];
-    boolean iPossibleR=(narrowL > start);
-    if (!iPossibleR) {
+    if (narrowL <= start) {
       continue;
     }
     BinaryRule[] rightRules=bg.splitRulesWithRC(rightState);
     for (    BinaryRule rule : rightRules) {
       int leftChild=rule.leftChild;
       int narrowR=narrowRExtent_start[leftChild];
-      boolean iPossibleL=(narrowR <= narrowL);
-      if (!iPossibleL) {
+      if (narrowR > narrowL) {
         continue;
       }
       int min2=wideLExtent_end[rightState];
@@ -248,22 +238,16 @@
         if (spillGuts)         System.err.println("Could build " + stateIndex.get(parentState) + " from "+ start+ " to "+ end+ " with score "+ bestIScore);
         if (oldIScore == Float.NEGATIVE_INFINITY) {
           if (start > narrowLExtent_end[parentState]) {
-            narrowLExtent_end[parentState]=start;
+            narrowLExtent_end[parentState]=wideLExtent_end[parentState]=start;
+          }
+ else           if (start < wideLExtent_end[parentState]) {
             wideLExtent_end[parentState]=start;
           }
- else {
-            if (start < wideLExtent_end[parentState]) {
-              wideLExtent_end[parentState]=start;
-            }
-          }
           if (end < narrowRExtent_start[parentState]) {
-            narrowRExtent_start[parentState]=end;
-            wideRExtent_start[parentState]=end;
+            narrowRExtent_start[parentState]=wideRExtent_start[parentState]=end;
           }
- else {
-            if (end > wideRExtent_start[parentState]) {
-              wideRExtent_start[parentState]=end;
-            }
+ else           if (end > wideRExtent_start[parentState]) {
+            wideRExtent_start[parentState]=end;
           }
         }
       }
@@ -318,22 +302,16 @@
         iScore_start_end[parentState]=tot;
         if (cur == Float.NEGATIVE_INFINITY) {
           if (start > narrowLExtent_end[parentState]) {
-            narrowLExtent_end[parentState]=start;
+            narrowLExtent_end[parentState]=wideLExtent_end[parentState]=start;
+          }
+ else           if (start < wideLExtent_end[parentState]) {
             wideLExtent_end[parentState]=start;
           }
- else {
-            if (start < wideLExtent_end[parentState]) {
-              wideLExtent_end[parentState]=start;
-            }
-          }
           if (end < narrowRExtent_start[parentState]) {
-            narrowRExtent_start[parentState]=end;
-            wideRExtent_start[parentState]=end;
+            narrowRExtent_start[parentState]=wideRExtent_start[parentState]=end;
           }
- else {
-            if (end > wideRExtent_start[parentState]) {
-              wideRExtent_start[parentState]=end;
-            }
+ else           if (end > wideRExtent_start[parentState]) {
+            wideRExtent_start[parentState]=end;
           }
         }
       }

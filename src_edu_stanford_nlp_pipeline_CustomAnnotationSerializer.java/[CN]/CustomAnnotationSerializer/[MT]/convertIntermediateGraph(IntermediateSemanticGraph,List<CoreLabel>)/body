@@ -1,12 +1,12 @@
 {
   SemanticGraph graph=new SemanticGraph();
-  Map<Integer,IndexedWord> nodes=new HashMap<Integer,IndexedWord>();
+  Map<Integer,IndexedWord> nodes=Generics.newHashMap();
   for (  IntermediateNode in : ig.nodes) {
     CoreLabel token=sentence.get(in.index - 1);
     IndexedWord word=new IndexedWord(in.docId,in.sentIndex,in.index,token);
-    word.set(ValueAnnotation.class,word.get(TextAnnotation.class));
+    word.set(CoreAnnotations.ValueAnnotation.class,word.get(CoreAnnotations.TextAnnotation.class));
     if (in.copyAnnotation >= 0) {
-      word.set(CopyAnnotation.class,in.copyAnnotation);
+      word.set(CoreAnnotations.CopyAnnotation.class,in.copyAnnotation);
     }
     nodes.put(word.index(),word);
   }

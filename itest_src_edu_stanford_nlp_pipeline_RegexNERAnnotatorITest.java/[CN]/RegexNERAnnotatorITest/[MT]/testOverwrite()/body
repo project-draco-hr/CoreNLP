@@ -1,18 +1,18 @@
 {
   String str="I like Ontario Place , and I like the Native American Church , too .";
   String[] split=str.split(" ");
-  List<CoreLabel> tokens=makeTokens(split);
-  tokens.get(2).set(NamedEntityTagAnnotation.class,"LOCATION");
-  tokens.get(3).set(NamedEntityTagAnnotation.class,"LOCATION");
-  tokens.get(9).set(NamedEntityTagAnnotation.class,"ORGANIZATION");
-  tokens.get(10).set(NamedEntityTagAnnotation.class,"ORGANIZATION");
-  tokens.get(11).set(NamedEntityTagAnnotation.class,"ORGANIZATION");
+  List<CoreLabel> tokens=Sentence.toCoreLabelList(split);
+  tokens.get(2).set(CoreAnnotations.NamedEntityTagAnnotation.class,"LOCATION");
+  tokens.get(3).set(CoreAnnotations.NamedEntityTagAnnotation.class,"LOCATION");
+  tokens.get(9).set(CoreAnnotations.NamedEntityTagAnnotation.class,"ORGANIZATION");
+  tokens.get(10).set(CoreAnnotations.NamedEntityTagAnnotation.class,"ORGANIZATION");
+  tokens.get(11).set(CoreAnnotations.NamedEntityTagAnnotation.class,"ORGANIZATION");
   CoreMap sentence=new ArrayCoreMap();
-  sentence.set(TokensAnnotation.class,tokens);
+  sentence.set(CoreAnnotations.TokensAnnotation.class,tokens);
   List<CoreMap> sentences=new ArrayList<CoreMap>();
   sentences.add(sentence);
   Annotation corpus=new Annotation("I like Ontario Place, and I like the Native" + "American Church, too.");
-  corpus.set(SentencesAnnotation.class,sentences);
+  corpus.set(CoreAnnotations.SentencesAnnotation.class,sentences);
   annotator.annotate(corpus);
   checkTags(tokens,"O","O","LOCATION","LOCATION","O","O","O","O","O","ORGANIZATION","ORGANIZATION","ORGANIZATION","O","O","O");
 }

@@ -1,7 +1,8 @@
 {
-  while (idleProcessors.size() != nThreads) {
-    blockingGetResult();
+  if (!threadPool.isShutdown()) {
+    while (idleProcessors.size() != nThreads) {
+      blockingGetResult();
+    }
+    threadPool.shutdown();
   }
-  threadPool.shutdown();
-  return lastSubmittedItemId - 1 == lastReturnedId;
 }

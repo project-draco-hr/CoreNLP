@@ -15,7 +15,7 @@
       List<IndexedWord> parents=getParentList(vertex);
       boolean match=false;
       for (      IndexedWord parent : parents) {
-        String lemma=parent.get(LemmaAnnotation.class);
+        String lemma=parent.get(CoreAnnotations.LemmaAnnotation.class);
         if (lemma.equals(word)) {
           match=true;
           break;
@@ -29,8 +29,8 @@
       List<IndexedWord> children=getChildList(vertex);
       boolean match=false;
       for (      IndexedWord child : children) {
-        String lemma=(child.get(LemmaAnnotation.class) == null ? "" : child.get(LemmaAnnotation.class));
-        if (lemma.equals("")) {
+        String lemma=child.get(CoreAnnotations.LemmaAnnotation.class);
+        if (lemma == null || lemma.equals("")) {
           lemma=child.word().toLowerCase();
         }
         if (lemma.equals(word)) {

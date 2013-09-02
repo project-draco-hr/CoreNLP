@@ -2,20 +2,22 @@
   if (first.size() > 1 && second.size() > 1) {
     return false;
   }
+  if (first.size() == 0 && second.size() == 0) {
+    return false;
+  }
   List<CoreLabel> longer;
   List<CoreLabel> shorter;
   if (first.size() == second.size()) {
-    String firstWord=first.get(0).get(TextAnnotation.class);
-    String secondWord=second.get(0).get(TextAnnotation.class);
+    String firstWord=first.get(0).get(CoreAnnotations.TextAnnotation.class);
+    String secondWord=second.get(0).get(CoreAnnotations.TextAnnotation.class);
     longer=(firstWord.length() > secondWord.length()) ? first : second;
     shorter=(firstWord.length() > secondWord.length()) ? second : first;
-    ;
   }
  else {
-    longer=(first.size() > second.size()) ? first : second;
-    shorter=(first.size() > second.size()) ? second : first;
+    longer=(first.size() > 0 && first.size() > second.size()) ? first : second;
+    shorter=(second.size() > 0 && first.size() > second.size()) ? second : first;
   }
-  String acronym=shorter.get(0).get(TextAnnotation.class);
+  String acronym=shorter.size() > 0 ? shorter.get(0).get(CoreAnnotations.TextAnnotation.class) : "<UNK>";
   for (int acronymPos=0; acronymPos < acronym.length(); ++acronymPos) {
     if (acronym.charAt(acronymPos) < 'A' || acronym.charAt(acronymPos) > 'Z') {
       return false;
@@ -23,7 +25,7 @@
   }
   int acronymPos=0;
   for (int wordNum=0; wordNum < longer.size(); ++wordNum) {
-    String word=longer.get(wordNum).get(TextAnnotation.class);
+    String word=longer.get(wordNum).get(CoreAnnotations.TextAnnotation.class);
     for (int charNum=0; charNum < word.length(); ++charNum) {
       if (word.charAt(charNum) >= 'A' && word.charAt(charNum) <= 'Z') {
         if (acronymPos >= acronym.length()) {
@@ -40,7 +42,7 @@
     return false;
   }
   for (int i=0; i < longer.size(); ++i) {
-    if (longer.get(i).get(TextAnnotation.class).contains(acronym)) {
+    if (longer.get(i).get(CoreAnnotations.TextAnnotation.class).contains(acronym)) {
       return false;
     }
   }

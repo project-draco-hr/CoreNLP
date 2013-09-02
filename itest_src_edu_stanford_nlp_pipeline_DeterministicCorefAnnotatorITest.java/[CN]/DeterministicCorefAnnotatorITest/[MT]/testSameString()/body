@@ -2,7 +2,7 @@
   String text="Your mom thinks she lives in Denver, but it's a big city.  She actually lives outside of Denver.";
   Annotation document=new Annotation(text);
   pipeline.annotate(document);
-  Map<Integer,CorefChain> chains=document.get(CorefChainAnnotation.class);
+  Map<Integer,CorefChain> chains=document.get(CorefCoreAnnotations.CorefChainAnnotation.class);
   Assert.assertNotNull(chains);
   for (  int chainID : chains.keySet()) {
     CorefChain c=chains.get(chainID);
@@ -10,17 +10,17 @@
       Assert.assertEquals(m.corefClusterID,chainID);
     }
   }
-  List<CoreMap> sentences=document.get(SentencesAnnotation.class);
-  CoreLabel yourMomsToken=sentences.get(0).get(TokensAnnotation.class).get(1);
-  CoreLabel sheToken1=sentences.get(0).get(TokensAnnotation.class).get(3);
-  CoreLabel sheToken2=sentences.get(1).get(TokensAnnotation.class).get(0);
-  CoreLabel denverToken1=sentences.get(0).get(TokensAnnotation.class).get(6);
-  CoreLabel denverToken2=sentences.get(1).get(TokensAnnotation.class).get(5);
-  Integer yourMomsClusterId=yourMomsToken.get(CorefClusterIdAnnotation.class);
-  Integer she1ClusterId=sheToken1.get(CorefClusterIdAnnotation.class);
-  Integer she2ClusterId=sheToken2.get(CorefClusterIdAnnotation.class);
-  Integer denver1ClusterId=denverToken1.get(CorefClusterIdAnnotation.class);
-  Integer denver2ClusterId=denverToken2.get(CorefClusterIdAnnotation.class);
+  List<CoreMap> sentences=document.get(CoreAnnotations.SentencesAnnotation.class);
+  CoreLabel yourMomsToken=sentences.get(0).get(CoreAnnotations.TokensAnnotation.class).get(1);
+  CoreLabel sheToken1=sentences.get(0).get(CoreAnnotations.TokensAnnotation.class).get(3);
+  CoreLabel sheToken2=sentences.get(1).get(CoreAnnotations.TokensAnnotation.class).get(0);
+  CoreLabel denverToken1=sentences.get(0).get(CoreAnnotations.TokensAnnotation.class).get(6);
+  CoreLabel denverToken2=sentences.get(1).get(CoreAnnotations.TokensAnnotation.class).get(5);
+  Integer yourMomsClusterId=yourMomsToken.get(CorefCoreAnnotations.CorefClusterIdAnnotation.class);
+  Integer she1ClusterId=sheToken1.get(CorefCoreAnnotations.CorefClusterIdAnnotation.class);
+  Integer she2ClusterId=sheToken2.get(CorefCoreAnnotations.CorefClusterIdAnnotation.class);
+  Integer denver1ClusterId=denverToken1.get(CorefCoreAnnotations.CorefClusterIdAnnotation.class);
+  Integer denver2ClusterId=denverToken2.get(CorefCoreAnnotations.CorefClusterIdAnnotation.class);
   Assert.assertNotNull(yourMomsClusterId);
   Assert.assertNotNull(she1ClusterId);
   Assert.assertNotNull(she2ClusterId);

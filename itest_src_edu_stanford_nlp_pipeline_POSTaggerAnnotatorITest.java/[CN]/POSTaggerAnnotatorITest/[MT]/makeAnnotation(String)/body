@@ -1,0 +1,12 @@
+{
+  List<CoreMap> sentences=new ArrayList<CoreMap>();
+  for (  String text : testText) {
+    List<CoreLabel> labels=makeSentence(text);
+    CoreMap sentence=new ArrayCoreMap();
+    sentence.set(CoreAnnotations.TokensAnnotation.class,labels);
+    sentences.add(sentence);
+  }
+  Annotation annotation=new Annotation(StringUtils.join(testText));
+  annotation.set(CoreAnnotations.SentencesAnnotation.class,sentences);
+  return annotation;
+}

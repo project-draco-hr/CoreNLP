@@ -10,6 +10,9 @@
       number=Number.UNKNOWN;
     }
   }
+ else   if (mentionType == MentionType.LIST) {
+    number=Number.PLURAL;
+  }
  else   if (!nerString.equals("O") && mentionType != MentionType.NOMINAL) {
     if (!(nerString.equals("ORGANIZATION") || nerString.startsWith("ORG"))) {
       number=Number.SINGULAR;
@@ -19,7 +22,7 @@
     }
   }
  else {
-    String tag=headWord.get(PartOfSpeechAnnotation.class);
+    String tag=headWord.get(CoreAnnotations.PartOfSpeechAnnotation.class);
     if (tag.startsWith("N") && tag.endsWith("S")) {
       number=Number.PLURAL;
     }
@@ -43,7 +46,7 @@
         }
       }
     }
-    String enumerationPattern="NP < (NP=tmp $.. (/,|CC/ $.. NP))";
+    final String enumerationPattern="NP < (NP=tmp $.. (/,|CC/ $.. NP))";
     TregexPattern tgrepPattern=TregexPattern.compile(enumerationPattern);
     TregexMatcher m=tgrepPattern.matcher(this.mentionSubTree);
     while (m.find()) {
