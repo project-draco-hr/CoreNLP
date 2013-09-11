@@ -6,14 +6,14 @@
   Annotation document=createDocument(testText);
   TimeAnnotator sutime=getTimeAnnotator();
   sutime.annotate(document);
-  for (  CoreMap timexAnn : document.get(TimexAnnotations.class)) {
+  for (  CoreMap timexAnn : document.get(TimeAnnotations.TimexAnnotations.class)) {
     Timex expectedTimex=expectedTimexes.next();
     testTimex(testText,expectedTimex.text(),expectedTimex,timexAnn);
   }
   assertFalse(expectedTimexes.hasNext());
   Annotation documentWithRefTime=createDocument(testText,"19980417");
   sutime.annotate(documentWithRefTime);
-  for (  CoreMap timexAnn : documentWithRefTime.get(TimexAnnotations.class)) {
+  for (  CoreMap timexAnn : documentWithRefTime.get(TimeAnnotations.TimexAnnotations.class)) {
     Timex expectedTimex=expectedTimexesResolved.next();
     testTimex(testText,expectedTimex.text(),expectedTimex,timexAnn);
   }

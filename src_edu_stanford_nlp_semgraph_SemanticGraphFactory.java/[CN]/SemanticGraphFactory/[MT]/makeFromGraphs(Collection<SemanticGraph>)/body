@@ -1,10 +1,10 @@
 {
   SemanticGraph sg=new SemanticGraph();
-  Collection<IndexedWord> newRoots=new HashSet<IndexedWord>();
+  Collection<IndexedWord> newRoots=Generics.newHashSet();
   for (  SemanticGraph currSg : sgList) {
     newRoots.addAll(currSg.getRoots());
     for (    IndexedWord currVertex : currSg.vertexSet())     sg.addVertex(currVertex);
-    for (    SemanticGraphEdge currEdge : currSg.edgeIterable())     sg.addEdge(currEdge.getGovernor(),currEdge.getDependent(),currEdge.getRelation(),currEdge.getWeight());
+    for (    SemanticGraphEdge currEdge : currSg.edgeIterable())     sg.addEdge(currEdge.getGovernor(),currEdge.getDependent(),currEdge.getRelation(),currEdge.getWeight(),currEdge.isExtra());
   }
   sg.setRoots(newRoots);
   return sg;

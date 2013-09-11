@@ -1,13 +1,12 @@
 {
   if (t.isPreTerminal()) {
     CoreLabel fl=(CoreLabel)t.getChild(0).label();
-    fl.set(TagLabelAnnotation.class,t.label());
+    fl.set(CoreAnnotations.TagLabelAnnotation.class,t.label());
     l.add(fl);
   }
  else {
-    Tree[] kids=t.children();
-    for (int j=0, n=kids.length; j < n; j++) {
-      taggedLeafLabels(kids[j],l);
+    for (    Tree kid : t.children()) {
+      taggedLeafLabels(kid,l);
     }
   }
 }

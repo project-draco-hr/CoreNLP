@@ -1,8 +1,8 @@
 {
-  String text=annotation.get(TextAnnotation.class);
-  List<CoreLabel> sentChars=annotation.get(CharactersAnnotation.class);
+  String text=annotation.get(CoreAnnotations.TextAnnotation.class);
+  List<CoreLabel> sentChars=annotation.get(ChineseCoreAnnotations.CharactersAnnotation.class);
   List<CoreLabel> tokens=new ArrayList<CoreLabel>();
-  annotation.set(TokensAnnotation.class,tokens);
+  annotation.set(CoreAnnotations.TokensAnnotation.class,tokens);
   List<String> words=segmenter.segmentString(text);
   if (VERBOSE) {
     System.err.println(text);
@@ -12,13 +12,13 @@
   int pos=0;
   for (  String w : words) {
     CoreLabel fl=sentChars.get(pos);
-    fl.set(ChineseSegAnnotation.class,"1");
+    fl.set(CoreAnnotations.ChineseSegAnnotation.class,"1");
     CoreLabel token=new CoreLabel();
     token.setWord(w);
-    token.set(CharacterOffsetBeginAnnotation.class,fl.get(CharacterOffsetBeginAnnotation.class));
+    token.set(CoreAnnotations.CharacterOffsetBeginAnnotation.class,fl.get(CoreAnnotations.CharacterOffsetBeginAnnotation.class));
     pos+=w.length();
     fl=sentChars.get(pos - 1);
-    token.set(CharacterOffsetEndAnnotation.class,fl.get(CharacterOffsetEndAnnotation.class));
+    token.set(CoreAnnotations.CharacterOffsetEndAnnotation.class,fl.get(CoreAnnotations.CharacterOffsetEndAnnotation.class));
     tokens.add(token);
   }
 }

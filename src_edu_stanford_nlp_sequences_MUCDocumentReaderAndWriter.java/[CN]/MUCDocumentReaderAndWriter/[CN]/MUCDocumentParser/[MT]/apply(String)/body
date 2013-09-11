@@ -10,7 +10,7 @@
   int wNum=0;
   PTBTokenizer ptb=PTBTokenizer.newPTBTokenizer(new BufferedReader(new StringReader(doc)),false,true);
   List<CoreLabel> words=ptb.tokenize();
-  List<CoreLabel> result=new ArrayList();
+  List<CoreLabel> result=new ArrayList<CoreLabel>();
   CoreLabel prev=null;
   String prevString="";
   Matcher matcher;
@@ -23,9 +23,9 @@
         sNum=0;
         wNum=0;
         if (prev != null) {
-          String s=prev.get(AfterAnnotation.class);
+          String s=prev.get(CoreAnnotations.AfterAnnotation.class);
           s+=word.originalText() + word.after();
-          prev.set(AfterAnnotation.class,s);
+          prev.set(CoreAnnotations.AfterAnnotation.class,s);
         }
         prevString+=word.before() + word.originalText();
       }
@@ -33,9 +33,9 @@
         sNum++;
         wNum=0;
         if (prev != null) {
-          String s=prev.get(AfterAnnotation.class);
+          String s=prev.get(CoreAnnotations.AfterAnnotation.class);
           s+=word.originalText() + word.after();
-          prev.set(AfterAnnotation.class,s);
+          prev.set(CoreAnnotations.AfterAnnotation.class,s);
         }
         prevString+=word.before() + word.originalText();
       }
@@ -45,9 +45,9 @@
           entityClass=matcher.group(1);
           entity=matcher.group(2);
           if (prev != null) {
-            String s=prev.get(AfterAnnotation.class);
+            String s=prev.get(CoreAnnotations.AfterAnnotation.class);
             s+=word.after();
-            prev.set(AfterAnnotation.class,s);
+            prev.set(CoreAnnotations.AfterAnnotation.class,s);
           }
           prevString+=word.before();
         }
@@ -57,9 +57,9 @@
             entityClass="";
             entity="O";
             if (prev != null) {
-              String s=prev.get(AfterAnnotation.class);
+              String s=prev.get(CoreAnnotations.AfterAnnotation.class);
               s+=word.after();
-              prev.set(AfterAnnotation.class,s);
+              prev.set(CoreAnnotations.AfterAnnotation.class,s);
             }
             prevString+=word.before();
           }
@@ -67,16 +67,16 @@
             prevString+=word.before() + word.originalText();
           }
  else           if (word.word().equalsIgnoreCase("</doc>")) {
-            String s=prev.get(AfterAnnotation.class);
+            String s=prev.get(CoreAnnotations.AfterAnnotation.class);
             s+=word.originalText();
-            prev.set(AfterAnnotation.class,s);
+            prev.set(CoreAnnotations.AfterAnnotation.class,s);
           }
  else {
             section=tag.toUpperCase();
             if (prev != null) {
-              String s=prev.get(AfterAnnotation.class);
+              String s=prev.get(CoreAnnotations.AfterAnnotation.class);
               s+=word.originalText() + word.after();
-              prev.set(AfterAnnotation.class,s);
+              prev.set(CoreAnnotations.AfterAnnotation.class,s);
             }
             prevString+=word.before() + word.originalText();
           }
@@ -86,15 +86,15 @@
  else {
       CoreLabel wi=new CoreLabel();
       wi.setWord(word.word());
-      wi.set(OriginalTextAnnotation.class,word.originalText());
-      wi.set(BeforeAnnotation.class,prevString + word.before());
-      wi.set(AfterAnnotation.class,word.after());
-      wi.set(WordPositionAnnotation.class,"" + wNum);
+      wi.set(CoreAnnotations.OriginalTextAnnotation.class,word.originalText());
+      wi.set(CoreAnnotations.BeforeAnnotation.class,prevString + word.before());
+      wi.set(CoreAnnotations.AfterAnnotation.class,word.after());
+      wi.set(CoreAnnotations.WordPositionAnnotation.class,"" + wNum);
       wi.set(CoreAnnotations.SentencePositionAnnotation.class,"" + sNum);
-      wi.set(ParaPositionAnnotation.class,"" + pNum);
-      wi.set(SectionAnnotation.class,section);
-      wi.set(AnswerAnnotation.class,entity);
-      wi.set(EntityClassAnnotation.class,entityClass);
+      wi.set(CoreAnnotations.ParaPositionAnnotation.class,"" + pNum);
+      wi.set(CoreAnnotations.SectionAnnotation.class,section);
+      wi.set(CoreAnnotations.AnswerAnnotation.class,entity);
+      wi.set(CoreAnnotations.EntityClassAnnotation.class,entityClass);
       wNum++;
       prevString="";
       result.add(wi);

@@ -1,7 +1,7 @@
 {
-  HashSet<String>[] featureIndices=new HashSet[windowSize];
+  Set<String>[] featureIndices=new HashSet[windowSize];
   for (int i=0; i < windowSize; i++) {
-    featureIndices[i]=new HashSet<String>();
+    featureIndices[i]=Generics.newHashSet();
   }
   labelIndices=new ArrayList<Index<CRFLabel>>(windowSize);
   for (int i=0; i < windowSize; i++) {
@@ -10,9 +10,9 @@
   Index<CRFLabel> labelIndex=labelIndices.get(windowSize - 1);
   classIndex=new HashIndex<String>();
   classIndex.add(flags.backgroundSymbol);
-  HashSet<String>[] seenBackgroundFeatures=new HashSet[2];
-  seenBackgroundFeatures[0]=new HashSet<String>();
-  seenBackgroundFeatures[1]=new HashSet<String>();
+  Set<String>[] seenBackgroundFeatures=new HashSet[2];
+  seenBackgroundFeatures[0]=Generics.newHashSet();
+  seenBackgroundFeatures[1]=Generics.newHashSet();
   int wordCount=0;
   for (  List<IN> doc : ob) {
     if (flags.useReverse) {
@@ -21,9 +21,9 @@
     int docSize=doc.size();
     for (int j=0; j < docSize; j++) {
       wordCount++;
-      String ans=doc.get(j).get(AnswerAnnotation.class);
+      String ans=doc.get(j).get(CoreAnnotations.AnswerAnnotation.class);
       if (ans == null || ans.equals("")) {
-        throw new IllegalArgumentException("Word " + wordCount + " (\""+ doc.get(j).get(TextAnnotation.class)+ "\") has a blank answer");
+        throw new IllegalArgumentException("Word " + wordCount + " (\""+ doc.get(j).get(CoreAnnotations.TextAnnotation.class)+ "\") has a blank answer");
       }
       classIndex.add(ans);
     }
@@ -34,10 +34,10 @@
       for (int k=0, fsize=features.size(); k < fsize; k++) {
         Collection<String> cliqueFeatures=features.get(k);
         if (k < 2 && flags.removeBackgroundSingletonFeatures) {
-          String ans=doc.get(j).get(AnswerAnnotation.class);
+          String ans=doc.get(j).get(CoreAnnotations.AnswerAnnotation.class);
           boolean background=ans.equals(flags.backgroundSymbol);
           if (k == 1 && j > 0 && background) {
-            ans=doc.get(j - 1).get(AnswerAnnotation.class);
+            ans=doc.get(j - 1).get(CoreAnnotations.AnswerAnnotation.class);
             background=ans.equals(flags.backgroundSymbol);
           }
           if (background) {

@@ -8,22 +8,22 @@
     if (useGenericReplacement) {
       if (newGov == null) {
         newGov=new IndexedWord(gov);
-        newGov.set(TextAnnotation.class,WILDCARD_VERTICE_TOKEN);
+        newGov.set(CoreAnnotations.TextAnnotation.class,WILDCARD_VERTICE_TOKEN);
         newGov.set(CoreAnnotations.OriginalTextAnnotation.class,WILDCARD_VERTICE_TOKEN);
-        newGov.set(LemmaAnnotation.class,WILDCARD_VERTICE_TOKEN);
+        newGov.set(CoreAnnotations.LemmaAnnotation.class,WILDCARD_VERTICE_TOKEN);
       }
       if (newDep == null) {
         newDep=new IndexedWord(dep);
-        newDep.set(TextAnnotation.class,WILDCARD_VERTICE_TOKEN);
+        newDep.set(CoreAnnotations.TextAnnotation.class,WILDCARD_VERTICE_TOKEN);
         newDep.set(CoreAnnotations.OriginalTextAnnotation.class,WILDCARD_VERTICE_TOKEN);
-        newDep.set(LemmaAnnotation.class,WILDCARD_VERTICE_TOKEN);
+        newDep.set(CoreAnnotations.LemmaAnnotation.class,WILDCARD_VERTICE_TOKEN);
       }
     }
  else {
       if (newGov == null)       newGov=edge.getGovernor();
       if (newDep == null)       newDep=edge.getDependent();
     }
-    SemanticGraphEdge newEdge=new SemanticGraphEdge(newGov,newDep,edge.getRelation(),edge.getWeight());
+    SemanticGraphEdge newEdge=new SemanticGraphEdge(newGov,newDep,edge.getRelation(),edge.getWeight(),edge.isExtra());
     retList.add(newEdge);
   }
   return retList;

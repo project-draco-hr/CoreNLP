@@ -3,16 +3,10 @@
   System.err.println("## tagger training invoked at " + now + " with arguments:");
   config.dump();
   Timing tim=new Timing();
-  try {
-    PrintFile log=new PrintFile(config.getModel() + ".props");
-    log.println("## tagger training invoked at " + now + " with arguments:");
-    config.dump(log);
-    log.close();
-    trainAndSaveModel(config);
-    tim.done("Training POS tagger");
-  }
- catch (  Exception e) {
-    System.err.println("An error occurred while training a new tagger.");
-    throw e;
-  }
+  PrintFile log=new PrintFile(config.getModel() + ".props");
+  log.println("## tagger training invoked at " + now + " with arguments:");
+  config.dump(log);
+  log.close();
+  trainAndSaveModel(config);
+  tim.done("Training POS tagger");
 }

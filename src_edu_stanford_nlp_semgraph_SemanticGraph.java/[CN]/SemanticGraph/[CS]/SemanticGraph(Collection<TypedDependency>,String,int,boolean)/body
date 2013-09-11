@@ -1,7 +1,7 @@
 {
   Morphology morphology=(lemmatize) ? new Morphology() : null;
   graph=new DirectedMultiGraph<IndexedWord,SemanticGraphEdge>();
-  roots=new HashSet<IndexedWord>();
+  roots=Generics.newHashSet();
   for (  TypedDependency d : dependencies) {
     TreeGraphNode gov=d.gov();
     TreeGraphNode dep=d.dep();
@@ -19,7 +19,7 @@
       }
       addVertex(govVertex);
       addVertex(depVertex);
-      addEdge(govVertex,depVertex,reln,Double.NEGATIVE_INFINITY);
+      addEdge(govVertex,depVertex,reln,Double.NEGATIVE_INFINITY,d.extra());
     }
  else {
       IndexedWord depVertex=new IndexedWord(docID,sentIndex,dep.index(),depLabel);

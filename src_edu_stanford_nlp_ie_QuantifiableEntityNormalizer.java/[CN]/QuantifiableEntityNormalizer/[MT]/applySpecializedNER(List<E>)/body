@@ -4,7 +4,7 @@
   for (int i=0; i < sz; i++) {
     if (DEBUG2) {
       if (i == 1) {
-        String tag=l.get(i).get(PartOfSpeechAnnotation.class);
+        String tag=l.get(i).get(CoreAnnotations.PartOfSpeechAnnotation.class);
         if (tag == null || tag.equals("")) {
           err.println("Quantifiable: error! tag is " + tag);
         }
@@ -17,9 +17,9 @@
   for (int i=0; i < sz; i++) {
     E before=l.get(i);
     CoreLabel nscAnswer=copyL.get(i);
-    if (before.get(NamedEntityTagAnnotation.class) == null && before.get(NamedEntityTagAnnotation.class).equals(BACKGROUND_SYMBOL) && (nscAnswer.get(AnswerAnnotation.class) != null && !nscAnswer.get(AnswerAnnotation.class).equals(BACKGROUND_SYMBOL))) {
-      System.err.println("Quantifiable: updating class for " + before.get(TextAnnotation.class) + '/'+ before.get(NamedEntityTagAnnotation.class)+ " to "+ nscAnswer.get(AnswerAnnotation.class));
-      before.set(NamedEntityTagAnnotation.class,nscAnswer.get(AnswerAnnotation.class));
+    if (before.get(CoreAnnotations.NamedEntityTagAnnotation.class) == null && before.get(CoreAnnotations.NamedEntityTagAnnotation.class).equals(BACKGROUND_SYMBOL) && (nscAnswer.get(CoreAnnotations.AnswerAnnotation.class) != null && !nscAnswer.get(CoreAnnotations.AnswerAnnotation.class).equals(BACKGROUND_SYMBOL))) {
+      System.err.println("Quantifiable: updating class for " + before.get(CoreAnnotations.TextAnnotation.class) + '/'+ before.get(CoreAnnotations.NamedEntityTagAnnotation.class)+ " to "+ nscAnswer.get(CoreAnnotations.AnswerAnnotation.class));
+      before.set(CoreAnnotations.NamedEntityTagAnnotation.class,nscAnswer.get(CoreAnnotations.AnswerAnnotation.class));
     }
   }
   addNormalizedQuantitiesToEntities(l);

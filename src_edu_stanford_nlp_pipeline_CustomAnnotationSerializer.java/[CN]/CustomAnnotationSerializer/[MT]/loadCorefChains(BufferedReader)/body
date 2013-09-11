@@ -2,13 +2,13 @@
   String line=reader.readLine().trim();
   if (line.length() == 0)   return null;
   int clusterCount=Integer.valueOf(line);
-  Map<Integer,CorefChain> chains=new HashMap<Integer,CorefChain>();
+  Map<Integer,CorefChain> chains=Generics.newHashMap();
   for (int c=0; c < clusterCount; c++) {
     line=reader.readLine().trim();
     String[] bits=line.split("\\s");
     int cid=Integer.valueOf(bits[0]);
     int mentionCount=Integer.valueOf(bits[1]);
-    Map<IntPair,Set<CorefChain.CorefMention>> mentionMap=new HashMap<IntPair,Set<CorefChain.CorefMention>>();
+    Map<IntPair,Set<CorefChain.CorefMention>> mentionMap=Generics.newHashMap();
     CorefChain.CorefMention representative=null;
     for (int m=0; m < mentionCount; m++) {
       line=reader.readLine();
@@ -35,7 +35,7 @@
       CorefChain.CorefMention mention=new CorefChain.CorefMention(mentionType,number,gender,animacy,startIndex,endIndex,headIndex,clusterID,mentionID,sentNum,position,span);
       Set<CorefChain.CorefMention> mentionsWithThisHead=mentionMap.get(key);
       if (mentionsWithThisHead == null) {
-        mentionsWithThisHead=new HashSet<CorefChain.CorefMention>();
+        mentionsWithThisHead=Generics.newHashSet();
         mentionMap.put(key,mentionsWithThisHead);
       }
       mentionsWithThisHead.add(mention);

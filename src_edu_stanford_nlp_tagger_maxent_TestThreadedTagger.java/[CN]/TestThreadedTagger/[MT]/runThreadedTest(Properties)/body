@@ -1,5 +1,5 @@
 {
-  ArrayList<TaggerConfig> configs=new ArrayList<TaggerConfig>();
+  ArrayList<Properties> configs=new ArrayList<Properties>();
   ArrayList<MaxentTagger> taggers=new ArrayList<MaxentTagger>();
   int numThreads=DEFAULT_NUM_THREADS;
   if (props.getProperty(THREAD_FLAG) != null) {
@@ -9,8 +9,8 @@
   System.out.println("Loading taggers...");
   System.out.println();
   if (props.getProperty("model") != null) {
-    configs.add(new TaggerConfig(props));
-    taggers.add(new MaxentTagger(configs.get(0).getModel(),configs.get(0)));
+    configs.add(props);
+    taggers.add(new MaxentTagger(configs.get(0).getProperty("model"),configs.get(0)));
   }
  else {
     int taggerNum=1;
@@ -19,8 +19,8 @@
       Properties newProps=new Properties();
       newProps.putAll(props);
       newProps.setProperty("model",props.getProperty(taggerName));
-      configs.add(new TaggerConfig(newProps));
-      taggers.add(new MaxentTagger(configs.get(taggerNum - 1).getModel(),configs.get(taggerNum - 1)));
+      configs.add(newProps);
+      taggers.add(new MaxentTagger(configs.get(taggerNum - 1).getProperty("model"),configs.get(taggerNum - 1)));
       ++taggerNum;
       taggerName="model" + taggerNum;
     }

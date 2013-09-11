@@ -1,0 +1,12 @@
+{
+  boolean success=parserQuery.parseAndReport(sentence,pwErr);
+  if (!success) {
+    return false;
+  }
+  List<ScoredObject<Tree>> bestKParses=parserQuery.getKBestPCFGParses(rerankerKBest);
+  if (bestKParses.size() == 0) {
+    return false;
+  }
+  scoredTrees=rerank(sentence,bestKParses);
+  return true;
+}

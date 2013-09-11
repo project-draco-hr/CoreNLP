@@ -3,7 +3,7 @@
   List<IndexedWord> vertices=sg.vertexListSorted();
   List<SemanticGraphEdge> edges=sg.edgeListSorted();
   int index=1;
-  HashMap<IndexedWord,IndexedWord> oldToNewVertices=new HashMap<IndexedWord,IndexedWord>();
+  Map<IndexedWord,IndexedWord> oldToNewVertices=Generics.newHashMap();
   List<IndexedWord> newVertices=new ArrayList<IndexedWord>();
   for (  IndexedWord vertex : vertices) {
     IndexedWord newVertex=new IndexedWord(vertex);
@@ -22,7 +22,7 @@
   for (  SemanticGraphEdge edge : edges) {
     IndexedWord newGov=oldToNewVertices.get(edge.getGovernor());
     IndexedWord newDep=oldToNewVertices.get(edge.getDependent());
-    nsg.addEdge(newGov,newDep,edge.getRelation(),edge.getWeight());
+    nsg.addEdge(newGov,newDep,edge.getRelation(),edge.getWeight(),edge.isExtra());
   }
   return nsg;
 }

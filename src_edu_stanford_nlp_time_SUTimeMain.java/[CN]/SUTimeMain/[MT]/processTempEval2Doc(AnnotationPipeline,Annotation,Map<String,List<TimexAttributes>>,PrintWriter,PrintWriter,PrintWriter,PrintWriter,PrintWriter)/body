@@ -14,10 +14,10 @@
   }
   if (attrDebugPw != null) {
     for (    CoreMap sent : sents) {
-      List<CoreMap> timexes=sent.get(TimexAnnotations.class);
+      List<CoreMap> timexes=sent.get(TimeAnnotations.TimexAnnotations.class);
       if (timexes != null) {
         for (        CoreMap t : timexes) {
-          Timex timex=t.get(TimexAnnotation.class);
+          Timex timex=t.get(TimeAnnotations.TimexAnnotation.class);
           int sentIndex=sent.get(CoreAnnotations.SentenceIndexAnnotation.class);
           int sentTokenStart=sent.get(CoreAnnotations.TokenBeginAnnotation.class);
           int tokenStart;
@@ -39,17 +39,17 @@
     }
   }
   if (debugPw != null) {
-    List<CoreMap> timexes=docAnnotation.get(TimexAnnotations.class);
+    List<CoreMap> timexes=docAnnotation.get(TimeAnnotations.TimexAnnotations.class);
     for (    CoreMap t : timexes) {
-      String[] newFields={docId,docDate,t.get(TimexAnnotation.class).toString()};
+      String[] newFields={docId,docDate,t.get(TimeAnnotations.TimexAnnotation.class).toString()};
       debugPw.println("GOT | " + StringUtils.join(newFields,"|"));
     }
   }
   if (extPw != null || attrPw != null) {
     for (    CoreMap sent : sents) {
       int sentTokenBegin=sent.get(CoreAnnotations.TokenBeginAnnotation.class);
-      for (      CoreMap t : sent.get(TimexAnnotations.class)) {
-        Timex tmx=t.get(TimexAnnotation.class);
+      for (      CoreMap t : sent.get(TimeAnnotations.TimexAnnotations.class)) {
+        Timex tmx=t.get(TimeAnnotations.TimexAnnotation.class);
         List<CoreLabel> tokens=t.get(CoreAnnotations.TokensAnnotation.class);
         int tokenIndex=0;
         if (tokens == null) {

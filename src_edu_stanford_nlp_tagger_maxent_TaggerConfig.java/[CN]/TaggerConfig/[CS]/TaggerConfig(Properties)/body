@@ -1,43 +1,11 @@
 {
-  super();
-  if (props.getProperty("") != null) {
-    throw new RuntimeException("unknown argument(s): \"" + props.getProperty("") + '\"');
-  }
-  if (props.getProperty("genprops") != null) {
-    printGenProps(System.out);
-    System.exit(0);
-  }
-  if (props.containsKey("trainFile")) {
-    mode=Mode.TRAIN;
-    this.setProperty("file",props.getProperty("trainFile","").trim());
-  }
- else   if (props.containsKey("testFile")) {
-    mode=Mode.TEST;
-    this.setProperty("file",props.getProperty("testFile","").trim());
-  }
- else   if (props.containsKey("textFile")) {
-    mode=Mode.TAG;
-    this.setProperty("file",props.getProperty("textFile","").trim());
-  }
- else   if (props.containsKey("dump")) {
-    mode=Mode.DUMP;
-    this.setProperty("file",props.getProperty("dump").trim());
-    props.setProperty("model",props.getProperty("dump").trim());
-  }
- else {
-    mode=Mode.TAG;
-    this.setProperty("file","stdin");
-  }
-  this.setProperty("model",props.getProperty("model","").trim());
-  if (!(mode == Mode.DUMP) && this.getProperty("model").equals("")) {
-    throw new RuntimeException("'model' parameter must be specified");
-  }
+  this();
   TaggerConfig oldConfig=new TaggerConfig();
-  if (mode != Mode.TRAIN) {
+  if (!props.containsKey("trainFile")) {
     try {
-      System.err.println("Loading default properties from tagger " + getProperty("model"));
-      DataInputStream in=new DataInputStream(IOUtils.getInputStreamFromURLOrClasspathOrFileSystem(getProperty("model")));
-      oldConfig.putAll(TaggerConfig.readConfig(in));
+      System.err.println("Loading default properties from tagger " + props.getProperty("model"));
+      DataInputStream in=new DataInputStream(IOUtils.getInputStreamFromURLOrClasspathOrFileSystem(props.getProperty("model")));
+      this.putAll(TaggerConfig.readConfig(in));
       in.close();
     }
  catch (    Exception e) {
@@ -45,50 +13,5 @@
       e.printStackTrace();
     }
   }
-  this.setProperty("search",props.getProperty("search",oldConfig.getProperty("search")).trim().toLowerCase());
-  String srch=this.getProperty("search");
-  if (!(srch.equals("cg") || srch.equals("iis") || srch.equals("owlqn")|| srch.equals("qn"))) {
-    throw new RuntimeException("'search' must be one of 'iis', 'cg', 'qn' or 'owlqn': " + srch);
-  }
-  this.setProperty("sigmaSquared",props.getProperty("sigmaSquared",oldConfig.getProperty("sigmaSquared")));
-  this.setProperty(TAG_SEPARATOR_PROPERTY,props.getProperty(TAG_SEPARATOR_PROPERTY,oldConfig.getProperty(TAG_SEPARATOR_PROPERTY)));
-  this.setProperty("iterations",props.getProperty("iterations",oldConfig.getProperty("iterations")));
-  this.setProperty("rareWordThresh",props.getProperty("rareWordThresh",oldConfig.getProperty("rareWordThresh")));
-  this.setProperty("minFeatureThresh",props.getProperty("minFeatureThresh",oldConfig.getProperty("minFeatureThresh")));
-  this.setProperty("curWordMinFeatureThresh",props.getProperty("curWordMinFeatureThresh",oldConfig.getProperty("curWordMinFeatureThresh")));
-  this.setProperty("rareWordMinFeatureThresh",props.getProperty("rareWordMinFeatureThresh",oldConfig.getProperty("rareWordMinFeatureThresh")));
-  this.setProperty("veryCommonWordThresh",props.getProperty("veryCommonWordThresh",oldConfig.getProperty("veryCommonWordThresh")));
-  this.setProperty("occurringTagsOnly",props.getProperty("occurringTagsOnly",oldConfig.getProperty("occurringTagsOnly")));
-  this.setProperty("possibleTagsOnly",props.getProperty("possibleTagsOnly",oldConfig.getProperty("possibleTagsOnly")));
-  this.setProperty("lang",props.getProperty("lang",oldConfig.getProperty("lang")));
-  this.setProperty("openClassTags",props.getProperty("openClassTags",oldConfig.getProperty("openClassTags")).trim());
-  this.setProperty("closedClassTags",props.getProperty("closedClassTags",oldConfig.getProperty("closedClassTags")).trim());
-  this.setProperty("learnClosedClassTags",props.getProperty("learnClosedClassTags",oldConfig.getProperty("learnClosedClassTags")));
-  this.setProperty("closedClassTagThreshold",props.getProperty("closedClassTagThreshold",oldConfig.getProperty("closedClassTagThreshold")));
-  this.setProperty("arch",props.getProperty("arch",oldConfig.getProperty("arch")));
-  if (mode == Mode.TRAIN && this.getProperty("arch").equals("")) {
-    throw new IllegalArgumentException("No architecture specified; " + "set the -arch flag with " + "the features to be used");
-  }
-  this.setProperty("wordFunction",props.getProperty("wordFunction",oldConfig.getProperty("wordFunction")));
-  this.setProperty("tokenize",props.getProperty("tokenize",oldConfig.getProperty("tokenize")));
-  this.setProperty("tokenizerFactory",props.getProperty("tokenizerFactory",oldConfig.getProperty("tokenizerFactory")));
-  this.setProperty("debugPrefix",props.getProperty("debugPrefix",oldConfig.getProperty("debugPrefix","")));
-  this.setProperty("debug",props.getProperty("debug",DEBUG));
-  this.setProperty(ENCODING_PROPERTY,props.getProperty(ENCODING_PROPERTY,oldConfig.getProperty(ENCODING_PROPERTY)));
-  this.setProperty("sgml",props.getProperty("sgml",oldConfig.getProperty("sgml")));
-  this.setProperty("verbose",props.getProperty("verbose",oldConfig.getProperty("verbose")));
-  this.setProperty("verboseResults",props.getProperty("verboseResults",oldConfig.getProperty("verboseResults")));
-  this.setProperty("regL1",props.getProperty("regL1",oldConfig.getProperty("regL1")));
-  this.setProperty("xmlInput",props.getProperty("xmlInput",oldConfig.getProperty("xmlInput")).trim());
-  this.setProperty("tagInside",props.getProperty("tagInside",oldConfig.getProperty("tagInside")));
-  this.setProperty("approximate",props.getProperty("approximate",oldConfig.getProperty("approximate")));
-  this.setProperty("tokenizerOptions",props.getProperty("tokenizerOptions",oldConfig.getProperty("tokenizerOptions")));
-  this.setProperty("outputFile",props.getProperty("outputFile",oldConfig.getProperty("outputFile")).trim());
-  this.setProperty("outputFormat",props.getProperty("outputFormat",oldConfig.getProperty("outputFormat")).trim());
-  this.setProperty("outputFormatOptions",props.getProperty("outputFormatOptions",oldConfig.getProperty("outputFormatOptions")).trim());
-  this.setProperty("nthreads",props.getProperty("nthreads",oldConfig.getProperty("nthreads")).trim());
-  String sentenceDelimiter=props.getProperty("sentenceDelimiter",oldConfig.getProperty("sentenceDelimiter"));
-  if (sentenceDelimiter != null) {
-    this.setProperty("sentenceDelimiter",sentenceDelimiter);
-  }
+  setProperties(props);
 }
