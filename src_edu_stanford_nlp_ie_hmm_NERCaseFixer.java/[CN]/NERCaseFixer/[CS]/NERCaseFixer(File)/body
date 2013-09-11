@@ -1,0 +1,58 @@
+{
+  boolean prevBlank=false;
+  for (  String line : ObjectBank.getLineIterator(nerFile)) {
+    lines.add(line);
+    String word=line.split(" ")[0];
+    allCaps.add(Boolean.valueOf(isAllCaps(word)));
+    if (line.length() == 0 || line.startsWith("-DOCSTART-")) {
+      prevBlank=true;
+      continue;
+    }
+    if (prevBlank) {
+      prevBlank=false;
+      if (word.length() > 0) {
+        continue;
+      }
+    }
+    String lc=word.toLowerCase();
+    IntCounter<String> casePatterns=casePatternsByLC.get(lc);
+    if (casePatterns == null) {
+      casePatterns=new IntCounter<String>();
+    }
+    int count=casePatterns.getIntCount(word);
+    casePatterns.setCount(word,count + 1);
+    casePatternsByLC.put(lc,casePatterns);
+  }
+  for (int i=0; i < lines.size(); i++) {
+    String line=lines.get(i);
+    if (line.length() == 0 || line.startsWith("-DOCSTART-")) {
+      System.out.println(line);
+      prevBlank=true;
+      continue;
+    }
+    String[] tokens=line.split(" ",4);
+    String word=tokens[0];
+    String pos=tokens[1];
+    boolean curAllCaps=allCaps.get(i);
+    if (fixAllCaps && curAllCaps && ((i > 0 && allCaps.get(i - 1) || (i < lines.size() - 1 && allCaps.get(i + 1))))) {
+      tokens[0]=getModeCasePattern(word);
+    }
+ else     if (prevBlank && !pos.equals("NNP") && Character.isUpperCase(word.charAt(0))) {
+      IntCounter<String> casePatterns=casePatternsByLC.get(word.toLowerCase());
+      if (casePatterns != null) {
+        if (useModeCapPatternForSentenceInitial) {
+          tokens[0]=getModeCasePattern(word);
+        }
+ else {
+          int ucFirstCount=casePatterns.getIntCount(word);
+          if (ucFirstCount < minUCCount) {
+            tokens[0]=word.toLowerCase();
+          }
+        }
+      }
+    }
+    System.out.print(StringUtils.join(tokens," "));
+    System.out.println();
+    prevBlank=false;
+  }
+}

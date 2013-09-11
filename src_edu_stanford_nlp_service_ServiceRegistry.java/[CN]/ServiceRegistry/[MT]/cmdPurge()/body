@@ -1,0 +1,16 @@
+{
+  List<ServiceRegistryEntry> active=new ArrayList<ServiceRegistryEntry>();
+  if (!registryPath.exists()) {
+    saveRegistry(active);
+  }
+  List<ServiceRegistryEntry> registered=loadRegistry();
+  for (  ServiceRegistryEntry entry : registered) {
+    if (SocketService.ping(entry.host,entry.port)) {
+      active.add(entry);
+    }
+  }
+  if (!active.equals(registered)) {
+    System.out.println("ServiceRegistry: purged " + (registered.size() - active.size()) + " defunct");
+    saveRegistry(active);
+  }
+}

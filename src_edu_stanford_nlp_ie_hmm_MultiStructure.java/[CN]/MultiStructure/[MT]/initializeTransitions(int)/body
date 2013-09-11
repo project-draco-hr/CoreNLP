@@ -1,0 +1,139 @@
+{
+  if (initType == BASIC_INIT) {
+    initializeTransitions();
+    return;
+  }
+  double[][] t=new double[transitions.size()][transitions.size()];
+  for (int i=0; i < stateTypes.size(); i++) {
+    int type=stateTypes.get(i).intValue();
+    if (i == State.BKGRNDIDX) {
+      t[State.STARTIDX][State.BKGRNDIDX]=0.2;
+    }
+ else     if (type > 0) {
+      t[State.STARTIDX][i]=0.05;
+    }
+ else     if (type == PREFIX_TYPE) {
+      t[State.STARTIDX][i]=0.05;
+    }
+    ArrayList curTransitions=(ArrayList)transitions.get(i);
+switch (type) {
+case END_TYPE:
+      for (int j=0; j < curTransitions.size(); j++) {
+        t[i][j]=((Double)curTransitions.get(j)).doubleValue();
+      }
+    break;
+case BACKGROUND_TYPE:
+  for (int j=0; j < curTransitions.size(); j++) {
+    Double weight=(Double)curTransitions.get(j);
+    int curType=stateTypes.get(j).intValue();
+    if (j == State.FINISHIDX) {
+      t[i][j]=0.05;
+    }
+ else     if (i == State.BKGRNDIDX) {
+      if (i == j) {
+        t[i][j]=0.2;
+      }
+ else       if (weight.doubleValue() != 0.0) {
+        if (curType == BACKGROUND_TYPE) {
+          t[i][j]=0.25;
+        }
+ else         if (curType == PREFIX_TYPE) {
+          t[i][j]=0.1;
+        }
+ else {
+          t[i][j]=0.01;
+        }
+      }
+    }
+ else {
+      if (i == j) {
+        t[i][j]=0.1;
+      }
+ else       if (weight.doubleValue() != 0.0) {
+        if (curType == BACKGROUND_TYPE) {
+          t[i][j]=0.2;
+        }
+ else         if (curType > 0) {
+          t[i][j]=0.25;
+        }
+ else {
+          t[i][j]=0.01;
+        }
+      }
+    }
+  }
+break;
+case PREFIX_TYPE:
+for (int j=0; j < curTransitions.size(); j++) {
+Double weight=(Double)curTransitions.get(j);
+if (i == j) {
+  t[i][j]=0.1;
+}
+ else if (weight.doubleValue() != 0.0) {
+  int curType=stateTypes.get(j).intValue();
+  if (curType == PREFIX_TYPE) {
+    t[i][j]=0.25;
+  }
+ else   if (curType > 0) {
+    t[i][j]=0.5;
+  }
+ else {
+    t[i][j]=0.01;
+  }
+}
+}
+break;
+case SUFFIX_TYPE:
+for (int j=0; j < curTransitions.size(); j++) {
+Double weight=(Double)curTransitions.get(j);
+int curType=stateTypes.get(j).intValue();
+if (j == State.FINISHIDX) {
+t[i][j]=0.05;
+}
+ else if (j == State.BKGRNDIDX) {
+t[i][j]=0.5;
+}
+ else if (i == j) {
+t[i][j]=0.1;
+}
+ else if (weight.doubleValue() != 0.0) {
+if (curType == SUFFIX_TYPE) {
+t[i][j]=0.25;
+}
+ else {
+t[i][j]=0.01;
+}
+}
+}
+break;
+}
+if (type > 0) {
+for (int j=0; j < curTransitions.size(); j++) {
+Double weight=(Double)curTransitions.get(j);
+if (j == State.FINISHIDX) {
+t[i][j]=0.05;
+}
+ else if (j == State.BKGRNDIDX) {
+t[i][j]=0.1;
+}
+ else if (weight.doubleValue() != 0.0) {
+int curType=stateTypes.get(j).intValue();
+if (curType > 0) {
+t[i][j]=0.1;
+}
+ else if (curType == SUFFIX_TYPE || curType == BACKGROUND_TYPE) {
+t[i][j]=0.5;
+}
+ else {
+t[i][j]=0.01;
+}
+}
+}
+}
+}
+for (int i=0; i < t.length; i++) {
+ArrayMath.normalize(t[i]);
+}
+perturbTransitions(t);
+initializedTransitions=t;
+}

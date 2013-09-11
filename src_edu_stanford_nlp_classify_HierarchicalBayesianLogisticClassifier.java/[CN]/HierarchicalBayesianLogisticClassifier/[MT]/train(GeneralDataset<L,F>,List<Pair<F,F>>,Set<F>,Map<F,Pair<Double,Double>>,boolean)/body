@@ -1,0 +1,16 @@
+{
+  if (data.labelIndex.size() != 2) {
+    throw new RuntimeException("LogisticClassifier is only for binary classification!");
+  }
+  featureIndex=data.featureIndex;
+  int[] feature2parentArr=augmentFeatureIndexWithPriors(data,feature2parent);
+  weights=getInitialWeights(data.featureIndex,parent2MeanVarPair);
+  Minimizer<DiffFunction> minim;
+  HierarchicalBayesianLogisticObjectiveFunction lof=null;
+  if (data instanceof Dataset<?,?>)   lof=new HierarchicalBayesianLogisticObjectiveFunction(data.numFeatureTypes(),data.getDataArray(),data.getLabelsArray(),feature2parentArr,getRootIDsSet(roots),getParentID2Var(parent2MeanVarPair),estimateVariance);
+ else   if (data instanceof RVFDataset<?,?>)   lof=new HierarchicalBayesianLogisticObjectiveFunction(data.numFeatureTypes(),data.getDataArray(),data.getValuesArray(),data.getLabelsArray(),feature2parentArr,getRootIDsSet(roots),getParentID2Var(parent2MeanVarPair),estimateVariance);
+  minim=new QNMinimizer(lof);
+  weights=minim.minimize(lof,1e-4,weights);
+  classes[0]=data.labelIndex.get(0);
+  classes[1]=data.labelIndex.get(1);
+}

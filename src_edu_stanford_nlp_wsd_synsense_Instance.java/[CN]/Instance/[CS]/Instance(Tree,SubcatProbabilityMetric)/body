@@ -1,0 +1,25 @@
+{
+  sentence=tree.yieldWords();
+  allWords=sentence;
+  this.word=null;
+  for (int i=0; i < sentence.size(); i++) {
+    Word next=sentence.get(i);
+    if (next.word().indexOf("^") >= 0) {
+      index=i;
+      word=next.word();
+      break;
+    }
+  }
+  TgrepMatcher.addParents(tree);
+  subcat=Subcategory.getSubcategory(tree,word);
+  sense=new String[]{UNASSIGNED};
+  if (subcatParser != null) {
+    try {
+      logSequenceGivenSubcat=subcatParser.getLogSubcatProbs(Words.toStrings(sentence));
+    }
+ catch (    Exception e) {
+      logSequenceGivenSubcat=new ClassicCounter<Subcategory>();
+    }
+  }
+  this.tree=tree;
+}

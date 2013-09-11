@@ -1,0 +1,35 @@
+{
+  try {
+    while (objectiveFunction == null) {
+    }
+    while (true) {
+      if (requests.isEmpty()) {
+        continue;
+      }
+      Pair<Integer,double[]> request=requests.remove(0);
+      while (!requests.isEmpty()) {
+        inputOutputMap.put(request,killOutput);
+        request=requests.remove(0);
+      }
+      int index=request.first();
+      double[] weights=request.second();
+      int[] batch=new int[]{index};
+      objectiveFunction.calculateStochastic(weights,null,batch);
+      if (objectiveFunction instanceof Killable && ((Killable)objectiveFunction).killed()) {
+        inputOutputMap.put(request,killOutput);
+      }
+ else {
+        double value;
+        double[] derivative;
+        value=objectiveFunction.lastValue();
+        derivative=objectiveFunction.lastDerivative();
+        inputOutputMap.put(request,new Pair(value,derivative));
+      }
+    }
+  }
+ catch (  Throwable e) {
+    System.err.println("catching throwable: " + this);
+    e.printStackTrace();
+    this.exception=e;
+  }
+}

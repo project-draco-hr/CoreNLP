@@ -1,0 +1,25 @@
+{
+  double[] values=new double[valuesToTry.length];
+  double bestValue=Double.POSITIVE_INFINITY;
+  int bestIndex=0;
+  for (int i=0; i < valuesToTry.length; ++i) {
+    values[i]=function.apply(valuesToTry[i]);
+    if (values[i] < bestValue) {
+      bestIndex=i;
+      bestValue=values[i];
+    }
+    if (i >= stoppingNumber) {
+      boolean giveUp=true;
+      for (int j=i - 1; j >= i - stoppingNumber; j--) {
+        if (values[j] > values[i]) {
+          giveUp=false;
+          break;
+        }
+      }
+      if (giveUp) {
+        break;
+      }
+    }
+  }
+  return valuesToTry[bestIndex];
+}

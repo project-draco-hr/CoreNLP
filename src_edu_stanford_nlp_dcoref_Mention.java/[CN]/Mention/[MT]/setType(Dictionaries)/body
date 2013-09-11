@@ -1,13 +1,9 @@
 {
-  if (isListLike()) {
-    mentionType=MentionType.LIST;
-    SieveCoreferenceSystem.logger.finer("IS LIST: " + this);
-  }
- else   if (headWord.has(CoreAnnotations.EntityTypeAnnotation.class)) {
-    if (headWord.get(CoreAnnotations.EntityTypeAnnotation.class).equals("PRO")) {
+  if (headWord.has(EntityTypeAnnotation.class)) {
+    if (headWord.get(EntityTypeAnnotation.class).equals("PRO")) {
       mentionType=MentionType.PRONOMINAL;
     }
- else     if (headWord.get(CoreAnnotations.EntityTypeAnnotation.class).equals("NAM")) {
+ else     if (headWord.get(EntityTypeAnnotation.class).equals("NAM")) {
       mentionType=MentionType.PROPER;
     }
  else {
@@ -15,14 +11,14 @@
     }
   }
  else {
-    if (!headWord.has(CoreAnnotations.NamedEntityTagAnnotation.class)) {
+    if (!headWord.has(NamedEntityTagAnnotation.class)) {
       mentionType=MentionType.NOMINAL;
       SieveCoreferenceSystem.logger.finest("no NamedEntityTagAnnotation: " + headWord);
     }
- else     if (headWord.get(CoreAnnotations.PartOfSpeechAnnotation.class).startsWith("PRP") || (originalSpan.size() == 1 && headWord.get(CoreAnnotations.NamedEntityTagAnnotation.class).equals("O") && (dict.allPronouns.contains(headString) || dict.relativePronouns.contains(headString)))) {
+ else     if (headWord.get(PartOfSpeechAnnotation.class).startsWith("PRP") || (originalSpan.size() == 1 && headWord.get(NamedEntityTagAnnotation.class).equals("O") && (dict.allPronouns.contains(headString) || dict.relativePronouns.contains(headString)))) {
       mentionType=MentionType.PRONOMINAL;
     }
- else     if (!headWord.get(CoreAnnotations.NamedEntityTagAnnotation.class).equals("O") || headWord.get(CoreAnnotations.PartOfSpeechAnnotation.class).startsWith("NNP")) {
+ else     if (!headWord.get(NamedEntityTagAnnotation.class).equals("O") || headWord.get(PartOfSpeechAnnotation.class).startsWith("NNP")) {
       mentionType=MentionType.PROPER;
     }
  else {

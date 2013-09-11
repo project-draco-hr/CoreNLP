@@ -1,0 +1,18 @@
+{
+  Counter<F> fCounter=datum.asFeaturesCounter();
+  Counter<Integer> nearestNeighbors=new ClassicCounter<Integer>();
+  for (int i=0; i < dataset.size(); i++) {
+    RVFDatum<Double,F> datumi=dataset.getRVFDatum(i);
+    double sim=0;
+    if (simType == KNNRegressionFactory.SimilarityType.Cosine)     sim=Counters.cosine(datumi.asFeaturesCounter(),fCounter);
+ else     if (simType == KNNRegressionFactory.SimilarityType.RBF)     sim=getRBFSimilarity(datumi.asFeaturesCounter(),fCounter);
+    nearestNeighbors.incrementCount(i,sim);
+  }
+  Counters.retainTop(nearestNeighbors,numNeighbors);
+  Counters.normalize(nearestNeighbors);
+  double output=0;
+  for (  int i : nearestNeighbors.keySet()) {
+    output+=dataset.getDatum(i).label() * nearestNeighbors.getCount(i);
+  }
+  return output;
+}

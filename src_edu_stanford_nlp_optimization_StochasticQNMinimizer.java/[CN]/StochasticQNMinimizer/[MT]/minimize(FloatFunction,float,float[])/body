@@ -1,0 +1,93 @@
+{
+  say("QNMinimizer called on float function of " + function.domainDimension() + " variables;");
+  if (M > 0) {
+    sayln(" Using m = " + M);
+  }
+ else {
+    sayln(" Using dynamic setting of M.");
+  }
+  if (!(function instanceof DiffFloatFunction)) {
+    throw new UnsupportedOperationException();
+  }
+  DiffFloatFunction dfunction=(DiffFloatFunction)function;
+  Queue<Float> previousVals=new LinkedList<Float>();
+  float[] x, newX, grad, newGrad, dir;
+  float ro, value;
+  x=initial;
+  value=dfunction.valueAt(x);
+  if (monitor != null) {
+    floatMonitor.valueAt(x);
+  }
+  grad=new float[x.length];
+  System.arraycopy(dfunction.derivativeAt(x),0,grad,0,grad.length);
+  newGrad=new float[x.length];
+  newX=new float[x.length];
+  dir=new float[x.length];
+  sList_float=new ArrayList<float[]>();
+  yList_float=new ArrayList<float[]>();
+  roList_float=new ArrayList<Float>();
+  float[] nextS;
+  float[] nextY;
+  sayln("Iter: n <chooseDir> [(derivInDir) chooseNewPoint] newValue (relAvgImprovement)\n");
+  for (k=0; ; k++) {
+    float newValue=0;
+    try {
+      say("Iter: " + k + " ");
+      say("<");
+      try {
+        computeDir(dir,grad);
+      }
+ catch (      StochasticQNMinimizer.SurpriseConvergence s) {
+        clearStuff();
+        return x;
+      }
+      say("> ");
+      if (M > 0 && sList_float.size() == M || sList_float.size() == 20) {
+        nextS=sList_float.remove(0);
+        nextY=yList_float.remove(0);
+        roList_float.remove(0);
+      }
+ else {
+        nextS=new float[x.length];
+        nextY=new float[x.length];
+      }
+      say("[");
+      newValue=lineSearch(dfunction,dir,x,newX,grad,value);
+      say("] ");
+    }
+ catch (    OutOfMemoryError e) {
+      sayln(" --- Reached memory limit.  Setting m and redoing iteration...");
+      M=sList_float.size();
+      k--;
+      continue;
+    }
+    System.arraycopy(dfunction.derivativeAt(newX),0,newGrad,0,newGrad.length);
+    say(nf.format(newValue));
+    plusAndConstMult(newX,x,-1,nextS);
+    plusAndConstMult(newGrad,grad,-1,nextY);
+    ro=(float)(1.0 / ArrayMath.innerProduct(nextS,nextY));
+    sList_float.add(nextS);
+    yList_float.add(nextY);
+    roList_float.add(ro);
+    previousVals.add(value);
+    int size=previousVals.size();
+    float previousVal=size == 10 ? previousVals.remove() : previousVals.peek();
+    float averageImprovement=(previousVal - newValue) / size;
+    sayln(" (" + nf.format(averageImprovement / newValue) + ")");
+    if (size > 5 && averageImprovement / newValue < functionTolerance) {
+      clearStuff();
+      return newX;
+    }
+    if (monitor != null) {
+      floatMonitor.valueAt(newX);
+    }
+    value=newValue;
+    float[] temp=x;
+    x=newX;
+    newX=temp;
+    System.arraycopy(newGrad,0,grad,0,newGrad.length);
+    if (quiet) {
+      System.err.print(".");
+    }
+  }
+}

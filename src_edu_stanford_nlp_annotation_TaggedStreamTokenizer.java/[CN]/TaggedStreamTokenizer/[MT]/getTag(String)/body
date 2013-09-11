@@ -1,0 +1,70 @@
+{
+  String value=activeTargets.get(s);
+  if (value != null && !tagInScope) {
+    tagInScope=true;
+    currentTag=s;
+    if (discardTags) {
+      return generateToken();
+    }
+ else {
+      attr=s;
+      sval=s;
+      ttype=TT_TARGET_TAG;
+      return ttype;
+    }
+  }
+  if (tagInScope) {
+    value=activeTargets.get(currentTag);
+    if (value.equals(s)) {
+      tagInScope=false;
+      if (discardTags) {
+        currentTag=null;
+        return generateToken();
+      }
+ else {
+        attr=currentTag;
+        sval=s;
+        ttype=TT_TARGET_TAG_END;
+        currentTag=null;
+        return ttype;
+      }
+    }
+  }
+  String value2=targets.get(s);
+  if (value2 != null) {
+    if (discardInactive) {
+      return generateToken();
+    }
+ else {
+      if (tagInScope) {
+        attr=currentTag;
+        sval=s;
+        ttype=TT_TARGET_INACTIVE_TAG;
+        return TT_TARGET_INACTIVE_TAG;
+      }
+ else {
+        attr=null;
+        sval=s;
+        ttype=TT_BACKGROUND_INACTIVE_TAG;
+        return TT_BACKGROUND_INACTIVE_TAG;
+      }
+    }
+  }
+  if ((!discardHtml && s.indexOf("tag name") == -1) || checkKeepers(s)) {
+    if (tagInScope) {
+      attr=currentTag;
+      sval=s;
+      ttype=TT_TARGET_HTML;
+      return TT_TARGET_HTML;
+    }
+ else {
+      attr=null;
+      sval=s;
+      ttype=TT_BACKGROUND_HTML;
+      return TT_BACKGROUND_HTML;
+    }
+  }
+ else {
+    return generateToken();
+  }
+}

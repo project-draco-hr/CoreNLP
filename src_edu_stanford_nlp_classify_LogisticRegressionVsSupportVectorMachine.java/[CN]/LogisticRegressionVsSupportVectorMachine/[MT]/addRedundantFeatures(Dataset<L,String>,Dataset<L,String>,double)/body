@@ -1,0 +1,45 @@
+{
+  if (train.featureIndex != test.featureIndex) {
+    throw new RuntimeException("Both Datasets must have same feature index!");
+  }
+  Index<String> featureIndex=train.featureIndex;
+  Dataset<L,String> newTrain=new Dataset<L,String>(train.size(),featureIndex,train.labelIndex);
+  Dataset<L,String> newTest=new Dataset<L,String>(test.size(),featureIndex,test.labelIndex);
+  int numFeatures=featureIndex.size();
+  int[] redundant=new int[numFeatures];
+  for (int i=0; i < redundant.length; i++) {
+    if (rand.nextDouble() < probRedundant) {
+      String f="***REDUNDANT-" + i + "***";
+      featureIndex.add(f);
+      redundant[i]=featureIndex.indexOf(f);
+    }
+ else {
+      redundant[i]=-1;
+    }
+  }
+  for (int i=0; i < train.size(); i++) {
+    Datum<L,String> d=train.getDatum(i);
+    Collection<String> features=d.asFeatures();
+    Collection<String> newFeatures=new ArrayList<String>(features);
+    for (    String f : features) {
+      int index=featureIndex.indexOf(f);
+      if (redundant[index] >= 0) {
+        newFeatures.add(featureIndex.get(redundant[index]));
+      }
+    }
+    newTrain.add(new BasicDatum<L,String>(newFeatures,d.label()));
+  }
+  for (int i=0; i < test.size(); i++) {
+    Datum<L,String> d=test.getDatum(i);
+    Collection<String> features=d.asFeatures();
+    Collection<String> newFeatures=new ArrayList<String>(features);
+    for (    String f : features) {
+      int index=featureIndex.indexOf(f);
+      if (redundant[index] >= 0) {
+        newFeatures.add(featureIndex.get(redundant[index]));
+      }
+    }
+    newTest.add(new BasicDatum<L,String>(newFeatures,d.label()));
+  }
+  return Generics.newPair(newTrain,newTest);
+}

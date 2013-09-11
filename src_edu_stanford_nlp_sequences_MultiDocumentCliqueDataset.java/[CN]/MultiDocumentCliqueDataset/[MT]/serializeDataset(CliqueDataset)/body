@@ -1,0 +1,24 @@
+{
+  if (d == null && l != null && l.size() > 0) {
+    String filename=actualSerializeDir + "/dataset-" + (++numFiles)+ ".ser.gz";
+    serializeObject(filename,l);
+  }
+ else   if (l == null) {
+    l=new LinkedList<CliqueDataset>();
+    l.add(d);
+    if (flags.numDatasetsPerFile == 1) {
+      String filename=actualSerializeDir + "/dataset-" + (++numFiles)+ ".ser.gz";
+      serializeObject(filename,l);
+      l.clear();
+    }
+  }
+ else   if (l.size() == flags.numDatasetsPerFile - 1 && d != null) {
+    l.add(d);
+    String filename=actualSerializeDir + "/dataset-" + (++numFiles)+ ".ser.gz";
+    serializeObject(filename,l);
+    l.clear();
+  }
+ else {
+    l.add(d);
+  }
+}

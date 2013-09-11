@@ -1,20 +1,20 @@
 {
-  if (!m.headString.equalsIgnoreCase(a.headString) || !m.sentenceWords.get(m.headIndex).get(CoreAnnotations.PartOfSpeechAnnotation.class).startsWith("NNP") || !a.sentenceWords.get(a.headIndex).get(CoreAnnotations.PartOfSpeechAnnotation.class).startsWith("NNP")) {
+  if (!m.headString.equalsIgnoreCase(a.headString) || !m.sentenceWords.get(m.headIndex).get(PartOfSpeechAnnotation.class).startsWith("NNP") || !a.sentenceWords.get(a.headIndex).get(PartOfSpeechAnnotation.class).startsWith("NNP")) {
     return false;
   }
   if (!m.removePhraseAfterHead().toLowerCase().endsWith(m.headString) || !a.removePhraseAfterHead().toLowerCase().endsWith(a.headString)) {
     return false;
   }
-  Set<String> mProperNouns=Generics.newHashSet();
-  Set<String> aProperNouns=Generics.newHashSet();
+  Set<String> mProperNouns=new HashSet<String>();
+  Set<String> aProperNouns=new HashSet<String>();
   for (  CoreLabel w : m.sentenceWords.subList(m.startIndex,m.headIndex)) {
-    if (w.get(CoreAnnotations.PartOfSpeechAnnotation.class).startsWith("NNP")) {
-      mProperNouns.add(w.get(CoreAnnotations.TextAnnotation.class));
+    if (w.get(PartOfSpeechAnnotation.class).startsWith("NNP")) {
+      mProperNouns.add(w.get(TextAnnotation.class));
     }
   }
   for (  CoreLabel w : a.sentenceWords.subList(a.startIndex,a.headIndex)) {
-    if (w.get(CoreAnnotations.PartOfSpeechAnnotation.class).startsWith("NNP")) {
-      aProperNouns.add(w.get(CoreAnnotations.TextAnnotation.class));
+    if (w.get(PartOfSpeechAnnotation.class).startsWith("NNP")) {
+      aProperNouns.add(w.get(TextAnnotation.class));
     }
   }
   boolean mHasExtra=false;

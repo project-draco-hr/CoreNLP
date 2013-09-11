@@ -1,0 +1,98 @@
+{
+  Timing.startTime();
+  System.err.println("Starting to close rules");
+  System.err.println("numStates = " + numStates);
+  IntArrayList decompressionList=new IntArrayList();
+  int[] compressionArray=new int[numStates];
+  for (int i=0; i < numStates; i++) {
+    compressionArray[i]=-1;
+  }
+  List<UnaryRule>[] rulesWithParent=ug.rulesWithParent();
+  for (int i=0; i < rulesWithParent.length; i++) {
+    if (!rulesWithParent[i].isEmpty()) {
+      decompressionList.add(i);
+      int index=decompressionList.size() - 1;
+      compressionArray[i]=index;
+    }
+  }
+  int numCompressed=decompressionList.size();
+  System.err.println("numCompressed = " + numCompressed);
+  int maxState=-1;
+  for (  UnaryRule tempRule : ug) {
+    if (tempRule.parent > maxState) {
+      maxState=tempRule.parent;
+    }
+    if (tempRule.child > maxState) {
+      maxState=tempRule.child;
+    }
+  }
+  maxState++;
+  System.err.println("maxState = " + maxState);
+  DoubleMatrix2D pcompressed=new RCDoubleMatrix2D(numCompressed,numCompressed);
+  DoubleMatrix2D p=new SparseDoubleMatrix2D(maxState,maxState);
+  for (  UnaryRule tempRule : ug) {
+    if (tempRule.parent == tempRule.child) {
+      System.err.println("Uhoh, reflexive rule");
+    }
+    double linearScore=Math.exp(tempRule.score);
+    p.setQuick(tempRule.parent,tempRule.child,linearScore);
+    int compressedParent=compressionArray[tempRule.parent];
+    int compressedChild=compressionArray[tempRule.child];
+    if (compressedChild >= 0) {
+      pcompressed.setQuick(compressedParent,compressedChild,linearScore);
+    }
+  }
+  DoubleMatrix2D sumCompressed=pcompressed.copy();
+  DoubleMatrix2D pow=pcompressed.copy();
+  DoubleMatrix2D temp=new RCDoubleMatrix2D(numCompressed,numCompressed);
+  System.err.println("Starting multiplication.");
+  do {
+    temp.assign(pow);
+    pcompressed.zMult(temp,pow);
+    addMatrixInPlace(sumCompressed,pow);
+    Timing.tick("Completed iteration.  norm: " + normOfMatrix(pow));
+  }
+ while (normOfMatrix(pow) > closureApproxTol);
+  temp=pow=pcompressed=null;
+  System.err.println("Inflating matrix back to full size.");
+  IntArrayList parentList=new IntArrayList();
+  IntArrayList childList=new IntArrayList();
+  DoubleArrayList scoreList=new DoubleArrayList();
+  sumCompressed.getNonZeros(parentList,childList,scoreList);
+  DoubleMatrix2D sumExpanded=new RCDoubleMatrix2D(maxState,maxState);
+  for (int i=0; i < scoreList.size(); i++) {
+    sumExpanded.setQuick(decompressionList.get(parentList.get(i)),decompressionList.get(childList.get(i)),scoreList.get(i));
+  }
+  sumCompressed=null;
+  for (int i=0; i < maxState; i++) {
+    sumExpanded.setQuick(i,i,1.0);
+  }
+  DoubleMatrix2D result=new RCDoubleMatrix2D(maxState,maxState);
+  sumExpanded.zMult(p,result);
+  sumExpanded=p=null;
+  Timing.tick("Starting to populate data structures.");
+  closedRulesUnderSumWithParent=new List[numStates];
+  closedRulesUnderSumWithChild=new List[numStates];
+  for (int i=0; i < numStates; i++) {
+    closedRulesUnderSumWithParent[i]=new ArrayList<UnaryRule>();
+    closedRulesUnderSumWithChild[i]=new ArrayList<UnaryRule>();
+  }
+  parentList=new IntArrayList();
+  childList=new IntArrayList();
+  scoreList=new DoubleArrayList();
+  result.getNonZeros(parentList,childList,scoreList);
+  result=null;
+  int numClosedRules=scoreList.size();
+  for (int i=0; i < numClosedRules; i++) {
+    UnaryRule tempRule=new UnaryRule(parentList.get(i),childList.get(i),Math.log(scoreList.get(i)));
+    closedRulesUnderSumWithParent[tempRule.parent].add(tempRule);
+    closedRulesUnderSumWithChild[tempRule.child].add(tempRule);
+  }
+  closedRulesUnderSumWithP=new UnaryRule[numStates][];
+  closedRulesUnderSumWithC=new UnaryRule[numStates][];
+  for (int i=0; i < numStates; i++) {
+    closedRulesUnderSumWithP[i]=closedRulesUnderSumWithParent[i].toArray(new UnaryRule[closedRulesUnderSumWithParent[i].size()]);
+    closedRulesUnderSumWithC[i]=closedRulesUnderSumWithChild[i].toArray(new UnaryRule[closedRulesUnderSumWithChild[i].size()]);
+  }
+  Timing.tick("Finished closing rules");
+}

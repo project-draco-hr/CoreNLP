@@ -1,0 +1,97 @@
+{
+  Triple<int[][][],int[],double[][][]> pEn=crfEn.documentToDataAndLabels(enDoc);
+  Triple<int[][][],int[],double[][][]> pCh=crfCh.documentToDataAndLabels(chDoc);
+  CRFCliqueTree cliqueTreeEn=crfEn.getCliqueTree(pEn);
+  CRFCliqueTree cliqueTreeCh=crfCh.getCliqueTree(pCh);
+  int enDocSize=enDoc.size();
+  int chDocSize=chDoc.size();
+  SequenceModel crfModel=new SequentialSequenceModel(new SequenceModel[]{cliqueTreeEn,cliqueTreeCh});
+  int[] listenerLengths=new int[]{cliqueTreeEn.length(),cliqueTreeCh.length()};
+  SequenceListener crfListener=new SequentialSequenceListener(new SequenceListener[]{cliqueTreeEn,cliqueTreeCh},listenerLengths);
+  BisequenceAlignmentPrior biPrior=new BisequenceAlignmentPrior<IN>(flags.backgroundSymbol,classIndexEn,classIndexCh,alignment,enDocSize,chDocSize,flags,softPriorMapEn,softPriorMapCh);
+  SequenceModel biPriorModel=biPrior;
+  SequenceListener biPriorListener=biPrior;
+  List<SequenceModel> models=new ArrayList<SequenceModel>();
+  List<SequenceListener> listeners=new ArrayList<SequenceListener>();
+  models.add(crfModel);
+  models.add(biPriorModel);
+  listeners.add(crfListener);
+  listeners.add(biPriorListener);
+  EmpiricalNERPriorBIO<IN> priorEn=null;
+  EmpiricalNERPriorBIO<IN> priorCh=null;
+  if (flags.useBilingualNERPrior) {
+    if (tagIndexEn == null) {
+      tagIndexEn=new HashIndex<String>();
+      for (      String tag : classIndexEn.objectsList()) {
+        String[] parts=tag.split("-");
+        if (parts.length > 1)         tagIndexEn.add(parts[parts.length - 1]);
+      }
+      tagIndexEn.add(flags.backgroundSymbol);
+    }
+    if (entityMatricesEn == null)     entityMatricesEn=BisequenceEmpiricalNERPrior.readEntityMatrices(flags.entityMatrixEn,tagIndexEn);
+    if (tagIndexCh == null) {
+      tagIndexCh=new HashIndex<String>();
+      for (      String tag : classIndexCh.objectsList()) {
+        String[] parts=tag.split("-");
+        if (parts.length > 1)         tagIndexCh.add(parts[parts.length - 1]);
+      }
+      tagIndexCh.add(flags.backgroundSymbol);
+    }
+    if (entityMatricesCh == null)     entityMatricesCh=BisequenceEmpiricalNERPrior.readEntityMatrices(flags.entityMatrixCh,tagIndexCh);
+    priorEn=new EmpiricalNERPriorBIO<IN>(flags.backgroundSymbol,classIndexEn,tagIndexEn,enDoc,entityMatricesEn,flags);
+    priorCh=new EmpiricalNERPriorBIO<IN>(flags.backgroundSymbol,classIndexCh,tagIndexCh,chDoc,entityMatricesCh,flags);
+    SequenceModel nerModel=new SequentialSequenceModel(new SequenceModel[]{priorEn,priorCh});
+    SequenceListener nerListener=new SequentialSequenceListener(new SequenceListener[]{priorEn,priorCh},listenerLengths);
+    models.add(nerModel);
+    listeners.add(nerListener);
+  }
+  int numOfModels=models.size();
+  double[] weights=new double[numOfModels];
+  Arrays.fill(weights,1.0);
+  SequenceModel model=new FactoredSequenceModel(models.toArray(new SequenceModel[numOfModels]),weights);
+  SequenceListener listener=new FactoredSequenceListener(listeners.toArray(new SequenceListener[numOfModels]));
+  int samplingStyle=0;
+  if (flags.useChromaticSampling) {
+    samplingStyle=2;
+  }
+ else   if (flags.useSequentialScanSampling) {
+    samplingStyle=1;
+  }
+  SequenceGibbsSampler sampler=new SequenceGibbsSampler(0,0,listener,samplingStyle,flags.maxAllowedChromaticSize,partition,flags.samplingSpeedUpThreshold,priorEn,priorCh);
+  int[] sequence=new int[model.length()];
+  if (flags.initViterbi) {
+    CRFClassifier.TestSequenceModel testSequenceModelEn=new CRFClassifier.TestSequenceModel(cliqueTreeEn);
+    CRFClassifier.TestSequenceModel testSequenceModelCh=new CRFClassifier.TestSequenceModel(cliqueTreeCh);
+    ExactBestSequenceFinder tagInference=new ExactBestSequenceFinder();
+    int[] bestSequenceEn=tagInference.bestSequence(testSequenceModelEn);
+    int[] bestSequenceCh=tagInference.bestSequence(testSequenceModelCh);
+    System.arraycopy(bestSequenceEn,crfEn.windowSize() - 1,sequence,0,cliqueTreeEn.length());
+    System.arraycopy(bestSequenceCh,crfCh.windowSize() - 1,sequence,cliqueTreeEn.length(),cliqueTreeCh.length());
+  }
+ else {
+    int[] initialSequence=SequenceGibbsSampler.getRandomSequence(model);
+    System.arraycopy(initialSequence,0,sequence,0,sequence.length);
+  }
+  sampler.verbose=0;
+  if (flags.annealingType.equalsIgnoreCase("linear")) {
+    sequence=sampler.findBestUsingAnnealing(model,CoolingSchedule.getLinearSchedule(1.0,flags.numSamples),sequence);
+  }
+ else   if (flags.annealingType.equalsIgnoreCase("exp") || flags.annealingType.equalsIgnoreCase("exponential")) {
+    sequence=sampler.findBestUsingAnnealing(model,CoolingSchedule.getExponentialSchedule(1.0,flags.annealingRate,flags.numSamples),sequence);
+  }
+ else {
+    throw new RuntimeException("No annealing type specified");
+  }
+  for (int j=0; j < enDocSize; j++) {
+    IN wi=enDoc.get(j);
+    if (wi == null)     throw new RuntimeException("");
+    if (classIndexEn == null)     throw new RuntimeException("");
+    wi.set(AnswerAnnotation.class,classIndexEn.get(sequence[j]));
+  }
+  for (int j=0; j < chDocSize; j++) {
+    IN wi=chDoc.get(j);
+    if (wi == null)     throw new RuntimeException("");
+    if (classIndexCh == null)     throw new RuntimeException("");
+    wi.set(AnswerAnnotation.class,classIndexCh.get(sequence[enDocSize + j]));
+  }
+}

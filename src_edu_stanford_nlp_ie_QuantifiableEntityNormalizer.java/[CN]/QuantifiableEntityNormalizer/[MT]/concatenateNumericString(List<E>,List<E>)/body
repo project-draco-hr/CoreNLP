@@ -4,7 +4,7 @@
   StringBuilder newText=new StringBuilder();
   E foundEntity=null;
   for (  E word : words) {
-    if (foundEntity == null && (word.get(CoreAnnotations.PartOfSpeechAnnotation.class).equals("CD") || word.get(CoreAnnotations.PartOfSpeechAnnotation.class).equals("NNP"))) {
+    if (foundEntity == null && (word.get(PartOfSpeechAnnotation.class).equals("CD") || word.get(PartOfSpeechAnnotation.class).equals("NNP"))) {
       foundEntity=word;
     }
     if (first) {
@@ -13,15 +13,15 @@
  else {
       newText.append('_');
     }
-    newText.append(word.get(CoreAnnotations.TextAnnotation.class));
+    newText.append(word.get(TextAnnotation.class));
   }
   if (foundEntity == null) {
     foundEntity=words.get(0);
   }
   toRemove.addAll(words);
   toRemove.remove(foundEntity);
-  foundEntity.set(CoreAnnotations.PartOfSpeechAnnotation.class,"CD");
+  foundEntity.set(PartOfSpeechAnnotation.class,"CD");
   String collapsed=newText.toString();
-  foundEntity.set(CoreAnnotations.TextAnnotation.class,collapsed);
-  foundEntity.set(CoreAnnotations.OriginalTextAnnotation.class,collapsed);
+  foundEntity.set(TextAnnotation.class,collapsed);
+  foundEntity.set(OriginalTextAnnotation.class,collapsed);
 }

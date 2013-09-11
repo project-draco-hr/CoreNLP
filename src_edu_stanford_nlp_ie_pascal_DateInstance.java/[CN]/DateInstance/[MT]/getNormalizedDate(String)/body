@@ -1,0 +1,46 @@
+{
+  if (orig.equals("01/01/1000")) {
+    return null;
+  }
+  Matcher m=pat.matcher(orig);
+  String yearString="";
+  if (m.matches()) {
+    if (m.group(1).length() == 4) {
+      return "00-00-" + m.group(1);
+    }
+ else {
+      String month=m.group(1);
+      if (month.length() == 1) {
+        month="0" + month;
+      }
+      if (m.group(2).length() == 4) {
+        return month + "-00-" + m.group(2);
+      }
+ else {
+        String day=m.group(2);
+        if (day.length() == 1) {
+          day="0" + day;
+        }
+        String year="??";
+        if (m.group(3) != null) {
+          if (!m.group(3).equals("1000") && !m.group(3).equals("10")) {
+            if (m.group(3).length() == 2) {
+              int yearInt=Integer.parseInt(m.group(3));
+              if (yearInt < 50) {
+                year="20" + m.group(3);
+              }
+ else {
+                year="19" + m.group(3);
+              }
+            }
+ else {
+              year=m.group(3);
+            }
+          }
+        }
+        return month + "-" + day+ "-"+ year;
+      }
+    }
+  }
+  return null;
+}

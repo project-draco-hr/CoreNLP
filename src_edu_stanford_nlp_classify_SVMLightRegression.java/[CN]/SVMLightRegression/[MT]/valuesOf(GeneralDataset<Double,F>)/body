@@ -1,0 +1,34 @@
+{
+  if (data.featureIndex() != this.featureIndex) {
+    this.featureIndex.lock();
+    RVFDataset<Double,F> newData;
+    newData=new RVFDataset<Double,F>(this.featureIndex,data.labelIndex());
+    for (int index=0; index < data.size; ++index) {
+      newData.add(data.getRVFDatum(index));
+    }
+    data=newData;
+    this.featureIndex.unlock();
+  }
+  File testFile;
+  File outputFile;
+  try {
+    testFile=File.createTempFile("svm-light-classify",".input");
+    outputFile=File.createTempFile("svm-light-classify",".output");
+    writeSVMLightFormat(data,testFile);
+  }
+ catch (  IOException e) {
+    throw new RuntimeIOException(e);
+  }
+  try {
+    SystemUtils.run(new ProcessBuilder(this.classifyCommand,"-v","0",testFile.getPath(),this.modelFile.getPath(),outputFile.getPath()));
+    List<Double> values=new ArrayList<Double>();
+    for (    String line : IOUtils.readLines(outputFile)) {
+      values.add(Double.parseDouble(line));
+    }
+    return values;
+  }
+  finally {
+    testFile.delete();
+    outputFile.delete();
+  }
+}

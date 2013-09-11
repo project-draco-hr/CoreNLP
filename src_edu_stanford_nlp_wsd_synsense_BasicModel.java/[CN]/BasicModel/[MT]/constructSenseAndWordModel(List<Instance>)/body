@@ -1,0 +1,60 @@
+{
+  if (verbose) {
+    System.out.println("Constructing sense and word model.");
+  }
+  wordsGivenSenseCounts=new TwoDimensionalCounter<String,String>();
+  Counter<String> senseCounts=new ClassicCounter<String>();
+  Counter<String> wordCounter=new ClassicCounter<String>();
+  allSenses=new HashIndex<String>();
+  numWords=0.0;
+  lexElt=data.get(0).getLexicalElement();
+  for (  Instance ins : data) {
+    if (ins.sense[0].equals(Instance.UNASSIGNED)) {
+      continue;
+    }
+    if (ins.sense[0].equals(Instance.DISTRIBUTION)) {
+      continue;
+    }
+    if (ins.sense[0].equals(Instance.DISTRIBUTION)) {
+    }
+ else {
+      for (int j=0; j < ins.sense.length; j++) {
+        String sense=ins.sense[j];
+        if (sense.equals("UNASSIGNED")) {
+          throw new RuntimeException();
+        }
+        allSenses.add(sense);
+        senseCounts.incrementCount(sense,1.0 / ins.sense.length);
+      }
+    }
+    for (int i=0; i < ins.allWords.size(); i++) {
+      if (i == ins.index) {
+        continue;
+      }
+      int bucket=bucketing.getBucket(ins.index - i);
+      String word=ins.allWords.get(i).word().toLowerCase();
+      if (ins.sense[0].equals(Instance.DISTRIBUTION)) {
+        for (Iterator<String> senseI=ins.senseDist.keySet().iterator(); senseI.hasNext(); ) {
+          String sense=senseI.next();
+          double senseWeight=ins.senseDist.probabilityOf(sense);
+          double wordWeight=senseWeight * bucketWeights[bucket];
+          wordsGivenSenseCounts.incrementCount(sense,word,wordWeight);
+          numWords+=wordWeight;
+        }
+      }
+ else {
+        for (int j=0; j < ins.sense.length; j++) {
+          String sense=ins.sense[j];
+          double wordWeight=bucketWeights[bucket] / ins.sense.length;
+          wordsGivenSenseCounts.incrementCount(sense,word,wordWeight);
+          numWords+=wordWeight;
+        }
+      }
+      wordCounter.incrementCount(word);
+    }
+  }
+  numInstances=senseCounts.totalCount();
+  wordPrior=Distribution.getDistribution(wordCounter);
+  sensePrior=Distribution.getDistribution(senseCounts);
+  wordsGivenSenseCache.clear();
+}

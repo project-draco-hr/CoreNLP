@@ -1,0 +1,32 @@
+{
+  List<String> name=new ArrayList<String>();
+  String[] words=input.split("[\\s+]");
+  boolean gap=false;
+  boolean prep=false;
+  for (int i=0; i < words.length; i++) {
+    if (words[i].equals("of")) {
+      prep=true;
+    }
+    if (salutations.contains(words[i].toLowerCase())) {
+      name=new ArrayList<String>();
+      name.add(words[i]);
+      continue;
+    }
+    if (words[i].equals(",") && !name.isEmpty()) {
+      i=words.length;
+      continue;
+    }
+    if (words[i].equals(",") && name.isEmpty()) {
+      gap=false;
+      prep=false;
+      continue;
+    }
+    if (StringUtils.isCapitalized(words[i]) && !words[i].equals("The") && !words[i].equals("This")&& !gap&& !prep) {
+      name.add(words[i]);
+    }
+    if (!StringUtils.isCapitalized(words[i]) && !name.isEmpty()) {
+      gap=true;
+    }
+  }
+  return name;
+}

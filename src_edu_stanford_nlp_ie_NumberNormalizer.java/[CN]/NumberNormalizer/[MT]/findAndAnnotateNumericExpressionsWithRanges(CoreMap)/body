@@ -8,7 +8,7 @@
   List<CoreMap> numberRanges=NumberNormalizer.findNumberRanges(annotation);
   final Integer startTokenOffsetFinal=startTokenOffset;
   List<CoreMap> mergedNumbersWithRanges=CollectionUtils.mergeListWithSortedMatchedPreAggregated(annotation.get(CoreAnnotations.NumerizedTokensAnnotation.class),numberRanges,new Function<CoreMap,Interval<Integer>>(){
-    @Override public Interval<Integer> apply(    CoreMap in){
+    public Interval<Integer> apply(    CoreMap in){
       return Interval.toInterval(in.get(CoreAnnotations.TokenBeginAnnotation.class) - startTokenOffsetFinal,in.get(CoreAnnotations.TokenEndAnnotation.class) - startTokenOffsetFinal);
     }
   }

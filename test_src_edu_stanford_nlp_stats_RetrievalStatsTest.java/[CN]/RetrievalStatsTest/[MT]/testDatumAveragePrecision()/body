@@ -1,0 +1,14 @@
+{
+  double expected, actual;
+  RVFDataset<Boolean,Integer> data=new RVFDataset<Boolean,Integer>();
+  this.addDatum(data,true,1,2);
+  this.addDatum(data,false,3,4);
+  this.addDatum(data,false,2,4);
+  this.addDatum(data,true,4,1);
+  expected=(1.0 + 0.5) / 2;
+  actual=RetrievalStats.averagePrecision(data,null);
+  Assert.assertEquals(expected,actual,1e-10);
+  expected=(1.0 + 0.5) / 4;
+  actual=RetrievalStats.averagePrecision(data,4);
+  Assert.assertEquals(expected,actual,1e-10);
+}

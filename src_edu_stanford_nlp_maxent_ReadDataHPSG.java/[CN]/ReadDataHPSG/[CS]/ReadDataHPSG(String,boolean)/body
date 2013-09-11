@@ -1,0 +1,19 @@
+{
+  BufferedReader in=new BufferedReader(new FileReader(wekaFileName));
+  String s;
+  while ((s=in.readLine()) != null) {
+    if (ignore(s)) {
+      continue;
+    }
+    s=s.toLowerCase();
+    if (s.startsWith("@relation")) {
+      continue;
+    }
+    if (s.startsWith("@attribute") || s.startsWith("@ATTRIBUTE")) {
+      readAttribute(s);
+    }
+    if (s.startsWith("@data") || s.startsWith("@DATA")) {
+      break;
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  TwoDimensionalCounter<String,Pair<String,String>> features=new TwoDimensionalCounter<String,Pair<String,String>>();
+  Datum<String,String> d=makeDatum(word,label);
+  Collection<String> feat1D=d.asFeatures();
+  for (Iterator<String> featIter=feat1D.iterator(); featIter.hasNext(); ) {
+    String feature1D=featIter.next();
+    for (int i=0; i < labelIndex.size(); i++) {
+      features.incrementCount(integers.get(i),new Pair<String,String>(labelIndex.get(i),feature1D));
+      if (isNoun(i)) {
+        features.incrementCount(integers.get(i),new Pair<String,String>(noun,feature1D));
+      }
+ else {
+        features.incrementCount(integers.get(i),new Pair<String,String>(verb,feature1D));
+      }
+    }
+  }
+  return new Type2Datum<String,Pair<String,String>>(features,integers.get(labelIndex.indexOf(label)));
+}

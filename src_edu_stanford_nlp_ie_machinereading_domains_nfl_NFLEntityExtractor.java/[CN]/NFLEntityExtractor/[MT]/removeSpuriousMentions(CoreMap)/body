@@ -1,0 +1,19 @@
+{
+  List<EntityMention> mentions=sentence.get(EntityMentionsAnnotation.class);
+  List<EntityMention> cleanMentions=new ArrayList<EntityMention>();
+  for (  EntityMention m : mentions) {
+    if (m.getType().equals("Date") && gameTime(m.getExtentString())) {
+      logger.info("REMOVING ENTITY MENTION (game time): " + m);
+    }
+ else     if (m.getType().equals("Date") && invalidDate(m.getExtentString())) {
+      logger.info("REMOVING ENTITY MENTION (invalid date): " + m);
+    }
+ else     if (PREFER_TEAMS_FROM_GAZETTEER && m.getType().equals("NFLTeam")) {
+      logger.info("REMOVING ENTITY MENTION (team predicted by CRF): " + m);
+    }
+ else {
+      cleanMentions.add(m);
+    }
+  }
+  sentence.set(EntityMentionsAnnotation.class,cleanMentions);
+}

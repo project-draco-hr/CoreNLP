@@ -1,0 +1,111 @@
+{
+  logger.info("Parsing file " + f.getAbsolutePath() + " ...");
+  Document document=DomReader.readDocument(f);
+  Node relationsElement=document.getElementsByTagName(RELATIONS_TOP).item(0);
+  String docId=DomReader.getAttributeValue(relationsElement,DOC_ID_ATTRIBUTE);
+  NodeList rels=document.getElementsByTagName(RELATION);
+  HashMap<Integer,Annotation> seenSentences=new HashMap<Integer,Annotation>();
+  HashMap<Integer,EntityMention> seenMentions=new HashMap<Integer,EntityMention>();
+  int tokenOffset=0;
+  for (int relNum=0; relNum < rels.getLength(); relNum++) {
+    Node relationNode=rels.item(relNum);
+    String relType=getType(relationNode);
+    if (relType == null) {
+      logger.warning("Relation type is null -- this is likely because it couldn't be inferred from the .gui.xml files, skipping relation.");
+      continue;
+    }
+    Annotation relSent=null;
+    int sentenceOffset;
+    try {
+      sentenceOffset=Integer.parseInt(DomReader.getAttributeValue(relationNode,START));
+    }
+ catch (    NumberFormatException nfe) {
+      logger.severe("Sentence has null start offset, skipping.");
+      continue;
+    }
+    logger.info("Sentence offset = " + sentenceOffset);
+    if (seenSentences.containsKey(sentenceOffset)) {
+      relSent=seenSentences.get(sentenceOffset);
+    }
+ else {
+      String textContent=relationNode.getFirstChild().getTextContent().trim();
+      logger.fine("Creating sentence for offset " + sentenceOffset + ": "+ textContent);
+      NFLTokenizer tokenizer=new NFLTokenizer(textContent);
+      List<CoreLabel> tokens=tokenizer.tokenize();
+      AnnotationUtils.updateOffsetsInCoreLabels(tokens,sentenceOffset);
+      relSent=new Annotation(textContent);
+      logger.info("Tokenized sentence: " + AnnotationUtils.tokensToString(tokens));
+      relSent.set(CoreAnnotations.DocIDAnnotation.class,docId);
+      relSent.set(CoreAnnotations.TokensAnnotation.class,tokens);
+      if (tokens.size() > 0) {
+        relSent.set(CharacterOffsetBeginAnnotation.class,tokens.get(0).get(CharacterOffsetBeginAnnotation.class));
+        relSent.set(CharacterOffsetEndAnnotation.class,tokens.get(tokens.size() - 1).get(CharacterOffsetEndAnnotation.class));
+      }
+      relSent.set(TokenBeginAnnotation.class,tokenOffset);
+      relSent.set(TokenEndAnnotation.class,tokenOffset + tokens.size());
+      tokenOffset+=tokens.size();
+      seenSentences.put(sentenceOffset,relSent);
+      AnnotationUtils.addSentence(corpus,relSent);
+    }
+    assert(relSent != null);
+    Span relExtent=new Span(Integer.MAX_VALUE,Integer.MIN_VALUE);
+    NodeList args=relationNode.getChildNodes();
+    List<ExtractionObject> argList=new ArrayList<ExtractionObject>();
+    boolean hasMissingArguments=false;
+    for (int argNum=0; argNum < args.getLength(); argNum++) {
+      Node argNode=args.item(argNum);
+      if (!ARG.equals(argNode.getNodeName())) {
+        continue;
+      }
+      String argType=getType(argNode);
+      String value=argNode.getTextContent().trim();
+      int argStart=Integer.parseInt(DomReader.getAttributeValue(argNode,START));
+      int argEnd=Integer.parseInt(DomReader.getAttributeValue(argNode,END));
+      if (argStart == -1 && argEnd == -1 && value.equals("*MISSING*")) {
+        hasMissingArguments=true;
+        continue;
+      }
+      logger.fine("Found argument " + argType + "["+ argStart+ ", "+ argEnd+ "]: "+ value);
+      int seenKey=(10000000 * argStart + argEnd);
+      EntityMention arg=seenMentions.get(seenKey);
+      Span extent=null;
+      if (arg == null) {
+        extent=mapArgumentToSentence(value,argStart,argEnd,relSent.get(CoreAnnotations.TokensAnnotation.class));
+        if (extent == null) {
+          logger.info("Failed to map argument " + argType + "["+ argStart+ ", "+ argEnd+ "]: \""+ value+ "\" to sentence: "+ relSent);
+          logger.fine("The tokens in the above sentence are:");
+          for (          CoreLabel t : relSent.get(TokensAnnotation.class)) {
+            logger.fine("\t" + t.word() + "\t"+ t.beginPosition()+ "\t"+ t.endPosition());
+          }
+          hasMissingArguments=true;
+          continue;
+        }
+        arg=entityMentionFactory.constructEntityMention(EntityMention.makeUniqueId(),relSent,extent,extent,normalizeType(argType),null,null);
+        logger.info("Corresponding EntityMention: " + arg);
+        seenMentions.put(seenKey,arg);
+        AnnotationUtils.addEntityMention(relSent,arg);
+      }
+ else {
+        extent=arg.getExtent();
+      }
+      assert(extent != null);
+      assert(arg != null);
+      relExtent.expandToInclude(extent);
+      int i=0;
+      while (i < argList.size()) {
+        if (argList.get(i).getType().compareTo(arg.getType()) > 0) {
+          argList.add(i,arg);
+          break;
+        }
+        i++;
+      }
+      if (i == argList.size()) {
+        argList.add(i,arg);
+      }
+    }
+    if (!hasMissingArguments) {
+      RelationMention rel=relationMentionFactory.constructRelationMention(RelationMention.makeUniqueId(),relSent,relExtent,relType,null,argList,null);
+      AnnotationUtils.addRelationMention(relSent,rel);
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  System.err.println(new Date() + " Creating " + numFolds+ " train/test/answer folds for "+ outname);
+  new File(outname).getParentFile().mkdirs();
+  for (int f=1; f <= numFolds; f++) {
+    Collections.shuffle(examples);
+    PrintWriter train=new PrintWriter(new BufferedWriter(new FileWriter(outname + ".train." + f)));
+    train.println(numCategories);
+    for (int i=0; i < examples.size() - examples.size() / testPercent; i++) {
+      Example cur=examples.get(i);
+      train.println(cur.category + " " + cur.text);
+    }
+    train.flush();
+    train.close();
+    PrintWriter test=new PrintWriter(new BufferedWriter(new FileWriter(outname + ".test." + f)));
+    PrintWriter answers=new PrintWriter(new BufferedWriter(new FileWriter(outname + ".answers." + f)));
+    for (int i=examples.size() - examples.size() / testPercent; i < examples.size(); i++) {
+      Example cur=examples.get(i);
+      test.println(cur.text);
+      answers.println(cur.category);
+    }
+    test.flush();
+    test.close();
+    answers.flush();
+    answers.close();
+  }
+}

@@ -1,0 +1,32 @@
+{
+  try {
+    BufferedWriter out=new BufferedWriter(new FileWriter(testOutputFile));
+    int correct=0;
+    int total=0;
+    for (    String line : ObjectBank.getLineIterator(new File(testFile))) {
+      RVFDatum<String,Integer> datum=makeDatum(line);
+      Counter<String> scores=lC.probabilityOf(datum);
+      Object guess=Counters.argmax(scores);
+      Object label=datum.label();
+      if (label.equals(guess)) {
+        correct++;
+      }
+      total++;
+      StringBuilder sb=new StringBuilder();
+      String[] arr=ErasureUtils.uncheckedCast(scores.keySet().toArray());
+      for (      String anArr : arr) {
+        sb.append(anArr);
+        sb.append(tab);
+        sb.append(scores.getCount(anArr));
+        sb.append(tab);
+      }
+      sb.append(nl);
+      out.write(sb.toString());
+    }
+    out.close();
+    System.err.println("correct " + correct + " out of "+ total+ " accuracy "+ correct / (double)total);
+  }
+ catch (  IOException e) {
+    throw new RuntimeIOException(e);
+  }
+}

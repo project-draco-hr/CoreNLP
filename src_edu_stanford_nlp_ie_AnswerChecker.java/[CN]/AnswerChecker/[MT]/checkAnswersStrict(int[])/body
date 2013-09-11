@@ -1,0 +1,40 @@
+{
+  Map<Integer,PrecisionRecallStats> statsByType=new HashMap<Integer,PrecisionRecallStats>();
+  Map<Integer,List<Range>> guessRanges=getAnswerRanges(guesses);
+  for (  Integer type : answerRangesByType.keySet()) {
+    PrecisionRecallStats stats=new PrecisionRecallStats();
+    List<Range> aRanges=answerRangesByType.get(type);
+    List<Range> gRanges=guessRanges.get(type);
+    if (gRanges == null) {
+      stats.addFN(aRanges.size());
+    }
+ else {
+      for (      Object aRange : aRanges) {
+        Range curAnswer=(Range)aRange;
+        boolean found=false;
+        for (        Object gRange : gRanges) {
+          if (curAnswer.equals(gRange)) {
+            found=true;
+            break;
+          }
+        }
+        if (found) {
+          stats.incrementTP();
+        }
+ else {
+          stats.incrementFN();
+        }
+      }
+      stats.addFP(gRanges.size() - stats.getTP());
+    }
+    statsByType.put(type,stats);
+  }
+  for (  Integer type : guessRanges.keySet()) {
+    if (answerRangesByType.get(type) == null) {
+      PrecisionRecallStats stats=new PrecisionRecallStats();
+      stats.addFP(guessRanges.get(type).size());
+      statsByType.put(type,stats);
+    }
+  }
+  return statsByType;
+}

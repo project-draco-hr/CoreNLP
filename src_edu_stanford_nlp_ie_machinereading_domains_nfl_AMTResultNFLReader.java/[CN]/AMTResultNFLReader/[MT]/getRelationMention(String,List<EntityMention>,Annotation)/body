@@ -1,0 +1,28 @@
+{
+  String[] parts=parsableRelation.split("_");
+  String type=parts[0];
+  Collections.sort(args,new Comparator<EntityMention>(){
+    public int compare(    EntityMention one,    EntityMention two){
+      return one.getType().compareTo(two.getType());
+    }
+  }
+);
+  int start=Integer.MAX_VALUE;
+  int end=Integer.MIN_VALUE;
+  List<ExtractionObject> argsForRel=new ArrayList<ExtractionObject>();
+  for (  ExtractionObject arg : args) {
+    if (arg.getExtentTokenStart() < start) {
+      start=arg.getExtentTokenStart();
+    }
+    if (arg.getExtentTokenEnd() > end) {
+      end=arg.getExtentTokenEnd();
+    }
+    argsForRel.add(arg);
+  }
+  Span span=new Span(start,end);
+  if ("gameLooser".equals(type)) {
+    type="gameLoser";
+  }
+  RelationMention rel=relationMentionFactory.constructRelationMention(RelationMention.makeUniqueId(),sentence,span,type,null,argsForRel,null);
+  return rel;
+}

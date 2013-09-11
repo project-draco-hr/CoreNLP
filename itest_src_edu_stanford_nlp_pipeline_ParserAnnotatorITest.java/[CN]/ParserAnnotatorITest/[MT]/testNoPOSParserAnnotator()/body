@@ -1,11 +1,11 @@
 {
   Annotation document=new Annotation("John Bauer works at Stanford.");
   noPOSPipeline.annotate(document);
-  assertEquals(1,document.get(CoreAnnotations.SentencesAnnotation.class).size());
-  CoreMap sentence=document.get(CoreAnnotations.SentencesAnnotation.class).get(0);
-  Tree parse=sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+  assertEquals(1,document.get(SentencesAnnotation.class).size());
+  CoreMap sentence=document.get(SentencesAnnotation.class).get(0);
+  Tree parse=sentence.get(TreeAnnotation.class);
   assertEquals("(ROOT (S (NP (NNP John) (NNP Bauer)) (VP (VBZ works) (PP (IN at) (NP (NNP Stanford)))) (. .)))",parse.toString());
-  List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
+  List<CoreLabel> tokens=sentence.get(TokensAnnotation.class);
   List<Label> leaves=parse.yield();
   assertEquals(6,tokens.size());
   assertEquals(6,leaves.size());

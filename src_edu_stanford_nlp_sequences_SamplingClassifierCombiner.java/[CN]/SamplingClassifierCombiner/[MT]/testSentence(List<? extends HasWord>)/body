@@ -1,0 +1,19 @@
+{
+  List<CoreLabel> toLabelAux=new ArrayList<CoreLabel>();
+  List<CoreLabel> toLabelMain=new ArrayList<CoreLabel>();
+  for (  HasWord ml : s) {
+    CoreLabel ml1=new CoreLabel();
+    ml1.setWord(ml.word());
+    toLabelAux.add(ml1);
+    CoreLabel ml2=new CoreLabel();
+    ml2.setWord(ml.word());
+    toLabelMain.add(ml2);
+  }
+  List<CoreLabel> test1=mainClassifier.getSampler(toLabelMain).drawSample();
+  moveAnswerFieldsToNERField(toLabelMain,test1);
+  List<CoreLabel> test2=auxClassifier.getSampler(toLabelAux).drawSample();
+  moveAnswerFieldsToNERField(toLabelAux,test2);
+  List<CoreLabel> nerOutput=mergeDocuments(toLabelMain,toLabelAux);
+  QuantifiableEntityNormalizer.addNormalizedQuantitiesToEntities(nerOutput);
+  return nerOutput;
+}

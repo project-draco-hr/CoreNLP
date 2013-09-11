@@ -1,0 +1,16 @@
+{
+  Matcher m=ENTITY_PATTERN.matcher(parsableRelation);
+  List<EntityMention> retVal=new ArrayList<EntityMention>();
+  while (m.find()) {
+    String entityToParse=m.group();
+    entityToParse=entityToParse.substring(1,entityToParse.length() - 1);
+    String[] parts=entityToParse.split("_");
+    String label=parts[1];
+    int start=Integer.valueOf(parts[2]);
+    int end=Integer.valueOf(parts[3]);
+    EntityMention entityMention=entityMentionFactory.constructEntityMention(EntityMention.makeUniqueId(),sentence,new Span(start,end),new Span(start,end),label,null,null);
+    retVal.add(entityMention);
+    logOrPrint(label + ":" + entityMention.getValue());
+  }
+  return retVal;
+}

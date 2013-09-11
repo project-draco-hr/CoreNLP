@@ -1,0 +1,13 @@
+{
+  Matrix diag=new DenseMatrix(v.numRows(),v.numColumns());
+  for (int i=0; i < v.numRows(); ++i) {
+    double chi2=Gamma.drawSample(r,df - i,2);
+    diag.set(i,i,Math.sqrt(chi2));
+    for (int j=0; j < i; ++j) {
+      diag.set(i,j,r.nextGaussian());
+    }
+  }
+  Matrix c=new DenseMatrix(diag.numRows(),diag.numColumns());
+  Matrix d=new DenseMatrix(diag.numRows(),diag.numColumns());
+  return l.mult(diag,d).mult(diag.transAmult(1,lt,c),diag);
+}

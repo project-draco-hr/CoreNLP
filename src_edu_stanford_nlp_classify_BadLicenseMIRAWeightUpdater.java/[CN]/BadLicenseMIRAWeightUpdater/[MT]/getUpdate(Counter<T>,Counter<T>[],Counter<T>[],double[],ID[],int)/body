@@ -1,0 +1,16 @@
+{
+  int len=losses.length;
+  Counter<T>[] featureDifferences=(ClassicCounter<T>[])new ClassicCounter[len];
+  double[] lossMinusScoreDiff=new double[len];
+  for (int i=0; i < len; i++) {
+    featureDifferences[i]=Counters.diff(goldVectors[i],guessedVectors[i]);
+    double scoreDiff=Counters.dotProduct(featureDifferences[i],weights);
+    lossMinusScoreDiff[i]=losses[i] - scoreDiff;
+  }
+  double[] alphas=BadLicenseHildreth.runHildreth(featureDifferences,lossMinusScoreDiff);
+  ClassicCounter<T> result=new ClassicCounter<T>();
+  for (int i=0; i < len; i++) {
+    Counters.addInPlace(result,featureDifferences[i],alphas[i]);
+  }
+  return result;
+}

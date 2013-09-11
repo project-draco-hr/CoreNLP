@@ -1,0 +1,13 @@
+{
+  if (e1.getSentence() != e2.getSentence())   return;
+  EventMention first=e1;
+  EventMention second=e2;
+  if (e2.getAnchor().getExtentTokenEnd() <= e1.getAnchor().getExtentTokenStart()) {
+    first=e2;
+    second=e1;
+  }
+  for (  Pair<EventMention,EventMention> p : sharingEvents) {
+    if (p.first == first && p.second == second)     return;
+  }
+  sharingEvents.add(new Pair<EventMention,EventMention>(first,second));
+}

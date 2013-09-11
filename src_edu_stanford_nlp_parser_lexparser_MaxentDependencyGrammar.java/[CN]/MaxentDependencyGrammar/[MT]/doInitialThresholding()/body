@@ -1,0 +1,17 @@
+{
+  Collection<String> words=new ArrayList<String>();
+  for (Iterator<IntDependency> iter=posExamples.keySet().iterator(); iter.hasNext(); ) {
+    IntDependency dep=iter.next();
+    words.add(dep.head.wordString(wordIndex));
+    words.add(dep.arg.wordString(wordIndex));
+  }
+  for (Iterator<IntDependency> iter=negExamples.keySet().iterator(); iter.hasNext(); ) {
+    IntDependency dep=iter.next();
+    words.add(dep.head.wordString(wordIndex));
+    words.add(dep.arg.wordString(wordIndex));
+  }
+  System.err.println("Doing word feature thresholding on small feature extractor.");
+  smallWordFeatExtractor.applyFeatureCountThreshold(words,wordFeatThresh);
+  System.err.println("Doing word feature thresholding on large feature extractor.");
+  largeWordFeatExtractor.applyFeatureCountThreshold(words,wordFeatThresh);
+}

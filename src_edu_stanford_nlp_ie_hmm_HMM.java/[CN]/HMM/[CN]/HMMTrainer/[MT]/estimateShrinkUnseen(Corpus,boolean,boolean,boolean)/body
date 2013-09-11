@@ -1,0 +1,128 @@
+{
+  if (verbose) {
+    System.err.println("estimateShrinkUnseen: unseenProb is " + unseenProb);
+  }
+  ShrinkedEmitMap[] semits=new ShrinkedEmitMap[numStates];
+  if (shrinkage) {
+    for (int i=State.BKGRNDIDX; i < states.length; i++) {
+      if (!(states[i].emit instanceof ConstantEmitMap)) {
+        if (false) {
+          System.err.println("**** estimateShrinkUnseen ****");
+          System.err.println("i: " + i);
+          System.err.println("semits.length: " + semits.length);
+          System.err.println("states.length: " + states.length);
+          System.err.println("targetParents.length: " + targetParents.length);
+          System.err.println("states[i].type: " + states[i].type);
+        }
+        semits[i]=new ShrinkedEmitMap(states[i].emit,targetParents[states[i].type],uniform);
+      }
+    }
+    for (int i=State.BKGRNDIDX; i < states.length; i++) {
+      if (!(states[i].emit instanceof ConstantEmitMap)) {
+        states[i].emit=semits[i];
+      }
+    }
+  }
+  NumberFormat nf=new DecimalFormat("0.000");
+  if (spillEmissions) {
+    System.err.println("State Emissions before Reestimation");
+    for (int i=State.BKGRNDIDX; i < states.length; i++) {
+      if (!(states[i].emit instanceof ConstantEmitMap)) {
+        System.err.println();
+        System.err.println("*** State " + i + " ****");
+        states[i].emit.printEmissions(new PrintWriter(System.err,true),false);
+      }
+    }
+  }
+  double[] totalSeen=new double[numStates];
+  double[] totalUnseen=new double[numStates];
+  double seenSmoothing=1.0;
+  double[] beta1=new double[numStates];
+  double[] beta2=new double[numStates];
+  double[] beta3=new double[numStates];
+  double shrinkageSmoothing=0.0001;
+  int iterations=0;
+  double maxChange;
+  double lastLogLikelihood=logLikelihood(docs,true,true);
+  if (verbose) {
+    System.err.println("logLike before unseen estimation: " + lastLogLikelihood);
+  }
+  do {
+    iterations++;
+    if (verbose) {
+      System.err.println("Unseen estimation iteration " + iterations);
+    }
+    maxChange=0.0;
+    ClassicCounter<String>[] expectedEmissions=hmmt.computeExpectedEmissions(docs,useSingletons);
+    for (int i=0; i < states.length; i++) {
+      if (states[i].emit == null || states[i].emit instanceof ConstantEmitMap) {
+        continue;
+      }
+      if (unseenProb) {
+        EmitMap emit=states[i].emit;
+        if (emit instanceof ShrinkedEmitMap) {
+          emit=((ShrinkedEmitMap)emit).getBase();
+        }
+        maxChange=Math.max(maxChange,emit.tuneParameters(expectedEmissions[i],getHMM()));
+      }
+      if (shrinkage) {
+        beta1[i]=beta2[i]=beta3[i]=shrinkageSmoothing;
+        boolean seenBung=false;
+        for (Iterator iter=expectedEmissions[i].keySet().iterator(); iter.hasNext(); ) {
+          String word=(String)iter.next();
+          double weight=expectedEmissions[i].getCount(word);
+          beta1[i]+=weight * semits[i].get1(word) / semits[i].get(word);
+          beta2[i]+=weight * semits[i].get2(word) / semits[i].get(word);
+          beta3[i]+=weight * semits[i].get3(word) / semits[i].get(word);
+          if (sanityCheck && !seenBung && SloppyMath.isVeryDangerous(beta1[i])) {
+            seenBung=true;
+            System.err.println("Dangerous: beta1 is " + beta1[i]);
+            System.err.println("get1: " + semits[i].get1(word) + "; get2: "+ semits[i].get2(word)+ "; get3: "+ semits[i].get3(word));
+          }
+        }
+        double sumBeta=beta1[i] + beta2[i] + beta3[i];
+        beta1[i]/=sumBeta;
+        beta2[i]/=sumBeta;
+        beta3[i]/=sumBeta;
+        maxChange=Math.max(maxChange,Math.abs(beta1[i] - semits[i].lambda1));
+        semits[i].lambda1=beta1[i];
+        maxChange=Math.max(maxChange,Math.abs(beta2[i] - semits[i].lambda2));
+        semits[i].lambda2=beta2[i];
+        maxChange=Math.max(maxChange,Math.abs(beta3[i] - semits[i].lambda3));
+        semits[i].lambda3=beta3[i];
+        if (verbose) {
+          System.err.println("Shrink reest state " + i + " iter "+ iterations+ ". Max ch = "+ nf.format(maxChange)+ ", new lambdas: "+ nf.format(beta1[i])+ ", "+ nf.format(beta2[i])+ ", "+ nf.format(beta3[i]));
+        }
+      }
+    }
+    if (convergenceOnLikelihood) {
+      double logLike=logLikelihood(docs,true,true);
+      double logLikeImprove=(lastLogLikelihood == 0.0) ? 0.0 : (lastLogLikelihood - logLike) / lastLogLikelihood;
+      if (verbose) {
+        System.err.println("logLike after " + iterations + " iterations: "+ logLike+ " ("+ (logLikeImprove * 100)+ "% change)");
+      }
+      if (logLikeImprove < LL_CONVERGE_SIZE) {
+        if (verbose) {
+          System.err.println("estimateShrinkUnseen: log likelihood converged after " + iterations + " iterations");
+        }
+        break;
+      }
+      lastLogLikelihood=logLike;
+    }
+ else {
+      if (verbose) {
+        System.err.println("Max Change = " + nf.format(maxChange));
+      }
+      if (maxChange <= CONVERGE_SIZE) {
+        if (verbose) {
+          System.err.println("estimateShrinkUnsen: params converged after " + iterations + " iterations");
+        }
+        break;
+      }
+    }
+  }
+ while (iterations < MAX_SHR_ITER);
+  if (iterations == MAX_SHR_ITER && verbose) {
+    System.err.println("estimateShrinkUnseen: max iterations exceeded");
+  }
+}

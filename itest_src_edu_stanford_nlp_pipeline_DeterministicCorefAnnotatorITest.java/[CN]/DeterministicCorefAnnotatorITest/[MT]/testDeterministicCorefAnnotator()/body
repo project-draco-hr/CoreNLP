@@ -2,7 +2,7 @@
   String text="Dan Ramage is working for\nMicrosoft. He's in Seattle!\nAt least, he used to be.  Ed is not in Seattle.";
   Annotation document=new Annotation(text);
   pipeline.annotate(document);
-  Map<Integer,CorefChain> corefChains=document.get(CorefCoreAnnotations.CorefChainAnnotation.class);
+  Map<Integer,CorefChain> corefChains=document.get(CorefChainAnnotation.class);
   Assert.assertNotNull(corefChains);
   for (  int chainID : corefChains.keySet()) {
     CorefChain c=corefChains.get(chainID);
@@ -10,10 +10,10 @@
       Assert.assertEquals(m.corefClusterID,chainID);
     }
   }
-  List<CoreMap> sentences=document.get(CoreAnnotations.SentencesAnnotation.class);
-  CoreLabel ramageToken=sentences.get(0).get(CoreAnnotations.TokensAnnotation.class).get(1);
-  CoreLabel heToken=sentences.get(1).get(CoreAnnotations.TokensAnnotation.class).get(0);
-  Integer ramageClusterId=ramageToken.get(CorefCoreAnnotations.CorefClusterIdAnnotation.class);
+  List<CoreMap> sentences=document.get(SentencesAnnotation.class);
+  CoreLabel ramageToken=sentences.get(0).get(TokensAnnotation.class).get(1);
+  CoreLabel heToken=sentences.get(1).get(TokensAnnotation.class).get(0);
+  Integer ramageClusterId=ramageToken.get(CorefClusterIdAnnotation.class);
   Assert.assertNotNull(ramageClusterId);
-  Assert.assertSame(ramageClusterId,heToken.get(CorefCoreAnnotations.CorefClusterIdAnnotation.class));
+  Assert.assertSame(ramageClusterId,heToken.get(CorefClusterIdAnnotation.class));
 }

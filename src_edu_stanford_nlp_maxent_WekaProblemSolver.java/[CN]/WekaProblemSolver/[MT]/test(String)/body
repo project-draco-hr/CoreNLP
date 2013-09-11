@@ -1,0 +1,26 @@
+{
+  try {
+    ReadDataWeka test=new ReadDataWeka(fileName,train);
+    data=new Experiments(train.vArray);
+    train.makeStringsClasses();
+    int res=0;
+    for (int d=0; d < test.v.size(); d++) {
+      DataDouble dD=test.getData(d);
+      int y=getClassification(dD);
+      if (clean) {
+        System.out.println(train.getYName(y));
+      }
+      if (y == dD.getYNo()) {
+        res++;
+      }
+    }
+    if (!clean) {
+      System.out.println(mE.prob.lambda.length + " " + top);
+      System.out.println(train.numSamples() / (double)train.numClasses);
+      System.out.println("Accuracy " + res / (double)test.numSamples());
+    }
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+  }
+}

@@ -1,0 +1,49 @@
+{
+  try {
+    Timing t=new Timing();
+    t.start();
+    Pair<Double,double[]> result=service.apply(input);
+    output.semaphore.acquire();
+    if (output.awaitingContributionFrom.remove(input.first())) {
+      if (result.second() == null) {
+        output.awaitingContributionFrom.offer(input.first());
+        t.stop(" [error, but recovering] " + "\t(" + service + ")");
+      }
+ else {
+        output.value+=result.first();
+        ArrayMath.pairwiseAddInPlace(output.derivative,result.second());
+      }
+      output.semaphore.release();
+      freeServices.add(service);
+      service=null;
+      input=null;
+      output=null;
+    }
+ else {
+      output.semaphore.release();
+    }
+  }
+ catch (  ServiceException e) {
+    output.semaphore.release();
+    freeServices.remove(service);
+    if (allServices.remove(service)) {
+      System.err.println("lost a client: " + allServices.size() + " clients remain.");
+    }
+  }
+catch (  Exception e) {
+    output.semaphore.release();
+    freeServices.remove(service);
+    if (allServices.remove(service)) {
+      System.err.println("lost a client: " + allServices.size() + " clients remain.");
+      if (distributionType == DistributionType.THREADED) {
+        DistributedObjectiveFunctionService<K> service=factory.create();
+        service.init(objFuncArgs);
+        allServices.add(service);
+        if (freeServices != null) {
+          freeServices.add(service);
+        }
+      }
+    }
+    e.printStackTrace();
+  }
+}

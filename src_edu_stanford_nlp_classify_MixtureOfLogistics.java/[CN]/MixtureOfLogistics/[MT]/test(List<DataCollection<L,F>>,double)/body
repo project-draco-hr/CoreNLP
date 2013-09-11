@@ -1,0 +1,22 @@
+{
+  boolean matched=matchCollections(dataCollections);
+  if (!matched) {
+    System.out.println("Returning 0 without evaluating the test data");
+    return 0;
+  }
+  double accuracy=0;
+  int testDataSize=dataCollections.get(0).size();
+  for (int i=0; i < testDataSize; i++) {
+    L trueLabel=dataCollections.get(0).get(i).label();
+    int trueLabelIndex=labelIndex.indexOf(trueLabel);
+    List<Datum<L,F>> mixtureDatum=new ArrayList<Datum<L,F>>(numComponents);
+    for (int j=0; j < numComponents; j++) {
+      Datum<L,F> datum=dataCollections.get(j).getDatum(i);
+      mixtureDatum.add(datum);
+    }
+    L sysLabel=classOf(mixtureDatum,beta);
+    int sysLabelIndex=labelIndex.indexOf(sysLabel);
+    if (sysLabelIndex == trueLabelIndex)     accuracy++;
+  }
+  return accuracy / testDataSize;
+}

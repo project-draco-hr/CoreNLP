@@ -1,0 +1,12 @@
+{
+  setWeights(x);
+  resetValue();
+  resetE();
+  for (int docNum=0; docNum < dataset.numDocuments(); docNum++) {
+    CliqueDataset doc=dataset.getDocument(docNum);
+    CRF model=models[docNum];
+    updateForDoc(model,doc);
+  }
+  setDerivative();
+  value+=prior.compute(x,derivative);
+}

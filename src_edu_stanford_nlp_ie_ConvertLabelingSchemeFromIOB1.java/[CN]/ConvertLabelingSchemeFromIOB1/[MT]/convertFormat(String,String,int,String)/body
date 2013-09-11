@@ -1,0 +1,24 @@
+{
+  BufferedReader br=new BufferedReader(new FileReader(inputFile));
+  BufferedWriter bw=new BufferedWriter(new FileWriter(outputFile));
+  String prevLine, currLine, nextLine;
+  String[] prevSplit, currSplit, nextSplit;
+  prevLine="   ";
+  prevSplit=separate_last_column(prevLine,columns);
+  currLine=(br.readLine()).trim();
+  currSplit=separate_last_column(currLine,columns);
+  while ((nextLine=br.readLine()) != null) {
+    nextLine=nextLine.trim();
+    nextSplit=separate_last_column(nextLine,columns);
+    bw.write(currSplit[0] + " " + new_label(prevSplit[1],currSplit[1],nextSplit[1],format)+ "\n");
+    prevSplit[0]=currSplit[0];
+    prevSplit[1]=currSplit[1];
+    currSplit[0]=nextSplit[0];
+    currSplit[1]=nextSplit[1];
+  }
+  nextLine="   ";
+  nextSplit=separate_last_column(nextLine,columns);
+  bw.write(currSplit[0] + " " + new_label(prevSplit[1],currSplit[1],nextSplit[1],format)+ "\n");
+  br.close();
+  bw.close();
+}

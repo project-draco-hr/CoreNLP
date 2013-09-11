@@ -1,0 +1,28 @@
+{
+  Map<String,List<HITResult>> sentenceToHitsMap=new HashMap<String,List<HITResult>>();
+  String prevHitId=null;
+  HITResult hit=null;
+  for (  String line : inputLines) {
+    line=line.substring(1,line.length() - 1);
+    String[] values=line.split("\",\"");
+    String hitId=getColumnValue(COLUMN_HIT_ID,values);
+    String sentence=getColumnValue(COLUMN_SENTENCE,values);
+    String humanReadableRelation=getColumnValue(COLUMN_RELATION,values);
+    String responseAndRelaiton=getColumnValue(COLUMN_RESPONSE,values);
+    if (!hitId.equals(prevHitId) && hit != null) {
+      List<HITResult> sentenceRelations=sentenceToHitsMap.get(hit.sentence);
+      if (sentenceRelations == null) {
+        sentenceRelations=new ArrayList<HITResult>();
+        sentenceToHitsMap.put(hit.sentence,sentenceRelations);
+      }
+      sentenceRelations.add(hit);
+      hit=new HITResult(sentence,humanReadableRelation,responseAndRelaiton);
+    }
+ else     if (hit == null) {
+      hit=new HITResult(sentence,humanReadableRelation,responseAndRelaiton);
+    }
+    hit.addResponse(responseAndRelaiton);
+    prevHitId=hitId;
+  }
+  return sentenceToHitsMap;
+}

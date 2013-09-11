@@ -1,2 +1,52 @@
 {
+  try {
+    String line;
+    List<String[]> curSentWords=new ArrayList<String[]>();
+    Document document=null;
+    while ((line=br.readLine()) != null) {
+      lineCnt++;
+      line=line.trim();
+      if (line.length() != 0) {
+        if (line.startsWith(docStart)) {
+          if (document != null) {
+            logger.warning("Unexpected begin document at line (\" + filename + \",\" + lineCnt + \")");
+          }
+          document=new Document();
+          document.documentIdPart=line.substring(docStartLength);
+        }
+ else         if (line.startsWith("#end document")) {
+          annotateDocument(document);
+          docCnt++;
+          return document;
+        }
+ else {
+          String[] fields=delimiterPattern.split(line);
+          if (fields.length < FIELDS_MIN) {
+            throw new RuntimeException("Unexpected number of field " + fields.length + ", expected >= "+ FIELDS_MIN+ " for line ("+ filename+ ","+ lineCnt+ "): "+ line);
+          }
+          String curDocId=fields[FIELD_DOC_ID];
+          String partNo=fields[FIELD_PART_NO];
+          if (document.getDocumentID() == null) {
+            document.setDocumentID(curDocId);
+            document.setPartNo(partNo);
+          }
+ else {
+            assert(document.getDocumentID().equals(curDocId));
+            assert(document.getPartNo().equals(partNo));
+          }
+          curSentWords.add(fields);
+        }
+      }
+ else {
+        if (curSentWords.size() > 0) {
+          document.addSentence(curSentWords);
+          curSentWords=new ArrayList<String[]>();
+        }
+      }
+    }
+  }
+ catch (  IOException ex) {
+    throw new RuntimeException(ex);
+  }
+  return null;
 }

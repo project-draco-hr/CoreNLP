@@ -1,0 +1,20 @@
+{
+  if (originalWords == null) {
+    return;
+  }
+  if (sentence.size() != originalWords.size()) {
+    return;
+  }
+  if (originalWords.size() != originalLemmas.size()) {
+    throw new AssertionError("originalWords and originalLemmas of different sizes");
+  }
+  Iterator<String> wordsIterator=originalWords.iterator();
+  Iterator<String> lemmasIterator=originalLemmas.iterator();
+  for (  HasWord word : sentence) {
+    word.setWord(wordsIterator.next());
+    String lemma=lemmasIterator.next();
+    if ((word instanceof HasLemma) && (lemma != null)) {
+      ((HasLemma)word).setLemma(lemma);
+    }
+  }
+}

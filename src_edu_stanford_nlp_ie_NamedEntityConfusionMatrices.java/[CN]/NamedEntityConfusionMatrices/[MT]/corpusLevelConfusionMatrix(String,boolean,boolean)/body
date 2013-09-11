@@ -1,0 +1,19 @@
+{
+  BufferedReader br=new BufferedReader(new FileReader(file));
+  HashMap<String,int[]> entities=namedEntitiesLabelCounts(br,true,1,3,ignoreCase,entityLevel);
+  br.close();
+  int[][] confusionMatrix=new int[4][4];
+  for (  String entityToken : entities.keySet()) {
+    int[] counts=entities.get(entityToken);
+    for (int j=0; j < 4; j++)     for (int k=j; k < 4; k++) {
+      confusionMatrix[j][k]+=counts[j] * counts[k];
+    }
+  }
+  for (int j=0; j < 4; j++) {
+    for (int k=j; k < 4; k++) {
+      System.out.print(numToName(j) + ":" + numToName(k)+ " "+ confusionMatrix[j][k]+ "\t");
+    }
+    System.out.println("");
+  }
+  return confusionMatrix;
+}

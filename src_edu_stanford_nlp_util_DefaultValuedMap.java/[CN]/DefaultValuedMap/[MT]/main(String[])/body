@@ -1,0 +1,15 @@
+{
+  Factory<String> sf=new Factory<String>(){
+    private static final long serialVersionUID=1L;
+    public String create(){
+      return "hello world";
+    }
+  }
+;
+  DefaultValuedMap<String,String> dvm=new DefaultValuedMap<String,String>(sf);
+  @SuppressWarnings("unchecked") DefaultValuedMap<String,Map<String,String>> dvm1=new DefaultValuedMap(dvm.factory());
+  DefaultValuedMap<String,DefaultValuedMap<String,Map<String,String>>> dvm2=new DefaultValuedMap<String,DefaultValuedMap<String,Map<String,String>>>(dvm1.factory());
+  System.err.println(dvm2.get("hello").get("world").get("."));
+  dvm2.get("hello").get("world").put("blah","foobar");
+  System.err.println(dvm2.get("hello").get("world").values());
+}

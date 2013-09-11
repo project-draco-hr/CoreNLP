@@ -1,0 +1,21 @@
+{
+  Index<L> labels=test.labelIndex();
+  L labelOne=labels.get(1);
+  List<Pair<Double,Integer>> dataScores=new ArrayList<Pair<Double,Integer>>();
+  for (int i=0; i < test.size(); i++) {
+    RVFDatum<L,F> d=test.getRVFDatum(i);
+    Counter<L> scores=lC.logProbabilityOf(d);
+    int labelD=d.label().equals(labelOne) ? 1 : 0;
+    dataScores.add(new Pair<Double,Integer>(Math.exp(scores.getCount(labelOne)),labelD));
+  }
+  PRCurve prc=new PRCurve(dataScores);
+  AccuracyStatistics aS=new AccuracyStatistics();
+  aS.confWeightedAccuracy=prc.cwa();
+  aS.accuracy=prc.accuracy();
+  aS.optAccuracy=prc.optimalAccuracy();
+  aS.optConfWeightedAccuracy=prc.optimalCwa();
+  aS.logLikelihood=prc.logLikelihood();
+  aS.accrecall=prc.cwaArray();
+  aS.optaccrecall=prc.optimalCwaArray();
+  return aS;
+}

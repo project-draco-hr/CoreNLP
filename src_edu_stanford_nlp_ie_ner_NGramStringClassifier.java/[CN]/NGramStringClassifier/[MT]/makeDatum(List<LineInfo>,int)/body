@@ -1,0 +1,166 @@
+{
+  List<LineInfo> cInfo=new CircleList<LineInfo>(info);
+  LineInfo c=cInfo.get(loc);
+  LineInfo n=cInfo.get(loc + 1);
+  LineInfo n2=cInfo.get(loc + 2);
+  LineInfo p=cInfo.get(loc - 1);
+  LineInfo p2=cInfo.get(loc - 2);
+  LineInfo p3=cInfo.get(loc - 3);
+  List<String> features=new ArrayList<String>();
+  Collection<String> cachableFeatures=new ArrayList<String>();
+  boolean cached=(c.features != null);
+  if (cached) {
+    cachableFeatures=c.features;
+  }
+  if (!cached) {
+    cachableFeatures.add(c.word);
+    if (useTags) {
+      cachableFeatures.add(intern2(c.tag + "-TAG"));
+    }
+    if (usePrev) {
+      cachableFeatures.add(intern2(p.word + "-PREV"));
+      if (useTags) {
+        cachableFeatures.add(intern2(p.tag + "-PTAG"));
+      }
+      if (useWordPairs) {
+        cachableFeatures.add(intern2(c.word + "-" + p.word+ "-CPREV"));
+      }
+    }
+    if (useSymTags) {
+      cachableFeatures.add(intern2(p.tag + "-" + c.tag+ "-"+ n.tag+ "-PCNTAGS"));
+      cachableFeatures.add(intern2(c.tag + "-" + n.tag+ "-CNTAGS"));
+      cachableFeatures.add(intern2(p.tag + "-" + c.tag+ "-PCTAGS"));
+    }
+    if (useSymWordPairs) {
+      cachableFeatures.add(intern2(p.word + "-" + n.word+ "-SWORDS"));
+    }
+  }
+  if (usePrev) {
+    if (useSequences && usePrevSequences) {
+      features.add(intern2(p.answer + "-PSEQ"));
+      features.add(intern2(c.word + "-" + p.answer+ "-PSEQW"));
+    }
+  }
+  if (!cached) {
+    if (useNext) {
+      cachableFeatures.add(intern2(n.word + "-NEXT"));
+      if (useTags) {
+        cachableFeatures.add(intern2(n.tag + "-NTAG"));
+      }
+      if (useWordPairs) {
+        cachableFeatures.add(intern2(c.word + "-" + n.word+ "-CNEXT"));
+      }
+    }
+  }
+  if (useNext) {
+    if (useSequences && useNextSequences) {
+      features.add(intern2(n.answer + "-NSEQ"));
+      features.add(intern2(c.word + "-" + n.answer+ "-NSEQW"));
+    }
+  }
+  if (useNext && usePrev) {
+    if (useSequences && usePrevSequences && useNextSequences) {
+      features.add(intern2(p.answer + "-" + n.answer+ "-PNSEQ"));
+      features.add(intern2(c.word + "-" + p.answer+ "-"+ n.answer+ "-PNSEQW"));
+    }
+  }
+  if (useTaggySequences) {
+    features.add(intern2(p.answer + "-" + p.tag+ "-"+ c.tag+ "-TS"));
+    features.add(intern2(p2.answer + "-" + p.answer+ "-PPSEQ"));
+    features.add(intern2(p2.answer + "-" + p2.tag+ "-"+ p.answer+ "-"+ p.tag+ "-"+ c.tag+ "-TTS"));
+    if (maxLeft >= 3) {
+      features.add(intern2(p3.answer + "-" + p3.tag+ "-"+ p2.answer+ "-"+ p2.tag+ "-"+ p.answer+ "-"+ p.tag+ "-"+ c.tag+ "-TTTS"));
+      features.add(intern2(p3.answer + "-" + p2.answer+ "-"+ p.answer+ "-PPPSEQ"));
+    }
+  }
+  if (useTypeySequences) {
+    features.add(intern2(c.type + "-" + p.answer+ "-TPS2"));
+    features.add(intern2(n.type + "-" + p.answer+ "-TNS1"));
+    features.add(intern2(p.answer + "-" + p.type+ "-"+ c.type+ "-TPS"));
+    features.add(intern2(p2.answer + "-" + p2.type+ "-"+ p.answer+ "-"+ p.type+ "-"+ c.type+ "-TTPS"));
+  }
+  Collection<String> subs=wordToSubstrings.get(c.word);
+  if (subs == null) {
+    subs=new ArrayList<String>();
+    if (useNGrams) {
+      String word="<" + c.word + ">";
+      for (int i=Math.min(0,word.length()); i < word.length(); i++) {
+        for (int j=i + 2; j <= word.length(); j++) {
+          if (noMidNGrams && i != 0 && j != word.length()) {
+            continue;
+          }
+          subs.add(intern("#" + word.substring(i,j) + "#"));
+        }
+      }
+    }
+    wordToSubstrings.put(c.word,subs);
+  }
+  features.addAll(subs);
+  if (!cached) {
+    if (useGazettes) {
+      if (sloppyGazette) {
+        Collection<String> entries=wordToGazetteEntries.get(c.word);
+        if (entries != null) {
+          cachableFeatures.addAll(entries);
+        }
+      }
+      if (cleanGazette) {
+        Collection infos=(Collection)wordToGazetteInfos.get(c.word);
+        if (infos != null) {
+          for (Iterator i=infos.iterator(); i.hasNext(); ) {
+            GazetteInfo gInfo=(GazetteInfo)i.next();
+            boolean ok=true;
+            for (int gLoc=0; gLoc < gInfo.words.length; gLoc++) {
+              ok&=gInfo.words[gLoc].equals((cInfo.get(loc + gLoc - gInfo.loc)).word);
+            }
+            if (ok) {
+              cachableFeatures.add(gInfo.feature);
+            }
+          }
+        }
+      }
+    }
+    if (useWordTypes) {
+      cachableFeatures.add(intern2(c.type + "-TYPE"));
+      if (useTypeSeqs) {
+        String cType=c.type;
+        String pType=p.type;
+        String nType=n.type;
+        cachableFeatures.add(intern2(pType + "-PTYPE"));
+        cachableFeatures.add(intern2(nType + "-NTYPE"));
+        cachableFeatures.add(intern2(p.word + "..." + cType+ "-PW_CTYPE"));
+        cachableFeatures.add(intern2(cType + "..." + n.word+ "-NW_CTYPE"));
+        cachableFeatures.add(intern2(pType + "..." + cType+ "-PCTYPE"));
+        cachableFeatures.add(intern2(cType + "..." + nType+ "-CNTYPE"));
+        cachableFeatures.add(intern2(pType + "..." + cType+ "..."+ nType+ "-PCNTYPE"));
+        if (useTypeSeqs2) {
+          String p2Type=WordShapeClassifier.wordShape(p2.word,WordShapeClassifier.WORDSHAPEDAN2,knownLCwords);
+          cachableFeatures.add(intern2(p.answer + "-" + pType+ "-"+ cType+ "-TYPES"));
+          cachableFeatures.add(intern2(p2.answer + "-" + p2Type+ "-"+ p.answer+ "-"+ pType+ "-"+ cType+ "-TYPETYPES"));
+        }
+      }
+    }
+    if (useLastRealWord) {
+      if (p.word.length() <= 3) {
+        cachableFeatures.add(intern2(p2.word + "..." + c.type+ "-PPW_CTYPE"));
+      }
+    }
+    if (useNextRealWord) {
+      if (n.word.length() <= 3) {
+        cachableFeatures.add(intern2(n2.word + "..." + c.type+ "-NNW_CTYPE"));
+      }
+    }
+    if (useOccurencePatterns) {
+      cachableFeatures.addAll(occurencePatterns((CircleList)cInfo,loc));
+    }
+  }
+  if (!cached) {
+    c.features=cachableFeatures;
+  }
+  features.addAll(cachableFeatures);
+  if (printFeatures != null) {
+    printFeatures(c,features);
+  }
+  Datum<String,String> d=new BasicDatum<String,String>(features,c.answer);
+  return d;
+}

@@ -1,0 +1,31 @@
+{
+  RegexpExtractor re=new RegexpExtractor("range","range","[0-9][ sth\t\r\n\f.]*(?:[-/~]|through|and|to)[ \t\r\n\f]");
+  String extract;
+  String s;
+  if (isRange) {
+    return;
+  }
+  extract=re.extractField(dateSB.toString());
+  if (extract.equals("")) {
+    return;
+  }
+  for (int a=0; a < tokens.size(); a++) {
+    s=(tokens.get(a)).replaceAll("[^0-9]","");
+    if (!s.equals("")) {
+      try {
+        Integer i=Integer.valueOf(s);
+        int j=i.intValue();
+        if ((startDate.get(Calendar.YEAR) != j) && ((startDate.get(Calendar.DAY_OF_MONTH)) != j) && (j < 32)) {
+          if (DEBUG)           System.err.println("Found extra day: " + j);
+          isRange=true;
+          endDate.set(Calendar.DAY_OF_MONTH,j);
+          return;
+        }
+      }
+ catch (      NumberFormatException n) {
+        System.err.println("Exception in extractRange.");
+        n.printStackTrace();
+      }
+    }
+  }
+}

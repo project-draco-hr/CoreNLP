@@ -1,0 +1,53 @@
+{
+  String pattern=synonym;
+  if (pattern.indexOf('?') != -1) {
+    pattern=pattern.replaceAll("\\?","\\\\?");
+  }
+  pattern=pattern.replaceAll(" "," ?");
+  if (pattern.indexOf('[') != -1) {
+    pattern=pattern.replaceAll("\\[","[\\\\[ ]?");
+  }
+  if (pattern.indexOf(']') != -1) {
+    pattern=pattern.replaceAll("\\](?=\\b|[^?])","[\\\\] ]?");
+  }
+  if (pattern.indexOf('\\') != -1) {
+    pattern=pattern.replaceAll("\\\\(?=\\b|[^\\?\\[\\]])","[\\\\ ]?");
+  }
+  if (pattern.indexOf('+') != -1) {
+    pattern=pattern.replaceAll("\\+","\\\\+");
+  }
+  if (pattern.indexOf('*') != -1) {
+    pattern=pattern.replaceAll("\\*","\\\\*");
+  }
+  if (pattern.indexOf('/') != -1) {
+    pattern=pattern.replaceAll("/","[/ ]?");
+  }
+  if (pattern.indexOf(':') != -1) {
+    pattern=pattern.replaceAll(":","[: ]?");
+  }
+  if (pattern.indexOf('.') != -1) {
+    pattern=pattern.replaceAll("\\.","\\\\.?");
+  }
+  if (pattern.indexOf('(') != -1) {
+    pattern=pattern.replaceAll("\\(","[( ]?");
+  }
+  if (pattern.indexOf(')') != -1) {
+    pattern=pattern.replaceAll("\\)","[) ]?");
+  }
+  if (pattern.indexOf('-') != -1) {
+    pattern=pattern.replaceAll("-","[- ]?");
+  }
+  if (pattern.indexOf("aemia") != -1) {
+    pattern=pattern.replaceAll("aemia","a?emia");
+  }
+  if (pattern.indexOf("our") != -1) {
+    pattern=pattern.replaceAll("our","ou?r");
+  }
+  pattern="\\b" + pattern + "\\b";
+  if (caseSensitive) {
+    return Pattern.compile(pattern);
+  }
+ else {
+    return Pattern.compile(pattern,Pattern.CASE_INSENSITIVE);
+  }
+}

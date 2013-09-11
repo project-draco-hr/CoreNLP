@@ -1,0 +1,44 @@
+{
+  State[] baseStates=baseHmm.getStates();
+  int iteration=0;
+  double bestLogPosterior=logPriorProb(baseHmm) + baseHmm.logLikelihood(data,false);
+  HMM bestHmm=baseHmm;
+  boolean change=true;
+  while (baseStates.length > 3 && change) {
+    change=false;
+    iteration++;
+    for (int firstIndex=2; firstIndex < baseStates.length; firstIndex++) {
+      for (int secondIndex=firstIndex + 1; secondIndex < baseStates.length; secondIndex++) {
+        ArrayList currentStateList=new ArrayList(baseStates.length);
+        for (int m=0; m < baseStates.length; m++) {
+          currentStateList.add(copyState(baseStates[m]));
+        }
+        State[] currentStates=mergeTwoStates(currentStateList,firstIndex,secondIndex);
+        HMM currentHmm=new HMM(currentStates,HMM.TARGET_HMM);
+        currentHmm.setTargetFields(data.getTargetFields());
+        currentHmm.setVocab(new ClassicCounter(data.getVocab()));
+        double currentLogPosterior=logPriorProb(currentHmm) + currentHmm.logLikelihood(data,false);
+        if (currentLogPosterior > bestLogPosterior) {
+          bestLogPosterior=currentLogPosterior;
+          bestHmm=currentHmm;
+          change=true;
+          if (verbose) {
+            try {
+              ObjectOutputStream oos=new ObjectOutputStream(new FileOutputStream("inter_" + time + "_"+ currentStates.length+ ".hmm"));
+              oos.writeObject(bestHmm);
+              oos.close();
+            }
+ catch (            Exception e) {
+              throw new RuntimeException(e);
+            }
+          }
+        }
+      }
+    }
+    baseStates=bestHmm.getStates();
+    if (verbose) {
+      System.err.println("Posterior for the best model is: " + bestLogPosterior);
+    }
+  }
+  return bestHmm;
+}

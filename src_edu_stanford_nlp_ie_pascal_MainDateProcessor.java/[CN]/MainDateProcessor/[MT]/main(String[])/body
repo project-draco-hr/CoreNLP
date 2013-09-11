@@ -1,0 +1,35 @@
+{
+  if (args[0].equalsIgnoreCase("-d")) {
+    String suffix=".date";
+    if (args.length >= 4) {
+      suffix=args[3];
+    }
+    String p=".*";
+    if (args.length >= 3) {
+      p=args[2];
+    }
+    File dir=new File(args[1]);
+    Pattern pattern=Pattern.compile(p);
+    FilenameFilter ff=new DateFileFilter(pattern);
+    File[] files=dir.listFiles(ff);
+    for (int i=0; i < files.length; i++) {
+      FileReader infile=new FileReader(files[i]);
+      BufferedWriter outfile=new BufferedWriter(new FileWriter(new File(files[i].getAbsolutePath() + suffix)));
+      StringBuffer output=augmentDateTags(infile,files[i].getName());
+      outfile.write(output.toString());
+      infile.close();
+      outfile.flush();
+      outfile.close();
+    }
+  }
+ else {
+    for (int i=0; i < args.length; i++) {
+      FileReader infile=new FileReader(new File(args[i]));
+      FileWriter outfile=new FileWriter(new File(args[i] + ".dateTagged"));
+      System.err.println("Files created.");
+      StringBuffer output=augmentDateTags(infile,args[i]);
+      outfile.write(new String(output));
+      outfile.close();
+    }
+  }
+}

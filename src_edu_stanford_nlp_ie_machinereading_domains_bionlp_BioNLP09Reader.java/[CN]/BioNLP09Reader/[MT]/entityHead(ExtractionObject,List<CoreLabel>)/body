@@ -1,0 +1,15 @@
+{
+  if (o.getExtentTokenStart() + 1 == o.getExtentTokenEnd()) {
+    return o.getExtentTokenStart();
+  }
+  for (int i=o.getExtentTokenEnd() - 1; i >= o.getExtentTokenStart(); i--) {
+    String w=tokens.get(i).word();
+    if (w.startsWith("-") && w.endsWith("-") && w.length() > 2)     continue;
+    String lw=removeNonLetters(w).toLowerCase();
+    if (lw.length() < 1)     continue;
+    if (lw.length() == 1 && i > o.getExtentTokenStart())     continue;
+    if (greeks.contains(lw))     continue;
+    return i;
+  }
+  return o.getExtentTokenEnd() - 1;
+}

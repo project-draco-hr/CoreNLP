@@ -1,0 +1,29 @@
+{
+  System.err.println("Sampling from negative examples.");
+  double maxCount=Counters.max(distCounter);
+  double[] lScores=new double[numDistBins()];
+  double[] rScores=new double[numDistBins()];
+  for (  IntDependency dep : distCounter.keySet()) {
+    (dep.leftHeaded ? lScores : rScores)[dep.distance]=(distCounter.getCount(dep) / maxCount);
+  }
+  ClassicCounter<IntDependency> negExamples=new ClassicCounter<IntDependency>();
+  for (Iterator<List<List<IntDependency>>> iterator=negExamplesPerSentence.iterator(); iterator.hasNext(); ) {
+    List<List<IntDependency>> wordPairsPerWord=iterator.next();
+    for (    List<IntDependency> wordPairs : wordPairsPerWord) {
+      float negWeight=(float)wordPairs.size() / numNegExamplesPerWord;
+      for (int i=0; i < numNegExamplesPerWord; i++) {
+        while (wordPairs.size() > 0) {
+          int index=(int)(Math.random() * wordPairs.size());
+          IntDependency negDep=wordPairs.get(index);
+          if (Math.random() < (negDep.leftHeaded ? lScores : rScores)[negDep.distance]) {
+            short dist=valenceBin ? valenceBin(negDep.distance) : negDep.distance;
+            negExamples.incrementCount(intern(negDep.head,negDep.arg,negDep.leftHeaded,dist),negWeight);
+            wordPairs.remove(index);
+            break;
+          }
+        }
+      }
+    }
+  }
+  return negExamples;
+}

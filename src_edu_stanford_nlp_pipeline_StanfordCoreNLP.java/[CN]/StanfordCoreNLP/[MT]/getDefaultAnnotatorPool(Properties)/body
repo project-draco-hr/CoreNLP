@@ -37,34 +37,19 @@
     @Override public Annotator create(){
       String xmlTags=properties.getProperty("clean.xmltags",CleanXmlAnnotator.DEFAULT_XML_TAGS);
       String sentenceEndingTags=properties.getProperty("clean.sentenceendingtags",CleanXmlAnnotator.DEFAULT_SENTENCE_ENDERS);
-      String singleSentenceTags=properties.getProperty("clean.singlesentencetags",CleanXmlAnnotator.DEFAULT_SINGLE_SENTENCE_TAGS);
       String allowFlawedString=properties.getProperty("clean.allowflawedxml");
       boolean allowFlawed=CleanXmlAnnotator.DEFAULT_ALLOW_FLAWS;
       if (allowFlawedString != null)       allowFlawed=Boolean.valueOf(allowFlawedString);
       String dateTags=properties.getProperty("clean.datetags",CleanXmlAnnotator.DEFAULT_DATE_TAGS);
-      String docIdTags=properties.getProperty("clean.docIdtags",CleanXmlAnnotator.DEFAULT_DOCID_TAGS);
-      String docTypeTags=properties.getProperty("clean.docTypetags",CleanXmlAnnotator.DEFAULT_DOCTYPE_TAGS);
-      String utteranceTurnTags=properties.getProperty("clean.turntags",CleanXmlAnnotator.DEFAULT_UTTERANCE_TURN_TAGS);
-      String speakerTags=properties.getProperty("clean.speakertags",CleanXmlAnnotator.DEFAULT_SPEAKER_TAGS);
-      String docAnnotations=properties.getProperty("clean.docAnnotations",CleanXmlAnnotator.DEFAULT_DOC_ANNOTATIONS_PATTERNS);
-      String tokenAnnotations=properties.getProperty("clean.tokenAnnotations",CleanXmlAnnotator.DEFAULT_TOKEN_ANNOTATIONS_PATTERNS);
-      String sectionTags=properties.getProperty("clean.sectiontags",CleanXmlAnnotator.DEFAULT_SECTION_TAGS);
-      String sectionAnnotations=properties.getProperty("clean.sectionAnnotations",CleanXmlAnnotator.DEFAULT_SECTION_ANNOTATIONS_PATTERNS);
-      String ssplitDiscardTokens=properties.getProperty("clean.ssplitDiscardTokens");
-      CleanXmlAnnotator annotator=new CleanXmlAnnotator(xmlTags,sentenceEndingTags,dateTags,allowFlawed);
-      annotator.setSingleSentenceTagMatcher(singleSentenceTags);
-      annotator.setDocIdTagMatcher(docIdTags);
-      annotator.setDocTypeTagMatcher(docTypeTags);
-      annotator.setDiscourseTags(utteranceTurnTags,speakerTags);
-      annotator.setDocAnnotationPatterns(docAnnotations);
-      annotator.setTokenAnnotationPatterns(tokenAnnotations);
-      annotator.setSectionTagMatcher(sectionTags);
-      annotator.setSectionAnnotationPatterns(sectionAnnotations);
-      annotator.setSsplitDiscardTokensMatcher(ssplitDiscardTokens);
-      return annotator;
+      return new CleanXmlAnnotator(xmlTags,sentenceEndingTags,dateTags,allowFlawed);
     }
     @Override public String signature(){
-      return "clean.xmltags:" + properties.getProperty("clean.xmltags",CleanXmlAnnotator.DEFAULT_XML_TAGS) + "clean.sentenceendingtags:"+ properties.getProperty("clean.sentenceendingtags",CleanXmlAnnotator.DEFAULT_SENTENCE_ENDERS)+ "clean.sentenceendingtags:"+ properties.getProperty("clean.singlesentencetags",CleanXmlAnnotator.DEFAULT_SINGLE_SENTENCE_TAGS)+ "clean.allowflawedxml:"+ properties.getProperty("clean.allowflawedxml","")+ "clean.datetags:"+ properties.getProperty("clean.datetags",CleanXmlAnnotator.DEFAULT_DATE_TAGS)+ "clean.docidtags:"+ properties.getProperty("clean.docid",CleanXmlAnnotator.DEFAULT_DOCID_TAGS)+ "clean.doctypetags:"+ properties.getProperty("clean.doctype",CleanXmlAnnotator.DEFAULT_DOCTYPE_TAGS)+ "clean.turntags:"+ properties.getProperty("clean.turntags",CleanXmlAnnotator.DEFAULT_UTTERANCE_TURN_TAGS)+ "clean.speakertags:"+ properties.getProperty("clean.speakertags",CleanXmlAnnotator.DEFAULT_SPEAKER_TAGS)+ "clean.docAnnotations:"+ properties.getProperty("clean.docAnnotations",CleanXmlAnnotator.DEFAULT_DOC_ANNOTATIONS_PATTERNS)+ "clean.tokenAnnotations:"+ properties.getProperty("clean.tokenAnnotations",CleanXmlAnnotator.DEFAULT_TOKEN_ANNOTATIONS_PATTERNS)+ "clean.sectiontags:"+ properties.getProperty("clean.sectiontags",CleanXmlAnnotator.DEFAULT_SECTION_TAGS)+ "clean.sectionAnnotations:"+ properties.getProperty("clean.sectionAnnotations",CleanXmlAnnotator.DEFAULT_SECTION_ANNOTATIONS_PATTERNS);
+      StringBuilder os=new StringBuilder();
+      os.append("clean.xmltags:" + properties.getProperty("clean.xmltags",CleanXmlAnnotator.DEFAULT_XML_TAGS));
+      os.append("clean.sentenceendingtags:" + properties.getProperty("clean.sentenceendingtags",CleanXmlAnnotator.DEFAULT_SENTENCE_ENDERS));
+      os.append("clean.allowflawedxml:" + properties.getProperty("clean.allowflawedxml",""));
+      os.append("clean.datetags:" + properties.getProperty("clean.datetags",CleanXmlAnnotator.DEFAULT_DATE_TAGS));
+      return os.toString();
     }
   }
 );
@@ -74,45 +59,44 @@
       boolean nlSplitting=Boolean.valueOf(properties.getProperty(NEWLINE_SPLITTER_PROPERTY,"false"));
       if (nlSplitting) {
         boolean whitespaceTokenization=Boolean.valueOf(properties.getProperty("tokenize.whitespace","false"));
+        WordsToSentencesAnnotator wts;
         if (whitespaceTokenization) {
           if (System.getProperty("line.separator").equals("\n")) {
-            return WordsToSentencesAnnotator.newlineSplitter(false,"\n");
+            wts=WordsToSentencesAnnotator.newlineSplitter(false,"\n");
           }
  else {
-            return WordsToSentencesAnnotator.newlineSplitter(false,System.getProperty("line.separator"),"\n");
+            wts=WordsToSentencesAnnotator.newlineSplitter(false,System.getProperty("line.separator"),"\n");
           }
         }
  else {
-          return WordsToSentencesAnnotator.newlineSplitter(false,PTBTokenizer.getNewlineToken());
+          wts=WordsToSentencesAnnotator.newlineSplitter(false,PTBTokenizer.getNewlineToken());
         }
+        return wts;
       }
  else {
-        String isOneSentence=properties.getProperty("ssplit.isOneSentence");
-        if (Boolean.parseBoolean(isOneSentence)) {
-          return WordsToSentencesAnnotator.nonSplitter(false);
-        }
-        String boundaryMultiTokenRegex=properties.getProperty("ssplit.boundaryMultiTokenRegex");
-        String tokenPatternsToDiscardProp=properties.getProperty("ssplit.tokenPatternsToDiscard");
-        Set<String> tokenRegexesToDiscard=null;
-        if (tokenPatternsToDiscardProp != null) {
-          String[] toks=tokenPatternsToDiscardProp.split(",");
-          tokenRegexesToDiscard=Generics.newHashSet(Arrays.asList(toks));
-        }
+        WordsToSentencesAnnotator wts;
         String boundaryTokenRegex=properties.getProperty("ssplit.boundaryTokenRegex");
-        Set<String> boundariesToDiscard=null;
+        if (boundaryTokenRegex != null) {
+          wts=new WordsToSentencesAnnotator(false,boundaryTokenRegex);
+        }
+ else {
+          wts=new WordsToSentencesAnnotator();
+        }
         String bounds=properties.getProperty("ssplit.boundariesToDiscard");
         if (bounds != null) {
           String[] toks=bounds.split(",");
-          boundariesToDiscard=Generics.newHashSet(Arrays.asList(toks));
+          wts.setSentenceBoundaryToDiscard(new HashSet<String>(Arrays.asList(toks)));
         }
-        Set<String> htmlElementsToDiscard=null;
         bounds=properties.getProperty("ssplit.htmlBoundariesToDiscard");
         if (bounds != null) {
-          String[] elements=bounds.split(",");
-          htmlElementsToDiscard=Generics.newHashSet(Arrays.asList(elements));
+          String[] toks=bounds.split(",");
+          wts.addHtmlSentenceBoundaryToDiscard(new HashSet<String>(Arrays.asList(toks)));
         }
-        String nlsb=properties.getProperty("ssplit.newlineIsSentenceBreak","two");
-        return new WordsToSentencesAnnotator(false,boundaryTokenRegex,boundariesToDiscard,htmlElementsToDiscard,nlsb,boundaryMultiTokenRegex,tokenRegexesToDiscard);
+        String isOneSentence=properties.getProperty("ssplit.isOneSentence");
+        if (isOneSentence != null) {
+          wts.setOneSentence(Boolean.parseBoolean(isOneSentence));
+        }
+        return wts;
       }
     }
     @Override public String signature(){
@@ -122,13 +106,9 @@
         os.append("tokenize.whitespace:" + properties.getProperty("tokenize.whitespace","false"));
       }
  else {
-        os.append("ssplit.isOneSentence:" + properties.getProperty("ssplit.isOneSentence","false"));
-        if (!Boolean.valueOf(properties.getProperty("ssplit.isOneSentence","false"))) {
-          os.append("ssplit.boundaryTokenRegex:" + properties.getProperty("ssplit.boundaryTokenRegex",""));
-          os.append("ssplit.boundariesToDiscard:" + properties.getProperty("ssplit.boundariesToDiscard",""));
-          os.append("ssplit.htmlBoundariesToDiscard:" + properties.getProperty("ssplit.htmlBoundariesToDiscard",""));
-          os.append("ssplit.newlineIsSentenceBreak:" + properties.getProperty("ssplit.newlineIsSentenceBreak","two"));
-        }
+        os.append("ssplit.boundariesToDiscard:" + properties.getProperty("ssplit.boundariesToDiscard",""));
+        os.append("ssplit.htmlBoundariesToDiscard:" + properties.getProperty("ssplit.htmlBoundariesToDiscard",""));
+        os.append("ssplit.isOneSentence:" + properties.getProperty("ssplit.isOneSentence",""));
       }
       return os.toString();
     }
@@ -138,14 +118,20 @@
     private static final long serialVersionUID=1L;
     @Override public Annotator create(){
       try {
-        return new POSTaggerAnnotator("pos",properties);
+        String maxLenStr=properties.getProperty("pos.maxlen");
+        int maxLen=Integer.MAX_VALUE;
+        if (maxLenStr != null)         maxLen=Integer.parseInt(maxLenStr);
+        return new POSTaggerAnnotator(properties.getProperty("pos.model",DefaultPaths.DEFAULT_POS_MODEL),false,maxLen);
       }
  catch (      Exception e) {
         throw new RuntimeException(e);
       }
     }
     @Override public String signature(){
-      return ("pos.maxlen:" + properties.getProperty("pos.maxlen","") + "pos.model:"+ properties.getProperty("pos.model",DefaultPaths.DEFAULT_POS_MODEL)+ "pos.nthreads:"+ properties.getProperty("pos.nthreads",properties.getProperty("nthreads","")));
+      StringBuilder os=new StringBuilder();
+      os.append("pos.maxlen:" + properties.getProperty("pos.maxlen",""));
+      os.append("pos.model:" + properties.getProperty("pos.model",DefaultPaths.DEFAULT_POS_MODEL));
+      return os.toString();
     }
   }
 );
@@ -155,7 +141,8 @@
       return new MorphaAnnotator(false);
     }
     @Override public String signature(){
-      return "";
+      StringBuilder os=new StringBuilder();
+      return os.toString();
     }
   }
 );
@@ -180,12 +167,19 @@
         nerCombiner=new NERClassifierCombiner(applyNumericClassifiers,useSUTime,properties,models.toArray(new String[models.size()]));
       }
  catch (      FileNotFoundException e) {
-        throw new RuntimeIOException(e);
+        throw new RuntimeException(e);
       }
       return new NERCombinerAnnotator(nerCombiner,false);
     }
     @Override public String signature(){
-      return "ner.model:" + properties.getProperty("ner.model","") + "ner.model.3class:"+ properties.getProperty("ner.model.3class",DefaultPaths.DEFAULT_NER_THREECLASS_MODEL)+ "ner.model.7class:"+ properties.getProperty("ner.model.7class",DefaultPaths.DEFAULT_NER_MUC_MODEL)+ "ner.model.MISCclass:"+ properties.getProperty("ner.model.MISCclass",DefaultPaths.DEFAULT_NER_CONLL_MODEL)+ NERClassifierCombiner.APPLY_NUMERIC_CLASSIFIERS_PROPERTY+ ":"+ properties.getProperty(NERClassifierCombiner.APPLY_NUMERIC_CLASSIFIERS_PROPERTY,Boolean.toString(NERClassifierCombiner.APPLY_NUMERIC_CLASSIFIERS_DEFAULT))+ NumberSequenceClassifier.USE_SUTIME_PROPERTY+ ":"+ properties.getProperty(NumberSequenceClassifier.USE_SUTIME_PROPERTY,Boolean.toString(NumberSequenceClassifier.USE_SUTIME_DEFAULT));
+      StringBuilder os=new StringBuilder();
+      os.append("ner.model:" + properties.getProperty("ner.model",""));
+      os.append("ner.model.3class:" + properties.getProperty("ner.model.3class",DefaultPaths.DEFAULT_NER_THREECLASS_MODEL));
+      os.append("ner.model.7class:" + properties.getProperty("ner.model.7class",DefaultPaths.DEFAULT_NER_MUC_MODEL));
+      os.append("ner.model.MISCclass:" + properties.getProperty("ner.model.MISCclass",DefaultPaths.DEFAULT_NER_CONLL_MODEL));
+      os.append(NERClassifierCombiner.APPLY_NUMERIC_CLASSIFIERS_PROPERTY + ":" + properties.getProperty(NERClassifierCombiner.APPLY_NUMERIC_CLASSIFIERS_PROPERTY,Boolean.toString(NERClassifierCombiner.APPLY_NUMERIC_CLASSIFIERS_DEFAULT)));
+      os.append(NumberSequenceClassifier.USE_SUTIME_PROPERTY + ":" + properties.getProperty(NumberSequenceClassifier.USE_SUTIME_PROPERTY,Boolean.toString(NumberSequenceClassifier.USE_SUTIME_DEFAULT)));
+      return os.toString();
     }
   }
 );
@@ -198,7 +192,11 @@
       return new RegexNERAnnotator(mapping,Boolean.valueOf(ignoreCase),validPosPattern);
     }
     @Override public String signature(){
-      return "regexner.mapping:" + properties.getProperty("regexner.mapping",DefaultPaths.DEFAULT_REGEXNER_RULES) + "regexner.ignorecase:"+ properties.getProperty("regexner.ignorecase","false")+ "regexner.validpospattern:"+ properties.getProperty("regexner.validpospattern",RegexNERSequenceClassifier.DEFAULT_VALID_POS);
+      StringBuilder os=new StringBuilder();
+      os.append("regexner.mapping:" + properties.getProperty("regexner.mapping",DefaultPaths.DEFAULT_REGEXNER_RULES));
+      os.append("regexner.ignorecase:" + properties.getProperty("regexner.ignorecase","false"));
+      os.append("regexner.validpospattern:" + properties.getProperty("regexner.validpospattern",RegexNERSequenceClassifier.DEFAULT_VALID_POS));
+      return os.toString();
     }
   }
 );
@@ -208,7 +206,9 @@
       return new GenderAnnotator(false,properties.getProperty("gender.firstnames",DefaultPaths.DEFAULT_GENDER_FIRST_NAMES));
     }
     @Override public String signature(){
-      return "gender.firstnames:" + properties.getProperty("gender.firstnames",DefaultPaths.DEFAULT_GENDER_FIRST_NAMES);
+      StringBuilder os=new StringBuilder();
+      os.append("gender.firstnames:" + properties.getProperty("gender.firstnames",DefaultPaths.DEFAULT_GENDER_FIRST_NAMES));
+      return os.toString();
     }
   }
 );
@@ -221,7 +221,11 @@
       return new TrueCaseAnnotator(model,bias,mixed,false);
     }
     @Override public String signature(){
-      return "truecase.model:" + properties.getProperty("truecase.model",DefaultPaths.DEFAULT_TRUECASE_MODEL) + "truecase.bias:"+ properties.getProperty("truecase.bias",TrueCaseAnnotator.DEFAULT_MODEL_BIAS)+ "truecase.mixedcasefile:"+ properties.getProperty("truecase.mixedcasefile",DefaultPaths.DEFAULT_TRUECASE_DISAMBIGUATION_LIST);
+      StringBuilder os=new StringBuilder();
+      os.append("truecase.model:" + properties.getProperty("truecase.model",DefaultPaths.DEFAULT_TRUECASE_MODEL));
+      os.append("truecase.bias:" + properties.getProperty("truecase.bias",TrueCaseAnnotator.DEFAULT_MODEL_BIAS));
+      os.append("truecase.mixedcasefile:" + properties.getProperty("truecase.mixedcasefile",DefaultPaths.DEFAULT_TRUECASE_DISAMBIGUATION_LIST));
+      return os.toString();
     }
   }
 );
@@ -232,7 +236,8 @@
       return ReflectionLoading.loadByReflection(className);
     }
     @Override public String signature(){
-      return "";
+      StringBuilder os=new StringBuilder();
+      return os.toString();
     }
   }
 );
@@ -243,7 +248,15 @@
       return ReflectionLoading.loadByReflection(className,properties);
     }
     @Override public String signature(){
-      return "nfl.verbose:" + properties.getProperty("nfl.verbose","false") + "nfl.relations.use.max.recall:"+ properties.getProperty("nfl.relations.use.max.recall","false")+ "nfl.relations.use.model.merging:"+ properties.getProperty("nfl.relations.use.model.merging","false")+ "nfl.relations.use.basic.inference:"+ properties.getProperty("nfl.relations.use.basic.inference","true")+ "nfl.gazetteer:"+ properties.getProperty("nfl.gazetteer",DefaultPaths.DEFAULT_NFL_GAZETTEER)+ "nfl.entity.model:"+ properties.getProperty("nfl.entity.model",DefaultPaths.DEFAULT_NFL_ENTITY_MODEL)+ "nfl.relation.model:"+ properties.getProperty("nfl.relation.model",DefaultPaths.DEFAULT_NFL_RELATION_MODEL);
+      StringBuilder os=new StringBuilder();
+      os.append("nfl.verbose:" + properties.getProperty("nfl.verbose","false"));
+      os.append("nfl.relations.use.max.recall:" + properties.getProperty("nfl.relations.use.max.recall","false"));
+      os.append("nfl.relations.use.model.merging:" + properties.getProperty("nfl.relations.use.model.merging","false"));
+      os.append("nfl.relations.use.basic.inference:" + properties.getProperty("nfl.relations.use.basic.inference","true"));
+      os.append("nfl.gazetteer:" + properties.getProperty("nfl.gazetteer",DefaultPaths.DEFAULT_NFL_GAZETTEER));
+      os.append("nfl.entity.model:" + properties.getProperty("nfl.entity.model",DefaultPaths.DEFAULT_NFL_ENTITY_MODEL));
+      os.append("nfl.relation.model:" + properties.getProperty("nfl.relation.model",DefaultPaths.DEFAULT_NFL_RELATION_MODEL));
+      return os.toString();
     }
   }
 );
@@ -279,7 +292,11 @@
         return ParserAnnotator.signature("parser",properties);
       }
  else       if (type.equalsIgnoreCase("charniak")) {
-        return "parse.model:" + properties.getProperty("parse.model","") + "parse.executable:"+ properties.getProperty("parse.executable","")+ "parse.maxlen:"+ properties.getProperty("parse.maxlen","");
+        StringBuilder os=new StringBuilder();
+        os.append("parse.model:" + properties.getProperty("parse.model",""));
+        os.append("parse.executable:" + properties.getProperty("parse.executable",""));
+        os.append("parse.maxlen:" + properties.getProperty("parse.maxlen",""));
+        return os.toString();
       }
  else {
         throw new RuntimeException("Unknown parser type: " + type + " (currently supported: stanford and charniak)");
@@ -297,7 +314,7 @@
     }
   }
 );
-  for (  Object propertyKey : inputProps.stringPropertyNames()) {
+  for (  Object propertyKey : inputProps.keySet()) {
     if (!(propertyKey instanceof String))     continue;
     String property=(String)propertyKey;
     if (property.startsWith(CUSTOM_ANNOTATOR_PREFIX)) {

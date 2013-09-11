@@ -1,0 +1,36 @@
+{
+  Set<String> relevant;
+  List<String> results;
+  double expected, actual;
+  relevant=new HashSet<String>(Arrays.asList("H D".split(" ")));
+  results=Arrays.asList("A B C D E F G H".split(" "));
+  expected=(0.25 + 0.25) / 2;
+  actual=RetrievalStats.averagePrecision(relevant,results);
+  Assert.assertEquals(expected,actual,1e-10);
+  relevant=new HashSet<String>(Arrays.asList("A B C D".split(" ")));
+  results=Arrays.asList("A B C D".split(" "));
+  expected=(1.0 + 1.0 + 1.0+ 1.0) / 4;
+  actual=RetrievalStats.averagePrecision(relevant,results);
+  Assert.assertEquals(expected,actual,1e-10);
+  relevant=new HashSet<String>(Arrays.asList("B H".split(" ")));
+  results=Arrays.asList("A B C D E F G H".split(" "));
+  expected=(0.5 + 0.25) / 2;
+  actual=RetrievalStats.averagePrecision(relevant,results);
+  Assert.assertEquals(expected,actual,1e-10);
+  relevant=new HashSet<String>(Arrays.asList("H D".split(" ")));
+  results=Arrays.asList("A B C E F G".split(" "));
+  expected=0.0;
+  actual=RetrievalStats.averagePrecision(relevant,results);
+  Assert.assertEquals(expected,actual,1e-10);
+  relevant=new HashSet<String>(Arrays.asList("D E".split(" ")));
+  results=Arrays.asList("A B C D".split(" "));
+  expected=0.25 / 2;
+  actual=RetrievalStats.averagePrecision(relevant,results);
+  Assert.assertEquals(expected,actual,1e-10);
+  try {
+    RetrievalStats.averagePrecision(new HashSet<String>(),results);
+    Assert.fail("expected exception for empty relevant set");
+  }
+ catch (  IllegalArgumentException e) {
+  }
+}

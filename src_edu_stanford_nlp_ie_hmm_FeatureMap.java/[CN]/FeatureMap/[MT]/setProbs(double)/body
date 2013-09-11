@@ -1,0 +1,18 @@
+{
+  if (!calculated) {
+    if (DEBUG_FEATUREMAP) {
+      System.out.println("State generated tokens = " + stateGeneratedTokens + "; numValues = "+ f.numValues());
+    }
+    Iterator it=counts.keySet().iterator();
+    while (it.hasNext()) {
+      FeatureValue fv=(FeatureValue)it.next();
+      if (DEBUG_FEATUREMAP) {
+        Double val=(Double)counts.get(fv);
+        System.out.println(fv + " counts " + val+ " total "+ total+ " prob "+ calculateProb(fv,stateGeneratedTokens));
+      }
+      counts.put(fv,new Double(calculateProb(fv,stateGeneratedTokens)));
+    }
+    unseenProb=calculateProb(null,stateGeneratedTokens);
+    calculated=true;
+  }
+}

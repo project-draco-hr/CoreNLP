@@ -1,0 +1,24 @@
+{
+  String line;
+  List sentences=new ArrayList(7500);
+  Sentence sentence=new Sentence();
+  Word word;
+  while ((line=in.readLine()) != null) {
+    if (line.trim().equals("")) {
+      if (sentence != null) {
+        sentences.add(sentence);
+      }
+      sentence=new Sentence();
+      continue;
+    }
+    word=new Word();
+    String[] w=line.split("\\s");
+    word.word=w[0].trim();
+    word.info=line.substring(word.word.length() + 1).trim();
+    sentence.add(word);
+  }
+  if (sentence != null) {
+    sentences.add(sentence);
+  }
+  return sentences;
+}

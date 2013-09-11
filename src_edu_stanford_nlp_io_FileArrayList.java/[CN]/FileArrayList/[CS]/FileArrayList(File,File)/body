@@ -1,0 +1,31 @@
+{
+  super();
+  if (!fileList.canRead()) {
+    throw (new IllegalArgumentException("Can't read " + fileList));
+  }
+  BufferedReader br=null;
+  try {
+    br=new BufferedReader(new FileReader(fileList));
+    String line;
+    while ((line=br.readLine()) != null) {
+      if (baseDir == null) {
+        add(new File(line));
+      }
+ else {
+        add(new File(baseDir,line));
+      }
+    }
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+  }
+ finally {
+    try {
+      if (br != null) {
+        br.close();
+      }
+    }
+ catch (    Exception e) {
+    }
+  }
+}

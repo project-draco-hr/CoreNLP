@@ -4,37 +4,37 @@
   E next=(afterIndex < sz) ? list.get(afterIndex) : null;
   E next2=(afterIndex + 1 < sz) ? list.get(afterIndex + 1) : null;
   List<E> toRemove=new ArrayList<E>();
-  String curNER=(firstDate == null ? "" : firstDate.get(CoreAnnotations.NamedEntityTagAnnotation.class));
+  String curNER=(firstDate == null ? "" : firstDate.get(NamedEntityTagAnnotation.class));
   if (curNER == null)   curNER="";
-  if (firstDate == null || firstDate.get(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class) == null)   return toRemove;
+  if (firstDate == null || firstDate.get(NormalizedNamedEntityTagAnnotation.class) == null)   return toRemove;
   if (prev != null) {
     for (    Pair<String,String> ranges : dateRangeBeforePairedOneWord) {
-      if (prev.get(CoreAnnotations.TextAnnotation.class).matches(ranges.first())) {
+      if (prev.get(TextAnnotation.class).matches(ranges.first())) {
         if (next != null && next2 != null) {
-          String nerNext2=next2.get(CoreAnnotations.NamedEntityTagAnnotation.class);
-          if (next.get(CoreAnnotations.TextAnnotation.class).matches(ranges.second()) && nerNext2 != null && nerNext2.equals(curNER)) {
-            prev.set(CoreAnnotations.PartOfSpeechAnnotation.class,"QUANT_MOD");
+          String nerNext2=next2.get(NamedEntityTagAnnotation.class);
+          if (next.get(TextAnnotation.class).matches(ranges.second()) && nerNext2 != null && nerNext2.equals(curNER)) {
+            prev.set(PartOfSpeechAnnotation.class,"QUANT_MOD");
             String rangeString;
             if (curNER.equals("DATE")) {
-              ISODateInstance c=new ISODateInstance(new ISODateInstance(firstDate.get(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class)),new ISODateInstance(next2.get(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class)));
+              ISODateInstance c=new ISODateInstance(new ISODateInstance(firstDate.get(NormalizedNamedEntityTagAnnotation.class)),new ISODateInstance(next2.get(NormalizedNamedEntityTagAnnotation.class)));
               rangeString=c.getDateString();
             }
  else {
-              rangeString=firstDate.get(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class) + '-' + next2.get(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class);
+              rangeString=firstDate.get(NormalizedNamedEntityTagAnnotation.class) + '-' + next2.get(NormalizedNamedEntityTagAnnotation.class);
             }
             if (DEBUG) {
-              System.err.println("#1: Changing normalized NER from " + firstDate.get(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class) + " to "+ rangeString+ " at index "+ beforeIndex);
+              System.err.println("#1: Changing normalized NER from " + firstDate.get(NormalizedNamedEntityTagAnnotation.class) + " to "+ rangeString+ " at index "+ beforeIndex);
             }
-            firstDate.set(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class,rangeString);
+            firstDate.set(NormalizedNamedEntityTagAnnotation.class,rangeString);
             if (DEBUG) {
-              System.err.println("#2: Changing normalized NER from " + next2.get(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class) + " to "+ rangeString+ " at index "+ afterIndex);
+              System.err.println("#2: Changing normalized NER from " + next2.get(NormalizedNamedEntityTagAnnotation.class) + " to "+ rangeString+ " at index "+ afterIndex);
             }
-            next2.set(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class,rangeString);
-            next.set(CoreAnnotations.NamedEntityTagAnnotation.class,nerNext2);
+            next2.set(NormalizedNamedEntityTagAnnotation.class,rangeString);
+            next.set(NamedEntityTagAnnotation.class,nerNext2);
             if (DEBUG) {
-              System.err.println("#3: Changing normalized NER from " + next.get(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class) + " to "+ rangeString+ " at index "+ (afterIndex + 1));
+              System.err.println("#3: Changing normalized NER from " + next.get(NormalizedNamedEntityTagAnnotation.class) + " to "+ rangeString+ " at index "+ (afterIndex + 1));
             }
-            next.set(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class,rangeString);
+            next.set(NormalizedNamedEntityTagAnnotation.class,rangeString);
             if (concatenate) {
               List<E> numberWords=new ArrayList<E>();
               numberWords.add(firstDate);

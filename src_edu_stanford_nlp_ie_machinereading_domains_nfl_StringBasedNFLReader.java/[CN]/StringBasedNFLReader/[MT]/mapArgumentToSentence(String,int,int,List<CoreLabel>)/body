@@ -1,0 +1,13 @@
+{
+  NFLTokenizer tokenizer=new NFLTokenizer(text);
+  List<CoreLabel> argTokens=tokenizer.tokenize();
+  List<Span> matches=new ArrayList<Span>();
+  for (int offset=0; offset < tokens.size() - argTokens.size(); offset++) {
+    if (argMatches(argTokens,tokens,offset)) {
+      Span match=new Span(offset,offset + argTokens.size());
+      matches.add(match);
+    }
+  }
+  if (matches.size() == 1)   return matches.get(0);
+  return null;
+}

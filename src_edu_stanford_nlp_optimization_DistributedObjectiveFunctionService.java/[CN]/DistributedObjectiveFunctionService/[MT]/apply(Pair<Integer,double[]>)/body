@@ -1,0 +1,22 @@
+{
+  requests.add(request);
+  Pair<Double,double[]> output=inputOutputMap.get(request);
+  if (objectiveFunction != null && objectiveFunction instanceof Killable && requests.size() > 1) {
+    System.err.println("killing: " + this);
+    ((Killable)objectiveFunction).kill();
+    objectiveFunction=makeNewObjectiveFunction(objFuncArgs);
+  }
+  while (output == null) {
+    output=inputOutputMap.remove(request);
+    if (mainThread != null && mainThread.exception != null) {
+      System.err.println("has exception: " + this);
+      throw new RuntimeException(mainThread.exception);
+    }
+    try {
+      Thread.sleep(10);
+    }
+ catch (    Exception e) {
+    }
+  }
+  return output;
+}

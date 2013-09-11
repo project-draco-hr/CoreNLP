@@ -1,0 +1,37 @@
+{
+  annotationsSummary(sentences,"Annotations before removing gold triggers");
+  logger.info("Removing events with gold triggers...");
+  Set<EventMention> eventsWithGoldTriggers=new IdentityHashSet<EventMention>();
+  Set<EntityMention> goldTriggers=new IdentityHashSet<EntityMention>();
+  for (  CoreMap sent : sentences) {
+    if (sent.get(EntityMentionsAnnotation.class) != null) {
+      for (      EntityMention e : sent.get(EntityMentionsAnnotation.class)) {
+        if (isGoldTriggerOnly(e)) {
+          goldTriggers.add(e);
+        }
+      }
+    }
+  }
+  int total=0;
+  for (  CoreMap sent : sentences) {
+    if (sent.get(EventMentionsAnnotation.class) != null) {
+      for (      EventMention ev : sent.get(EventMentionsAnnotation.class)) {
+        total++;
+        if (goldTriggers.contains(ev.getAnchor())) {
+          eventsWithGoldTriggers.add(ev);
+        }
+      }
+    }
+  }
+  logger.info("eventsWithGoldTriggers.size = " + eventsWithGoldTriggers.size());
+  countEventsWithGoldTrigers+=eventsWithGoldTriggers.size();
+  MutableInteger count=new MutableInteger(0);
+  removeEvents(sentences,eventsWithGoldTriggers,count);
+  countEventsWithGoldTrigersWithDeps+=count.intValue();
+  logger.info("Removed " + count.intValue() + " events with gold triggers.");
+  annotationsSummary(sentences,"Annotations after removing gold-trigger events");
+  count=new MutableInteger(0);
+  removeEntities(sentences,goldTriggers,count);
+  countGoldTriggers+=count.intValue();
+  annotationsSummary(sentences,"Annotations after removing gold-trigger anchors");
+}

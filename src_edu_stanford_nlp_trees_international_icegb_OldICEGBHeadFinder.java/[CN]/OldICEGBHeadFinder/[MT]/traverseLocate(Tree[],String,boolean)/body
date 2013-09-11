@@ -1,0 +1,60 @@
+{
+  String[] how=nonTerminalInfo.get(motherKey);
+  Tree theHead=null;
+  int headIdx=0;
+  String childCat;
+  boolean found=false;
+  if (how == null) {
+    if (DEBUG) {
+      System.err.println("Warning: No rule found for " + motherKey);
+    }
+    return null;
+  }
+  String direction=how[0];
+  if (direction.equals("left")) {
+    twoloop:     for (int i=1; i < how.length; i++) {
+      for (headIdx=0; headIdx < daughterTrees.length; headIdx++) {
+        childCat=tlp.basicCategory(daughterTrees[headIdx].label().value());
+        if (how[i].equals(childCat)) {
+          theHead=daughterTrees[headIdx];
+          found=true;
+          break twoloop;
+        }
+      }
+    }
+    if (!found) {
+      if (deflt) {
+        headIdx=0;
+        theHead=daughterTrees[headIdx];
+      }
+ else {
+        return null;
+      }
+    }
+  }
+ else {
+    twoloop:     for (int i=1; i < how.length; i++) {
+      for (headIdx=daughterTrees.length - 1; headIdx >= 0; headIdx--) {
+        childCat=tlp.basicCategory(daughterTrees[headIdx].label().value());
+        if (how[i].equals(childCat)) {
+          theHead=daughterTrees[headIdx];
+          found=true;
+          break twoloop;
+        }
+      }
+    }
+    if (!found) {
+      if (deflt) {
+        headIdx=daughterTrees.length - 1;
+        theHead=daughterTrees[headIdx];
+      }
+ else {
+        return null;
+      }
+    }
+  }
+  if (DEBUG) {
+    System.err.println("Head for " + motherKey + " chose index "+ headIdx+ " "+ theHead.label());
+  }
+  return theHead;
+}

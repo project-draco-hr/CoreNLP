@@ -1,0 +1,29 @@
+{
+  if (args.length < minArgs) {
+    System.out.println(usage.toString());
+    System.exit(-1);
+  }
+  boolean basicCategory=false;
+  boolean skipTerminals=false;
+  String encoding="UTF-8";
+  int i;
+  for (i=0; i < args.length; i++) {
+    if (args[i].startsWith("-")) {
+      if (args[i].equals("-b"))       basicCategory=true;
+ else       if (args[i].equals("-e"))       encoding=args[++i].trim();
+ else       if (args[i].equals("-n"))       skipTerminals=true;
+    }
+ else {
+      break;
+    }
+  }
+  final Language lang=Language.valueOf(args[i++]);
+  final TreebankLangParserParams tlpp=Languages.getLanguageParams(lang);
+  tlpp.setInputEncoding(encoding);
+  Treebank tb=tlpp.diskTreebank();
+  for (; i < args.length; i++)   tb.loadPath(args[i]);
+  PCFGBranchingRate pbr=new PCFGBranchingRate(tb,tlpp.treebankLanguagePack(),basicCategory,skipTerminals);
+  System.out.println("|V u T| = " + pbr.getNumSymbols());
+  NumberFormat nf=new DecimalFormat("0.0000");
+  System.out.println("rho = " + nf.format(pbr.computeRho()));
+}

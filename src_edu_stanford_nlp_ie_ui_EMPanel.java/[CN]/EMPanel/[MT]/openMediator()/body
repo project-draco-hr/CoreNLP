@@ -1,0 +1,18 @@
+{
+  if (!confirmSavedState()) {
+    return;
+  }
+  jfc.setDialogTitle("Open Mediator");
+  if (jfc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+    ExtractorMediator mediator=new ExtractorMediator();
+    File mediatorFile=jfc.getSelectedFile();
+    if (mediator.load(mediatorFile)) {
+      setExtractorMediator(mediator);
+      setStatus("Opened ExtractorMediator from " + mediatorFile);
+    }
+ else {
+      JOptionPane.showMessageDialog(this,"An error occured while trying to load mediator from:\n" + mediatorFile,"Error loading mediator",JOptionPane.ERROR_MESSAGE);
+      setStatus("Error loading mediator");
+    }
+  }
+}

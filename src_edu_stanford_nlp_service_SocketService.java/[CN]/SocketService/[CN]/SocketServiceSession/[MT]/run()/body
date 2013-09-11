@@ -1,0 +1,56 @@
+{
+  while (socket != null) {
+    final int rid;
+    final Object query;
+    try {
+      rid=in.readInt();
+      query=in.readUnshared();
+    }
+ catch (    ClassNotFoundException e) {
+      e.printStackTrace();
+      sendMessage(-1,e);
+      close();
+      return;
+    }
+catch (    IOException e) {
+      sendMessage(-1,e);
+      close();
+      return;
+    }
+    if (query instanceof SocketSessionControlMessage) {
+switch ((SocketSessionControlMessage)query) {
+case STOP:
+        SocketService.this.stop();
+      sendMessage(rid,SocketSessionControlResponse.BYE);
+    close();
+  stop();
+return;
+case PING:
+System.err.println("SocketService: PINGED");
+if (!sendMessage(rid,SocketSessionControlResponse.PONG)) {
+return;
+}
+continue;
+}
+}
+ else {
+System.err.println("SocketService: " + service.getClass().getSimpleName() + " READ "+ query);
+executor.execute(new Runnable(){
+public void run(){
+Object rv;
+try {
+rv=service.apply(query);
+}
+ catch (RuntimeException e) {
+e.printStackTrace();
+sendMessage(rid,new ServiceEvaluationException(e));
+return;
+}
+sendMessage(rid,rv);
+}
+}
+);
+}
+Thread.yield();
+}
+}

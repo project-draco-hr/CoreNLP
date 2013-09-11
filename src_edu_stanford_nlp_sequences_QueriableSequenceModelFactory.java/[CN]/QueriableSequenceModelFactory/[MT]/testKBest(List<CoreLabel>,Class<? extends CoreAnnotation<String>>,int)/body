@@ -1,0 +1,20 @@
+{
+  SequenceModel model=getModel(doc);
+  KBestSequenceFinder tagInference=new KBestSequenceFinder();
+  Counter<int[]> bestSequences=tagInference.kBestSequences(model,k);
+  Counter<List<CoreLabel>> kBest=new ClassicCounter<List<CoreLabel>>();
+  for (  int[] seq : bestSequences.keySet()) {
+    List<CoreLabel> kth=new ArrayList<CoreLabel>();
+    int pos=model.leftWindow();
+    for (    CoreLabel fi : doc) {
+      CoreLabel newFL=new CoreLabel(fi);
+      String guess=(String)metaInfo.getLabel(seq[pos]);
+      fi.remove(AnswerAnnotation.class);
+      newFL.set(answerField,guess);
+      kth.add(newFL);
+      pos++;
+    }
+    kBest.setCount(kth,bestSequences.getCount(seq));
+  }
+  return kBest;
+}

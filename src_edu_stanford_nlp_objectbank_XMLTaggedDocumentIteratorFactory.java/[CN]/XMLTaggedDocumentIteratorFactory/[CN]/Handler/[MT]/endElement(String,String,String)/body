@@ -1,0 +1,25 @@
+{
+  if (qName.equals(docTag)) {
+    String s=fieldBuffer.toString();
+    Tokenizer<CoreLabel> tok=tokenizerFactory.getTokenizer(new StringReader(s));
+    List<CoreLabel> tokens=tok.tokenize();
+    for (int i=0; i < tokens.size(); i++) {
+      CoreLabel mapLabel=tokens.get(i);
+      mapLabel.setTag(otherTag);
+      thisDoc.add(mapLabel);
+    }
+    documents.add(thisDoc);
+    if (documents.size() % 100 == 0) {
+      System.err.println("Read in " + documents.size() + " docs.");
+    }
+    thisDoc=null;
+    fieldBuffer=null;
+  }
+ else   if (useComplexTags) {
+  }
+ else {
+    if (thisDoc != null) {
+      addPreviousToDoc(qName);
+    }
+  }
+}

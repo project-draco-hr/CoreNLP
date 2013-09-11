@@ -1,0 +1,30 @@
+{
+  super.init(flags);
+  try {
+    gazNames=new ArrayList<String>();
+    gazMap=new CollectionValuedMap<Pair<String,String>,String[]>();
+    System.err.print("initializing gazetteers...");
+    for (    String file : ObjectBank.getLineIterator(new File(flags.gazFilesFile))) {
+      if (file.trim().length() == 0) {
+        continue;
+      }
+      if (file.trim().startsWith("#")) {
+        continue;
+      }
+      String[] bits=file.split("/");
+      String gazName=bits[bits.length - 1];
+      gazNames.add(gazName);
+      for (      String entry : ObjectBank.getLineIterator(new File(file))) {
+        String[] words=entry.split("\\s+");
+        for (        String word : words) {
+          Pair<String,String> wordGaz=new Pair<String,String>(word,gazName);
+          gazMap.add(wordGaz,words);
+        }
+      }
+    }
+    System.err.println("done");
+  }
+ catch (  Exception e) {
+    throw new RuntimeException(e);
+  }
+}

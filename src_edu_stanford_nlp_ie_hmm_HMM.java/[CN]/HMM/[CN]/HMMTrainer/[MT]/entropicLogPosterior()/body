@@ -1,0 +1,24 @@
+{
+  double logPosterior=0.0;
+  for (int i=0; i < numStates; i++) {
+    for (int j=0; j < numStates; j++) {
+      if (states[i].transition[j] != 0.0) {
+        logPosterior+=(totalP[i][j] + states[i].transition[j]) * Math.log(states[i].transition[j]);
+      }
+    }
+  }
+  for (int i=State.BKGRNDIDX; i < states.length; i++) {
+    if (states[i].emit instanceof ConstantEmitMap) {
+      continue;
+    }
+    if (totalFrom[i] != 0.0) {
+      for (Iterator it=vocab.keySet().iterator(); it.hasNext(); ) {
+        String s=(String)it.next();
+        if (states[i].emit.get(s) != 0.0) {
+          logPosterior+=(totalOP[i].getCount(s) + states[i].emit.get(s)) * Math.log(states[i].emit.get(s));
+        }
+      }
+    }
+  }
+  return logPosterior;
+}

@@ -20,12 +20,12 @@
     int bgTag=classIndex.indexOf(flags.backgroundSymbol);
     for (int i=0, dSize=document.size(); i < dSize; i++) {
       CoreLabel wordInfo=document.get(i);
-      if ("NEWGENE".equals(wordInfo.get(CoreAnnotations.GazAnnotation.class))) {
+      if ("NEWGENE".equals(wordInfo.get(GazAnnotation.class))) {
         int start=i;
         int j;
         for (j=i; j < document.size(); j++) {
           wordInfo=document.get(j);
-          if (!"NEWGENE".equals(wordInfo.get(CoreAnnotations.GazAnnotation.class))) {
+          if (!"NEWGENE".equals(wordInfo.get(GazAnnotation.class))) {
             break;
           }
         }
@@ -67,10 +67,10 @@
             if (score >= flags.newgeneThreshold && (!prevScores.containsKey(al) || score > prevScores.getCount(al)) && (!prevScores.containsKey(ar) || score > prevScores.getCount(ar)) && (!prevScores.containsKey(sl) || score > prevScores.getCount(sl)) && (!prevScores.containsKey(sr) || score > prevScores.getCount(sr))) {
               StringBuilder sb=new StringBuilder();
               wordInfo=document.get(j);
-              String docId=wordInfo.get(CoreAnnotations.IDAnnotation.class);
-              String startIndex=wordInfo.get(CoreAnnotations.PositionAnnotation.class);
+              String docId=wordInfo.get(IDAnnotation.class);
+              String startIndex=wordInfo.get(PositionAnnotation.class);
               wordInfo=document.get(k);
-              String endIndex=wordInfo.get(CoreAnnotations.PositionAnnotation.class);
+              String endIndex=wordInfo.get(PositionAnnotation.class);
               for (int m=j; m <= k; m++) {
                 wordInfo=document.get(m);
                 sb.append(wordInfo.word());
@@ -90,7 +90,7 @@
   for (int i=0, docSize=document.size(); i < docSize; i++) {
     CoreLabel lineInfo=document.get(i);
     String answer=classIndex.get(tags[i]);
-    lineInfo.set(CoreAnnotations.AnswerAnnotation.class,answer);
+    lineInfo.set(AnswerAnnotation.class,answer);
   }
   if (flags.justify && classifier instanceof LinearClassifier) {
     LinearClassifier<String,String> lc=(LinearClassifier<String,String>)classifier;
@@ -100,7 +100,7 @@
     for (int i=0, docSize=document.size(); i < docSize; i++) {
       CoreLabel lineInfo=document.get(i);
       System.err.print("@@ Position is: " + i + ": ");
-      System.err.println(lineInfo.word() + ' ' + lineInfo.get(CoreAnnotations.AnswerAnnotation.class));
+      System.err.println(lineInfo.word() + ' ' + lineInfo.get(AnswerAnnotation.class));
       lc.justificationOf(makeDatum(document,i,featureFactory));
     }
   }

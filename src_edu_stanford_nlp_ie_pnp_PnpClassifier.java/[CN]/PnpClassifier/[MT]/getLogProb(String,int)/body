@@ -1,0 +1,25 @@
+{
+  double score=0.0;
+  line=getEndMarkedString(line);
+  score+=getLengthScore(line,category);
+  if (PRINT_RUNNING_SCORES) {
+    System.err.println("(cumulative) char-word scores: ");
+  }
+  List<String> wordsWithContext=getWordsWithContext(line);
+  for (int i=0; i < wordsWithContext.size(); i++) {
+    String wordWithContext=wordsWithContext.get(i);
+    double charWordLogProb=getCharWordScore(wordWithContext,category);
+    int wordLength=getPureString(wordWithContext).length();
+    score+=lengthNormalize(charWordLogProb,wordLength,lengthNormalization);
+    if (PRINT_RUNNING_SCORES) {
+      System.err.println("score after \"" + wordWithContext + "\": "+ score);
+    }
+  }
+  if (PRINT_RUNNING_SCORES) {
+    System.err.println();
+    System.err.println("final score (category=" + category + "): "+ score);
+    System.err.println("--------------------");
+    System.err.println();
+  }
+  return (score);
+}

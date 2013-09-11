@@ -1,0 +1,20 @@
+{
+  if (largeWordFeatCache == null) {
+    largeWordFeatCache=new int[wordIndex.size()][];
+  }
+  if (word < largeWordFeatCache.length && largeWordFeatCache[word] != null) {
+    return largeWordFeatCache[word];
+  }
+  int[] wordFeatures;
+  Collection<String> stringFeats=largeWordFeatExtractor.makeFeatures(wordIndex.get(word));
+  wordFeatures=new int[stringFeats.size()];
+  int i=0;
+  for (  String feat : stringFeats) {
+    largeWordFeatIndex.add(feat);
+    wordFeatures[i++]=largeWordFeatIndex.indexOf(feat);
+  }
+  if (word < largeWordFeatCache.length) {
+    largeWordFeatCache[word]=wordFeatures;
+  }
+  return wordFeatures;
+}

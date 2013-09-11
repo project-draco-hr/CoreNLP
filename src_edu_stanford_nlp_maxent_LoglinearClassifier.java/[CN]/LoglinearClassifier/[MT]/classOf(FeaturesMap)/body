@@ -1,0 +1,23 @@
+{
+  double[] scores=new double[numClasses];
+  Set<Map.Entry<IntTuple,Double>> entries=fM.entries();
+  if (hasPriors) {
+    for (int j=0; j < scores.length; j++) {
+      scores[j]=lambdas[0] * priors[j];
+    }
+  }
+  for (  Map.Entry<IntTuple,Double> eN : entries) {
+    IntTuple wP=eN.getKey();
+    Double val=eN.getValue();
+    int y=wP.get(0);
+    int fno=wP.get(1);
+    scores[y]+=val.doubleValue() * lambdas[fno];
+  }
+  int maxy=0;
+  for (int j=0; j < numClasses; j++) {
+    if (scores[j] > scores[maxy]) {
+      maxy=j;
+    }
+  }
+  return maxy;
+}

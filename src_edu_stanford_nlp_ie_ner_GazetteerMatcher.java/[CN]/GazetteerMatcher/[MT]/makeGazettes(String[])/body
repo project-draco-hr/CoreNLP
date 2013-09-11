@@ -1,0 +1,29 @@
+{
+  Map gazettes=new HashMap();
+  String entity, line;
+  int index;
+  List l;
+  String key;
+  for (int i=0; i < files.length; i++) {
+    BufferedReader in=new BufferedReader(new FileReader(files[i]));
+    while ((line=in.readLine()) != null) {
+      index=line.indexOf(" ");
+      entity=line.substring(0,index);
+      line=line.substring(index + 1);
+      index=line.indexOf(" ");
+      if (index < 0) {
+        key=line;
+      }
+ else {
+        key=line.substring(0,index);
+      }
+      l=(List)gazettes.get(key.toLowerCase());
+      if (l == null) {
+        l=new ArrayList();
+      }
+      l.add(new Pair<String,String>(entity,line.toLowerCase()));
+      gazettes.put(key.toLowerCase(),l);
+    }
+  }
+  return gazettes;
+}

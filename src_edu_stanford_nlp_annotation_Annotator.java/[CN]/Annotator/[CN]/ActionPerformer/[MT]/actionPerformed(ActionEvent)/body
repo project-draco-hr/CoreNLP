@@ -1,0 +1,118 @@
+{
+  String com=e.getActionCommand();
+  if (com.equals("Open")) {
+    openFile();
+  }
+ else   if (com.equals("Save")) {
+    saveFile(true);
+  }
+ else   if (com.equals("Save As")) {
+    saveFile(false);
+  }
+ else   if (com.equals("Batch Process")) {
+    initBatchProcess();
+  }
+ else   if (com.equals("Next File")) {
+    openNextFile(false);
+  }
+ else   if (com.equals("Previous File")) {
+    openPrevFile(false);
+  }
+ else   if (com.equals("Save and Next")) {
+    openNextFile(true);
+  }
+ else   if (com.equals("Save and Previous")) {
+    openPrevFile(true);
+  }
+ else   if (com.equals("Exit")) {
+    exit();
+  }
+ else   if (com.startsWith("Undo")) {
+    try {
+      undoManager.undo();
+    }
+ catch (    CannotUndoException cue) {
+      Toolkit.getDefaultToolkit().beep();
+    }
+  }
+ else   if (com.startsWith("Redo")) {
+    try {
+      undoManager.redo();
+    }
+ catch (    CannotRedoException cre) {
+      Toolkit.getDefaultToolkit().beep();
+    }
+  }
+ else   if (com.equals("Cut")) {
+    tp.cut();
+  }
+ else   if (com.equals("Copy")) {
+    tp.copy();
+  }
+ else   if (com.equals("Paste")) {
+    tp.paste();
+  }
+ else   if (com.equals("Select all")) {
+    tp.selectAll();
+  }
+ else   if (com.equals("Tag All Occurrences")) {
+    tagAllOccurrences();
+  }
+ else   if (com.equals("Show HTML tags")) {
+    hideHtml=false;
+    warningsMenuItem=new JMenuItem("Hide HTML tags");
+    warningsMenuItem.addActionListener(this);
+    viewMenu.remove(0);
+    viewMenu.add(warningsMenuItem);
+    setDocument(tp.getText());
+  }
+ else   if (com.equals("Hide HTML tags")) {
+    hideHtml=true;
+    warningsMenuItem=new JMenuItem("Show HTML tags");
+    warningsMenuItem.addActionListener(this);
+    viewMenu.remove(0);
+    viewMenu.add(warningsMenuItem);
+    setDocument(tp.getText());
+  }
+ else   if (com.equals("Load tag file")) {
+    loadTags();
+  }
+ else   if (com.equals("Save tag file")) {
+    saveTags(true);
+  }
+ else   if (com.equals("Save tag file without colors")) {
+    saveTags(false);
+  }
+ else   if (com.equals("Add tag")) {
+    addTag();
+  }
+ else   if (com.equals("Change tag color")) {
+    changeTagColor();
+  }
+ else   if (com.equals("Untag selected region")) {
+    removeTag();
+  }
+ else   if (com.equals("Update display")) {
+    setDocument(tp.getText());
+  }
+ else   if (com.equals("Suppress warnings")) {
+    suppressWarnings=true;
+    warningsMenuItem=new JMenuItem("Enable warnings");
+    warningsMenuItem.addActionListener(this);
+    tagsMenu.remove(6);
+    tagsMenu.add(warningsMenuItem);
+  }
+ else   if (com.equals("Enable warnings")) {
+    suppressWarnings=false;
+    warningsMenuItem=new JMenuItem("Suppress warnings");
+    warningsMenuItem.addActionListener(this);
+    tagsMenu.remove(6);
+    tagsMenu.add(warningsMenuItem);
+  }
+ else   if (com.equals("About")) {
+    showAbout();
+  }
+ else {
+    tagText(com);
+  }
+}

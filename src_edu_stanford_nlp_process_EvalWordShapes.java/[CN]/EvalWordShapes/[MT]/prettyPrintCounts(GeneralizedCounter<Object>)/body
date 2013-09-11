@@ -1,0 +1,17 @@
+{
+  Iterator<Object> it=gc.topLevelKeySet().iterator();
+  Object correct, guessed;
+  while (it.hasNext()) {
+    correct=it.next();
+    List<Object> l=new ArrayList<Object>(1);
+    l.add(correct);
+    GeneralizedCounter<Object> c=gc.conditionalize(l);
+    System.out.println("---\nCorrect Class: " + correct + " ("+ c.totalCount()+ ")\n  guessed counts:");
+    Iterator<Object> it1=c.topLevelKeySet().iterator();
+    while (it1.hasNext()) {
+      guessed=it1.next();
+      System.out.println("  " + guessed + ": "+ c.getCount(guessed));
+    }
+  }
+  System.out.println();
+}

@@ -1,0 +1,33 @@
+{
+  System.out.println("Reading in data.");
+  if (argMap.containsKey("-infile")) {
+    readAllWordsFromOneSerializedFile((String)argMap.get("-infile"));
+    return;
+  }
+  words=new ArrayList<String>();
+  if (argMap.containsKey("-word")) {
+    words.add(argMap.get("-word").toString());
+  }
+ else {
+    File currentDir=new File(".");
+    String[] filenames=currentDir.list();
+    System.out.println("loading data for words: ");
+    for (int i=0; i < filenames.length; i++) {
+      String filename=filenames[i];
+      if (filename.endsWith(".ser")) {
+        String word=filename.substring(0,filename.length() - 4);
+        words.add(word);
+        System.out.print(word + " ");
+      }
+    }
+    System.out.println();
+  }
+  senseTrainData=new ArrayList[words.size()];
+  senseTestData=new ArrayList[words.size()];
+  subcatTrainData=new ArrayList[words.size()];
+  subcatTestData=new ArrayList[words.size()];
+  for (int i=0; i < words.size(); i++) {
+    String word=words.get(i);
+    readInstancesOfOneWordFromSerializedFile(word,i);
+  }
+}

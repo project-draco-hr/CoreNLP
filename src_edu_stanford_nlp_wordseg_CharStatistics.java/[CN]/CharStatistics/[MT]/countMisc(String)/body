@@ -1,0 +1,31 @@
+{
+  ClassicCounter<Pair<Integer,Boolean>> typeIsolated=new ClassicCounter<Pair<Integer,Boolean>>();
+  try {
+    BufferedReader br=new BufferedReader(new FileReader(filename));
+    String thisLine;
+    while ((thisLine=br.readLine()) != null) {
+      thisLine=thisLine.trim();
+      String[] words=thisLine.split("\\s+");
+      for (      String w : words) {
+        if (w.length() > 1) {
+          for (          Character c : w.toCharArray()) {
+            typeIsolated.incrementCount(new Pair<Integer,Boolean>(Character.getType(c),false));
+          }
+        }
+ else         if (w.length() == 1) {
+          char c=w.charAt(0);
+          typeIsolated.incrementCount(new Pair<Integer,Boolean>(Character.getType(c),true));
+        }
+ else {
+          continue;
+        }
+      }
+    }
+  }
+ catch (  IOException e) {
+    System.err.println("Error: " + e);
+  }
+  for (  Pair<Integer,Boolean> p : typeIsolated.keySet()) {
+    System.err.println(p + "\t" + typeIsolated.getCount(p));
+  }
+}

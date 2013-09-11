@@ -1,0 +1,56 @@
+{
+  trainSet=new Corpus(targetFile,targetField);
+  trainSet.retainOnlyTarget(targetField);
+  data=new Corpus(targetField);
+  ArrayList stateList=new ArrayList();
+  State endState=new State(State.FINISHTYPE,null,2);
+  State startState=new State(State.STARTTYPE,null,2);
+  endState.transition[State.FINISHIDX]=1.0;
+  stateList.add(endState);
+  stateList.add(startState);
+  State[] states=(State[])stateList.toArray(new State[0]);
+  HMM hmm=new HMM(states,HMM.TARGET_HMM);
+  hmm.setTargetFields(data.getTargetFields());
+  ObjectOutputStream oos;
+  try {
+    int batchNum=3;
+    int batchTimes=((trainSet.size() / batchNum) == 0) ? 1 : trainSet.size() / batchNum;
+    for (time=0; time < batchTimes; time++) {
+      int startDocNum=time * batchNum;
+      int endDocNum=((startDocNum + batchNum) < trainSet.size()) ? startDocNum + batchNum : trainSet.size();
+      for (int docIndex=startDocNum; docIndex < endDocNum; docIndex++) {
+        hmm=addNewDoc(hmm,(Document)trainSet.get(docIndex));
+      }
+      if (verbose) {
+        oos=new ObjectOutputStream(new FileOutputStream("initial_" + time + ".hmm"));
+        oos.writeObject(hmm);
+        oos.close();
+      }
+      ClassicCounter v=new ClassicCounter(data.getVocab());
+      emissionPriorParas=new double[v.size()];
+      Iterator iter=v.keySet().iterator();
+      int pos=0;
+      while (iter.hasNext()) {
+        Object key=iter.next();
+        double count=v.getCount(key);
+        emissionPriorParas[pos++]=count;
+      }
+      emissionPriorSum=0.0;
+      for (int i=0; i < emissionPriorParas.length; i++) {
+        emissionPriorSum+=emissionPriorParas[i];
+      }
+      hmm=learnModel(hmm);
+      if (verbose) {
+        oos=new ObjectOutputStream(new FileOutputStream("final_" + time + ".hmm"));
+        oos.writeObject(hmm);
+        oos.close();
+      }
+    }
+    oos=new ObjectOutputStream(new FileOutputStream("final.hmm"));
+    oos.writeObject(hmm);
+    oos.close();
+  }
+ catch (  Exception e) {
+    throw new RuntimeException(e);
+  }
+}

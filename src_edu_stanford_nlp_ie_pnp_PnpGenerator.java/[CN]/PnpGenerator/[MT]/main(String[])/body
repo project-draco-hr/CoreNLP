@@ -1,0 +1,27 @@
+{
+  if (args.length == 0) {
+    System.err.println("Usage: java PnpGenerator serialized_pnpc [trainingFile] [propertiesFile]");
+    System.exit(-1);
+  }
+  try {
+    PnpClassifier pnpc;
+    if (args.length > 1) {
+      System.err.println("Creating new PnpClassifier...");
+      Properties props=(args.length == 3 ? PnpClassifier.loadProperties(args[2]) : null);
+      pnpc=new PnpClassifier(args[1],props);
+      ObjectOutputStream oos=new ObjectOutputStream(new FileOutputStream(args[0]));
+      oos.writeObject(pnpc);
+      oos.flush();
+      oos.close();
+    }
+ else {
+      System.err.println("Loading serialized PnpClassifier...");
+      ObjectInputStream ois=new ObjectInputStream(new FileInputStream(args[0]));
+      pnpc=(PnpClassifier)ois.readObject();
+    }
+    new PnpGenerator(pnpc);
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+  }
+}

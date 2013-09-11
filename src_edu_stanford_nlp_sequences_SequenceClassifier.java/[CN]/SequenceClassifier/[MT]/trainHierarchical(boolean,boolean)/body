@@ -1,0 +1,15 @@
+{
+  if (baseline && doFE) {
+    throw new RuntimeException("can only do one of baseline and doFE.");
+  }
+  Map<String,ObjectBank<List<CoreLabel>>> trainingData=new HashMap<String,ObjectBank<List<CoreLabel>>>();
+  for (  String domainAndLocation : flags.trainHierarchical.split(",")) {
+    String[] bits=domainAndLocation.split("=");
+    String domain=bits[0];
+    String location=bits[1];
+    ObjectBank<List<CoreLabel>> data=getObjectBank(new File(location));
+    trainingData.put(domain,data);
+  }
+  QueriableSequenceModelFactory.QueriableSequenceModelFactoryDataProvider dp=getSequenceTypeDataProvider();
+  modelFactory=new QueriableSequenceModelFactory(dp,flags,featureFactory,trainingData,baseline,doFE);
+}
