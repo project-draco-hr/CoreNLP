@@ -13,7 +13,7 @@
     List<String[]> lines=new ArrayList<String[]>();
     List<String> rowHeaders=new ArrayList<String>();
     List<String> line=new ArrayList<String>();
-    for (int p=0; p < labelIndices.length; p++) {
+    for (int p=0; p < labelIndices.size(); p++) {
       if (j + p >= document.size()) {
         continue;
       }
@@ -25,10 +25,10 @@
           int index=featureIndex.indexOf(feature);
           if (index >= 0) {
             rowHeaders.add(feature + '[' + (-p)+ ']');
-            double[] values=new double[labelIndices[0].size()];
-            for (            CRFLabel label : labelIndices[k]) {
+            double[] values=new double[labelIndices.get(0).size()];
+            for (            CRFLabel label : labelIndices.get(k)) {
               int[] l=label.getLabel();
-              double v=weights[index][labelIndices[k].indexOf(label)];
+              double v=weights[index][labelIndices.get(k).indexOf(label)];
               values[l[l.length - 1 - p]]+=v;
             }
             for (            double value : values) {

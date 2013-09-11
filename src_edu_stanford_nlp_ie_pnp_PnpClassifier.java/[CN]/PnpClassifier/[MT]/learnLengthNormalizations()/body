@@ -9,7 +9,7 @@
     cachedWordsWithContext[c]=new String[heldOutExamples[c].size()][];
     cachedCharWordScores[c]=new double[heldOutExamples[c].size()][][];
     for (int i=0; i < heldOutExamples[c].size(); i++) {
-      String line=getEndMarkedString((String)heldOutExamples[c].get(i));
+      String line=getEndMarkedString(heldOutExamples[c].get(i));
       endMarkedHeldOutExamples[c][i]=line;
       List<String> wordsWithContext=getWordsWithContext(line);
       cachedWordsWithContext[c][i]=wordsWithContext.toArray(new String[0]);
@@ -35,7 +35,7 @@
     score=0;
     for (int c=1; c <= numCategories; c++) {
       for (int i=0; i < heldOutExamples[c].size(); i++) {
-        double weight=((Double)heldOutWeights[c].get(i)).doubleValue();
+        double weight=(heldOutWeights[c].get(i)).doubleValue();
         ClassicCounter<Integer> catScores=new ClassicCounter<Integer>();
         for (int cat=1; cat <= numCategories; cat++) {
           double catScore=cachedLogPriors[cat];

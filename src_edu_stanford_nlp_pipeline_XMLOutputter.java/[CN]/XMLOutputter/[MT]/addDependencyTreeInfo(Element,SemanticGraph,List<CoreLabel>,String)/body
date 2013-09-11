@@ -1,21 +1,22 @@
 {
   if (graph != null) {
+    for (    IndexedWord root : graph.getRoots()) {
+      String rel=GrammaticalRelation.ROOT.getLongName();
+      rel=rel.replaceAll("\\s+","");
+      int source=0;
+      int target=root.index();
+      String sourceWord="ROOT";
+      String targetWord=tokens.get(target - 1).word();
+      addDependencyInfo(depInfo,rel,source,sourceWord,target,targetWord,curNS);
+    }
     for (    SemanticGraphEdge edge : graph.edgeListSorted()) {
       String rel=edge.getRelation().toString();
       rel=rel.replaceAll("\\s+","");
       int source=edge.getSource().index();
       int target=edge.getTarget().index();
-      Element depElem=new Element("dep",curNS);
-      depElem.addAttribute(new Attribute("type",rel));
-      Element govElem=new Element("governor",curNS);
-      govElem.addAttribute(new Attribute("idx",Integer.toString(source)));
-      govElem.appendChild(tokens.get(source - 1).word());
-      depElem.appendChild(govElem);
-      Element dependElem=new Element("dependent",curNS);
-      dependElem.addAttribute(new Attribute("idx",Integer.toString(target)));
-      dependElem.appendChild(tokens.get(target - 1).word());
-      depElem.appendChild(dependElem);
-      depInfo.appendChild(depElem);
+      String sourceWord=tokens.get(source - 1).word();
+      String targetWord=tokens.get(target - 1).word();
+      addDependencyInfo(depInfo,rel,source,sourceWord,target,targetWord,curNS);
     }
   }
 }

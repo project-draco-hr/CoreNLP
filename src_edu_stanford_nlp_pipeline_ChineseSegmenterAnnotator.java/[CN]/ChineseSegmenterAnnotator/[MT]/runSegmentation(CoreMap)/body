@@ -1,0 +1,24 @@
+{
+  String text=annotation.get(TextAnnotation.class);
+  List<CoreLabel> sentChars=annotation.get(CharactersAnnotation.class);
+  List<CoreLabel> tokens=new ArrayList<CoreLabel>();
+  annotation.set(TokensAnnotation.class,tokens);
+  List<String> words=segmenter.segmentString(text);
+  if (VERBOSE) {
+    System.err.println(text);
+    System.err.println("--->");
+    System.err.println(words);
+  }
+  int pos=0;
+  for (  String w : words) {
+    CoreLabel fl=sentChars.get(pos);
+    fl.set(ChineseSegAnnotation.class,"1");
+    CoreLabel token=new CoreLabel();
+    token.setWord(w);
+    token.set(CharacterOffsetBeginAnnotation.class,fl.get(CharacterOffsetBeginAnnotation.class));
+    pos+=w.length();
+    fl=sentChars.get(pos - 1);
+    token.set(CharacterOffsetEndAnnotation.class,fl.get(CharacterOffsetEndAnnotation.class));
+    tokens.add(token);
+  }
+}
