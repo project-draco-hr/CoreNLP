@@ -6,16 +6,19 @@
     }
   }
   Iterable<Runnable> threads=new Iterable<Runnable>(){
-    public Iterator<Runnable> iterator(){
+    @Override public Iterator<Runnable> iterator(){
       final Iterator<Annotation> iter=annotations.iterator();
       return new Iterator<Runnable>(){
-        public boolean hasNext(){
+        @Override public boolean hasNext(){
           return iter.hasNext();
         }
-        public Runnable next(){
+        @Override public Runnable next(){
+          if (!iter.hasNext()) {
+            throw new NoSuchElementException();
+          }
           final Annotation input=iter.next();
           return new Runnable(){
-            public void run(){
+            @Override public void run(){
               String beginningOfDocument=input.toString().substring(0,Math.min(50,input.toString().length()));
               Redwood.startTrack("Annotating \"" + beginningOfDocument + "...\"");
               annotate(input);
@@ -25,7 +28,7 @@
           }
 ;
         }
-        public void remove(){
+        @Override public void remove(){
           iter.remove();
         }
       }

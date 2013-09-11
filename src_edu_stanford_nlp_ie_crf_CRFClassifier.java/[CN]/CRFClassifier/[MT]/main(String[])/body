@@ -29,6 +29,9 @@
     }
     System.err.println("Found " + count + " matching embeddings of dimension "+ vector.length);
   }
+  if (crf.flags.loadClassIndexFrom != null) {
+    crf.classIndex=loadClassIndexFromFile(crf.flags.loadClassIndexFrom);
+  }
   if (loadPath != null) {
     crf.loadClassifierNoExceptions(loadPath,props);
   }
@@ -55,6 +58,12 @@
   if (serializeTo != null) {
     crf.serializeClassifier(serializeTo);
   }
+  if (crf.flags.serializeWeightsTo != null) {
+    crf.serializeWeights(crf.flags.serializeWeightsTo);
+  }
+  if (crf.flags.serializeFeatureIndexTo != null) {
+    crf.serializeFeatureIndex(crf.flags.serializeFeatureIndexTo);
+  }
   if (serializeToText != null) {
     crf.serializeTextClassifier(serializeToText);
   }
@@ -65,6 +74,12 @@
     }
  else     if (crf.flags.printFirstOrderProbs) {
       crf.printFirstOrderProbs(testFile,readerAndWriter);
+    }
+ else     if (crf.flags.printFactorTable) {
+      crf.printFactorTable(testFile,readerAndWriter);
+    }
+ else     if (crf.flags.printProbs) {
+      crf.printProbs(testFile,readerAndWriter);
     }
  else     if (crf.flags.printProbs) {
       crf.printProbs(testFile,readerAndWriter);
@@ -85,7 +100,7 @@
     for (    String filename : testFiles.split(",")) {
       files.add(new File(filename));
     }
-    crf.classifyAndWriteAnswers(files,crf.defaultReaderAndWriter());
+    crf.classifyFilesAndWriteAnswers(files,crf.defaultReaderAndWriter());
   }
   if (textFile != null) {
     crf.classifyAndWriteAnswers(textFile);
@@ -95,7 +110,7 @@
     for (    String filename : textFiles.split(",")) {
       files.add(new File(filename));
     }
-    crf.classifyAndWriteAnswers(files);
+    crf.classifyFilesAndWriteAnswers(files);
   }
   if (crf.flags.readStdin) {
     crf.classifyStdin();
