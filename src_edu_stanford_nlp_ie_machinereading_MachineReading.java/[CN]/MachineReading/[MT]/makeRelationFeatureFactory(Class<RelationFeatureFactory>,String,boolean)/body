@@ -1,0 +1,13 @@
+{
+  if (relationFeatureList == null || relationFeatureFactoryClass == null)   return null;
+  Object[] featureList=new Object[]{relationFeatureList.trim().split(",\\s*")};
+  RelationFeatureFactory rff;
+  try {
+    rff=relationFeatureFactoryClass.getConstructor(String[].class).newInstance(featureList);
+    rff.setDoNotLexicalizeFirstArgument(doNotLexicalizeFirstArg);
+  }
+ catch (  Exception e) {
+    throw new RuntimeException(e);
+  }
+  return rff;
+}

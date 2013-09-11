@@ -1,7 +1,7 @@
 {
   this.minimizerCreator=new Factory<Minimizer<DiffFunction>>(){
     public Minimizer<DiffFunction> create(){
-      Minimizer<DiffFunction> firstMinimizer=new StochasticInPlaceMinimizer<DiffFunction>(sigma,SGDPasses,tuneSampleSize);
+      Minimizer<DiffFunction> firstMinimizer=new SGDMinimizer<DiffFunction>(sigma,SGDPasses,tuneSampleSize);
       Minimizer<DiffFunction> secondMinimizer=new QNMinimizer(mem);
       return new HybridMinimizer(firstMinimizer,secondMinimizer,SGDPasses);
     }
