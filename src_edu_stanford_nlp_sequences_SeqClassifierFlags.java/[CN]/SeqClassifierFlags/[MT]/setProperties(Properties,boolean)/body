@@ -725,16 +725,21 @@
       backgroundSymbol=val;
     }
  else     if (key.equalsIgnoreCase("featureFactory")) {
-      String[] tokens=val.split("\\s*,\\s*");
-      int numFactories=tokens.length;
-      if (numFactories == 1) {
-        featureFactory=getFeatureFactory(val);
+      featureFactory=val;
+      if (featureFactory.equalsIgnoreCase("SuperSimpleFeatureFactory")) {
+        featureFactory="edu.stanford.nlp.sequences.SuperSimpleFeatureFactory";
       }
-      featureFactories=new String[numFactories];
-      featureFactoriesArgs=new ArrayList<Object[]>(numFactories);
-      for (int i=0; i < numFactories; i++) {
-        featureFactories[i]=getFeatureFactory(tokens[i]);
-        featureFactoriesArgs.add(new Object[0]);
+ else       if (featureFactory.equalsIgnoreCase("NERFeatureFactory")) {
+        featureFactory="edu.stanford.nlp.ie.NERFeatureFactory";
+      }
+ else       if (featureFactory.equalsIgnoreCase("GazNERFeatureFactory")) {
+        featureFactory="edu.stanford.nlp.sequences.GazNERFeatureFactory";
+      }
+ else       if (featureFactory.equalsIgnoreCase("IncludeAllFeatureFactory")) {
+        featureFactory="edu.stanford.nlp.sequences.IncludeAllFeatureFactory";
+      }
+ else       if (featureFactory.equalsIgnoreCase("PhraseFeatureFactory")) {
+        featureFactory="edu.stanford.nlp.article.extraction.PhraseFeatureFactory";
       }
     }
  else     if (key.equalsIgnoreCase("printXML")) {
