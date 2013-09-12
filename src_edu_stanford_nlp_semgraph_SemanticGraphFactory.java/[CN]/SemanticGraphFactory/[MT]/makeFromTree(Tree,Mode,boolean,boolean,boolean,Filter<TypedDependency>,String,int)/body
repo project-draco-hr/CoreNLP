@@ -1,0 +1,11 @@
+{
+  Filter<String> wordFilt;
+  if (INCLUDE_PUNCTUATION_DEPENDENCIES) {
+    wordFilt=Filters.acceptFilter();
+  }
+ else {
+    wordFilt=new PennTreebankLanguagePack().punctuationWordRejectFilter();
+  }
+  GrammaticalStructure gs=new EnglishGrammaticalStructure(tree,wordFilt,new SemanticHeadFinder(true),threadSafe);
+  return makeFromTree(gs,mode,includeExtras,lemmatize,threadSafe,filter,docID,sentIndex);
+}
