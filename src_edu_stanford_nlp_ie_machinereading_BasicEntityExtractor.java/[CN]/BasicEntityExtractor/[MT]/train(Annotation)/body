@@ -1,0 +1,18 @@
+{
+  List<List<CoreLabel>> trainingSet=AnnotationUtils.entityMentionsToCoreLabels(doc,annotationsToSkip,useSubTypes,useBIO);
+  if (SAVE_CONLL_2003) {
+    try {
+      PrintStream os=new PrintStream(new FileOutputStream("train.conll"));
+      saveCoNLL(os,trainingSet,useBIO);
+      os.close();
+    }
+ catch (    IOException e) {
+      e.printStackTrace();
+      System.exit(1);
+    }
+  }
+  this.classifier=createClassifier();
+  if (trainingSet.size() > 0) {
+    this.classifier.train(Collections.unmodifiableCollection(trainingSet));
+  }
+}
