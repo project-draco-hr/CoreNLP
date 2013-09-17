@@ -1,0 +1,19 @@
+{
+  StringBuilder sb=new StringBuilder();
+  sb.append("[ ");
+  for (  CoreLabel label : labeledSentence) {
+    String word=label.getString(annotationForWord);
+    String answer=label.getString(AnswerAnnotation.class);
+    String tag=label.getString(PartOfSpeechAnnotation.class);
+    sb.append(word).append("(").append(tag);
+    if (!SeqClassifierFlags.DEFAULT_BACKGROUND_SYMBOL.equals(answer)) {
+      sb.append(" ").append(answer);
+    }
+    if (printNer) {
+      sb.append(" ner:").append(label.ner());
+    }
+    sb.append(") ");
+  }
+  sb.append("]");
+  return sb.toString();
+}
