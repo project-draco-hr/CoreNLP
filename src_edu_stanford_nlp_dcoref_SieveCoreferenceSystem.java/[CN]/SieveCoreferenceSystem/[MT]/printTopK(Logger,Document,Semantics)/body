@@ -1,10 +1,9 @@
 {
   List<List<Mention>> orderedMentionsBySentence=document.getOrderedMentions();
   Map<Integer,CorefCluster> corefClusters=document.corefClusters;
-  Map<Mention,IntTuple> positions=document.allPositions;
+  Map<Mention,IntTuple> positions=document.positions;
   Map<Integer,Mention> golds=document.allGoldMentions;
   logger.fine("=======ERROR ANALYSIS=========================================================");
-  DeterministicCorefSieve tmpSieve=new ExactStringMatch();
   for (int i=0; i < orderedMentionsBySentence.size(); i++) {
     List<Mention> orderedMentions=orderedMentionsBySentence.get(i);
     for (int j=0; j < orderedMentions.size(); j++) {
@@ -23,7 +22,7 @@
       boolean onePrecisionErrorPrinted=false;
       boolean alreadyChoose=false;
       for (int sentJ=i; sentJ >= 0; sentJ--) {
-        List<Mention> l=tmpSieve.getOrderedAntecedents(sentJ,i,orderedMentions,orderedMentionsBySentence,m,j,corefClusters,dictionaries);
+        List<Mention> l=(new ExactStringMatch()).getOrderedAntecedents(sentJ,i,orderedMentions,orderedMentionsBySentence,m,j,corefClusters,dictionaries);
         for (int ii=0; ii < l.size(); ii++) {
           for (int jj=0; jj < l.size(); jj++) {
             if (l.get(ii).headString.equals(l.get(jj).headString) && l.get(ii).startIndex == l.get(jj).startIndex && l.get(ii).sameSentence(l.get(jj)) && jj > ii && l.get(ii).spanToString().length() > l.get(jj).spanToString().length()) {
@@ -42,7 +41,6 @@
           src.set(0,i);
           src.set(1,j);
           IntTuple ant=positions.get(antecedent);
-          if (ant == null)           continue;
           boolean coreferent=golds.containsKey(m.mentionID) && golds.containsKey(antecedent.mentionID) && (golds.get(m.mentionID).goldCorefClusterID == golds.get(antecedent.mentionID).goldCorefClusterID);
           boolean correct=(chosen == coreferent);
           String chosenness=chosen ? "Chosen" : "Not Chosen";
