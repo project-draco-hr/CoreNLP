@@ -192,10 +192,13 @@
   pool.register(STANFORD_REGEXNER,new AnnotatorFactory(inputProps){
     private static final long serialVersionUID=1L;
     @Override public Annotator create(){
-      return new TokensRegexNERAnnotator("regexner",properties);
+      String mapping=properties.getProperty("regexner.mapping",DefaultPaths.DEFAULT_REGEXNER_RULES);
+      String ignoreCase=properties.getProperty("regexner.ignorecase","false");
+      String validPosPattern=properties.getProperty("regexner.validpospattern",RegexNERSequenceClassifier.DEFAULT_VALID_POS);
+      return new RegexNERAnnotator(mapping,Boolean.valueOf(ignoreCase),validPosPattern);
     }
     @Override public String signature(){
-      return PropertiesUtils.getSignature("regexner",properties,TokensRegexNERAnnotator.SUPPORTED_PROPERTIES);
+      return "regexner.mapping:" + properties.getProperty("regexner.mapping",DefaultPaths.DEFAULT_REGEXNER_RULES) + "regexner.ignorecase:"+ properties.getProperty("regexner.ignorecase","false")+ "regexner.validpospattern:"+ properties.getProperty("regexner.validpospattern",RegexNERSequenceClassifier.DEFAULT_VALID_POS);
     }
   }
 );
@@ -219,6 +222,28 @@
     }
     @Override public String signature(){
       return "truecase.model:" + properties.getProperty("truecase.model",DefaultPaths.DEFAULT_TRUECASE_MODEL) + "truecase.bias:"+ properties.getProperty("truecase.bias",TrueCaseAnnotator.DEFAULT_MODEL_BIAS)+ "truecase.mixedcasefile:"+ properties.getProperty("truecase.mixedcasefile",DefaultPaths.DEFAULT_TRUECASE_DISAMBIGUATION_LIST);
+    }
+  }
+);
+  pool.register(STANFORD_NFL_TOKENIZE,new AnnotatorFactory(inputProps){
+    private static final long serialVersionUID=1L;
+    @Override public Annotator create(){
+      final String className="edu.stanford.nlp.pipeline.NFLTokenizerAnnotator";
+      return ReflectionLoading.loadByReflection(className);
+    }
+    @Override public String signature(){
+      return "";
+    }
+  }
+);
+  pool.register(STANFORD_NFL,new AnnotatorFactory(inputProps){
+    private static final long serialVersionUID=1L;
+    @Override public Annotator create(){
+      final String className="edu.stanford.nlp.pipeline.NFLAnnotator";
+      return ReflectionLoading.loadByReflection(className,properties);
+    }
+    @Override public String signature(){
+      return "nfl.verbose:" + properties.getProperty("nfl.verbose","false") + "nfl.relations.use.max.recall:"+ properties.getProperty("nfl.relations.use.max.recall","false")+ "nfl.relations.use.model.merging:"+ properties.getProperty("nfl.relations.use.model.merging","false")+ "nfl.relations.use.basic.inference:"+ properties.getProperty("nfl.relations.use.basic.inference","true")+ "nfl.gazetteer:"+ properties.getProperty("nfl.gazetteer",DefaultPaths.DEFAULT_NFL_GAZETTEER)+ "nfl.entity.model:"+ properties.getProperty("nfl.entity.model",DefaultPaths.DEFAULT_NFL_ENTITY_MODEL)+ "nfl.relation.model:"+ properties.getProperty("nfl.relation.model",DefaultPaths.DEFAULT_NFL_RELATION_MODEL);
     }
   }
 );
@@ -298,15 +323,5 @@
 );
     }
   }
-  pool.register(STANFORD_RELATION,new AnnotatorFactory(inputProps){
-    private static final long serialVersionUID=1L;
-    @Override public Annotator create(){
-      return new RelationExtractorAnnotator(properties);
-    }
-    @Override public String signature(){
-      return "sup.relation.verbose:" + properties.getProperty("sup.relation.verbose","false") + properties.getProperty("sup.relation.model",DefaultPaths.DEFAULT_SUP_RELATION_EX_RELATION_MODEL);
-    }
-  }
-);
   return pool;
 }
