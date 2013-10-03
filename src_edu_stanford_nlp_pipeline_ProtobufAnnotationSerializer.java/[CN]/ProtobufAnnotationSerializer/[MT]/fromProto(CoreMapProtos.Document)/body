@@ -1,0 +1,55 @@
+{
+  Annotation ann=new Annotation(proto.getText());
+  List<CoreLabel> tokens=new ArrayList<CoreLabel>(proto.getTokenCount());
+  for (  CoreMapProtos.CoreLabel token : proto.getTokenList()) {
+    CoreLabel coreLabel=fromProto(token);
+    coreLabel.setDocID(proto.hasDocID() ? proto.getDocID() : null);
+    tokens.add(coreLabel);
+  }
+  if (!tokens.isEmpty()) {
+    ann.set(TokensAnnotation.class,tokens);
+  }
+  List<CoreMap> sentences=new ArrayList<CoreMap>(proto.getSentenceCount());
+  for (int sentIndex=0; sentIndex < proto.getSentenceCount(); ++sentIndex) {
+    CoreMapProtos.Sentence sentence=proto.getSentence(sentIndex);
+    CoreMap map=fromProto(sentence);
+    if (!tokens.isEmpty() && sentence.hasTokenOffsetBegin() && sentence.hasTokenOffsetEnd()) {
+      map.set(TokensAnnotation.class,tokens.subList(sentence.getTokenOffsetBegin(),sentence.getTokenOffsetEnd()));
+      for (int i=sentence.getTokenOffsetBegin(); i < sentence.getTokenOffsetEnd(); ++i) {
+        tokens.get(i).setSentIndex(sentIndex);
+      }
+    }
+    sentences.add(map);
+  }
+  if (!sentences.isEmpty()) {
+    ann.set(SentencesAnnotation.class,sentences);
+  }
+  String docid=null;
+  if (proto.hasDocID()) {
+    docid=proto.getDocID();
+  }
+  ann.set(DocIDAnnotation.class,docid);
+  Map<Integer,CorefChain> corefChains=new HashMap<Integer,CorefChain>();
+  for (  CoreMapProtos.CorefChain chainProto : proto.getCorefChainList()) {
+    CorefChain chain=fromProto(chainProto,ann);
+    corefChains.put(chain.getChainID(),chain);
+  }
+  if (!corefChains.isEmpty()) {
+    ann.set(CorefChainAnnotation.class,corefChains);
+  }
+  for (int i=0; i < proto.getSentenceCount(); ++i) {
+    CoreMapProtos.Sentence sentence=proto.getSentenceList().get(i);
+    CoreMap map=sentences.get(i);
+    List<CoreLabel> sentenceTokens=map.get(TokensAnnotation.class);
+    if (sentence.hasBasicDependencies()) {
+      map.set(BasicDependenciesAnnotation.class,fromProto(sentence.getBasicDependencies(),sentenceTokens,docid));
+    }
+    if (sentence.hasCollapsedDependencies()) {
+      map.set(CollapsedDependenciesAnnotation.class,fromProto(sentence.getCollapsedDependencies(),sentenceTokens,docid));
+    }
+    if (sentence.hasCollapsedCCProcessedDependencies()) {
+      map.set(CollapsedCCProcessedDependenciesAnnotation.class,fromProto(sentence.getCollapsedCCProcessedDependencies(),sentenceTokens,docid));
+    }
+  }
+  return ann;
+}
