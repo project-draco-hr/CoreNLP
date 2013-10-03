@@ -2,8 +2,8 @@
   ByteArrayOutputStream os=new ByteArrayOutputStream();
   ByteArrayOutputStream compressedImpl=new ByteArrayOutputStream();
   GZIPOutputStream compressed=new GZIPOutputStream(compressedImpl);
-  new ProtobufAnnotationSerializer().save(mkLargeAnnotation(),os);
-  new ProtobufAnnotationSerializer().save(mkLargeAnnotation(),compressed);
+  new ProtobufAnnotationSerializer().write(mkLargeAnnotation(),os).close();
+  new ProtobufAnnotationSerializer().write(mkLargeAnnotation(),compressed).close();
   byte[] uncompressedProto=os.toByteArray();
   byte[] compressedProto=compressedImpl.toByteArray();
   assertNotNull(uncompressedProto);
