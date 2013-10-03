@@ -2,7 +2,7 @@
   if (sentence instanceof CoreLabel) {
     throw new IllegalArgumentException("CoreMap is actually a CoreLabel");
   }
-  CoreMapProtos.Sentence.Builder builder=CoreMapProtos.Sentence.newBuilder();
+  CoreNLPProtos.Sentence.Builder builder=CoreNLPProtos.Sentence.newBuilder();
   builder.setTokenOffsetBegin(sentence.get(TokenBeginAnnotation.class));
   builder.setTokenOffsetEnd(sentence.get(TokenEndAnnotation.class));
   if (sentence.containsKey(SentenceIndexAnnotation.class)) {
@@ -28,6 +28,16 @@
   }
   if (sentence.containsKey(TokensAnnotation.class) && sentence.get(TokensAnnotation.class).size() > 0 && sentence.get(TokensAnnotation.class).get(0).containsKey(ParagraphAnnotation.class)) {
     builder.setParagraph(sentence.get(TokensAnnotation.class).get(0).get(ParagraphAnnotation.class));
+  }
+  if (sentence.containsKey(EntityMentionsAnnotation.class)) {
+    for (    EntityMention entity : sentence.get(EntityMentionsAnnotation.class)) {
+      builder.addEntity(toProto(entity));
+    }
+  }
+  if (sentence.containsKey(RelationMentionsAnnotation.class)) {
+    for (    RelationMention relation : sentence.get(RelationMentionsAnnotation.class)) {
+      builder.addRelation(toProto(relation));
+    }
   }
   return builder.build();
 }
