@@ -25,8 +25,8 @@
     }
     keysToSerialize.remove(CorefChainAnnotation.class);
   }
-  if (!keysToSerialize.isEmpty()) {
-    throw new IllegalArgumentException("Keys are not being serialized: " + StringUtils.join(keysToSerialize));
+  if (enforceLosslessSerialization && !keysToSerialize.isEmpty()) {
+    throw new LossySerializationException("Keys are not being serialized: " + StringUtils.join(keysToSerialize));
   }
   return builder.build();
 }
