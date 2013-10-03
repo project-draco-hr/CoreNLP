@@ -7,6 +7,7 @@
     }
   }
   BufferedWriter writer=null;
+  BufferedReader br=null;
   try {
     String outFile=config.getOutputFile();
     if (outFile.length() > 0) {
@@ -16,7 +17,6 @@
       writer=new BufferedWriter(new OutputStreamWriter(System.out,config.getEncoding()));
     }
     boolean stdin=config.useStdin();
-    BufferedReader br;
     OutputStyle outputStyle=OutputStyle.fromShortName(config.getOutputFormat());
     if (!stdin) {
       String filename=config.getFile();
@@ -37,8 +37,7 @@
     }
   }
   finally {
-    if (writer != null) {
-      IOUtils.closeIgnoringExceptions(writer);
-    }
+    IOUtils.closeIgnoringExceptions(br);
+    IOUtils.closeIgnoringExceptions(writer);
   }
 }
