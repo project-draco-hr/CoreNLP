@@ -3,7 +3,9 @@
   List<CoreLabel> tokens=new ArrayList<CoreLabel>(proto.getTokenCount());
   for (  CoreMapProtos.CoreLabel token : proto.getTokenList()) {
     CoreLabel coreLabel=fromProto(token);
-    coreLabel.setDocID(proto.hasDocID() ? proto.getDocID() : null);
+    if (proto.hasDocID()) {
+      coreLabel.setDocID(proto.getDocID());
+    }
     tokens.add(coreLabel);
   }
   if (!tokens.isEmpty()) {
@@ -17,7 +19,12 @@
       map.set(TokensAnnotation.class,tokens.subList(sentence.getTokenOffsetBegin(),sentence.getTokenOffsetEnd()));
       for (int i=sentence.getTokenOffsetBegin(); i < sentence.getTokenOffsetEnd(); ++i) {
         tokens.get(i).setSentIndex(sentIndex);
+        tokens.get(i).setIndex(i - sentence.getTokenOffsetBegin() + 1);
+        if (sentence.hasParagraph()) {
+          tokens.get(i).set(ParagraphAnnotation.class,sentence.getParagraph());
+        }
       }
+      map.set(TextAnnotation.class,proto.getText().substring(sentence.getCharacterOffsetBegin(),sentence.getCharacterOffsetEnd()));
     }
     sentences.add(map);
   }
@@ -27,8 +34,8 @@
   String docid=null;
   if (proto.hasDocID()) {
     docid=proto.getDocID();
+    ann.set(DocIDAnnotation.class,docid);
   }
-  ann.set(DocIDAnnotation.class,docid);
   Map<Integer,CorefChain> corefChains=new HashMap<Integer,CorefChain>();
   for (  CoreMapProtos.CorefChain chainProto : proto.getCorefChainList()) {
     CorefChain chain=fromProto(chainProto,ann);
@@ -49,6 +56,11 @@
     }
     if (sentence.hasCollapsedCCProcessedDependencies()) {
       map.set(CollapsedCCProcessedDependenciesAnnotation.class,fromProto(sentence.getCollapsedCCProcessedDependencies(),sentenceTokens,docid));
+    }
+  }
+  for (  CoreMap sentence : sentences) {
+    if (sentence.containsKey(TokensAnnotation.class)) {
+      sentence.set(NumerizedTokensAnnotation.class,NumberNormalizer.findAndMergeNumbers(sentence));
     }
   }
   return ann;

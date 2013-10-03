@@ -26,5 +26,8 @@
   if (sentence.containsKey(CollapsedCCProcessedDependenciesAnnotation.class)) {
     builder.setCollapsedCCProcessedDependencies(toProto(sentence.get(CollapsedCCProcessedDependenciesAnnotation.class)));
   }
+  if (sentence.containsKey(TokensAnnotation.class) && sentence.get(TokensAnnotation.class).size() > 0 && sentence.get(TokensAnnotation.class).get(0).containsKey(ParagraphAnnotation.class)) {
+    builder.setParagraph(sentence.get(TokensAnnotation.class).get(0).get(ParagraphAnnotation.class));
+  }
   return builder.build();
 }

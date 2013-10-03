@@ -22,17 +22,35 @@
   if (coreLabel.ner() != null) {
     builder.setNer(coreLabel.ner());
   }
+  if (coreLabel.beginPosition() >= 0) {
+    builder.setBeginChar(coreLabel.beginPosition());
+  }
+  if (coreLabel.endPosition() >= 0) {
+    builder.setEndChar(coreLabel.endPosition());
+  }
   if (coreLabel.lemma() != null) {
     builder.setLemma(coreLabel.lemma());
   }
-  if (coreLabel.index() >= 0) {
-    builder.setIndex(coreLabel.index());
+  if (coreLabel.containsKey(UtteranceAnnotation.class)) {
+    builder.setUtterance(coreLabel.get(UtteranceAnnotation.class));
   }
-  if (coreLabel.beginPosition() >= 0) {
-    builder.setBeginPosition(coreLabel.beginPosition());
+  if (coreLabel.containsKey(SpeakerAnnotation.class)) {
+    builder.setSpeaker(coreLabel.get(SpeakerAnnotation.class));
   }
-  if (coreLabel.endPosition() >= 0) {
-    builder.setEndPosition(coreLabel.endPosition());
+  if (coreLabel.containsKey(BeginIndexAnnotation.class)) {
+    builder.setBeginIndex(coreLabel.get(BeginIndexAnnotation.class));
+  }
+  if (coreLabel.containsKey(EndIndexAnnotation.class)) {
+    builder.setEndIndex(coreLabel.get(EndIndexAnnotation.class));
+  }
+  if (coreLabel.containsKey(TokenBeginAnnotation.class)) {
+    builder.setTokenBeginIndex(coreLabel.get(TokenBeginAnnotation.class));
+  }
+  if (coreLabel.containsKey(TokenEndAnnotation.class)) {
+    builder.setTokenEndIndex(coreLabel.get(TokenEndAnnotation.class));
+  }
+  if (coreLabel.get(NormalizedNamedEntityTagAnnotation.class) != null) {
+    builder.setNormalizedNER(coreLabel.get(NormalizedNamedEntityTagAnnotation.class));
   }
   return builder.build();
 }
