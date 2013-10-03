@@ -5,7 +5,9 @@
   for (String line; (line=mapping.readLine()) != null; ) {
     lineCount++;
     String[] split=line.split("\t");
-    if (split.length < 2 || split.length > 5)     throw new IllegalArgumentException("Provided mapping file is in wrong format");
+    if (split.length < 2 || split.length > 5) {
+      throw new IllegalArgumentException("Provided mapping file is in wrong format. This line is bad: " + line);
+    }
     String regex=split[0].trim();
     String tokensRegex=null;
     String[] regexes=null;
@@ -27,7 +29,7 @@
     Set<String> overwritableTypes=Generics.newHashSet();
     double priority=0.0;
     if (split.length >= 3) {
-      overwritableTypes.addAll(Arrays.asList(split[2].trim().split(",")));
+      overwritableTypes.addAll(Arrays.asList(split[2].trim().split("\\s*,\\s*")));
     }
     if (split.length >= 4) {
       try {
@@ -47,6 +49,12 @@
         throw new IllegalArgumentException("ERROR: Invalid group in line " + lineCount + " in regexner file "+ mappingFilename+ ": \""+ line+ "\"!",e);
       }
     }
+    int commaPos=type.indexOf(',');
+    if (commaPos > 0) {
+      String newType=type.substring(0,commaPos).trim();
+      logger.warn("TokensRegexNERAnnotator " + annotatorName + ": Entry has multiple types: "+ line+ ".  Taking type to be "+ newType);
+      type=newType;
+    }
     Entry entry=new Entry(tokensRegex,regexes,type,overwritableTypes,priority,annotateGroup);
     if (seenRegexes.containsKey(key)) {
       Entry oldEntry=seenRegexes.get(key);
@@ -61,12 +69,6 @@
         }
         continue;
       }
-    }
-    int commaPos=entry.type.indexOf(',');
-    if (commaPos > 0) {
-      String newType=entry.type.substring(0,commaPos).trim();
-      logger.warn("TokensRegexNERAnnotator " + annotatorName + ": Entry has multiple type "+ entry+ ", taking type to be "+ newType);
-      entry.type=newType;
     }
     if (entry.overwritableTypes.isEmpty() && noDefaultOverwriteLabels.contains(entry.type)) {
       logger.warn("TokensRegexNERAnnotator " + annotatorName + ": Entry doesn't have overwriteable types "+ entry+ ", but entry type is in noDefaultOverwriteLabels");
