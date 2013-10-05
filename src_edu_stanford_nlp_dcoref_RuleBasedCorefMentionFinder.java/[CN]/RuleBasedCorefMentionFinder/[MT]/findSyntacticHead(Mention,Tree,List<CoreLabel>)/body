@@ -8,9 +8,12 @@
   if (exactMatch != null) {
     return safeHead(exactMatch,endIdx);
   }
-  Tree wordMatch=findTreeWithWords(root,tokens.subList(m.startIndex,endIdx));
+  Tree wordMatch=findTreeWithSmallestSpan(root,m.startIndex,endIdx);
   if (wordMatch != null) {
-    return safeHead(wordMatch,endIdx);
+    Tree head=safeHead(wordMatch,endIdx);
+    if (head != null) {
+      return head;
+    }
   }
   int approximateness=0;
   List<CoreLabel> extentTokens=new ArrayList<CoreLabel>();
