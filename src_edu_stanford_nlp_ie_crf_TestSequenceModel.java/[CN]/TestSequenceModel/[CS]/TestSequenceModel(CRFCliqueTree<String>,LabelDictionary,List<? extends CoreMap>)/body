@@ -1,0 +1,28 @@
+{
+  this.cliqueTree=cliqueTree;
+  this.window=cliqueTree.window();
+  this.numClasses=cliqueTree.getNumClasses();
+  this.backgroundTag=new int[]{cliqueTree.backgroundIndex()};
+  allTags=new int[numClasses];
+  for (int i=0; i < allTags.length; i++) {
+    allTags[i]=i;
+  }
+  if (labelDictionary != null) {
+    allowedTagsAtPosition=new int[document.size()][];
+    for (int i=0; i < allowedTagsAtPosition.length; ++i) {
+      CoreMap token=document.get(i);
+      String observation=token.get(CoreAnnotations.TextAnnotation.class);
+      if (labelDictionary.isConstrained(observation)) {
+        Set<Integer> allowedLabels=labelDictionary.getConstrainedSet(observation);
+        allowedTagsAtPosition[i]=new int[allowedLabels.size()];
+        int j=0;
+        for (        int labelIdx : allowedLabels) {
+          allowedTagsAtPosition[i][j++]=labelIdx;
+        }
+      }
+ else {
+        allowedTagsAtPosition[i]=allTags;
+      }
+    }
+  }
+}
