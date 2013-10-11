@@ -1,0 +1,22 @@
+{
+  int size=memoizedSerializedSize;
+  if (size != -1)   return size;
+  size=0;
+  for (int i=0; i < node_.size(); i++) {
+    size+=com.google.protobuf.CodedOutputStream.computeMessageSize(1,node_.get(i));
+  }
+  for (int i=0; i < edge_.size(); i++) {
+    size+=com.google.protobuf.CodedOutputStream.computeMessageSize(2,edge_.get(i));
+  }
+{
+    int dataSize=0;
+    for (int i=0; i < root_.size(); i++) {
+      dataSize+=com.google.protobuf.CodedOutputStream.computeUInt32SizeNoTag(root_.get(i));
+    }
+    size+=dataSize;
+    size+=1 * getRootList().size();
+  }
+  size+=getUnknownFields().getSerializedSize();
+  memoizedSerializedSize=size;
+  return size;
+}
