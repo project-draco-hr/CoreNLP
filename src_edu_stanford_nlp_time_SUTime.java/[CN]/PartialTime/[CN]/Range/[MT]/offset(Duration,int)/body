@@ -1,3 +1,11 @@
 {
-  return offset(d,offsetFlags,RANGE_OFFSET_BEGIN | RANGE_OFFSET_END);
+  Time b2=begin;
+  if ((flags & RANGE_OFFSET_BEGIN) != 0) {
+    b2=(begin != null) ? begin.offset(d) : null;
+  }
+  Time e2=end;
+  if ((flags & RANGE_OFFSET_END) != 0) {
+    e2=(end != null) ? end.offset(d) : null;
+  }
+  return new Range(this,b2,e2,duration);
 }
