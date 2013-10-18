@@ -1,6 +1,8 @@
 {
   try {
-    Annotation annotation=serializer.load(stream);
+    Pair<Annotation,InputStream> pair=serializer.read(stream);
+    pair.second.close();
+    Annotation annotation=pair.first;
     return annotation;
   }
  catch (  ClassNotFoundException e) {
