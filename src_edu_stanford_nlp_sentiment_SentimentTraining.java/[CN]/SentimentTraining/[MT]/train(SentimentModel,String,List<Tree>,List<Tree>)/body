@@ -27,6 +27,16 @@
         break;
       }
       if (nextDebugCycle > 0 && totalElapsed > nextDebugCycle) {
+        if (modelPath != null) {
+          String tempPath=modelPath;
+          if (modelPath.endsWith(".ser.gz")) {
+            tempPath=modelPath.substring(0,modelPath.length() - 7) + "-" + FILENAME.format(debugCycle)+ ".ser.gz";
+          }
+ else           if (modelPath.endsWith(".gz")) {
+            tempPath=modelPath.substring(0,modelPath.length() - 3) + "-" + FILENAME.format(debugCycle)+ ".ser.gz";
+          }
+          model.saveSerialized(tempPath);
+        }
         ++debugCycle;
         nextDebugCycle=timing.report() + model.op.trainOptions.debugOutputSeconds * 1000;
       }
