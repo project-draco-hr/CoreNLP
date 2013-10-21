@@ -1,6 +1,7 @@
 {
   RNNOptions op=new RNNOptions();
   String trainPath="sentimentTreesDebug.txt";
+  String devPath=null;
   boolean runGradientCheck=false;
   boolean runTraining=false;
   String modelPath=null;
@@ -17,6 +18,10 @@
       trainPath=args[argIndex + 1];
       argIndex+=2;
     }
+ else     if (args[argIndex].equalsIgnoreCase("-devpath")) {
+      devPath=args[argIndex + 1];
+      argIndex+=2;
+    }
  else     if (args[argIndex].equalsIgnoreCase("-model")) {
       modelPath=args[argIndex + 1];
       argIndex+=2;
@@ -30,8 +35,7 @@
     }
   }
   List<Tree> trainingTrees=SentimentUtils.readTreesWithGoldLabels(trainPath);
-  List<Tree> devTrees=null;
-  List<Tree> testTrees=null;
+  List<Tree> devTrees=SentimentUtils.readTreesWithGoldLabels(devPath);
   System.err.println("Random seed for model: " + op.randomSeed);
   SentimentModel model=new SentimentModel(op,trainingTrees);
   if (runGradientCheck) {
