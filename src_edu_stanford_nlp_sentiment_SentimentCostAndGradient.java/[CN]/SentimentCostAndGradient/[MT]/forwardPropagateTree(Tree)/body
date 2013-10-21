@@ -23,7 +23,15 @@
     SimpleMatrix leftVector=RNNCoreAnnotations.getNodeVector(tree.children()[0]);
     SimpleMatrix rightVector=RNNCoreAnnotations.getNodeVector(tree.children()[1]);
     SimpleMatrix childrenVector=RNNUtils.concatenateWithBias(leftVector,rightVector);
-    nodeVector=RNNUtils.elementwiseApplyTanh(W.mult(childrenVector));
+    if (model.op.useTensors) {
+      SimpleTensor tensor=model.getBinaryTensor(leftCategory,rightCategory);
+      SimpleMatrix tensorIn=RNNUtils.concatenate(leftVector,rightVector);
+      SimpleMatrix tensorOut=tensor.bilinearProducts(tensorIn);
+      nodeVector=RNNUtils.elementwiseApplyTanh(W.mult(childrenVector).plus(tensorOut));
+    }
+ else {
+      nodeVector=RNNUtils.elementwiseApplyTanh(W.mult(childrenVector));
+    }
   }
  else {
     throw new AssertionError("Tree not correctly binarized");

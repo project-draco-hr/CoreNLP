@@ -33,12 +33,20 @@
     SimpleMatrix childrenVector=RNNUtils.concatenateWithBias(leftVector,rightVector);
     SimpleMatrix W_df=deltaFull.mult(childrenVector.transpose());
     binaryTD.put(leftCategory,rightCategory,binaryTD.get(leftCategory,rightCategory).plus(W_df));
+    SimpleMatrix deltaDown;
+    if (model.op.useTensors) {
+      SimpleTensor Wt_df=getTensorGradient(deltaFull,leftVector,rightVector);
+      binaryTensorTD.put(leftCategory,rightCategory,binaryTensorTD.get(leftCategory,rightCategory).plus(Wt_df));
+      deltaDown=computeTensorDeltaDown(deltaFull,leftVector,rightVector,model.getBinaryTransform(leftCategory,rightCategory),model.getBinaryTensor(leftCategory,rightCategory));
+    }
+ else {
+      deltaDown=model.getBinaryTransform(leftCategory,rightCategory).transpose().mult(deltaFull);
+    }
     SimpleMatrix leftDerivative=RNNUtils.elementwiseApplyTanhDerivative(leftVector);
     SimpleMatrix rightDerivative=RNNUtils.elementwiseApplyTanhDerivative(rightVector);
-    SimpleMatrix WTDelta=model.getBinaryTransform(leftCategory,rightCategory).transpose().mult(deltaFull);
-    SimpleMatrix leftWTDelta=WTDelta.extractMatrix(0,deltaFull.numRows(),0,1);
-    SimpleMatrix rightWTDelta=WTDelta.extractMatrix(deltaFull.numRows(),deltaFull.numRows() * 2,0,1);
-    backpropDerivativesAndError(tree.children()[0],binaryTD,binaryCD,unaryCD,wordVectorD,leftDerivative.elementMult(leftWTDelta));
-    backpropDerivativesAndError(tree.children()[1],binaryTD,binaryCD,unaryCD,wordVectorD,rightDerivative.elementMult(rightWTDelta));
+    SimpleMatrix leftDeltaDown=deltaDown.extractMatrix(0,deltaFull.numRows(),0,1);
+    SimpleMatrix rightDeltaDown=deltaDown.extractMatrix(deltaFull.numRows(),deltaFull.numRows() * 2,0,1);
+    backpropDerivativesAndError(tree.children()[0],binaryTD,binaryCD,binaryTensorTD,unaryCD,wordVectorD,leftDerivative.elementMult(leftDeltaDown));
+    backpropDerivativesAndError(tree.children()[1],binaryTD,binaryCD,binaryTensorTD,unaryCD,wordVectorD,rightDerivative.elementMult(rightDeltaDown));
   }
 }
