@@ -19,7 +19,7 @@
   for (  Pair<String,String> binary : binaryProductions) {
     String left=basicCategory(binary.first);
     String right=basicCategory(binary.second);
-    if (binaryTransform.get(left,right) == null) {
+    if (binaryTransform.contains(left,right)) {
       continue;
     }
     binaryTransform.put(left,right,randomTransformMatrix());
@@ -28,4 +28,14 @@
   numBinaryMatrices=binaryTransform.size();
   binaryTransformSize=numHid * (2 * numHid + 1);
   binaryClassificationSize=numClasses * (numHid + 1);
+  unaryClassification=Generics.newTreeMap();
+  for (  String unary : unaryProductions) {
+    unary=basicCategory(unary);
+    if (unaryClassification.containsKey(unary)) {
+      continue;
+    }
+    unaryClassification.put(unary,randomClassificationMatrix());
+  }
+  numUnaryMatrices=unaryClassification.size();
+  unaryClassificationSize=numClasses * (numHid + 1);
 }
