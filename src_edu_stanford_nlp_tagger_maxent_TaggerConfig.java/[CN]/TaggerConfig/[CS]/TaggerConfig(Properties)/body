@@ -1,20 +1,19 @@
 {
   this();
   if (!props.containsKey("trainFile")) {
-    String name=props.getProperty("model");
-    if (name == null) {
-      name=props.getProperty("dump");
+    try {
+      String name=props.getProperty("model");
+      if (name == null) {
+        name=props.getProperty("dump");
+      }
+      System.err.println("Loading default properties from tagger " + name);
+      DataInputStream in=new DataInputStream(IOUtils.getInputStreamFromURLOrClasspathOrFileSystem(name));
+      this.putAll(TaggerConfig.readConfig(in));
+      in.close();
     }
-    if (name != null) {
-      try {
-        System.err.println("Loading default properties from tagger " + name);
-        DataInputStream in=new DataInputStream(IOUtils.getInputStreamFromURLOrClasspathOrFileSystem(name));
-        this.putAll(TaggerConfig.readConfig(in));
-        in.close();
-      }
- catch (      Exception e) {
-        throw new RuntimeIOException("No such trained tagger config file found: " + name);
-      }
+ catch (    Exception e) {
+      System.err.println("Error: No such trained tagger config file found.");
+      e.printStackTrace();
     }
   }
   setProperties(props);
