@@ -7,8 +7,13 @@
   binaryTransform=TwoDimensionalMap.treeMap();
   binaryClassification=TwoDimensionalMap.treeMap();
   for (  Pair<String,String> binary : binaryProductions) {
-    binaryTransform.put(binary.first,binary.second,randomTransformMatrix());
-    binaryClassification.put(binary.first,binary.second,randomClassificationMatrix());
+    String left=basicCategory(binary.first);
+    String right=basicCategory(binary.second);
+    if (binaryTransform.get(left,right) == null) {
+      continue;
+    }
+    binaryTransform.put(left,right,randomTransformMatrix());
+    binaryClassification.put(left,right,randomClassificationMatrix());
   }
   numBinaryMatrices=binaryTransform.size();
   binaryTransformSize=numHid * (2 * numHid + 1);
