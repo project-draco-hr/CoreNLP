@@ -39,7 +39,15 @@
     if (phraseId == null) {
       throw new RuntimeException("Could not find phrase id for phrase " + sentence);
     }
-    subtrees[i].label().setValue(phraseId.toString());
+    Double score=sentimentScores.get(phraseId);
+    if (score == null) {
+      throw new RuntimeException("Could not find sentiment score for phrase id " + phraseId);
+    }
+    int classLabel=Math.round((float)Math.floor(score * 5.0));
+    if (classLabel > 4) {
+      classLabel=4;
+    }
+    subtrees[i].label().setValue(Integer.toString(classLabel));
   }
   for (int i=0; i < sentence.size(); ++i) {
     Tree leaf=subtrees[i].children()[0];
