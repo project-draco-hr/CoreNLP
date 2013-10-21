@@ -29,13 +29,7 @@
       argIndex=newArgIndex;
     }
   }
-  List<Tree> trainingTrees=Generics.newArrayList();
-  MemoryTreebank treebank=new MemoryTreebank();
-  treebank.loadPath(trainPath,null);
-  for (  Tree tree : treebank) {
-    attachGoldLabels(tree);
-    trainingTrees.add(tree);
-  }
+  List<Tree> trainingTrees=SentimentUtils.readTreesWithGoldLabels(trainPath);
   List<Tree> devTrees=null;
   List<Tree> testTrees=null;
   System.err.println("Random seed for model: " + op.randomSeed);
