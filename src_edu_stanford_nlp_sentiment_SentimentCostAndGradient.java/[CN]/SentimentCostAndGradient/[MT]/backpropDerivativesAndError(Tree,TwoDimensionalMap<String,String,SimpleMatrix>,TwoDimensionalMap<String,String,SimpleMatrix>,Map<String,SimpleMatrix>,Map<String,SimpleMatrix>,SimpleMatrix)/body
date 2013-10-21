@@ -9,7 +9,7 @@
   goldLabel.set(RNNCoreAnnotations.getGoldClass(tree),1.0);
   SimpleMatrix predictions=RNNCoreAnnotations.getPredictions(tree);
   SimpleMatrix deltaClass=predictions.minus(goldLabel);
-  SimpleMatrix localCD=deltaClass.mult(RNNUtils.concatenateWithBias(currentVector.transpose()));
+  SimpleMatrix localCD=deltaClass.mult(RNNUtils.concatenateWithBias(currentVector).transpose());
   double error=-(RNNUtils.elementwiseApplyLog(predictions).elementMult(goldLabel).elementSum());
   RNNCoreAnnotations.setPredictionError(tree,error);
   if (tree.isPreTerminal()) {
@@ -17,7 +17,7 @@
     String word=tree.children()[0].label().value();
     word=model.getVocabWord(word);
     SimpleMatrix deltaFromClass=model.getUnaryClassification(category).transpose().mult(deltaClass);
-    SimpleMatrix deltaFull=deltaFromClass.plus(deltaUp);
+    SimpleMatrix deltaFull=deltaFromClass.extractMatrix(0,model.op.numHid,0,1).plus(deltaUp);
     SimpleMatrix currentVectorDerivative=RNNUtils.elementwiseApplyTanhDerivative(currentVector);
     SimpleMatrix wordDerivative=deltaFull.elementMult(currentVectorDerivative);
     wordVectorD.put(word,wordVectorD.get(word).plus(wordDerivative));
@@ -27,7 +27,7 @@
     String rightCategory=model.basicCategory(tree.children()[1].label().value());
     binaryCD.put(leftCategory,rightCategory,binaryCD.get(leftCategory,rightCategory).plus(localCD));
     SimpleMatrix deltaFromClass=model.getBinaryClassification(leftCategory,rightCategory).transpose().mult(deltaClass);
-    SimpleMatrix deltaFull=deltaFromClass.plus(deltaUp);
+    SimpleMatrix deltaFull=deltaFromClass.extractMatrix(0,model.op.numHid,0,1).plus(deltaUp);
     SimpleMatrix leftVector=RNNCoreAnnotations.getNodeVector(tree.children()[0]);
     SimpleMatrix rightVector=RNNCoreAnnotations.getNodeVector(tree.children()[1]);
     SimpleMatrix childrenVector=RNNUtils.concatenateWithBias(leftVector,rightVector);
@@ -35,8 +35,9 @@
     binaryTD.put(leftCategory,rightCategory,binaryTD.get(leftCategory,rightCategory).plus(W_df));
     SimpleMatrix leftDerivative=RNNUtils.elementwiseApplyTanhDerivative(leftVector);
     SimpleMatrix rightDerivative=RNNUtils.elementwiseApplyTanhDerivative(rightVector);
-    SimpleMatrix leftWTDelta=deltaFromClass.extractMatrix(0,deltaFull.numRows(),0,1);
-    SimpleMatrix rightWTDelta=deltaFromClass.extractMatrix(deltaFull.numRows(),deltaFull.numRows() * 2,0,1);
+    SimpleMatrix WTDelta=model.getBinaryTransform(leftCategory,rightCategory).transpose().mult(deltaFull);
+    SimpleMatrix leftWTDelta=WTDelta.extractMatrix(0,deltaFull.numRows(),0,1);
+    SimpleMatrix rightWTDelta=WTDelta.extractMatrix(deltaFull.numRows(),deltaFull.numRows() * 2,0,1);
     backpropDerivativesAndError(tree.children()[0],binaryTD,binaryCD,unaryCD,wordVectorD,leftDerivative.elementMult(leftWTDelta));
     backpropDerivativesAndError(tree.children()[1],binaryTD,binaryCD,unaryCD,wordVectorD,rightDerivative.elementMult(rightWTDelta));
   }
