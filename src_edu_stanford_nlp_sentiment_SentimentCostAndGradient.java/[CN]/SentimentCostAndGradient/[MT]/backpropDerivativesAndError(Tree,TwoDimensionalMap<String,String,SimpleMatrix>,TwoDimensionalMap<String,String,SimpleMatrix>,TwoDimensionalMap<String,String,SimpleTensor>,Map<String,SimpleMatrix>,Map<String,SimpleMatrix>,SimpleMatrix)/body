@@ -6,11 +6,14 @@
   String category=tree.label().value();
   category=model.basicCategory(category);
   SimpleMatrix goldLabel=new SimpleMatrix(model.numClasses,1);
-  goldLabel.set(RNNCoreAnnotations.getGoldClass(tree),1.0);
+  int goldClass=RNNCoreAnnotations.getGoldClass(tree);
+  goldLabel.set(goldClass,1.0);
+  double nodeWeight=model.op.getClassWeight(goldClass);
   SimpleMatrix predictions=RNNCoreAnnotations.getPredictions(tree);
-  SimpleMatrix deltaClass=predictions.minus(goldLabel);
+  SimpleMatrix deltaClass=predictions.minus(goldLabel).scale(nodeWeight);
   SimpleMatrix localCD=deltaClass.mult(RNNUtils.concatenateWithBias(currentVector).transpose());
   double error=-(RNNUtils.elementwiseApplyLog(predictions).elementMult(goldLabel).elementSum());
+  error=error * nodeWeight;
   RNNCoreAnnotations.setPredictionError(tree,error);
   if (tree.isPreTerminal()) {
     unaryCD.put(category,unaryCD.get(category).plus(localCD));
