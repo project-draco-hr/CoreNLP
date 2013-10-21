@@ -1,5 +1,6 @@
 {
   RNNOptions op=new RNNOptions();
+  String trainPath="sentimentTreesDebug.txt";
   boolean runGradientCheck=false;
   boolean runTraining=false;
   String modelPath=null;
@@ -12,6 +13,10 @@
       runGradientCheck=true;
       argIndex++;
     }
+ else     if (args[argIndex].equalsIgnoreCase("-trainpath")) {
+      trainPath=args[argIndex + 1];
+      argIndex+=2;
+    }
  else {
       int newArgIndex=op.setOption(args,argIndex);
       if (newArgIndex == argIndex) {
@@ -22,7 +27,7 @@
   }
   List<Tree> trainingTrees=Generics.newArrayList();
   MemoryTreebank treebank=new MemoryTreebank();
-  treebank.loadPath("sentimentTreesDebug.txt",null);
+  treebank.loadPath(trainPath,null);
   for (  Tree tree : treebank) {
     attachGoldLabels(tree);
     trainingTrees.add(tree);
