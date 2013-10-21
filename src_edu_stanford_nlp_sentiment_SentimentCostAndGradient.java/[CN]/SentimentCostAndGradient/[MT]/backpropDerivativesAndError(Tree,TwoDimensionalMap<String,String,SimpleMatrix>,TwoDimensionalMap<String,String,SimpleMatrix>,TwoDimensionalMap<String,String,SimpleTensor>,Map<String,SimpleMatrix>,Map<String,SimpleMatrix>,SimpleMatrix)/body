@@ -28,7 +28,12 @@
  else {
     String leftCategory=model.basicCategory(tree.children()[0].label().value());
     String rightCategory=model.basicCategory(tree.children()[1].label().value());
-    binaryCD.put(leftCategory,rightCategory,binaryCD.get(leftCategory,rightCategory).plus(localCD));
+    if (model.op.combineClassification) {
+      unaryCD.put("",unaryCD.get("").plus(localCD));
+    }
+ else {
+      binaryCD.put(leftCategory,rightCategory,binaryCD.get(leftCategory,rightCategory).plus(localCD));
+    }
     SimpleMatrix currentVectorDerivative=RNNUtils.elementwiseApplyTanhDerivative(currentVector);
     SimpleMatrix deltaFromClass=model.getBinaryClassification(leftCategory,rightCategory).transpose().mult(deltaClass);
     deltaFromClass=deltaFromClass.extractMatrix(0,model.op.numHid,0,1).elementMult(currentVectorDerivative);

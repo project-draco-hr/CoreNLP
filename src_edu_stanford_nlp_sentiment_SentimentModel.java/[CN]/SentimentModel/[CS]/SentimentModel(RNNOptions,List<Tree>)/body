@@ -1,6 +1,6 @@
 {
   this.op=op;
-  rand=(op.randomSeed != 0) ? new Random(op.randomSeed) : new Random();
+  rand=new Random(op.randomSeed);
   if (op.randomWordVectors) {
     initRandomWordVectors(trainingTrees);
   }
@@ -45,7 +45,9 @@
     if (op.useTensors) {
       binaryTensors.put(left,right,randomBinaryTensor());
     }
-    binaryClassification.put(left,right,randomClassificationMatrix());
+    if (!op.combineClassification) {
+      binaryClassification.put(left,right,randomClassificationMatrix());
+    }
   }
   numBinaryMatrices=binaryTransform.size();
   binaryTransformSize=numHid * (2 * numHid + 1);
@@ -55,7 +57,7 @@
  else {
     binaryTensorSize=0;
   }
-  binaryClassificationSize=numClasses * (numHid + 1);
+  binaryClassificationSize=(op.combineClassification) ? 0 : numClasses * (numHid + 1);
   unaryClassification=Generics.newTreeMap();
   for (  String unary : unaryProductions) {
     unary=basicCategory(unary);
