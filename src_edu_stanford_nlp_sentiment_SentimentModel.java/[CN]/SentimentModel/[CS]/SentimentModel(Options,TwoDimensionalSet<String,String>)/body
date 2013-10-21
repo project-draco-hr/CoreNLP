@@ -1,8 +1,18 @@
 {
   this.op=op;
   rand=(op.randomSeed != 0) ? new Random(op.randomSeed) : new Random();
-  this.numHid=op.numHid;
   readWordVectors();
+  if (op.numHid > 0) {
+    this.numHid=op.numHid;
+  }
+ else {
+    int size=0;
+    for (    SimpleMatrix vector : wordVectors.values()) {
+      size=vector.getNumElements();
+      break;
+    }
+    this.numHid=size;
+  }
   identity=SimpleMatrix.identity(numHid);
   binaryTransform=TwoDimensionalMap.treeMap();
   binaryClassification=TwoDimensionalMap.treeMap();
