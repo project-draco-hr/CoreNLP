@@ -1,7 +1,12 @@
 {
   this.op=op;
   rand=(op.randomSeed != 0) ? new Random(op.randomSeed) : new Random();
-  readWordVectors();
+  if (op.randomWordVectors) {
+    initRandomWordVectors(trainingTrees);
+  }
+ else {
+    readWordVectors();
+  }
   if (op.numHid > 0) {
     this.numHid=op.numHid;
   }
@@ -12,6 +17,18 @@
       break;
     }
     this.numHid=size;
+  }
+  TwoDimensionalSet<String,String> binaryProductions=TwoDimensionalSet.hashSet();
+  if (op.simplifiedModel) {
+    binaryProductions.add("","");
+  }
+ else {
+  }
+  Set<String> unaryProductions=Generics.newHashSet();
+  if (op.simplifiedModel) {
+    unaryProductions.add("");
+  }
+ else {
   }
   this.numClasses=op.numClasses;
   identity=SimpleMatrix.identity(numHid);
