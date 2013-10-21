@@ -3,6 +3,10 @@
   String sentimentFilename=null;
   String tokensFilename=null;
   String parseFilename=null;
+  String splitFilename=null;
+  String trainFilename=null;
+  String devFilename=null;
+  String testFilename=null;
   int argIndex=0;
   while (argIndex < args.length) {
     if (args[argIndex].equalsIgnoreCase("-dictionary")) {
@@ -19,6 +23,22 @@
     }
  else     if (args[argIndex].equalsIgnoreCase("-parse")) {
       parseFilename=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-split")) {
+      splitFilename=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-train")) {
+      trainFilename=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-dev")) {
+      devFilename=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-test")) {
+      testFilename=args[argIndex + 1];
       argIndex+=2;
     }
  else {
@@ -50,6 +70,7 @@
   }
   int index=0;
   PTBEscapingProcessor escaper=new PTBEscapingProcessor();
+  List<Tree> trees=Generics.newArrayList();
   for (  String line : IOUtils.readLines(parseFilename)) {
     String[] pieces=line.split("\\|");
     List<Integer> parentPointers=CollectionUtils.transformAsList(Arrays.asList(pieces),new Function<String,Integer>(){
@@ -60,6 +81,22 @@
 );
     Tree tree=convertTree(parentPointers,sentences.get(index),phraseIds,sentimentScores,escaper);
     ++index;
-    System.out.println(tree);
+    trees.add(tree);
   }
+  Map<Integer,List<Integer>> splits=Generics.newHashMap();
+  splits.put(1,Generics.<Integer>newArrayList());
+  splits.put(2,Generics.<Integer>newArrayList());
+  splits.put(3,Generics.<Integer>newArrayList());
+  for (  String line : IOUtils.readLines(splitFilename)) {
+    if (line.startsWith("sentence_index")) {
+      continue;
+    }
+    String[] pieces=line.split(",");
+    Integer treeId=Integer.valueOf(pieces[0]) - 1;
+    Integer fileId=Integer.valueOf(pieces[1]);
+    splits.get(fileId).add(treeId);
+  }
+  writeTrees(trainFilename,trees,splits.get(1));
+  writeTrees(devFilename,trees,splits.get(2));
+  writeTrees(testFilename,trees,splits.get(3));
 }
