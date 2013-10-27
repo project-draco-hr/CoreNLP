@@ -22,6 +22,9 @@
   seenBackgroundFeatures[0]=Generics.newHashSet();
   seenBackgroundFeatures[1]=Generics.newHashSet();
   int wordCount=0;
+  if (flags.labelDictionaryCutoff > 0) {
+    this.labelDictionary=new LabelDictionary();
+  }
   for (  List<IN> doc : ob) {
     if (flags.useReverse) {
       Collections.reverse(doc);
@@ -33,6 +36,10 @@
         throw new IllegalArgumentException("Word " + wordCount + " (\""+ token.get(CoreAnnotations.TextAnnotation.class)+ "\") has a blank answer");
       }
       classIndex.add(ans);
+      if (labelDictionary != null) {
+        String observation=token.get(CoreAnnotations.TextAnnotation.class);
+        labelDictionary.increment(observation,ans);
+      }
     }
     for (int j=0, docSize=doc.size(); j < docSize; j++) {
       CRFDatum<List<String>,CRFLabel> d=makeDatum(doc,j,featureFactory);
@@ -182,5 +189,8 @@
     for (int i=0, fiSize=featureIndex.size(); i < fiSize; i++) {
       System.out.println(i + ": " + featureIndex.get(i));
     }
+  }
+  if (labelDictionary != null) {
+    labelDictionary.lock(flags.labelDictionaryCutoff,classIndex);
   }
 }
