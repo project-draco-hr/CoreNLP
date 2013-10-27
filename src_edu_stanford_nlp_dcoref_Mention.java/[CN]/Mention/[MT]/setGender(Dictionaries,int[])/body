@@ -1,22 +1,5 @@
 {
   gender=Gender.UNKNOWN;
-  if (genderNumberCount != null && this.number != Number.PLURAL) {
-    double male=genderNumberCount[0];
-    double female=genderNumberCount[1];
-    double neutral=genderNumberCount[2];
-    if (male * 0.5 > female + neutral && male > 2) {
-      this.gender=Gender.MALE;
-      SieveCoreferenceSystem.logger.finer("[Gender number count] New gender assigned:\tMale:\t" + headString + "\tspan:"+ spanToString());
-    }
- else     if (female * 0.5 > male + neutral && female > 2) {
-      this.gender=Gender.FEMALE;
-      SieveCoreferenceSystem.logger.finer("[Gender number count] New gender assigned:\tFemale:\t" + headString + "\tspan:"+ spanToString());
-    }
- else     if (neutral * 0.5 > male + female && neutral > 2) {
-      this.gender=Gender.NEUTRAL;
-      SieveCoreferenceSystem.logger.finer("[Gender number count] New gender assigned:\tNeutral:\t" + headString + "\tspan:"+ spanToString());
-    }
-  }
   if (mentionType == MentionType.PRONOMINAL) {
     if (dict.malePronouns.contains(headString)) {
       gender=Gender.MALE;
@@ -26,36 +9,55 @@
     }
   }
  else {
-    if (gender == Gender.UNKNOWN) {
-      if ("PERSON".equals(nerString) || "PER".equals(nerString)) {
-        List<CoreLabel> nerToks=nerTokens();
-        for (        CoreLabel t : nerToks) {
-          String name=t.word().toLowerCase();
-          if (dict.maleWords.contains(name)) {
-            gender=Gender.MALE;
-            SieveCoreferenceSystem.logger.finer("[Bergsma List] New gender assigned:\tMale:\t" + name + "\tspan:"+ spanToString());
-            break;
+    if (Constants.USE_GENDER_LIST) {
+      if (gender == Gender.UNKNOWN) {
+        if ("PERSON".equals(nerString) || "PER".equals(nerString)) {
+          List<CoreLabel> nerToks=nerTokens();
+          for (          CoreLabel t : nerToks) {
+            String name=t.word().toLowerCase();
+            if (dict.maleWords.contains(name)) {
+              gender=Gender.MALE;
+              SieveCoreferenceSystem.logger.finer("[Bergsma List] New gender assigned:\tMale:\t" + name + "\tspan:"+ spanToString());
+              break;
+            }
+ else             if (dict.femaleWords.contains(name)) {
+              gender=Gender.FEMALE;
+              SieveCoreferenceSystem.logger.finer("[Bergsma List] New gender assigned:\tFemale:\t" + name + "\tspan:"+ spanToString());
+              break;
+            }
           }
- else           if (dict.femaleWords.contains(name)) {
+        }
+ else {
+          if (dict.maleWords.contains(headString)) {
+            gender=Gender.MALE;
+            SieveCoreferenceSystem.logger.finer("[Bergsma List] New gender assigned:\tMale:\t" + headString + "\tspan:"+ spanToString());
+          }
+ else           if (dict.femaleWords.contains(headString)) {
             gender=Gender.FEMALE;
-            SieveCoreferenceSystem.logger.finer("[Bergsma List] New gender assigned:\tFemale:\t" + name + "\tspan:"+ spanToString());
-            break;
+            SieveCoreferenceSystem.logger.finer("[Bergsma List] New gender assigned:\tFemale:\t" + headString + "\tspan:"+ spanToString());
+          }
+ else           if (dict.neutralWords.contains(headString)) {
+            gender=Gender.NEUTRAL;
+            SieveCoreferenceSystem.logger.finer("[Bergsma List] New gender assigned:\tNeutral:\t" + headString + "\tspan:"+ spanToString());
           }
         }
       }
- else {
-        if (dict.maleWords.contains(headString)) {
-          gender=Gender.MALE;
-          SieveCoreferenceSystem.logger.finer("[Bergsma List] New gender assigned:\tMale:\t" + headString + "\tspan:"+ spanToString());
-        }
- else         if (dict.femaleWords.contains(headString)) {
-          gender=Gender.FEMALE;
-          SieveCoreferenceSystem.logger.finer("[Bergsma List] New gender assigned:\tFemale:\t" + headString + "\tspan:"+ spanToString());
-        }
- else         if (dict.neutralWords.contains(headString)) {
-          gender=Gender.NEUTRAL;
-          SieveCoreferenceSystem.logger.finer("[Bergsma List] New gender assigned:\tNeutral:\t" + headString + "\tspan:"+ spanToString());
-        }
+    }
+    if (genderNumberCount != null && this.number != Number.PLURAL) {
+      double male=genderNumberCount[0];
+      double female=genderNumberCount[1];
+      double neutral=genderNumberCount[2];
+      if (male * 0.5 > female + neutral && male > 2) {
+        this.gender=Gender.MALE;
+        SieveCoreferenceSystem.logger.finer("[Gender number count] New gender assigned:\tMale:\t" + headString + "\tspan:"+ spanToString());
+      }
+ else       if (female * 0.5 > male + neutral && female > 2) {
+        this.gender=Gender.FEMALE;
+        SieveCoreferenceSystem.logger.finer("[Gender number count] New gender assigned:\tFemale:\t" + headString + "\tspan:"+ spanToString());
+      }
+ else       if (neutral * 0.5 > male + female && neutral > 2) {
+        this.gender=Gender.NEUTRAL;
+        SieveCoreferenceSystem.logger.finer("[Gender number count] New gender assigned:\tNeutral:\t" + headString + "\tspan:"+ spanToString());
       }
     }
   }
