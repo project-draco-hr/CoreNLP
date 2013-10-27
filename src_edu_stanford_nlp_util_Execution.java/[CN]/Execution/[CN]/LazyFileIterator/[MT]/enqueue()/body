@@ -1,0 +1,26 @@
+{
+  toReturn+=1;
+  boolean good=(toReturn < dir.length && !dir[toReturn].isDirectory());
+  while (!good) {
+    if (toReturn >= dir.length) {
+      if (parents.isEmpty()) {
+        toReturn=-1;
+        return;
+      }
+ else {
+        dir=parents.pop();
+        toReturn=indices.pop();
+      }
+    }
+ else     if (dir[toReturn].isDirectory()) {
+      parents.push(dir);
+      indices.push(toReturn + 1);
+      dir=dir[toReturn].listFiles(filter);
+      toReturn=0;
+    }
+ else {
+      throw new IllegalStateException("File is invalid, but in range and not a directory: " + dir[toReturn]);
+    }
+    good=(toReturn < dir.length && !dir[toReturn].isDirectory());
+  }
+}

@@ -1,0 +1,18 @@
+{
+  System.err.print("Reading FeatureIndex from " + serializePath + "...");
+  ObjectInputStream ois=null;
+  Index<String> f=null;
+  try {
+    ois=IOUtils.readStreamFromString(serializePath);
+    f=(Index<String>)ois.readObject();
+    System.err.println("done.");
+  }
+ catch (  Exception e) {
+    System.err.println("Failed");
+    e.printStackTrace();
+  }
+ finally {
+    IOUtils.closeIgnoringExceptions(ois);
+  }
+  return f;
+}
