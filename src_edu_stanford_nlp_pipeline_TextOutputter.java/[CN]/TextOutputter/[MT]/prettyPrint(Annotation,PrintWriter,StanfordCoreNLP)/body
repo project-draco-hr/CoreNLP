@@ -8,10 +8,6 @@
     int nTokens=(tokens != null) ? tokens.size() : 0;
     os.printf("Document: ID=%s (%d sentences, %d tokens)\n",docId,nSentences,nTokens);
   }
-  String docTitle=annotation.get(CoreAnnotations.DocTitleAnnotation.class);
-  if (docTitle != null) {
-    os.printf("Document Title: %s\n",docTitle);
-  }
   String docDate=annotation.get(CoreAnnotations.DocDateAnnotation.class);
   if (docDate != null) {
     os.printf("Document Date: %s\n",docDate);
@@ -41,7 +37,8 @@
       if (tree != null) {
         pipeline.getConstituentTreePrinter().printTree(tree,os);
         if (sentence.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class) != null) {
-          pipeline.getDependencyTreePrinter().printTree(tree,os);
+          os.print(sentence.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class).toList());
+          os.print("\n");
         }
       }
       List<EntityMention> entities=sentence.get(MachineReadingAnnotations.EntityMentionsAnnotation.class);
