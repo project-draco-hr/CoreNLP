@@ -1,0 +1,15 @@
+{
+  ObjectInputStream objectInput;
+  if (is instanceof ObjectInputStream) {
+    objectInput=(ObjectInputStream)is;
+  }
+ else {
+    objectInput=new ObjectInputStream(is);
+  }
+  Object annotation=objectInput.readObject();
+  if (annotation == null)   return null;
+  if (!(annotation instanceof Annotation)) {
+    throw new ClassCastException("ERROR: Serialized data does not contain an Annotation!");
+  }
+  return Pair.makePair((Annotation)annotation,(InputStream)objectInput);
+}

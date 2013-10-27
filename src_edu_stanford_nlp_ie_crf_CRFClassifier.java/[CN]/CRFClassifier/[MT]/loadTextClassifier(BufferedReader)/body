@@ -1,0 +1,151 @@
+{
+  String line=br.readLine();
+  String[] toks=line.split("\\t");
+  if (!toks[0].equals("labelIndices.length=")) {
+    throw new RuntimeException("format error");
+  }
+  int size=Integer.parseInt(toks[1]);
+  labelIndices=new ArrayList<Index<CRFLabel>>(size);
+  for (int labelIndicesIdx=0; labelIndicesIdx < size; labelIndicesIdx++) {
+    line=br.readLine();
+    toks=line.split("\\t");
+    if (!(toks[0].startsWith("labelIndices[") && toks[0].endsWith("].size()="))) {
+      throw new RuntimeException("format error");
+    }
+    int labelIndexSize=Integer.parseInt(toks[1]);
+    labelIndices.add(new HashIndex<CRFLabel>());
+    int count=0;
+    while (count < labelIndexSize) {
+      line=br.readLine();
+      toks=line.split("\\t");
+      int idx=Integer.parseInt(toks[0]);
+      if (count != idx) {
+        throw new RuntimeException("format error");
+      }
+      String[] crflabelstr=toks[1].split(" ");
+      int[] crflabel=new int[crflabelstr.length];
+      for (int i=0; i < crflabelstr.length; i++) {
+        crflabel[i]=Integer.parseInt(crflabelstr[i]);
+      }
+      CRFLabel crfL=new CRFLabel(crflabel);
+      labelIndices.get(labelIndicesIdx).add(crfL);
+      count++;
+    }
+  }
+  for (int i=0; i < labelIndices.size(); i++) {
+    for (int j=0; j < labelIndices.get(i).size(); j++) {
+      int[] label=labelIndices.get(i).get(j).getLabel();
+      List<Integer> list=new ArrayList<Integer>();
+      for (      int l : label) {
+        list.add(l);
+      }
+    }
+  }
+  line=br.readLine();
+  toks=line.split("\\t");
+  if (!toks[0].equals("classIndex.size()=")) {
+    throw new RuntimeException("format error");
+  }
+  int classIndexSize=Integer.parseInt(toks[1]);
+  classIndex=new HashIndex<String>();
+  int count=0;
+  while (count < classIndexSize) {
+    line=br.readLine();
+    toks=line.split("\\t");
+    int idx=Integer.parseInt(toks[0]);
+    if (count != idx) {
+      throw new RuntimeException("format error");
+    }
+    classIndex.add(toks[1]);
+    count++;
+  }
+  line=br.readLine();
+  toks=line.split("\\t");
+  if (!toks[0].equals("featureIndex.size()=")) {
+    throw new RuntimeException("format error");
+  }
+  int featureIndexSize=Integer.parseInt(toks[1]);
+  featureIndex=new HashIndex<String>();
+  count=0;
+  while (count < featureIndexSize) {
+    line=br.readLine();
+    toks=line.split("\\t");
+    int idx=Integer.parseInt(toks[0]);
+    if (count != idx) {
+      throw new RuntimeException("format error");
+    }
+    featureIndex.add(toks[1]);
+    count++;
+  }
+  line=br.readLine();
+  if (!line.equals("<flags>")) {
+    throw new RuntimeException("format error");
+  }
+  Properties p=new Properties();
+  line=br.readLine();
+  while (!line.equals("</flags>")) {
+    String[] keyValue=line.split("=");
+    p.setProperty(keyValue[0],keyValue[1]);
+    line=br.readLine();
+  }
+  flags=new SeqClassifierFlags(p);
+  if (flags.useEmbedding) {
+    line=br.readLine();
+    toks=line.split("\\t");
+    if (!toks[0].equals("embeddings.size()=")) {
+      throw new RuntimeException("format error in embeddings");
+    }
+    int embeddingSize=Integer.parseInt(toks[1]);
+    embeddings=Generics.newHashMap(embeddingSize);
+    count=0;
+    while (count < embeddingSize) {
+      line=br.readLine().trim();
+      toks=line.split("\\t");
+      String word=toks[0];
+      double[] arr=ArrayUtils.toDoubleArray(toks[1].split(" "));
+      embeddings.put(word,arr);
+      count++;
+    }
+  }
+  line=br.readLine();
+  String[] featureFactoryName=line.split(" ");
+  if (!featureFactoryName[0].equals("<featureFactory>") || !featureFactoryName[2].equals("</featureFactory>")) {
+    throw new RuntimeException("format error");
+  }
+  featureFactory=(edu.stanford.nlp.sequences.FeatureFactory<IN>)Class.forName(featureFactoryName[1]).newInstance();
+  featureFactory.init(flags);
+  reinit();
+  line=br.readLine();
+  String[] windowSizeName=line.split(" ");
+  if (!windowSizeName[0].equals("<windowSize>") || !windowSizeName[2].equals("</windowSize>")) {
+    throw new RuntimeException("format error");
+  }
+  windowSize=Integer.parseInt(windowSizeName[1]);
+  line=br.readLine();
+  toks=line.split("\\t");
+  if (!toks[0].equals("weights.length=")) {
+    throw new RuntimeException("format error");
+  }
+  int weightsLength=Integer.parseInt(toks[1]);
+  weights=new double[weightsLength][];
+  count=0;
+  while (count < weightsLength) {
+    line=br.readLine();
+    toks=line.split("\\t");
+    int weights2Length=Integer.parseInt(toks[0]);
+    weights[count]=new double[weights2Length];
+    String[] weightsValue=toks[1].split(" ");
+    if (weights2Length != weightsValue.length) {
+      throw new RuntimeException("weights format error");
+    }
+    for (int i2=0; i2 < weights2Length; i2++) {
+      weights[count][i2]=Double.parseDouble(weightsValue[i2]);
+    }
+    count++;
+  }
+  System.err.printf("DEBUG: double[%d][] weights loaded%n",weightsLength);
+  line=br.readLine();
+  if (line != null) {
+    throw new RuntimeException("weights format error");
+  }
+}
