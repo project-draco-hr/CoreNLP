@@ -1,0 +1,22 @@
+{
+  boolean alignable=true;
+  if (list1.size() != list2.size())   alignable=false;
+class CompareSentences implements Comparator<CoreMap> {
+    public int compare(    CoreMap sent1,    CoreMap sent2){
+      String d1=sent1.get(CoreAnnotations.DocIDAnnotation.class);
+      String d2=sent2.get(CoreAnnotations.DocIDAnnotation.class);
+      if (d1 != null && d2 != null && !d1.equals(d2))       return d1.compareTo(d2);
+      String t1=sent1.get(CoreAnnotations.TextAnnotation.class);
+      String t2=sent2.get(CoreAnnotations.TextAnnotation.class);
+      return t1.compareTo(t2);
+    }
+  }
+  Collections.sort(list1,new CompareSentences());
+  Collections.sort(list2,new CompareSentences());
+  for (int i=0; i < list1.size(); i++) {
+    if (!list1.get(i).get(CoreAnnotations.TextAnnotation.class).equals(list2.get(i).get(CoreAnnotations.TextAnnotation.class)))     alignable=false;
+  }
+  if (!alignable) {
+    throw new RuntimeException("ResultsPrinter.align: gold standard sentences don't match extractor output sentences!");
+  }
+}
