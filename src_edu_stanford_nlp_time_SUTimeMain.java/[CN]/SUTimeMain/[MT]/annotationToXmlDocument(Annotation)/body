@@ -1,7 +1,12 @@
 {
+  List<CoreMap> timexAnnsAll=annotation.get(TimeAnnotations.TimexAnnotations.class);
   Element dateElem=XMLUtils.createElement("DATE");
   dateElem.setTextContent(annotation.get(CoreAnnotations.DocDateAnnotation.class));
-  Element textElem=annotationToTmlTextElement(annotation);
+  Element textElem=XMLUtils.createElement("TEXT");
+  List<Node> timexNodes=createTimexNodes(annotation.get(CoreAnnotations.TextAnnotation.class),annotation.get(CoreAnnotations.CharacterOffsetBeginAnnotation.class),timexAnnsAll);
+  for (  Node node : timexNodes) {
+    textElem.appendChild(node);
+  }
   Element docElem=XMLUtils.createElement("DOC");
   docElem.appendChild(dateElem);
   docElem.appendChild(textElem);
