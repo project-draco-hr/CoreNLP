@@ -4,11 +4,9 @@
   List<? extends MatchedExpression> matchedExpressions=expressionExtractor.extractExpressions(annotation);
   List<TimeExpression> timeExpressions=new ArrayList<TimeExpression>(matchedExpressions.size());
   for (  MatchedExpression expr : matchedExpressions) {
-    if (expr instanceof TimeExpression) {
-      timeExpressions.add((TimeExpression)expr);
-    }
- else {
-      timeExpressions.add(new TimeExpression(expr));
+    TimeExpression annoTe=expr.getAnnotation().get(TimeExpression.Annotation.class);
+    if (annoTe != null) {
+      timeExpressions.add(annoTe);
     }
   }
   if (timeIndex.docDate == null) {
