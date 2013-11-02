@@ -4,13 +4,22 @@
   }
   to2D(x,weights);
   setWeights(weights);
-  List<Integer> docIDs=new ArrayList<Integer>(batch.length);
-  for (int m=0; m < batch.length; m++)   docIDs.add(batch[m]);
-  multiThreadGradient(docIDs,true);
+  if (eHat4Update == null) {
+    eHat4Update=empty2D();
+    e4Update=new double[eHat4Update.length][];
+    for (int i=0; i < e4Update.length; i++)     e4Update[i]=new double[eHat4Update[i].length];
+  }
+ else {
+    clearUpdateEs();
+  }
+  for (  int ind : batch) {
+    empiricalCountsForADoc(eHat4Update,ind);
+    expectedCountsForADoc(e4Update,ind);
+  }
   int index=0;
-  for (int i=0; i < E.length; i++) {
-    for (int j=0; j < E[i].length; j++) {
-      derivative[index++]=(E[i][j] - Ehat[i][j]);
+  for (int i=0; i < e4Update.length; i++) {
+    for (int j=0; j < e4Update[i].length; j++) {
+      derivative[index++]=(-eHat4Update[i][j] + e4Update[i][j]);
     }
   }
 }
