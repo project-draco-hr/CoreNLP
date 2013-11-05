@@ -1,0 +1,23 @@
+{
+  double[][] matrix=new double[matrixSize][matrixSize];
+  for (int i=0; i < matrix.length; i++)   matrix[i]=new double[matrixSize];
+  for (  String line : lines) {
+    String[] parts=line.split("\t");
+    for (    String part : parts) {
+      String[] subparts=part.split(" ");
+      String[] subsubparts=subparts[0].split(":");
+      double counts=Double.parseDouble(subparts[1]);
+      if (counts == 0.0 && smooth)       counts=1.0;
+      int tagIndex1=tagIndex.indexOf(subsubparts[0]);
+      int tagIndex2=tagIndex.indexOf(subsubparts[1]);
+      matrix[tagIndex1][tagIndex2]=counts;
+    }
+  }
+  for (int i=0; i < matrix.length; i++) {
+    double sum=ArrayMath.sum(matrix[i]);
+    for (int j=0; j < matrix[i].length; j++) {
+      matrix[i][j]=Math.log(matrix[i][j] / sum);
+    }
+  }
+  return matrix;
+}
