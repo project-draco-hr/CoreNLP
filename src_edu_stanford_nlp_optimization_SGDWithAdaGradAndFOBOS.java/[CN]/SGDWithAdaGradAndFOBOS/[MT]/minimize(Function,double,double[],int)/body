@@ -1,10 +1,16 @@
 {
   int totalSamples=0;
+  int tuneSampleSize=0;
   sayln("Using lambda=" + lambda);
   if (f instanceof AbstractStochasticCachingDiffUpdateFunction) {
     AbstractStochasticCachingDiffUpdateFunction func=(AbstractStochasticCachingDiffUpdateFunction)f;
     func.sampleMethod=AbstractStochasticCachingDiffFunction.SamplingMethod.Shuffled;
     totalSamples=func.dataDimension();
+    tuneSampleSize=Math.min(totalSamples,tuningSamples);
+    if (tuneSampleSize < tuningSamples) {
+      System.err.println("WARNING: Total number of samples=" + totalSamples + " is smaller than requested tuning sample size="+ tuningSamples+ "!!!");
+    }
+    sayln("Using sample size=" + tuneSampleSize);
     if (bSize > totalSamples) {
       System.err.println("WARNING: Total number of samples=" + totalSamples + " is smaller than requested batch size="+ bSize+ "!!!");
       bSize=totalSamples;
@@ -66,7 +72,6 @@
       evalScore=doEvaluation(x);
       if (useEvalImprovement && !toContinue(x,evalScore))       break;
     }
-    double objVal=0;
     say("Iter: " + iters + " pass "+ pass+ " batch 1 ... ");
     int numOfNonZero=0, numOfNonZeroGroup=0;
     String gSizeStr="";
@@ -77,7 +82,6 @@
         AbstractStochasticCachingDiffUpdateFunction func=(AbstractStochasticCachingDiffUpdateFunction)f;
         func.calculateStochasticGradient(x,bSize);
         gradients=func.getDerivative();
-        if (bSize == totalSamples)         objVal=func.valueAt(x,1.0,bSize);
       }
  else       if (f instanceof AbstractCachingDiffFunction) {
         AbstractCachingDiffFunction func=(AbstractCachingDiffFunction)f;
@@ -203,7 +207,7 @@
       }
       break;
     }
-    sayln(String.valueOf(numBatches) + ", n0-fCount:" + numOfNonZero+ ((prior != Prior.LASSO && prior != Prior.RIDGE) ? ", n0-gCount:" + numOfNonZeroGroup : "")+ ((evalScore != Double.NEGATIVE_INFINITY) ? ", evalScore:" + evalScore : "")+ ", obj_val:"+ nf.format(objVal));
+    sayln(String.valueOf(numBatches) + ", n0-fCount:" + numOfNonZero+ ((prior != Prior.LASSO && prior != Prior.RIDGE) ? ", n0-gCount:" + numOfNonZeroGroup : "")+ ((evalScore != Double.NEGATIVE_INFINITY) ? ", evalScore:" + evalScore : ""));
     if (iters >= maxIterations) {
       sayln("Online Optimization complete.  Stopped after max iterations");
       break;
