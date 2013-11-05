@@ -66,6 +66,12 @@
         }
         sentElem.appendChild(mrElem);
       }
+      Tree sentimentTree=sentence.get(SentimentCoreAnnotations.AnnotatedTree.class);
+      if (sentimentTree != null) {
+        int sentiment=RNNCoreAnnotations.getPredictedClass(sentimentTree);
+        sentElem.addAttribute(new Attribute("sentimentValue",Integer.toString(sentiment)));
+        sentElem.addAttribute(new Attribute("sentiment",SentimentUtils.sentimentString(sentiment).replaceAll(" ","")));
+      }
       sentencesElem.appendChild(sentElem);
     }
   }
