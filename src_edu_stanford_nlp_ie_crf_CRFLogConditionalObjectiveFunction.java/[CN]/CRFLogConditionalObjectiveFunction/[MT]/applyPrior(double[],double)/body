@@ -1,10 +1,11 @@
 {
   if (prior == QUADRATIC_PRIOR) {
-    double lambda=1 / (sigma * sigma);
+    double sigmaSq=sigma * sigma;
+    double lambda=1 / 2.0 / sigmaSq;
     for (int i=0; i < x.length; i++) {
       double w=x[i];
-      value+=batchScale * w * w* lambda* 0.5;
-      derivative[i]+=batchScale * w * lambda;
+      value+=batchScale * w * w* lambda;
+      derivative[i]+=batchScale * w / sigmaSq;
     }
   }
  else   if (prior == HUBER_PRIOR) {
