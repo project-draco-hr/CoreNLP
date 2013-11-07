@@ -3,6 +3,7 @@
   String sentimentModel=null;
   String filename=null;
   boolean stdin=false;
+  Output output=Output.ROOT;
   for (int argIndex=0; argIndex < args.length; ) {
     if (args[argIndex].equalsIgnoreCase("-sentimentModel")) {
       sentimentModel=args[argIndex + 1];
@@ -19,6 +20,11 @@
  else     if (args[argIndex].equalsIgnoreCase("-stdin")) {
       stdin=true;
       argIndex++;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-output")) {
+      String format=args[argIndex + 1];
+      output=Output.valueOf(format.toUpperCase());
+      argIndex+=2;
     }
  else {
       System.err.println("Unknown argument " + args[argIndex + 1]);
@@ -49,9 +55,8 @@
     pipeline.annotate(annotation);
     for (    CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
       Tree tree=sentence.get(SentimentCoreAnnotations.AnnotatedTree.class);
-      int sentiment=RNNCoreAnnotations.getPredictedClass(tree);
-      System.err.println(sentence);
-      System.err.println("  Predicted sentiment: " + SentimentUtils.sentimentString(sentiment));
+      System.out.println(sentence);
+      outputTree(tree,output);
     }
   }
  else {
@@ -69,12 +74,11 @@
         Annotation annotation=pipeline.process(line);
         for (        CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
           Tree tree=sentence.get(SentimentCoreAnnotations.AnnotatedTree.class);
-          int sentiment=RNNCoreAnnotations.getPredictedClass(tree);
-          System.err.println("  " + SentimentUtils.sentimentString(sentiment));
+          outputTree(tree,output);
         }
       }
  else {
-        System.err.println("");
+        System.out.println("");
       }
     }
   }
