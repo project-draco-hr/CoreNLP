@@ -1,0 +1,371 @@
+{
+  @SuppressWarnings("unused") SequenceMatchRules.ExtractRule<String,TimeExpression> srule=null;
+  @SuppressWarnings("unused") SequenceMatchRules.SequencePatternExtractRule trule=null;
+  TimeExpressionExtractors.TimePatternExtractor timePatternExtractor=null;
+  timePatternExtractor=TimeExpressionExtractors.getIsoDateExtractor(getPattern("'(\\d\\d)\\b"),1,-1,-1,true);
+  dateTimeStringRules.add(srule=TimeExpressionExtractors.getStringPatternExtractRule(env,"('\\d\\d)\\b",timePatternExtractor));
+  dateTimeStringRules.add(srule=TimeExpressionExtractors.getStringPatternExtractRuleWithWordBoundary(env,"(\\d\\d\\d\\d-?\\d\\d-?\\d\\d-?T\\d\\d(:?\\d\\d)?(:?\\d\\d)?(?:[.,](\\d{1,3}))?([+-]\\d\\d:?\\d\\d)?)",new TimeExpressionExtractors.IsoDateTimeExtractor(ISODateTimeFormat.dateTimeParser(),true,true)));
+  dateTimeStringRules.add(srule=TimeExpressionExtractors.getStringPatternExtractRuleWithWordBoundary(env,"(\\d\\d\\d\\d-\\d\\d-\\d\\d)",new TimeExpressionExtractors.IsoDateTimeExtractor(ISODateTimeFormat.dateParser(),true,false)));
+  dateTimeStringRules.add(srule=TimeExpressionExtractors.getStringPatternExtractRuleWithWordBoundary(env,"(T\\d\\d(:?\\d\\d)?(:?\\d\\d)?(?:[.,](\\d{1,3}))?([+-]\\d\\d:?\\d\\d)?)",new TimeExpressionExtractors.IsoDateTimeExtractor(ISODateTimeFormat.timeParser(),false,true)));
+  timePatternExtractor=TimeExpressionExtractors.getIsoDateTimeExtractor(getPattern("(?:(\\d\\d?):?(\\d\\d)(:?(\\d\\d))?)?.*?(\\d\\d?)\\\\?[-/](\\d\\d?)\\\\?[-/](\\d\\d(?:\\d\\d)?)"),7,5,6,1,2,4,true);
+  dateTimeTokenSeqRules.add(trule=TimeExpressionExtractors.getSequencePatternExtractRule(env,"/\\d\\d?:?\\d\\d(:?\\d\\d)?/?  /on/? /\\d\\d?(-|\\\\?\\/)\\d\\d?(-|\\\\?\\/)\\d\\d(\\d\\d)?/",timePatternExtractor));
+  timePatternExtractor=TimeExpressionExtractors.getIsoTimeExtractor(getPattern("(\\d\\d?):?(\\d\\d)(:?(\\d\\d))?"),1,2,4);
+  dateTimeTokenSeqRules.add(trule=TimeExpressionExtractors.getSequencePatternExtractRule(env,"/\\d\\d?:\\d\\d(:\\d\\d)?/",timePatternExtractor));
+  timePatternExtractor=TimeExpressionExtractors.getIsoDateExtractor(getPattern("(\\d\\d\\d\\d)-(\\d\\d)"),1,2,-1,false);
+  dateTimeTokenSeqRules.add(trule=TimeExpressionExtractors.getSequencePatternExtractRule(env,"/\\d\\d\\d\\d-\\d\\d/",timePatternExtractor));
+  timePatternExtractor=TimeExpressionExtractors.getIsoDateExtractor(getPattern("(\\d\\d?)\\.(\\d\\d?)\\.(\\d\\d(\\d\\d)?)"),3,2,1,true);
+  dateTimeStringRules.add(srule=TimeExpressionExtractors.getStringPatternExtractRuleWithWordBoundary(env,"\\d\\d?\\.\\d\\d?\\.\\d\\d(\\d\\d)?",timePatternExtractor));
+  timePatternExtractor=new TimeExpressionExtractors.GenericTimePatternExtractor(TokenSequencePattern.compile(env,"(?: ($FREQ_MOD) | ($REL_MOD) )? " + "($TEDAYS) (?: /the/ (?$day $NUM_ORD) )? (?$tod /(morning|afternoon|evening|night)s?/)?"),new Function<MatchResult,SUTime.Temporal>(){
+    public SUTime.Temporal apply(    MatchResult in){
+      boolean isPlural=false;
+      String freq=in.group(1);
+      String rel=in.group(2);
+      String dow=in.group(3);
+      String tod=((SequenceMatchResult)in).group("$tod");
+      String day=((SequenceMatchResult)in).group("$day");
+      SUTime.Temporal temporal=lookupTemporal(dow);
+      if (temporal != null) {
+        temporal=makeRelative(temporal,rel);
+        if (day != null) {
+          SUTime.Time t=createIsoDate(null,null,day);
+          temporal=new SUTime.RelativeTime(temporal.getTime(),SUTime.TemporalOp.INTERSECT,t);
+        }
+        if (tod != null) {
+          SUTime.Temporal t=lookupTemporal(tod);
+          temporal=new SUTime.RelativeTime(temporal.getTime(),SUTime.TemporalOp.INTERSECT,t);
+          if (tod.endsWith("s") || tod.endsWith("S")) {
+            isPlural=true;
+          }
+        }
+        if (freq != null) {
+          temporal=makeSet(temporal,freq);
+        }
+ else {
+          if (dow.endsWith("s") || dow.endsWith("S")) {
+            isPlural=true;
+          }
+          if (isPlural) {
+            temporal=makeSet(temporal,"");
+          }
+        }
+      }
+      return temporal;
+    }
+  }
+);
+  dateTimeTokenSeqRules.add(trule=TimeExpressionExtractors.getSequencePatternExtractRule(timePatternExtractor.tokenPattern,timePatternExtractor));
+  timePatternExtractor=TimeExpressionExtractors.getTimeLookupExtractor(this,TokenSequencePattern.compile(env,"/good/ (/morning|evening|day|afternoon|night/)"),1);
+  dateTimeTokenSeqRules.add(trule=TimeExpressionExtractors.getSequencePatternExtractRule(timePatternExtractor.tokenPattern,timePatternExtractor));
+  timePatternExtractor=new TimeExpressionExtractors.GenericTimePatternExtractor(TokenSequencePattern.compile(env," (?: /the/? /day/ (/before|after/))? ($RELDAY) (morning|afternoon|evening|night)?"),new Function<MatchResult,SUTime.Temporal>(){
+    public SUTime.Temporal apply(    MatchResult in){
+      String relday=in.group(2).toLowerCase();
+      SUTime.Temporal t=lookupTemporal(relday);
+      SUTime.Time tm=t.getTime();
+      String str=in.group(3);
+      if (str != null) {
+        SUTime.Temporal tod=lookupTemporal(str);
+        if (tod != null) {
+          tm=new SUTime.RelativeTime(tm,SUTime.TemporalOp.INTERSECT,tod);
+        }
+      }
+      str=in.group(1);
+      if (str != null) {
+        if (str.equalsIgnoreCase("before")) {
+          tm=tm.add(SUTime.DAY.multiplyBy(-1));
+        }
+ else         if (str.equalsIgnoreCase("after")) {
+          tm=tm.add(SUTime.DAY);
+        }
+      }
+      return tm;
+    }
+  }
+);
+  dateTimeTokenSeqRules.add(trule=TimeExpressionExtractors.getSequencePatternExtractRule(timePatternExtractor.tokenPattern,timePatternExtractor));
+  timePatternExtractor=TimeExpressionExtractors.getRelativeTimeLookupExtractor(this,TokenSequencePattern.compile(env,"(/early|late/)? /this/? (/morning|afternoon|evening/)"),SUTime.TIME_REF,SUTime.TemporalOp.THIS,2);
+  dateTimeTokenSeqRules.add(trule=TimeExpressionExtractors.getSequencePatternExtractRule(timePatternExtractor.tokenPattern,timePatternExtractor));
+  timePatternExtractor=TimeExpressionExtractors.getRelativeTimeLookupExtractor(this,TokenSequencePattern.compile(env,"(/early|late/)? /last/ (/night/)"),SUTime.TIME_REF,SUTime.TemporalOp.PREV,2);
+  dateTimeTokenSeqRules.add(trule=TimeExpressionExtractors.getSequencePatternExtractRule(timePatternExtractor.tokenPattern,timePatternExtractor));
+  timePatternExtractor=new TimeExpressionExtractors.GenericTimePatternExtractor(TokenSequencePattern.compile(env," (/every/ $NUM_ORD) ($TEMONTHS)"),new Function<MatchResult,SUTime.Temporal>(){
+    public SUTime.Temporal apply(    MatchResult in){
+      SUTime.Temporal t=lookupTemporal(in.group(2));
+      return makeSet(t,in.group(1));
+    }
+  }
+);
+  dateTimeTokenSeqRules.add(trule=TimeExpressionExtractors.getSequencePatternExtractRule(timePatternExtractor.tokenPattern,timePatternExtractor));
+  timePatternExtractor=new TimeExpressionExtractors.GenericTimePatternExtractor(TokenSequencePattern.compile(env," ((/early|late/) /in|on/?)?  " + "(?: /the/? ( (?$weeknum ($NUM_ORD|last)? /week(end)?/ ) | (?$tod /morning|day|afternoon|evening|night/) | " + " (?$mod /beginning|start|middle|end|ides|nones/) ) /of|in/? )? "+ "/the/? (?: (?$rel $REL_MOD) | /mid-?/ | (?$day $NUM_ORD) /of/? | (?$day /\\d\\d?/ & $INT1TO31) )?"+ "(?$month $TEMONTHS)  (?$day $NUM_ORD|/\\d\\d?/ & $INT1TO31)? (?: /of|,/? (?$year $POSSIBLE_YEAR))?"),new Function<MatchResult,SUTime.Temporal>(){
+    public SUTime.Temporal apply(    MatchResult in){
+      if (in instanceof SequenceMatchResult) {
+        SequenceMatchResult<CoreMap> r=(SequenceMatchResult<CoreMap>)in;
+        String weeknum=r.group("$weeknum");
+        String tod=r.group("$tod");
+        String month=r.group("$month");
+        String year=r.group("$year");
+        String day=r.group("$day");
+        String rel=r.group("$rel");
+        if (weeknum == null && tod == null && year == null && day == null) {
+          List<? extends CoreMap> mnodes=r.groupNodes("$month");
+          if (!mnodes.get(0).get(CoreAnnotations.PartOfSpeechAnnotation.class).startsWith("NN")) {
+            return SUTime.TIME_NONE_OK;
+          }
+        }
+        if (day == null) {
+          String mod=r.group("$mod");
+          if (mod != null) {
+            if (mod.equalsIgnoreCase("ides") || mod.equalsIgnoreCase("nones")) {
+              day=mod;
+            }
+          }
+        }
+        SUTime.Temporal t=createIsoDate(year,month,day);
+        ;
+        if (rel != null) {
+          t=makeRelative(t,rel);
+        }
+        if (weeknum != null) {
+          int i=weeknum.lastIndexOf(" ");
+          if (i >= 0) {
+            String ord=weeknum.substring(0,i);
+            String week=weeknum.substring(i);
+            SUTime.Temporal weekTemp=lookupTemporal(week);
+            Number ordNum=("last".equalsIgnoreCase(ord)) ? -1 : NumberNormalizer.wordToNumber(ord);
+            if (ordNum != null) {
+              weekTemp=new SUTime.OrdinalTime(weekTemp,ordNum.intValue());
+              t=SUTime.TemporalOp.IN.apply(t,weekTemp);
+            }
+ else {
+              t=SUTime.TemporalOp.INTERSECT.apply(t,weekTemp);
+            }
+          }
+ else {
+            t=SUTime.TemporalOp.INTERSECT.apply(t,lookupTemporal(weeknum));
+          }
+        }
+        if (tod != null) {
+          SUTime.Temporal temporal=lookupTemporal(tod);
+          if (temporal != null) {
+            t=SUTime.TemporalOp.INTERSECT.apply(t,temporal);
+          }
+        }
+        return t;
+      }
+      return null;
+    }
+  }
+);
+  dateTimeTokenSeqRules.add(trule=TimeExpressionExtractors.getSequencePatternExtractRule(timePatternExtractor.tokenPattern,timePatternExtractor));
+  timePatternExtractor=new TimeExpressionExtractors.GenericTimePatternExtractor(TokenSequencePattern.compile(env,"( $EARLY_LATE_MOD )? (?: ($FREQ_MOD) | ($REL_MOD) ) " + "(/millisecond|second|minute|hour|weekend|week|fortnight|month|quarter|year|decade|century|millenn?ium|spring|summer|winter|fall|autumn/)"),new Function<MatchResult,SUTime.Temporal>(){
+    public SUTime.Temporal apply(    MatchResult in){
+      String freq=in.group(2);
+      String rel=in.group(3);
+      String dur=in.group(4);
+      SUTime.Temporal t=lookupTemporal(dur);
+      if (t != null) {
+        t=makeRelative(t,rel);
+        t=makeSet(t,freq);
+      }
+      return t;
+    }
+  }
+);
+  dateTimeTokenSeqRules.add(trule=TimeExpressionExtractors.getSequencePatternExtractRule(timePatternExtractor.tokenPattern,timePatternExtractor));
+  timePatternExtractor=TimeExpressionExtractors.getRelativeTimeExtractor(TokenSequencePattern.compile(env,"( /each/ | /late|early/  /in/?  | /every/ (?: /other/ | $NUM_ORD)? | /the/? /beginning|start|dawn|middle|end/ /of/ )? (?: /the/ )? ($SEASON) /of/? ($POSSIBLE_YEAR)?"),new TimeExpressionExtractors.IsoDateTimePatternFunc(3,-1,-1,-1,-1,-1,true),new TimeExpressionExtractors.TemporalOpConstFunc(SUTime.TemporalOp.INTERSECT),new TimeExpressionExtractors.TemporalLookupFunc(this,2));
+  dateTimeTokenSeqRules.add(trule=TimeExpressionExtractors.getSequencePatternExtractRule(timePatternExtractor.tokenPattern,timePatternExtractor));
+  timePatternExtractor=new TimeExpressionExtractors.GenericTimePatternExtractor(TokenSequencePattern.compile(env,"[ { tag:NNP } ]+ [ { tag:POS } ] /birthday/"),new Function<MatchResult,SUTime.Temporal>(){
+    public SUTime.Temporal apply(    MatchResult in){
+      return new SUTime.SimpleTime(in.group());
+    }
+  }
+);
+  dateTimeTokenSeqRules.add(trule=TimeExpressionExtractors.getSequencePatternExtractRule(timePatternExtractor.tokenPattern,timePatternExtractor));
+  timePatternExtractor=TimeExpressionExtractors.getIsoDateExtractor(TokenSequencePattern.compile(env,"/the/? $EARLY_LATE_MOD? ( /'/ /\\d0s/ | /'\\d0s/ | /\\w+teen/? /(twen|thir|for|fif|six|seven|eigh|nine)ties/ | /\\d\\d\\d\\ds/ )"),1,-1,-1,true);
+  dateTimeTokenSeqRules.add(trule=TimeExpressionExtractors.getSequencePatternExtractRule(timePatternExtractor.tokenPattern,timePatternExtractor));
+  timePatternExtractor=new TimeExpressionExtractors.GenericTimePatternExtractor(TokenSequencePattern.compile(env,"/the/? $EARLY_LATE_MOD? ($NUM_ORD) /-/? /century/ (/a\\.?d\\.?|b\\.?c\\.?/)?"),new Function<MatchResult,SUTime.Temporal>(){
+    public SUTime.Temporal apply(    MatchResult in){
+      Number num=NumberNormalizer.wordToNumber(in.group(1));
+      if (num != null) {
+        String s=(num.intValue() - 1) + "00s";
+        String era=in.group(2);
+        if (era != null) {
+          s=s + " " + era;
+        }
+        return createIsoDate(s,null,null);
+      }
+      return null;
+    }
+  }
+);
+  dateTimeTokenSeqRules.add(trule=TimeExpressionExtractors.getSequencePatternExtractRule(timePatternExtractor.tokenPattern,timePatternExtractor));
+  timePatternExtractor=new TimeExpressionExtractors.GenericTimePatternExtractor(TokenSequencePattern.compile(env,"/the/? [{tag:JJ}]? ($NUM_ORD) /-/? [{tag:JJ}]? /quarter/"),new Function<MatchResult,SUTime.Temporal>(){
+    public SUTime.Temporal apply(    MatchResult in){
+      Number num=NumberNormalizer.wordToNumber(in.group(1));
+      if (num != null) {
+        return SUTime.StandardTemporalType.QUARTER_OF_YEAR.createTemporal(num.intValue());
+      }
+      return null;
+    }
+  }
+);
+  dateTimeTokenSeqRules.add(trule=TimeExpressionExtractors.getSequencePatternExtractRule(timePatternExtractor.tokenPattern,timePatternExtractor));
+  timePatternExtractor=new TimeExpressionExtractors.GenericTimePatternExtractor(getPattern("$NUM_ORD_TERM-quarter"),new Function<MatchResult,SUTime.Temporal>(){
+    public SUTime.Temporal apply(    MatchResult in){
+      Number num=NumberNormalizer.wordToNumber(in.group(1));
+      if (num != null) {
+        return SUTime.StandardTemporalType.QUARTER_OF_YEAR.createTemporal(num.intValue());
+      }
+      return null;
+    }
+  }
+);
+  dateTimeStringRules.add(srule=TimeExpressionExtractors.getStringPatternExtractRule(timePatternExtractor.stringPattern,timePatternExtractor));
+  timePatternExtractor=TimeExpressionExtractors.getTimeLookupExtractor(this,TokenSequencePattern.compile(env,"/current|once|medieval/ | /the/ /future/"),0);
+  dateTimeTokenSeqRules.add(trule=TimeExpressionExtractors.getSequencePatternExtractRule(timePatternExtractor.tokenPattern,timePatternExtractor));
+  timePatternExtractor=new TimeExpressionExtractors.GenericTimePatternExtractor(TokenSequencePattern.compile(env,"(?m){1,3} /((bi|semi)\\s*-?\\s*)?((annual|year|month|week|dai|hour|night|quarter)ly|annual)/"),new Function<MatchResult,SUTime.Temporal>(){
+    public SUTime.Temporal apply(    MatchResult in){
+      int scale=1;
+      boolean divide=false;
+      String g=in.group().toLowerCase();
+      if (g.startsWith("bi")) {
+        scale=2;
+        g=g.replaceFirst("^bi\\s*\\-?\\s*","");
+      }
+ else       if (g.startsWith("semi")) {
+        scale=2;
+        divide=true;
+        g=g.replaceFirst("^semi\\s*\\-?\\s*","");
+      }
+      SUTime.Temporal t=lookupTemporal(g);
+      if (t != null && scale != 1) {
+        t=(divide) ? ((SUTime.PeriodicTemporalSet)t).divideDurationBy(scale) : ((SUTime.PeriodicTemporalSet)t).multiplyDurationBy(scale);
+      }
+      return t;
+    }
+  }
+);
+  dateTimeTokenSeqRules.add(trule=TimeExpressionExtractors.getSequencePatternExtractRule(timePatternExtractor.tokenPattern,timePatternExtractor));
+  timePatternExtractor=new TimeExpressionExtractors.GenericTimePatternExtractor(Pattern.compile("\b(\\d{4})\\s*(?:-|to)\\s*(\\d{4})\b"),new Function<MatchResult,SUTime.Temporal>(){
+    public SUTime.Temporal apply(    MatchResult in){
+      String y1=in.group(1);
+      String y2=in.group(2);
+      return new SUTime.Range(createIsoDate(y1,null,null),createIsoDate(y2,null,null));
+    }
+  }
+);
+  dateTimeStringRules.add(srule=TimeExpressionExtractors.getStringPatternExtractRule(timePatternExtractor.stringPattern,timePatternExtractor));
+  timePatternExtractor=new TimeExpressionExtractors.GenericTimePatternExtractor(TokenSequencePattern.compile(env,"/the/ /weekend/"),new TimeExpressionExtractors.TemporalConstFunc(SUTime.WEEKEND));
+  dateTimeTokenSeqRules.add(trule=TimeExpressionExtractors.getSequencePatternExtractRule(timePatternExtractor.tokenPattern,timePatternExtractor));
+  timePatternExtractor=TimeExpressionExtractors.getIsoTimeExtractor(getPattern(".*(\\d\\d?)h(\\d\\d).*"),1,2,-1);
+  dateTimeTokenSeqRules.add(trule=TimeExpressionExtractors.getSequencePatternExtractRule(env,"/about|around|some/?  /\\d\\d?h\\d\\d/",timePatternExtractor));
+  dateTimeTokenSeqRules.add(new SequenceMatchRules.FilterExtractRule<List<? extends CoreMap>,TimeExpression>(new TokenSeqPatternFilter(TokenSequencePattern.compile(env,"/time/")),TimeExpressionExtractors.getSequencePatternExtractRule(env,"(/\\d{4}/ /hours/?)? (/universal|zulu/ | /[a-z]+/ /standard|daylight/) /time/",null),TimeExpressionExtractors.getSequencePatternExtractRule(env,"(/\\d\\d?/ /hours/?) (/\\d\\d?/ /minutes/?)? (/universal|zulu/ | /[a-z]+/ /standard|daylight/) /time/",null)));
+  timePatternExtractor=TimeExpressionExtractors.getIsoTimeExtractor(getPattern("(\\d\\d):?(\\d\\d)(:?(\\d\\d))?\\s*h(ou)/rs?"),1,2,3);
+  dateTimeStringRules.add(srule=TimeExpressionExtractors.getStringPatternExtractRule(timePatternExtractor.stringPattern,timePatternExtractor));
+  timePatternExtractor=new TimeExpressionExtractors.GenericTimePatternExtractor(TokenSequencePattern.compile(env,"$APPROX_MOD? (?: (/a/? /quarter/| /half/ | [ $INT & { numcompvalue<=60 } ] /minutes?/? ) (/past|after|of|before|to|until/))? " + "(/noon/|/midnight/|/the/ /hour/ (?: /of/ [ $INT & { numcompvalue<=24 } ] )?|/\\d\\d?:\\d\\d/|[ $INT & { numcompvalue<=24 } ] /o'?clock/?) " + "(/in/ /the/ /morning|afternoon|evening/| /at/ /night/|/a\\.?m\\.?/|/p\\.?m\\.?/)? "+ "(?: /sharp/|/exactly/|/precisely/|/on/ /the/ /dot/)?"),new Function<MatchResult,SUTime.Temporal>(){
+    TokenSequencePattern bareNumToNumPattern=TokenSequencePattern.compile(env," $INT (/of|to/ $INT)? ");
+    public SUTime.Temporal apply(    MatchResult in){
+      SequenceMatchResult<CoreMap> smr=(SequenceMatchResult<CoreMap>)in;
+      TokenSequenceMatcher bm=bareNumToNumPattern.getMatcher(smr.groupNodes());
+      if (bm.matches()) {
+        return SUTime.TIME_NONE_OK;
+      }
+      int minutes=0;
+      SUTime.Time t=null;
+      String str=in.group(1);
+      if (str != null) {
+        str=str.toLowerCase();
+        if (str.contains("quarter")) {
+          minutes=15;
+        }
+ else         if (str.contains("half")) {
+          minutes=30;
+        }
+ else {
+          str=str.replaceAll("minutes?","");
+          minutes=NumberNormalizer.wordToNumber(str).intValue();
+        }
+        str=in.group(2).toLowerCase();
+        if (str.equals("past") || str.equals("after")) {
+        }
+ else {
+          minutes=-minutes;
+        }
+      }
+      str=in.group(3);
+      if (str != null) {
+        str=str.toLowerCase();
+        if (str.contains("noon")) {
+          t=SUTime.NOON;
+        }
+ else         if (str.contains("midnight")) {
+          t=SUTime.MIDNIGHT;
+        }
+ else         if (str.matches("\\d\\d?:\\d\\d")) {
+          String[] fields=str.split(":");
+          int h=NumberNormalizer.wordToNumber(fields[0]).intValue();
+          int m=NumberNormalizer.wordToNumber(fields[1]).intValue();
+          str=in.group(4);
+          if (str != null) {
+            str=str.toLowerCase();
+            if (str.contains("night")) {
+              if (h > 4 && h < 12) {
+                h+=12;
+              }
+            }
+ else             if (str.contains("afternoon") || str.contains("evening") || str.matches(".*p\\.?m\\.?.*")) {
+              if (h < 12) {
+                h+=12;
+              }
+            }
+          }
+          t=new SUTime.IsoTime(h,m,-1);
+        }
+ else {
+          String orig=str;
+          str=str.replaceAll(".*\bof\b","");
+          str=str.replaceAll("o'?clock","");
+          if (str.equals(orig)) {
+            if (in.group(1) == null && in.group(2) == null && in.group(4) == null) {
+              return SUTime.TIME_NONE_OK;
+            }
+          }
+          int h=NumberNormalizer.wordToNumber(str).intValue();
+          str=in.group(4);
+          if (str != null) {
+            str=str.toLowerCase();
+            if (str.contains("night")) {
+              if (h > 4 && h < 12) {
+                h+=12;
+              }
+            }
+ else             if (str.contains("afternoon") || str.contains("evening") || str.matches(".*p\\.?m\\.?.*")) {
+              if (h < 12) {
+                h+=12;
+              }
+            }
+          }
+          t=new SUTime.IsoTime(h,0,-1);
+        }
+        if (minutes != 0) {
+          t=t.add(SUTime.MINUTE.multiplyBy(minutes));
+        }
+      }
+      return t;
+    }
+  }
+);
+  dateTimeTokenSeqRules.add(trule=TimeExpressionExtractors.getSequencePatternExtractRule(timePatternExtractor.tokenPattern,timePatternExtractor));
+  dateTimeTokenSeqRules.add(trule=TimeExpressionExtractors.getSequencePatternExtractRule(env," /right/? /now/ ",TimeExpressionExtractors.getTimeExtractor(SUTime.TIME_PRESENT)));
+  dateTimeTokenSeqRules.add(trule=TimeExpressionExtractors.getSequencePatternExtractRule(env," /the/ /near/ /future/ ",TimeExpressionExtractors.getTimeExtractor(SUTime.TIME_FUTURE)));
+  timePatternExtractor=TimeExpressionExtractors.getIsoDateExtractor(TokenSequencePattern.compile(env,"$POSSIBLE_YEAR"),0,-1,-1,true);
+  dateTimeTokenSeqRules.add(trule=TimeExpressionExtractors.getSequencePatternExtractRule(TokenSequencePattern.compile(env,"/the/? /year/ ($POSSIBLE_YEAR)"),timePatternExtractor));
+  timePatternExtractor=TimeExpressionExtractors.getIsoDateExtractor(TokenSequencePattern.compile(env,"[ { ner::IS_NIL } | { ner:DATE } | { ner:O } | { ner:NUMBER } ]+"),0,-1,-1,true);
+  dateTimeTokenSeqRules.add(trule=TimeExpressionExtractors.getSequencePatternExtractRule(TokenSequencePattern.compile(env,"($POSSIBLE_YEAR)"),timePatternExtractor));
+  timePatternExtractor=TimeExpressionExtractors.getTimeLookupExtractor(this,TokenSequencePattern.compile(env,"/the/? ($TIMEOFDAY)"),1);
+  dateTimeTokenSeqRules.add(trule=TimeExpressionExtractors.getSequencePatternExtractRule(timePatternExtractor.tokenPattern,timePatternExtractor));
+  timePatternExtractor=TimeExpressionExtractors.getRelativeTimeLookupExtractor(this,TokenSequencePattern.compile(env,"/the/ [ { tag:JJ } ]* ($TEUNITS_NODE)"),null,SUTime.TemporalOp.THIS,1);
+  dateTimeTokenSeqRules.add(trule=TimeExpressionExtractors.getSequencePatternExtractRule(timePatternExtractor.tokenPattern,timePatternExtractor));
+  timePatternExtractor=new TimeExpressionExtractors.GenericTimePatternExtractor(TokenSequencePattern.compile(env,"/the/ /past/ | /recently/ | /previously/"),new TimeExpressionExtractors.TemporalConstFunc(SUTime.TIME_PAST));
+  dateTimeTokenSeqRules.add(trule=TimeExpressionExtractors.getSequencePatternExtractRule(timePatternExtractor.tokenPattern,timePatternExtractor));
+  timePatternExtractor=new TimeExpressionExtractors.GenericTimePatternExtractor(TokenSequencePattern.compile(env,"/currently/)"),new TimeExpressionExtractors.TemporalConstFunc(SUTime.TIME_PRESENT));
+  dateTimeTokenSeqRules.add(trule=TimeExpressionExtractors.getSequencePatternExtractRule(timePatternExtractor.tokenPattern,timePatternExtractor));
+}
