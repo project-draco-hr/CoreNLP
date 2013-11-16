@@ -1,14 +1,23 @@
 {
-  System.err.println("Reading in the word vector file: " + wordVectorFile);
+  System.err.println("# Loading embedding ...\n  word vector file = " + wordVectorFile);
   int dimOfWords=0;
   boolean warned=false;
   for (  String line : IOUtils.readLines(wordVectorFile,"utf-8")) {
     String[] lineSplit=line.split("\\s+");
     String word=lineSplit[0];
+    if (word.equals("UNKNOWN") || word.equals("UUUNKKK") || word.equals("UNK")|| word.equals("*UNKNOWN*")) {
+      word=UNKNOWN_WORD;
+    }
+    if (word.equals("<s>")) {
+      word=START_WORD;
+    }
+    if (word.equals("</s>")) {
+      word=START_WORD;
+    }
     dimOfWords=lineSplit.length - 1;
     if (embeddingSize <= 0) {
       embeddingSize=dimOfWords;
-      System.err.println("Dimensionality of numHid not set.  The length of the word vectors in the given file appears to be " + dimOfWords);
+      System.err.println("  detected embedding size = " + dimOfWords);
     }
     if (dimOfWords > embeddingSize) {
       if (!warned) {
