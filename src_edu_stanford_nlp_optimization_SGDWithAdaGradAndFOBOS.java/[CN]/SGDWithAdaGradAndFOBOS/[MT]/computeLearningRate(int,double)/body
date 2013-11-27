@@ -1,0 +1,26 @@
+{
+  double currentRate=Double.NEGATIVE_INFINITY;
+  double prevG=prevGrad[index];
+  double gradDiff=grad - prevG;
+  if (useAdaDelta) {
+    double deltaXt=prevDeltaX[index];
+    sumDeltaXSquare[index]=sumDeltaXSquare[index] * rho + (1 - rho) * deltaXt * deltaXt;
+    if (useAdaDiff) {
+      sumGradSquare[index]=sumGradSquare[index] * rho + (1 - rho) * (gradDiff) * (gradDiff);
+    }
+ else {
+      sumGradSquare[index]=sumGradSquare[index] * rho + (1 - rho) * grad * grad;
+    }
+    currentRate=Math.sqrt(sumDeltaXSquare[index] + eps) / Math.sqrt(sumGradSquare[index] + eps);
+  }
+ else {
+    if (useAdaDiff) {
+      sumGradSquare[index]+=gradDiff * gradDiff;
+    }
+ else {
+      sumGradSquare[index]+=grad * grad;
+    }
+    currentRate=initRate / Math.sqrt(sumGradSquare[index] + eps);
+  }
+  return currentRate;
+}
