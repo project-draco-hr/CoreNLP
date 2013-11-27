@@ -1,4 +1,5 @@
 {
+  if (t == null)   return this;
   if (base instanceof PartialTime) {
     PartialTime pt=(PartialTime)base.resolve(t,flags);
     List<Temporal> list=pt.toList();
@@ -7,7 +8,9 @@
     }
   }
  else   if (base instanceof Duration) {
-    Duration d=((Duration)base).multiplyBy(n);
+    Duration d=((Duration)base).multiplyBy(n - 1);
+    Time temp=t.getRange().begin();
+    return temp.offset(d,RELATIVE_OFFSET_INEXACT).reduceGranularityTo(d.getDuration());
   }
   return this;
 }
