@@ -23,7 +23,9 @@
  else     return res;
   }
  else   if (t instanceof OrdinalTime) {
-    return (Time)t.resolve(this);
+    Temporal temp=t.resolve(this);
+    if (temp instanceof PartialTime)     return (Time)temp;
+ else     return t.intersect(this);
   }
  else   if (t instanceof GroundedTime) {
     return t.intersect(this);
