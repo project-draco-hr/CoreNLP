@@ -1,16 +1,16 @@
 {
-  if (arg1 == null) {
-    return new RelativeTime(THIS,arg2,flags);
+  if (arg2 == null) {
+    return arg1;
+  }
+  Temporal arg2Prev=arg2.prev();
+  if (arg1 == null || arg2Prev == null) {
+    return arg2Prev;
   }
   if (arg1 instanceof Time) {
-    if (arg2 instanceof Duration) {
-      return ((Duration)arg2).toTime((Time)arg1,flags);
-    }
- else {
-      return arg2.resolve((Time)arg1,flags | RESOLVE_TO_THIS);
-    }
+    Temporal resolved=arg2Prev.resolve((Time)arg1,0);
+    return resolved;
   }
  else {
-    throw new UnsupportedOperationException("THIS not implemented for arg1=" + arg1.getClass() + ", arg2="+ arg2.getClass());
+    throw new UnsupportedOperationException("PREV not implemented for arg1=" + arg1.getClass() + ", arg2="+ arg2.getClass());
   }
 }
