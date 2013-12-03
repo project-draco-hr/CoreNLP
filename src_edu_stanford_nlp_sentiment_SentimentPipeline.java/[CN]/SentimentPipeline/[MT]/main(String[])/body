@@ -2,7 +2,6 @@
   String parserModel=null;
   String sentimentModel=null;
   String filename=null;
-  String fileList=null;
   boolean stdin=false;
   Output output=Output.ROOT;
   for (int argIndex=0; argIndex < args.length; ) {
@@ -16,10 +15,6 @@
     }
  else     if (args[argIndex].equalsIgnoreCase("-file")) {
       filename=args[argIndex + 1];
-      argIndex+=2;
-    }
- else     if (args[argIndex].equalsIgnoreCase("-fileList")) {
-      fileList=args[argIndex + 1];
       argIndex+=2;
     }
  else     if (args[argIndex].equalsIgnoreCase("-stdin")) {
@@ -48,15 +43,11 @@
   if (parserModel != null) {
     props.setProperty("parse.model",parserModel);
   }
-  int count=0;
-  if (filename != null)   count++;
-  if (fileList != null)   count++;
-  if (stdin)   count++;
-  if (count > 1) {
-    throw new IllegalArgumentException("Please only specify one of -file, -fileList or -stdin");
+  if (filename != null && stdin) {
+    throw new IllegalArgumentException("Please only specify one of -file or -stdin");
   }
-  if (count == 0) {
-    throw new IllegalArgumentException("Please specify either -file, -fileList or -stdin");
+  if (filename == null && !stdin) {
+    throw new IllegalArgumentException("Please specify either -file or -stdin");
   }
   if (stdin) {
     props.setProperty("ssplit.eolonly","true");
@@ -69,23 +60,7 @@
     for (    CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
       Tree tree=sentence.get(SentimentCoreAnnotations.AnnotatedTree.class);
       System.out.println(sentence);
-      outputTree(System.out,tree,output);
-    }
-  }
- else   if (fileList != null) {
-    for (    String file : fileList.split(",")) {
-      String text=IOUtils.slurpFileNoExceptions(file);
-      Annotation annotation=new Annotation(text);
-      pipeline.annotate(annotation);
-      FileOutputStream fout=new FileOutputStream(file + ".out");
-      PrintStream pout=new PrintStream(fout);
-      for (      CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
-        Tree tree=sentence.get(SentimentCoreAnnotations.AnnotatedTree.class);
-        pout.println(sentence);
-        outputTree(pout,tree,output);
-      }
-      pout.flush();
-      fout.close();
+      outputTree(tree,output);
     }
   }
  else {
@@ -103,7 +78,7 @@
         Annotation annotation=pipeline.process(line);
         for (        CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
           Tree tree=sentence.get(SentimentCoreAnnotations.AnnotatedTree.class);
-          outputTree(System.out,tree,output);
+          outputTree(tree,output);
         }
       }
  else {
