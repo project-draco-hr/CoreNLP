@@ -7,11 +7,13 @@
   }
   Integer gold=RNNCoreAnnotations.getGoldClass(tree);
   Integer predicted=RNNCoreAnnotations.getPredictedClass(tree);
-  if (gold.equals(predicted)) {
-    labelsCorrect++;
-  }
+  if (gold >= 0) {
+    if (gold.equals(predicted)) {
+      labelsCorrect++;
+    }
  else {
-    labelsIncorrect++;
+      labelsIncorrect++;
+    }
+    labelConfusion[gold][predicted]++;
   }
-  labelConfusion[gold][predicted]++;
 }
