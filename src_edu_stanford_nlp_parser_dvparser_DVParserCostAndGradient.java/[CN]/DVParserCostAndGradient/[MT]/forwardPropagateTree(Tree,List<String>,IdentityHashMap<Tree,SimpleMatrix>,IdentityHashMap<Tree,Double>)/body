@@ -6,7 +6,7 @@
     Tree wordNode=tree.children()[0];
     String word=wordNode.label().value();
     SimpleMatrix wordVector=dvModel.getWordVector(word);
-    wordVector=RNNUtils.elementwiseApplyTanh(wordVector);
+    wordVector=NeuralUtils.elementwiseApplyTanh(wordVector);
     nodeVectors.put(tree,wordVector);
     return;
   }
@@ -15,10 +15,10 @@
   }
   SimpleMatrix childVec;
   if (tree.children().length == 2) {
-    childVec=RNNUtils.concatenateWithBias(nodeVectors.get(tree.children()[0]),nodeVectors.get(tree.children()[1]));
+    childVec=NeuralUtils.concatenateWithBias(nodeVectors.get(tree.children()[0]),nodeVectors.get(tree.children()[1]));
   }
  else {
-    childVec=RNNUtils.concatenateWithBias(nodeVectors.get(tree.children()[0]));
+    childVec=NeuralUtils.concatenateWithBias(nodeVectors.get(tree.children()[0]));
   }
   if (op.trainOptions.useContextWords) {
     childVec=concatenateContextWords(childVec,tree.getSpan(),words);
@@ -32,7 +32,7 @@
     throw new NoSuchParseException(error);
   }
   SimpleMatrix currentVector=W.mult(childVec);
-  currentVector=RNNUtils.elementwiseApplyTanh(currentVector);
+  currentVector=NeuralUtils.elementwiseApplyTanh(currentVector);
   nodeVectors.put(tree,currentVector);
   SimpleMatrix scoreW=dvModel.getScoreWForNode(tree);
   if (scoreW == null) {
