@@ -1,0 +1,31 @@
+{
+  TimeExpressionExtractors.DurationRule rule;
+  durationRules.clear();
+  durationRules.add(rule=createDurationRule(TOKENS,"/the/ /past|last/ (?: ($NUM) /to|-/ )? ($NUM)? ($TEUNITS)",1,2,3,SUTime.TIME_UNKNOWN,SUTime.TIME_REF));
+  durationRules.add(rule=createDurationRule(TOKENS,"/the/ /next|following/ (?: ($NUM) /to|-/ )? ($NUM)? ($TEUNITS)",1,2,3,SUTime.TIME_REF,SUTime.TIME_UNKNOWN));
+  durationRules.add(rule=createDurationRule(TOKENS,"/another/ (?: ($NUM) /to|-/ )? ($NUM)? ($TEUNITS)",1,2,3,SUTime.TIME_UNKNOWN,SUTime.TIME_REF));
+  durationRules.add(rule=createDurationRule(TOKENS,"/the/ (?: ($NUM) /to|-/ )? ($NUM) ($TEUNITS_NODE)",1,2,3));
+  durationRules.add(rule=createDurationRule(TOKENS,"/the/ /first|initial|last|final/ (?: ($NUM) /to|-/ )? ($NUM)? ($TEUNITS)",1,2,3));
+  durationRules.add(rule=createDurationRule(TOKENS,"/the/ ($NUM_ORD) /straight|consecutive/ ($TEUNIT) (?: /in/ /a/ /row/ | /consecutively/ )?",1,2,SUTime.TIME_UNKNOWN,SUTime.TIME_REF));
+  durationRules.add(rule=createDurationRule(TOKENS,"/the/ ($NUM_ORD) /straight|consecutive/? ($TEUNIT) (?: /in/ /a/ /row/ | /consecutively/ )",1,2,SUTime.TIME_UNKNOWN,SUTime.TIME_REF));
+  durationRules.add(rule=createDurationRule(TOKENS,"/no/? /more/ /than/ (?: ($NUM) /to|-/ )? ($NUM) ($TEUNITS)",1,2,3));
+  durationRules.add(rule=createDurationRule(TOKENS,"/no/? /less/ /than/ (?: ($NUM) /to|-/ )? ($NUM) ($TEUNITS)",1,2,3));
+  durationRules.add(rule=createDurationRule(TOKENS,"/at/ /least/ (?: ($NUM) /to|-/ )? ($NUM) /more/? ($TEUNITS)",1,2,3));
+  durationRules.add(rule=createDurationRule(TOKENS,"(/(ten|hundred|thousand|million|billion|trillion)s/) /of/ ($TEUNITS)",1,-1,2));
+  durationRules.add(rule=createDurationRule(TOKENS,"(/recent|several/) /-/? ($TEUNITS)",-1,2));
+  rule.setUnderspecifiedValueMatchGroup(1,"1");
+  durationRules.add(rule=createDurationRule(TOKENS,"($NUM) /to|-/ ($NUM) [ \"-\" ]? ($TEUNITS_NODE)  (?: [ \"-\" ]? /old/ )? ",1,2,3));
+  durationRules.add(rule=createDurationRule(TOKENS,"($NUM) [ \"-\" ]? ($TEUNITS_NODE)  (?: [ \"-\" ]? /old/ )? ",1,2));
+  durationRules.add(rule=createDurationRule(STRING,"(\\d+)[-\\s]($TEUnits)(s)?([-\\s]old)?",1,2));
+  durationRules.add(rule=createDurationRule(STRING,"$NUM_NO_ORD_TERM[-\\s]($TEUnits)(s)?([-\\s]old)?",1,2));
+  durationRules.add(rule=createDurationRule(TOKENS,"(?: /the/ /past|next|following|coming|last|first|final/ | /a|an/ )? (/couple/ /of/? ) ($TEUNITS)",-1,2));
+  rule.setUnderspecifiedValueMatchGroup(3,"2");
+  durationRules.add(rule=createDurationRule(TOKENS,"(?: /the/ /past|next|following|coming|last|first|final/ | /a|an/ )? (/few/ ) ($TEUNITS)",-1,2));
+  rule.setUnderspecifiedValueMatchGroup(1,"1");
+  durationRules.add(rule=createDurationRule(TOKENS,"/a|an/ ($TEUNITS)",-1,1));
+  durationRules.add(rule=createDurationRule(TOKENS,"/the/ [ { tag:JJ } ]+ ($TEUNITS_NODE)",-1,1));
+  rule.tokenPattern.setPriority(-1);
+  durationRules.add(rule=createDurationRule(TOKENS,"($TEUNITS_NODE)",-1,1));
+  rule.setUnderspecifiedValueMatchGroup(0,"X");
+  rule.tokenPattern.setPriority(-1);
+}

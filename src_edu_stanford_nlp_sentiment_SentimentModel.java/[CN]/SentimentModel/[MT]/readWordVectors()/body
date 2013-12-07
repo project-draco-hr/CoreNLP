@@ -1,8 +1,8 @@
 {
-  Embedding embedding=new Embedding(op.wordVectors,op.numHid);
   this.wordVectors=Generics.newTreeMap();
-  for (  String word : embedding.keySet()) {
-    wordVectors.put(word,embedding.get(word));
+  Map<String,SimpleMatrix> rawWordVectors=RNNUtils.readRawWordVectors(op.wordVectors,op.numHid);
+  for (  String word : rawWordVectors.keySet()) {
+    wordVectors.put(word,rawWordVectors.get(word));
   }
   String unkWord=op.unkWord;
   SimpleMatrix unknownWordVector=wordVectors.get(unkWord);
