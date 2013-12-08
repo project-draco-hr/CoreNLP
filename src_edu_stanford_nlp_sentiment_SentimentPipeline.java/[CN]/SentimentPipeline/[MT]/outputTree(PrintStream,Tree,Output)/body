@@ -12,13 +12,23 @@ case VECTORS:
     Tree copy=tree.deepCopy();
     setIndexLabels(copy,0);
     out.println(copy);
-    outputTreeVectors(tree,0);
+    outputTreeVectors(out,tree,0);
     break;
   }
 case ROOT:
-int sentiment=RNNCoreAnnotations.getPredictedClass(tree);
-out.println("  " + SentimentUtils.sentimentString(sentiment));
+{
+  int sentiment=RNNCoreAnnotations.getPredictedClass(tree);
+  out.println("  " + SentimentUtils.sentimentString(sentiment));
+  break;
+}
+case PROBABILITIES:
+{
+Tree copy=tree.deepCopy();
+setIndexLabels(copy,0);
+out.println(copy);
+outputTreeScores(out,tree,0);
 break;
+}
 default :
 throw new IllegalArgumentException("Unknown output format " + output);
 }
