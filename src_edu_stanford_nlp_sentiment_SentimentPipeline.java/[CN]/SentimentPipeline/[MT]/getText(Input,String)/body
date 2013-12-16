@@ -1,0 +1,25 @@
+{
+switch (inputFormat) {
+case TEXT:
+    return IOUtils.slurpFileNoExceptions(filename);
+case TREES:
+  try {
+    StringBuilder result=new StringBuilder();
+    FileInputStream fin=new FileInputStream(filename);
+    InputStreamReader isr=new InputStreamReader(fin,"utf-8");
+    PennTreeReader reader=new PennTreeReader(isr);
+    Tree tree;
+    while ((tree=reader.readTree()) != null) {
+      result.append(Sentence.listToString(tree.yield()));
+      result.append("\n");
+    }
+    System.err.println(result.toString());
+    return result.toString();
+  }
+ catch (  IOException e) {
+    throw new RuntimeIOException(e);
+  }
+default :
+throw new IllegalArgumentException("Unknown format " + inputFormat);
+}
+}
