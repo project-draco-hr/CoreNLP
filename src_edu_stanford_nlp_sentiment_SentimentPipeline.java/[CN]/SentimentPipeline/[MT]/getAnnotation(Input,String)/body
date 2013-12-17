@@ -1,0 +1,32 @@
+{
+switch (inputFormat) {
+case TEXT:
+{
+      String text=IOUtils.slurpFileNoExceptions(filename);
+      Annotation annotation=new Annotation(text);
+      return annotation;
+    }
+case TREES:
+  try {
+    StringBuilder result=new StringBuilder();
+    FileInputStream fin=new FileInputStream(filename);
+    InputStreamReader isr=new InputStreamReader(fin,"utf-8");
+    PennTreeReader reader=new PennTreeReader(isr);
+    List<CoreMap> sentences=Generics.newArrayList();
+    Tree tree;
+    while ((tree=reader.readTree()) != null) {
+      CoreMap sentence=new Annotation(Sentence.listToString(tree.yield()));
+      sentence.set(TreeCoreAnnotations.BinarizedTreeAnnotation.class,tree);
+      sentences.add(sentence);
+    }
+    Annotation annotation=new Annotation("");
+    annotation.set(CoreAnnotations.SentencesAnnotation.class,sentences);
+    return annotation;
+  }
+ catch (  IOException e) {
+    throw new RuntimeIOException(e);
+  }
+default :
+throw new IllegalArgumentException("Unknown format " + inputFormat);
+}
+}
