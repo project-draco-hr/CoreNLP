@@ -70,7 +70,8 @@
       if (sentimentTree != null) {
         int sentiment=RNNCoreAnnotations.getPredictedClass(sentimentTree);
         sentElem.addAttribute(new Attribute("sentimentValue",Integer.toString(sentiment)));
-        sentElem.addAttribute(new Attribute("sentiment",SentimentUtils.sentimentString(sentiment).replaceAll(" ","")));
+        String sentimentClass=sentence.get(SentimentCoreAnnotations.ClassName.class);
+        sentElem.addAttribute(new Attribute("sentiment",sentimentClass.replaceAll(" ","")));
       }
       sentencesElem.appendChild(sentElem);
     }
