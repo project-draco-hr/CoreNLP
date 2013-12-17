@@ -26,22 +26,6 @@
       exactMatch=matchedGroup;
       stringFilter=null;
     }
- else     if (MULTI_WORD_PATTERN.matcher(desc).matches()) {
-      descriptionMode=DescriptionMode.STRINGS;
-      descPattern=null;
-      exactMatch=null;
-      Matcher matcher=MULTI_WORD_PATTERN.matcher(desc);
-      matcher.matches();
-      String matchedGroup=null;
-      for (int i=1; i <= matcher.groupCount(); ++i) {
-        if (matcher.group(i) != null) {
-          matchedGroup=matcher.group(i);
-          break;
-        }
-      }
-      matchedGroup=matchedGroup.replaceAll("\\\\","");
-      stringFilter=new ArrayStringFilter(ArrayStringFilter.Mode.EXACT,matchedGroup.split("[|]"));
-    }
  else     if (PREFIX_PATTERN.matcher(desc).matches()) {
       descriptionMode=DescriptionMode.STRINGS;
       descPattern=null;
