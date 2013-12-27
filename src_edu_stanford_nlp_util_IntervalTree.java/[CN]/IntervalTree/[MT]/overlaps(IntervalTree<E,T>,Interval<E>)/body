@@ -1,18 +1,22 @@
 {
-  if (n == null || n.isEmpty())   return false;
-  if (target.first.compareTo(n.maxEnd) > 0)   return false;
-  if (n.value.getInterval().overlaps(target)) {
-    return true;
-  }
-  if (target.second.compareTo(n.value.getInterval().first()) <= 0) {
-    if (n.left != null) {
-      return overlaps(n.left,target);
+  IntervalTree<E,T> n=node;
+  while (n != null && !n.isEmpty()) {
+    IntervalTree<E,T> next=null;
+    if (target.first.compareTo(n.maxEnd) > 0)     return false;
+    if (n.value.getInterval().overlaps(target)) {
+      return true;
     }
-  }
+    if (target.second.compareTo(n.value.getInterval().first()) <= 0) {
+      if (n.left != null) {
+        next=n.left;
+      }
+    }
  else {
-    if (n.right != null) {
-      return overlaps(n.right,target);
+      if (n.right != null) {
+        next=n.right;
+      }
     }
+    n=next;
   }
   return false;
 }

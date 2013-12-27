@@ -1,16 +1,21 @@
 {
-  if (n == null || n.isEmpty())   return;
-  if (target.first.compareTo(n.maxEnd) > 0)   return;
-  if (n.left != null) {
-    getOverlapping(n.left,target,result);
-  }
-  if (n.value.getInterval().overlaps(target)) {
-    result.add(n.value);
-  }
-  if (target.second.compareTo(n.value.getInterval().first()) < 0) {
-    return;
-  }
-  if (n.right != null) {
-    getOverlapping(n.right,target,result);
+  Queue<IntervalTree<E,T>> todo=new LinkedList<IntervalTree<E,T>>();
+  todo.add(node);
+  while (!todo.isEmpty()) {
+    IntervalTree<E,T> n=todo.poll();
+    if (n == null || n.isEmpty())     continue;
+    if (target.first.compareTo(n.maxEnd) > 0)     continue;
+    if (n.left != null) {
+      todo.add(n.left);
+    }
+    if (n.value.getInterval().overlaps(target)) {
+      result.add(n.value);
+    }
+    if (target.second.compareTo(n.value.getInterval().first()) < 0) {
+      continue;
+    }
+    if (n.right != null) {
+      todo.add(n.right);
+    }
   }
 }
