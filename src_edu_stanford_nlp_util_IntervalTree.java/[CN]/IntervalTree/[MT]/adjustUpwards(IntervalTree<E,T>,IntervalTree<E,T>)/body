@@ -1,0 +1,19 @@
+{
+  IntervalTree<E,T> n=node;
+  while (n != null && node != stopAt) {
+    int leftSize=(n.left != null) ? n.left.size() : 0;
+    int rightSize=(n.right != null) ? n.right.size() : 0;
+    n.maxEnd=n.value.getInterval().getEnd();
+    if (n.left != null) {
+      n.maxEnd=Interval.max(n.maxEnd,n.left.maxEnd);
+    }
+    if (n.right != null) {
+      n.maxEnd=Interval.max(n.maxEnd,n.right.maxEnd);
+    }
+    n.size=leftSize + 1 + rightSize;
+    if (n == n.parent) {
+      throw new IllegalArgumentException("node is same as parent!!!");
+    }
+    n=n.parent;
+  }
+}

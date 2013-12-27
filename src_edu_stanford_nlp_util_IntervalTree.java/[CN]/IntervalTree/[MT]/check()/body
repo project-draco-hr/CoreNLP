@@ -1,0 +1,44 @@
+{
+  Stack<IntervalTree<E,T>> todo=new Stack<IntervalTree<E,T>>();
+  todo.add(this);
+  while (!todo.isEmpty()) {
+    IntervalTree<E,T> node=todo.pop();
+    if (node == node.parent) {
+      throw new IllegalArgumentException("node is same as parent!!!");
+    }
+    if (node.isEmpty()) {
+      if (node.left != null)       throw new IllegalStateException("Empty node shouldn't have left branch");
+      if (node.right != null)       throw new IllegalStateException("Empty node shouldn't have right branch");
+      continue;
+    }
+    int leftSize=(node.left != null) ? node.left.size() : 0;
+    int rightSize=(node.right != null) ? node.right.size() : 0;
+    E leftMax=(node.left != null) ? node.left.maxEnd : null;
+    E rightMax=(node.right != null) ? node.right.maxEnd : null;
+    E maxEnd=node.value.getInterval().getEnd();
+    if (leftMax != null && leftMax.compareTo(maxEnd) > 0) {
+      maxEnd=leftMax;
+    }
+    if (rightMax != null && rightMax.compareTo(maxEnd) > 0) {
+      maxEnd=rightMax;
+    }
+    if (!maxEnd.equals(node.maxEnd)) {
+      throw new IllegalArgumentException("max end is not as expected!!!");
+    }
+    if (node.size != leftSize + rightSize + 1) {
+      throw new IllegalArgumentException("node size is not one plus the sum of left and right!!!");
+    }
+    if (node.left != null) {
+      if (node.left.parent != node) {
+        throw new IllegalArgumentException("node left parent is not same as node!!!");
+      }
+    }
+    if (node.right != null) {
+      if (node.right.parent != node) {
+        throw new IllegalArgumentException("node right parent is not same as node!!!");
+      }
+    }
+    if (node.left != null)     todo.add(node.left);
+    if (node.right != null)     todo.add(node.right);
+  }
+}
