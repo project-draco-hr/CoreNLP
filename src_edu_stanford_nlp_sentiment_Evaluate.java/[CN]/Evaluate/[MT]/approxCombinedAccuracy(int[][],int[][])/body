@@ -1,22 +1,15 @@
 {
   int correct=0;
-  int incorrect=0;
+  int total=0;
   for (int i=0; i < classes.length; ++i) {
     for (int j=0; j < classes[i].length; ++j) {
       for (int k=0; k < classes[i].length; ++k) {
         correct+=confusion[classes[i][j]][classes[i][k]];
       }
-    }
-    for (int other=0; other < classes.length; ++other) {
-      if (other == i) {
-        continue;
-      }
-      for (int j=0; j < classes[i].length; ++j) {
-        for (int k=0; k < classes[other].length; ++k) {
-          incorrect+=confusion[classes[i][j]][classes[other][k]];
-        }
+      for (int k=0; k < confusion[classes[i][j]].length; ++k) {
+        total+=confusion[classes[i][j]][k];
       }
     }
   }
-  return ((double)correct) / ((double)(correct + incorrect));
+  return ((double)correct) / ((double)(total));
 }
