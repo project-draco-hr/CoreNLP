@@ -1,0 +1,12 @@
+{
+  double oldV;
+  double newV;
+synchronized (map) {
+    AtomicDouble v=map.putIfAbsent(key,new AtomicDouble());
+    oldV=v.get();
+    newV=SloppyMath.logAdd(value,oldV);
+    map.get(key).set(newV);
+  }
+  totalCount.addAndGet(newV - oldV);
+  return newV;
+}
