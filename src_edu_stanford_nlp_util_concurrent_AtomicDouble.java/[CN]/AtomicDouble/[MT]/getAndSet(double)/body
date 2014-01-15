@@ -1,7 +1,4 @@
 {
   long next=doubleToRawLongBits(newValue);
-  while (true) {
-    long current=value;
-    if (unsafe.compareAndSwapLong(this,valueOffset,current,next))     return longBitsToDouble(current);
-  }
+  return longBitsToDouble(updater.getAndSet(this,next));
 }
