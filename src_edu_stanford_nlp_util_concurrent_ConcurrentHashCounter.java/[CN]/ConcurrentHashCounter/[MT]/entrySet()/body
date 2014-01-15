@@ -1,0 +1,38 @@
+{
+  return new AbstractSet<Map.Entry<E,Double>>(){
+    @Override public Iterator<Entry<E,Double>> iterator(){
+      return new Iterator<Entry<E,Double>>(){
+        final Iterator<Entry<E,AtomicDouble>> inner=map.entrySet().iterator();
+        @Override public boolean hasNext(){
+          return inner.hasNext();
+        }
+        @Override public Entry<E,Double> next(){
+          return new Entry<E,Double>(){
+            final Entry<E,AtomicDouble> e=inner.next();
+            @Override public E getKey(){
+              return e.getKey();
+            }
+            @Override public Double getValue(){
+              return e.getValue().get();
+            }
+            @Override public Double setValue(            Double value){
+              final double old=e.getValue().get();
+              setCount(e.getKey(),value);
+              e.getValue().set(value);
+              return old;
+            }
+          }
+;
+        }
+        @Override public void remove(){
+          throw new UnsupportedOperationException();
+        }
+      }
+;
+    }
+    @Override public int size(){
+      return map.size();
+    }
+  }
+;
+}

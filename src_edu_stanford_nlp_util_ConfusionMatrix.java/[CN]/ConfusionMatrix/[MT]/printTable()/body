@@ -1,0 +1,46 @@
+{
+  List<U> sortedLabels=sortKeys();
+  if (confTable.size() == 0) {
+    return "Empty table!";
+  }
+  StringWriter ret=new StringWriter();
+  ret.write(StringUtils.padLeft("Guess/Gold",leftPadSize));
+  for (int i=0; i < sortedLabels.size(); i++) {
+    String placeHolder=getPlaceHolder(i,sortedLabels.get(i));
+    ret.write(StringUtils.padLeft(placeHolder,delimPadSize));
+  }
+  ret.write("    Marg. (Guess)");
+  ret.write("\n");
+  for (int guessI=0; guessI < sortedLabels.size(); guessI++) {
+    String placeHolder=getPlaceHolder(guessI,sortedLabels.get(guessI));
+    ret.write(StringUtils.padLeft(placeHolder,leftPadSize));
+    U guess=sortedLabels.get(guessI);
+    for (int goldI=0; goldI < sortedLabels.size(); goldI++) {
+      U gold=sortedLabels.get(goldI);
+      Integer value=get(guess,gold);
+      ret.write(StringUtils.padLeft(value.toString(),delimPadSize));
+    }
+    ret.write(StringUtils.padLeft(guessMarginal(guess).toString(),delimPadSize));
+    ret.write("\n");
+  }
+  ret.write(StringUtils.padLeft("Marg. (Gold)",leftPadSize));
+  for (int goldI=0; goldI < sortedLabels.size(); goldI++) {
+    U gold=sortedLabels.get(goldI);
+    ret.write(StringUtils.padLeft(goldMarginal(gold).toString(),delimPadSize));
+  }
+  ret.write("\n\n");
+  for (int labelI=0; labelI < sortedLabels.size(); labelI++) {
+    U classLabel=sortedLabels.get(labelI);
+    String placeHolder=getPlaceHolder(labelI,classLabel);
+    ret.write(StringUtils.padLeft(placeHolder,leftPadSize));
+    if (!useRealLabels) {
+      ret.write(" = ");
+      ret.write(classLabel.toString());
+    }
+    ret.write(StringUtils.padLeft("",delimPadSize));
+    Contingency contingency=getContingency(classLabel);
+    ret.write(contingency.toString());
+    ret.write("\n");
+  }
+  return ret.toString();
+}
