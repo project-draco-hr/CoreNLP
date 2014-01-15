@@ -11,6 +11,52 @@
       exactMatch=null;
       stringFilter=null;
     }
+ else     if (SINGLE_WORD_PATTERN.matcher(desc).matches()) {
+      descriptionMode=DescriptionMode.EXACT;
+      descPattern=null;
+      Matcher matcher=SINGLE_WORD_PATTERN.matcher(desc);
+      matcher.matches();
+      String matchedGroup=null;
+      for (int i=1; i <= matcher.groupCount(); ++i) {
+        if (matcher.group(i) != null) {
+          matchedGroup=matcher.group(i);
+          break;
+        }
+      }
+      exactMatch=matchedGroup;
+      stringFilter=null;
+    }
+ else     if (MULTI_WORD_PATTERN.matcher(desc).matches()) {
+      descriptionMode=DescriptionMode.STRINGS;
+      descPattern=null;
+      exactMatch=null;
+      Matcher matcher=MULTI_WORD_PATTERN.matcher(desc);
+      matcher.matches();
+      String matchedGroup=null;
+      for (int i=1; i <= matcher.groupCount(); ++i) {
+        if (matcher.group(i) != null) {
+          matchedGroup=matcher.group(i);
+          break;
+        }
+      }
+      matchedGroup=matchedGroup.replaceAll("\\\\","");
+      stringFilter=new ArrayStringFilter(ArrayStringFilter.Mode.EXACT,matchedGroup.split("[|]"));
+    }
+ else     if (PREFIX_PATTERN.matcher(desc).matches()) {
+      descriptionMode=DescriptionMode.STRINGS;
+      descPattern=null;
+      exactMatch=null;
+      Matcher matcher=PREFIX_PATTERN.matcher(desc);
+      matcher.matches();
+      String matchedGroup=null;
+      for (int i=1; i <= matcher.groupCount(); ++i) {
+        if (matcher.group(i) != null) {
+          matchedGroup=matcher.group(i);
+          break;
+        }
+      }
+      stringFilter=new ArrayStringFilter(ArrayStringFilter.Mode.PREFIX,matchedGroup.split("[|]"));
+    }
  else     if (desc.matches("/.*/")) {
       descriptionMode=DescriptionMode.PATTERN;
       descPattern=Pattern.compile(desc.substring(1,desc.length() - 1));
@@ -23,7 +69,7 @@
         descriptionMode=DescriptionMode.STRINGS;
         descPattern=null;
         exactMatch=null;
-        stringFilter=new ArrayStringFilter(words);
+        stringFilter=new ArrayStringFilter(ArrayStringFilter.Mode.EXACT,words);
       }
  else {
         descriptionMode=DescriptionMode.PATTERN;
