@@ -7,12 +7,10 @@
   category=model.basicCategory(category);
   SimpleMatrix goldLabel=new SimpleMatrix(model.numClasses,1);
   int goldClass=RNNCoreAnnotations.getGoldClass(tree);
-  if (goldClass >= 0) {
-    goldLabel.set(goldClass,1.0);
-  }
+  goldLabel.set(goldClass,1.0);
   double nodeWeight=model.op.trainOptions.getClassWeight(goldClass);
   SimpleMatrix predictions=RNNCoreAnnotations.getPredictions(tree);
-  SimpleMatrix deltaClass=goldClass >= 0 ? predictions.minus(goldLabel).scale(nodeWeight) : new SimpleMatrix(predictions.numRows(),predictions.numCols());
+  SimpleMatrix deltaClass=predictions.minus(goldLabel).scale(nodeWeight);
   SimpleMatrix localCD=deltaClass.mult(NeuralUtils.concatenateWithBias(currentVector).transpose());
   double error=-(NeuralUtils.elementwiseApplyLog(predictions).elementMult(goldLabel).elementSum());
   error=error * nodeWeight;
