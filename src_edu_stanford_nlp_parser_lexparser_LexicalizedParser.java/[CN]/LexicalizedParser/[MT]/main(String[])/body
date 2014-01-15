@@ -163,41 +163,6 @@ catch (      IllegalAccessException e) {
       }
     }
   }
-  if (tokenizerFactoryClass != null || tokenizerOptions != null) {
-    try {
-      if (tokenizerFactoryClass != null) {
-        Class<TokenizerFactory<? extends HasWord>> clazz=ErasureUtils.uncheckedCast(Class.forName(tokenizerFactoryClass));
-        Method factoryMethod;
-        if (tokenizerOptions != null) {
-          factoryMethod=clazz.getMethod(tokenizerMethod != null ? tokenizerMethod : "newWordTokenizerFactory",String.class);
-          tokenizerFactory=ErasureUtils.uncheckedCast(factoryMethod.invoke(null,tokenizerOptions));
-        }
- else {
-          factoryMethod=clazz.getMethod(tokenizerMethod != null ? tokenizerMethod : "newTokenizerFactory");
-          tokenizerFactory=ErasureUtils.uncheckedCast(factoryMethod.invoke(null));
-        }
-      }
- else {
-        tokenizerFactory=PTBTokenizer.PTBTokenizerFactory.newWordTokenizerFactory(tokenizerOptions);
-      }
-    }
- catch (    IllegalAccessException e) {
-      System.err.println("Couldn't instantiate TokenizerFactory " + tokenizerFactoryClass + " with options "+ tokenizerOptions);
-      throw new RuntimeException(e);
-    }
-catch (    NoSuchMethodException e) {
-      System.err.println("Couldn't instantiate TokenizerFactory " + tokenizerFactoryClass + " with options "+ tokenizerOptions);
-      throw new RuntimeException(e);
-    }
-catch (    ClassNotFoundException e) {
-      System.err.println("Couldn't instantiate TokenizerFactory " + tokenizerFactoryClass + " with options "+ tokenizerOptions);
-      throw new RuntimeException(e);
-    }
-catch (    InvocationTargetException e) {
-      System.err.println("Couldn't instantiate TokenizerFactory " + tokenizerFactoryClass + " with options "+ tokenizerOptions);
-      throw new RuntimeException(e);
-    }
-  }
   if (tuneFilter != null || tunePath != null) {
     if (tunePath == null) {
       if (treebankPath == null) {
@@ -259,6 +224,42 @@ catch (    InvocationTargetException e) {
  catch (    IllegalArgumentException e) {
       System.err.println("Error loading parser, exiting...");
       throw e;
+    }
+  }
+  if (tokenizerFactoryClass != null || tokenizerOptions != null) {
+    try {
+      if (tokenizerFactoryClass != null) {
+        Class<TokenizerFactory<? extends HasWord>> clazz=ErasureUtils.uncheckedCast(Class.forName(tokenizerFactoryClass));
+        Method factoryMethod;
+        if (tokenizerOptions != null) {
+          factoryMethod=clazz.getMethod(tokenizerMethod != null ? tokenizerMethod : "newWordTokenizerFactory",String.class);
+          tokenizerFactory=ErasureUtils.uncheckedCast(factoryMethod.invoke(null,tokenizerOptions));
+        }
+ else {
+          factoryMethod=clazz.getMethod(tokenizerMethod != null ? tokenizerMethod : "newTokenizerFactory");
+          tokenizerFactory=ErasureUtils.uncheckedCast(factoryMethod.invoke(null));
+        }
+      }
+ else {
+        tokenizerFactory=lp.op.langpack().getTokenizerFactory();
+        tokenizerFactory.setOptions(tokenizerOptions);
+      }
+    }
+ catch (    IllegalAccessException e) {
+      System.err.println("Couldn't instantiate TokenizerFactory " + tokenizerFactoryClass + " with options "+ tokenizerOptions);
+      throw new RuntimeException(e);
+    }
+catch (    NoSuchMethodException e) {
+      System.err.println("Couldn't instantiate TokenizerFactory " + tokenizerFactoryClass + " with options "+ tokenizerOptions);
+      throw new RuntimeException(e);
+    }
+catch (    ClassNotFoundException e) {
+      System.err.println("Couldn't instantiate TokenizerFactory " + tokenizerFactoryClass + " with options "+ tokenizerOptions);
+      throw new RuntimeException(e);
+    }
+catch (    InvocationTargetException e) {
+      System.err.println("Couldn't instantiate TokenizerFactory " + tokenizerFactoryClass + " with options "+ tokenizerOptions);
+      throw new RuntimeException(e);
     }
   }
   if (encoding != null) {
