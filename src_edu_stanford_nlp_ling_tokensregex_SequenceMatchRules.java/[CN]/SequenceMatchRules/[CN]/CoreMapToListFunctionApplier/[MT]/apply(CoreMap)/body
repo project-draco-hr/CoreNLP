@@ -1,3 +1,10 @@
 {
-  return func.apply(Arrays.asList(cm));
+  if (env != null) {
+    env.push(Expressions.VAR_SELF,cm);
+  }
+  O res=func.apply(Arrays.asList(cm));
+  if (env != null) {
+    env.pop(Expressions.VAR_SELF);
+  }
+  return res;
 }
