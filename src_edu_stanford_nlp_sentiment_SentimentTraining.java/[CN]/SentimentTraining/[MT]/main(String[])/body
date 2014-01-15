@@ -4,7 +4,7 @@
   String devPath=null;
   boolean runGradientCheck=false;
   boolean runTraining=false;
-  boolean filterUnknown=false;
+  boolean filterNeutral=false;
   String modelPath=null;
   for (int argIndex=0; argIndex < args.length; ) {
     if (args[argIndex].equalsIgnoreCase("-train")) {
@@ -27,8 +27,8 @@
       modelPath=args[argIndex + 1];
       argIndex+=2;
     }
- else     if (args[argIndex].equalsIgnoreCase("-filterUnknown")) {
-      filterUnknown=true;
+ else     if (args[argIndex].equalsIgnoreCase("-filterNeutral")) {
+      filterNeutral=true;
       argIndex++;
     }
  else {
@@ -41,16 +41,16 @@
   }
   List<Tree> trainingTrees=SentimentUtils.readTreesWithGoldLabels(trainPath);
   System.err.println("Read in " + trainingTrees.size() + " training trees");
-  if (filterUnknown) {
-    trainingTrees=SentimentUtils.filterUnknownRoots(trainingTrees);
+  if (filterNeutral) {
+    trainingTrees=CollectionUtils.filterAsList(trainingTrees,NEUTRAL_FILTER);
     System.err.println("Filtered training trees: " + trainingTrees.size());
   }
   List<Tree> devTrees=null;
   if (devPath != null) {
     devTrees=SentimentUtils.readTreesWithGoldLabels(devPath);
     System.err.println("Read in " + devTrees.size() + " dev trees");
-    if (filterUnknown) {
-      devTrees=SentimentUtils.filterUnknownRoots(devTrees);
+    if (filterNeutral) {
+      devTrees=CollectionUtils.filterAsList(devTrees,NEUTRAL_FILTER);
       System.err.println("Filtered dev trees: " + devTrees.size());
     }
   }
