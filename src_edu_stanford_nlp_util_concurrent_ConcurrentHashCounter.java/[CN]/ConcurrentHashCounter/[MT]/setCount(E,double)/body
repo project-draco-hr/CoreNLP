@@ -1,10 +1,26 @@
 {
-  AtomicDouble oldV=map.putIfAbsent(key,new AtomicDouble(value));
-  if (oldV == null) {
-    totalCount.addAndGet(value);
-  }
- else {
+  outer:   for (; ; ) {
+    AtomicDouble atomic=map.get(key);
+    if (atomic == null) {
+      atomic=map.putIfAbsent(key,new AtomicDouble(value));
+      if (atomic == null) {
+        totalCount.addAndGet(value);
+        return;
+      }
+    }
     for (; ; ) {
+      double oldValue=atomic.get();
+      if (oldValue == 0.0) {
+        if (map.replace(key,atomic,new AtomicDouble(value))) {
+          totalCount.addAndGet(value);
+          return;
+        }
+        continue outer;
+      }
+      if (atomic.compareAndSet(oldValue,value)) {
+        totalCount.addAndGet(value - oldValue);
+        return;
+      }
     }
   }
 }

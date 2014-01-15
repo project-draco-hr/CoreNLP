@@ -8,18 +8,35 @@
     }
     @Override public boolean contains(    Object o){
       if (o instanceof Double) {
-        return map.values().contains(new AtomicDouble((Double)o));
+        double value=(Double)o;
+        for (        AtomicDouble atomic : map.values()) {
+          if (atomic.get() == value) {
+            return true;
+          }
+        }
       }
       return false;
     }
     @Override public Iterator<Double> iterator(){
-      return null;
+      return new Iterator<Double>(){
+        Iterator<AtomicDouble> iterator=map.values().iterator();
+        @Override public boolean hasNext(){
+          return iterator.hasNext();
+        }
+        @Override public Double next(){
+          return iterator.next().get();
+        }
+        @Override public void remove(){
+          iterator.remove();
+        }
+      }
+;
     }
     @Override public Object[] toArray(){
-      return null;
+      return map.values().toArray();
     }
     @Override public <T>T[] toArray(    T[] a){
-      return null;
+      return map.values().toArray(a);
     }
     @Override public boolean add(    Double e){
       throw new UnsupportedOperationException();
@@ -28,7 +45,7 @@
       throw new UnsupportedOperationException();
     }
     @Override public boolean containsAll(    Collection<?> c){
-      return false;
+      throw new UnsupportedOperationException();
     }
     @Override public boolean addAll(    Collection<? extends Double> c){
       throw new UnsupportedOperationException();
