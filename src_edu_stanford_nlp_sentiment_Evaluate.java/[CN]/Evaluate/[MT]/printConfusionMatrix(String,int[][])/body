@@ -1,9 +1,11 @@
 {
-  System.err.println(name + " confusion matrix: rows are gold label, columns predicted label");
+  System.err.println(name + " confusion matrix");
+  ConfusionMatrix<Integer> confusionMatrix=new ConfusionMatrix<Integer>();
+  confusionMatrix.setUseRealLabels(true);
   for (int i=0; i < confusion.length; ++i) {
     for (int j=0; j < confusion[i].length; ++j) {
-      System.err.print(StringUtils.padLeft(confusion[i][j],10));
+      confusionMatrix.add(j,i,confusion[i][j]);
     }
-    System.err.println();
   }
+  System.err.println(confusionMatrix);
 }
