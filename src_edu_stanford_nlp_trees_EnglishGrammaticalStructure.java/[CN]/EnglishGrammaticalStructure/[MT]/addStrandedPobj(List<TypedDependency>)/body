@@ -1,0 +1,14 @@
+{
+  SemanticGraph graph=new SemanticGraph(list);
+  SemgrexMatcher matcher=STRANDED_POBJ_SEMGREX.matcher(graph);
+  Map<Integer,TreeGraphNode> idToNodes=null;
+  while (matcher.find()) {
+    if (idToNodes == null) {
+      idToNodes=mapIdsToNodes(list);
+    }
+    TreeGraphNode head=idToNodes.get(matcher.getNode("head").index());
+    TreeGraphNode prep=idToNodes.get(matcher.getNode("prep").index());
+    TypedDependency newDep=new TypedDependency(PREPOSITIONAL_OBJECT,prep,head);
+    list.add(newDep);
+  }
+}
