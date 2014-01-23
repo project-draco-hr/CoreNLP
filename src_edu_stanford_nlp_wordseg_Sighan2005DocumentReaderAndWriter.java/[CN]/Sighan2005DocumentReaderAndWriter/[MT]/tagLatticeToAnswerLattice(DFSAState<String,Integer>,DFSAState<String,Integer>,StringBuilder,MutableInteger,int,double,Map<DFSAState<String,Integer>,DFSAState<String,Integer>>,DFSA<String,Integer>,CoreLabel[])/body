@@ -1,5 +1,5 @@
 {
-  if (tSource.isAccepting() && tSource.continuingInputs().size() == 0) {
+  if (tSource.isAccepting() && tSource.continuingInputs().isEmpty()) {
     tSource.addTransition(new DFSATransition<String,Integer>("",tSource,new DFSAState<String,Integer>(-1,null),"1","",0));
   }
   CoreLabel curLabel=(pos < docArray.length) ? docArray[pos] : null;
@@ -13,14 +13,12 @@
   String answerConstraint=null;
   if (pos == 0) {
     double minCost=Double.POSITIVE_INFINITY;
-    DFSATransition<String,Integer> bestTransition=null;
-    for (Iterator<String> iter=inputs.iterator(); iter.hasNext(); ) {
-      String predictSpace=iter.next();
+    for (    String predictSpace : inputs) {
       DFSATransition<String,Integer> transition=tSource.transition(predictSpace);
       double transitionCost=transition.score();
       if (transitionCost < minCost) {
         if (predictSpace != null) {
-          System.err.printf("mincost (%s): %e -> %e\n",predictSpace.toString(),minCost,transitionCost);
+          System.err.printf("mincost (%s): %e -> %e%n",predictSpace,minCost,transitionCost);
           minCost=transitionCost;
           answerConstraint=predictSpace;
         }
@@ -36,21 +34,21 @@
     String prevChr=(answerLen > 0) ? newAnswer.substring(answerLen - 1) : null;
     double newCost=cost;
     if (answerConstraint != null && !answerConstraint.equals(predictSpace)) {
-      System.err.printf("Skipping transition %s at pos 0.\n",predictSpace.toString());
+      System.err.printf("Skipping transition %s at pos 0.%n",predictSpace);
       continue;
     }
     if (flags.keepAllWhitespaces && "0".equals(predictSpace) && "1".equals(origSpace)) {
-      System.err.printf("Skipping non-boundary at pos %d, since space in the input.\n",pos);
+      System.err.printf("Skipping non-boundary at pos %d, since space in the input.%n",pos);
       continue;
     }
     if ("1".equals(predictSpace) && "0".equals(origSpace) && prevChr != null && curChr != null) {
       char p=prevChr.charAt(0), c=curChr.charAt(0);
       if (ChineseStringUtils.isLetterASCII(p) && ChineseStringUtils.isLetterASCII(c)) {
-        System.err.printf("Not hypothesizing a boundary at pos %d, since between two ASCII letters (%s and %s).\n",pos,prevChr,curChr);
+        System.err.printf("Not hypothesizing a boundary at pos %d, since between two ASCII letters (%s and %s).%n",pos,prevChr,curChr);
         continue;
       }
       if (ChineseUtils.isNumber(p) && ChineseUtils.isNumber(c)) {
-        System.err.printf("Not hypothesizing a boundary at pos %d, since between two numeral characters (%s and %s).\n",pos,prevChr,curChr);
+        System.err.printf("Not hypothesizing a boundary at pos %d, since between two numeral characters (%s and %s).%n",pos,prevChr,curChr);
         continue;
       }
     }
