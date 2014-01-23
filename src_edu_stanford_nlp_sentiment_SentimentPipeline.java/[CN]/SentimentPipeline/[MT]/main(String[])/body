@@ -4,7 +4,6 @@
   String filename=null;
   String fileList=null;
   boolean stdin=false;
-  boolean filterUnknown=false;
   List<Output> outputFormats=Arrays.asList(new Output[]{Output.ROOT});
   Input inputFormat=Input.TEXT;
   for (int argIndex=0; argIndex < args.length; ) {
@@ -39,10 +38,6 @@
         outputFormats.add(Output.valueOf(format.toUpperCase()));
       }
       argIndex+=2;
-    }
- else     if (args[argIndex].equalsIgnoreCase("-filterUnknown")) {
-      filterUnknown=true;
-      argIndex++;
     }
  else     if (args[argIndex].equalsIgnoreCase("-help")) {
       help();
@@ -82,7 +77,7 @@
   }
   StanfordCoreNLP pipeline=new StanfordCoreNLP(props);
   if (filename != null) {
-    Annotation annotation=getAnnotation(inputFormat,filename,filterUnknown);
+    Annotation annotation=getAnnotation(inputFormat,filename);
     pipeline.annotate(annotation);
     for (    CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
       System.out.println(sentence);
@@ -91,7 +86,7 @@
   }
  else   if (fileList != null) {
     for (    String file : fileList.split(",")) {
-      Annotation annotation=getAnnotation(inputFormat,file,filterUnknown);
+      Annotation annotation=getAnnotation(inputFormat,file);
       pipeline.annotate(annotation);
       FileOutputStream fout=new FileOutputStream(file + ".out");
       PrintStream pout=new PrintStream(fout);
