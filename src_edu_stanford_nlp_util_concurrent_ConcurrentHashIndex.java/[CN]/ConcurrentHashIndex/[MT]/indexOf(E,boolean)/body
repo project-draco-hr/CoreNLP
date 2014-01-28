@@ -1,15 +1,24 @@
 {
-  if (add) {
+  lock.readLock().lock();
+  if (!item2Index.containsKey(o) && add) {
+    lock.readLock().unlock();
     lock.writeLock().lock();
-    if (!item2Index.containsKey(o)) {
-      int newIndex=index2Item.size();
-      item2Index.put(o,newIndex);
-      index2Item.add(o);
+    try {
+      if (!item2Index.containsKey(o)) {
+        item2Index.put(o,index2Item.size());
+        index2Item.add(o);
+      }
+      lock.readLock().lock();
     }
-    lock.writeLock().unlock();
-    return item2Index.get(o);
+  finally {
+      lock.writeLock().unlock();
+    }
   }
- else {
-    return indexOf(o);
+  try {
+    Integer id=item2Index.get(o);
+    return id == null ? UNKNOWN_ID : id;
+  }
+  finally {
+    lock.readLock().unlock();
   }
 }

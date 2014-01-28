@@ -1,6 +1,9 @@
 {
   lock.readLock().lock();
-  E item=index2Item.get(i);
-  lock.readLock().unlock();
-  return item;
+  try {
+    return index2Item.get(i);
+  }
+  finally {
+    lock.readLock().unlock();
+  }
 }
