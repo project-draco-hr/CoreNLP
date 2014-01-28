@@ -1,22 +1,15 @@
 {
-  Integer atomic=item2Index.get(o);
-  if (atomic == null) {
-    if (add) {
-      final int newIndex=indexCounter.getAndIncrement();
-      atomic=item2Index.putIfAbsent(o,newIndex);
-      if (atomic == null) {
+  if (add) {
+synchronized (this) {
+      if (!item2Index.containsKey(o)) {
+        int newIndex=index2Item.size();
+        item2Index.put(o,newIndex);
         index2Item.put(newIndex,o);
-        return newIndex;
-      }
- else {
-        return item2Index.get(o);
       }
     }
- else {
-      return UNKNOWN_ID;
-    }
+    return item2Index.get(o);
   }
  else {
-    return atomic;
+    return indexOf(o);
   }
 }
