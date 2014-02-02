@@ -1,0 +1,86 @@
+{
+  StringBuilder out=new StringBuilder();
+  int len=in.length();
+  int numCP=in.codePointCount(0,len);
+  for (int i=0; i < numCP; i++) {
+    int offset=in.offsetByCodePoints(0,i);
+    int cp=in.codePointAt(offset);
+    Character.UnicodeBlock cub=Character.UnicodeBlock.of(cp);
+    if (cub == Character.UnicodeBlock.PRIVATE_USE_AREA || cub == Character.UnicodeBlock.SUPPLEMENTARY_PRIVATE_USE_AREA_A || cub == Character.UnicodeBlock.SUPPLEMENTARY_PRIVATE_USE_AREA_B) {
+      EncodingPrintWriter.err.println("ChineseUtils.normalize warning: private use area codepoint U+" + Integer.toHexString(cp) + " in "+ in);
+    }
+    boolean delete=false;
+switch (ascii) {
+case LEAVE:
+      break;
+case ASCII:
+    if (cp >= '\uFF01' && cp <= '\uFF5E') {
+      cp-=(0xFF00 - 0x0020);
+    }
+  break;
+case FULLWIDTH:
+if (cp >= '\u0021' && cp <= '\u007E') {
+  cp+=(0xFF00 - 0x0020);
+}
+break;
+default :
+throw new IllegalArgumentException("ChineseUtils: Unsupported parameter option: ascii=" + ascii);
+}
+switch (spaceChar) {
+case LEAVE:
+break;
+case ASCII:
+if (Character.isSpaceChar(cp)) {
+cp=' ';
+}
+break;
+case FULLWIDTH:
+if (Character.isSpaceChar(cp)) {
+cp='\u3000';
+}
+break;
+case DELETE:
+if (Character.isSpaceChar(cp)) {
+delete=true;
+}
+break;
+case DELETE_EXCEPT_BETWEEN_ASCII:
+int cpp=0;
+if (i > 0) {
+cpp=in.codePointAt(i - 1);
+}
+int cpn=0;
+if (i < (numCP - 1)) {
+cpn=in.codePointAt(i + 1);
+}
+if (Character.isSpaceChar(cp) && !(isAsciiLowHigh(cpp) && isAsciiLowHigh(cpn))) {
+delete=true;
+}
+}
+switch (midDot) {
+case LEAVE:
+break;
+case NORMALIZE:
+if (cp == '\u00B7' || cp == '\u0387' || cp == '\u2022' || cp == '\u2024' || cp == '\u2027' || cp == '\u2219' || cp == '\u22C5' || cp == '\u30FB') {
+cp='\u00B7';
+}
+break;
+case FULLWIDTH:
+if (cp == '\u00B7' || cp == '\u0387' || cp == '\u2022' || cp == '\u2024' || cp == '\u2027' || cp == '\u2219' || cp == '\u22C5' || cp == '\u30FB') {
+cp='\u30FB';
+}
+break;
+case DELETE:
+if (cp == '\u00B7' || cp == '\u0387' || cp == '\u2022' || cp == '\u2024' || cp == '\u2027' || cp == '\u2219' || cp == '\u22C5' || cp == '\u30FB') {
+delete=true;
+}
+break;
+default :
+throw new IllegalArgumentException("ChineseUtils: Unsupported parameter option: midDot=" + midDot);
+}
+if (!delete) {
+out.appendCodePoint(cp);
+}
+}
+return out.toString();
+}
