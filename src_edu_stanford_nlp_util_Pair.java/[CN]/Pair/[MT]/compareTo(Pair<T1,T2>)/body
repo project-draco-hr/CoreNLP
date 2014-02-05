@@ -1,9 +1,15 @@
 {
-  int comp=((Comparable<T1>)first()).compareTo(another.first());
-  if (comp != 0) {
-    return comp;
+  if (first() instanceof Comparable) {
+    int comp=((Comparable<T1>)first()).compareTo(another.first());
+    if (comp != 0) {
+      return comp;
+    }
   }
- else {
+  if (second() instanceof Comparable) {
     return ((Comparable<T2>)second()).compareTo(another.second());
   }
+  if ((!(first() instanceof Comparable)) && (!(second() instanceof Comparable))) {
+    throw new AssertionError("Neither element of pair comparable");
+  }
+  return 0;
 }

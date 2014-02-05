@@ -3,6 +3,24 @@
   if (DEBUG) {
     System.err.println("At " + motherCat + ", my parent is "+ parent);
   }
+  if (motherCat.equals("CONJP")) {
+    for (    TregexPattern pattern : headOfConjpTregex) {
+      TregexMatcher matcher=pattern.matcher(t);
+      if (matcher.matchesAt(t)) {
+        return matcher.getNode("head");
+      }
+    }
+  }
+  if (motherCat.equals("SBARQ")) {
+    if (!makeCopulaHead) {
+      for (      TregexPattern pattern : headOfCopulaTregex) {
+        TregexMatcher matcher=pattern.matcher(t);
+        if (matcher.matchesAt(t)) {
+          return matcher.getNode("head");
+        }
+      }
+    }
+  }
   if ((motherCat.equals("VP") || motherCat.equals("SQ") || motherCat.equals("SINV"))) {
     Tree[] kids=t.children();
     if (DEBUG) {

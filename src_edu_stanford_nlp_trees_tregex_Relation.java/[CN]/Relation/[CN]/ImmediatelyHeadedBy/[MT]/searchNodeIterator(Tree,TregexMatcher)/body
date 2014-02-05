@@ -2,7 +2,12 @@
   return new SearchNodeIterator(){
     @Override void initialize(){
       if (!t.isLeaf()) {
-        next=immediatelyHeads.hf.determineHead(t);
+        if (matcher.getHeadFinder() != null) {
+          next=matcher.getHeadFinder().determineHead(t);
+        }
+ else {
+          next=immediatelyHeads.hf.determineHead(t);
+        }
       }
     }
   }

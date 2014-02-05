@@ -1,0 +1,28 @@
+{
+switch (inputFormat) {
+case TEXT:
+{
+      String text=IOUtils.slurpFileNoExceptions(filename);
+      Annotation annotation=new Annotation(text);
+      return annotation;
+    }
+case TREES:
+{
+    List<Tree> trees=SentimentUtils.readTreesWithGoldLabels(filename);
+    if (filterUnknown) {
+      trees=SentimentUtils.filterUnknownRoots(trees);
+    }
+    List<CoreMap> sentences=Generics.newArrayList();
+    for (    Tree tree : trees) {
+      CoreMap sentence=new Annotation(Sentence.listToString(tree.yield()));
+      sentence.set(TreeCoreAnnotations.BinarizedTreeAnnotation.class,tree);
+      sentences.add(sentence);
+    }
+    Annotation annotation=new Annotation("");
+    annotation.set(CoreAnnotations.SentencesAnnotation.class,sentences);
+    return annotation;
+  }
+default :
+throw new IllegalArgumentException("Unknown format " + inputFormat);
+}
+}

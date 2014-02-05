@@ -5,13 +5,16 @@
   if (arg2 == null) {
     return arg1;
   }
-  if (arg1 instanceof Time && arg2 instanceof Time) {
-    return Time.min((Time)arg1,(Time)arg2);
+  if (arg1 instanceof Duration && arg2 instanceof Duration) {
+    return ((Duration)arg1).add((Duration)arg2);
   }
- else   if (arg1 instanceof Duration && arg2 instanceof Duration) {
-    return Duration.min((Duration)arg1,(Duration)arg2);
+ else   if (arg1 instanceof Time && arg2 instanceof Duration) {
+    return ((Time)arg1).add((Duration)arg2);
+  }
+ else   if (arg1 instanceof Range && arg2 instanceof Duration) {
+    return ((Range)arg1).add((Duration)arg2);
   }
  else {
-    throw new UnsupportedOperationException("MIN not implemented for arg1=" + arg1.getClass() + ", arg2="+ arg2.getClass());
+    throw new UnsupportedOperationException("PLUS not implemented for arg1=" + arg1.getClass() + ", arg2="+ arg2.getClass());
   }
 }

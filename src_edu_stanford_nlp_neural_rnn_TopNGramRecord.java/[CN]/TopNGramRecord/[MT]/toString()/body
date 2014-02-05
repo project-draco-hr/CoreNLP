@@ -1,0 +1,17 @@
+{
+  StringBuilder result=new StringBuilder();
+  for (int prediction=0; prediction < numClasses; ++prediction) {
+    result.append("Best scores for class " + prediction + "\n");
+    Map<Integer,PriorityQueue<Tree>> ngrams=classToNGrams.get(prediction);
+    for (    Map.Entry<Integer,PriorityQueue<Tree>> entry : ngrams.entrySet()) {
+      List<Tree> trees=Generics.newArrayList(entry.getValue());
+      Collections.sort(trees,scoreComparator(prediction));
+      result.append("  Len " + entry.getKey() + "\n");
+      for (int i=trees.size() - 1; i >= 0; i--) {
+        Tree tree=trees.get(i);
+        result.append("    " + Sentence.listToString(tree.yield()) + "  ["+ RNNCoreAnnotations.getPredictions(tree).get(prediction)+ "]\n");
+      }
+    }
+  }
+  return result.toString();
+}
