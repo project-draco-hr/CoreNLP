@@ -2,7 +2,8 @@
   boolean isLiteral=((flags & Pattern.LITERAL) != 0) || LITERAL_PATTERN.matcher(regex).matches();
   if (isLiteral) {
     boolean caseInsensitive=(flags & Pattern.CASE_INSENSITIVE) != 0;
-    return new StringAnnotationPattern(regex,caseInsensitive);
+    int stringMatchFlags=(caseInsensitive) ? CASE_INSENSITIVE : 0;
+    return new StringAnnotationPattern(regex,stringMatchFlags);
   }
  else {
     return new StringAnnotationRegexPattern(regex,flags);
