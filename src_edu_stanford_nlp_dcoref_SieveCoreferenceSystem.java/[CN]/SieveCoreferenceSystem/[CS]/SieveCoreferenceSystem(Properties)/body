@@ -18,12 +18,13 @@
   optimizeScoreType=props.getProperty(Constants.OPTIMIZE_SIEVES_SCORE_PROP,"pairwise.Precision");
   String[] validMetricTypes={"muc","pairwise","bcub","ceafe","ceafm","combined"};
   String[] parts=optimizeScoreType.split("\\.");
-  optimizeConllScore=(parts.length > 2 && "conll".equalsIgnoreCase(parts[2])) ? true : false;
+  optimizeConllScore=parts.length > 2 && "conll".equalsIgnoreCase(parts[2]);
   optimizeMetricType=parts[0];
   boolean optimizeMetricTypeOk=false;
-  for (int i=0; i < validMetricTypes.length; i++) {
-    if (validMetricTypes[i].equalsIgnoreCase(optimizeMetricType)) {
+  for (  String validMetricType : validMetricTypes) {
+    if (validMetricType.equalsIgnoreCase(optimizeMetricType)) {
       optimizeMetricTypeOk=true;
+      break;
     }
   }
   if (!optimizeMetricTypeOk) {

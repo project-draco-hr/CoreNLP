@@ -1,5 +1,5 @@
 {
-  Minimizer minimizer=null;
+  Minimizer<DiffFunction> minimizer=null;
   if (flags.useQN) {
     int QNmem;
     if (featurePruneIteration == 0) {
@@ -19,7 +19,7 @@
     ((QNMinimizer)minimizer).setTerminateOnEvalImprovementNumOfEpoch(flags.terminateOnEvalImprovementNumOfEpoch);
     ((QNMinimizer)minimizer).suppressTestPrompt(flags.suppressTestDebug);
     if (flags.useOWLQN) {
-      ((QNMinimizer)minimizer).useOWLQN(flags.useOWLQN,flags.priorL1Lambda);
+      ((QNMinimizer)minimizer).useOWLQN(flags.useOWLQN,flags.priorLambda);
     }
   }
  else   if (flags.useInPlaceSGD) {
@@ -45,6 +45,13 @@
  else {
       minimizer=sgdMinimizer;
     }
+  }
+ else   if (flags.useAdaGradFOBOS) {
+    SGDWithAdaGradAndFOBOS<DiffFunction> adaGradFobosMinimizer=new SGDWithAdaGradAndFOBOS<DiffFunction>(flags.initRate,flags.priorLambda,flags.SGDPasses,flags.tuneSampleSize,flags.stochasticBatchSize,flags.priorType,flags.priorAlpha);
+    minimizer=adaGradFobosMinimizer;
+    ((SGDWithAdaGradAndFOBOS)minimizer).terminateOnEvalImprovement(flags.terminateOnEvalImprovement);
+    ((SGDWithAdaGradAndFOBOS)minimizer).setTerminateOnEvalImprovementNumOfEpoch(flags.terminateOnEvalImprovementNumOfEpoch);
+    ((SGDWithAdaGradAndFOBOS)minimizer).suppressTestPrompt(flags.suppressTestDebug);
   }
  else   if (flags.useSGDtoQN) {
     minimizer=new SGDToQNMinimizer(flags.initialGain,flags.stochasticBatchSize,flags.SGDPasses,flags.QNPasses,flags.SGD2QNhessSamples,flags.QNsize,flags.outputIterationsToFile);
