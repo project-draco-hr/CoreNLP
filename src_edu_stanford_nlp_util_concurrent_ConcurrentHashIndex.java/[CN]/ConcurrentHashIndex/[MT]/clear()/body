@@ -1,7 +1,12 @@
 {
-synchronized (this) {
+  lock.lock();
+  try {
+    int size=item2Index.size();
     item2Index.clear();
-    index2Item.clear();
-    indexCounter=new AtomicInteger();
+    Object[] arr=new Object[size];
+    index2Item.set(arr);
+  }
+  finally {
+    lock.unlock();
   }
 }
