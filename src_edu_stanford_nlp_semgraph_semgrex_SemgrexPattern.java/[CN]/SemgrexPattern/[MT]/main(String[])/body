@@ -1,0 +1,55 @@
+{
+  Map<String,Integer> flagMap=Generics.newHashMap();
+  flagMap.put(PATTERN,1);
+  flagMap.put(TREE_FILE,1);
+  flagMap.put(MODE,1);
+  flagMap.put(EXTRAS,1);
+  Map<String,String[]> argsMap=StringUtils.argsToMap(args,flagMap);
+  args=argsMap.get(null);
+  if (!(argsMap.containsKey(PATTERN)) || argsMap.get(PATTERN).length == 0) {
+    help();
+    System.exit(2);
+  }
+  SemgrexPattern semgrex=SemgrexPattern.compile(argsMap.get(PATTERN)[0]);
+  String modeString=DEFAULT_MODE;
+  if (argsMap.containsKey(MODE) && argsMap.get(MODE).length > 0) {
+    modeString=argsMap.get(MODE)[0].toUpperCase();
+  }
+  SemanticGraphFactory.Mode mode=SemanticGraphFactory.Mode.valueOf(modeString);
+  boolean useExtras=true;
+  if (argsMap.containsKey(EXTRAS) && argsMap.get(EXTRAS).length > 0) {
+    useExtras=Boolean.valueOf(argsMap.get(EXTRAS)[0]);
+  }
+  List<SemanticGraph> graphs=Generics.newArrayList();
+  if (argsMap.containsKey(TREE_FILE) && argsMap.get(TREE_FILE).length > 0) {
+    for (    String treeFile : argsMap.get(TREE_FILE)) {
+      System.err.println("Loading file " + treeFile);
+      MemoryTreebank treebank=new MemoryTreebank(new TreeNormalizer());
+      treebank.loadPath(treeFile);
+      for (      Tree tree : treebank) {
+        SemanticGraph graph=SemanticGraphFactory.makeFromTree(tree,mode,useExtras,false,true,null);
+        graphs.add(graph);
+      }
+    }
+  }
+  for (  SemanticGraph graph : graphs) {
+    SemgrexMatcher matcher=semgrex.matcher(graph);
+    if (!(matcher.find())) {
+      continue;
+    }
+    System.err.println("Matched graph:");
+    System.err.println(graph.toString("plain"));
+    boolean found=true;
+    while (found) {
+      System.err.println("Matches at: " + matcher.getMatch().value() + "-"+ matcher.getMatch().index());
+      List<String> nodeNames=Generics.newArrayList();
+      nodeNames.addAll(matcher.getNodeNames());
+      Collections.sort(nodeNames);
+      for (      String name : nodeNames) {
+        System.err.println("  " + name + ": "+ matcher.getNode(name).value()+ "-"+ matcher.getNode(name).index());
+      }
+      System.err.println();
+      found=matcher.find();
+    }
+  }
+}
