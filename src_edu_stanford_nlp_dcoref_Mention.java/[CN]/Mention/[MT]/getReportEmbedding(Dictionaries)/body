@@ -11,13 +11,14 @@
   }
   List<IndexedWord> path=dependency.getPathToRoot(headIndexedWord);
   if (path == null)   return 0;
-  boolean isSubject=false;
+  Boolean isSubject=false;
   if (dependency.hasParentWithReln(headIndexedWord,EnglishGrammaticalRelations.NOMINAL_SUBJECT))   isSubject=true;
   for (  IndexedWord word : path) {
     if (!isSubject && (dict.reportVerb.contains(word.lemma()) || dict.reportNoun.contains(word.lemma()))) {
       return 1;
     }
-    isSubject=dependency.hasParentWithReln(word,EnglishGrammaticalRelations.NOMINAL_SUBJECT);
+    if (dependency.hasParentWithReln(word,EnglishGrammaticalRelations.NOMINAL_SUBJECT))     isSubject=true;
+ else     isSubject=false;
   }
   return 0;
 }

@@ -1,0 +1,16 @@
+{
+  if (in instanceof SequenceMatchResult) {
+    SequenceMatchResult<CoreMap> mr=(SequenceMatchResult<CoreMap>)(in);
+    if (group >= 0) {
+      List<? extends CoreMap> matched=mr.groupNodes(group);
+      if (matched != null) {
+        int i=(nodeIndex >= 0) ? 0 : (matched.size() + nodeIndex);
+        TimeExpression te=getTimeExpression(matched,i);
+        if (te != null) {
+          return te.getTemporal();
+        }
+      }
+    }
+  }
+  return null;
+}

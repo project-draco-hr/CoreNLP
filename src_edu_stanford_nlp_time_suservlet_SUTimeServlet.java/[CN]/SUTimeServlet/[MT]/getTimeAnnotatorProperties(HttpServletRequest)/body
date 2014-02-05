@@ -2,7 +2,7 @@
   boolean markTimeRanges=parseBoolean(request.getParameter("markTimeRanges"));
   boolean includeNested=parseBoolean(request.getParameter("includeNested"));
   boolean includeRange=parseBoolean(request.getParameter("includeRange"));
-  boolean readRules=true;
+  boolean readRules=parseBoolean(request.getParameter("readRules"));
   String heuristicLevel=request.getParameter("relativeHeuristicLevel");
   Options.RelativeHeuristicLevel relativeHeuristicLevel=Options.RelativeHeuristicLevel.NONE;
   if (heuristicLevel != null && !heuristicLevel.equals("")) {
@@ -29,8 +29,6 @@
     props.setProperty("sutime.rules",ruleFile);
     props.setProperty("sutime.binders","1");
     props.setProperty("sutime.binder.1","edu.stanford.nlp.time.JollyDayHolidays");
-    props.setProperty("sutime.binder.1.xml",getServletContext().getRealPath("/WEB-INF/data/holidays/Holidays_sutime.xml"));
-    props.setProperty("sutime.binder.1.pathtype","file");
   }
   props.setProperty("sutime.teRelHeurLevel",relativeHeuristicLevel.toString());
   return props;

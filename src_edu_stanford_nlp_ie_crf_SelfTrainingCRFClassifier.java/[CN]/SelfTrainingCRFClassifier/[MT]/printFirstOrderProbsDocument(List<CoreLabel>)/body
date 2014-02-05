@@ -1,0 +1,48 @@
+{
+  Triple<int[][][],int[],double[][][]> p=documentToDataAndLabels(document);
+  int[][][] data=p.first();
+  CliquePotentialFunction cliquePotentialFunc=new LinearCliquePotentialFunction(weights);
+  CRFCliqueTree cliqueTree=CRFCliqueTree.getCalibratedCliqueTree(data,labelIndices,classIndex.size(),classIndex,flags.backgroundSymbol,cliquePotentialFunc,null);
+  int gramSize=3;
+  LinkedList<String> nGram=new LinkedList<String>();
+  nGram.offer("junk");
+  for (int i=0; i < gramSize - 1; i++) {
+    CoreLabel wi=document.get(i);
+    nGram.offer(wi.get(CoreAnnotations.GoldAnswerAnnotation.class));
+  }
+  int[] labels=new int[gramSize];
+  for (int docIndex=gramSize - 1; docIndex < cliqueTree.length(); docIndex++) {
+    CoreLabel wi=document.get(docIndex);
+    nGram.offer(wi.get(CoreAnnotations.GoldAnswerAnnotation.class));
+    nGram.remove();
+    for (int i=0; i < labels.length; i++)     labels[i]=0;
+    double highestProb=0.0;
+    int[] highestLabels=new int[gramSize];
+    for (int i=0; i < labels.length; i++)     labels[i]=0;
+    OUTER:     while (true) {
+      double prob=cliqueTree.prob(docIndex,labels);
+      if (prob > highestProb) {
+        highestProb=prob;
+        for (int i=0; i < labels.length; i++)         highestLabels[i]=labels[i];
+      }
+      for (int i=0; i < labels.length; i++) {
+        labels[i]++;
+        if (labels[i] < classIndex.size())         break;
+        if (i == labels.length - 1)         break OUTER;
+        labels[i]=0;
+      }
+    }
+    String gold="";
+    String highest="";
+    String others="";
+    for (int i=0; i < gramSize; i++) {
+      others+="O";
+      gold+=nGram.get(i);
+      highest+=classIndex.get(highestLabels[i]).toString();
+    }
+    highest.replaceAll("\\s","2");
+    gold.replaceAll("\\s","2");
+    int errorType=gold.equals(highest) ? 0 : 1;
+    System.out.println(highestProb + "\t" + errorType+ "\t"+ (gold.equals(others) ? 1 : 0));
+  }
+}

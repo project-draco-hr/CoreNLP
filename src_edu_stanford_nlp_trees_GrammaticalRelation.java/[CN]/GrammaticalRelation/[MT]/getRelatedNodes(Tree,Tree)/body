@@ -1,0 +1,20 @@
+{
+  if (root.value() == null) {
+    root.setValue("ROOT");
+  }
+  Set<Tree> nodeList=new LinkedHashSet<Tree>();
+  for (  TregexPattern p : targetPatterns) {
+    TregexMatcher m=p.matcher(root);
+    while (m.findAt(t)) {
+      nodeList.add(m.getNode("target"));
+      if (DEBUG) {
+        System.err.println("found " + this + "("+ t+ ", "+ m.getNode("target")+ ") using pattern "+ p);
+        for (        String nodeName : m.getNodeNames()) {
+          if (nodeName.equals("target"))           continue;
+          System.err.println("  node " + nodeName + ": "+ m.getNode(nodeName));
+        }
+      }
+    }
+  }
+  return nodeList;
+}

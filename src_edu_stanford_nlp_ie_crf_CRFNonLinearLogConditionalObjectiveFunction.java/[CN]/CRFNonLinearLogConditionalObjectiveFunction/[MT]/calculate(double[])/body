@@ -21,11 +21,9 @@
     int[] docLabels=labels[m];
     double[][][] featureVal3DArr=null;
     if (featureVal != null)     featureVal3DArr=featureVal[m];
-    if (DEBUG)     System.err.println("processing doc " + m);
-    NonLinearCliquePotentialFunction cliquePotentialFunction=new NonLinearCliquePotentialFunction(linearWeights,W,U,flags);
-    CRFCliqueTree cliqueTree=CRFCliqueTree.getCalibratedCliqueTree(docData,labelIndices,numClasses,classIndex,backgroundSymbol,cliquePotentialFunction,featureVal3DArr);
+    CRFCliqueTree cliqueTree=CRFCliqueTree.getCalibratedCliqueTree(docData,labelIndices,numClasses,classIndex,backgroundSymbol,new NonLinearCliquePotentialFunction(linearWeights,W,U,flags),featureVal3DArr);
     int[] given=new int[window - 1];
-    if (!gradientsOnly)     Arrays.fill(given,classIndex.indexOf(backgroundSymbol));
+    Arrays.fill(given,classIndex.indexOf(backgroundSymbol));
     int[] windowLabels=new int[window];
     Arrays.fill(windowLabels,classIndex.indexOf(backgroundSymbol));
     if (docLabels.length > docData.length) {
@@ -35,17 +33,15 @@
       System.arraycopy(docLabels,docLabels.length - newDocLabels.length,newDocLabels,0,newDocLabels.length);
       docLabels=newDocLabels;
     }
-    if (!gradientsOnly) {
-      for (int i=0; i < docData.length; i++) {
-        int label=docLabels[i];
-        double p=cliqueTree.condLogProbGivenPrevious(i,label,given);
-        if (VERBOSE) {
-          System.err.println("P(" + label + "|"+ ArrayMath.toString(given)+ ")="+ p);
-        }
-        prob+=p;
-        System.arraycopy(given,1,given,0,given.length - 1);
-        given[given.length - 1]=label;
+    for (int i=0; i < docData.length; i++) {
+      int label=docLabels[i];
+      double p=cliqueTree.condLogProbGivenPrevious(i,label,given);
+      if (VERBOSE) {
+        System.err.println("P(" + label + "|"+ ArrayMath.toString(given)+ ")="+ p);
       }
+      prob+=p;
+      System.arraycopy(given,1,given,0,given.length - 1);
+      given[given.length - 1]=label;
     }
     for (int i=0; i < docData.length; i++) {
       System.arraycopy(windowLabels,1,windowLabels,0,window - 1);
@@ -57,11 +53,10 @@
         double[] fDeriv=null;
         double[][] yTimesA=null;
         double[] sumOfYTimesA=null;
-        if (DEBUG)         System.err.print("calculating Ehat[" + i + "]");
         if (j == 0) {
           double[] featureValArr=null;
           if (featureVal3DArr != null)           featureValArr=featureVal3DArr[i][j];
-          As=cliquePotentialFunction.hiddenLayerOutput(W,cliqueFeatures,flags,featureValArr);
+          As=NonLinearCliquePotentialFunction.hiddenLayerOutput(W,cliqueFeatures,flags,featureValArr);
           fDeriv=new double[inputLayerSize];
           double fD=0;
           for (int q=0; q < inputLayerSize; q++) {
@@ -183,8 +178,6 @@
             }
           }
         }
-        if (DEBUG)         System.err.println(" done!");
-        if (DEBUG)         System.err.print("calculating E[" + i + "]");
         for (int k=0; k < labelIndex.size(); k++) {
           int[] label=labelIndex.get(k).getLabel();
           double p=cliqueTree.prob(i,label);
@@ -267,7 +260,6 @@
             }
           }
         }
-        if (DEBUG)         System.err.println(" done!");
       }
     }
   }
@@ -278,7 +270,6 @@
   if (VERBOSE) {
     System.err.println("value is " + value);
   }
-  if (DEBUG)   System.err.print("calculating derivative ");
   int index=0;
   for (int i=0; i < E.length; i++) {
     for (int j=0; j < E[i].length; j++) {
@@ -314,8 +305,6 @@
   if (flags.skipOutputRegularization || flags.softmaxOutputLayer || flags.hardcodeSoftmaxOutputWeights) {
     regSize=beforeOutputWeights;
   }
-  if (DEBUG)   System.err.println("done!");
-  if (DEBUG)   System.err.print("incorporating priors ...");
   if (prior == QUADRATIC_PRIOR) {
     double sigmaSq=sigma * sigma;
     double twoSigmaSq=2.0 * sigmaSq;
@@ -329,6 +318,54 @@
     value+=valueSum / twoSigmaSq;
   }
  else   if (prior == L1_PRIOR) {
+  }
+ else   if (prior == L1_NODE_L2_EDGE_PRIOR) {
+    int paramIndex=0;
+    double sigmaSq=sigma * sigma;
+    double lambda=1 / 2.0 / sigmaSq;
+    double w=0;
+    double valueSum=0;
+    for (; paramIndex < edgeParamCount; paramIndex++) {
+      w=x[paramIndex];
+      valueSum+=w * w;
+      derivative[paramIndex]+=w / sigmaSq;
+    }
+    value+=valueSum * lambda;
+  }
+ else   if (prior == L1_SPARSENODE_L2_EDGE_PRIOR) {
+    double sigmaSq=sigma * sigma;
+    double lambda=1 / 2.0 / sigmaSq;
+    double w=0;
+    double valueSum=0;
+    for (int paramIndex=0; paramIndex < edgeParamCount; paramIndex++) {
+      w=x[paramIndex];
+      valueSum+=w * w;
+      derivative[paramIndex]+=w / sigmaSq;
+    }
+    value+=valueSum * lambda;
+    for (int nodeFeatureIndex=0; nodeFeatureIndex < numNodeFeatures; nodeFeatureIndex++) {
+      for (int outputClassIndex=0; outputClassIndex < numClasses; outputClassIndex++) {
+        double maxParamAbsVal=0;
+        int maxHiddenUnitIndex=0;
+        for (int hiddenUnitIndex=0; hiddenUnitIndex < numHiddenUnits; hiddenUnitIndex++) {
+          int firstLayerIndex=hiddenUnitIndex * numClasses + outputClassIndex;
+          double absWeight=Math.abs(W[firstLayerIndex][nodeFeatureIndex]);
+          if (absWeight > maxParamAbsVal) {
+            maxParamAbsVal=absWeight;
+            maxHiddenUnitIndex=hiddenUnitIndex;
+          }
+        }
+        for (int hiddenUnitIndex=0; hiddenUnitIndex < numHiddenUnits; hiddenUnitIndex++) {
+          if (hiddenUnitIndex == maxHiddenUnitIndex) {
+            int firstLayerIndex=hiddenUnitIndex * numClasses + outputClassIndex;
+            int oneDIndex=firstLayerIndex * numNodeFeatures + nodeFeatureIndex + edgeParamCount;
+            w=x[oneDIndex];
+            value+=w * w * lambda;
+            derivative[oneDIndex]+=w / sigmaSq;
+          }
+        }
+      }
+    }
   }
  else   if (prior == HUBER_PRIOR) {
     double sigmaSq=sigma * sigma;
@@ -370,5 +407,4 @@
       }
     }
   }
-  if (DEBUG)   System.err.println("done!");
 }
