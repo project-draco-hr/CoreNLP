@@ -1,0 +1,15 @@
+{
+  if (tree.isPreTerminal() || tree.isLeaf()) {
+    return tree.deepCopy();
+  }
+  Label label=tree.label().labelFactory().newLabel(tree.label());
+  Tree[] children=tree.children();
+  while (children.length == 1 && !children[0].isLeaf()) {
+    children=children[0].children();
+  }
+  List<Tree> processedChildren=Generics.newArrayList();
+  for (  Tree child : children) {
+    processedChildren.add(transformTree(child));
+  }
+  return tree.treeFactory().newTreeNode(label,processedChildren);
+}
