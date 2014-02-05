@@ -1,59 +1,47 @@
 {
   Token tok=null;
   SequencePattern.PatternExpr seqRegex=null;
-switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
 case REGEX:
+    tok=jj_consume_token(REGEX);
 {
-      tok=jj_consume_token(REGEX);
-{
-        if ("" != null)         return new Expressions.RegexValue(tok.image.substring(1,tok.image.length() - 1));
-      }
-      break;
-    }
-case STR:
-{
-    tok=jj_consume_token(STR);
-{
-      if ("" != null)       return new Expressions.PrimitiveValue<String>("STRING",tok.image.substring(1,tok.image.length() - 1));
-    }
-    break;
+    if (true)     return new Expressions.RegexValue(tok.image.substring(1,tok.image.length() - 1));
   }
+break;
+case STR:
+tok=jj_consume_token(STR);
+{
+if (true) return new Expressions.PrimitiveValue<String>("STRING",tok.image.substring(1,tok.image.length() - 1));
+}
+break;
 case NONNEGINT:
 case INT:
+tok=IntegerToken();
 {
-  tok=IntegerToken();
-{
-    if ("" != null)     return new Expressions.PrimitiveValue<Number>("INTEGER",parseInteger(tok.image));
-  }
-  break;
+if (true) return new Expressions.PrimitiveValue<Number>("INTEGER",parseInteger(tok.image));
 }
+break;
 case LONGINT:
-{
 tok=jj_consume_token(LONGINT);
 {
-  if ("" != null)   return new Expressions.PrimitiveValue<Number>("INTEGER",parseLongInteger(tok.image));
+if (true) return new Expressions.PrimitiveValue<Number>("INTEGER",parseLongInteger(tok.image));
 }
 break;
-}
 case REAL:
-{
 tok=jj_consume_token(REAL);
 {
-if ("" != null) return new Expressions.PrimitiveValue<Number>("REAL",Double.valueOf(tok.image));
+if (true) return new Expressions.PrimitiveValue<Number>("REAL",Double.valueOf(tok.image));
 }
 break;
-}
 case 25:
-{
 jj_consume_token(25);
 seqRegex=SeqRegex(env);
 jj_consume_token(26);
 TokenSequencePattern seqPattern=new TokenSequencePattern(null,seqRegex);
 {
-if ("" != null) return new Expressions.PrimitiveValue<TokenSequencePattern>("TOKEN_REGEX",seqPattern);
+if (true) return new Expressions.PrimitiveValue<TokenSequencePattern>("TOKEN_REGEX",seqPattern);
 }
 break;
-}
 default :
 jj_la1[7]=jj_gen;
 jj_consume_token(-1);
