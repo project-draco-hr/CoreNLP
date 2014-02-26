@@ -1,17 +1,12 @@
 {
   System.err.println(StringUtils.toInvocationString("ColumnDataClassifier",args));
   ColumnDataClassifier cdc=new ColumnDataClassifier(StringUtils.argsToProperties(args));
-  String testFile=cdc.globalFlags.testFile;
-  if ((testFile == null && Flags.serializeTo == null && cdc.globalFlags.crossValidationFolds < 2) || (Flags.trainFile == null && cdc.globalFlags.loadClassifier == null)) {
-    System.err.println("usage: java edu.stanford.nlp.classify.ColumnDataClassifier -prop propFile");
-    System.err.println("  and/or: -trainFile trainFile -testFile testFile|-serializeTo modelFile [-useNGrams|-sigma sigma|...]");
-    return;
-  }
   if (cdc.globalFlags.loadClassifier == null) {
     if (!cdc.trainClassifier()) {
       return;
     }
   }
+  String testFile=cdc.globalFlags.testFile;
   if (testFile != null) {
     cdc.testClassifier(testFile);
   }
