@@ -15,6 +15,7 @@ case (1):
       qn.terminateOnNumericalZero(true);
       qn.terminateOnRelativeNorm(true);
       theta=qn.minimize(gcFunc,op.trainOptions.qnTolerance,theta,op.trainOptions.qnIterationsPerBatch);
+      break;
     }
 case 2:
 {
@@ -27,6 +28,7 @@ case 2:
       lastCost=currCost;
       ArrayMath.addMultInPlace(theta,grad,-1 * op.trainOptions.learningRate);
     }
+    break;
   }
 case 3:
 {
@@ -41,6 +43,11 @@ case 3:
       theta[feature]=theta[feature] - (op.trainOptions.learningRate * gradf[feature] / (Math.sqrt(sumGradSquare[feature]) + eps));
     }
   }
+  break;
+}
+default :
+{
+throw new IllegalArgumentException("Unsupported minimizer " + MINIMIZER);
 }
 }
 dvModel.vectorToParams(theta);
