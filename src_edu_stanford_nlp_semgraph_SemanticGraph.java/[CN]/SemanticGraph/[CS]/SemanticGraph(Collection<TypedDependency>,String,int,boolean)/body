@@ -8,7 +8,9 @@
     GrammaticalRelation reln=d.reln();
     if (reln != ROOT) {
       IndexedWord govVertex=new IndexedWord(docID,sentIndex,gov.index(),gov.label());
+      govVertex.setTag(gov.highestNodeWithSameHead().headTagNode().value());
       IndexedWord depVertex=new IndexedWord(docID,sentIndex,dep.index(),dep.label());
+      depVertex.setTag(dep.highestNodeWithSameHead().headTagNode().value());
       if (lemmatize) {
         govVertex.setLemma(morphology.lemma(govVertex.value(),govVertex.tag(),true));
         depVertex.setLemma(morphology.lemma(depVertex.value(),depVertex.tag(),true));
@@ -17,6 +19,7 @@
     }
  else {
       IndexedWord depVertex=new IndexedWord(docID,sentIndex,dep.index(),dep.label());
+      depVertex.setTag(dep.highestNodeWithSameHead().headTagNode().value());
       if (lemmatize) {
         depVertex.setLemma(morphology.lemma(depVertex.value(),depVertex.tag(),true));
       }
