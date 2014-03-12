@@ -1,0 +1,16 @@
+{
+  List<IndexedWord> sorted=graph.topologicalSort();
+  Map<IndexedWord,Integer> indices=Generics.newHashMap();
+  for (int index=0; index < sorted.size(); ++index) {
+    indices.put(sorted.get(index),index);
+  }
+  for (  IndexedWord parent : graph.vertexSet()) {
+    assertTrue(indices.containsKey(parent));
+    int parentIndex=indices.get(parent);
+    for (    IndexedWord child : graph.getChildren(parent)) {
+      assertTrue(indices.containsKey(child));
+      int childIndex=indices.get(child);
+      assertTrue(parentIndex < childIndex);
+    }
+  }
+}
