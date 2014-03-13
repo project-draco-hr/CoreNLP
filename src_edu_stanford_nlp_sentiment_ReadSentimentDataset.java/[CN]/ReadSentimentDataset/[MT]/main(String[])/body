@@ -52,14 +52,14 @@
     sentences.add(Arrays.asList(sentence));
   }
   Map<List<String>,Integer> phraseIds=Generics.newHashMap();
-  for (  String line : IOUtils.readLines(dictionaryFilename)) {
+  for (  String line : IOUtils.readLines(dictionaryFilename,"utf-8")) {
     String[] pieces=line.split("\\|");
     String[] sentence=pieces[0].split(" ");
     Integer id=Integer.valueOf(pieces[1]);
     phraseIds.put(Arrays.asList(sentence),id);
   }
   Map<Integer,Double> sentimentScores=Generics.newHashMap();
-  for (  String line : IOUtils.readLines(sentimentFilename)) {
+  for (  String line : IOUtils.readLines(sentimentFilename,"utf-8")) {
     if (line.startsWith("phrase")) {
       continue;
     }
@@ -71,7 +71,7 @@
   int index=0;
   PTBEscapingProcessor escaper=new PTBEscapingProcessor();
   List<Tree> trees=Generics.newArrayList();
-  for (  String line : IOUtils.readLines(parseFilename)) {
+  for (  String line : IOUtils.readLines(parseFilename,"utf-8")) {
     String[] pieces=line.split("\\|");
     List<Integer> parentPointers=CollectionUtils.transformAsList(Arrays.asList(pieces),new Function<String,Integer>(){
       public Integer apply(      String arg){
@@ -87,7 +87,7 @@
   splits.put(1,Generics.<Integer>newArrayList());
   splits.put(2,Generics.<Integer>newArrayList());
   splits.put(3,Generics.<Integer>newArrayList());
-  for (  String line : IOUtils.readLines(splitFilename)) {
+  for (  String line : IOUtils.readLines(splitFilename,"utf-8")) {
     if (line.startsWith("sentence_index")) {
       continue;
     }
