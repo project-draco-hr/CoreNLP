@@ -2,7 +2,13 @@
   nextSent=new ArrayList<HasWord>(nextSentCarryover);
   nextSentCarryover.clear();
   boolean seenBoundary=false;
-  while (tokenizer.hasNext()) {
+  if (!tokenizer.hasNext()) {
+    IOUtils.closeIgnoringExceptions(inputReader);
+    inputReader=null;
+    nextSent=null;
+    return;
+  }
+  do {
     HasWord token=tokenizer.next();
     if (splitTag != null) {
       String[] toks=splitTag.apply(token.word());
@@ -25,7 +31,7 @@
       nextSent.add(token);
     }
     if (seenBoundary && delimFollowers.size() == 0) {
-      if (nextSent.size() > 0) {
+      if (nextSent.size() > 0 || keepEmptySentences) {
         break;
       }
  else {
@@ -33,7 +39,8 @@
       }
     }
   }
-  if (nextSent.size() == 0 && nextSentCarryover.size() == 0) {
+ while (tokenizer.hasNext());
+  if (nextSent.size() == 0 && nextSentCarryover.size() == 0 && !keepEmptySentences) {
     IOUtils.closeIgnoringExceptions(inputReader);
     inputReader=null;
     nextSent=null;
