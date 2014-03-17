@@ -14,10 +14,6 @@
     zzAction=-1;
     zzCurrentPosL=zzCurrentPos=zzStartRead=zzMarkedPosL;
     zzState=ZZ_LEXSTATE[zzLexicalState];
-    int zzAttributes=zzAttrL[zzState];
-    if ((zzAttributes & 1) == 1) {
-      zzAction=zzState;
-    }
     zzForAction: {
       while (true) {
         if (zzCurrentPosL < zzEndReadL)         zzInput=zzBufferL[zzCurrentPosL++];
@@ -44,7 +40,7 @@
         int zzNext=zzTransL[zzRowMapL[zzState] + zzCMapL[zzInput]];
         if (zzNext == -1)         break zzForAction;
         zzState=zzNext;
-        zzAttributes=zzAttrL[zzState];
+        int zzAttributes=zzAttrL[zzState];
         if ((zzAttributes & 1) == 1) {
           zzAction=zzState;
           zzMarkedPosL=zzCurrentPosL;
@@ -54,35 +50,35 @@
     }
     zzMarkedPos=zzMarkedPosL;
 switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
-case 1:
+case 5:
 {
-        return IGNORE;
+        yybegin(YYINITIAL);
+        return ACCEPT;
       }
 case 6:
     break;
-case 2:
-{
-    System.out.print(yytext());
-  }
-case 7:
-break;
 case 3:
 {
-return ACCEPT;
-}
-case 8:
+    return ACCEPT;
+  }
+case 7:
 break;
 case 4:
 {
 yybegin(SENTENCE);
 return ACCEPT;
 }
+case 8:
+break;
+case 2:
+{
+System.out.print(yytext());
+}
 case 9:
 break;
-case 5:
+case 1:
 {
-yybegin(YYINITIAL);
-return ACCEPT;
+return IGNORE;
 }
 case 10:
 break;
