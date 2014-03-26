@@ -14,8 +14,8 @@
     int fn=(int)contingency.getCount(key + "|FN");
     int fp=(int)contingency.getCount(key + "|FP");
     int tn=(int)contingency.getCount(key + "|TN");
-    double p=(tp + fp == 0) ? 1.0 : ((double)tp) / (tp + fp);
-    double r=(tp + fn == 0) ? 1.0 : ((double)tp) / (tp + fn);
+    double p=(tp == 0) ? 0.0 : ((double)tp) / (tp + fp);
+    double r=(tp == 0) ? 0.0 : ((double)tp) / (tp + fn);
     double f=(p == 0.0 && r == 0.0) ? 0.0 : 2 * p * r / (p + r);
     double acc=((double)tp + tn) / num;
     macroF1+=f;
@@ -46,8 +46,8 @@
   }
   microAccuracy=microAccuracy / num;
   macroF1=macroF1 / numClasses;
-  NumberFormat nf2=new DecimalFormat("0.00000");
-  System.err.println("Accuracy/micro-averaged F1: " + nf2.format(microAccuracy));
-  System.err.println("Macro-averaged F1: " + nf2.format(macroF1));
-  return new Pair<Double,Double>(microAccuracy,macroF1);
+  nf.setMinimumFractionDigits(5);
+  nf.setMaximumFractionDigits(5);
+  System.err.println("Micro-averaged accuracy/F1: " + nf.format(microAccuracy));
+  System.err.println("Macro-averaged F1: " + nf.format(macroF1));
 }
