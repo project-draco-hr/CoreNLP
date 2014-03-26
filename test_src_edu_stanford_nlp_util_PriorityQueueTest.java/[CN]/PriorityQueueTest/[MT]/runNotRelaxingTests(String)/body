@@ -1,0 +1,31 @@
+{
+  FixedPrioritiesPriorityQueue<String> pq;
+  try {
+    pq=ErasureUtils.uncheckedCast(Class.forName(className).newInstance());
+  }
+ catch (  Exception e) {
+    fail(e.toString());
+    return;
+  }
+  assertEquals("[]",pq.toString());
+  pq.add("one",1);
+  assertEquals("[one=1.0]",pq.toString());
+  pq.add("three",3);
+  assertEquals("[three=3.0, one=1.0]",pq.toString());
+  pq.add("one",1.1);
+  assertEquals("[three=3.0, one=1.1, one=1.0]",pq.toString());
+  pq.add("two",2);
+  assertEquals("[three=3.0, two=2.0, one=1.1, one=1.0]",pq.toString());
+  assertEquals("[three=3.000, two=2.000, ...]",pq.toString(2));
+  FixedPrioritiesPriorityQueue<String> clone=pq.clone();
+  assertEquals(3.0,clone.getPriority());
+  assertEquals(pq.next(),clone.next());
+  assertEquals(2.0,clone.getPriority());
+  assertEquals(pq.next(),clone.next());
+  assertEquals(1.1,clone.getPriority());
+  assertEquals(pq.next(),clone.next());
+  assertEquals(1.0,clone.getPriority());
+  assertEquals(pq.next(),clone.next());
+  assertFalse(clone.hasNext());
+  assertTrue(clone.isEmpty());
+}
