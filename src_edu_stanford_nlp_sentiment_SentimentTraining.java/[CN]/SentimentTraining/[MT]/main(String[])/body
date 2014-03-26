@@ -41,20 +41,18 @@
   }
   List<Tree> trainingTrees=SentimentUtils.readTreesWithGoldLabels(trainPath);
   System.err.println("Read in " + trainingTrees.size() + " training trees");
-  List<Tree> devTrees=SentimentUtils.readTreesWithGoldLabels(devPath);
-  System.err.println("Read in " + devTrees.size() + " dev trees");
   if (filterNeutral) {
-    Filter<Tree> neutralFilter=new Filter<Tree>(){
-      public boolean accept(      Tree tree){
-        int gold=RNNCoreAnnotations.getGoldClass(tree);
-        return gold != 2;
-      }
-    }
-;
-    trainingTrees=CollectionUtils.filterAsList(trainingTrees,neutralFilter);
-    devTrees=CollectionUtils.filterAsList(devTrees,neutralFilter);
+    trainingTrees=CollectionUtils.filterAsList(trainingTrees,NEUTRAL_FILTER);
     System.err.println("Filtered training trees: " + trainingTrees.size());
-    System.err.println("Filtered dev trees: " + devTrees.size());
+  }
+  List<Tree> devTrees=null;
+  if (devPath != null) {
+    devTrees=SentimentUtils.readTreesWithGoldLabels(devPath);
+    System.err.println("Read in " + devTrees.size() + " dev trees");
+    if (filterNeutral) {
+      devTrees=CollectionUtils.filterAsList(devTrees,NEUTRAL_FILTER);
+      System.err.println("Filtered dev trees: " + devTrees.size());
+    }
   }
   System.err.println("Sentiment model options:\n" + op);
   SentimentModel model=new SentimentModel(op,trainingTrees);
