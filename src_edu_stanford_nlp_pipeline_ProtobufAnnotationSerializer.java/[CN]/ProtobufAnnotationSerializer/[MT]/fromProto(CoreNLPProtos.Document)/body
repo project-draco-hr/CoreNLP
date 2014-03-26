@@ -31,15 +31,19 @@
     CoreNLPProtos.Sentence sentence=proto.getSentence(sentIndex);
     CoreMap map=fromProtoNoTokens(sentence);
     if (!tokens.isEmpty() && sentence.hasTokenOffsetBegin() && sentence.hasTokenOffsetEnd()) {
-      map.set(TokensAnnotation.class,tokens.subList(sentence.getTokenOffsetBegin(),sentence.getTokenOffsetEnd()));
-      for (int i=sentence.getTokenOffsetBegin(); i < sentence.getTokenOffsetEnd(); ++i) {
+      int tokenBegin=Math.min(sentence.getTokenOffsetBegin(),tokens.size());
+      int tokenEnd=Math.min(sentence.getTokenOffsetEnd(),tokens.size());
+      map.set(TokensAnnotation.class,tokens.subList(tokenBegin,tokenEnd));
+      for (int i=tokenBegin; i < tokenEnd; ++i) {
         tokens.get(i).setSentIndex(sentIndex);
         tokens.get(i).setIndex(i - sentence.getTokenOffsetBegin() + 1);
         if (sentence.hasParagraph()) {
           tokens.get(i).set(ParagraphAnnotation.class,sentence.getParagraph());
         }
       }
-      map.set(TextAnnotation.class,proto.getText().substring(sentence.getCharacterOffsetBegin(),sentence.getCharacterOffsetEnd()));
+      int characterBegin=Math.min(sentence.getCharacterOffsetBegin(),proto.getText().length());
+      int characterEnd=Math.min(sentence.getCharacterOffsetEnd(),proto.getText().length());
+      map.set(TextAnnotation.class,proto.getText().substring(characterBegin,characterEnd));
     }
     sentences.add(map);
   }
