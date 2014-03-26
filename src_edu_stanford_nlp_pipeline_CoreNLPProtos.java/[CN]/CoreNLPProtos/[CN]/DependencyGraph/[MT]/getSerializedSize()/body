@@ -14,7 +14,11 @@
       dataSize+=com.google.protobuf.CodedOutputStream.computeUInt32SizeNoTag(root_.get(i));
     }
     size+=dataSize;
-    size+=1 * getRootList().size();
+    if (!getRootList().isEmpty()) {
+      size+=1;
+      size+=com.google.protobuf.CodedOutputStream.computeInt32SizeNoTag(dataSize);
+    }
+    rootMemoizedSerializedSize=dataSize;
   }
   size+=getUnknownFields().getSerializedSize();
   memoizedSerializedSize=size;
