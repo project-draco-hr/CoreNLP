@@ -2,6 +2,11 @@
   if (!hasText()) {
     return false;
   }
+  for (int i=0; i < getTokenCount(); i++) {
+    if (!getToken(i).isInitialized()) {
+      return false;
+    }
+  }
   for (int i=0; i < getSentenceCount(); i++) {
     if (!getSentence(i).isInitialized()) {
       return false;
@@ -11,14 +16,6 @@
     if (!getCorefChain(i).isInitialized()) {
       return false;
     }
-  }
-  for (int i=0; i < getSentencelessTokenCount(); i++) {
-    if (!getSentencelessToken(i).isInitialized()) {
-      return false;
-    }
-  }
-  if (!extensionsAreInitialized()) {
-    return false;
   }
   return true;
 }
