@@ -27,6 +27,9 @@
       stringFilter=null;
     }
  else     if (MULTI_WORD_PATTERN.matcher(desc).matches()) {
+      descriptionMode=DescriptionMode.STRINGS;
+      descPattern=null;
+      exactMatch=null;
       Matcher matcher=MULTI_WORD_PATTERN.matcher(desc);
       matcher.matches();
       String matchedGroup=null;
@@ -37,44 +40,12 @@
         }
       }
       matchedGroup=matchedGroup.replaceAll("\\\\","");
-      if (matchedGroup.split("[|]").length > MAX_STRING_MATCHER_SIZE) {
-        descriptionMode=DescriptionMode.PATTERN;
-        descPattern=Pattern.compile(desc.substring(1,desc.length() - 1));
-        exactMatch=null;
-        stringFilter=null;
-      }
- else {
-        descriptionMode=DescriptionMode.STRINGS;
-        descPattern=null;
-        exactMatch=null;
-        stringFilter=new ArrayStringFilter(ArrayStringFilter.Mode.EXACT,matchedGroup.split("[|]"));
-      }
-    }
- else     if (CASE_INSENSITIVE_PATTERN.matcher(desc).matches()) {
-      Matcher matcher=CASE_INSENSITIVE_PATTERN.matcher(desc);
-      matcher.matches();
-      String matchedGroup=null;
-      for (int i=1; i <= matcher.groupCount(); ++i) {
-        if (matcher.group(i) != null) {
-          matchedGroup=matcher.group(i);
-          break;
-        }
-      }
-      matchedGroup=matchedGroup.replaceAll("\\\\","");
-      if (matchedGroup.split("[|]").length > MAX_STRING_MATCHER_SIZE) {
-        descriptionMode=DescriptionMode.PATTERN;
-        descPattern=Pattern.compile(desc.substring(1,desc.length() - 1));
-        exactMatch=null;
-        stringFilter=null;
-      }
- else {
-        descriptionMode=DescriptionMode.STRINGS;
-        descPattern=null;
-        exactMatch=null;
-        stringFilter=new ArrayStringFilter(ArrayStringFilter.Mode.CASE_INSENSITIVE,matchedGroup.split("[|]"));
-      }
+      stringFilter=new ArrayStringFilter(ArrayStringFilter.Mode.EXACT,matchedGroup.split("[|]"));
     }
  else     if (PREFIX_PATTERN.matcher(desc).matches()) {
+      descriptionMode=DescriptionMode.STRINGS;
+      descPattern=null;
+      exactMatch=null;
       Matcher matcher=PREFIX_PATTERN.matcher(desc);
       matcher.matches();
       String matchedGroup=null;
@@ -84,18 +55,7 @@
           break;
         }
       }
-      if (matchedGroup.split("\\|").length > MAX_STRING_MATCHER_SIZE) {
-        descriptionMode=DescriptionMode.PATTERN;
-        descPattern=Pattern.compile(desc.substring(1,desc.length() - 1));
-        exactMatch=null;
-        stringFilter=null;
-      }
- else {
-        descriptionMode=DescriptionMode.STRINGS;
-        descPattern=null;
-        exactMatch=null;
-        stringFilter=new ArrayStringFilter(ArrayStringFilter.Mode.PREFIX,matchedGroup.split("[|]"));
-      }
+      stringFilter=new ArrayStringFilter(ArrayStringFilter.Mode.PREFIX,matchedGroup.split("[|]"));
     }
  else     if (desc.matches("/.*/")) {
       descriptionMode=DescriptionMode.PATTERN;
