@@ -1,7 +1,7 @@
 {
   Timing timing=new Timing();
   long maxTrainTimeMillis=op.trainOptions.maxTrainTimeSeconds * 1000;
-  int batchCount=0;
+  long nextDebugCycle=op.trainOptions.debugOutputSeconds * 1000;
   int debugCycle=0;
   double bestLabelF1=0.0;
   if (op.trainOptions.useContextWords) {
@@ -20,7 +20,6 @@
     List<Tree> shuffledSentences=new ArrayList<Tree>(sentences);
     Collections.shuffle(shuffledSentences,dvModel.rand);
     for (int batch=0; batch < numBatches; ++batch) {
-      ++batchCount;
       System.err.println("======================================");
       System.err.println("Iteration " + iter + " batch "+ batch);
       int startTree=batch * op.trainOptions.dvBatchSize;
@@ -34,8 +33,7 @@
       if (maxTrainTimeMillis > 0 && totalElapsed > maxTrainTimeMillis) {
         break;
       }
-      if (op.trainOptions.debugOutputFrequency > 0 && batchCount % op.trainOptions.debugOutputFrequency == 0) {
-        System.err.println("Finished " + batchCount + " total batches, running evaluation cycle");
+      if (nextDebugCycle > 0 && totalElapsed > nextDebugCycle) {
         double tagF1=0.0;
         double labelF1=0.0;
         if (testTreebank != null) {
@@ -65,6 +63,7 @@
           fout.close();
         }
         ++debugCycle;
+        nextDebugCycle=timing.report() + op.trainOptions.debugOutputSeconds * 1000;
       }
     }
     long totalElapsed=timing.report();
