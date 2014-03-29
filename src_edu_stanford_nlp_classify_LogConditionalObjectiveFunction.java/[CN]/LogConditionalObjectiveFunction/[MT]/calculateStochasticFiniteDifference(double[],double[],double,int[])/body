@@ -14,13 +14,14 @@
   double[] sumsV=new double[numClasses];
   double[] probs=new double[numClasses];
   double[] probsV=new double[numClasses];
-  for (  int m : batch) {
+  for (int d=0; d < batch.length; d++) {
+    int m=batch[d];
     int[] features=data[m];
     Arrays.fill(sums,0.0);
     Arrays.fill(sumsV,0.0);
     for (int c=0; c < numClasses; c++) {
-      for (      int feature : features) {
-        int i=indexOf(feature,c);
+      for (int f=0; f < features.length; f++) {
+        int i=indexOf(features[f],c);
         sums[c]+=x[i];
         sumsV[c]+=x[i] + h * v[i];
       }
@@ -34,8 +35,8 @@
         probs[c]*=dataweights[m];
         probsV[c]*=dataweights[m];
       }
-      for (      int feature : features) {
-        int i=indexOf(feature,c);
+      for (int f=0; f < features.length; f++) {
+        int i=indexOf(features[f],c);
         derivative[i]+=probs[c];
         HdotV[i]+=(probsV[c] - probs[c]) / h;
         if (c == labels[m]) {
