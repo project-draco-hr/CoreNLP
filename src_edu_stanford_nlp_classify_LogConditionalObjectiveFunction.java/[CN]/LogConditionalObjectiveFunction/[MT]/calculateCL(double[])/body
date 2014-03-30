@@ -1,113 +1,11 @@
 {
   if (values != null) {
     rvfcalculate(x);
-    return;
   }
-  value=0.0;
-  if (derivative == null) {
-    derivative=new double[x.length];
+ else   if (dataIterable != null) {
+    calculateCLiterable(x);
   }
  else {
-    Arrays.fill(derivative,0.0);
+    calculateCLbatch(x);
   }
-  if (derivativeNumerator == null) {
-    derivativeNumerator=new double[x.length];
-    if (data != null) {
-      for (int d=0; d < data.length; d++) {
-        int[] features=data[d];
-        for (        int feature : features) {
-          int i=indexOf(feature,labels[d]);
-          if (dataweights == null) {
-            derivativeNumerator[i]-=1;
-          }
- else {
-            derivativeNumerator[i]-=dataweights[d];
-          }
-        }
-      }
-    }
- else     if (dataIterable != null) {
-      for (      Datum<L,F> datum : dataIterable) {
-        Collection<F> features=datum.asFeatures();
-        for (        F feature : features) {
-          int i=indexOf(featureIndex.indexOf(feature),labelIndex.indexOf(datum.label()));
-          if (dataweights == null) {
-            derivativeNumerator[i]-=1;
-          }
-        }
-      }
-    }
- else {
-      System.err.println("Both were null!  Couldn't calculate.");
-      System.exit(-1);
-    }
-  }
-  copy(derivative,derivativeNumerator);
-  double[] sums=new double[numClasses];
-  double[] probs=new double[numClasses];
-  Iterator<Datum<L,F>> iter=null;
-  int d=-1;
-  if (useIterable)   iter=dataIterable.iterator();
-  Datum<L,F> datum=null;
-  while (true) {
-    if (useIterable) {
-      if (!iter.hasNext())       break;
-      datum=iter.next();
-    }
- else {
-      d++;
-      if (d >= data.length)       break;
-    }
-    Arrays.fill(sums,0.0);
-    double total=0.0;
-    if (!useIterable) {
-      int[] featuresArr=data[d];
-      for (int c=0; c < numClasses; c++) {
-        for (        int feature : featuresArr) {
-          int i=indexOf(feature,c);
-          sums[c]+=x[i];
-        }
-      }
-      total=ArrayMath.logSum(sums);
-      for (int c=0; c < numClasses; c++) {
-        probs[c]=Math.exp(sums[c] - total);
-        if (dataweights != null) {
-          probs[c]*=dataweights[d];
-        }
-        for (        int feature : featuresArr) {
-          int i=indexOf(feature,c);
-          derivative[i]+=probs[c];
-        }
-      }
-    }
- else {
-      Collection<F> features=datum.asFeatures();
-      for (int c=0; c < numClasses; c++) {
-        for (        F feature : features) {
-          int i=indexOf(featureIndex.indexOf(feature),c);
-          sums[c]+=x[i];
-        }
-      }
-      total=ArrayMath.logSum(sums);
-      for (int c=0; c < numClasses; c++) {
-        probs[c]=Math.exp(sums[c] - total);
-        if (dataweights != null) {
-          probs[c]*=dataweights[d];
-        }
-        for (        F feature : features) {
-          int i=indexOf(featureIndex.indexOf(feature),c);
-          derivative[i]+=probs[c];
-        }
-      }
-    }
-    int labelindex;
-    if (useIterable)     labelindex=labelIndex.indexOf(datum.label());
- else     labelindex=labels[d];
-    double dV=sums[labelindex] - total;
-    if (dataweights != null) {
-      dV*=dataweights[d];
-    }
-    value-=dV;
-  }
-  value+=prior.compute(x,derivative);
 }
