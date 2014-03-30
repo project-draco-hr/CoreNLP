@@ -1,0 +1,42 @@
+{
+  value=0.0;
+  if (derivativeNumerator == null) {
+    derivativeNumerator=new double[x.length];
+    for (    Datum<L,F> datum : dataIterable) {
+      Collection<F> features=datum.asFeatures();
+      for (      F feature : features) {
+        int i=indexOf(featureIndex.indexOf(feature),labelIndex.indexOf(datum.label()));
+        if (dataWeights == null) {
+          derivativeNumerator[i]-=1;
+        }
+      }
+    }
+  }
+  copy(derivative,derivativeNumerator);
+  double[] sums=new double[numClasses];
+  double[] probs=new double[numClasses];
+  for (  Datum<L,F> datum : dataIterable) {
+    Arrays.fill(sums,0.0);
+    Collection<F> features=datum.asFeatures();
+    for (    F feature : features) {
+      for (int c=0; c < numClasses; c++) {
+        int i=indexOf(featureIndex.indexOf(feature),c);
+        sums[c]+=x[i];
+      }
+    }
+    double total=ArrayMath.logSum(sums);
+    for (int c=0; c < numClasses; c++) {
+      probs[c]=Math.exp(sums[c] - total);
+    }
+    for (    F feature : features) {
+      for (int c=0; c < numClasses; c++) {
+        int i=indexOf(featureIndex.indexOf(feature),c);
+        derivative[i]+=probs[c];
+      }
+    }
+    int label=this.labelIndex.indexOf(datum.label());
+    double dV=sums[label] - total;
+    value-=dV;
+  }
+  value+=prior.compute(x,derivative);
+}
