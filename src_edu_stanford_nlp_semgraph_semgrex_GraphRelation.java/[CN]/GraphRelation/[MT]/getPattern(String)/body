@@ -1,11 +1,11 @@
 {
   if ((relnType == null) || (relnType.equals(""))) {
-    return ".*";
+    return Filters.acceptFilter();
   }
  else   if (relnType.matches("/.*/")) {
-    return relnType.substring(1,relnType.length() - 1);
+    return new RegexStringFilter(relnType.substring(1,relnType.length() - 1));
   }
  else {
-    return "^(" + relnType + ")$";
+    return new ArrayStringFilter(ArrayStringFilter.Mode.EXACT,relnType);
   }
 }
