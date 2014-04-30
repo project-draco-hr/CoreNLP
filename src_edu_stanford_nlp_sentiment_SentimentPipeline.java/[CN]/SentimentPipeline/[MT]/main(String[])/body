@@ -7,6 +7,7 @@
   boolean filterUnknown=false;
   List<Output> outputFormats=Arrays.asList(new Output[]{Output.ROOT});
   Input inputFormat=Input.TEXT;
+  String tlppClass=DEFAULT_TLPP_CLASS;
   for (int argIndex=0; argIndex < args.length; ) {
     if (args[argIndex].equalsIgnoreCase("-sentimentModel")) {
       sentimentModel=args[argIndex + 1];
@@ -44,6 +45,10 @@
       filterUnknown=true;
       argIndex++;
     }
+ else     if (args[argIndex].equalsIgnoreCase("-tlppClass")) {
+      tlppClass=args[argIndex + 1];
+      argIndex+=2;
+    }
  else     if (args[argIndex].equalsIgnoreCase("-help")) {
       help();
       System.exit(0);
@@ -66,7 +71,9 @@
     pipelineProps.setProperty("ssplit.eolonly","true");
   }
   if (inputFormat == Input.TREES) {
-    pipelineProps.setProperty("annotators","sentiment");
+    pipelineProps.setProperty("annotators","binarizer, sentiment");
+    pipelineProps.setProperty("customAnnotatorClass.binarizer","edu.stanford.nlp.pipeline.BinarizerAnnotator");
+    pipelineProps.setProperty("binarizer.tlppClass",tlppClass);
     pipelineProps.setProperty("enforceRequirements","false");
   }
  else {
