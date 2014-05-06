@@ -1,29 +1,21 @@
 {
   System.err.print("*");
   value=0.0;
-  if (derivativeAD == null) {
-    derivativeAD=new DoubleAD[x.length];
-    for (int i=0; i < x.length; i++) {
-      derivativeAD[i]=new DoubleAD(0.0,0.0);
-    }
+  DoubleAD[] derivativeAD=new DoubleAD[x.length];
+  for (int i=0; i < x.length; i++) {
+    derivativeAD[i]=new DoubleAD(0.0,0.0);
   }
-  if (xAD == null) {
-    xAD=new DoubleAD[x.length];
-    for (int i=0; i < x.length; i++) {
-      xAD[i]=new DoubleAD(x[i],v[i]);
-    }
+  DoubleAD[] xAD=new DoubleAD[x.length];
+  for (int i=0; i < x.length; i++) {
+    xAD[i]=new DoubleAD(x[i],v[i]);
   }
-  if (sums == null) {
-    sums=new DoubleAD[numClasses];
-    for (int c=0; c < numClasses; c++) {
-      sums[c]=new DoubleAD(0,0);
-    }
+  DoubleAD[] sums=new DoubleAD[numClasses];
+  for (int c=0; c < numClasses; c++) {
+    sums[c]=new DoubleAD(0,0);
   }
-  if (probs == null) {
-    probs=new DoubleAD[numClasses];
-    for (int c=0; c < numClasses; c++) {
-      probs[c]=new DoubleAD(0,0);
-    }
+  DoubleAD[] probs=new DoubleAD[numClasses];
+  for (int c=0; c < numClasses; c++) {
+    probs[c]=new DoubleAD(0,0);
   }
   for (int i=0; i < x.length; i++) {
     xAD[i].set(x[i],v[i]);
@@ -36,19 +28,19 @@
       sums[c].set(0.0,0.0);
     }
     for (int c=0; c < numClasses; c++) {
-      for (int f=0; f < features.length; f++) {
-        int i=indexOf(features[f],c);
+      for (      int feature : features) {
+        int i=indexOf(feature,c);
         sums[c]=ADMath.plus(sums[c],xAD[i]);
       }
     }
     DoubleAD total=ADMath.logSum(sums);
     for (int c=0; c < numClasses; c++) {
       probs[c]=ADMath.exp(ADMath.minus(sums[c],total));
-      if (dataweights != null) {
-        probs[c]=ADMath.multConst(probs[c],dataweights[d]);
+      if (dataWeights != null) {
+        probs[c]=ADMath.multConst(probs[c],dataWeights[d]);
       }
-      for (int f=0; f < features.length; f++) {
-        int i=indexOf(features[f],c);
+      for (      int feature : features) {
+        int i=indexOf(feature,c);
         if (c == labels[m]) {
           derivativeAD[i].plusEqualsConst(-1.0);
         }
@@ -56,8 +48,8 @@
       }
     }
     double dV=sums[labels[m]].getval() - total.getval();
-    if (dataweights != null) {
-      dV*=dataweights[d];
+    if (dataWeights != null) {
+      dV*=dataWeights[d];
     }
     value-=dV;
   }

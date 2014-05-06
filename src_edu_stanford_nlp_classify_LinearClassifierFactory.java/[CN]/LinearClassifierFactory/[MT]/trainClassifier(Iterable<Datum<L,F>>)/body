@@ -8,7 +8,6 @@
   }
   System.err.println(String.format("Training linear classifier with %d features and %d labels",featureIndex.size(),labelIndex.size()));
   LogConditionalObjectiveFunction<L,F> objective=new LogConditionalObjectiveFunction<L,F>(dataIterable,logPrior,featureIndex,labelIndex);
-  objective.setPrior(new LogPrior(LogPrior.LogPriorType.QUADRATIC));
   double[] initial=objective.initial();
   double[] weights=minimizer.minimize(objective,TOL,initial);
   LinearClassifier<L,F> classifier=new LinearClassifier<L,F>(objective.to2D(weights),featureIndex,labelIndex);

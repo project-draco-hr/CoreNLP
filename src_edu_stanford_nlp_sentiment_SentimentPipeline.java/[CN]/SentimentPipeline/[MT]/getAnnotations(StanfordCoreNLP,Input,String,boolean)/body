@@ -1,0 +1,45 @@
+{
+switch (inputFormat) {
+case TEXT:
+{
+      String text=IOUtils.slurpFileNoExceptions(filename);
+      Annotation annotation=new Annotation(text);
+      tokenizer.annotate(annotation);
+      List<Annotation> annotations=Generics.newArrayList();
+      for (      CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
+        Annotation nextAnnotation=new Annotation(sentence.get(CoreAnnotations.TextAnnotation.class));
+        nextAnnotation.set(CoreAnnotations.SentencesAnnotation.class,Collections.singletonList(sentence));
+        annotations.add(nextAnnotation);
+      }
+      return annotations;
+    }
+case TREES:
+{
+    List<Tree> trees;
+    if (filterUnknown) {
+      trees=SentimentUtils.readTreesWithGoldLabels(filename);
+      trees=SentimentUtils.filterUnknownRoots(trees);
+    }
+ else {
+      trees=Generics.newArrayList();
+      MemoryTreebank treebank=new MemoryTreebank("utf-8");
+      treebank.loadPath(filename,null);
+      for (      Tree tree : treebank) {
+        trees.add(tree);
+      }
+    }
+    List<Annotation> annotations=Generics.newArrayList();
+    for (    Tree tree : trees) {
+      CoreMap sentence=new Annotation(Sentence.listToString(tree.yield()));
+      sentence.set(TreeCoreAnnotations.TreeAnnotation.class,tree);
+      List<CoreMap> sentences=Collections.singletonList(sentence);
+      Annotation annotation=new Annotation("");
+      annotation.set(CoreAnnotations.SentencesAnnotation.class,sentences);
+      annotations.add(annotation);
+    }
+    return annotations;
+  }
+default :
+throw new IllegalArgumentException("Unknown format " + inputFormat);
+}
+}
