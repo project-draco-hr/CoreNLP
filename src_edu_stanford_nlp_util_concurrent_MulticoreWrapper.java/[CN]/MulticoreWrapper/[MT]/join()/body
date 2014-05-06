@@ -1,14 +1,7 @@
 {
   if (!threadPool.isShutdown()) {
-    int numActiveThreads=nThreads - idleProcessors.size();
-    while (numActiveThreads > 0) {
-      try {
-        idleProcessors.take();
-      }
- catch (      InterruptedException e) {
-        e.printStackTrace();
-      }
-      --numActiveThreads;
+    while (idleProcessors.size() != nThreads) {
+      blockingGetResult();
     }
     threadPool.shutdown();
   }
