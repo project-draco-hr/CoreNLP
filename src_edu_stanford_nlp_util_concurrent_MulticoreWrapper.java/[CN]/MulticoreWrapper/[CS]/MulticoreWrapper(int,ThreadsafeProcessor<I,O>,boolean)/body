@@ -1,12 +1,12 @@
 {
   nThreads=numThreads <= 0 ? Runtime.getRuntime().availableProcessors() : numThreads;
   this.orderResults=orderResults;
-  outputQueue=new PriorityBlockingQueue<QueueItem<O>>(10 * nThreads);
+  outputQueue=new ConcurrentHashMap<Integer,O>(2 * nThreads);
   threadPool=(ThreadPoolExecutor)Executors.newFixedThreadPool(nThreads);
   idleProcessors=new ArrayBlockingQueue<Integer>(nThreads,false);
   callback=new JobCallback<O>(){
     @Override public void call(    QueueItem<O> result,    int processorId){
-      outputQueue.add(result);
+      outputQueue.put(result.id,result.item);
       idleProcessors.add(processorId);
     }
   }
