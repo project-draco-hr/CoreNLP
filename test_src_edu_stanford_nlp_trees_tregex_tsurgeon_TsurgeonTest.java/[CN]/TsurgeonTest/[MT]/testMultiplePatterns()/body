@@ -1,0 +1,10 @@
+{
+  TregexPattern tregex=TregexPattern.compile("A=foo < B=bar < C=baz");
+  TsurgeonPattern tsurgeon=Tsurgeon.parseOperation("[relabel baz BAZ] [move baz >-1 bar]");
+  runTest(tregex,tsurgeon,"(A (B foo) (C foo) (C bar))","(A (B foo (BAZ foo) (BAZ bar)))");
+  tsurgeon=Tsurgeon.parseOperation("[relabel baz /^.*$/={bar}={baz}FOO/] [move baz >-1 bar]");
+  runTest(tregex,tsurgeon,"(A (B foo) (C foo) (C bar))","(A (B foo (BCFOO foo) (BCFOO bar)))");
+  tregex=TregexPattern.compile("A=foo < B=bar < C=baz < D=biff");
+  tsurgeon=Tsurgeon.parseOperation("[relabel baz /^.*$/={bar}={baz}/] [relabel biff /^.*$/={bar}={biff}/]");
+  runTest(tregex,tsurgeon,"(A (B foo) (C bar) (D baz))","(A (B foo) (BC bar) (BD baz))");
+}
