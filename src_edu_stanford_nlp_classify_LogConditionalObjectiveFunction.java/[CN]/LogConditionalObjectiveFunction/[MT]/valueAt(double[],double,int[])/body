@@ -1,7 +1,9 @@
 {
   value=0.0;
+  int batchSize=batch.length;
   double[] sums=new double[numClasses];
-  for (  int m : batch) {
+  for (int d=0; d < batchSize; d++) {
+    int m=batch[d];
     int[] features=data[m];
     Arrays.fill(sums,0.0);
     for (int c=0; c < numClasses; c++) {
@@ -17,8 +19,8 @@
     }
     double total=ArrayMath.logSum(sums);
     double dV=sums[labels[m]] - total;
-    if (dataWeights != null) {
-      dV*=dataWeights[m];
+    if (dataweights != null) {
+      dV*=dataweights[m];
     }
     value-=dV;
   }
