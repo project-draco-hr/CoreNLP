@@ -18,15 +18,18 @@
       if (indices != null && !indices.isEmpty())       for (      int index : indices)       for (int i=0; i < s.length; i++) {
         matchedPhrases.add(index + i,StringUtils.join(s," "));
         labels[index + i]=true;
-        Redwood.log(Redwood.DBG,channelNameLogger,"labeling " + tokens[index + i] + " or its lemma "+ tokenslemma[index + i]+ " as "+ label+ " because of the dict phrase "+ StringUtils.join(s," "));
       }
     }
     int i=-1;
     for (    CoreLabel l : sent) {
       i++;
-      if (labels[i])       l.set(labelClass,label);
+      if (labels[i]) {
+        l.set(labelClass,label);
+        Redwood.log(Redwood.DBG,channelNameLogger,"labeling " + l.word() + " or its lemma "+ l.lemma()+ " as "+ label+ " because of the dict phrases "+ (Set<String>)matchedPhrases.get(i));
+      }
  else       l.set(labelClass,constVars.backgroundSymbol);
-      l.set(PatternsAnnotations.MatchedPhrases.class,(Set<String>)matchedPhrases.get(i));
+      if (!l.containsKey(PatternsAnnotations.MatchedPhrases.class))       l.set(PatternsAnnotations.MatchedPhrases.class,new HashSet<String>());
+      l.get(PatternsAnnotations.MatchedPhrases.class).addAll(matchedPhrases.get(i));
     }
     newsent.put(k,sent);
   }

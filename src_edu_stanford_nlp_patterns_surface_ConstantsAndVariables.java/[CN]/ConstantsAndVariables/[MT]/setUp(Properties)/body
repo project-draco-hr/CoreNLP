@@ -28,7 +28,7 @@
     for (    Entry<String,Class> en : this.answerClass.entrySet()) {
       env.get(label).bind(en.getKey(),en.getValue());
     }
-    for (    Entry<String,Class> en : generalizeClasses.get(label).entrySet())     env.get(label).bind(en.getKey(),en.getValue());
+    for (    Entry<String,Class> en : generalizeClasses.entrySet())     env.get(label).bind(en.getKey(),en.getValue());
   }
   Redwood.log(Redwood.DBG,channelNameLogger,"Running with debug output");
   stopWords=new HashSet<String>();
@@ -67,6 +67,7 @@
     env.get(label).bind("$FILLER","/" + StringUtils.join(fillerWords,"|") + "/");
     env.get(label).bind("$STOPWORD",stopStr);
     env.get(label).bind("$MOD","[{tag:/JJ.*/}]");
+    if (matchLowerCaseContext)     env.get(label).setDefaultStringPatternFlags(Pattern.CASE_INSENSITIVE);
   }
   if (wordClassClusterFile != null) {
     wordClassClusters=new HashMap<String,Integer>();

@@ -3,11 +3,14 @@
   if (!prevContext.isEmpty()) {
     str+=prevContext + " ";
   }
-  str+="[";
+  List<String> restrictions=new ArrayList<String>();
   if (useTag) {
-    str+="{tag:/" + tag + ".*/}";
+    restrictions.add("{tag:/" + tag + ".*/}");
   }
-  str+="]{1," + numWordsCompound + "}";
+  if (useNER) {
+    restrictions.add("{ner:" + nerTag + "}");
+  }
+  str+="[" + StringUtils.join(restrictions," & ") + "]{1,"+ numWordsCompound+ "}";
   if (!nextContext.isEmpty())   str+=" " + nextContext;
   str+=")";
   str=StringUtils.toAscii(str);

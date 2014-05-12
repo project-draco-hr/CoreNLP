@@ -54,9 +54,11 @@
       String fileFormat=props.getProperty("fileFormat");
       String file=props.getProperty("file");
       String posModelPath=props.getProperty("posModelPath");
+      boolean lowercase=Boolean.parseBoolean(props.getProperty("lowercaseText"));
+      boolean useTargetNERRestriction=Boolean.parseBoolean(props.getProperty("useTargetNERRestriction"));
       if (fileFormat == null || fileFormat.equalsIgnoreCase("text") || fileFormat.equalsIgnoreCase("txt")) {
         String text=IOUtils.stringFromFile(file);
-        sents=tokenize(text,posModelPath);
+        sents=tokenize(text,posModelPath,lowercase,useTargetNERRestriction);
       }
  else       if (fileFormat.equalsIgnoreCase("ser")) {
         sents=IOUtils.readObjectFromFile(file);

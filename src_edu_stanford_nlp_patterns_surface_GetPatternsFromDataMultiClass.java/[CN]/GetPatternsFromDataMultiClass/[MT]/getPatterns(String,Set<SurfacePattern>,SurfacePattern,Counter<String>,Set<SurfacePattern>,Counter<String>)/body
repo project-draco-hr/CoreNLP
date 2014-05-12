@@ -106,6 +106,7 @@
       }
     }
   }
+  Redwood.log("extremePatDebug","Patterns around positive words in the label " + label + " are "+ patternsandWords4Label);
   CollectionValuedMap<SurfacePattern,String> posWords=new CollectionValuedMap<SurfacePattern,String>();
   for (  Entry<SurfacePattern,ClassicCounter<String>> en : patternsandWords4Label.entrySet()) {
     posWords.addAll(en.getKey(),en.getValue().keySet());
@@ -257,7 +258,7 @@
       break;
     }
     boolean notchoose=false;
-    if (discardPatternsWithNoUnlabSupport && (unLabeledPatternsandWords4Label.containsFirstKey(pat) || unLabeledPatternsandWords4Label.getCounter(pat).isEmpty())) {
+    if (discardPatternsWithNoUnlabSupport && (!unLabeledPatternsandWords4Label.containsFirstKey(pat) || unLabeledPatternsandWords4Label.getCounter(pat).isEmpty())) {
       Redwood.log("extremePatDebug","Removing pattern " + pat + " because it has no unlab support; pos words: "+ patternsandWords4Label.getCounter(pat)+ " and all words "+ allPatternsandWords4Label.getCounter(pat));
       notchoose=true;
       continue;
@@ -356,7 +357,8 @@
     for (    SurfacePattern key : chosenPat.keySet()) {
       Redwood.log(Redwood.DBG,channelNameLogger,"Pattern: " + key.toStringToWrite());
       Redwood.log(Redwood.DBG,channelNameLogger,"Positive Words:" + Counters.toSortedString(patternsandWords4Label.getCounter(key),patternsandWords4Label.getCounter(key).size(),"%1$s:%2$f",";"));
-      Redwood.log(Redwood.DBG,channelNameLogger,"Negative words: " + Counters.toSortedString(allPatternsandWords4Label.getCounter(key),allPatternsandWords4Label.getCounter(key).size(),"%1$s:%2$f",";"));
+      Redwood.log(Redwood.DBG,channelNameLogger,"Negative Words:" + Counters.toSortedString(negPatternsandWords4Label.getCounter(key),negPatternsandWords4Label.getCounter(key).size(),"%1$s:%2$f",";"));
+      Redwood.log(Redwood.DBG,channelNameLogger,"All Words: " + Counters.toSortedString(allPatternsandWords4Label.getCounter(key),allPatternsandWords4Label.getCounter(key).size(),"%1$s:%2$f",";"));
     }
   }
   allPatternsandWords.put(label,allPatternsandWords4Label);
