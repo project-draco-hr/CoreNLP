@@ -23,6 +23,9 @@
     }
  else {
       String seedWordsFiles=props.getProperty("seedWordsFiles");
+      if (seedWordsFiles == null) {
+        throw new RuntimeException("Needs both seedWordsFiles and file parameters to run this class!\nseedWordsFiles has format: label1,filewithlistofwords1;label2,filewithlistofwords2;...");
+      }
       for (      String seedFile : seedWordsFiles.split(";")) {
         String[] t=seedFile.split(",");
         String label=t[0];
@@ -51,14 +54,14 @@
       String fileFormat=props.getProperty("fileFormat");
       String file=props.getProperty("file");
       String posModelPath=props.getProperty("posModelPath");
-      if (fileFormat.equalsIgnoreCase("text") || fileFormat.equalsIgnoreCase("txt")) {
+      if (fileFormat == null || fileFormat.equalsIgnoreCase("text") || fileFormat.equalsIgnoreCase("txt")) {
         String text=IOUtils.stringFromFile(file);
         sents=tokenize(text,posModelPath);
       }
  else       if (fileFormat.equalsIgnoreCase("ser")) {
         sents=IOUtils.readObjectFromFile(file);
       }
- else       throw new RuntimeException("Cannot identify the file format");
+ else       throw new RuntimeException("Cannot identify the file format. Valid values are text (or txt) and ser, where the serialized file is of the type Map<String, List<CoreLabel>>.");
       System.out.println("Processing # sents " + sents.size());
       g=new GetPatternsFromDataMultiClass(props,sents,seedWords);
       Execution.fillOptions(g,props);

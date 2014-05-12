@@ -146,19 +146,19 @@
  else   if (patternScoring.equals(PatternScoring.PosNegUnlabOdds) || patternScoring.equals(PatternScoring.PosNegOdds) || patternScoring.equals(PatternScoring.RatioAll)|| patternScoring.equals(PatternScoring.PhEvalInPat)|| patternScoring.equals(PatternScoring.PhEvalInPatLogP)|| patternScoring.equals(PatternScoring.LOGREG)|| patternScoring.equals(PatternScoring.SqrtAllRatio)) {
     boolean useFreqPhraseExtractedByPat=false;
     if (patternScoring.equals(PatternScoring.SqrtAllRatio))     useFreqPhraseExtractedByPat=true;
-    Counter<SurfacePattern> numeratorPatWt=this.convert2OneDim(label,patternsandWords4Label,normWordFreqInPattern,false,null,minPosPhraseSupportForPat,useFreqPhraseExtractedByPat);
+    Counter<SurfacePattern> numeratorPatWt=this.convert2OneDim(label,patternsandWords4Label,sqrtPatScore,false,null,minPosPhraseSupportForPat,useFreqPhraseExtractedByPat);
     Counter<SurfacePattern> denominatorPatWt=null;
     if (patternScoring.equals(PatternScoring.PosNegUnlabOdds)) {
-      denominatorPatWt=this.convert2OneDim(label,negandUnLabeledPatternsandWords4Label,normWordFreqInPattern,false,externalWordWeightsNormalized,minNegPhraseSupportForPat,useFreqPhraseExtractedByPat);
+      denominatorPatWt=this.convert2OneDim(label,negandUnLabeledPatternsandWords4Label,sqrtPatScore,false,externalWordWeightsNormalized,minNegPhraseSupportForPat,useFreqPhraseExtractedByPat);
     }
  else     if (patternScoring.equals(PatternScoring.RatioAll)) {
-      denominatorPatWt=this.convert2OneDim(label,allPatternsandWords4Label,normWordFreqInPattern,false,externalWordWeightsNormalized,minNegPhraseSupportForPat,useFreqPhraseExtractedByPat);
+      denominatorPatWt=this.convert2OneDim(label,allPatternsandWords4Label,sqrtPatScore,false,externalWordWeightsNormalized,minNegPhraseSupportForPat,useFreqPhraseExtractedByPat);
     }
  else     if (patternScoring.equals(PatternScoring.PosNegOdds)) {
-      denominatorPatWt=this.convert2OneDim(label,negPatternsandWords4Label,normWordFreqInPattern,false,externalWordWeightsNormalized,minNegPhraseSupportForPat,useFreqPhraseExtractedByPat);
+      denominatorPatWt=this.convert2OneDim(label,negPatternsandWords4Label,sqrtPatScore,false,externalWordWeightsNormalized,minNegPhraseSupportForPat,useFreqPhraseExtractedByPat);
     }
  else     if (patternScoring.equals(PatternScoring.PhEvalInPat) || patternScoring.equals(PatternScoring.PhEvalInPatLogP) || patternScoring.equals(PatternScoring.LOGREG)) {
-      denominatorPatWt=this.convert2OneDim(label,negandUnLabeledPatternsandWords4Label,normWordFreqInPattern,true,externalWordWeightsNormalized,minNegPhraseSupportForPat,useFreqPhraseExtractedByPat);
+      denominatorPatWt=this.convert2OneDim(label,negandUnLabeledPatternsandWords4Label,sqrtPatScore,true,externalWordWeightsNormalized,minNegPhraseSupportForPat,useFreqPhraseExtractedByPat);
     }
  else     if (patternScoring.equals(PatternScoring.SqrtAllRatio)) {
       denominatorPatWt=this.convert2OneDim(label,negandUnLabeledPatternsandWords4Label,true,false,externalWordWeightsNormalized,minNegPhraseSupportForPat,useFreqPhraseExtractedByPat);
@@ -257,8 +257,8 @@
       break;
     }
     boolean notchoose=false;
-    if (discardPatternsWithNoNegSupport && patternsandWords4Label.getCounter(pat).equals(allPatternsandWords4Label.getCounter(pat))) {
-      Redwood.log("extremePatDebug","Removing pattern " + pat + " because it has no neg support; pos words: "+ patternsandWords4Label.getCounter(pat)+ " and all words "+ allPatternsandWords4Label.getCounter(pat));
+    if (discardPatternsWithNoUnlabSupport && (unLabeledPatternsandWords4Label.containsFirstKey(pat) || unLabeledPatternsandWords4Label.getCounter(pat).isEmpty())) {
+      Redwood.log("extremePatDebug","Removing pattern " + pat + " because it has no unlab support; pos words: "+ patternsandWords4Label.getCounter(pat)+ " and all words "+ allPatternsandWords4Label.getCounter(pat));
       notchoose=true;
       continue;
     }
