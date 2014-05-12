@@ -1,4 +1,15 @@
 {
+  CollectionValuedMap<String,Integer> tokensMatchedPatterns=null;
+  if (restrictToMatched) {
+    tokensMatchedPatterns=new CollectionValuedMap<String,Integer>();
+    for (    Entry<SurfacePattern,Collection<Triple<String,Integer,Integer>>> en : matchedTokensByPat.entrySet()) {
+      for (      Triple<String,Integer,Integer> en2 : en.getValue()) {
+        for (int i=en2.second(); i <= en2.third(); i++) {
+          tokensMatchedPatterns.add(en2.first(),i);
+        }
+      }
+    }
+  }
   for (  Entry<String,List<CoreLabel>> sentEn : sents.entrySet()) {
     Set<String[]> identifiedWordsTokens=new HashSet<String[]>();
     for (    String s : identifiedWords) {

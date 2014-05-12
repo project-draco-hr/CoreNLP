@@ -5,7 +5,6 @@
   if (!learnedWords.containsKey(label)) {
     learnedWords.put(label,new ClassicCounter<String>());
   }
-  CollectionValuedMap<String,Integer> tokensMatchedPatterns=new CollectionValuedMap<String,Integer>();
   BufferedWriter wordsOutput=null;
   if (wordsOutputFile != null)   wordsOutput=new BufferedWriter(new FileWriter(wordsOutputFile));
   TwoDimensionalCounter<String,SurfacePattern> terms=new TwoDimensionalCounter<String,SurfacePattern>();
@@ -16,8 +15,8 @@
     learnedPatterns.get(label).addAll(patterns);
     if (sentsOutFile != null)     sentsOutFile=sentsOutFile + "_" + i+ "iter.ser";
     Counter<String> scoreForAllWordsThisIteration=new ClassicCounter<String>();
-    identifiedWords.addAll(scorePhrases.learnNewPhrases(label,Data.sents,this.patternsForEachToken,patterns,learnedPatterns.get(label),dictOddsWordWeights,tokensMatchedPatterns,scoreForAllWordsThisIteration,terms,wordsPatExtracted.get(label),currentPatternWeights.get(label),this.patternsandWords.get(label),this.allPatternsandWords.get(label),identifier,ignoreWords));
-    if (usePatternResultAsLabel)     if (constVars.getLabelDictionary().containsKey(label))     labelWords(label,Data.sents,identifiedWords.keySet(),patterns.keySet(),sentsOutFile,tokensMatchedPatterns);
+    identifiedWords.addAll(scorePhrases.learnNewPhrases(label,Data.sents,this.patternsForEachToken,patterns,learnedPatterns.get(label),dictOddsWordWeights,matchedTokensByPat,scoreForAllWordsThisIteration,terms,wordsPatExtracted.get(label),currentPatternWeights.get(label),this.patternsandWords.get(label),this.allPatternsandWords.get(label),identifier,ignoreWords));
+    if (usePatternResultAsLabel)     if (constVars.getLabelDictionary().containsKey(label))     labelWords(label,Data.sents,identifiedWords.keySet(),patterns.keySet(),sentsOutFile,matchedTokensByPat);
  else     throw new RuntimeException("why is the answer label null?");
     learnedWords.get(label).addAll(identifiedWords);
     if (wordsOutput != null) {
@@ -40,5 +39,5 @@
   }
   if (wordsOutput != null)   wordsOutput.close();
   if (patternsOutFile != null)   this.writePatternsToFile(learnedPatterns.get(label),patternsOutFile);
-  return new Pair(patterns,identifiedWords);
+  return new Pair<Counter<SurfacePattern>,Counter<String>>(patterns,identifiedWords);
 }

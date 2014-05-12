@@ -26,22 +26,22 @@
     if (constVars.numThreads == 1)     num=keyset.size();
  else     num=keyset.size() / (constVars.numThreads - 1);
     ExecutorService executor=Executors.newFixedThreadPool(constVars.numThreads);
-    List<Future<Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<String,Integer>>>> list=new ArrayList<Future<Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<String,Integer>>>>();
+    List<Future<Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<SurfacePattern,Triple<String,Integer,Integer>>>>> list=new ArrayList<Future<Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<SurfacePattern,Triple<String,Integer,Integer>>>>>();
     for (int i=0; i < constVars.numThreads; i++) {
-      Callable<Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<String,Integer>>> task=null;
+      Callable<Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<SurfacePattern,Triple<String,Integer,Integer>>>> task=null;
       Map<TokenSequencePattern,SurfacePattern> patternsLearnedThisIterConverted=new HashMap<TokenSequencePattern,SurfacePattern>();
       for (      SurfacePattern p : patternsLearnedThisIter.keySet()) {
         TokenSequencePattern pat=TokenSequencePattern.compile(constVars.env.get(label),p.toString());
         patternsLearnedThisIterConverted.put(pat,p);
       }
       task=new ApplyPatternsMulti(keyset.subList(i * num,Math.min(keyset.size(),(i + 1) * num)),patternsLearnedThisIterConverted,constVars.getCommonEngWords(),alreadyIdentifiedWords,constVars.restrictToMatched,label,constVars.removeStopWordsFromSelectedPhrases,constVars.removePhrasesWithStopWords,constVars);
-      Future<Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<String,Integer>>> submit=executor.submit(task);
+      Future<Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<SurfacePattern,Triple<String,Integer,Integer>>>> submit=executor.submit(task);
       list.add(submit);
     }
-    for (    Future<Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<String,Integer>>> future : list) {
-      Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<String,Integer>> result=future.get();
+    for (    Future<Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<SurfacePattern,Triple<String,Integer,Integer>>>> future : list) {
+      Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<SurfacePattern,Triple<String,Integer,Integer>>> result=future.get();
       wordsandLemmaPatExtracted.addAll(result.first());
-      tokensMatchedPatterns.addAll(result.second());
+      matchedTokensByPat.addAll(result.second());
     }
     executor.shutdown();
   }
@@ -64,7 +64,7 @@
     Counters.addInPlace(scoreForAllWordsThisIteration,phraseScores);
     Redwood.log(Redwood.FORCE,channelNameLogger,"## Selected Words: " + Counters.toSortedString(finalwords,finalwords.size(),"%1$s:%2$.2f","\t"));
     if (justificationDirJson != null && !justificationDirJson.isEmpty()) {
-      IOUtils.ensureDir(new File(justificationDirJson + "/" + label));
+      IOUtils.ensureDir(new File(justificationDirJson + "/" + identifier+ "/"+ label));
       TwoDimensionalCounter<String,String> reasonForWords=new TwoDimensionalCounter<String,String>();
       for (      String word : finalwords.keySet()) {
         for (        SurfacePattern l : wordsPatExtracted.getCounter(word).keySet()) {
@@ -73,7 +73,7 @@
           }
         }
       }
-      String filename=justificationDirJson + "/" + label+ "/"+ identifier+ "_words"+ ".json";
+      String filename=justificationDirJson + "/" + identifier+ "/"+ label+ "/words"+ ".json";
       JsonArrayBuilder obj=Json.createArrayBuilder();
       if (writtenInJustification.containsKey(label) && writtenInJustification.get(label)) {
         JsonReader jsonReader=Json.createReader(new BufferedInputStream(new FileInputStream(filename)));
