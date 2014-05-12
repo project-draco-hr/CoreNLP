@@ -2,26 +2,6 @@
   if (alreadySetUp) {
     return;
   }
-  if (externalFeatureWeightsFile != null) {
-    File f=new File(externalFeatureWeightsFile);
-    if (!f.exists()) {
-      System.err.println("externalweightsfile does not exist: learning weights!");
-      LearnImportantFeatures lmf=new LearnImportantFeatures();
-      if (answerClass.size() > 1 || this.labelDictionary.size() > 1)       throw new RuntimeException("not implemented");
-      lmf.answerClass=CollectionUtils.toList(answerClass.values()).get(0);
-      lmf.answerLabel=CollectionUtils.toList(labelDictionary.keySet()).get(0);
-      Execution.fillOptions(lmf,props);
-      lmf.setUp();
-      lmf.getTopFeatures(Data.sents,perSelectRand,perSelectNeg);
-    }
-    for (    String line : IOUtils.readLines(externalFeatureWeightsFile)) {
-      String[] t=line.split(":");
-      if (!t[0].startsWith("Cluster"))       continue;
-      String s=t[0].replace("Cluster-","");
-      Integer clusterNum=Integer.parseInt(s);
-      distSimWeights.setCount(clusterNum,Double.parseDouble(t[1]));
-    }
-  }
   if (wordIgnoreRegex != null && !wordIgnoreRegex.isEmpty())   ignoreWordRegex=Pattern.compile(wordIgnoreRegex);
   for (  String label : labelDictionary.keySet()) {
     env.put(label,TokenSequencePattern.getNewEnv());
@@ -68,6 +48,7 @@
     env.get(label).bind("$STOPWORD",stopStr);
     env.get(label).bind("$MOD","[{tag:/JJ.*/}]");
     if (matchLowerCaseContext)     env.get(label).setDefaultStringPatternFlags(Pattern.CASE_INSENSITIVE);
+    env.get(label).bind("OTHERSEM",PatternsAnnotations.OtherSemanticLabel.class);
   }
   if (wordClassClusterFile != null) {
     wordClassClusters=new HashMap<String,Integer>();

@@ -12,7 +12,6 @@
     Map<String,Set<SurfacePattern>> ignorePatterns=new HashMap<String,Set<SurfacePattern>>();
     Map<String,SurfacePattern> p0=new HashMap<String,SurfacePattern>();
     Map<String,Counter<String>> p0Set=new HashMap<String,Counter<String>>();
-    Map<String,Counter<String>> externalWordWeights=new HashMap<String,Counter<String>>();
     String fileFormat=props.getProperty("fileFormat");
     if (inputSavedInstanceFile == null || !new File(inputSavedInstanceFile).exists()) {
       readFromSavedInstance=false;
@@ -76,13 +75,10 @@
       Execution.fillOptions(g,props);
       g.extremedebug=Boolean.parseBoolean(props.getProperty("extremedebug"));
       g.setUp();
-      for (      String l : seedWords.keySet()) {
-        g.runLabelSeedWords(l,seedWords.get(l));
-      }
     }
     g.extremedebug=Boolean.parseBoolean(props.getProperty("extremedebug"));
     System.out.println("Already learned words are " + g.getLearnedWords("onelabel"));
-    g.iterateExtractApply(p0,p0Set,externalWordWeights,wordsOutputFile,sentsOutFile,patternOutFile,ignorePatterns);
+    g.iterateExtractApply(p0,p0Set,wordsOutputFile,sentsOutFile,patternOutFile,ignorePatterns);
     if (saveInstance) {
       System.out.println("Saving the instance to " + outputSavedInstanceFile);
       IOUtils.writeObjectToFile(g,outputSavedInstanceFile);

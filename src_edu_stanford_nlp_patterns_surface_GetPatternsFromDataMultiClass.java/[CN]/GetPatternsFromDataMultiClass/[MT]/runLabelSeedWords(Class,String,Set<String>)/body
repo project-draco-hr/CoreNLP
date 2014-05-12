@@ -9,7 +9,7 @@
   for (int i=0; i < constVars.numThreads; i++) {
     List<String> keys=keyset.subList(i * num,Math.min(keyset.size(),(i + 1) * num));
     Redwood.log(Redwood.FORCE,channelNameLogger,"assigning from " + i * num + " till " + Math.min(keyset.size(),(i + 1) * num));
-    Callable<Map<String,List<CoreLabel>>> task=new LabelWithSeedWords(seedWords,Data.sents,keys,constVars.answerClass.get(label),label);
+    Callable<Map<String,List<CoreLabel>>> task=new LabelWithSeedWords(seedWords,Data.sents,keys,answerclass,label);
     Future<Map<String,List<CoreLabel>>> submit=executor.submit(task);
     list.add(submit);
   }
