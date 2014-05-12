@@ -29,7 +29,7 @@
     List<Future<Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<String,Integer>>>> list=new ArrayList<Future<Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<String,Integer>>>>();
     for (int i=0; i < numThreads; i++) {
       Callable<Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<String,Integer>>> task=null;
-      task=new ApplyPatterns(keyset.subList(i * num,Math.min(keyset.size(),(i + 1) * num)),patternsLearnedThisIter,constVars.commonEngWords,usePatternResultAsLabel,alreadyIdentifiedWords,restrictToMatched,label,constVars.removeStopWordsFromSelectedPhrases,constVars.removePhrasesWithStopWords,constVars);
+      task=new ApplyPatterns(keyset.subList(i * num,Math.min(keyset.size(),(i + 1) * num)),patternsLearnedThisIter,constVars.getCommonEngWords(),usePatternResultAsLabel,alreadyIdentifiedWords,restrictToMatched,label,constVars.removeStopWordsFromSelectedPhrases,constVars.removePhrasesWithStopWords,constVars);
       Future<Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<String,Integer>>> submit=executor.submit(task);
       list.add(submit);
     }
@@ -42,14 +42,14 @@
   }
   if (wordScoring.equals(WordScoring.WEIGHTEDNORM)) {
     for (    Pair<String,String> en : wordsandLemmaPatExtracted.firstKeySet()) {
-      if (!constVars.otherSemanticClasses.contains(en.first()) && !constVars.otherSemanticClasses.contains(en.second())) {
+      if (!constVars.getOtherSemanticClasses().contains(en.first()) && !constVars.getOtherSemanticClasses().contains(en.second())) {
         terms.addAll(en.first(),wordsandLemmaPatExtracted.getCounter(en));
       }
       wordsPatExtracted.addAll(en.first(),wordsandLemmaPatExtracted.getCounter(en));
     }
     removeKeys(terms,constVars.stopWords);
     Counter<String> phraseScores=phraseScorer.scorePhrases(sents,label,terms,wordsPatExtracted,dictOddsWordWeights,allSelectedPatterns,alreadyIdentifiedWords,false);
-    Counter<String> finalwords=chooseTopWords(phraseScores,terms,phraseScores,constVars.otherSemanticClasses,thresholdWordExtract);
+    Counter<String> finalwords=chooseTopWords(phraseScores,terms,phraseScores,constVars.getOtherSemanticClasses(),thresholdWordExtract);
     scoreForAllWordsThisIteration.clear();
     Counters.addInPlace(scoreForAllWordsThisIteration,phraseScores);
     Redwood.log(Redwood.FORCE,channelNameLogger,"## Selected Words: " + Counters.toSortedString(finalwords,finalwords.size(),"%1$s:%2$.2f","\t"));

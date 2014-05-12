@@ -12,7 +12,7 @@
       lmf.answerLabel=CollectionUtils.toList(labelDictionary.keySet()).get(0);
       Execution.fillOptions(lmf,props);
       lmf.setUp();
-      lmf.getTopFeatures(Data.sents,perSelectRand,perSelectNeg,wekaOptions);
+      lmf.getTopFeatures(Data.sents,perSelectRand,perSelectNeg);
     }
     for (    String line : IOUtils.readLines(externalFeatureWeightsFile)) {
       String[] t=line.split(":");
@@ -66,11 +66,11 @@
     env.get(label).bind("$STOPWORD",stopStr);
     env.get(label).bind("$MOD","[{tag:/JJ.*/}]");
   }
-  if (distSimClusterFile != null) {
-    distSimClusters=new HashMap<String,Integer>();
-    for (    String line : IOUtils.readLines(distSimClusterFile)) {
+  if (wordClassClusterFile != null) {
+    wordClassClusters=new HashMap<String,Integer>();
+    for (    String line : IOUtils.readLines(wordClassClusterFile)) {
       String[] t=line.split("\t");
-      distSimClusters.put(t[0],Integer.parseInt(t[1]));
+      wordClassClusters.put(t[0],Integer.parseInt(t[1]));
     }
   }
   alreadySetUp=true;
