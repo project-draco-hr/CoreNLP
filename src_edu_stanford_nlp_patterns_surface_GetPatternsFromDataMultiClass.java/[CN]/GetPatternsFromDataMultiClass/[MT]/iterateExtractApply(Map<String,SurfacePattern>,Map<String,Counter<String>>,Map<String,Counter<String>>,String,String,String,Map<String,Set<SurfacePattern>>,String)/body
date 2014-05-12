@@ -13,14 +13,18 @@
   Redwood.log(Redwood.FORCE,"Iterating " + numIterationsForPatterns + " times.");
   for (int i=0; i < numIterationsForPatterns; i++) {
     Redwood.log(Redwood.FORCE,channelNameLogger,"\n\n################################ Iteration " + (i + 1) + " ##############################");
+    boolean keepRunning=false;
     Map<String,Counter<String>> learnedWordsThisIter=new HashMap<String,Counter<String>>();
     for (    String label : constVars.getLabelDictionary().keySet()) {
       Redwood.log(Redwood.FORCE,channelNameLogger,"\n###Learning for label " + label + " ######");
       String wordsout=wordsOutputFile == null ? null : wordsOutputFile + "_" + label;
       String sentout=sentsOutFile == null ? null : sentsOutFile + "_" + label;
       String patout=patternsOutFile == null ? null : patternsOutFile + "_" + label;
-      Counter<String> learnedWords4label=iterateExtractApply4Label(label,p0 != null ? p0.get(label) : null,p0Set != null ? p0Set.get(label) : null,externalWordWeights != null ? externalWordWeights.get(label) : null,wordsout,sentout,patout,ignorePatterns != null ? ignorePatterns.get(label) : null,feedbackfile,1,ignoreWordsAll.get(label));
-      learnedWordsThisIter.put(label,learnedWords4label);
+      Pair<Counter<SurfacePattern>,Counter<String>> learnedPatWords4label=iterateExtractApply4Label(label,p0 != null ? p0.get(label) : null,p0Set != null ? p0Set.get(label) : null,externalWordWeights != null ? externalWordWeights.get(label) : null,wordsout,sentout,patout,ignorePatterns != null ? ignorePatterns.get(label) : null,feedbackfile,1,ignoreWordsAll.get(label));
+      learnedWordsThisIter.put(label,learnedPatWords4label.second());
+      if (learnedPatWords4label.first().size() > 0) {
+        keepRunning=true;
+      }
     }
     if (this.useOtherLabelsWordsasNegative) {
       for (      String label : constVars.getLabelDictionary().keySet()) {
@@ -30,6 +34,14 @@
         }
       }
     }
+    if (!keepRunning && !this.tuneThresholdKeepRunning) {
+      Redwood.log(Redwood.FORCE,"No patterns learned for all labels. Ending iterations.");
+      break;
+    }
+  }
+  System.out.println("\n\nAll patterns learned:");
+  for (  Entry<String,Counter<SurfacePattern>> en : this.learnedPatterns.entrySet()) {
+    System.out.println(en.getKey() + ":\t\t" + StringUtils.join(en.getValue().keySet(),"\n")+ "\n\n");
   }
   System.out.println("\n\nAll words learned:");
   for (  Entry<String,Counter<String>> en : this.learnedWords.entrySet()) {
