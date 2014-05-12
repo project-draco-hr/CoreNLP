@@ -1,7 +1,7 @@
 {
   if (Data.processedDataFreq == null) {
     Data.processedDataFreq=new ClassicCounter<String>();
-    Data.computeRawFreqIfNull(numWordsCompound);
+    Data.computeRawFreqIfNull(constVars.numWordsCompound);
     if (!phraseScorer.wordFreqNorm.equals(Normalization.NONE)) {
       System.out.println("computing processed freq");
       for (      Entry<String,Double> fq : Data.rawFreq.entrySet()) {
@@ -14,7 +14,7 @@
     }
  else     Data.processedDataFreq=Data.rawFreq;
   }
-  Counter<String> words=learnNewPhrasesPrivate(label,sents,patternsForEachToken,patternsLearnedThisIter,allSelectedPatterns,constVars.getLabelDictionary().get(label),dictOddsWordWeights,tokensMatchedPatterns,scoreForAllWordsThisIteration,terms,wordsPatExtracted,currentAllPatternWeights,patternsAndWords4Label,allPatternsAndWords4Label,identifier);
+  Counter<String> words=learnNewPhrasesPrivate(label,sents,patternsForEachToken,patternsLearnedThisIter,allSelectedPatterns,constVars.getLabelDictionary().get(label),dictOddsWordWeights,tokensMatchedPatterns,scoreForAllWordsThisIteration,terms,wordsPatExtracted,currentAllPatternWeights,patternsAndWords4Label,allPatternsAndWords4Label,identifier,ignoreWords);
   constVars.getLabelDictionary().get(label).addAll(words.keySet());
   return words;
 }

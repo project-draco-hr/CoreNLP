@@ -9,10 +9,10 @@
     String originalPrevStr="", originalNextStr="";
     List<String> nextTokens=new ArrayList<String>();
     int numStopWordsprev=0, numStopWordsnext=0;
-    int numPrevTokensSpecial=0, numNextTokensSpecial=0;
+    int numNonStopWordsNext=0, numNonStopWordsPrev=0;
     boolean useprev=false, usenext=false;
     if (usePreviousContext) {
-      int j=Math.max(0,i - 1);
+      int j=i - 1;
       int numTokens=0;
       while (numTokens < maxWin && j >= 0) {
         CoreLabel tokenj=sent.get(j);
@@ -23,11 +23,26 @@
         if (!tokenj.containsKey(constVars.answerClass.get(label))) {
           throw new RuntimeException("how come the class " + constVars.answerClass.get(label) + " for token "+ tokenj.word()+ " in "+ sent+ " is not set");
         }
-        boolean isLabeledO=tokenj.get(constVars.answerClass.get(label)).equals(SeqClassifierFlags.DEFAULT_BACKGROUND_SYMBOL);
+        String strgeneric="";
+        String strOriginal="";
+        boolean isLabeledO=true;
+        for (        Entry<String,Class> e : constVars.answerClass.entrySet()) {
+          if (!tokenj.get(e.getValue()).equals(constVars.backgroundSymbol)) {
+            isLabeledO=false;
+            if (strgeneric.isEmpty()) {
+              strgeneric="{" + e.getKey() + ":"+ e.getKey()+ "}";
+              strOriginal=e.getKey();
+            }
+ else {
+              strgeneric+=" | " + "{" + e.getKey() + ":"+ e.getKey()+ "}";
+              strOriginal+="|" + e.getKey();
+            }
+          }
+        }
         if (!isLabeledO) {
-          numPrevTokensSpecial++;
-          previousTokens.add(0,"[{answer:" + tokenj.get(constVars.answerClass.get(label)).toString() + "}]");
-          originalPrevStr=tokenj.get(constVars.answerClass.get(label)).toString() + " " + originalPrevStr;
+          previousTokens.add(0,"[" + strgeneric + "]");
+          originalPrevStr=strOriginal + " " + originalPrevStr;
+          numNonStopWordsPrev++;
         }
  else         if (tokenj.word().startsWith("http")) {
           useprev=false;
@@ -42,6 +57,7 @@
           if (doNotUse(tokenj.lemma(),constVars.stopWords)) {
             numStopWordsprev++;
           }
+ else           numNonStopWordsPrev++;
         }
         numTokens++;
         j--;
@@ -59,11 +75,26 @@
         if (!tokenj.containsKey(constVars.answerClass.get(label))) {
           throw new RuntimeException("how come the dict annotation for token " + tokenj.word() + " in "+ sent+ " is not set");
         }
-        boolean isLabeledO=tokenj.get(constVars.answerClass.get(label)).equals(SeqClassifierFlags.DEFAULT_BACKGROUND_SYMBOL);
+        String strgeneric="";
+        String strOriginal="";
+        boolean isLabeledO=true;
+        for (        Entry<String,Class> e : constVars.answerClass.entrySet()) {
+          if (!tokenj.get(e.getValue()).equals(constVars.backgroundSymbol)) {
+            isLabeledO=false;
+            if (strgeneric.isEmpty()) {
+              strgeneric="{" + e.getKey() + ":"+ e.getKey()+ "}";
+              strOriginal=e.getKey();
+            }
+ else {
+              strgeneric+=" | " + "{" + e.getKey() + ":"+ e.getKey()+ "}";
+              strOriginal+="|" + e.getKey();
+            }
+          }
+        }
         if (!isLabeledO) {
-          numNextTokensSpecial++;
-          nextTokens.add("[{answer:" + tokenj.get(constVars.answerClass.get(label)).toString() + "}]");
-          originalNextStr+=" " + tokenj.get(constVars.answerClass.get(label)).toString();
+          numNonStopWordsNext++;
+          nextTokens.add("[" + strgeneric + "]");
+          originalNextStr+=strOriginal;
         }
  else         if (tokenj.word().startsWith("http")) {
           usenext=false;
@@ -71,28 +102,27 @@
           originalNextStr="";
           break;
         }
- else         if (!tokenj.word().matches("[.,?()]")) {
+ else {
           String str=SurfacePattern.getContextStr(tokenj);
           nextTokens.add(str);
           originalNextStr+=" " + tokenj.lemma();
           if (doNotUse(tokenj.lemma(),constVars.stopWords)) {
             numStopWordsnext++;
           }
+ else           numNonStopWordsNext++;
         }
         j++;
         numTokens++;
       }
     }
     String prevContext=null, nextContext=null;
-    int numNonSpecialPrevTokens=previousTokens.size() - numPrevTokensSpecial;
-    int numNonSpecialNextTokens=nextTokens.size() - numNextTokensSpecial;
     String fw=" ";
     if (useFillerWordsInPat)     fw=" $FILLER{0,2} ";
     String sw="";
     if (useStopWordsBeforeTerm) {
       sw=" $STOPWORD{0,2} ";
     }
-    if (previousTokens.size() >= minWindow4Pattern && (numStopWordsprev < numNonSpecialPrevTokens || numNonSpecialPrevTokens > numMinStopWordsToAdd)) {
+    if (previousTokens.size() >= minWindow4Pattern && (numNonStopWordsPrev > 0 || numStopWordsprev > numMinStopWordsToAdd)) {
       prevContext=StringUtils.join(previousTokens,fw);
       String str=prevContext + fw + sw;
       PatternToken twithoutPOS=null;
@@ -117,7 +147,7 @@
         useprev=true;
       }
     }
-    if (nextTokens.size() > 0 && (numStopWordsnext < numNonSpecialNextTokens || numNonSpecialNextTokens > numMinStopWordsToAdd)) {
+    if (nextTokens.size() > 0 && (numNonStopWordsNext > 0 || numStopWordsnext > numMinStopWordsToAdd)) {
       nextContext=StringUtils.join(nextTokens,fw);
       String str="";
       PatternToken twithoutPOS=null;

@@ -25,7 +25,9 @@
   if (wordIgnoreRegex != null && !wordIgnoreRegex.isEmpty())   ignoreWordRegex=Pattern.compile(wordIgnoreRegex);
   for (  String label : labelDictionary.keySet()) {
     env.put(label,TokenSequencePattern.getNewEnv());
-    env.get(label).bind("answer",answerClass.get(label));
+    for (    Entry<String,Class> en : this.answerClass.entrySet()) {
+      env.get(label).bind(en.getKey(),en.getValue());
+    }
     for (    Entry<String,Class> en : generalizeClasses.get(label).entrySet())     env.get(label).bind(en.getKey(),en.getValue());
   }
   Redwood.log(Redwood.DBG,channelNameLogger,"Running with debug output");

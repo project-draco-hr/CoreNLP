@@ -23,13 +23,13 @@
  else {
     List<String> keyset=new ArrayList<String>(sents.keySet());
     int num=0;
-    if (numThreads == 1)     num=keyset.size();
- else     num=keyset.size() / (numThreads - 1);
-    ExecutorService executor=Executors.newFixedThreadPool(numThreads);
+    if (constVars.numThreads == 1)     num=keyset.size();
+ else     num=keyset.size() / (constVars.numThreads - 1);
+    ExecutorService executor=Executors.newFixedThreadPool(constVars.numThreads);
     List<Future<Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<String,Integer>>>> list=new ArrayList<Future<Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<String,Integer>>>>();
-    for (int i=0; i < numThreads; i++) {
+    for (int i=0; i < constVars.numThreads; i++) {
       Callable<Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<String,Integer>>> task=null;
-      task=new ApplyPatterns(keyset.subList(i * num,Math.min(keyset.size(),(i + 1) * num)),patternsLearnedThisIter,constVars.getCommonEngWords(),usePatternResultAsLabel,alreadyIdentifiedWords,restrictToMatched,label,constVars.removeStopWordsFromSelectedPhrases,constVars.removePhrasesWithStopWords,constVars);
+      task=new ApplyPatterns(keyset.subList(i * num,Math.min(keyset.size(),(i + 1) * num)),patternsLearnedThisIter,constVars.getCommonEngWords(),alreadyIdentifiedWords,constVars.restrictToMatched,label,constVars.removeStopWordsFromSelectedPhrases,constVars.removePhrasesWithStopWords,constVars);
       Future<Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<String,Integer>>> submit=executor.submit(task);
       list.add(submit);
     }
@@ -40,7 +40,7 @@
     }
     executor.shutdown();
   }
-  if (wordScoring.equals(WordScoring.WEIGHTEDNORM)) {
+  if (constVars.wordScoring.equals(WordScoring.WEIGHTEDNORM)) {
     for (    Pair<String,String> en : wordsandLemmaPatExtracted.firstKeySet()) {
       if (!constVars.getOtherSemanticClasses().contains(en.first()) && !constVars.getOtherSemanticClasses().contains(en.second())) {
         terms.addAll(en.first(),wordsandLemmaPatExtracted.getCounter(en));
@@ -49,7 +49,12 @@
     }
     removeKeys(terms,constVars.stopWords);
     Counter<String> phraseScores=phraseScorer.scorePhrases(sents,label,terms,wordsPatExtracted,dictOddsWordWeights,allSelectedPatterns,alreadyIdentifiedWords,false);
-    Counter<String> finalwords=chooseTopWords(phraseScores,terms,phraseScores,constVars.getOtherSemanticClasses(),thresholdWordExtract);
+    Set<String> ignoreWordsAll;
+    if (ignoreWords != null && !ignoreWords.isEmpty()) {
+      ignoreWordsAll=CollectionUtils.unionAsSet(ignoreWords,constVars.getOtherSemanticClasses());
+    }
+ else     ignoreWordsAll=constVars.getOtherSemanticClasses();
+    Counter<String> finalwords=chooseTopWords(phraseScores,terms,phraseScores,ignoreWordsAll,constVars.thresholdWordExtract);
     scoreForAllWordsThisIteration.clear();
     Counters.addInPlace(scoreForAllWordsThisIteration,phraseScores);
     Redwood.log(Redwood.FORCE,channelNameLogger,"## Selected Words: " + Counters.toSortedString(finalwords,finalwords.size(),"%1$s:%2$.2f","\t"));
@@ -92,14 +97,14 @@
       IOUtils.writeStringToFile(obj.build().toString(),filename,"utf8");
       writtenInJustification.put(label,true);
     }
-    if (justify) {
+    if (constVars.justify) {
       for (      String word : finalwords.keySet()) {
         Redwood.log(Redwood.DBG,channelNameLogger,word + "\t" + Counters.toSortedString(wordsPatExtracted.getCounter(word),wordsPatExtracted.getCounter(word).size(),"%1$s:%2$f","\n"));
       }
     }
     return finalwords;
   }
- else   if (wordScoring.equals(WordScoring.BPB)) {
+ else   if (constVars.wordScoring.equals(WordScoring.BPB)) {
     Counters.addInPlace(terms,wordsPatExtracted);
     Counter<String> maxPatWeightTerms=new ClassicCounter<String>();
     Map<String,SurfacePattern> wordMaxPat=new HashMap<String,SurfacePattern>();
@@ -127,5 +132,5 @@
     Redwood.log(Redwood.FORCE,channelNameLogger,"Selected Words: " + bestw);
     return Counters.asCounter(Arrays.asList(bestw));
   }
- else   throw new RuntimeException("wordscoring " + wordScoring + " not identified");
+ else   throw new RuntimeException("wordscoring " + constVars.wordScoring + " not identified");
 }
