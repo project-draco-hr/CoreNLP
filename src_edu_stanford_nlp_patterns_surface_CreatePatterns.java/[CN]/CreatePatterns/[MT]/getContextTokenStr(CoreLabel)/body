@@ -2,7 +2,7 @@
   String strgeneric="";
   String strOriginal="";
   boolean isLabeledO=true;
-  for (  Entry<String,Class> e : constVars.answerClass.entrySet()) {
+  for (  Entry<String,Class<? extends TypesafeMap.Key<String>>> e : constVars.answerClass.entrySet()) {
     if (!tokenj.get(e.getValue()).equals(constVars.backgroundSymbol)) {
       isLabeledO=false;
       if (strgeneric.isEmpty()) {
@@ -30,7 +30,7 @@
   }
   if (constVars.useContextNERRestriction) {
     String nerTag=tokenj.get(CoreAnnotations.NamedEntityTagAnnotation.class);
-    if (!nerTag.equals(SeqClassifierFlags.DEFAULT_BACKGROUND_SYMBOL)) {
+    if (nerTag != null && !nerTag.equals(SeqClassifierFlags.DEFAULT_BACKGROUND_SYMBOL)) {
       isLabeledO=false;
       if (strgeneric.isEmpty()) {
         strgeneric="{ner:" + nerTag + "}";

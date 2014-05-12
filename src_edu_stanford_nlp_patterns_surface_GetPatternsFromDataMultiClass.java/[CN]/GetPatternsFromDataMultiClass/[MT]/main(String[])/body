@@ -13,6 +13,7 @@
     Map<String,SurfacePattern> p0=new HashMap<String,SurfacePattern>();
     Map<String,Counter<String>> p0Set=new HashMap<String,Counter<String>>();
     Map<String,Counter<String>> externalWordWeights=new HashMap<String,Counter<String>>();
+    String fileFormat=props.getProperty("fileFormat");
     if (inputSavedInstanceFile == null || !new File(inputSavedInstanceFile).exists()) {
       readFromSavedInstance=false;
     }
@@ -51,7 +52,6 @@
         }
       }
       Map<String,List<CoreLabel>> sents=null;
-      String fileFormat=props.getProperty("fileFormat");
       String file=props.getProperty("file");
       String posModelPath=props.getProperty("posModelPath");
       boolean lowercase=Boolean.parseBoolean(props.getProperty("lowercaseText"));
@@ -63,6 +63,12 @@
       }
  else       if (fileFormat.equalsIgnoreCase("ser")) {
         sents=IOUtils.readObjectFromFile(file);
+      }
+ else       if (fileFormat.equals("textWithGoldLabels")) {
+        Map setClassForTheseLabels=new HashMap<String,Class>();
+        boolean splitOnPunct=Boolean.parseBoolean(props.getProperty("splitOnPunct","true"));
+        List<CoreMap> sentsCMs=AnnotatedTextReader.parseFile(new BufferedReader(new FileReader(file)),seedWords.keySet(),setClassForTheseLabels,true,splitOnPunct,lowercase);
+        sents=runPOSNEROnTokens(sentsCMs,posModelPath,useTargetNERRestriction | useContextNERRestriction);
       }
  else       throw new RuntimeException("Cannot identify the file format. Valid values are text (or txt) and ser, where the serialized file is of the type Map<String, List<CoreLabel>>.");
       System.out.println("Processing # sents " + sents.size());
@@ -83,7 +89,11 @@
     }
     boolean evaluate=Boolean.parseBoolean(props.getProperty("evaluate"));
     if (evaluate) {
-      throw new RuntimeException("not implemented");
+      if (fileFormat.equals("textWithGoldLabels")) {
+        boolean evalPerEntity=Boolean.parseBoolean(props.getProperty("evalPerEntity"));
+        g.evaluate(Data.sents,evalPerEntity);
+      }
+ else       throw new RuntimeException("Evaluation is only imlemented for textWithGoldLabels");
     }
   }
  catch (  Exception e) {
