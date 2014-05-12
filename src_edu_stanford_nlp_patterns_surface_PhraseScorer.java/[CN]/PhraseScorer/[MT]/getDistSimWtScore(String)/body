@@ -1,0 +1,20 @@
+{
+  Integer num=constVars.distSimClusters.get(ph);
+  if (num != null && constVars.distSimWeights.containsKey(num)) {
+    return constVars.distSimWeights.getCount(num);
+  }
+ else {
+    String[] t=ph.split("\\s+");
+    if (t.length < 2) {
+      return OOVExternalFeatWt;
+    }
+    double minScore=Double.MAX_VALUE;
+    for (    String w : t) {
+      double score=OOVExternalFeatWt;
+      Integer numw=constVars.distSimClusters.get(w);
+      if (numw != null && constVars.distSimWeights.containsKey(numw))       score=constVars.distSimWeights.getCount(numw);
+      if (score < minScore)       minScore=score;
+    }
+    return minScore;
+  }
+}
