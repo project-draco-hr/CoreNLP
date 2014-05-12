@@ -40,7 +40,7 @@
     for (    String file : commonWordsPatternFiles.split("[;,]"))     commonEngWords.addAll(IOUtils.linesFromFile(file));
   }
   if (otherSemanticClassesFiles != null) {
-    otherSemanticClasses=Collections.synchronizedSet(new HashSet<String>());
+    if (otherSemanticClasses == null)     otherSemanticClasses=Collections.synchronizedSet(new HashSet<String>());
     for (    String file : otherSemanticClassesFiles.split("[;,]")) {
       for (      String w : IOUtils.linesFromFile(file)) {
         String[] t=w.split("\\s+");
@@ -50,7 +50,7 @@
     System.out.println("Size of othersemantic class variables is " + otherSemanticClasses.size());
   }
  else {
-    otherSemanticClasses=new HashSet<String>();
+    otherSemanticClasses=Collections.synchronizedSet(new HashSet<String>());
     System.out.println("Size of othersemantic class variables is " + 0);
   }
   String stopStr="/";
