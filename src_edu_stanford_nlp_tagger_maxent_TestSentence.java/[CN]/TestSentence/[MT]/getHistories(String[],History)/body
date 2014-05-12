@@ -3,9 +3,16 @@
   Extractors ex=maxentTagger.extractors, exR=maxentTagger.extractorsRare;
   String w=pairs.getWord(h.current);
   double[] lS, lcS;
-  if ((lS=localScores.get(w)) == null) {
+  lS=localScores.get(w);
+  if (lS == null) {
     lS=getHistories(tags,h,ex.local,rare ? exR.local : null);
     localScores.put(w,lS);
+  }
+ else   if (lS.length != tags.length) {
+    lS=getHistories(tags,h,ex.local,rare ? exR.local : null);
+    if (tags.length > 1) {
+      localScores.put(w,lS);
+    }
   }
   if ((lcS=localContextScores[h.current]) == null) {
     lcS=getHistories(tags,h,ex.localContext,rare ? exR.localContext : null);
