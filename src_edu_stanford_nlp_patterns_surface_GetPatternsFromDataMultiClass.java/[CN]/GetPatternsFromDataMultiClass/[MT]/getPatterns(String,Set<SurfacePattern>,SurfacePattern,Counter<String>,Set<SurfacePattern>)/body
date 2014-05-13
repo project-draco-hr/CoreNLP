@@ -131,11 +131,11 @@
  else   if (constVars.patternScoring.equals(PatternScoring.kNN)) {
     try {
       Class<? extends ScorePatterns> clazz=(Class<? extends ScorePatterns>)Class.forName("edu.stanford.nlp.patterns.surface.ScorePatternsKNN");
-      Constructor<? extends ScorePatterns> ctor=clazz.getConstructor(ConstantsAndVariables.class,PatternScoring.class,String.class,TwoDimensionalCounter.class,TwoDimensionalCounter.class,TwoDimensionalCounter.class,TwoDimensionalCounter.class,TwoDimensionalCounter.class,String.class);
-      scorePatterns=ctor.newInstance(new Object[]{constVars,constVars.patternScoring,label,patternsandWords4Label,negPatternsandWords4Label,unLabeledPatternsandWords4Label,negandUnLabeledPatternsandWords4Label,allPatternsandWords4Label,constVars.wordNetFile});
+      Constructor<? extends ScorePatterns> ctor=clazz.getConstructor(ConstantsAndVariables.class,PatternScoring.class,String.class,TwoDimensionalCounter.class,TwoDimensionalCounter.class,TwoDimensionalCounter.class,TwoDimensionalCounter.class,TwoDimensionalCounter.class);
+      scorePatterns=ctor.newInstance(new Object[]{constVars,constVars.patternScoring,label,patternsandWords4Label,negPatternsandWords4Label,unLabeledPatternsandWords4Label,negandUnLabeledPatternsandWords4Label,allPatternsandWords4Label});
     }
  catch (    ClassNotFoundException e) {
-      throw new RuntimeException("kNN pattern scoring is not released yet. Keep tuned.");
+      throw new RuntimeException("kNN pattern scoring is not released yet. Stay tuned.");
     }
 catch (    NoSuchMethodException|InvocationTargetException|IllegalAccessException|InstantiationException e) {
       e.printStackTrace();
@@ -145,6 +145,7 @@ catch (    NoSuchMethodException|InvocationTargetException|IllegalAccessExceptio
  else {
     throw new RuntimeException(constVars.patternScoring + " is not implemented (check spelling?). ");
   }
+  scorePatterns.setUp(props);
   currentPatternWeights4Label=scorePatterns.score();
   Redwood.log("extremePatDebug","patterns counter size is " + currentPatternWeights4Label.size());
   if (ignorePatterns != null && !ignorePatterns.isEmpty()) {
