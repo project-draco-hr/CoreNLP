@@ -17,7 +17,9 @@
       Set<String> seedWords4Label=new HashSet<String>();
       for (      String line : IOUtils.readLines(seedWordsFile)) {
         line=line.trim();
-        if (line.isEmpty() || line.startsWith("#"))         continue;
+        if (line.isEmpty() || line.startsWith("#")) {
+          continue;
+        }
         seedWords4Label.add(line);
       }
       seedWords.put(label,seedWords4Label);
@@ -57,9 +59,13 @@
         }
       }
  else       if (fileFormat.equalsIgnoreCase("ser")) {
-        for (        File f : allFiles)         sents.putAll((Map<String,List<CoreLabel>>)IOUtils.readObjectFromFile(f));
+        for (        File f : allFiles) {
+          sents.putAll((Map<String,List<CoreLabel>>)IOUtils.readObjectFromFile(f));
+        }
       }
- else       throw new RuntimeException("Cannot identify the file format. Valid values are text (or txt) and ser, where the serialized file is of the type Map<String, List<CoreLabel>>.");
+ else {
+        throw new RuntimeException("Cannot identify the file format. Valid values are text (or txt) and ser, where the serialized file is of the type Map<String, List<CoreLabel>>.");
+      }
     }
     Map<String,List<CoreLabel>> evalsents=new HashMap<String,List<CoreLabel>>();
     if (evaluate) {
