@@ -54,7 +54,7 @@
         for (        File f : allFiles) {
           Redwood.log(Redwood.DBG,"Annotating text in " + f);
           String text=IOUtils.stringFromFile(f.getAbsolutePath());
-          sents.putAll(tokenize(text,posModelPath,lowercase,useTargetNERRestriction | useContextNERRestriction,f.getName() + "-",useTargetParserParentRestriction));
+          sents.putAll(tokenize(text,posModelPath,lowercase,useTargetNERRestriction | useContextNERRestriction,f.getName() + "-",useTargetParserParentRestriction,props.getProperty("numThreads")));
         }
         String saveSentencesSerFile=props.getProperty("saveSentencesSerFile");
         if (saveSentencesSerFile != null) {
@@ -75,7 +75,7 @@
         for (        File f : allFiles) {
           Redwood.log(Redwood.DBG,"Annotating text in " + f);
           List<CoreMap> sentsCMs=AnnotatedTextReader.parseFile(new BufferedReader(new FileReader(f)),seedWords.keySet(),setClassForTheseLabels,true,splitOnPunct,lowercase,f.getName());
-          evalsents.putAll(runPOSNEROnTokens(sentsCMs,posModelPath,useTargetNERRestriction | useContextNERRestriction,"",useTargetParserParentRestriction));
+          evalsents.putAll(runPOSNEROnTokens(sentsCMs,posModelPath,useTargetNERRestriction | useContextNERRestriction,"",useTargetParserParentRestriction,props.getProperty("numThreads")));
         }
         String saveEvalSentencesSerFile=props.getProperty("saveEvalSentencesSerFile");
         if (saveEvalSentencesSerFile != null) {
