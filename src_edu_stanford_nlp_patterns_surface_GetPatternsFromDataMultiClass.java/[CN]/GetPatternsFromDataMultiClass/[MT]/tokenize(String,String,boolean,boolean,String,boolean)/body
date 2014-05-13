@@ -13,6 +13,7 @@
       anns.add("ner");
     }
     props.setProperty("annotators",StringUtils.join(anns,","));
+    props.setProperty("parser.maxlen","120");
     props.put("tokenize.options","ptb3Escaping=false,normalizeParentheses=false,escapeForwardSlashAsterisk=false");
     if (posModelPath != null) {
       props.setProperty("pos.model",posModelPath);
@@ -21,7 +22,6 @@
   }
   if (lowercase)   text=text.toLowerCase();
   Annotation doc=new Annotation(text);
-  Redwood.log(Redwood.DBG,"Annotating text");
   pipeline.annotate(doc);
   Redwood.log(Redwood.DBG,"Done annotating text");
   Map<String,List<CoreLabel>> sents=new HashMap<String,List<CoreLabel>>();
