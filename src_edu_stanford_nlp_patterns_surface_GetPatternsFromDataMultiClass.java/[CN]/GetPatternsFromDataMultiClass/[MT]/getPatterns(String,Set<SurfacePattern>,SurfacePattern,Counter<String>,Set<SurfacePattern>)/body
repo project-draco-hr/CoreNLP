@@ -84,7 +84,7 @@
  else {
         boolean negToken=false;
         Map<Class,Object> ignore=constVars.ignoreWordswithClassesDuringSelection.get(label);
-        for (        Class igCl : ignore.keySet())         if ((boolean)token.get(igCl)) {
+        for (        Class igCl : ignore.keySet())         if ((Boolean)token.get(igCl)) {
           negToken=true;
           break;
         }
@@ -132,14 +132,22 @@
     try {
       Class<? extends ScorePatterns> clazz=(Class<? extends ScorePatterns>)Class.forName("edu.stanford.nlp.patterns.surface.ScorePatternsKNN");
       Constructor<? extends ScorePatterns> ctor=clazz.getConstructor(ConstantsAndVariables.class,PatternScoring.class,String.class,TwoDimensionalCounter.class,TwoDimensionalCounter.class,TwoDimensionalCounter.class,TwoDimensionalCounter.class,TwoDimensionalCounter.class);
-      scorePatterns=ctor.newInstance(new Object[]{constVars,constVars.patternScoring,label,patternsandWords4Label,negPatternsandWords4Label,unLabeledPatternsandWords4Label,negandUnLabeledPatternsandWords4Label,allPatternsandWords4Label});
+      scorePatterns=ctor.newInstance(constVars,constVars.patternScoring,label,patternsandWords4Label,negPatternsandWords4Label,unLabeledPatternsandWords4Label,negandUnLabeledPatternsandWords4Label,allPatternsandWords4Label);
     }
  catch (    ClassNotFoundException e) {
-      throw new RuntimeException("kNN pattern scoring is not released yet. Stay tuned.");
+      throw new RuntimeException("kNN pattern scoring is not released yet. Keep tuned.");
     }
-catch (    NoSuchMethodException|InvocationTargetException|IllegalAccessException|InstantiationException e) {
-      e.printStackTrace();
-      throw new RuntimeException("newinstance of kNN not created");
+catch (    NoSuchMethodException e) {
+      throw new RuntimeException("newinstance of kNN not created",e);
+    }
+catch (    InvocationTargetException e) {
+      throw new RuntimeException("newinstance of kNN not created",e);
+    }
+catch (    IllegalAccessException e) {
+      throw new RuntimeException("newinstance of kNN not created",e);
+    }
+catch (    InstantiationException e) {
+      throw new RuntimeException("newinstance of kNN not created",e);
     }
   }
  else {

@@ -53,7 +53,7 @@
         for (        File f : allFiles) {
           Redwood.log(Redwood.DBG,"Annotating text in " + f);
           String text=IOUtils.stringFromFile(f.getAbsolutePath());
-          sents.putAll(tokenize(text,posModelPath,lowercase,useTargetNERRestriction | useContextNERRestriction,f.getName() + "-",useTargetParserParentRestriction,props.getProperty("numThreads")));
+          sents.putAll(tokenize(text,posModelPath,lowercase,useTargetNERRestriction || useContextNERRestriction,f.getName() + "-",useTargetParserParentRestriction,props.getProperty("numThreads")));
         }
       }
  else       if (fileFormat.equalsIgnoreCase("ser")) {
@@ -72,7 +72,7 @@
           numFile++;
           Redwood.log(Redwood.DBG,"Annotating text in " + f + ". Num file "+ numFile);
           List<CoreMap> sentsCMs=AnnotatedTextReader.parseFile(new BufferedReader(new FileReader(f)),seedWords.keySet(),setClassForTheseLabels,true,splitOnPunct,lowercase,f.getName());
-          evalsents.putAll(runPOSNEROnTokens(sentsCMs,posModelPath,useTargetNERRestriction | useContextNERRestriction,"",useTargetParserParentRestriction,props.getProperty("numThreads")));
+          evalsents.putAll(runPOSNEROnTokens(sentsCMs,posModelPath,useTargetNERRestriction || useContextNERRestriction,"",useTargetParserParentRestriction,props.getProperty("numThreads")));
         }
       }
  else       if (fileFormat.equalsIgnoreCase("ser")) {
