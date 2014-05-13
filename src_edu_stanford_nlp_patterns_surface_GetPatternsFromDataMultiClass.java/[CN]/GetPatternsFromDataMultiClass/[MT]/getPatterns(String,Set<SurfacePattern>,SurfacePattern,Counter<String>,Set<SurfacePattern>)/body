@@ -243,8 +243,10 @@ catch (    NoSuchMethodException|InvocationTargetException|IllegalAccessExceptio
     for (    Entry<SurfacePattern,ClassicCounter<String>> en : unLabeledPatternsandWords4Label.entrySet()) {
       unlabWords.addAll(en.getKey(),en.getValue().keySet());
     }
-    IOUtils.ensureDir(new File(constVars.outDir + "/" + constVars.identifier+ "/"+ label));
-    String filename=constVars.outDir + "/" + constVars.identifier+ "/"+ label+ "/patterns"+ ".json";
+    String outputdir=constVars.outDir + "/" + constVars.identifier+ "/"+ label;
+    Redwood.log(Redwood.FORCE,"Saving output in " + outputdir);
+    IOUtils.ensureDir(new File(outputdir));
+    String filename=outputdir + "/patterns" + ".json";
     JsonArrayBuilder obj=Json.createArrayBuilder();
     if (writtenPatInJustification.containsKey(label) && writtenPatInJustification.get(label)) {
       JsonReader jsonReader=Json.createReader(new BufferedInputStream(new FileInputStream(filename)));
