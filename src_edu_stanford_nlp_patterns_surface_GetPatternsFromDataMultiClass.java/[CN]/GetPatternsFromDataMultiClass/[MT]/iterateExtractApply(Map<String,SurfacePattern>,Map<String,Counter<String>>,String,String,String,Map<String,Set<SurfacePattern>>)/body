@@ -3,7 +3,7 @@
   Map<String,Set<String>> ignoreWordsAll=new HashMap<String,Set<String>>();
   for (  String label : constVars.getLabelDictionary().keySet()) {
     matchedTokensByPatAllLabels.put(label,new CollectionValuedMap<SurfacePattern,Triple<String,Integer,Integer>>());
-    if (this.useOtherLabelsWordsasNegative) {
+    if (constVars.useOtherLabelsWordsasNegative) {
       Set<String> w=new HashSet<String>();
       for (      Entry<String,Set<String>> en : constVars.getLabelDictionary().entrySet()) {
         if (en.getKey().equals(label))         continue;
@@ -12,21 +12,21 @@
       ignoreWordsAll.put(label,w);
     }
   }
-  Redwood.log(Redwood.FORCE,"Iterating " + numIterationsForPatterns + " times.");
+  Redwood.log(Redwood.FORCE,"Iterating " + constVars.numIterationsForPatterns + " times.");
   Map<String,BufferedWriter> wordsOutput=new HashMap<String,BufferedWriter>();
   Map<String,BufferedWriter> patternsOutput=new HashMap<String,BufferedWriter>();
   for (  String label : constVars.getLabelDictionary().keySet()) {
-    IOUtils.ensureDir(new File(outDir + "/" + identifier+ "/"+ label));
+    IOUtils.ensureDir(new File(constVars.outDir + "/" + constVars.identifier+ "/"+ label));
     String wordsOutputFileLabel=wordsOutputFile + "_" + label;
-    if (wordsOutputFile == null)     wordsOutputFileLabel=outDir + "/" + identifier+ "/"+ label+ "/learnedwords.txt";
+    if (wordsOutputFile == null)     wordsOutputFileLabel=constVars.outDir + "/" + constVars.identifier+ "/"+ label+ "/learnedwords.txt";
     wordsOutput.put(label,new BufferedWriter(new FileWriter(wordsOutputFileLabel)));
     System.out.println("Saving the learned words for label " + label + " in "+ wordsOutputFileLabel);
     String patternsOutputFileLabel=patternsOutFile + "_" + label;
-    if (patternsOutFile == null)     patternsOutputFileLabel=outDir + "/" + identifier+ "/"+ label+ "/learnedpatterns.txt";
+    if (patternsOutFile == null)     patternsOutputFileLabel=constVars.outDir + "/" + constVars.identifier+ "/"+ label+ "/learnedpatterns.txt";
     patternsOutput.put(label,new BufferedWriter(new FileWriter(patternsOutputFileLabel)));
     System.out.println("Saving the learned patterns for label " + label + " in "+ patternsOutputFileLabel);
   }
-  for (int i=0; i < numIterationsForPatterns; i++) {
+  for (int i=0; i < constVars.numIterationsForPatterns; i++) {
     Redwood.log(Redwood.FORCE,"\n\n################################ Iteration " + (i + 1) + " ##############################");
     boolean keepRunning=false;
     Map<String,Counter<String>> learnedWordsThisIter=new HashMap<String,Counter<String>>();
@@ -39,7 +39,7 @@
         keepRunning=true;
       }
     }
-    if (this.useOtherLabelsWordsasNegative) {
+    if (constVars.useOtherLabelsWordsasNegative) {
       for (      String label : constVars.getLabelDictionary().keySet()) {
         for (        Entry<String,Counter<String>> en : learnedWordsThisIter.entrySet()) {
           if (en.getKey().equals(label))           continue;
@@ -47,18 +47,18 @@
         }
       }
     }
-    if (!keepRunning && !this.tuneThresholdKeepRunning) {
+    if (!keepRunning && !constVars.tuneThresholdKeepRunning) {
       Redwood.log(Redwood.FORCE,"No patterns learned for all labels. Ending iterations.");
       break;
     }
   }
-  if (outDir != null && !outDir.isEmpty()) {
+  if (constVars.outDir != null && !constVars.outDir.isEmpty()) {
     Redwood.log(Redwood.FORCE,"Writing justification files");
     Set<String> allMatchedSents=new HashSet<String>();
     for (    String label : constVars.getLabelDictionary().keySet()) {
       CollectionValuedMap<SurfacePattern,Triple<String,Integer,Integer>> tokensMatchedPat=matchedTokensByPatAllLabels.get(label);
-      IOUtils.ensureDir(new File(outDir + "/" + identifier+ "/"+ label));
-      String matchedtokensfilename=this.outDir + "/" + identifier+ "/"+ label+ "/tokensmatchedpatterns"+ ".json";
+      IOUtils.ensureDir(new File(constVars.outDir + "/" + constVars.identifier+ "/"+ label));
+      String matchedtokensfilename=constVars.outDir + "/" + constVars.identifier+ "/"+ label+ "/tokensmatchedpatterns"+ ".json";
       JsonObjectBuilder pats=Json.createObjectBuilder();
       for (      Entry<SurfacePattern,Collection<Triple<String,Integer,Integer>>> en : tokensMatchedPat.entrySet()) {
         CollectionValuedMap<String,Pair<Integer,Integer>> matchedStrs=new CollectionValuedMap<String,Pair<Integer,Integer>>();
@@ -88,7 +88,7 @@
         }
         senttokens.add(sentId,sent);
       }
-      String sentfilename=this.outDir + "/" + identifier+ "/sentences"+ ".json";
+      String sentfilename=constVars.outDir + "/" + constVars.identifier+ "/sentences"+ ".json";
       IOUtils.writeStringToFile(senttokens.build().toString(),sentfilename,"utf8");
     }
   }
@@ -100,8 +100,8 @@
   for (  Entry<String,Counter<String>> en : this.learnedWords.entrySet()) {
     System.out.println(en.getKey() + ":\t\t" + en.getValue().keySet()+ "\n\n");
   }
-  if (markedOutputTextFile != null) {
-    this.writeLabeledData(markedOutputTextFile);
+  if (constVars.markedOutputTextFile != null) {
+    this.writeLabeledData(constVars.markedOutputTextFile);
   }
   for (  String label : constVars.getLabelDictionary().keySet()) {
     wordsOutput.get(label).close();
