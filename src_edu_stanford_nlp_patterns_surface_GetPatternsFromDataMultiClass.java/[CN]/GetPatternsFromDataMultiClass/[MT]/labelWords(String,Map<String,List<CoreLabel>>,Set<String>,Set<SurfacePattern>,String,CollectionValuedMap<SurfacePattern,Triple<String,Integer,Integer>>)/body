@@ -1,6 +1,6 @@
 {
   CollectionValuedMap<String,Integer> tokensMatchedPatterns=null;
-  if (constVars.restrictToMatched) {
+  if (restrictToMatched) {
     tokensMatchedPatterns=new CollectionValuedMap<String,Integer>();
     for (    Entry<SurfacePattern,Collection<Triple<String,Integer,Integer>>> en : matchedTokensByPat.entrySet()) {
       for (      Triple<String,Integer,Integer> en2 : en.getValue()) {
@@ -28,7 +28,7 @@
       if (ints == null)       continue;
       for (      Integer idx : ints) {
         boolean donotuse=false;
-        if (constVars.restrictToMatched) {
+        if (restrictToMatched) {
           for (int j=0; j < ph.length; j++) {
             if (!tokensMatchedPatterns.get(sentEn.getKey()).contains(idx + j)) {
               Redwood.log("extremePatDebug","not labeling " + sentEn.getValue().get(idx + j).word());
@@ -41,7 +41,7 @@
           for (int j=0; j < ph.length; j++) {
             int index=idx + j;
             CoreLabel l=sentEn.getValue().get(index);
-            if (constVars.usePatternResultAsLabel) {
+            if (usePatternResultAsLabel) {
               l.set(constVars.answerClass.get(label),label);
               Set<String> matched=new HashSet<String>();
               matched.add(StringUtils.join(ph," "));
