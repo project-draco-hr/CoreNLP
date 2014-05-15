@@ -113,7 +113,7 @@
   Redwood.log("extremePatDebug","Patterns around positive words in the label " + label + " are "+ patternsandWords4Label);
   ScorePatterns scorePatterns;
   if (constVars.patternScoring.equals(PatternScoring.F1)) {
-    scorePatterns=new ScorePatternsF1(constVars,constVars.patternScoring,label,patternsandWords4Label,negPatternsandWords4Label,unLabeledPatternsandWords4Label,negandUnLabeledPatternsandWords4Label,allPatternsandWords4Label,p0Set,p0);
+    scorePatterns=new ScorePatternsF1(constVars,constVars.patternScoring,label,patternsandWords4Label,negPatternsandWords4Label,unLabeledPatternsandWords4Label,negandUnLabeledPatternsandWords4Label,allPatternsandWords4Label,props,p0Set,p0);
     Counter<SurfacePattern> finalPat=scorePatterns.score();
     Counters.removeKeys(finalPat,alreadyIdentifiedPatterns);
     Counters.retainNonZeros(finalPat);
@@ -123,19 +123,19 @@
     return finalPat;
   }
  else   if (constVars.patternScoring.equals(PatternScoring.PosNegUnlabOdds) || constVars.patternScoring.equals(PatternScoring.PosNegOdds) || constVars.patternScoring.equals(PatternScoring.RatioAll)|| constVars.patternScoring.equals(PatternScoring.PhEvalInPat)|| constVars.patternScoring.equals(PatternScoring.PhEvalInPatLogP)|| constVars.patternScoring.equals(PatternScoring.LOGREG)|| constVars.patternScoring.equals(PatternScoring.SqrtAllRatio)) {
-    scorePatterns=new ScorePatternsRatioModifiedFreq(constVars,constVars.patternScoring,label,patternsandWords4Label,negPatternsandWords4Label,unLabeledPatternsandWords4Label,negandUnLabeledPatternsandWords4Label,allPatternsandWords4Label,phInPatScores,scorePhrases);
+    scorePatterns=new ScorePatternsRatioModifiedFreq(constVars,constVars.patternScoring,label,patternsandWords4Label,negPatternsandWords4Label,unLabeledPatternsandWords4Label,negandUnLabeledPatternsandWords4Label,allPatternsandWords4Label,phInPatScores,scorePhrases,props);
   }
  else   if (constVars.patternScoring.equals(PatternScoring.RlogF) || constVars.patternScoring.equals(PatternScoring.RlogFPosNeg) || constVars.patternScoring.equals(PatternScoring.RlogFUnlabNeg)|| constVars.patternScoring.equals(PatternScoring.RlogFNeg)|| constVars.patternScoring.equals(PatternScoring.YanGarber02)|| constVars.patternScoring.equals(PatternScoring.LinICML03)) {
-    scorePatterns=new ScorePatternsFreqBased(constVars,constVars.patternScoring,label,patternsandWords4Label,negPatternsandWords4Label,unLabeledPatternsandWords4Label,negandUnLabeledPatternsandWords4Label,allPatternsandWords4Label);
+    scorePatterns=new ScorePatternsFreqBased(constVars,constVars.patternScoring,label,patternsandWords4Label,negPatternsandWords4Label,unLabeledPatternsandWords4Label,negandUnLabeledPatternsandWords4Label,allPatternsandWords4Label,props);
   }
  else   if (constVars.patternScoring.equals(PatternScoring.kNN)) {
     try {
       Class<? extends ScorePatterns> clazz=(Class<? extends ScorePatterns>)Class.forName("edu.stanford.nlp.patterns.surface.ScorePatternsKNN");
-      Constructor<? extends ScorePatterns> ctor=clazz.getConstructor(ConstantsAndVariables.class,PatternScoring.class,String.class,TwoDimensionalCounter.class,TwoDimensionalCounter.class,TwoDimensionalCounter.class,TwoDimensionalCounter.class,TwoDimensionalCounter.class);
-      scorePatterns=ctor.newInstance(constVars,constVars.patternScoring,label,patternsandWords4Label,negPatternsandWords4Label,unLabeledPatternsandWords4Label,negandUnLabeledPatternsandWords4Label,allPatternsandWords4Label);
+      Constructor<? extends ScorePatterns> ctor=clazz.getConstructor(ConstantsAndVariables.class,PatternScoring.class,String.class,TwoDimensionalCounter.class,TwoDimensionalCounter.class,TwoDimensionalCounter.class,TwoDimensionalCounter.class,TwoDimensionalCounter.class,Properties.class);
+      scorePatterns=ctor.newInstance(constVars,constVars.patternScoring,label,patternsandWords4Label,negPatternsandWords4Label,unLabeledPatternsandWords4Label,negandUnLabeledPatternsandWords4Label,allPatternsandWords4Label,props);
     }
  catch (    ClassNotFoundException e) {
-      throw new RuntimeException("kNN pattern scoring is not released yet. Keep tuned.");
+      throw new RuntimeException("kNN pattern scoring is not released yet. Stay tuned.");
     }
 catch (    NoSuchMethodException e) {
       throw new RuntimeException("newinstance of kNN not created",e);
