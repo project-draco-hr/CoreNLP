@@ -31,38 +31,34 @@
   for (int i=0; i < binarizedTrees.size(); ++i) {
     indices.add(i);
   }
+  List<Update> updates=Generics.newArrayList();
+  MulticoreWrapper<Integer,Pair<Integer,Integer>> wrapper=null;
+  if (nThreads != 1) {
+    updates=Collections.synchronizedList(updates);
+    wrapper=new MulticoreWrapper<Integer,Pair<Integer,Integer>>(op.trainOptions.trainingThreads,new TrainTreeProcessor(binarizedTrees,transitionLists,updates));
+  }
   for (int iteration=1; iteration <= op.trainOptions.trainingIterations; ++iteration) {
     Timing trainingTimer=new Timing();
     int numCorrect=0;
     int numWrong=0;
     Collections.shuffle(indices,random);
-    for (int i=0; i < indices.size(); ++i) {
-      int index=indices.get(i);
-      Tree tree=binarizedTrees.get(index);
-      List<Transition> transitions=transitionLists.get(index);
-      State state=ShiftReduceParser.initialStateFromGoldTagTree(tree);
-      for (      Transition transition : transitions) {
-        int transitionNum=transitionIndex.indexOf(transition);
-        List<String> features=featureFactory.featurize(state);
-        int predictedNum=findHighestScoringTransition(state,features,false).object();
-        Transition predicted=transitionIndex.get(predictedNum);
-        if (transitionNum == predictedNum) {
-          numCorrect++;
-        }
- else {
-          numWrong++;
-          for (          String feature : features) {
-            List<ScoredObject<Integer>> weights=featureWeights.get(feature);
-            if (weights == null) {
-              weights=Generics.newArrayList();
-              featureWeights.put(feature,weights);
-            }
-            updateWeight(weights,transitionNum,1.0);
-            updateWeight(weights,predictedNum,-1.0);
+    for (int start=0; start < indices.size(); start+=op.trainOptions.batchSize) {
+      int end=Math.min(start + op.trainOptions.batchSize,indices.size());
+      Triple<List<Update>,Integer,Integer> result=trainBatch(indices.subList(start,end),binarizedTrees,transitionLists,updates,wrapper);
+      numCorrect+=result.second;
+      numWrong+=result.third;
+      for (      Update update : result.first) {
+        for (        String feature : update.features) {
+          List<ScoredObject<Integer>> weights=featureWeights.get(feature);
+          if (weights == null) {
+            weights=Generics.newArrayList();
+            featureWeights.put(feature,weights);
           }
+          updateWeight(weights,update.goldTransition,update.delta);
+          updateWeight(weights,update.predictedTransition,-update.delta);
         }
-        state=transition.apply(state);
       }
+      updates.clear();
     }
     trainingTimer.done("Iteration " + iteration);
     System.err.println("While training, got " + numCorrect + " transitions correct and "+ numWrong+ " transitions wrong");
@@ -101,6 +97,9 @@
         throw new RuntimeIOException(e);
       }
     }
+  }
+  if (wrapper != null) {
+    wrapper.join();
   }
   if (bestModels != null) {
     if (op.cvAveragedModels && devTreebank != null) {
