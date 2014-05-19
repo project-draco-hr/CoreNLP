@@ -2,12 +2,17 @@
   List<String> remainingArgs=Generics.newArrayList();
   String trainTreebankPath=null;
   FileFilter trainTreebankFilter=null;
+  int numTrainingIterations=10;
   for (int argIndex=0; argIndex < args.length; ) {
     if (args[argIndex].equalsIgnoreCase("-treebank")) {
       Pair<String,FileFilter> treebankDescription=ArgUtils.getTreebankDescription(args,argIndex,"-treebank");
       argIndex=argIndex + ArgUtils.numSubArgs(args,argIndex) + 1;
       trainTreebankPath=treebankDescription.first();
       trainTreebankFilter=treebankDescription.second();
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-numTrainingIterations")) {
+      numTrainingIterations=Integer.valueOf(args[argIndex + 1]);
+      argIndex+=2;
     }
  else {
       remainingArgs.add(args[argIndex]);
@@ -46,5 +51,37 @@
       featureIndex.addAll(features);
       state=transition.apply(state);
     }
+  }
+  System.err.println("Number of unique features: " + featureIndex.size());
+  System.err.println("Number of transitions: " + transitionIndex.size());
+  System.err.println("Feature space will be " + (featureIndex.size() * transitionIndex.size()));
+  double[][] featureWeights=new double[transitionIndex.size()][featureIndex.size()];
+  for (int i=0; i < numTrainingIterations; ++i) {
+    int numCorrect=0;
+    int numWrong=0;
+    for (    Tree tree : binarizedTrees) {
+      List<Transition> transitions=CreateTransitionSequence.createTransitionSequence(tree);
+      State state=initialStateFromTrainingTree(tree);
+      for (      Transition transition : transitions) {
+        int transitionNum=transitionIndex.indexOf(transition);
+        Set<String> features=featureFactory.featurize(state);
+        int predictedNum=findHighestScoringTransition(featureIndex,features,featureWeights);
+        Transition predicted=transitionIndex.get(predictedNum);
+        if (transitionNum == predictedNum) {
+          numCorrect++;
+        }
+ else {
+          numWrong++;
+          for (          String feature : features) {
+            int featureNum=featureIndex.indexOf(feature);
+            featureWeights[predictedNum][featureNum]-=1.0;
+            featureWeights[transitionNum][featureNum]+=1.0;
+          }
+        }
+        state=transition.apply(state);
+      }
+    }
+    System.err.println("Iteration " + i + " complete");
+    System.err.println("While training, got " + numCorrect + " transitions correct and "+ numWrong+ " transitions wrong");
   }
 }
