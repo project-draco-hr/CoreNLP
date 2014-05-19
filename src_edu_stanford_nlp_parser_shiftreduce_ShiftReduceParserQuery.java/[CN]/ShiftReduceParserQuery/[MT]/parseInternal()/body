@@ -1,0 +1,15 @@
+{
+  State state=initialState;
+  transitions=Generics.newArrayList();
+  while (!state.finished) {
+    Set<String> features=parser.featureFactory.featurize(state);
+    int predictedNum=parser.findHighestScoringTransition(state,features,true);
+    Transition transition=parser.transitionIndex.get(predictedNum);
+    state=transition.apply(state);
+    transitions.add(transition);
+  }
+  finalState=state;
+  debinarized=debinarizer.transformTree(state.stack.peek());
+  success=true;
+  return success;
+}
