@@ -74,7 +74,7 @@
     }
     func.setFeatureGrouping(fg);
   }
-  Minimizer minimizer=getMinimizer(pruneFeatureItr,evaluators);
+  Minimizer<DiffFunction> minimizer=getMinimizer(pruneFeatureItr,evaluators);
   double[] initialWeights;
   if (flags.initialWeights == null) {
     initialWeights=func.initial();
@@ -93,12 +93,10 @@
   if (flags.testObjFunction) {
     StochasticDiffFunctionTester tester=new StochasticDiffFunctionTester(func);
     if (tester.testSumOfBatches(initialWeights,1e-4)) {
-      System.err.println("Testing complete... exiting");
-      System.exit(1);
+      System.err.println("Successfully tested stochastic objective function.");
     }
  else {
-      System.err.println("Testing failed....exiting");
-      System.exit(1);
+      throw new IllegalStateException("Testing of stochastic objective function failed.");
     }
   }
   if (flags.checkGradient) {

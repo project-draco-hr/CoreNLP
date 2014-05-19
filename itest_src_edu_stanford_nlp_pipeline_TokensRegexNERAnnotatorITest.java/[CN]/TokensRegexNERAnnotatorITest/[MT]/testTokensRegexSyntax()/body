@@ -1,7 +1,7 @@
 {
   String[][] regexes=new String[][]{new String[]{"( /University/ /of/ [ {ner:LOCATION} ] )","SCHOOL"}};
   Annotator annotatorCased=getTokensRegexNerAnnotator(regexes,false);
-  String str="University of California is located in California.";
+  String str="University of Alaska is located in Alaska.";
   Annotation document=createDocument(str);
   annotatorCased.annotate(document);
   List<CoreLabel> tokens=document.get(CoreAnnotations.TokensAnnotation.class);
@@ -10,7 +10,7 @@
   annotatorCased.annotate(document);
   checkTags(tokens,"SCHOOL","SCHOOL","SCHOOL","O","O","O","LOCATION","O");
   Annotator annotatorCaseless=getTokensRegexNerAnnotator(regexes,true);
-  str="university of california is located in california.";
+  str="university of alaska is located in alaska.";
   document=createDocument(str);
   tokens=document.get(CoreAnnotations.TokensAnnotation.class);
   checkTags(tokens,"O","O","LOCATION","O","O","O","LOCATION","O");

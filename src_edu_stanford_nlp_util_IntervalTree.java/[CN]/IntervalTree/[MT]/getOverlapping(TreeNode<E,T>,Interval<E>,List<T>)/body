@@ -1,0 +1,21 @@
+{
+  Queue<TreeNode<E,T>> todo=new LinkedList<TreeNode<E,T>>();
+  todo.add(node);
+  while (!todo.isEmpty()) {
+    TreeNode<E,T> n=todo.poll();
+    if (n == null || n.isEmpty())     continue;
+    if (target.first.compareTo(n.maxEnd) > 0)     continue;
+    if (n.left != null) {
+      todo.add(n.left);
+    }
+    if (n.value.getInterval().overlaps(target)) {
+      result.add(n.value);
+    }
+    if (target.second.compareTo(n.value.getInterval().first()) < 0) {
+      continue;
+    }
+    if (n.right != null) {
+      todo.add(n.right);
+    }
+  }
+}

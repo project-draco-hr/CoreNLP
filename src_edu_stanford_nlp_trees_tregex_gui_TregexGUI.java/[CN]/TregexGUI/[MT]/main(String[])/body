@@ -2,5 +2,16 @@
   if (isMacOSX()) {
     setMacProperties();
   }
-  new TregexGUI();
+  Properties props=new Properties();
+  List<String> filenames=Generics.newArrayList();
+  for (int argIndex=0; argIndex < args.length; ) {
+    if (args[argIndex].equalsIgnoreCase("-" + TRANSFORMER)) {
+      props.setProperty(TRANSFORMER,args[argIndex + 1]);
+      argIndex+=2;
+    }
+ else {
+      filenames.add(args[argIndex++]);
+    }
+  }
+  new TregexGUI(props,filenames);
 }

@@ -1,0 +1,12 @@
+{
+  Embedding embedding=new Embedding(wordVectorFile);
+  double[][] values=new double[1][5];
+  values[0]=new double[]{0.1,0.2,0.3,0.4,0.5};
+  assertTrue(embedding.getUnknownWordVector().transpose().isIdentical(new SimpleMatrix(values),1e-5));
+  values[0]=new double[]{0.6,0.7,0.8,0.9,1.0};
+  assertTrue(embedding.getStartWordVector().transpose().isIdentical(new SimpleMatrix(values),1e-5));
+  values[0]=new double[]{1,2,3,4,5};
+  assertTrue(embedding.getEndWordVector().transpose().isIdentical(new SimpleMatrix(values),1e-5));
+  values[0]=new double[]{6,7,8,9,10};
+  assertTrue(embedding.get("the").transpose().isIdentical(new SimpleMatrix(values),1e-5));
+}
