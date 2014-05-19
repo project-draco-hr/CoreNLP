@@ -35,14 +35,14 @@
     throw new IllegalArgumentException("Must specify a treebank to train from with -treebank");
   }
   System.err.println("Loading training trees from " + trainTreebankPath);
-  Treebank treebank=op.tlpParams.memoryTreebank();
+  Treebank trainTreebank=op.tlpParams.memoryTreebank();
   ;
-  treebank.loadPath(trainTreebankPath,trainTreebankFilter);
-  treebank=treebank.transform(transformer);
-  System.err.println("Read in " + treebank.size() + " trees from "+ trainTreebankPath);
+  trainTreebank.loadPath(trainTreebankPath,trainTreebankFilter);
+  trainTreebank=trainTreebank.transform(transformer);
+  System.err.println("Read in " + trainTreebank.size() + " trees from "+ trainTreebankPath);
   HeadFinder binaryHeadFinder=new BinaryHeadFinder(op.tlpParams.headFinder());
   List<Tree> binarizedTrees=Generics.newArrayList();
-  for (  Tree tree : treebank) {
+  for (  Tree tree : trainTreebank) {
     Trees.convertToCoreLabels(tree);
     tree.percolateHeadAnnotations(binaryHeadFinder);
     binarizedTrees.add(tree);
@@ -53,7 +53,7 @@
   for (  Tree tree : binarizedTrees) {
     List<Transition> transitions=CreateTransitionSequence.createTransitionSequence(tree);
     transitionIndex.addAll(transitions);
-    State state=initialStateFromTrainingTree(tree);
+    State state=initialStateFromGoldTagTree(tree);
     for (    Transition transition : transitions) {
       Set<String> features=featureFactory.featurize(state);
       featureIndex.addAll(features);
@@ -69,11 +69,11 @@
     int numWrong=0;
     for (    Tree tree : binarizedTrees) {
       List<Transition> transitions=CreateTransitionSequence.createTransitionSequence(tree);
-      State state=initialStateFromTrainingTree(tree);
+      State state=initialStateFromGoldTagTree(tree);
       for (      Transition transition : transitions) {
         int transitionNum=transitionIndex.indexOf(transition);
         Set<String> features=featureFactory.featurize(state);
-        int predictedNum=findHighestScoringTransition(featureIndex,features,featureWeights);
+        int predictedNum=findHighestScoringTransition(featureIndex,transitionIndex,featureWeights,state,features,false);
         Transition predicted=transitionIndex.get(predictedNum);
         if (transitionNum == predictedNum) {
           numCorrect++;
@@ -91,5 +91,25 @@
     }
     System.err.println("Iteration " + i + " complete");
     System.err.println("While training, got " + numCorrect + " transitions correct and "+ numWrong+ " transitions wrong");
+  }
+  if (testTreebankPath != null) {
+    System.err.println("Loading test trees from " + testTreebankPath);
+    Treebank testTreebank=op.tlpParams.memoryTreebank();
+    ;
+    testTreebank.loadPath(testTreebankPath,testTreebankFilter);
+    for (    Tree tree : testTreebank) {
+      State state=initialStateFromGoldTagTree(tree);
+      List<Transition> transitions=Generics.newArrayList();
+      while (!state.finished) {
+        Set<String> features=featureFactory.featurize(state);
+        int predictedNum=findHighestScoringTransition(featureIndex,transitionIndex,featureWeights,state,features,true);
+        Transition transition=transitionIndex.get(predictedNum);
+        state=transition.apply(state);
+        transitions.add(transition);
+      }
+      System.err.println("Input tree: " + tree);
+      System.err.println("Parsed tree: " + state.stack.peek());
+      System.err.println("Predicted transition sequence: " + transitions);
+    }
   }
 }
