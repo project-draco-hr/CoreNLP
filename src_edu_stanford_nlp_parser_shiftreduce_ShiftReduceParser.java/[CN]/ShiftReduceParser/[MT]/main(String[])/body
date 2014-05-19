@@ -53,8 +53,10 @@
     Index<Transition> transitionIndex=parser.transitionIndex;
     MaxentTagger tagger=null;
     if (op.testOptions.preTag) {
+      Timing retagTimer=new Timing();
       tagger=new MaxentTagger(op.testOptions.taggerSerializedFile);
-      redoTags(binarizedTrees,tagger);
+      redoTags(binarizedTrees,tagger,op.trainOptions.trainingThreads);
+      retagTimer.done("Retagging");
     }
     List<List<Transition>> transitionLists=parser.createTransitionSequences(binarizedTrees);
     for (    List<Transition> transitions : transitionLists) {
