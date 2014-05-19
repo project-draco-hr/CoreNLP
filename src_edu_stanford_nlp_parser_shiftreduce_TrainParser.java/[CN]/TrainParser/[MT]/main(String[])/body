@@ -5,6 +5,7 @@
   String testTreebankPath=null;
   FileFilter testTreebankFilter=null;
   int numTrainingIterations=10;
+  String serializedPath=null;
   for (int argIndex=0; argIndex < args.length; ) {
     if (args[argIndex].equalsIgnoreCase("-trainTreebank")) {
       Pair<String,FileFilter> treebankDescription=ArgUtils.getTreebankDescription(args,argIndex,"-trainTreebank");
@@ -20,6 +21,10 @@
     }
  else     if (args[argIndex].equalsIgnoreCase("-numTrainingIterations")) {
       numTrainingIterations=Integer.valueOf(args[argIndex + 1]);
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-serializedPath")) {
+      serializedPath=args[argIndex + 1];
       argIndex+=2;
     }
  else {
@@ -92,10 +97,18 @@
     System.err.println("Iteration " + i + " complete");
     System.err.println("While training, got " + numCorrect + " transitions correct and "+ numWrong+ " transitions wrong");
   }
+  ShiftReduceParser parser=new ShiftReduceParser(transitionIndex,featureIndex,featureWeights);
+  if (serializedPath != null) {
+    try {
+      IOUtils.writeObjectToFile(parser,serializedPath);
+    }
+ catch (    IOException e) {
+      throw new RuntimeIOException(e);
+    }
+  }
   if (testTreebankPath != null) {
     System.err.println("Loading test trees from " + testTreebankPath);
     Treebank testTreebank=op.tlpParams.memoryTreebank();
-    ;
     testTreebank.loadPath(testTreebankPath,testTreebankFilter);
     for (    Tree tree : testTreebank) {
       State state=initialStateFromGoldTagTree(tree);
