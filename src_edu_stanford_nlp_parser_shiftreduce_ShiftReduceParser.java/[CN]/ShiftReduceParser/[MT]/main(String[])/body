@@ -53,7 +53,7 @@
   ShiftReduceParser parser=null;
   if (trainTreebankPath != null) {
     if (continueTraining != null) {
-      parser=ShiftReduceParser.loadModel(continueTraining,"-forceTags");
+      parser=ShiftReduceParser.loadModel(continueTraining,ArrayUtils.concatenate(FORCE_TAGS,newArgs));
     }
  else {
       ShiftReduceOptions op=buildTrainingOptions(tlppClass,newArgs);
@@ -62,9 +62,7 @@
     parser.trainAndSave(trainTreebankPath,trainTreebankFilter,devTreebankPath,devTreebankFilter,serializedPath);
   }
   if (serializedPath != null && parser == null) {
-    parser=ShiftReduceParser.loadModel(serializedPath);
-    parser.op.setOptions("-forceTags");
-    parser.op.setOptions(newArgs);
+    parser=ShiftReduceParser.loadModel(serializedPath,ArrayUtils.concatenate(FORCE_TAGS,newArgs));
   }
   if (testTreebankPath != null) {
     System.err.println("Loading test trees from " + testTreebankPath);
