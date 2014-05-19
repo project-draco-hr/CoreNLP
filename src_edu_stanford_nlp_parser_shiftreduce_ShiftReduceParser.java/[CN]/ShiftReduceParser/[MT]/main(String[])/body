@@ -174,13 +174,31 @@
       }
     }
     if (bestModels != null) {
-      List<ShiftReduceParser> models=CollectionUtils.transformAsList(bestModels,new Function<ScoredObject<ShiftReduceParser>,ShiftReduceParser>(){
-        public ShiftReduceParser apply(        ScoredObject<ShiftReduceParser> object){
-          return object.object();
+      if (op.cvAveragedModels && devTreebank != null) {
+        List<ScoredObject<ShiftReduceParser>> models=Generics.newArrayList();
+        while (bestModels.size() > 0) {
+          models.add(bestModels.poll());
         }
+        Collections.reverse(models);
+        double bestF1=0.0;
+        int bestSize=0;
+        for (int i=1; i < models.size(); ++i) {
+          System.err.println("Testing with " + i + " models averaged together");
+          parser=averageModels(models.subList(0,i));
+          EvaluateTreebank evaluator=new EvaluateTreebank(parser.op,null,parser);
+          evaluator.testOnTreebank(devTreebank);
+          double labelF1=evaluator.getLBScore();
+          System.err.println("Label F1 for " + i + " models: "+ labelF1);
+          if (labelF1 > bestF1) {
+            bestF1=labelF1;
+            bestSize=i;
+          }
+        }
+        parser=averageModels(models.subList(0,bestSize));
       }
-);
-      parser=ShiftReduceParser.averageModels(models);
+ else {
+        parser=ShiftReduceParser.averageModels(bestModels);
+      }
     }
     parser.condenseFeatures();
     if (serializedPath != null) {
