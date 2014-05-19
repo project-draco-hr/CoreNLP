@@ -106,6 +106,10 @@
     }
     double bestScore=0.0;
     int bestIteration=0;
+    PriorityQueue<ScoredObject<ShiftReduceParser>> bestModels=null;
+    if (parser.op.averagedModels > 0) {
+      bestModels=new PriorityQueue<ScoredObject<ShiftReduceParser>>(parser.op.averagedModels + 1,ScoredComparator.ASCENDING_COMPARATOR);
+    }
     for (int iteration=1; iteration <= parser.op.trainOptions.trainingIterations; ++iteration) {
       int numCorrect=0;
       int numWrong=0;
@@ -151,6 +155,17 @@
             break;
           }
         }
+        if (bestModels != null) {
+          bestModels.add(new ScoredObject<ShiftReduceParser>(parser.deepCopy(),labelF1));
+          if (bestModels.size() > parser.op.averagedModels) {
+            bestModels.poll();
+          }
+        }
+      }
+    }
+    if (bestModels != null) {
+      while (bestModels.size() > 0) {
+        parser=bestModels.poll().object();
       }
     }
     parser.condenseFeatures();
