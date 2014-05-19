@@ -1,0 +1,25 @@
+{
+  if (argv.length == 0) {
+    System.out.println("Usage : java CHTBLexer <inputfile>");
+  }
+ else {
+    for (int i=0; i < argv.length; i++) {
+      CHTBLexer scanner=null;
+      try {
+        scanner=new CHTBLexer(new java.io.FileReader(argv[i]));
+        while (!scanner.zzAtEOF)         scanner.yylex();
+      }
+ catch (      java.io.FileNotFoundException e) {
+        System.out.println("File not found : \"" + argv[i] + "\"");
+      }
+catch (      java.io.IOException e) {
+        System.out.println("IO error scanning file \"" + argv[i] + "\"");
+        System.out.println(e);
+      }
+catch (      Exception e) {
+        System.out.println("Unexpected exception:");
+        e.printStackTrace();
+      }
+    }
+  }
+}

@@ -1,11 +1,11 @@
 {
   return new Iterator<LogRecordHandler>(){
     private boolean seenHead=isRoot;
-    private final Iterator<RecordHandlerTree> childrenIter=children();
-    private final RecordHandlerTree childOnPrix=childrenIter.hasNext() ? childrenIter.next() : null;
+    private Iterator<RecordHandlerTree> childrenIter=children();
+    private RecordHandlerTree childOnPrix=childrenIter.hasNext() ? childrenIter.next() : null;
     private Iterator<LogRecordHandler> childIter=childOnPrix == null ? null : childOnPrix.iterator();
     private LogRecordHandler lastReturned=null;
-    @Override public boolean hasNext(){
+    public boolean hasNext(){
       while (childIter != null && !childIter.hasNext()) {
         if (!childrenIter.hasNext()) {
           break;
@@ -16,7 +16,7 @@
       }
       return !seenHead || (childIter != null && childIter.hasNext());
     }
-    @Override public LogRecordHandler next(){
+    public LogRecordHandler next(){
       if (!seenHead) {
         seenHead=true;
         return head();
@@ -24,7 +24,7 @@
       lastReturned=childIter.next();
       return lastReturned;
     }
-    @Override public void remove(){
+    public void remove(){
       if (!seenHead) {
         throw new IllegalStateException("INTERNAL: this shouldn't happen...");
       }

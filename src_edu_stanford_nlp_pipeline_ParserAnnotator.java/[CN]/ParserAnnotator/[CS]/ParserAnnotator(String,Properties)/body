@@ -27,12 +27,10 @@
   }
   if (this.BUILD_GRAPHS) {
     TreebankLanguagePack tlp=parser.getTLPParams().treebankLanguagePack();
-    this.gsf=tlp.grammaticalStructureFactory(tlp.punctuationWordRejectFilter(),parser.getTLPParams().typedDependencyHeadFinder());
+    this.gsf=tlp.grammaticalStructureFactory(tlp.punctuationWordRejectFilter(),tlp.typedDependencyHeadFinder());
   }
  else {
     this.gsf=null;
   }
   this.nThreads=PropertiesUtils.getInt(props,annotatorName + ".nthreads",PropertiesUtils.getInt(props,"nthreads",1));
-  boolean usesBinary=StanfordCoreNLP.usesBinaryTrees(props);
-  this.saveBinaryTrees=PropertiesUtils.getBool(props,annotatorName + ".binaryTrees",usesBinary);
 }

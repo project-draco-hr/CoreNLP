@@ -11,9 +11,6 @@
  else {
         String options=properties.getProperty("tokenize.options",PTBTokenizerAnnotator.DEFAULT_OPTIONS);
         boolean keepNewline=Boolean.valueOf(properties.getProperty(NEWLINE_SPLITTER_PROPERTY,"false"));
-        if (properties.getProperty(NEWLINE_IS_SENTENCE_BREAK_PROPERTY) != null) {
-          keepNewline=true;
-        }
         if (keepNewline) {
           options="tokenizeNLs," + options;
         }
@@ -30,7 +27,6 @@
       }
  else {
         os.append(NEWLINE_SPLITTER_PROPERTY + ":" + Boolean.valueOf(properties.getProperty(NEWLINE_SPLITTER_PROPERTY,"false")));
-        os.append(NEWLINE_IS_SENTENCE_BREAK_PROPERTY + ":" + properties.getProperty(NEWLINE_IS_SENTENCE_BREAK_PROPERTY,DEFAULT_NEWLINE_IS_SENTENCE_BREAK));
       }
       return os.toString();
     }
@@ -115,7 +111,7 @@
           String[] elements=bounds.split(",");
           htmlElementsToDiscard=Generics.newHashSet(Arrays.asList(elements));
         }
-        String nlsb=properties.getProperty(NEWLINE_IS_SENTENCE_BREAK_PROPERTY,DEFAULT_NEWLINE_IS_SENTENCE_BREAK);
+        String nlsb=properties.getProperty("ssplit.newlineIsSentenceBreak","two");
         return new WordsToSentencesAnnotator(false,boundaryTokenRegex,boundariesToDiscard,htmlElementsToDiscard,nlsb,boundaryMultiTokenRegex,tokenRegexesToDiscard);
       }
     }
@@ -131,7 +127,7 @@
           os.append("ssplit.boundaryTokenRegex:" + properties.getProperty("ssplit.boundaryTokenRegex",""));
           os.append("ssplit.boundariesToDiscard:" + properties.getProperty("ssplit.boundariesToDiscard",""));
           os.append("ssplit.htmlBoundariesToDiscard:" + properties.getProperty("ssplit.htmlBoundariesToDiscard",""));
-          os.append(NEWLINE_IS_SENTENCE_BREAK_PROPERTY + ":" + properties.getProperty(NEWLINE_IS_SENTENCE_BREAK_PROPERTY,DEFAULT_NEWLINE_IS_SENTENCE_BREAK));
+          os.append("ssplit.newlineIsSentenceBreak:" + properties.getProperty("ssplit.newlineIsSentenceBreak","two"));
         }
       }
       return os.toString();
@@ -255,7 +251,7 @@
     @Override public String signature(){
       String type=properties.getProperty("parse.type","stanford");
       if (type.equalsIgnoreCase("stanford")) {
-        return ParserAnnotator.signature("parse",properties);
+        return ParserAnnotator.signature("parser",properties);
       }
  else       if (type.equalsIgnoreCase("charniak")) {
         return "parse.model:" + properties.getProperty("parse.model","") + "parse.executable:"+ properties.getProperty("parse.executable","")+ "parse.maxlen:"+ properties.getProperty("parse.maxlen","");
@@ -276,7 +272,9 @@
     }
   }
 );
-  for (  String property : inputProps.stringPropertyNames()) {
+  for (  Object propertyKey : inputProps.stringPropertyNames()) {
+    if (!(propertyKey instanceof String))     continue;
+    String property=(String)propertyKey;
     if (property.startsWith(CUSTOM_ANNOTATOR_PREFIX)) {
       final String customName=property.substring(CUSTOM_ANNOTATOR_PREFIX.length());
       final String customClassName=inputProps.getProperty(property);
@@ -307,16 +305,6 @@
     }
     @Override public String signature(){
       return "sup.relation.verbose:" + properties.getProperty("sup.relation.verbose","false") + properties.getProperty("sup.relation.model",DefaultPaths.DEFAULT_SUP_RELATION_EX_RELATION_MODEL);
-    }
-  }
-);
-  pool.register(STANFORD_SENTIMENT,new AnnotatorFactory(inputProps){
-    private static final long serialVersionUID=1L;
-    @Override public Annotator create(){
-      return new SentimentAnnotator(STANFORD_SENTIMENT,properties);
-    }
-    @Override public String signature(){
-      return "sentiment.model=" + inputProps.get("sentiment.model");
     }
   }
 );
