@@ -1,5 +1,9 @@
 {
-  String tag=(label == null) ? NULL : label.get(TreeCoreAnnotations.HeadTagAnnotation.class).label().value();
-  String word=(label == null) ? NULL : label.get(TreeCoreAnnotations.HeadWordAnnotation.class).label().value();
+  if (label == null) {
+    features.add(wtFeature + NULL);
+    return;
+  }
+  String tag=label.get(TreeCoreAnnotations.HeadTagAnnotation.class).label().value();
+  String word=label.get(TreeCoreAnnotations.HeadWordAnnotation.class).label().value();
   features.add(wtFeature + tag + "-"+ word);
 }
