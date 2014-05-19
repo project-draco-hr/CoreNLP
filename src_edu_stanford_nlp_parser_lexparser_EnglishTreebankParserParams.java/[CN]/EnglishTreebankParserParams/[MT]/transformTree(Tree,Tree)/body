@@ -786,18 +786,15 @@
     }
     if (englishTrain.splitJJCOMP && cat.startsWith("JJ") && (parentStr.startsWith("PP") || parentStr.startsWith("ADJP"))&& headFinder().determineHead(parent) == t) {
       Tree[] kids=parent.children();
+      boolean foundJJ=false;
       int i=0;
-      for (boolean foundJJ=false; i < kids.length && !foundJJ; i++) {
+      for (; i < kids.length && !foundJJ; i++) {
         if (kids[i].label().value().startsWith("JJ")) {
-          foundJJ=true;
-        }
-      }
-      for (int j=i; j < kids.length; j++) {
-        String kid=tlp.basicCategory(kids[j].label().value());
-        if ("S".equals(kid) || "SBAR".equals(kid) || "PP".equals(kid)|| "NP".equals(kid)) {
-          cat=cat + "^CMPL";
           break;
         }
+      }
+      if (foundJJ && i < kids.length - 1) {
+        cat=cat + "^CMPL";
       }
     }
     if (englishTrain.splitMoreLess) {
