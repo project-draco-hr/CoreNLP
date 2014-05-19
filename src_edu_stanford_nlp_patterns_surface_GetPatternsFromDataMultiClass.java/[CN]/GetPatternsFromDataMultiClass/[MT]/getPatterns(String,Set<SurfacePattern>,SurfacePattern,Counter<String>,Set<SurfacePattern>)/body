@@ -7,7 +7,7 @@
     }
  else {
       this.patternsForEachToken=IOUtils.readObjectFromFile(constVars.allPatternsFile);
-      Redwood.log(Redwood.FORCE,"Read all patterns from " + constVars.allPatternsFile);
+      Redwood.log(ConstantsAndVariables.minimaldebug,"Read all patterns from " + constVars.allPatternsFile);
     }
   }
   Class answerClass4Label=constVars.answerClass.get(label);
@@ -56,6 +56,23 @@
       Set<SurfacePattern> nextPat=pat.second();
       Set<SurfacePattern> prevnextPat=pat.third();
       if (constVars.ignoreWordRegex.matcher(token.word()).matches())       continue;
+      String tag=token.tag();
+      if (constVars.allowedTagsInitials != null && constVars.allowedTagsInitials.containsKey(label)) {
+        boolean use=false;
+        for (        String allowed : constVars.allowedTagsInitials.get(label)) {
+          if (tag.startsWith(allowed)) {
+            use=true;
+            break;
+          }
+        }
+        if (!use)         continue;
+      }
+      String nertag=token.ner();
+      if (constVars.allowedNERsforLabels != null && constVars.allowedNERsforLabels.containsKey(label)) {
+        if (!constVars.allowedNERsforLabels.get(label).contains(nertag)) {
+          continue;
+        }
+      }
       if (token.get(answerClass4Label).equals(answerLabel4Label.toString())) {
         boolean prevTokenLabel=i == 0 ? false : sent.get(i - 1).get(answerClass4Label).equals(answerLabel4Label.toString());
         boolean nextTokenLabel=i == sent.size() - 1 ? false : sent.get(i + 1).get(answerClass4Label).equals(answerLabel4Label.toString());
@@ -110,7 +127,7 @@
   Counters.removeKeys(allPatternsandWords4Label,removePats);
   Counters.removeKeys(posnegPatternsandWords4Label,removePats);
   Counters.removeKeys(negPatternsandWords4Label,removePats);
-  Redwood.log("extremePatDebug","Patterns around positive words in the label " + label + " are "+ patternsandWords4Label);
+  Redwood.log(ConstantsAndVariables.extremedebug,"Patterns around positive words in the label " + label + " are "+ patternsandWords4Label);
   ScorePatterns scorePatterns;
   if (constVars.patternScoring.equals(PatternScoring.F1)) {
     scorePatterns=new ScorePatternsF1(constVars,constVars.patternScoring,label,patternsandWords4Label,negPatternsandWords4Label,unLabeledPatternsandWords4Label,negandUnLabeledPatternsandWords4Label,allPatternsandWords4Label,props,p0Set,p0);
@@ -119,10 +136,10 @@
     Counters.retainNonZeros(finalPat);
     Counters.retainTop(finalPat,1);
     if (Double.isNaN(Counters.max(finalPat)))     throw new RuntimeException("how is the value NaN");
-    Redwood.log(Redwood.FORCE,"Selected Pattern: " + finalPat);
+    Redwood.log(ConstantsAndVariables.minimaldebug,"Selected Pattern: " + finalPat);
     return finalPat;
   }
- else   if (constVars.patternScoring.equals(PatternScoring.PosNegUnlabOdds) || constVars.patternScoring.equals(PatternScoring.PosNegOdds) || constVars.patternScoring.equals(PatternScoring.RatioAll)|| constVars.patternScoring.equals(PatternScoring.PhEvalInPat)|| constVars.patternScoring.equals(PatternScoring.PhEvalInPatLogP)|| constVars.patternScoring.equals(PatternScoring.LOGREG)|| constVars.patternScoring.equals(PatternScoring.SqrtAllRatio)) {
+ else   if (constVars.patternScoring.equals(PatternScoring.PosNegUnlabOdds) || constVars.patternScoring.equals(PatternScoring.PosNegOdds) || constVars.patternScoring.equals(PatternScoring.RatioAll)|| constVars.patternScoring.equals(PatternScoring.PhEvalInPat)|| constVars.patternScoring.equals(PatternScoring.PhEvalInPatLogP)|| constVars.patternScoring.equals(PatternScoring.LOGREG)|| constVars.patternScoring.equals(PatternScoring.LOGREGlogP)|| constVars.patternScoring.equals(PatternScoring.SqrtAllRatio)) {
     scorePatterns=new ScorePatternsRatioModifiedFreq(constVars,constVars.patternScoring,label,patternsandWords4Label,negPatternsandWords4Label,unLabeledPatternsandWords4Label,negandUnLabeledPatternsandWords4Label,allPatternsandWords4Label,phInPatScores,scorePhrases,props);
   }
  else   if (constVars.patternScoring.equals(PatternScoring.RlogF) || constVars.patternScoring.equals(PatternScoring.RlogFPosNeg) || constVars.patternScoring.equals(PatternScoring.RlogFUnlabNeg)|| constVars.patternScoring.equals(PatternScoring.RlogFNeg)|| constVars.patternScoring.equals(PatternScoring.YanGarber02)|| constVars.patternScoring.equals(PatternScoring.LinICML03)) {
@@ -155,14 +172,14 @@ catch (    InstantiationException e) {
   }
   scorePatterns.setUp(props);
   currentPatternWeights4Label=scorePatterns.score();
-  Redwood.log("extremePatDebug","patterns counter size is " + currentPatternWeights4Label.size());
+  Redwood.log(ConstantsAndVariables.extremedebug,"patterns counter size is " + currentPatternWeights4Label.size());
   if (ignorePatterns != null && !ignorePatterns.isEmpty()) {
     Counters.removeKeys(currentPatternWeights4Label,ignorePatterns);
-    Redwood.log("extremePatDebug","Removing patterns from ignorePatterns of size  " + ignorePatterns.size() + ". New patterns size "+ currentPatternWeights4Label.size());
+    Redwood.log(ConstantsAndVariables.extremedebug,"Removing patterns from ignorePatterns of size  " + ignorePatterns.size() + ". New patterns size "+ currentPatternWeights4Label.size());
   }
   if (alreadyIdentifiedPatterns != null && !alreadyIdentifiedPatterns.isEmpty()) {
     Counters.removeKeys(currentPatternWeights4Label,alreadyIdentifiedPatterns);
-    Redwood.log("extremePatDebug","Removing already identified patterns of size  " + alreadyIdentifiedPatterns.size() + ". New patterns size "+ currentPatternWeights4Label.size());
+    Redwood.log(ConstantsAndVariables.extremedebug,"Removing already identified patterns of size  " + alreadyIdentifiedPatterns.size() + ". New patterns size "+ currentPatternWeights4Label.size());
   }
   PriorityQueue<SurfacePattern> q=Counters.toPriorityQueue(currentPatternWeights4Label);
   int num=0;
@@ -176,7 +193,7 @@ catch (    InstantiationException e) {
     }
     boolean notchoose=false;
     if (!unLabeledPatternsandWords4Label.containsFirstKey(pat) || unLabeledPatternsandWords4Label.getCounter(pat).isEmpty()) {
-      Redwood.log("extremePatDebug","Removing pattern " + pat + " because it has no unlab support; pos words: "+ patternsandWords4Label.getCounter(pat)+ " and all words "+ allPatternsandWords4Label.getCounter(pat));
+      Redwood.log(ConstantsAndVariables.extremedebug,"Removing pattern " + pat + " because it has no unlab support; pos words: "+ patternsandWords4Label.getCounter(pat)+ " and all words "+ allPatternsandWords4Label.getCounter(pat));
       notchoose=true;
       continue;
     }
@@ -185,7 +202,7 @@ catch (    InstantiationException e) {
       if (alreadyIdentifiedPatterns != null) {
         for (        SurfacePattern p : alreadyIdentifiedPatterns) {
           if (pat.nextContextStr.contains(p.nextContextStr) && pat.prevContextStr.contains(p.prevContextStr)) {
-            Redwood.log("extremePatDebug","Removing pattern " + pat + " because it is contained in or contains the already chosen pattern "+ p);
+            Redwood.log(ConstantsAndVariables.extremedebug,"Removing pattern " + pat + " because it is contained in or contains the already chosen pattern "+ p);
             notchoose=true;
             break;
           }
@@ -204,7 +221,7 @@ catch (    InstantiationException e) {
     if (!notchoose) {
       for (      SurfacePattern p : chosenPat.keySet()) {
         if (pat.nextContextStr.contains(p.nextContextStr) && pat.prevContextStr.contains(p.prevContextStr)) {
-          Redwood.log("extremePatDebug","Removing pattern " + pat + " because it is contained in or contains the already chosen pattern "+ p);
+          Redwood.log(ConstantsAndVariables.extremedebug,"Removing pattern " + pat + " because it is contained in or contains the already chosen pattern "+ p);
           notchoose=true;
           break;
         }
@@ -223,11 +240,11 @@ catch (    InstantiationException e) {
     }
     if (notchoose)     continue;
     if (removeChosenPat != null) {
-      Redwood.log("extremePatDebug","Removing already chosen pattern in this iteration " + removeChosenPat + " in favor of "+ pat);
+      Redwood.log(ConstantsAndVariables.extremedebug,"Removing already chosen pattern in this iteration " + removeChosenPat + " in favor of "+ pat);
       chosenPat.remove(removeChosenPat);
     }
     if (removeIdentifiedPattern != null) {
-      Redwood.log("extremePatDebug","Removing already identified pattern " + removeChosenPat + " in favor of "+ pat);
+      Redwood.log(ConstantsAndVariables.extremedebug,"Removing already identified pattern " + removeChosenPat + " in favor of "+ pat);
       removePatterns.add(removeIdentifiedPattern);
     }
     chosenPat.setCount(pat,currentPatternWeights4Label.getCount(pat));
@@ -235,9 +252,9 @@ catch (    InstantiationException e) {
   }
   this.removeLearnedPatterns(label,removePatterns);
   Redwood.log(Redwood.DBG,"final size of the patterns is " + chosenPat.size());
-  Redwood.log(Redwood.FORCE,"## Selected Patterns ## \n");
+  Redwood.log(ConstantsAndVariables.minimaldebug,"## Selected Patterns ## \n");
   List<Pair<SurfacePattern,Double>> chosenPatSorted=Counters.toSortedListWithCounts(chosenPat);
-  for (  Pair<SurfacePattern,Double> en : chosenPatSorted)   Redwood.log(Redwood.FORCE,en.first().toStringToWrite() + ":" + df.format(en.second)+ "\n");
+  for (  Pair<SurfacePattern,Double> en : chosenPatSorted)   Redwood.log(ConstantsAndVariables.minimaldebug,en.first().toStringToWrite() + ":" + df.format(en.second)+ "\n");
   if (constVars.outDir != null && !constVars.outDir.isEmpty()) {
     CollectionValuedMap<SurfacePattern,String> posWords=new CollectionValuedMap<SurfacePattern,String>();
     for (    Entry<SurfacePattern,ClassicCounter<String>> en : patternsandWords4Label.entrySet()) {
@@ -252,7 +269,7 @@ catch (    InstantiationException e) {
       unlabWords.addAll(en.getKey(),en.getValue().keySet());
     }
     String outputdir=constVars.outDir + "/" + constVars.identifier+ "/"+ label;
-    Redwood.log(Redwood.FORCE,"Saving output in " + outputdir);
+    Redwood.log(ConstantsAndVariables.minimaldebug,"Saving output in " + outputdir);
     IOUtils.ensureDir(new File(outputdir));
     String filename=outputdir + "/patterns" + ".json";
     JsonArrayBuilder obj=Json.createArrayBuilder();

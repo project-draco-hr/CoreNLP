@@ -12,7 +12,7 @@
   }
   Redwood.log(Redwood.DBG,channelNameLogger,"Running with debug output");
   stopWords=new HashSet<String>();
-  Redwood.log(Redwood.FORCE,channelNameLogger,"Reading stop words from " + stopWordsPatternFiles);
+  Redwood.log(ConstantsAndVariables.minimaldebug,channelNameLogger,"Reading stop words from " + stopWordsPatternFiles);
   for (  String stopwfile : stopWordsPatternFiles.split("[;,]"))   stopWords.addAll(IOUtils.linesFromFile(stopwfile));
   englishWords=new HashSet<String>();
   System.out.println("Reading english words from " + englishWordsFiles);
@@ -63,6 +63,24 @@
     for (    String line : IOUtils.readLines(generalWordClassClusterFile)) {
       String[] t=line.split("\t");
       getGeneralWordClassClusters().put(t[0],Integer.parseInt(t[1]));
+    }
+  }
+  if (targetAllowedTagsInitialsStr != null) {
+    allowedTagsInitials=new HashMap<String,Set<String>>();
+    for (    String labelstr : targetAllowedTagsInitialsStr.split(";")) {
+      String[] t=labelstr.split(",");
+      Set<String> st=new HashSet<String>();
+      for (int j=1; j < t.length; j++)       st.add(t[j]);
+      allowedTagsInitials.put(t[0],st);
+    }
+  }
+  if (targetAllowedNERs != null) {
+    allowedNERsforLabels=new HashMap<String,Set<String>>();
+    for (    String labelstr : targetAllowedNERs.split(";")) {
+      String[] t=labelstr.split(",");
+      Set<String> st=new HashSet<String>();
+      for (int j=1; j < t.length; j++)       st.add(t[j]);
+      allowedNERsforLabels.put(t[0],st);
     }
   }
   alreadySetUp=true;
