@@ -1,7 +1,8 @@
 {
-  if (label != null) {
-    features.add(conFeature + label.value());
-    features.add(wordFeature + label.get(TreeCoreAnnotations.HeadTagAnnotation.class).label().value() + "-"+ label.value());
-    features.add(tagFeature + label.get(TreeCoreAnnotations.HeadWordAnnotation.class).label().value() + "-"+ label.value());
-  }
+  String constituent=(label == null) ? NULL : label.value();
+  String tag=(label == null) ? NULL : label.get(TreeCoreAnnotations.HeadTagAnnotation.class).label().value();
+  String word=(label == null) ? NULL : label.get(TreeCoreAnnotations.HeadWordAnnotation.class).label().value();
+  features.add(conFeature + constituent);
+  features.add(wordFeature + word + "-"+ constituent);
+  features.add(tagFeature + tag + "-"+ constituent);
 }
