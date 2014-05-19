@@ -2,6 +2,7 @@
   SimpleNode jjtn000=new SimpleNode(JJTROOT);
   boolean jjtc000=true;
   jjtree.openNodeScope(jjtn000);
+  Token name;
   TsurgeonPattern result;
   List<TsurgeonPattern> results=null;
   try {
@@ -23,36 +24,51 @@ case COINDEX:
         jjtree.closeNodeScope(jjtn000,true);
         jjtc000=false;
 {
-          if ("" != null)           return new TsurgeonPattern[]{result};
+          if ("" != null)           return new TsurgeonPatternRoot(result);
         }
         break;
       }
+case IF:
+{
+      jj_consume_token(IF);
+      jj_consume_token(EXISTS);
+      name=jj_consume_token(NAME);
+      result=Root();
+      jjtree.closeNodeScope(jjtn000,true);
+      jjtc000=false;
+{
+        if ("" != null)         return new TsurgeonPatternRoot(new IfExistsNode(name.image,result.children));
+      }
+      break;
+    }
 case OPEN_BRACKET:
 {
-      label_1:       while (true) {
-        jj_consume_token(OPEN_BRACKET);
-        result=Operation();
-        jj_consume_token(CLOSE_BRACKET);
-        if (results == null) {
-          results=Generics.newArrayList();
-        }
-        results.add(result);
+    label_1:     while (true) {
+      jj_consume_token(OPEN_BRACKET);
+      result=Root();
+      jj_consume_token(CLOSE_BRACKET);
+      if (results == null) {
+        results=Generics.newArrayList();
+      }
+      for (      TsurgeonPattern child : result.children) {
+        results.add(child);
+      }
 switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
 case OPEN_BRACKET:
 {
-            ;
-            break;
-          }
+          ;
+          break;
+        }
 default :
-        jj_la1[0]=jj_gen;
-      break label_1;
-  }
+      jj_la1[0]=jj_gen;
+    break label_1;
+}
 }
 jjtree.closeNodeScope(jjtn000,true);
 jjtc000=false;
 TsurgeonPattern[] array=new TsurgeonPattern[results.size()];
 {
-  if ("" != null)   return results.toArray(array);
+if ("" != null) return new TsurgeonPatternRoot(results.toArray(array));
 }
 break;
 }
