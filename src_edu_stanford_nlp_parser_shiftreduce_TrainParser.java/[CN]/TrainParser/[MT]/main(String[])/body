@@ -121,6 +121,7 @@ catch (    ClassNotFoundException e) {
     }
   }
   if (testTreebankPath != null) {
+    Debinarizer debinarizer=new Debinarizer(false);
     System.err.println("Loading test trees from " + testTreebankPath);
     Treebank testTreebank=parser.op.tlpParams.memoryTreebank();
     testTreebank.loadPath(testTreebankPath,testTreebankFilter);
@@ -134,8 +135,10 @@ catch (    ClassNotFoundException e) {
         state=transition.apply(state);
         transitions.add(transition);
       }
+      Tree debinarized=debinarizer.transformTree(state.stack.peek());
       System.err.println("Input tree: " + tree);
-      System.err.println("Parsed tree: " + state.stack.peek());
+      System.err.println("Debinarized tree: " + debinarized);
+      System.err.println("Parsed binarized tree: " + state.stack.peek());
       System.err.println("Predicted transition sequence: " + transitions);
     }
   }
