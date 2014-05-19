@@ -1,10 +1,6 @@
 {
-  Options op=new Options();
-  HeadFinder binaryHeadFinder=new BinaryHeadFinder(op.tlpParams.headFinder());
   for (  String treeText : treeStrings) {
-    Tree tree=Tree.valueOf(treeText);
-    Trees.convertToCoreLabels(tree);
-    tree.percolateHeadAnnotations(binaryHeadFinder);
+    Tree tree=convertTree(treeText);
     List<Transition> transitions=CreateTransitionSequence.createTransitionSequence(tree,false);
     State state=ShiftReduceParser.initialStateFromGoldTagTree(tree);
     for (    Transition transition : transitions) {
