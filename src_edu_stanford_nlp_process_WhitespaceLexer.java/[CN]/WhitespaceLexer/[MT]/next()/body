@@ -15,6 +15,10 @@
     zzAction=-1;
     zzCurrentPosL=zzCurrentPos=zzStartRead=zzMarkedPosL;
     zzState=ZZ_LEXSTATE[zzLexicalState];
+    int zzAttributes=zzAttrL[zzState];
+    if ((zzAttributes & 1) == 1) {
+      zzAction=zzState;
+    }
     zzForAction: {
       while (true) {
         if (zzCurrentPosL < zzEndReadL)         zzInput=zzBufferL[zzCurrentPosL++];
@@ -41,7 +45,7 @@
         int zzNext=zzTransL[zzRowMapL[zzState] + zzCMapL[zzInput]];
         if (zzNext == -1)         break zzForAction;
         zzState=zzNext;
-        int zzAttributes=zzAttrL[zzState];
+        zzAttributes=zzAttrL[zzState];
         if ((zzAttributes & 1) == 1) {
           zzAction=zzState;
           zzMarkedPosL=zzCurrentPosL;
@@ -51,15 +55,15 @@
     }
     zzMarkedPos=zzMarkedPosL;
 switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
-case 2:
+case 1:
 {
-        return tokenFactory.makeToken(NEWLINE,yychar,yylength());
+        return tokenFactory.makeToken(yytext(),yychar,yylength());
       }
 case 4:
     break;
-case 1:
+case 2:
 {
-    return tokenFactory.makeToken(yytext(),yychar,yylength());
+    return tokenFactory.makeToken(NEWLINE,yychar,yylength());
   }
 case 5:
 break;
