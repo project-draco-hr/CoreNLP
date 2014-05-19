@@ -38,8 +38,10 @@
   ShiftReduceParser parser=null;
   if (trainTreebankPath != null) {
     Options op=new Options();
-    CompositeTreeTransformer transformer=LexicalizedParser.buildTrainTransformer(op);
+    TreeBinarizer binarizer=new TreeBinarizer(op.tlpParams.headFinder(),op.tlpParams.treebankLanguagePack(),false,false,0,false,false,0.0,false,true,true);
     BasicCategoryTreeTransformer basicTransformer=new BasicCategoryTreeTransformer(op.langpack());
+    CompositeTreeTransformer transformer=new CompositeTreeTransformer();
+    transformer.addTransformer(binarizer);
     transformer.addTransformer(basicTransformer);
     System.err.println("Loading training trees from " + trainTreebankPath);
     Treebank trainTreebank=op.tlpParams.memoryTreebank();
