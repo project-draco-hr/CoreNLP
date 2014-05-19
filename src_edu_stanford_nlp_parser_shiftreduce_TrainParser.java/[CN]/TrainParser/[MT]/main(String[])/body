@@ -50,6 +50,10 @@
       op.tlpParams=ReflectionLoading.loadByReflection(tlppClass);
     }
     op.setOptions(newArgs);
+    if (op.trainOptions.randomSeed == 0) {
+      op.trainOptions.randomSeed=(new Random()).nextLong();
+      System.err.println("Random seed not set by options, using " + op.trainOptions.randomSeed);
+    }
     TreeBinarizer binarizer=new TreeBinarizer(op.tlpParams.headFinder(),op.tlpParams.treebankLanguagePack(),false,false,0,false,false,0.0,false,true,true);
     BasicCategoryTreeTransformer basicTransformer=new BasicCategoryTreeTransformer(op.langpack());
     CompositeTreeTransformer transformer=new CompositeTreeTransformer();
@@ -85,9 +89,11 @@
     System.err.println("Feature space will be " + (featureIndex.size() * transitionIndex.size()));
     double[][] featureWeights=new double[transitionIndex.size()][featureIndex.size()];
     parser=new ShiftReduceParser(transitionIndex,featureIndex,featureWeights,op,featureFactory);
+    Random random=new Random(parser.op.trainOptions.randomSeed);
     for (int i=0; i < numTrainingIterations; ++i) {
       int numCorrect=0;
       int numWrong=0;
+      Collections.shuffle(binarizedTrees,random);
       for (      Tree tree : binarizedTrees) {
         List<Transition> transitions=CreateTransitionSequence.createTransitionSequence(tree);
         State state=ShiftReduceParser.initialStateFromGoldTagTree(tree);
