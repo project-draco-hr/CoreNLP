@@ -31,11 +31,15 @@
   for (int i=0; i < binarizedTrees.size(); ++i) {
     indices.add(i);
   }
+  Oracle oracle=null;
+  if (op.trainingErrorHandling == ShiftReduceOptions.TrainingErrorHandling.ORACLE) {
+    oracle=new Oracle(binarizedTrees,op.compoundUnaries);
+  }
   List<Update> updates=Generics.newArrayList();
   MulticoreWrapper<Integer,Pair<Integer,Integer>> wrapper=null;
   if (nThreads != 1) {
     updates=Collections.synchronizedList(updates);
-    wrapper=new MulticoreWrapper<Integer,Pair<Integer,Integer>>(op.trainOptions.trainingThreads,new TrainTreeProcessor(binarizedTrees,transitionLists,updates));
+    wrapper=new MulticoreWrapper<Integer,Pair<Integer,Integer>>(op.trainOptions.trainingThreads,new TrainTreeProcessor(binarizedTrees,transitionLists,updates,oracle));
   }
   for (int iteration=1; iteration <= op.trainOptions.trainingIterations; ++iteration) {
     Timing trainingTimer=new Timing();
@@ -44,7 +48,7 @@
     Collections.shuffle(indices,random);
     for (int start=0; start < indices.size(); start+=op.trainOptions.batchSize) {
       int end=Math.min(start + op.trainOptions.batchSize,indices.size());
-      Triple<List<Update>,Integer,Integer> result=trainBatch(indices.subList(start,end),binarizedTrees,transitionLists,updates,wrapper);
+      Triple<List<Update>,Integer,Integer> result=trainBatch(indices.subList(start,end),binarizedTrees,transitionLists,updates,oracle,wrapper);
       numCorrect+=result.second;
       numWrong+=result.third;
       for (      Update update : result.first) {
