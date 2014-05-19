@@ -1,31 +1,5 @@
 {
-  String value1=null;
-switch (feature1) {
-case HEADWORD:
-    value1=(label1 == null) ? NULL : label1.get(TreeCoreAnnotations.HeadWordAnnotation.class).label().value();
-  break;
-case HEADTAG:
-value1=(label1 == null) ? NULL : label1.get(TreeCoreAnnotations.HeadTagAnnotation.class).label().value();
-break;
-case VALUE:
-value1=(label1 == null) ? NULL : label1.value();
-break;
-default :
-throw new IllegalArgumentException("Unexpected feature type: " + feature1);
-}
-String value2=null;
-switch (feature2) {
-case HEADWORD:
-value2=(label2 == null) ? NULL : label2.get(TreeCoreAnnotations.HeadWordAnnotation.class).label().value();
-break;
-case HEADTAG:
-value2=(label2 == null) ? NULL : label2.get(TreeCoreAnnotations.HeadTagAnnotation.class).label().value();
-break;
-case VALUE:
-value2=(label2 == null) ? NULL : label2.value();
-break;
-default :
-throw new IllegalArgumentException("Unexpected feature type: " + feature2);
-}
-features.add(featureType + value1 + "-"+ value2);
+  String value1=getFeatureFromCoreLabel(label1,feature1);
+  String value2=getFeatureFromCoreLabel(label2,feature2);
+  features.add(featureType + value1 + "-"+ value2);
 }
