@@ -5,10 +5,11 @@
     return t.intersect(this);
   }
  else   if (t instanceof PartialTime) {
-    if (!isCompatible((PartialTime)t)) {
+    Pair<PartialTime,PartialTime> compatible=getCompatible(this,(PartialTime)t);
+    if (compatible == null) {
       return null;
     }
-    Partial p=JodaTimeUtils.combine(base,((PartialTime)t).base);
+    Partial p=JodaTimeUtils.combine(compatible.first.base,compatible.second.base);
     return new PartialTime(p);
   }
  else   if (t instanceof GroundedTime) {
