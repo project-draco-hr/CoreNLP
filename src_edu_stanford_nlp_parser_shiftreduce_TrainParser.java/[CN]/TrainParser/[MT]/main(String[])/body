@@ -129,8 +129,8 @@
             numWrong++;
             for (            String feature : features) {
               List<ScoredObject<Integer>> weights=featureWeights.get(feature);
-              updateWeight(weights,transitionNum,1.0);
-              updateWeight(weights,predictedNum,-1.0);
+              ShiftReduceParser.updateWeight(weights,transitionNum,1.0);
+              ShiftReduceParser.updateWeight(weights,predictedNum,-1.0);
             }
           }
           state=transition.apply(state);
@@ -164,9 +164,13 @@
       }
     }
     if (bestModels != null) {
-      while (bestModels.size() > 0) {
-        parser=bestModels.poll().object();
+      List<ShiftReduceParser> models=CollectionUtils.transformAsList(bestModels,new Function<ScoredObject<ShiftReduceParser>,ShiftReduceParser>(){
+        public ShiftReduceParser apply(        ScoredObject<ShiftReduceParser> object){
+          return object.object();
+        }
       }
+);
+      parser=ShiftReduceParser.averageModels(models);
     }
     parser.condenseFeatures();
     if (serializedPath != null) {
