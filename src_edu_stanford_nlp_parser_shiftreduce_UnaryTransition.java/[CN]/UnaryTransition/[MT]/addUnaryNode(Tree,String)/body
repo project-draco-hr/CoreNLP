@@ -2,12 +2,6 @@
   if (!(top.label() instanceof CoreLabel)) {
     throw new IllegalArgumentException("Stack should have CoreLabel nodes");
   }
-  CoreLabel headLabel=(CoreLabel)top.label();
-  CoreLabel production=new CoreLabel();
-  production.setValue(label);
-  production.set(TreeCoreAnnotations.HeadWordAnnotation.class,headLabel.get(TreeCoreAnnotations.HeadWordAnnotation.class));
-  production.set(TreeCoreAnnotations.HeadTagAnnotation.class,headLabel.get(TreeCoreAnnotations.HeadTagAnnotation.class));
-  Tree newTop=new LabeledScoredTreeNode(production);
-  newTop.addChild(top);
+  Tree newTop=createNode(top,label,top);
   return newTop;
 }
