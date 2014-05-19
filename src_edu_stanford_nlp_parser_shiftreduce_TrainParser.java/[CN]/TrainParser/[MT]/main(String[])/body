@@ -74,8 +74,9 @@
       tree.percolateHeadAnnotations(binaryHeadFinder);
       binarizedTrees.add(tree);
     }
-    FeatureFactory featureFactory=new BasicFeatureFactory();
-    Index<Transition> transitionIndex=new HashIndex<Transition>();
+    parser=new ShiftReduceParser(op);
+    Index<Transition> transitionIndex=parser.transitionIndex;
+    FeatureFactory featureFactory=parser.featureFactory;
     Index<String> featureIndex=new HashIndex<String>();
     for (    Tree tree : binarizedTrees) {
       List<Transition> transitions=CreateTransitionSequence.createTransitionSequence(tree,op.compoundUnaries);
@@ -90,12 +91,11 @@
     System.err.println("Number of unique features: " + featureIndex.size());
     System.err.println("Number of transitions: " + transitionIndex.size());
     System.err.println("Feature space will be " + (featureIndex.size() * transitionIndex.size()));
-    Map<String,List<ScoredObject<Integer>>> featureWeights=Generics.newHashMap();
+    Map<String,List<ScoredObject<Integer>>> featureWeights=parser.featureWeights;
     for (    String feature : featureIndex) {
       List<ScoredObject<Integer>> weights=Generics.newArrayList();
       featureWeights.put(feature,weights);
     }
-    parser=new ShiftReduceParser(transitionIndex,featureWeights,op,featureFactory);
     Random random=new Random(parser.op.trainOptions.randomSeed);
     Treebank devTreebank=null;
     if (devTreebankPath != null) {
