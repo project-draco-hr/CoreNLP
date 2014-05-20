@@ -41,6 +41,10 @@
     updates=Collections.synchronizedList(updates);
     wrapper=new MulticoreWrapper<Integer,Pair<Integer,Integer>>(op.trainOptions.trainingThreads,new TrainTreeProcessor(binarizedTrees,transitionLists,updates,oracle));
   }
+  IntCounter<String> featureFrequencies=null;
+  if (op.trainOptions().featureFrequencyCutoff > 1) {
+    featureFrequencies=new IntCounter<String>();
+  }
   for (int iteration=1; iteration <= op.trainOptions.trainingIterations; ++iteration) {
     Timing trainingTimer=new Timing();
     int numCorrect=0;
@@ -60,6 +64,9 @@
           }
           updateWeight(weights,update.goldTransition,update.delta);
           updateWeight(weights,update.predictedTransition,-update.delta);
+          if (featureFrequencies != null) {
+            featureFrequencies.incrementCount(feature,(update.goldTransition >= 0 && update.predictedTransition >= 0) ? 2 : 1);
+          }
         }
       }
       updates.clear();
@@ -94,11 +101,12 @@
     }
     if (serializedPath != null && op.trainOptions.debugOutputFrequency > 0) {
       String tempName=serializedPath.substring(0,serializedPath.length() - 7) + "-" + FILENAME.format(iteration)+ "-"+ NF.format(labelF1)+ ".ser.gz";
-      try {
-        IOUtils.writeObjectToFile(this,tempName);
-      }
- catch (      IOException e) {
-        throw new RuntimeIOException(e);
+      saveModel(tempName);
+      if (featureFrequencies != null) {
+        ShiftReduceParser copy=this.deepCopy();
+        copy.filterFeatures(featureFrequencies.keysAbove(op.trainOptions().featureFrequencyCutoff));
+        tempName=serializedPath.substring(0,serializedPath.length() - 7) + "-" + FILENAME.format(iteration)+ "-"+ NF.format(labelF1)+ ".cutoff.ser.gz";
+        copy.saveModel(tempName);
       }
     }
   }
@@ -131,6 +139,9 @@
  else {
       copyWeights(ShiftReduceParser.averageModels(bestModels));
     }
+  }
+  if (featureFrequencies != null) {
+    filterFeatures(featureFrequencies.keysAbove(op.trainOptions().featureFrequencyCutoff));
   }
   condenseFeatures();
   if (serializedPath != null) {
