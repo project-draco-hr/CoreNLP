@@ -57,13 +57,13 @@
       numWrong+=result.third;
       for (      Update update : result.first) {
         for (        String feature : update.features) {
-          List<ScoredObject<Integer>> weights=featureWeights.get(feature);
+          Weight weights=featureWeights.get(feature);
           if (weights == null) {
-            weights=Generics.newArrayList();
+            weights=new Weight();
             featureWeights.put(feature,weights);
           }
-          updateWeight(weights,update.goldTransition,update.delta);
-          updateWeight(weights,update.predictedTransition,-update.delta);
+          weights.updateWeight(update.goldTransition,update.delta);
+          weights.updateWeight(update.predictedTransition,-update.delta);
           if (featureFrequencies != null) {
             featureFrequencies.incrementCount(feature,(update.goldTransition >= 0 && update.predictedTransition >= 0) ? 2 : 1);
           }
@@ -118,7 +118,7 @@
       int bestSize=0;
       for (int i=1; i <= models.size(); ++i) {
         System.err.println("Testing with " + i + " models averaged together");
-        ShiftReduceParser parser=averageModels(models.subList(0,i));
+        ShiftReduceParser parser=averageScoredModels(models.subList(0,i));
         EvaluateTreebank evaluator=new EvaluateTreebank(parser.op,null,parser);
         evaluator.testOnTreebank(devTreebank);
         double labelF1=evaluator.getLBScore();
@@ -128,10 +128,10 @@
           bestSize=i;
         }
       }
-      copyWeights(averageModels(models.subList(0,bestSize)));
+      copyWeights(averageScoredModels(models.subList(0,bestSize)));
     }
  else {
-      copyWeights(ShiftReduceParser.averageModels(bestModels));
+      copyWeights(ShiftReduceParser.averageScoredModels(bestModels));
     }
   }
   if (featureFrequencies != null) {

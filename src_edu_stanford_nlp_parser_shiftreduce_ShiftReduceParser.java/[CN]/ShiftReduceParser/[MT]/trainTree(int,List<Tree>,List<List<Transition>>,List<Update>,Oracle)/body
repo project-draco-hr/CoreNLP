@@ -20,7 +20,7 @@
           if (transitionNum < 0) {
             continue;
           }
-          updates.add(new Update(features,transitionNum,-1,1.0));
+          updates.add(new Update(features,transitionNum,-1,1.0f));
         }
       }
  else {
@@ -29,7 +29,7 @@
         if (gold.transition != null) {
           transitionNum=transitionIndex.indexOf(gold.transition);
         }
-        updates.add(new Update(features,transitionNum,predictedNum,1.0));
+        updates.add(new Update(features,transitionNum,predictedNum,1.0f));
       }
       state=predicted.apply(state);
     }
@@ -67,8 +67,8 @@
       if (!goldState.areTransitionsEqual(highestScoringState)) {
         ++numWrong;
         int lastTransition=transitionIndex.indexOf(highestScoringState.transitions.peek());
-        updates.add(new Update(featureFactory.featurize(highestCurrentState),-1,lastTransition,1.0));
-        updates.add(new Update(goldFeatures,transitionIndex.indexOf(goldTransition),-1,1.0));
+        updates.add(new Update(featureFactory.featurize(highestCurrentState),-1,lastTransition,1.0f));
+        updates.add(new Update(goldFeatures,transitionIndex.indexOf(goldTransition),-1,1.0f));
       }
  else {
         ++numCorrect;
@@ -99,7 +99,7 @@
       }
  else {
         numWrong++;
-        updates.add(new Update(features,transitionNum,predictedNum,1.0));
+        updates.add(new Update(features,transitionNum,predictedNum,1.0f));
       }
       if (op.trainOptions().trainingMethod == ShiftReduceTrainOptions.TrainingMethod.EARLY_TERMINATION && transitionNum != predictedNum) {
         break;

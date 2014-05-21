@@ -1,0 +1,32 @@
+{
+  if (values == null) {
+    return;
+  }
+  int nonzero=0;
+  for (int i=0; i < values.length; ++i) {
+    if (values[i] != 0.0f) {
+      ++nonzero;
+    }
+  }
+  if (nonzero == 0) {
+    indices=null;
+    values=null;
+    return;
+  }
+  if (nonzero == indices.length) {
+    return;
+  }
+  int[] newIndices=new int[nonzero];
+  float[] newValues=new float[nonzero];
+  int j=0;
+  for (int i=0; i < values.length; ++i) {
+    if (values[i] == 0.0f) {
+      continue;
+    }
+    newIndices[j]=indices[i];
+    newValues[j]=values[i];
+    ++j;
+  }
+  indices=newIndices;
+  values=newValues;
+}
