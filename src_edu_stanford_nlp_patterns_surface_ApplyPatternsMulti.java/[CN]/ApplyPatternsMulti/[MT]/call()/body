@@ -13,6 +13,8 @@
       String phraseLemma="";
       boolean useWordNotLabeled=false;
       boolean doNotUse=false;
+      boolean[] addedindices=new boolean[e - s];
+      Arrays.fill(addedindices,false);
       for (int i=s; i < e; i++) {
         CoreLabel l=sent.get(i);
         l.set(PatternsAnnotations.MatchedPattern.class,true);
@@ -32,13 +34,20 @@
             }
             phrase+=" " + l.word();
             phraseLemma+=" " + l.lemma();
+            addedindices[i - s]=true;
           }
+        }
+      }
+      for (int i=0; i < addedindices.length; i++) {
+        if (i > 0 && i < addedindices.length - 1 && addedindices[i - 1] == true && addedindices[i] == false && addedindices[i + 1] == true) {
+          doNotUse=true;
+          break;
         }
       }
       if (!doNotUse && useWordNotLabeled) {
         phrase=phrase.trim();
         phraseLemma=phraseLemma.trim();
-        if (!Data.rawFreq.containsKey(phrase))         continue;
+        System.out.println("pattern " + matchedPat + " extracted "+ phrase);
         allFreq.incrementCount(new Pair<String,String>(phrase,phraseLemma),matchedPat,1.0);
       }
     }
