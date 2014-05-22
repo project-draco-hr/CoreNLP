@@ -1,14 +1,14 @@
 {
   startTrack("Merging Caches");
   forceTrack("Reading Constituents");
-  Map<String,Map<KEY,T>> combinedMapping=Generics.newHashMap();
+  Map<String,Map<KEY,T>> combinedMapping=new HashMap<>();
   try {
     for (int i=0; i < constituents.length; ++i) {
       FileBackedCache<? extends KEY,? extends T> constituent=constituents[i];
       for (      Entry<? extends KEY,? extends T> entry : constituent) {
         String fileToWriteTo=destination.hash2file(entry.getKey().hashCode(),false).getName();
         if (!combinedMapping.containsKey(fileToWriteTo)) {
-          combinedMapping.put(fileToWriteTo,Generics.<KEY,T>newHashMap());
+          combinedMapping.put(fileToWriteTo,new HashMap<KEY,T>());
         }
         combinedMapping.get(fileToWriteTo).put(entry.getKey(),entry.getValue());
       }
@@ -18,7 +18,7 @@
     for (    Entry<? extends KEY,? extends T> entry : destination) {
       String fileToWriteTo=destination.hash2file(entry.getKey().hashCode(),false).getName();
       if (!combinedMapping.containsKey(fileToWriteTo)) {
-        combinedMapping.put(fileToWriteTo,Generics.<KEY,T>newHashMap());
+        combinedMapping.put(fileToWriteTo,new HashMap<KEY,T>());
       }
       combinedMapping.get(fileToWriteTo).put(entry.getKey(),entry.getValue());
     }
@@ -49,7 +49,7 @@
       boolean exists=toWrite.exists();
       Pair<? extends OutputStream,CloseAction> writer=destination.newOutputStream(toWrite,exists);
       for (      Entry<KEY,T> entry : blockEntry.getValue().entrySet()) {
-        destination.writeNextObject(writer.first,Pair.makePair(entry.getKey(),entry.getValue()));
+        destination.writeNextObject(writer.first,new Pair<>(entry.getKey(),entry.getValue()));
       }
       writer.second.apply();
     }

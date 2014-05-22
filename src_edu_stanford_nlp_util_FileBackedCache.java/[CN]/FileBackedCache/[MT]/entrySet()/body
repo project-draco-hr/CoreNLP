@@ -1,7 +1,7 @@
 {
   readCache();
   Set<Entry<KEY,SoftReference<T>>> entries=mapping.entrySet();
-  Set<Entry<KEY,T>> rtn=Generics.newHashSet();
+  Set<Entry<KEY,T>> rtn=new HashSet<>();
   for (  final Entry<KEY,SoftReference<T>> entry : entries) {
     T value=entry.getValue().get();
     if (value == null)     value=get(entry.getKey());
@@ -17,7 +17,7 @@
       @Override public T setValue(      T value){
         T oldValue=valueImpl;
         valueImpl=value;
-        return oldValue;
+        return valueImpl;
       }
     }
 );
