@@ -1,0 +1,12 @@
+{
+  if (licenses <= 0) {
+    throw new IllegalStateException("Already released all semaphore licenses");
+  }
+  licenses-=1;
+  if (licenses <= 0) {
+    if (lock != null) {
+      lock.release();
+    }
+    channel.close();
+  }
+}

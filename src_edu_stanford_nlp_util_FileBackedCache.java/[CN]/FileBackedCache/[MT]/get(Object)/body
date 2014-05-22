@@ -1,0 +1,23 @@
+{
+  SoftReference<T> likelyReferenceOrNull=mapping.get(key);
+  T referenceOrNull=likelyReferenceOrNull == null ? null : likelyReferenceOrNull.get();
+  if (likelyReferenceOrNull == null) {
+    if (!tryFile(key)) {
+      return null;
+    }
+    Collection<Pair<KEY,T>> elemsRead=readBlock(key);
+    for (    Pair<KEY,T> pair : elemsRead) {
+      if (pair.first.equals(key)) {
+        return pair.second;
+      }
+    }
+    return null;
+  }
+ else   if (referenceOrNull == null) {
+    mapping.remove(key);
+    return get(key);
+  }
+ else {
+    return referenceOrNull;
+  }
+}
