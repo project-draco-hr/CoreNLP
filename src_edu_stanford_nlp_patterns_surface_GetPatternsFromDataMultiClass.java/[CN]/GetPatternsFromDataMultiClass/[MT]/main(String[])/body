@@ -36,11 +36,7 @@
         answerClasses.put(label,answerClass);
       }
     }
-    Map<String,List<CoreLabel>> sents=null;
-    boolean batchProcessSents=Boolean.parseBoolean(props.getProperty("batchProcessSents","false"));
-    int numMaxSentencesPerBatchFile=Integer.parseInt(props.getProperty("numMaxSentencesPerBatchFile","Integer.MAX_VALUE"));
-    if (!batchProcessSents)     sents=new HashMap<String,List<CoreLabel>>();
- else     Data.sentsFiles=new ArrayList<File>();
+    Map<String,List<CoreLabel>> sents=new HashMap<String,List<CoreLabel>>();
     String file=props.getProperty("file");
     String posModelPath=props.getProperty("posModelPath");
     boolean lowercase=Boolean.parseBoolean(props.getProperty("lowercaseText"));
@@ -54,33 +50,12 @@
       throw new RuntimeException("No training data! file is " + file + " and evalFileWithGoldLabels is "+ evalFileWithGoldLabels+ " and addEvalSentsToTrain is "+ addEvalSentsToTrain);
     }
     if (file != null) {
-      String saveSentencesSerDir=props.getProperty("saveSentencesSerDir");
-      File saveSentencesSerDirFile=null;
-      if (saveSentencesSerDir != null) {
-        saveSentencesSerDirFile=new File(saveSentencesSerDir);
-        IOUtils.ensureDir(saveSentencesSerDirFile);
-        IOUtils.writeObjectToFile(sents,saveSentencesSerDir + "/sents_001.ser");
-      }
- else {
-        String systemdir=System.getProperty("java.io.tmpdir");
-        saveSentencesSerDirFile=File.createTempFile("sents",".tmp",new File(systemdir));
-        saveSentencesSerDirFile.delete();
-        saveSentencesSerDirFile.mkdir();
-      }
       List<File> allFiles=GetPatternsFromDataMultiClass.getAllFiles(file);
-      int numFilesTillNow=0;
       if (fileFormat == null || fileFormat.equalsIgnoreCase("text") || fileFormat.equalsIgnoreCase("txt")) {
         for (        File f : allFiles) {
           Redwood.log(Redwood.DBG,"Annotating text in " + f);
           String text=IOUtils.stringFromFile(f.getAbsolutePath());
-          Map<String,List<CoreLabel>> sentsthis=new HashMap<String,List<CoreLabel>>();
-          numFilesTillNow=tokenize(text,posModelPath,lowercase,useTargetNERRestriction || useContextNERRestriction,f.getName() + "-",useTargetParserParentRestriction,props.getProperty("numThreads"),batchProcessSents,numMaxSentencesPerBatchFile,saveSentencesSerDirFile,sentsthis,numFilesTillNow);
-          if (!batchProcessSents) {
-            sents.putAll(sentsthis);
-          }
-        }
-        if (!batchProcessSents) {
-          IOUtils.writeObjectToFile(sents,saveSentencesSerDirFile + "/sents_" + numFilesTillNow);
+          sents.putAll(tokenize(text,posModelPath,lowercase,useTargetNERRestriction || useContextNERRestriction,f.getName() + "-",useTargetParserParentRestriction,props.getProperty("numThreads")));
         }
       }
  else       if (fileFormat.equalsIgnoreCase("ser")) {
@@ -93,15 +68,8 @@
       }
     }
     Map<String,List<CoreLabel>> evalsents=new HashMap<String,List<CoreLabel>>();
-    File saveEvalSentencesSerFileFile=null;
     if (evaluate) {
       if (evalFileWithGoldLabels != null) {
-        String saveEvalSentencesSerFile=props.getProperty("saveEvalSentencesSerFile");
-        if (saveEvalSentencesSerFile == null) {
-          String systemdir=System.getProperty("java.io.tmpdir");
-          saveEvalSentencesSerFileFile=File.createTempFile("evalsents",".tmp",new File(systemdir));
-        }
- else         saveEvalSentencesSerFileFile=new File(saveEvalSentencesSerFile);
         Map setClassForTheseLabels=new HashMap<String,Class>();
         boolean splitOnPunct=Boolean.parseBoolean(props.getProperty("splitOnPunct","true"));
         List<File> allFiles=GetPatternsFromDataMultiClass.getAllFiles(evalFileWithGoldLabels);
@@ -121,19 +89,23 @@
           }
         }
         Redwood.log(Redwood.DBG,"Adding " + evalsents.size() + " eval sents to the training set");
-        IOUtils.writeObjectToFile(evalsents,saveEvalSentencesSerFileFile);
-        if (batchProcessSents) {
-          if (Data.sentsFiles == null)           Data.sentsFiles=new ArrayList<File>();
-          Data.sentsFiles.add(saveEvalSentencesSerFileFile);
-        }
- else         sents.putAll(evalsents);
+        sents.putAll(evalsents);
       }
     }
     boolean learn=Boolean.parseBoolean(props.getProperty("learn","true"));
     boolean labelUsingSeedSets=Boolean.parseBoolean(props.getProperty("labelUsingSeedSets","true"));
     GetPatternsFromDataMultiClass g=new GetPatternsFromDataMultiClass(props,sents,seedWords,labelUsingSeedSets);
+    String saveEvalSentencesSerFile=props.getProperty("saveEvalSentencesSerFile");
+    if (saveEvalSentencesSerFile != null) {
+      IOUtils.writeObjectToFile(evalsents,saveEvalSentencesSerFile);
+    }
+    String saveSentencesSerFile=props.getProperty("saveSentencesSerFile");
+    if (saveSentencesSerFile != null) {
+      IOUtils.writeObjectToFile(sents,saveSentencesSerFile);
+    }
     Execution.fillOptions(g,props);
     if (learn) {
+      Redwood.log(ConstantsAndVariables.minimaldebug,"Total number of training sentences " + Data.sents.size());
       String sentsOutFile=props.getProperty("sentsOutFile");
       String wordsOutputFile=props.getProperty("wordsOutputFile");
       String patternOutFile=props.getProperty("patternOutFile");
@@ -156,8 +128,7 @@
             Redwood.log(ConstantsAndVariables.minimaldebug,"\nFor label " + label + ": Number of gold entities is "+ goldWords4Label.size()+ ", Precision is "+ g.df.format(pr.first() * 100)+ ", Recall is "+ g.df.format(pr.second() * 100)+ ", F1 is "+ g.df.format(g.FScore(pr.first(),pr.second(),1.0) * 100)+ "\n\n");
           }
         }
-        if (saveEvalSentencesSerFileFile != null && saveEvalSentencesSerFileFile.exists()) {
-          if (batchProcessSents)           evalsents=IOUtils.readObjectFromFile(saveEvalSentencesSerFileFile);
+        if (evalsents.size() > 0) {
           boolean evalPerEntity=Boolean.parseBoolean(props.getProperty("evalPerEntity","true"));
           g.evaluate(evalsents,evalPerEntity);
         }
@@ -165,11 +136,7 @@
       }
     }
   }
- catch (  OutOfMemoryError e) {
-    System.out.println("Out of memory! Either change the memory alloted by running as java -mx20g ... for example if you wanna allot 20G. Or consider using batchProcessSents and numMaxSentencesPerBatchFile flags");
-    e.printStackTrace();
-  }
-catch (  Exception e) {
+ catch (  Exception e) {
     e.printStackTrace();
   }
 }
