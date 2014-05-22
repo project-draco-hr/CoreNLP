@@ -1,0 +1,47 @@
+{
+  if (pipeline == null) {
+    Properties props=new Properties();
+    List<String> anns=new ArrayList<String>();
+    anns.add("tokenize");
+    anns.add("ssplit");
+    anns.add("pos");
+    anns.add("lemma");
+    if (useTargetParserParentRestriction) {
+      anns.add("parse");
+    }
+    if (useTargetNERRestriction) {
+      anns.add("ner");
+    }
+    props.setProperty("annotators",StringUtils.join(anns,","));
+    props.setProperty("parse.maxlen","80");
+    props.setProperty("threads",numThreads);
+    props.put("tokenize.options","ptb3Escaping=false,normalizeParentheses=false,escapeForwardSlashAsterisk=false");
+    if (posModelPath != null) {
+      props.setProperty("pos.model",posModelPath);
+    }
+    pipeline=new StanfordCoreNLP(props);
+  }
+  if (lowercase)   text=text.toLowerCase();
+  Annotation doc=new Annotation(text);
+  pipeline.annotate(doc);
+  Redwood.log(Redwood.DBG,"Done annotating text");
+  int i=-1;
+  for (  CoreMap s : doc.get(CoreAnnotations.SentencesAnnotation.class)) {
+    i++;
+    if (useTargetParserParentRestriction)     inferParentParseTag(s.get(TreeAnnotation.class));
+    sents.put(sentIDPrefix + i,s.get(CoreAnnotations.TokensAnnotation.class));
+    if (batchProcessSents && sents.size() >= numMaxSentencesPerBatchFile) {
+      numFilesTillNow++;
+      File file=new File(saveSentencesSerDirFile + "/sents_" + numFilesTillNow);
+      IOUtils.writeObjectToFile(sents,file);
+      sents=new HashMap<String,List<CoreLabel>>();
+      Data.sentsFiles.add(file);
+    }
+  }
+  if (sents.size() > 0 && batchProcessSents) {
+    numFilesTillNow++;
+    IOUtils.writeObjectToFile(sents,saveSentencesSerDirFile + "/sents_" + numFilesTillNow);
+  }
+  if (batchProcessSents)   sents=null;
+  return numFilesTillNow;
+}
