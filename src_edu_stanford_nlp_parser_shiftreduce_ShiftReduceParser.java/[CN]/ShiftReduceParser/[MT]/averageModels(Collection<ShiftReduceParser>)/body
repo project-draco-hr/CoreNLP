@@ -1,0 +1,32 @@
+{
+  ShiftReduceParser firstModel=models.iterator().next();
+  ShiftReduceOptions op=firstModel.op;
+  ShiftReduceParser copy=new ShiftReduceParser(op);
+  for (  Transition transition : firstModel.transitionIndex) {
+    copy.transitionIndex.add(transition);
+  }
+  for (  ShiftReduceParser model : models) {
+    if (!model.transitionIndex.equals(copy.transitionIndex)) {
+      throw new IllegalArgumentException("Can only average models with the same transition index");
+    }
+  }
+  Set<String> features=Generics.newHashSet();
+  for (  ShiftReduceParser model : models) {
+    for (    String feature : model.featureWeights.keySet()) {
+      features.add(feature);
+    }
+  }
+  for (  String feature : features) {
+    copy.featureWeights.put(feature,new Weight());
+  }
+  int numModels=models.size();
+  for (  String feature : features) {
+    for (    ShiftReduceParser model : models) {
+      if (!model.featureWeights.containsKey(feature)) {
+        continue;
+      }
+      copy.featureWeights.get(feature).addScaled(model.featureWeights.get(feature),1.0f / numModels);
+    }
+  }
+  return copy;
+}

@@ -1,0 +1,17 @@
+{
+  TreeBinarizer binarizer=new TreeBinarizer(op.tlpParams.headFinder(),op.tlpParams.treebankLanguagePack(),false,false,0,false,false,0.0,false,true,true);
+  BasicCategoryTreeTransformer basicTransformer=new BasicCategoryTreeTransformer(op.langpack());
+  CompositeTreeTransformer transformer=new CompositeTreeTransformer();
+  transformer.addTransformer(binarizer);
+  transformer.addTransformer(basicTransformer);
+  treebank=treebank.transform(transformer);
+  HeadFinder binaryHeadFinder=new BinaryHeadFinder(op.tlpParams.headFinder());
+  List<Tree> binarizedTrees=Generics.newArrayList();
+  for (  Tree tree : treebank) {
+    Trees.convertToCoreLabels(tree);
+    tree.percolateHeadAnnotations(binaryHeadFinder);
+    tree.indexLeaves(0,true);
+    binarizedTrees.add(tree);
+  }
+  return binarizedTrees;
+}

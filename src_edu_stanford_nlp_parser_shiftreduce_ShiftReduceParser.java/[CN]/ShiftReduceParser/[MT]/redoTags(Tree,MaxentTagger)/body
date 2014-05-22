@@ -1,0 +1,11 @@
+{
+  List<Word> words=tree.yieldWords();
+  List<TaggedWord> tagged=tagger.apply(words);
+  List<Label> tags=tree.preTerminalYield();
+  if (tags.size() != tagged.size()) {
+    throw new AssertionError("Tags are not the same size");
+  }
+  for (int i=0; i < tags.size(); ++i) {
+    tags.get(i).setValue(tagged.get(i).tag());
+  }
+}
