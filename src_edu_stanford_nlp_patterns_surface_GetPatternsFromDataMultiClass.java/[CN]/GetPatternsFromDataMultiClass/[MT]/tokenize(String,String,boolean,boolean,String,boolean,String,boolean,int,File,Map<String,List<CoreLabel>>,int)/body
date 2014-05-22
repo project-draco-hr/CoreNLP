@@ -25,12 +25,23 @@
   Annotation doc=new Annotation(text);
   pipeline.annotate(doc);
   Redwood.log(Redwood.DBG,"Done annotating text");
-  Map<String,List<CoreLabel>> sents=new HashMap<String,List<CoreLabel>>();
   int i=-1;
   for (  CoreMap s : doc.get(CoreAnnotations.SentencesAnnotation.class)) {
     i++;
     if (useTargetParserParentRestriction)     inferParentParseTag(s.get(TreeAnnotation.class));
     sents.put(sentIDPrefix + i,s.get(CoreAnnotations.TokensAnnotation.class));
+    if (batchProcessSents && sents.size() >= numMaxSentencesPerBatchFile) {
+      numFilesTillNow++;
+      File file=new File(saveSentencesSerDirFile + "/sents_" + numFilesTillNow);
+      IOUtils.writeObjectToFile(sents,file);
+      sents=new HashMap<String,List<CoreLabel>>();
+      Data.sentsFiles.add(file);
+    }
   }
-  return sents;
+  if (sents.size() > 0 && batchProcessSents) {
+    numFilesTillNow++;
+    IOUtils.writeObjectToFile(sents,saveSentencesSerDirFile + "/sents_" + numFilesTillNow);
+  }
+  if (batchProcessSents)   sents=null;
+  return numFilesTillNow;
 }

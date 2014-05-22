@@ -1,33 +1,13 @@
 {
   BufferedWriter writer=new BufferedWriter(new FileWriter(outFile));
-  for (  Entry<String,List<CoreLabel>> sent : Data.sents.entrySet()) {
-    writer.write(sent.getKey() + "\t");
-    Map<String,Boolean> lastWordLabeled=new HashMap<String,Boolean>();
-    for (    String label : constVars.getLabelDictionary().keySet()) {
-      lastWordLabeled.put(label,false);
-    }
-    for (    CoreLabel s : sent.getValue()) {
-      String str="";
-      for (      Entry<String,Class<? extends TypesafeMap.Key<String>>> as : constVars.answerClass.entrySet()) {
-        String label=as.getKey();
-        boolean lastwordlabeled=lastWordLabeled.get(label);
-        if (s.get(as.getValue()).equals(label)) {
-          if (!lastwordlabeled) {
-            str+=" <" + label + "> ";
-          }
-          lastWordLabeled.put(label,true);
-        }
+  if (!constVars.batchProcessSents) {
+    this.writeLabelDataSents(Data.sents,writer);
+  }
  else {
-          if (lastwordlabeled) {
-            str+=" </" + label + ">";
-          }
-          lastWordLabeled.put(label,false);
-        }
-      }
-      str+=" " + s.word();
-      writer.write(str.trim() + " ");
+    for (    File f : Data.sentsFiles) {
+      Map<String,List<CoreLabel>> sents=IOUtils.readObjectFromFile(f);
+      this.writeLabelDataSents(sents,writer);
     }
-    writer.write("\n");
   }
   writer.close();
 }
