@@ -1,0 +1,26 @@
+{
+  Set<String> relevantWords=new HashSet<String>();
+  for (  SurfacePattern p : pats) {
+    Set<String> relwordsThisPat=new HashSet<String>();
+    String[] next=p.getOriginalNext();
+    if (next != null)     for (    String s : next) {
+      if (convertToLowercase)       s=s.toLowerCase();
+      if (!s.isEmpty())       relwordsThisPat.add(s);
+    }
+    String[] prev=p.getOriginalPrev();
+    if (prev != null)     for (    String s : prev) {
+      if (convertToLowercase)       s=s.toLowerCase();
+      if (!s.isEmpty())       relwordsThisPat.add(s);
+    }
+    boolean nonStopW=false;
+    for (    String w : relwordsThisPat) {
+      if (!stopWords.contains(w)) {
+        relevantWords.add(w);
+        nonStopW=true;
+      }
+    }
+    if (!nonStopW)     relevantWords.addAll(relwordsThisPat);
+  }
+  System.out.println("searching for word " + relevantWords);
+  return getFileSentIds(relevantWords);
+}
