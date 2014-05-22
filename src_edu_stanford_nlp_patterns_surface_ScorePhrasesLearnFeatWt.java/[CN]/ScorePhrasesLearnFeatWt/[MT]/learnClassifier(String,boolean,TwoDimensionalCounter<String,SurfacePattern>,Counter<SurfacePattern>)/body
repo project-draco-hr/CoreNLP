@@ -2,9 +2,25 @@
   phraseScoresRaw.clear();
   learnedScores.clear();
   if (Data.domainNGramsFile != null)   Data.loadDomainNGrams();
-  Data.computeRawFreqIfNull(constVars.numWordsCompound);
+  RVFDataset<String,ScorePhraseMeasures> dataset=new RVFDataset<String,ScorePhraseMeasures>();
+  boolean computeRawFreq=false;
+  if (Data.rawFreq == null) {
+    Data.rawFreq=new ClassicCounter<String>();
+    computeRawFreq=true;
+  }
   Counter<String> scores=new ClassicCounter<String>();
-  RVFDataset<String,ScorePhraseMeasures> dataset=choosedatums(label,forLearningPatterns,sents,constVars.answerClass.get(label),label,constVars.getOtherSemanticClasses(),constVars.ignoreWordswithClassesDuringSelection.get(label),constVars.perSelectRand,constVars.perSelectNeg,wordsPatExtracted,allSelectedPatterns);
+  if (constVars.batchProcessSents) {
+    for (    File f : Data.sentsFiles) {
+      Redwood.log(Redwood.DBG,"Sampling sentences from " + f);
+      Map<String,List<CoreLabel>> sents=IOUtils.readObjectFromFile(f);
+      if (computeRawFreq)       Data.computeRawFreqIfNull(sents,constVars.numWordsCompound);
+      dataset.addAll(choosedatums(label,forLearningPatterns,sents,constVars.answerClass.get(label),label,constVars.getOtherSemanticClasses(),constVars.ignoreWordswithClassesDuringSelection.get(label),constVars.perSelectRand,constVars.perSelectNeg,wordsPatExtracted,allSelectedPatterns));
+    }
+  }
+ else {
+    if (computeRawFreq)     Data.computeRawFreqIfNull(Data.sents,constVars.numWordsCompound);
+    dataset.addAll(choosedatums(label,forLearningPatterns,Data.sents,constVars.answerClass.get(label),label,constVars.getOtherSemanticClasses(),constVars.ignoreWordswithClassesDuringSelection.get(label),constVars.perSelectRand,constVars.perSelectNeg,wordsPatExtracted,allSelectedPatterns));
+  }
   edu.stanford.nlp.classify.Classifier classifier;
   if (scoreClassifierType.equals(ClassifierType.LR)) {
     LogisticClassifierFactory<String,ScorePhraseMeasures> logfactory=new LogisticClassifierFactory<String,ScorePhraseMeasures>();
