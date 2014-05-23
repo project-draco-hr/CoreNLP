@@ -53,8 +53,9 @@
     if (file == null && (evalFileWithGoldLabels == null || addEvalSentsToTrain == false)) {
       throw new RuntimeException("No training data! file is " + file + " and evalFileWithGoldLabels is "+ evalFileWithGoldLabels+ " and addEvalSentsToTrain is "+ addEvalSentsToTrain);
     }
+    String saveSentencesSerDir=null;
     if (file != null) {
-      String saveSentencesSerDir=props.getProperty("saveSentencesSerDir");
+      saveSentencesSerDir=props.getProperty("saveSentencesSerDir");
       File saveSentencesSerDirFile=null;
       if (saveSentencesSerDir != null) {
         saveSentencesSerDirFile=new File(saveSentencesSerDir);
@@ -64,16 +65,18 @@
  else {
         String systemdir=System.getProperty("java.io.tmpdir");
         saveSentencesSerDirFile=File.createTempFile("sents",".tmp",new File(systemdir));
+        saveSentencesSerDirFile.deleteOnExit();
+        saveSentencesSerDir=saveSentencesSerDirFile.getAbsolutePath();
         saveSentencesSerDirFile.delete();
         saveSentencesSerDirFile.mkdir();
       }
       List<File> allFiles=GetPatternsFromDataMultiClass.getAllFiles(file);
       int numFilesTillNow=0;
       if (fileFormat == null || fileFormat.equalsIgnoreCase("text") || fileFormat.equalsIgnoreCase("txt")) {
+        Map<String,List<CoreLabel>> sentsthis=new HashMap<String,List<CoreLabel>>();
         for (        File f : allFiles) {
           Redwood.log(Redwood.DBG,"Annotating text in " + f);
           String text=IOUtils.stringFromFile(f.getAbsolutePath());
-          Map<String,List<CoreLabel>> sentsthis=new HashMap<String,List<CoreLabel>>();
           numFilesTillNow=tokenize(text,posModelPath,lowercase,useTargetNERRestriction || useContextNERRestriction,f.getName() + "-",useTargetParserParentRestriction,props.getProperty("numThreads"),batchProcessSents,numMaxSentencesPerBatchFile,saveSentencesSerDirFile,sentsthis,numFilesTillNow);
           if (!batchProcessSents) {
             sents.putAll(sentsthis);
@@ -132,6 +135,7 @@
     boolean learn=Boolean.parseBoolean(props.getProperty("learn","true"));
     boolean labelUsingSeedSets=Boolean.parseBoolean(props.getProperty("labelUsingSeedSets","true"));
     GetPatternsFromDataMultiClass g=new GetPatternsFromDataMultiClass(props,sents,seedWords,labelUsingSeedSets);
+    g.constVars.saveSentencesSerDir=saveSentencesSerDir;
     Execution.fillOptions(g,props);
     if (learn) {
       String sentsOutFile=props.getProperty("sentsOutFile");
