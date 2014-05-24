@@ -1,0 +1,23 @@
+{
+  int numCorrect=0;
+  int numWrong=0;
+  if (op.trainOptions.trainingThreads == 1) {
+    for (    Integer index : indices) {
+      Pair<Integer,Integer> count=trainTree(index,binarizedTrees,transitionLists,updates,oracle);
+      numCorrect+=count.first;
+      numWrong+=count.second;
+    }
+  }
+ else {
+    for (    Integer index : indices) {
+      wrapper.put(index);
+    }
+    wrapper.join(false);
+    while (wrapper.peek()) {
+      Pair<Integer,Integer> result=wrapper.poll();
+      numCorrect+=result.first;
+      numWrong+=result.second;
+    }
+  }
+  return new Triple<List<Update>,Integer,Integer>(updates,numCorrect,numWrong);
+}

@@ -11,10 +11,8 @@
       dir=filef.getParentFile();
       ext=filef.getName();
     }
-    RegExFileFilter fileFilter=new RegExFileFilter(Pattern.compile(ext));
-    File[] files=dir.listFiles(fileFilter);
-    for (int i=0; i < files.length; i++) {
-      allFiles.add(files[i]);
+    for (    File f : IOUtils.iterFilesRecursive(dir,Pattern.compile(ext))) {
+      allFiles.add(f);
     }
   }
   return allFiles;
