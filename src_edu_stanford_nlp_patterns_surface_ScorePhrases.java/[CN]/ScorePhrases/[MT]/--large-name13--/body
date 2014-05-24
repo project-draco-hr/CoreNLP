@@ -1,0 +1,152 @@
+{
+  TwoDimensionalCounter<Pair<String,String>,SurfacePattern> wordsandLemmaPatExtracted=new TwoDimensionalCounter<Pair<String,String>,SurfacePattern>();
+  if (constVars.doNotApplyPatterns) {
+    for (    Entry<String,List<CoreLabel>> sentEn : Data.sents.entrySet()) {
+      Map<Integer,Triple<Set<SurfacePattern>,Set<SurfacePattern>,Set<SurfacePattern>>> pat4Sent=patternsForEachToken.get(sentEn.getKey());
+      if (pat4Sent == null) {
+        throw new RuntimeException("How come there are no patterns for " + sentEn.getKey() + ". The total patternsForEachToken size is "+ patternsForEachToken.size()+ " and keys "+ patternsForEachToken.keySet());
+      }
+      for (      Entry<Integer,Triple<Set<SurfacePattern>,Set<SurfacePattern>,Set<SurfacePattern>>> en : pat4Sent.entrySet()) {
+        CoreLabel token=null;
+        Set<SurfacePattern> p1=en.getValue().first();
+        Set<SurfacePattern> p2=en.getValue().second();
+        Set<SurfacePattern> p3=en.getValue().third();
+        for (        SurfacePattern p : patternsLearnedThisIter.keySet()) {
+          if (p1.contains(p) || p2.contains(p) || p3.contains(p)) {
+            if (token == null)             token=sentEn.getValue().get(en.getKey());
+            wordsandLemmaPatExtracted.incrementCount(new Pair<String,String>(token.word(),token.lemma()),p);
+          }
+        }
+      }
+    }
+  }
+ else {
+    List<String> keyset=new ArrayList<String>(sents.keySet());
+    List<String> notAllowedClasses=new ArrayList<String>();
+    if (constVars.doNotExtractPhraseAnyWordLabeledOtherClass) {
+      for (      String l : constVars.answerClass.keySet()) {
+        if (!l.equals(label)) {
+          notAllowedClasses.add(l + ":" + l);
+        }
+      }
+      notAllowedClasses.add("OTHERSEM:OTHERSEM");
+    }
+    int num=0;
+    if (constVars.numThreads == 1)     num=keyset.size();
+ else     num=keyset.size() / (constVars.numThreads - 1);
+    ExecutorService executor=Executors.newFixedThreadPool(constVars.numThreads);
+    List<Future<Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<SurfacePattern,Triple<String,Integer,Integer>>>>> list=new ArrayList<Future<Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<SurfacePattern,Triple<String,Integer,Integer>>>>>();
+    for (int i=0; i < constVars.numThreads; i++) {
+      Callable<Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<SurfacePattern,Triple<String,Integer,Integer>>>> task=null;
+      Map<TokenSequencePattern,SurfacePattern> patternsLearnedThisIterConverted=new HashMap<TokenSequencePattern,SurfacePattern>();
+      for (      SurfacePattern p : patternsLearnedThisIter.keySet()) {
+        TokenSequencePattern pat=TokenSequencePattern.compile(constVars.env.get(label),p.toString(notAllowedClasses));
+        patternsLearnedThisIterConverted.put(pat,p);
+      }
+      task=new ApplyPatternsMulti(keyset.subList(i * num,Math.min(keyset.size(),(i + 1) * num)),patternsLearnedThisIterConverted,constVars.getCommonEngWords(),alreadyIdentifiedWords,constVars.restrictToMatched,label,constVars.removeStopWordsFromSelectedPhrases,constVars.removePhrasesWithStopWords,constVars);
+      Future<Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<SurfacePattern,Triple<String,Integer,Integer>>>> submit=executor.submit(task);
+      list.add(submit);
+    }
+    for (    Future<Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<SurfacePattern,Triple<String,Integer,Integer>>>> future : list) {
+      Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<SurfacePattern,Triple<String,Integer,Integer>>> result=future.get();
+      wordsandLemmaPatExtracted.addAll(result.first());
+      matchedTokensByPat.addAll(result.second());
+    }
+    executor.shutdown();
+  }
+  if (constVars.wordScoring.equals(WordScoring.WEIGHTEDNORM)) {
+    for (    Pair<String,String> en : wordsandLemmaPatExtracted.firstKeySet()) {
+      if (!constVars.getOtherSemanticClasses().contains(en.first()) && !constVars.getOtherSemanticClasses().contains(en.second())) {
+        terms.addAll(en.first(),wordsandLemmaPatExtracted.getCounter(en));
+      }
+      wordsPatExtracted.addAll(en.first(),wordsandLemmaPatExtracted.getCounter(en));
+    }
+    removeKeys(terms,constVars.getStopWords());
+    Counter<String> phraseScores=phraseScorer.scorePhrases(sents,label,terms,wordsPatExtracted,allSelectedPatterns,alreadyIdentifiedWords,false);
+    Set<String> ignoreWordsAll;
+    if (ignoreWords != null && !ignoreWords.isEmpty()) {
+      ignoreWordsAll=CollectionUtils.unionAsSet(ignoreWords,constVars.getOtherSemanticClasses());
+    }
+ else     ignoreWordsAll=constVars.getOtherSemanticClasses();
+    Counter<String> finalwords=chooseTopWords(phraseScores,terms,phraseScores,ignoreWordsAll,constVars.thresholdWordExtract);
+    scoreForAllWordsThisIteration.clear();
+    Counters.addInPlace(scoreForAllWordsThisIteration,phraseScores);
+    Redwood.log(Redwood.FORCE,"## Selected Words: " + Counters.toSortedString(finalwords,finalwords.size(),"%1$s:%2$.2f","\t"));
+    if (constVars.outDir != null && !constVars.outDir.isEmpty()) {
+      String outputdir=constVars.outDir + "/" + identifier+ "/"+ label;
+      IOUtils.ensureDir(new File(outputdir));
+      TwoDimensionalCounter<String,String> reasonForWords=new TwoDimensionalCounter<String,String>();
+      for (      String word : finalwords.keySet()) {
+        for (        SurfacePattern l : wordsPatExtracted.getCounter(word).keySet()) {
+          for (          String w2 : patternsAndWords4Label.getCounter(l)) {
+            reasonForWords.incrementCount(word,w2);
+          }
+        }
+      }
+      Redwood.log(Redwood.FORCE,"Saving output in " + outputdir);
+      String filename=outputdir + "/words.json";
+      JsonArrayBuilder obj=Json.createArrayBuilder();
+      if (writtenInJustification.containsKey(label) && writtenInJustification.get(label)) {
+        JsonReader jsonReader=Json.createReader(new BufferedInputStream(new FileInputStream(filename)));
+        JsonArray objarr=jsonReader.readArray();
+        for (        JsonValue o : objarr)         obj.add(o);
+        jsonReader.close();
+      }
+      JsonArrayBuilder objThisIter=Json.createArrayBuilder();
+      for (      String w : reasonForWords.firstKeySet()) {
+        JsonObjectBuilder objinner=Json.createObjectBuilder();
+        JsonArrayBuilder l=Json.createArrayBuilder();
+        for (        String w2 : reasonForWords.getCounter(w).keySet()) {
+          l.add(w2);
+        }
+        JsonArrayBuilder pats=Json.createArrayBuilder();
+        for (        SurfacePattern p : wordsPatExtracted.getCounter(w)) {
+          pats.add(p.toStringSimple());
+        }
+        objinner.add("reasonwords",l);
+        objinner.add("patterns",pats);
+        objinner.add("score",finalwords.getCount(w));
+        objinner.add("entity",w);
+        objThisIter.add(objinner.build());
+      }
+      obj.add(objThisIter);
+      IOUtils.writeStringToFile(obj.build().toString(),filename,"utf8");
+      writtenInJustification.put(label,true);
+    }
+    if (constVars.justify) {
+      for (      String word : finalwords.keySet()) {
+        Redwood.log(Redwood.DBG,word + "\t" + Counters.toSortedString(wordsPatExtracted.getCounter(word),wordsPatExtracted.getCounter(word).size(),"%1$s:%2$f","\n"));
+      }
+    }
+    return finalwords;
+  }
+ else   if (constVars.wordScoring.equals(WordScoring.BPB)) {
+    Counters.addInPlace(terms,wordsPatExtracted);
+    Counter<String> maxPatWeightTerms=new ClassicCounter<String>();
+    Map<String,SurfacePattern> wordMaxPat=new HashMap<String,SurfacePattern>();
+    for (    Entry<String,ClassicCounter<SurfacePattern>> en : terms.entrySet()) {
+      Counter<SurfacePattern> weights=new ClassicCounter<SurfacePattern>();
+      for (      SurfacePattern k : en.getValue().keySet())       weights.setCount(k,patternsLearnedThisIter.getCount(k));
+      maxPatWeightTerms.setCount(en.getKey(),Counters.max(weights));
+      wordMaxPat.put(en.getKey(),Counters.argmax(weights));
+    }
+    Counters.removeKeys(maxPatWeightTerms,alreadyIdentifiedWords);
+    double maxvalue=Counters.max(maxPatWeightTerms);
+    Set<String> words=Counters.keysAbove(maxPatWeightTerms,maxvalue - 1e-10);
+    String bestw=null;
+    if (words.size() > 1) {
+      double max=Double.NEGATIVE_INFINITY;
+      for (      String w : words) {
+        if (terms.getCount(w,wordMaxPat.get(w)) > max) {
+          max=terms.getCount(w,wordMaxPat.get(w));
+          bestw=w;
+        }
+      }
+    }
+ else     if (words.size() == 1)     bestw=words.iterator().next();
+ else     return new ClassicCounter<String>();
+    Redwood.log(Redwood.FORCE,"Selected Words: " + bestw);
+    return Counters.asCounter(Arrays.asList(bestw));
+  }
+ else   throw new RuntimeException("wordscoring " + constVars.wordScoring + " not identified");
+}
