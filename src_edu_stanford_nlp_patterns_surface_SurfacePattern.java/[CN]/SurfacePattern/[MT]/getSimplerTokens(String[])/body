@@ -1,0 +1,21 @@
+{
+  if (p == null)   return null;
+  String[] sim=new String[p.length];
+  for (int i=0; i < p.length; i++) {
+    p[i]=p[i].trim();
+    Matcher m=p1.matcher(p[i]);
+    if (m.matches()) {
+      sim[i]=m.group(2);
+    }
+ else {
+      Matcher m2=p2.matcher(p[i]);
+      if (m2.matches()) {
+        sim[i]=m2.group(2);
+      }
+ else       if (p[i].startsWith("$FILLER"))       sim[i]="FW";
+ else       if (p[i].startsWith("$STOP"))       sim[i]="SW";
+ else       throw new RuntimeException("Cannot understand " + p[i]);
+    }
+  }
+  return sim;
+}
