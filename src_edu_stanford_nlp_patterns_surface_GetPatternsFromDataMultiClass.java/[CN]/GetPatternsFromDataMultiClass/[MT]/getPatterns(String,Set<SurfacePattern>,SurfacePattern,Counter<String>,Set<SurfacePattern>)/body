@@ -54,7 +54,8 @@
   Counters.removeKeys(negPatternsandWords4Label,removePats);
   Redwood.log(ConstantsAndVariables.extremedebug,"Patterns around positive words in the label " + label + " are "+ patternsandWords4Label);
   ScorePatterns scorePatterns;
-  if (constVars.patternScoring.equals(PatternScoring.F1)) {
+  Class<?> patternscoringclass=getPatternScoringClass(constVars.patternScoring);
+  if (patternscoringclass != null && patternscoringclass.equals(ScorePatternsF1.class)) {
     scorePatterns=new ScorePatternsF1(constVars,constVars.patternScoring,label,patternsandWords4Label,negPatternsandWords4Label,unLabeledPatternsandWords4Label,negandUnLabeledPatternsandWords4Label,allPatternsandWords4Label,props,p0Set,p0);
     Counter<SurfacePattern> finalPat=scorePatterns.score();
     Counters.removeKeys(finalPat,alreadyIdentifiedPatterns);
@@ -64,10 +65,10 @@
     Redwood.log(ConstantsAndVariables.minimaldebug,"Selected Pattern: " + finalPat);
     return finalPat;
   }
- else   if (constVars.patternScoring.equals(PatternScoring.PosNegUnlabOdds) || constVars.patternScoring.equals(PatternScoring.PosNegOdds) || constVars.patternScoring.equals(PatternScoring.RatioAll)|| constVars.patternScoring.equals(PatternScoring.PhEvalInPat)|| constVars.patternScoring.equals(PatternScoring.PhEvalInPatLogP)|| constVars.patternScoring.equals(PatternScoring.LOGREG)|| constVars.patternScoring.equals(PatternScoring.LOGREGlogP)|| constVars.patternScoring.equals(PatternScoring.SqrtAllRatio)) {
+ else   if (patternscoringclass != null && patternscoringclass.equals(ScorePatternsRatioModifiedFreq.class)) {
     scorePatterns=new ScorePatternsRatioModifiedFreq(constVars,constVars.patternScoring,label,patternsandWords4Label,negPatternsandWords4Label,unLabeledPatternsandWords4Label,negandUnLabeledPatternsandWords4Label,allPatternsandWords4Label,phInPatScores,scorePhrases,props);
   }
- else   if (constVars.patternScoring.equals(PatternScoring.RlogF) || constVars.patternScoring.equals(PatternScoring.RlogFPosNeg) || constVars.patternScoring.equals(PatternScoring.RlogFUnlabNeg)|| constVars.patternScoring.equals(PatternScoring.RlogFNeg)|| constVars.patternScoring.equals(PatternScoring.YanGarber02)|| constVars.patternScoring.equals(PatternScoring.LinICML03)) {
+ else   if (patternscoringclass != null && patternscoringclass.equals(ScorePatternsFreqBased.class)) {
     scorePatterns=new ScorePatternsFreqBased(constVars,constVars.patternScoring,label,patternsandWords4Label,negPatternsandWords4Label,unLabeledPatternsandWords4Label,negandUnLabeledPatternsandWords4Label,allPatternsandWords4Label,props);
   }
  else   if (constVars.patternScoring.equals(PatternScoring.kNN)) {
@@ -158,12 +159,16 @@ catch (    InstantiationException e) {
           num--;
         }
  else {
+          removeIdentifiedPattern=null;
           notchoose=true;
           break;
         }
       }
     }
-    if (notchoose)     continue;
+    if (notchoose) {
+      Redwood.log(ConstantsAndVariables.extremedebug,"Not choosing " + pat + " for whatever reason!");
+      continue;
+    }
     if (removeChosenPat != null) {
       Redwood.log(ConstantsAndVariables.extremedebug,"Removing already chosen pattern in this iteration " + removeChosenPat + " in favor of "+ pat);
       chosenPat.remove(removeChosenPat);
