@@ -66,7 +66,7 @@
     return finalPat;
   }
  else   if (patternscoringclass != null && patternscoringclass.equals(ScorePatternsRatioModifiedFreq.class)) {
-    scorePatterns=new ScorePatternsRatioModifiedFreq(constVars,constVars.patternScoring,label,patternsandWords4Label,negPatternsandWords4Label,unLabeledPatternsandWords4Label,negandUnLabeledPatternsandWords4Label,allPatternsandWords4Label,phInPatScores,scorePhrases,props);
+    scorePatterns=new ScorePatternsRatioModifiedFreq(constVars,constVars.patternScoring,label,patternsandWords4Label,negPatternsandWords4Label,unLabeledPatternsandWords4Label,negandUnLabeledPatternsandWords4Label,allPatternsandWords4Label,phInPatScoresCache,scorePhrases,props);
   }
  else   if (patternscoringclass != null && patternscoringclass.equals(ScorePatternsFreqBased.class)) {
     scorePatterns=new ScorePatternsFreqBased(constVars,constVars.patternScoring,label,patternsandWords4Label,negPatternsandWords4Label,unLabeledPatternsandWords4Label,negandUnLabeledPatternsandWords4Label,allPatternsandWords4Label,props);
@@ -74,8 +74,8 @@
  else   if (constVars.patternScoring.equals(PatternScoring.kNN)) {
     try {
       Class<? extends ScorePatterns> clazz=(Class<? extends ScorePatterns>)Class.forName("edu.stanford.nlp.patterns.surface.ScorePatternsKNN");
-      Constructor<? extends ScorePatterns> ctor=clazz.getConstructor(ConstantsAndVariables.class,PatternScoring.class,String.class,TwoDimensionalCounter.class,TwoDimensionalCounter.class,TwoDimensionalCounter.class,TwoDimensionalCounter.class,TwoDimensionalCounter.class,Properties.class);
-      scorePatterns=ctor.newInstance(constVars,constVars.patternScoring,label,patternsandWords4Label,negPatternsandWords4Label,unLabeledPatternsandWords4Label,negandUnLabeledPatternsandWords4Label,allPatternsandWords4Label,props);
+      Constructor<? extends ScorePatterns> ctor=clazz.getConstructor(ConstantsAndVariables.class,PatternScoring.class,String.class,TwoDimensionalCounter.class,TwoDimensionalCounter.class,TwoDimensionalCounter.class,TwoDimensionalCounter.class,TwoDimensionalCounter.class,ScorePhrases.class,Properties.class);
+      scorePatterns=ctor.newInstance(constVars,constVars.patternScoring,label,patternsandWords4Label,negPatternsandWords4Label,unLabeledPatternsandWords4Label,negandUnLabeledPatternsandWords4Label,allPatternsandWords4Label,scorePhrases,props);
     }
  catch (    ClassNotFoundException e) {
       throw new RuntimeException("kNN pattern scoring is not released yet. Stay tuned.");
