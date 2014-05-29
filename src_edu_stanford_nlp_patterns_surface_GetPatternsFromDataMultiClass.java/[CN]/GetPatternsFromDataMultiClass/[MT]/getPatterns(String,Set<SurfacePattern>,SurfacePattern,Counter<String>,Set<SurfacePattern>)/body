@@ -154,23 +154,22 @@ catch (    InstantiationException e) {
             notchoose=true;
             break;
           }
- else           if (SurfacePattern.sameGenre(p,pat)) {
-            Redwood.log(ConstantsAndVariables.extremedebug,"Not choosing pattern " + p + " because it is contained in or contains the another chosen pattern in this iteration "+ pat);
-            removeChosenPatFlag=true;
-          }
-          if (pat.toStringSimple().contains("upon") && p.toStringSimple().contains("upon")) {
-            System.out.println("For " + pat + " and "+ p+ ": samegenre is "+ SurfacePattern.sameGenre(pat,p)+ " and subsumes answer is "+ SurfacePattern.subsumes(pat,p)+ " and notchoose varaible is "+ notchoose);
-          }
-          if (!removeChosenPatFlag) {
+ else           if (SurfacePattern.subsumes(p,pat)) {
             int rest=pat.equalContext(p);
-            if (rest == Integer.MAX_VALUE)             continue;
-            if (rest < 0) {
+            if (rest == Integer.MAX_VALUE) {
+              Redwood.log(ConstantsAndVariables.extremedebug,"Not choosing pattern " + p + " because it is contained in or contains the another chosen pattern in this iteration "+ pat);
+              removeChosenPatFlag=true;
+            }
+ else             if (rest < 0) {
               removeChosenPatFlag=true;
             }
  else {
               notchoose=true;
               break;
             }
+          }
+          if (pat.toStringSimple().contains("upon") && p.toStringSimple().contains("upon")) {
+            System.out.println("For " + pat + " and "+ p+ ": samegenre is "+ SurfacePattern.sameGenre(pat,p)+ " and subsumes answer is "+ SurfacePattern.subsumes(pat,p)+ " and notchoose varaible is "+ notchoose);
           }
           if (removeChosenPatFlag) {
             if (removeChosenPats == null)             removeChosenPats=new HashSet<SurfacePattern>();
