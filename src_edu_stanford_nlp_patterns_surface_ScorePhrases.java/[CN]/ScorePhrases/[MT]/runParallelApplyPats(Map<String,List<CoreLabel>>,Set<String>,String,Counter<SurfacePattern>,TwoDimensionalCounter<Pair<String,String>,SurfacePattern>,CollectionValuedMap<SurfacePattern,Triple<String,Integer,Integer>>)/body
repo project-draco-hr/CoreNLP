@@ -26,15 +26,9 @@
     list.add(submit);
   }
   for (  Future<Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<SurfacePattern,Triple<String,Integer,Integer>>>> future : list) {
-    try {
-      Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<SurfacePattern,Triple<String,Integer,Integer>>> result=future.get();
-      wordsandLemmaPatExtracted.addAll(result.first());
-      matchedTokensByPat.addAll(result.second());
-    }
- catch (    Exception e) {
-      executor.shutdownNow();
-      throw new RuntimeException(e);
-    }
+    Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<SurfacePattern,Triple<String,Integer,Integer>>> result=future.get();
+    wordsandLemmaPatExtracted.addAll(result.first());
+    matchedTokensByPat.addAll(result.second());
   }
   executor.shutdown();
 }
