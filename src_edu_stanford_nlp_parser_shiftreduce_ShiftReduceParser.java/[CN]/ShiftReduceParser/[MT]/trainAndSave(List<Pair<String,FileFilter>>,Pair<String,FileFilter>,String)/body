@@ -1,5 +1,8 @@
 {
-  List<Tree> binarizedTrees=readBinarizedTreebank(trainTreebankPath,trainTreebankFilter);
+  List<Tree> binarizedTrees=Generics.newArrayList();
+  for (  Pair<String,FileFilter> treebank : trainTreebankPath) {
+    binarizedTrees.addAll(readBinarizedTreebank(treebank.first(),treebank.second()));
+  }
   int nThreads=op.trainOptions.trainingThreads;
   nThreads=nThreads <= 0 ? Runtime.getRuntime().availableProcessors() : nThreads;
   MaxentTagger tagger=null;
@@ -19,7 +22,7 @@
   Random random=new Random(op.trainOptions.randomSeed);
   Treebank devTreebank=null;
   if (devTreebankPath != null) {
-    devTreebank=readTreebank(devTreebankPath,devTreebankFilter);
+    devTreebank=readTreebank(devTreebankPath.first(),devTreebankPath.second());
   }
   double bestScore=0.0;
   int bestIteration=0;
