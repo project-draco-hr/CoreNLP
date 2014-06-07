@@ -2,9 +2,7 @@
   CollapseUnaryTransformer transformer=new CollapseUnaryTransformer();
   String parserModel="edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz";
   String inputPath=null;
-  String sentimentModelPath=null;
-  SentimentModel sentimentModel=null;
-  for (int argIndex=0; argIndex < args.length; ) {
+  for (int argIndex=0; argIndex < args.length; ++argIndex) {
     if (args[argIndex].equalsIgnoreCase("-input")) {
       inputPath=args[argIndex + 1];
       argIndex+=2;
@@ -13,23 +11,13 @@
       parserModel=args[argIndex + 1];
       argIndex+=2;
     }
- else     if (args[argIndex].equalsIgnoreCase("-sentimentModel")) {
-      sentimentModelPath=args[argIndex + 1];
-      argIndex+=2;
-    }
  else {
       System.err.println("Unknown argument " + args[argIndex]);
       System.exit(2);
     }
   }
-  if (inputPath == null) {
-    throw new IllegalArgumentException("Must specify input file with -input");
-  }
   LexicalizedParser parser=LexicalizedParser.loadModel(parserModel);
   TreeBinarizer binarizer=new TreeBinarizer(parser.getTLPParams().headFinder(),parser.treebankLanguagePack(),false,false,0,false,false,0.0,false,true,true);
-  if (sentimentModelPath != null) {
-    sentimentModel=SentimentModel.loadSerialized(sentimentModelPath);
-  }
   String text=IOUtils.slurpFileNoExceptions(inputPath);
   String[] chunks=text.split("\\n\\s*\\n+");
   for (  String chunk : chunks) {
@@ -50,16 +38,8 @@
     }
     Tree tree=parser.apply(tokens);
     Tree binarized=binarizer.transformTree(tree);
+    setUnknownLabels(binarized,mainLabel);
     Tree collapsedUnary=transformer.transformTree(binarized);
-    if (sentimentModel != null) {
-      Trees.convertToCoreLabels(collapsedUnary);
-      SentimentCostAndGradient scorer=new SentimentCostAndGradient(sentimentModel,null);
-      scorer.forwardPropagateTree(collapsedUnary);
-      setPredictedLabels(collapsedUnary);
-    }
- else {
-      setUnknownLabels(collapsedUnary,mainLabel);
-    }
     Trees.convertToCoreLabels(collapsedUnary);
     collapsedUnary.indexSpans();
     for (    Pair<Integer,Integer> span : spanToLabels.keySet()) {

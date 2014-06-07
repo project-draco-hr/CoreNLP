@@ -9,5 +9,13 @@
       }
     }
   }
-  filterKill(list);
+  for (Iterator<TypedDependency> iter=list.iterator(); iter.hasNext(); ) {
+    TypedDependency td=iter.next();
+    if (td.reln() == KILL) {
+      if (DEBUG) {
+        System.err.println("Removing rest of multiword conj: " + td);
+      }
+      iter.remove();
+    }
+  }
 }

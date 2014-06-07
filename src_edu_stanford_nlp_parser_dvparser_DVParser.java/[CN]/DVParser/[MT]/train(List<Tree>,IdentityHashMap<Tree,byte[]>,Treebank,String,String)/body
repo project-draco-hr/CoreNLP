@@ -1,7 +1,7 @@
 {
   Timing timing=new Timing();
   long maxTrainTimeMillis=op.trainOptions.maxTrainTimeSeconds * 1000;
-  int batchCount=0;
+  long nextDebugCycle=op.trainOptions.debugOutputSeconds * 1000;
   int debugCycle=0;
   double bestLabelF1=0.0;
   if (op.trainOptions.useContextWords) {
@@ -12,20 +12,19 @@
   }
   double[] sumGradSquare=new double[dvModel.totalParamSize()];
   Arrays.fill(sumGradSquare,1.0);
-  int numBatches=sentences.size() / op.trainOptions.batchSize + 1;
+  int numBatches=sentences.size() / op.trainOptions.dvBatchSize + 1;
   System.err.println("Training on " + sentences.size() + " trees in "+ numBatches+ " batches");
-  System.err.println("Times through each training batch: " + op.trainOptions.trainingIterations);
+  System.err.println("Times through each training batch: " + op.trainOptions.dvIterations);
   System.err.println("QN iterations per batch: " + op.trainOptions.qnIterationsPerBatch);
-  for (int iter=0; iter < op.trainOptions.trainingIterations; ++iter) {
+  for (int iter=0; iter < op.trainOptions.dvIterations; ++iter) {
     List<Tree> shuffledSentences=new ArrayList<Tree>(sentences);
     Collections.shuffle(shuffledSentences,dvModel.rand);
     for (int batch=0; batch < numBatches; ++batch) {
-      ++batchCount;
       System.err.println("======================================");
       System.err.println("Iteration " + iter + " batch "+ batch);
-      int startTree=batch * op.trainOptions.batchSize;
-      int endTree=(batch + 1) * op.trainOptions.batchSize;
-      if (endTree + op.trainOptions.batchSize > shuffledSentences.size()) {
+      int startTree=batch * op.trainOptions.dvBatchSize;
+      int endTree=(batch + 1) * op.trainOptions.dvBatchSize;
+      if (endTree + op.trainOptions.dvBatchSize > shuffledSentences.size()) {
         endTree=shuffledSentences.size();
       }
       executeOneTrainingBatch(shuffledSentences.subList(startTree,endTree),compressedParses,sumGradSquare);
@@ -34,8 +33,7 @@
       if (maxTrainTimeMillis > 0 && totalElapsed > maxTrainTimeMillis) {
         break;
       }
-      if (op.trainOptions.debugOutputFrequency > 0 && batchCount % op.trainOptions.debugOutputFrequency == 0) {
-        System.err.println("Finished " + batchCount + " total batches, running evaluation cycle");
+      if (nextDebugCycle > 0 && totalElapsed > nextDebugCycle) {
         double tagF1=0.0;
         double labelF1=0.0;
         if (testTreebank != null) {
@@ -65,6 +63,7 @@
           fout.close();
         }
         ++debugCycle;
+        nextDebugCycle=timing.report() + op.trainOptions.debugOutputSeconds * 1000;
       }
     }
     long totalElapsed=timing.report();

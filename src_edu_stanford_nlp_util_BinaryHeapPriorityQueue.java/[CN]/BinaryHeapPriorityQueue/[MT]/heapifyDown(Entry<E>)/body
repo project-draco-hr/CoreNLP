@@ -1,22 +1,23 @@
 {
+  Entry<E> currentEntry=entry;
   Entry<E> bestEntry;
   do {
-    bestEntry=entry;
-    Entry<E> leftEntry=leftChild(entry);
+    bestEntry=currentEntry;
+    Entry<E> leftEntry=leftChild(currentEntry);
     if (leftEntry != null) {
       if (compare(bestEntry,leftEntry) < 0) {
         bestEntry=leftEntry;
       }
     }
-    Entry<E> rightEntry=rightChild(entry);
+    Entry<E> rightEntry=rightChild(currentEntry);
     if (rightEntry != null) {
       if (compare(bestEntry,rightEntry) < 0) {
         bestEntry=rightEntry;
       }
     }
-    if (bestEntry != entry) {
-      swap(bestEntry,entry);
+    if (bestEntry != currentEntry) {
+      swap(bestEntry,currentEntry);
     }
   }
- while (bestEntry != entry);
+ while (bestEntry != currentEntry);
 }
