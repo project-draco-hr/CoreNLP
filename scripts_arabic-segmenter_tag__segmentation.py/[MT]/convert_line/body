@@ -1,0 +1,12 @@
+def convert_line(line):
+    if ('\t' not in line):
+        return ''
+    line = line[:(-1)]
+    edits = get_edits(line, FALSE_OPTIONS)
+    (raw, segmented) = line.split('\t')
+    if (edits is None):
+        reconstructed = segmented
+    else:
+        reconstructed = apply_edits(edits, raw)
+    segs = reconstructed.split(SEG_MARKER)
+    return unescape('- -'.join(segs)).split()

@@ -1,0 +1,10 @@
+def convert(infile, tagsfile):
+    tagger = Tagger(tagsfile)
+    accum = Accumulator(tagger)
+    for line in infile:
+        segs = convert_line(line)
+        for seg in segs:
+            accum.add(seg)
+        if (len(segs) == 0):
+            accum.flush()
+    print  >> sys.stderr, ('%d sentences ignored.' % tagger.ignored)
