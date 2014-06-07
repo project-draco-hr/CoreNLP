@@ -1,0 +1,19 @@
+{
+  ShiftReduceParser parser=null;
+  try {
+    Timing timing=new Timing();
+    System.err.print("Loading parser from serialized file " + path + " ...");
+    parser=IOUtils.readObjectFromFile(path);
+    timing.done();
+  }
+ catch (  IOException e) {
+    throw new RuntimeIOException(e);
+  }
+catch (  ClassNotFoundException e) {
+    throw new RuntimeIOException(e);
+  }
+  if (extraFlags.length > 0) {
+    parser.setOptionFlags(extraFlags);
+  }
+  return parser;
+}

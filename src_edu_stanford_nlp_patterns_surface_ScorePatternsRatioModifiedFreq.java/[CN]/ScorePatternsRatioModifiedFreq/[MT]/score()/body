@@ -15,7 +15,7 @@
  else   if (patternScoring.equals(PatternScoring.PosNegOdds)) {
     denominatorPatWt=this.convert2OneDim(label,negPatternsandWords4Label,constVars.sqrtPatScore,false,externalWordWeightsNormalized,useFreqPhraseExtractedByPat);
   }
- else   if (patternScoring.equals(PatternScoring.PhEvalInPat) || patternScoring.equals(PatternScoring.PhEvalInPatLogP) || patternScoring.equals(PatternScoring.LOGREG)) {
+ else   if (patternScoring.equals(PatternScoring.PhEvalInPat) || patternScoring.equals(PatternScoring.PhEvalInPatLogP) || patternScoring.equals(PatternScoring.LOGREG)|| patternScoring.equals(PatternScoring.LOGREGlogP)) {
     denominatorPatWt=this.convert2OneDim(label,negandUnLabeledPatternsandWords4Label,constVars.sqrtPatScore,true,externalWordWeightsNormalized,useFreqPhraseExtractedByPat);
   }
  else   if (patternScoring.equals(PatternScoring.SqrtAllRatio)) {
@@ -23,7 +23,7 @@
   }
  else   throw new RuntimeException("Cannot understand patterns scoring");
   currentPatternWeights4Label=Counters.divisionNonNaN(numeratorPatWt,denominatorPatWt);
-  if (patternScoring.equals(PatternScoring.PhEvalInPatLogP)) {
+  if (patternScoring.equals(PatternScoring.PhEvalInPatLogP) || patternScoring.equals(PatternScoring.LOGREGlogP)) {
     Counter<SurfacePattern> logpos_i=new ClassicCounter<SurfacePattern>();
     for (    Entry<SurfacePattern,ClassicCounter<String>> en : patternsandWords4Label.entrySet()) {
       logpos_i.setCount(en.getKey(),Math.log(en.getValue().size()));

@@ -31,7 +31,7 @@
         if (constVars.restrictToMatched) {
           for (int j=0; j < ph.length; j++) {
             if (!tokensMatchedPatterns.get(sentEn.getKey()).contains(idx + j)) {
-              Redwood.log("extremePatDebug","not labeling " + sentEn.getValue().get(idx + j).word());
+              Redwood.log(ConstantsAndVariables.extremedebug,"not labeling " + sentEn.getValue().get(idx + j).word());
               donotuse=true;
               break;
             }
@@ -54,12 +54,12 @@
         }
       }
     }
-    if (patternsForEachToken.containsKey(sentEn.getKey())) {
-      for (      int index : contextWordsRecalculatePats)       this.patternsForEachToken.get(sentEn.getKey()).put(index,createPats.getContext(label,sentEn.getValue(),index));
+    if (patternsForEachToken != null && patternsForEachToken.containsKey(sentEn.getKey())) {
+      for (      int index : contextWordsRecalculatePats)       this.patternsForEachToken.get(sentEn.getKey()).put(index,createPats.getContext(sentEn.getValue(),index));
     }
   }
   if (outFile != null) {
-    Redwood.log(Redwood.FORCE,"Writing results to " + outFile);
+    Redwood.log(ConstantsAndVariables.minimaldebug,"Writing results to " + outFile);
     IOUtils.writeObjectToFile(sents,outFile);
   }
 }
