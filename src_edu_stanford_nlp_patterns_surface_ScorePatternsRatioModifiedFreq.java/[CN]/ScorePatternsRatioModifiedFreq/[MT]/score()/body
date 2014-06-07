@@ -4,22 +4,22 @@
   Counter<SurfacePattern> currentPatternWeights4Label=new ClassicCounter<SurfacePattern>();
   boolean useFreqPhraseExtractedByPat=false;
   if (patternScoring.equals(PatternScoring.SqrtAllRatio))   useFreqPhraseExtractedByPat=true;
-  Counter<SurfacePattern> numeratorPatWt=this.convert2OneDim(label,patternsandWords4Label,constVars.sqrtPatScore,false,null,constVars.minPosPhraseSupportForPat,useFreqPhraseExtractedByPat);
+  Counter<SurfacePattern> numeratorPatWt=this.convert2OneDim(label,patternsandWords4Label,constVars.sqrtPatScore,false,null,useFreqPhraseExtractedByPat);
   Counter<SurfacePattern> denominatorPatWt=null;
   if (patternScoring.equals(PatternScoring.PosNegUnlabOdds)) {
-    denominatorPatWt=this.convert2OneDim(label,negandUnLabeledPatternsandWords4Label,constVars.sqrtPatScore,false,externalWordWeightsNormalized,constVars.minUnlabNegPhraseSupportForPat,useFreqPhraseExtractedByPat);
+    denominatorPatWt=this.convert2OneDim(label,negandUnLabeledPatternsandWords4Label,constVars.sqrtPatScore,false,externalWordWeightsNormalized,useFreqPhraseExtractedByPat);
   }
  else   if (patternScoring.equals(PatternScoring.RatioAll)) {
-    denominatorPatWt=this.convert2OneDim(label,allPatternsandWords4Label,constVars.sqrtPatScore,false,externalWordWeightsNormalized,constVars.minUnlabNegPhraseSupportForPat,useFreqPhraseExtractedByPat);
+    denominatorPatWt=this.convert2OneDim(label,allPatternsandWords4Label,constVars.sqrtPatScore,false,externalWordWeightsNormalized,useFreqPhraseExtractedByPat);
   }
  else   if (patternScoring.equals(PatternScoring.PosNegOdds)) {
-    denominatorPatWt=this.convert2OneDim(label,negPatternsandWords4Label,constVars.sqrtPatScore,false,externalWordWeightsNormalized,constVars.minUnlabNegPhraseSupportForPat,useFreqPhraseExtractedByPat);
+    denominatorPatWt=this.convert2OneDim(label,negPatternsandWords4Label,constVars.sqrtPatScore,false,externalWordWeightsNormalized,useFreqPhraseExtractedByPat);
   }
  else   if (patternScoring.equals(PatternScoring.PhEvalInPat) || patternScoring.equals(PatternScoring.PhEvalInPatLogP) || patternScoring.equals(PatternScoring.LOGREG)) {
-    denominatorPatWt=this.convert2OneDim(label,negandUnLabeledPatternsandWords4Label,constVars.sqrtPatScore,true,externalWordWeightsNormalized,constVars.minUnlabNegPhraseSupportForPat,useFreqPhraseExtractedByPat);
+    denominatorPatWt=this.convert2OneDim(label,negandUnLabeledPatternsandWords4Label,constVars.sqrtPatScore,true,externalWordWeightsNormalized,useFreqPhraseExtractedByPat);
   }
  else   if (patternScoring.equals(PatternScoring.SqrtAllRatio)) {
-    denominatorPatWt=this.convert2OneDim(label,negandUnLabeledPatternsandWords4Label,true,false,externalWordWeightsNormalized,constVars.minUnlabNegPhraseSupportForPat,useFreqPhraseExtractedByPat);
+    denominatorPatWt=this.convert2OneDim(label,negandUnLabeledPatternsandWords4Label,true,false,externalWordWeightsNormalized,useFreqPhraseExtractedByPat);
   }
  else   throw new RuntimeException("Cannot understand patterns scoring");
   currentPatternWeights4Label=Counters.divisionNonNaN(numeratorPatWt,denominatorPatWt);
