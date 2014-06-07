@@ -1,0 +1,76 @@
+{
+  Random r=new Random(10);
+  Random rneg=new Random(10);
+  RVFDataset<String,ScorePhraseMeasures> dataset=new RVFDataset<String,ScorePhraseMeasures>();
+  int numpos=0, numneg=0;
+  List<Pair<String,Integer>> chosen=new ArrayList<Pair<String,Integer>>();
+  for (  Entry<String,List<CoreLabel>> en : sents.entrySet()) {
+    List<CoreLabel> value=en.getValue();
+    CoreLabel[] sent=value.toArray(new CoreLabel[value.size()]);
+    for (int i=0; i < sent.length; i++) {
+      CoreLabel l=sent[i];
+      boolean chooseThis=false;
+      boolean ignoreclass=false;
+      Boolean datumlabel=false;
+      for (      Class cl : otherIgnoreClasses.keySet()) {
+        if ((Boolean)l.get(cl)) {
+          ignoreclass=true;
+        }
+      }
+      if (l.get(answerClass).equals(answerLabel)) {
+        datumlabel=true;
+        chooseThis=true;
+        numpos++;
+      }
+      if (chooseThis) {
+        chosen.add(new Pair<String,Integer>(en.getKey(),i));
+        Counter<ScorePhraseMeasures> feat=null;
+        if (forLearningPattern) {
+          feat=getPhraseFeaturesForPattern(label,l.word());
+        }
+ else {
+          feat=getFeatures(label,l.word(),wordsPatExtracted.getCounter(l.word()),allSelectedPatterns);
+        }
+        RVFDatum<String,ScorePhraseMeasures> datum=new RVFDatum<String,ScorePhraseMeasures>(feat,datumlabel.toString());
+        dataset.add(datum);
+      }
+    }
+    for (int i=0; i < sent.length; i++) {
+      CoreLabel l=sent[i];
+      if (numneg >= numpos)       break;
+      boolean chooseThis=false;
+      boolean ignoreclass=false;
+      Boolean datumlabel=false;
+      if (l.get(answerClass).equals(answerLabel)) {
+        continue;
+      }
+ else       if ((ignoreclass || negativeWords.contains(l.word().toLowerCase())) && getRandomBoolean(rneg,perSelectNeg)) {
+        chooseThis=true;
+        datumlabel=false;
+        numneg++;
+      }
+ else       if (getRandomBoolean(r,perSelectRand)) {
+        chooseThis=true;
+        datumlabel=false;
+        numneg++;
+      }
+ else       chooseThis=false;
+      if (chooseThis) {
+        chosen.add(new Pair<String,Integer>(en.getKey(),i));
+        Counter<ScorePhraseMeasures> feat=null;
+        if (forLearningPattern) {
+          feat=getPhraseFeaturesForPattern(label,l.word());
+        }
+ else {
+          feat=getFeatures(label,l.word(),wordsPatExtracted.getCounter(l.word()),allSelectedPatterns);
+        }
+        RVFDatum<String,ScorePhraseMeasures> datum=new RVFDatum<String,ScorePhraseMeasures>(feat,datumlabel.toString());
+        dataset.add(datum);
+      }
+    }
+  }
+  System.out.println("size of the dataset is ");
+  dataset.summaryStatistics();
+  System.out.println("number of positive datums:  " + numpos + " and number of negative datums: "+ numneg);
+  return dataset;
+}
