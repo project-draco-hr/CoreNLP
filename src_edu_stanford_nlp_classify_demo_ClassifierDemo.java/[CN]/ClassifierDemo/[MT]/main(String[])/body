@@ -1,8 +1,9 @@
 {
   ColumnDataClassifier cdc=new ColumnDataClassifier("examples/cheese2007.prop");
   Classifier<String,String> cl=cdc.makeClassifier(cdc.readTrainingExamples("examples/cheeseDisease.train"));
-  for (  String line : ObjectBank.getLineIterator("examples/cheeseDisease.test")) {
-    Datum<String,String> d=cdc.makeDatumFromLine(line,0);
+  for (  String line : ObjectBank.getLineIterator("examples/cheeseDisease.test","utf-8")) {
+    Datum<String,String> d=cdc.makeDatumFromLine(line);
     System.out.println(line + "  ==>  " + cl.classOf(d));
   }
+  demonstrateSerialization();
 }
