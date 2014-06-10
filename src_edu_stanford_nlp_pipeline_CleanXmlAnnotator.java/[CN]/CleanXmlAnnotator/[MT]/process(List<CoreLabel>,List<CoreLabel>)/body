@@ -4,6 +4,11 @@
   int matchDepth=0;
   List<CoreLabel> newTokens=new ArrayList<CoreLabel>();
   StringBuilder removedText=new StringBuilder();
+  int utteranceIndex=0;
+  boolean inUtterance=false;
+  boolean inSpeakerTag=false;
+  String currentSpeaker=null;
+  List<CoreLabel> speakerTokens=new ArrayList<CoreLabel>();
   for (  CoreLabel token : tokens) {
     String word=token.word().trim();
     XMLUtils.XMLTag tag=XMLUtils.parseTag(word);
@@ -11,6 +16,10 @@
       token.setWord(XMLUtils.unescapeStringForXML(token.word()));
       if (matchDepth > 0 || xmlTagMatcher == null || xmlTagMatcher.matcher("").matches()) {
         newTokens.add(token);
+        if (inUtterance) {
+          token.set(CoreAnnotations.UtteranceAnnotation.class,utteranceIndex);
+          if (currentSpeaker != null)           token.set(CoreAnnotations.SpeakerAnnotation.class,currentSpeaker);
+        }
       }
       if (removedText.length() > 0) {
         boolean added=false;
@@ -34,6 +43,9 @@
       if (dateTagMatcher != null && currentTagSet.size() > 0 && dateTagMatcher.matcher(currentTagSet.get(currentTagSet.size() - 1)).matches()) {
         dateTokens.add(token);
       }
+      if (inSpeakerTag) {
+        speakerTokens.add(token);
+      }
       continue;
     }
     String currentRemoval=token.get(CoreAnnotations.BeforeAnnotation.class);
@@ -47,6 +59,40 @@
     if (sentenceEndingTagMatcher != null && sentenceEndingTagMatcher.matcher(tag.name).matches() && newTokens.size() > 0) {
       CoreLabel previous=newTokens.get(newTokens.size() - 1);
       previous.set(CoreAnnotations.ForcedSentenceEndAnnotation.class,true);
+    }
+    if (utteranceTurnTagMatcher != null && utteranceTurnTagMatcher.matcher(tag.name).matches()) {
+      if (newTokens.size() > 0) {
+        CoreLabel previous=newTokens.get(newTokens.size() - 1);
+        previous.set(CoreAnnotations.ForcedSentenceEndAnnotation.class,true);
+      }
+      inUtterance=!(tag.isEndTag || tag.isSingleTag);
+      if (inUtterance) {
+        utteranceIndex++;
+      }
+      if (!inUtterance) {
+        currentSpeaker=null;
+      }
+    }
+    if (speakerTagMatcher != null && speakerTagMatcher.matcher(tag.name).matches()) {
+      if (newTokens.size() > 0) {
+        CoreLabel previous=newTokens.get(newTokens.size() - 1);
+        previous.set(CoreAnnotations.ForcedSentenceEndAnnotation.class,true);
+      }
+      inSpeakerTag=!(tag.isEndTag || tag.isSingleTag);
+      if (tag.isEndTag) {
+        currentSpeaker=StringUtils.joinWords(speakerTokens," ");
+        MultiTokenTag.Tag mentionTag=new MultiTokenTag.Tag(currentSpeaker,"Speaker",speakerTokens.size());
+        int i=0;
+        for (        CoreLabel t : speakerTokens) {
+          t.set(CoreAnnotations.SpeakerAnnotation.class,currentSpeaker);
+          t.set(CoreAnnotations.MentionTokenAnnotation.class,new MultiTokenTag(mentionTag,i));
+          i++;
+        }
+      }
+ else {
+        currentSpeaker=null;
+      }
+      speakerTokens.clear();
     }
     if (xmlTagMatcher == null)     continue;
     if (tag.isSingleTag) {
