@@ -775,10 +775,12 @@
           foundJJ=true;
         }
       }
-      for (int j=i; j < kids.length; j++) {
-        if (kids[j].label().value().startsWith("NP")) {
-          cat=cat + "^T";
-          break;
+      if (foundJJ) {
+        for (int j=i; j < kids.length; j++) {
+          if (kids[j].label().value().startsWith("NP")) {
+            cat=cat + "^T";
+            break;
+          }
         }
       }
     }
@@ -791,7 +793,7 @@
           break;
         }
       }
-      if (i < kids.length - 1) {
+      if (foundJJ && i < kids.length - 1) {
         cat=cat + "^CMPL";
       }
     }
@@ -853,9 +855,8 @@
     if (englishTrain.splitAux > 1 && (baseCat.equals("VBZ") || baseCat.equals("VBP") || baseCat.equals("VBD")|| baseCat.equals("VBN")|| baseCat.equals("VBG")|| baseCat.equals("VB"))) {
       if (word.equalsIgnoreCase("'s") || word.equalsIgnoreCase("s")) {
         Tree[] sisters=parent.children();
-        boolean foundMe=false;
         int i=0;
-        for (; i < sisters.length && !foundMe; i++) {
+        for (boolean foundMe=false; i < sisters.length && !foundMe; i++) {
           if (sisters[i].label().value().startsWith("VBZ")) {
             foundMe=true;
           }
@@ -863,9 +864,8 @@
         boolean annotateHave=false;
         for (int j=i; j < sisters.length; j++) {
           if (sisters[j].label().value().startsWith("VP")) {
-            Tree[] kids=sisters[j].children();
-            for (int k=0; k < kids.length; k++) {
-              if (kids[k].label().value().startsWith("VBN") || kids[k].label().value().startsWith("VBD")) {
+            for (            Tree kid : sisters[j].children()) {
+              if (kid.label().value().startsWith("VBN") || kid.label().value().startsWith("VBD")) {
                 annotateHave=true;
               }
             }
@@ -1015,11 +1015,11 @@
       boolean foundIn=false;
       boolean foundOrder=false;
       boolean infinitive=baseTag.equals("TO");
-      for (int i=0; i < kids.length; i++) {
-        if (kids[i].isPreTerminal() && kids[i].children()[0].value().equalsIgnoreCase("in")) {
+      for (      Tree kid : kids) {
+        if (kid.isPreTerminal() && kid.children()[0].value().equalsIgnoreCase("in")) {
           foundIn=true;
         }
-        if (kids[i].isPreTerminal() && kids[i].children()[0].value().equalsIgnoreCase("order")) {
+        if (kid.isPreTerminal() && kid.children()[0].value().equalsIgnoreCase("order")) {
           foundOrder=true;
         }
       }
@@ -1039,8 +1039,8 @@
       }
  else       if (englishTrain.splitNPNNP == 3 && baseCat.equals("NP")) {
         boolean split=false;
-        for (int i=0; i < kids.length; i++) {
-          if (kids[i].value().startsWith("NNP")) {
+        for (        Tree kid : kids) {
+          if (kid.value().startsWith("NNP")) {
             split=true;
             break;
           }
@@ -1124,8 +1124,8 @@
  else     if (englishTrain.splitSGapped == 2 && baseCat.equals("S")) {
       boolean seenPredCat=false;
       int seenNP=0;
-      for (int i=0; i < kids.length; i++) {
-        String cat2=kids[i].label().value();
+      for (      Tree kid : kids) {
+        String cat2=kid.label().value();
         if (cat2.startsWith("NP")) {
           seenNP++;
         }
@@ -1142,8 +1142,8 @@
       boolean seenCC=false;
       boolean seenS=false;
       int seenNP=0;
-      for (int i=0; i < kids.length; i++) {
-        String cat2=kids[i].label().value();
+      for (      Tree kid : kids) {
+        String cat2=kid.label().value();
         if (cat2.startsWith("NP")) {
           seenNP++;
         }
@@ -1166,8 +1166,8 @@
       boolean sawSBeforePredCat=false;
       int seenS=0;
       int seenNP=0;
-      for (int i=0; i < kids.length; i++) {
-        String cat2=kids[i].label().value();
+      for (      Tree kid : kids) {
+        String cat2=kid.label().value();
         if (cat2.startsWith("NP")) {
           seenNP++;
         }
@@ -1187,9 +1187,9 @@
     }
     if (englishTrain.splitNumNP && baseCat.equals("NP")) {
       boolean seenNum=false;
-      for (int i=0; i < kids.length; i++) {
-        String cat2=kids[i].label().value();
-        if (cat2.startsWith("QP") || cat2.startsWith("CD") || cat2.startsWith("$")|| cat2.startsWith("#")|| (cat2.startsWith("NN") && cat2.indexOf("-%") >= 0)) {
+      for (      Tree kid : kids) {
+        String cat2=kid.label().value();
+        if (cat2.startsWith("QP") || cat2.startsWith("CD") || cat2.startsWith("$")|| cat2.startsWith("#")|| (cat2.startsWith("NN") && cat2.contains("-%"))) {
           seenNum=true;
           break;
         }
