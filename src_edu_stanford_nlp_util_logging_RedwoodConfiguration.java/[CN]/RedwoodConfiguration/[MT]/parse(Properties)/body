@@ -90,7 +90,7 @@
   String channelsToShow=get(props,"log.channels.show",null,used);
   String channelsToHide=get(props,"log.channels.hide",null,used);
   int channelWidth=Integer.parseInt(get(props,"log.channels.width","10",used));
-  if (channelsToShow != null && channelsToHide != null && !channelsToShow.toLowerCase().equals("true")) {
+  if (channelsToShow != null && channelsToHide != null) {
     throw new IllegalArgumentException("Can't specify both log.channels.show and log.channels.hide");
   }
   if (channelsToShow != null) {
@@ -103,9 +103,6 @@
   }
  else   if (channelsToHide != null) {
     config=config.printChannels(channelWidth).hideChannels(channelsToHide.split(","));
-  }
-  if (get(props,"log.channels.debug","true",used).equalsIgnoreCase("false")) {
-    config=config.hideChannels(new Object[]{Redwood.DBG});
   }
   for (  Object propAsObj : props.keySet()) {
     String prop=propAsObj.toString();
