@@ -4,9 +4,9 @@
     buf.append(value());
   }
  else   if (format.equals("{map}")) {
-    Map map2=new TreeMap();
+    Map map2=new TreeMap(asClassComparator);
     for (    Class key : this.keySet()) {
-      map2.put(key.getName(),get(key));
+      map2.put(key,get(key));
     }
     buf.append(map2);
   }
@@ -21,18 +21,6 @@
   }
  else   if (format.equals("value-index")) {
     buf.append(value());
-    Integer index=this.get(CoreAnnotations.IndexAnnotation.class);
-    if (index != null) {
-      buf.append('-').append((index).intValue());
-    }
-    buf.append(toPrimes());
-  }
- else   if (format.equals("value-tag-index")) {
-    buf.append(value());
-    String tag=tag();
-    if (tag != null) {
-      buf.append(TAG_SEPARATOR).append(tag);
-    }
     Integer index=this.get(CoreAnnotations.IndexAnnotation.class);
     if (index != null) {
       buf.append('-').append((index).intValue());

@@ -1,0 +1,17 @@
+{
+  try {
+    JobResult<O> result=queue.take().get();
+    QueueItem<O> output=new QueueItem<O>(result.output,result.inputItemId);
+    outputQueue.add(output);
+    idleProcessors.add(result.processorId);
+    return;
+  }
+ catch (  InterruptedException e) {
+    e.printStackTrace();
+  }
+catch (  ExecutionException e) {
+    e.printStackTrace();
+  }
+  threadPool.shutdown();
+  throw new RuntimeException("Unable to submit to job to thread pool");
+}

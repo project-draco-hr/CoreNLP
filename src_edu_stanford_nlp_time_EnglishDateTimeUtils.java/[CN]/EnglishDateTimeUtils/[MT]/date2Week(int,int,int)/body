@@ -1,0 +1,15 @@
+{
+  int dl=date2DOW(year,1,1);
+  int doy=dayOfYear(year,month,day);
+  if ((dl > 4) && (doy < (7 - doy))) {
+    year--;
+    dl=date2DOW(year,1,1);
+    doy+=365 + (isLeapYear(year) ? 1 : 0);
+  }
+  int w=(doy + dl + 5) / 7;
+  if (dl > 4) {
+    w--;
+  }
+  String weekStr=String.format("%4.dW%02.d",year,w);
+  return weekStr;
+}

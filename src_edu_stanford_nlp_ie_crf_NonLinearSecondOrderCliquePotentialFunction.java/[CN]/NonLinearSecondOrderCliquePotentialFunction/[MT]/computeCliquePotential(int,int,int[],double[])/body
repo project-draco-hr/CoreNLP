@@ -1,0 +1,40 @@
+{
+  double output=0.0;
+  double[][] inputWeights, outputWeights=null;
+  if (cliqueSize > 1) {
+    inputWeights=inputLayerWeights4Edge;
+    outputWeights=outputLayerWeights4Edge;
+  }
+ else {
+    inputWeights=inputLayerWeights;
+    outputWeights=outputLayerWeights;
+  }
+  double[] hiddenLayer=NonLinearCliquePotentialFunction.hiddenLayerOutput(inputWeights,cliqueFeatures,flags,featureVal);
+  int outputLayerSize=inputWeights.length / outputWeights[0].length;
+  if (flags.useOutputLayer) {
+    double[] outputWs=null;
+    if (flags.tieOutputLayer) {
+      outputWs=outputWeights[0];
+    }
+ else {
+      outputWs=outputWeights[labelIndex];
+    }
+    if (flags.softmaxOutputLayer) {
+      outputWs=ArrayMath.softmax(outputWs);
+    }
+    for (int i=0; i < inputWeights.length; i++) {
+      if (flags.sparseOutputLayer || flags.tieOutputLayer) {
+        if (i % outputLayerSize == labelIndex) {
+          output+=outputWs[i / outputLayerSize] * hiddenLayer[i];
+        }
+      }
+ else {
+        output+=outputWs[i] * hiddenLayer[i];
+      }
+    }
+  }
+ else {
+    output=hiddenLayer[labelIndex];
+  }
+  return output;
+}

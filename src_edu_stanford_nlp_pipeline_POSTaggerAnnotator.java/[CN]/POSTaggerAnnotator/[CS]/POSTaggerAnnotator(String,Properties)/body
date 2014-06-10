@@ -1,11 +1,9 @@
 {
   String posLoc=props.getProperty(annotatorName + ".model");
   if (posLoc == null) {
-    posLoc=DefaultPaths.DEFAULT_POS_MODEL;
+    throw new IllegalArgumentException("No model specified for " + "POS tagger annotator " + annotatorName);
   }
-  boolean verbose=PropertiesUtils.getBool(props,annotatorName + ".verbose",false);
+  boolean verbose=PropertiesUtils.getBool(props,annotatorName + ".verbose",true);
   this.pos=loadModel(posLoc,verbose);
   this.maxSentenceLength=PropertiesUtils.getInt(props,annotatorName + ".maxlen",Integer.MAX_VALUE);
-  this.nThreads=PropertiesUtils.getInt(props,annotatorName + ".nthreads",PropertiesUtils.getInt(props,"nthreads",1));
-  this.reuseTags=PropertiesUtils.getBool(props,annotatorName + ".reuseTags",false);
 }

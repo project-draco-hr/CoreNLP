@@ -1,48 +1,79 @@
 {
-  try {
-    if (!parseInternal(sentence)) {
-      if (pparser != null && pparser.hasParse() && fallbackToPCFG) {
-        parseFallback=true;
-        return true;
-      }
- else {
-        parseUnparsable=true;
-        return false;
-      }
-    }
- else {
-      return true;
-    }
-  }
- catch (  OutOfMemoryError e) {
-    if (op.testOptions.maxLength != -0xDEADBEEF) {
-      System.err.print("NOT ENOUGH MEMORY TO PARSE SENTENCES OF LENGTH ");
-      System.err.println(op.testOptions.maxLength);
-      throw e;
-    }
-    if (pparser.hasParse() && fallbackToPCFG) {
-      try {
-        whatFailed="dependency";
-        if (dparser.hasParse()) {
-          whatFailed="factored";
-        }
-        parseFallback=true;
-        return true;
-      }
- catch (      OutOfMemoryError oome) {
-        oome.printStackTrace();
-        parseNoMemory=true;
-        pparser.nudgeDownArraySize();
-        return false;
-      }
-    }
- else {
-      parseNoMemory=true;
-      return false;
-    }
-  }
-catch (  UnsupportedOperationException uoe) {
+  parseSucceeded=false;
+  parseNoMemory=false;
+  parseUnparsable=false;
+  parseSkipped=false;
+  parseFallback=false;
+  originalSentence=sentence;
+  int length=sentence.size();
+  if (length == 0) {
     parseSkipped=true;
-    return false;
+    throw new UnsupportedOperationException("Can't parse a zero-length sentence!");
   }
+  if (op.wordFunction != null) {
+    originalWords=new ArrayList<String>(sentence.size());
+    originalLemmas=new ArrayList<String>(sentence.size());
+    for (    HasWord word : sentence) {
+      originalWords.add(word.word());
+      if (word instanceof HasLemma) {
+        originalLemmas.add(((HasLemma)word).lemma());
+      }
+ else {
+        originalLemmas.add(null);
+      }
+      word.setWord(op.wordFunction.apply(word.word()));
+    }
+  }
+  List<HasWord> sentenceB=new ArrayList<HasWord>(sentence);
+  if (op.testOptions.addMissingFinalPunctuation) {
+    addSentenceFinalPunctIfNeeded(sentenceB,length);
+  }
+  if (length > op.testOptions.maxLength) {
+    parseSkipped=true;
+    throw new UnsupportedOperationException("Sentence too long: length " + length);
+  }
+  TreePrint treePrint=getTreePrint();
+  PrintWriter pwOut=op.tlpParams.pw();
+  if (sentence.get(0) instanceof CoreLabel) {
+    CoreLabel boundary=new CoreLabel();
+    boundary.setWord(Lexicon.BOUNDARY);
+    boundary.setValue(Lexicon.BOUNDARY);
+    boundary.setTag(Lexicon.BOUNDARY_TAG);
+    boundary.setIndex(sentence.size() + 1);
+    sentenceB.add(boundary);
+  }
+ else {
+    sentenceB.add(new TaggedWord(Lexicon.BOUNDARY,Lexicon.BOUNDARY_TAG));
+  }
+  if (op.doPCFG) {
+    if (!pparser.parse(sentenceB)) {
+      restoreOriginalWords(sentence);
+      return parseSucceeded;
+    }
+    if (op.testOptions.verbose) {
+      pwOut.println("PParser output");
+      treePrint.printTree(getBestPCFGParse(false),pwOut);
+    }
+  }
+  if (op.doDep && !op.testOptions.useFastFactored) {
+    if (!dparser.parse(sentenceB)) {
+      restoreOriginalWords(sentence);
+      return parseSucceeded;
+    }
+    if (op.testOptions.verbose) {
+      pwOut.println("DParser output");
+      treePrint.printTree(dparser.getBestParse(),pwOut);
+    }
+  }
+  if (op.doPCFG && op.doDep) {
+    if (!bparser.parse(sentenceB)) {
+      restoreOriginalWords(sentence);
+      return parseSucceeded;
+    }
+ else {
+      parseSucceeded=true;
+    }
+  }
+  restoreOriginalWords(sentence);
+  return true;
 }

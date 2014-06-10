@@ -20,15 +20,15 @@
   if (useGT) {
     System.err.println("ChineseUWM: using Good-Turing smoothing for unknown words.");
   }
-  this.c=Generics.newHashMap();
+  this.c=new HashMap<Label,ClassicCounter<String>>();
   this.tc=new ClassicCounter<Label>();
   this.unSeenCounter=new ClassicCounter<IntTaggedWord>();
   this.seenCounter=new ClassicCounter<IntTaggedWord>();
-  this.seenFirst=Generics.newHashSet();
-  this.tagHash=Generics.newHashMap();
+  this.seenFirst=new HashSet<String>();
+  this.tagHash=new HashMap<Label,ClassicCounter<String>>();
   this.indexToStartUnkCounting=(totalTrees * op.trainOptions.fractionBeforeUnseenCounting);
   this.unknownGTTrainer=(useGT) ? new UnknownGTTrainer() : null;
-  Map<String,Float> unknownGT=null;
+  HashMap<String,Float> unknownGT=null;
   if (useGT) {
     unknownGT=unknownGTTrainer.unknownGT;
   }

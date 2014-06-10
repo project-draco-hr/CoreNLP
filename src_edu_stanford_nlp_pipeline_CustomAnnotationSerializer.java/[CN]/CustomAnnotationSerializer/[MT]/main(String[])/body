@@ -6,9 +6,7 @@
   if (loadFile != null && !loadFile.equals("")) {
     CustomAnnotationSerializer ser=new CustomAnnotationSerializer(false,false);
     InputStream is=new FileInputStream(loadFile);
-    Pair<Annotation,InputStream> pair=ser.read(is);
-    pair.second.close();
-    Annotation anno=pair.first;
+    Annotation anno=ser.load(is);
     System.out.println(anno.toShorterString(new String[0]));
     is.close();
   }
@@ -18,7 +16,8 @@
     pipeline.annotate(doc);
     CustomAnnotationSerializer ser=new CustomAnnotationSerializer(false,false);
     PrintStream os=new PrintStream(new FileOutputStream(file + ".ser"));
-    ser.write(doc,os).close();
+    ser.save(doc,os);
+    os.close();
     System.err.println("Serialized annotation saved in " + file + ".ser");
   }
  else {

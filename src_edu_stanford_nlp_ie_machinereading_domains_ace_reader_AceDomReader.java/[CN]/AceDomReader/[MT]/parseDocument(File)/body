@@ -13,8 +13,8 @@
     AceEntity entity=new AceEntity(id,type,subtype,cls);
     aceDoc.addEntity(entity);
     List<Node> mentions=getChildrenByName(node,"entity_mention");
-    for (    Node mention1 : mentions) {
-      AceEntityMention mention=parseEntityMention(mention1);
+    for (Iterator<Node> it=mentions.iterator(); it.hasNext(); ) {
+      AceEntityMention mention=parseEntityMention(it.next());
       entity.addMention(mention);
       aceDoc.addEntityMention(mention);
     }
@@ -31,8 +31,8 @@
     AceRelation relation=new AceRelation(id,type,subtype,modality,tense);
     aceDoc.addRelation(relation);
     List<Node> mentions=getChildrenByName(node,"relation_mention");
-    for (    Node mention1 : mentions) {
-      AceRelationMention mention=parseRelationMention(mention1,aceDoc);
+    for (Iterator<Node> it=mentions.iterator(); it.hasNext(); ) {
+      AceRelationMention mention=parseRelationMention(it.next(),aceDoc);
       relation.addMention(mention);
       aceDoc.addRelationMention(mention);
     }
@@ -50,8 +50,8 @@
     AceEvent event=new AceEvent(id,type,subtype,modality,polarity,genericity,tense);
     aceDoc.addEvent(event);
     List<Node> mentions=getChildrenByName(node,"event_mention");
-    for (    Node mention1 : mentions) {
-      AceEventMention mention=parseEventMention(mention1,aceDoc);
+    for (Iterator<Node> it=mentions.iterator(); it.hasNext(); ) {
+      AceEventMention mention=parseEventMention(it.next(),aceDoc);
       event.addMention(mention);
       aceDoc.addEventMention(mention);
     }

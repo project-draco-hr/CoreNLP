@@ -74,14 +74,14 @@
  else       if (w.startsWith("<COREF")) {
         Mention mention=new Mention();
         mention.startIndex=sentence.size();
-        Pattern idPattern=Pattern.compile("ID=\"(.*?)\"");
-        Pattern refPattern=Pattern.compile("REF=\"(.*?)\"");
+        Pattern idPattern=Pattern.compile("ID=\\\"(.*?)\\\"");
+        Pattern refPattern=Pattern.compile("REF=\\\"(.*?)\\\"");
         Matcher m=idPattern.matcher(w);
         m.find();
-        mention.mentionID=Integer.parseInt(m.group(1));
+        mention.mentionID=Integer.valueOf(m.group(1));
         m=refPattern.matcher(w);
         if (m.find()) {
-          mention.originalRef=Integer.parseInt(m.group(1));
+          mention.originalRef=Integer.valueOf(m.group(1));
         }
         stack.push(mention);
       }
@@ -115,20 +115,23 @@
     allSentences.add(sentCoreMap);
     sentCoreMap.set(CoreAnnotations.TokensAnnotation.class,sentence);
   }
-  Map<Integer,Mention> idMention=Generics.newHashMap();
-  for (  List<Mention> goldMentions : allGoldMentions) {
-    for (    Mention m : goldMentions) {
+  HashMap<Integer,Mention> idMention=new HashMap<Integer,Mention>();
+  for (int i=0; i < allGoldMentions.size(); i++) {
+    for (int j=0; j < allGoldMentions.get(i).size(); j++) {
+      Mention m=allGoldMentions.get(i).get(j);
       idMention.put(m.mentionID,m);
     }
   }
-  for (  List<Mention> goldMentions : allGoldMentions) {
-    for (    Mention m : goldMentions) {
+  for (int i=0; i < allGoldMentions.size(); i++) {
+    for (int j=0; j < allGoldMentions.get(i).size(); j++) {
+      Mention m=allGoldMentions.get(i).get(j);
       if (m.goldCorefClusterID == -1) {
         if (m.originalRef == -1)         m.goldCorefClusterID=m.mentionID;
  else {
+          Mention m2;
           int ref=m.originalRef;
           while (true) {
-            Mention m2=idMention.get(ref);
+            m2=idMention.get(ref);
             if (m2.goldCorefClusterID != -1) {
               m.goldCorefClusterID=m2.goldCorefClusterID;
               break;
@@ -148,7 +151,7 @@
   }
   docAnno.set(CoreAnnotations.SentencesAnnotation.class,allSentences);
   stanfordProcessor.annotate(docAnno);
-  if (allSentences.size() != allWords.size())   throw new IllegalStateException("allSentences != allWords");
+  if (allSentences.size() != allWords.size())   throw new RuntimeException();
   for (int i=0; i < allSentences.size(); i++) {
     List<CoreLabel> annotatedSent=allSentences.get(i).get(CoreAnnotations.TokensAnnotation.class);
     List<CoreLabel> unannotatedSent=allWords.get(i);
@@ -157,13 +160,14 @@
       m.dependency=allSentences.get(i).get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class);
     }
     if (annotatedSent.size() != unannotatedSent.size()) {
-      throw new IllegalStateException("annotatedSent != unannotatedSent");
+      throw new RuntimeException();
     }
-    for (int j=0, sz=annotatedSent.size(); j < sz; j++) {
+    int k=0;
+    for (int j=0; j < annotatedSent.size(); j++, k++) {
       CoreLabel annotatedWord=annotatedSent.get(j);
-      CoreLabel unannotatedWord=unannotatedSent.get(j);
+      CoreLabel unannotatedWord=unannotatedSent.get(k);
       if (!annotatedWord.get(CoreAnnotations.TextAnnotation.class).equals(unannotatedWord.get(CoreAnnotations.TextAnnotation.class))) {
-        throw new IllegalStateException("annotatedWord != unannotatedWord");
+        throw new RuntimeException();
       }
     }
     allWords.set(i,annotatedSent);

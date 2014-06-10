@@ -1,0 +1,22 @@
+{
+  ColumnDataClassifier cdc=new ColumnDataClassifier("examples/cheese2007.prop");
+  Classifier<String,String> cl=cdc.makeClassifier(cdc.readTrainingExamples("examples/cheeseDisease.train"));
+  System.out.println();
+  System.out.println();
+  ByteArrayOutputStream baos=new ByteArrayOutputStream();
+  ObjectOutputStream oos=new ObjectOutputStream(baos);
+  oos.writeObject(cl);
+  oos.close();
+  byte[] object=baos.toByteArray();
+  ByteArrayInputStream bais=new ByteArrayInputStream(object);
+  ObjectInputStream ois=new ObjectInputStream(bais);
+  LinearClassifier<String,String> lc=ErasureUtils.uncheckedCast(ois.readObject());
+  ois.close();
+  ColumnDataClassifier cdc2=new ColumnDataClassifier("examples/cheese2007.prop");
+  for (  String line : ObjectBank.getLineIterator("examples/cheeseDisease.test")) {
+    Datum<String,String> d=cdc.makeDatumFromLine(line,0);
+    Datum<String,String> d2=cdc2.makeDatumFromLine(line,0);
+    System.out.println(line + "  =origi=>  " + cl.classOf(d));
+    System.out.println(line + "  =deser=>  " + lc.classOf(d2));
+  }
+}

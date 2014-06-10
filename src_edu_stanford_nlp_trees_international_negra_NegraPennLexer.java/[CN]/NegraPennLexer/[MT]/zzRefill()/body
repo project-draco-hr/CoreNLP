@@ -4,6 +4,7 @@
     zzEndRead-=zzStartRead;
     zzCurrentPos-=zzStartRead;
     zzMarkedPos-=zzStartRead;
+    zzPushbackPos-=zzStartRead;
     zzStartRead=0;
   }
   if (zzCurrentPos >= zzBuffer.length) {
@@ -12,19 +13,11 @@
     zzBuffer=newBuffer;
   }
   int numRead=zzReader.read(zzBuffer,zzEndRead,zzBuffer.length - zzEndRead);
-  if (numRead > 0) {
+  if (numRead < 0) {
+    return true;
+  }
+ else {
     zzEndRead+=numRead;
     return false;
   }
-  if (numRead == 0) {
-    int c=zzReader.read();
-    if (c == -1) {
-      return true;
-    }
- else {
-      zzBuffer[zzEndRead++]=(char)c;
-      return false;
-    }
-  }
-  return true;
 }

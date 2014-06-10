@@ -1,10 +1,10 @@
 {
-  final TreeReaderFactory trf=new FrenchXMLTreeReaderFactory(false);
-  Map<String,Tree> treeMap=Generics.newHashMap();
+  final TreeReaderFactory trf=new FrenchTreeReaderFactory();
+  Map<String,Tree> treeMap=new HashMap<String,Tree>();
   for (  String filename : filenames) {
     File file=new File(filename);
     String canonicalFilename=file.getName().substring(0,file.getName().lastIndexOf('.'));
-    FrenchXMLTreeReader tr=(FrenchXMLTreeReader)trf.newTreeReader(new BufferedReader(new InputStreamReader(new FileInputStream(file),"ISO8859_1")));
+    FrenchTreeReader tr=(FrenchTreeReader)trf.newTreeReader(new BufferedReader(new InputStreamReader(new FileInputStream(file),"ISO8859_1")));
     Tree t=null;
     int numTrees;
     for (numTrees=0; (t=tr.readTree()) != null; numTrees++) {

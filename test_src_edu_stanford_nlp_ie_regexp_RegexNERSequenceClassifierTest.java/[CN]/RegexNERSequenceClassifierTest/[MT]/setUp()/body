@@ -12,29 +12,18 @@ synchronized (RegexNERSequenceClassifierTest.class) {
     }
   }
   sentences=new ArrayList<List<CoreLabel>>();
-  NERsentences=new ArrayList<List<CoreLabel>>();
   assertEquals(words.length,tags.length);
-  assertEquals(words.length,ner.length);
   for (int snum=0; snum < words.length; ++snum) {
     String[] wordPieces=words[snum].split(" ");
     String[] tagPieces=tags[snum].split(" ");
-    String[] nerPieces=ner[snum].split(" ");
     assertEquals(wordPieces.length,tagPieces.length);
-    assertEquals("Input " + snum + " "+ words[snum]+ " of different length than "+ ner[snum],wordPieces.length,nerPieces.length);
     List<CoreLabel> sentence=new ArrayList<CoreLabel>();
-    List<CoreLabel> NERsentence=new ArrayList<CoreLabel>();
     for (int wnum=0; wnum < wordPieces.length; ++wnum) {
       CoreLabel token=new CoreLabel();
       token.setWord(wordPieces[wnum]);
       token.setTag(tagPieces[wnum]);
       sentence.add(token);
-      CoreLabel NERtoken=new CoreLabel();
-      NERtoken.setWord(wordPieces[wnum]);
-      NERtoken.setTag(tagPieces[wnum]);
-      NERtoken.setNER(nerPieces[wnum]);
-      NERsentence.add(NERtoken);
     }
     sentences.add(sentence);
-    NERsentences.add(NERsentence);
   }
 }

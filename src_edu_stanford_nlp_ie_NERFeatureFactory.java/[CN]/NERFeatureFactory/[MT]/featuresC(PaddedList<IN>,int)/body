@@ -69,21 +69,21 @@
     if (flags.checkNameList) {
       try {
         if (lastNames == null) {
-          lastNames=Generics.newHashSet();
+          lastNames=new HashSet<String>();
           for (          String line : ObjectBank.getLineIterator(flags.lastNameList)) {
             String[] cols=line.split("\\s+");
             lastNames.add(cols[0]);
           }
         }
         if (maleNames == null) {
-          maleNames=Generics.newHashSet();
+          maleNames=new HashSet<String>();
           for (          String line : ObjectBank.getLineIterator(flags.maleNameList)) {
             String[] cols=line.split("\\s+");
             maleNames.add(cols[0]);
           }
         }
         if (femaleNames == null) {
-          femaleNames=Generics.newHashSet();
+          femaleNames=new HashSet<String>();
           for (          String line : ObjectBank.getLineIterator(flags.femaleNameList)) {
             String[] cols=line.split("\\s+");
             femaleNames.add(cols[0]);
@@ -254,27 +254,25 @@
     if (flags.useSymWordPairs) {
       featuresC.add(pWord + '-' + nWord+ "-SWORDS");
     }
-    String pGazAnnotationClass=(flags.useGazFeatures || flags.useMoreGazFeatures) ? p.get(CoreAnnotations.GazAnnotation.class) : null;
-    String nGazAnnotationClass=(flags.useGazFeatures || flags.useMoreGazFeatures) ? n.get(CoreAnnotations.GazAnnotation.class) : null;
     if (flags.useGazFeatures) {
       if (!c.get(CoreAnnotations.GazAnnotation.class).equals(flags.dropGaz)) {
         featuresC.add(c.get(CoreAnnotations.GazAnnotation.class) + "-GAZ");
       }
-      if (nGazAnnotationClass != null && !nGazAnnotationClass.equals(flags.dropGaz)) {
-        featuresC.add(nGazAnnotationClass + "-NGAZ");
+      if (!n.get(CoreAnnotations.GazAnnotation.class).equals(flags.dropGaz)) {
+        featuresC.add(n.get(CoreAnnotations.GazAnnotation.class) + "-NGAZ");
       }
-      if (pGazAnnotationClass != null && !pGazAnnotationClass.equals(flags.dropGaz)) {
-        featuresC.add(pGazAnnotationClass + "-PGAZ");
+      if (!p.get(CoreAnnotations.GazAnnotation.class).equals(flags.dropGaz)) {
+        featuresC.add(p.get(CoreAnnotations.GazAnnotation.class) + "-PGAZ");
       }
     }
     if (flags.useMoreGazFeatures) {
       if (!c.get(CoreAnnotations.GazAnnotation.class).equals(flags.dropGaz)) {
         featuresC.add(c.get(CoreAnnotations.GazAnnotation.class) + '-' + cWord+ "-CG-CW-GAZ");
-        if (nGazAnnotationClass != null && !nGazAnnotationClass.equals(flags.dropGaz)) {
-          featuresC.add(c.get(CoreAnnotations.GazAnnotation.class) + '-' + nGazAnnotationClass+ "-CNGAZ");
+        if (!n.get(CoreAnnotations.GazAnnotation.class).equals(flags.dropGaz)) {
+          featuresC.add(c.get(CoreAnnotations.GazAnnotation.class) + '-' + n.get(CoreAnnotations.GazAnnotation.class)+ "-CNGAZ");
         }
-        if (pGazAnnotationClass != null && !pGazAnnotationClass.equals(flags.dropGaz)) {
-          featuresC.add(pGazAnnotationClass + '-' + c.get(CoreAnnotations.GazAnnotation.class)+ "-PCGAZ");
+        if (!p.get(CoreAnnotations.GazAnnotation.class).equals(flags.dropGaz)) {
+          featuresC.add(p.get(CoreAnnotations.GazAnnotation.class) + '-' + c.get(CoreAnnotations.GazAnnotation.class)+ "-PCGAZ");
         }
       }
     }
@@ -667,14 +665,7 @@
       makeGenericKeyCache(c);
     }
     for (    Class key : genericAnnotationKeys) {
-      if (c.get(key) != null && c.get(key) instanceof Collection) {
-        for (        Object ob : (Collection)c.get(key)) {
-          featuresC.add(ob + "-" + CoreLabel.genericValues.get(key));
-        }
-      }
- else {
-        featuresC.add(c.get(key) + "-" + CoreLabel.genericValues.get(key));
-      }
+      featuresC.add(c.get(key) + "-" + CoreLabel.genericValues.get(key));
     }
   }
   if (flags.useTopics) {
@@ -714,12 +705,6 @@
     }
     for (int i=0; i < cWord.length(); ++i) {
       featuresC.add(RadicalMap.getRadical(cWord.charAt(i)) + "-RADICAL");
-    }
-  }
-  if (flags.splitWordRegex != null && !flags.splitWordRegex.isEmpty()) {
-    String[] ws=c.word().split(flags.splitWordRegex);
-    for (    String s : ws) {
-      featuresC.add(s + "-SPLITWORD");
     }
   }
   return featuresC;

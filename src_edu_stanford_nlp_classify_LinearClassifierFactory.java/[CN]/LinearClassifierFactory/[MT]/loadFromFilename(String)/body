@@ -1,28 +1,29 @@
 {
   try {
-    BufferedReader in=IOUtils.readerFromString(file);
+    File tgtFile=new File(file);
+    BufferedReader in=new BufferedReader(new FileReader(tgtFile));
     Index<String> labelIndex=HashIndex.loadFromReader(in);
     Index<String> featureIndex=HashIndex.loadFromReader(in);
     double[][] weights=new double[featureIndex.size()][labelIndex.size()];
-    int currLine=1;
     String line=in.readLine();
+    int currLine=1;
     while (line != null && line.length() > 0) {
       String[] tuples=line.split(LinearClassifier.TEXT_SERIALIZATION_DELIMITER);
       if (tuples.length != 3) {
-        throw new Exception("Error: incorrect number of tokens in weight specifier, line=" + currLine + " in file "+ file);
+        throw new Exception("Error: incorrect number of tokens in weight specifier, line=" + currLine + " in file "+ tgtFile.getAbsolutePath());
       }
       currLine++;
-      int feature=Integer.parseInt(tuples[0]);
-      int label=Integer.parseInt(tuples[1]);
-      double value=Double.parseDouble(tuples[2]);
+      int feature=Integer.valueOf(tuples[0]);
+      int label=Integer.valueOf(tuples[1]);
+      double value=Double.valueOf(tuples[2]);
       weights[feature][label]=value;
       line=in.readLine();
     }
-    int numThresholds=Integer.parseInt(in.readLine());
+    int numThresholds=Integer.valueOf(in.readLine());
     double[] thresholds=new double[numThresholds];
     int curr=0;
     while ((line=in.readLine()) != null) {
-      double tval=Double.parseDouble(line.trim());
+      double tval=Double.valueOf(line.trim());
       thresholds[curr++]=tval;
     }
     in.close();

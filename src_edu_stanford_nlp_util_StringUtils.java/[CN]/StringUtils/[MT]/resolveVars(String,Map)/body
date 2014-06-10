@@ -1,13 +1,13 @@
 {
   if (str == null)   return null;
-  Pattern p=Pattern.compile("\\$\\{(\\w+)\\}");
+  Pattern p=Pattern.compile("\\$\\{(\\w+)\\}|\\$(\\w+)");
   Matcher m=p.matcher(str);
   StringBuffer sb=new StringBuffer();
   while (m.find()) {
     String varName=null == m.group(1) ? m.group(2) : m.group(1);
-    String vrValue;
+    String vrValue=null;
     if (props.containsKey(varName)) {
-      vrValue=((String)props.get(varName));
+      vrValue=(String)props.get(varName);
     }
  else {
       vrValue=System.getenv(varName);

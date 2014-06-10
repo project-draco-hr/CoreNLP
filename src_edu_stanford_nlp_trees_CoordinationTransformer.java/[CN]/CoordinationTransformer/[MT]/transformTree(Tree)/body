@@ -2,52 +2,28 @@
   if (VERBOSE) {
     System.err.println("Input to CoordinationTransformer: " + t);
   }
-  t=tn.transformTree(t);
+  Tree tx=tn.transformTree(t);
   if (VERBOSE) {
-    System.err.println("After DependencyTreeTransformer:  " + t);
+    System.err.println("After DependencyTreeTransformer:  " + tx);
   }
-  if (t == null) {
-    return t;
+  if (tx == null) {
+    return tx;
   }
-  t=UCPtransform(t);
+  Tree tt=UCPtransform(tx);
   if (VERBOSE) {
     System.err.println("After UCPTransformer:             " + t);
   }
-  t=CCtransform(t);
+  Tree ttt=CCtransform(tt);
   if (VERBOSE) {
     System.err.println("After CCTransformer:              " + t);
   }
-  t=qp.transformTree(t);
+  Tree tttt=qp.transformTree(ttt);
   if (VERBOSE) {
     System.err.println("After QPTreeTransformer:          " + t);
   }
-  t=SQflatten(t);
-  if (VERBOSE) {
-    System.err.println("After SQ flattening:              " + t);
-  }
-  t=dates.transformTree(t);
+  Tree ret=dates.transformTree(tttt);
   if (VERBOSE) {
     System.err.println("After DateTreeTransformer:        " + t);
   }
-  t=removeXOverX(t);
-  if (VERBOSE) {
-    System.err.println("After removeXoverX:               " + t);
-  }
-  t=combineConjp(t);
-  if (VERBOSE) {
-    System.err.println("After combineConjp:               " + t);
-  }
-  t=moveRB(t);
-  if (VERBOSE) {
-    System.err.println("After moveRB:                     " + t);
-  }
-  t=changeSbarToPP(t);
-  if (VERBOSE) {
-    System.err.println("After changeSbarToPP:             " + t);
-  }
-  t=rearrangeNowThat(t);
-  if (VERBOSE) {
-    System.err.println("After rearrangeNowThat:           " + t);
-  }
-  return t;
+  return ret;
 }

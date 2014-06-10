@@ -1,6 +1,6 @@
 {
-  Set<String> mProper=Generics.newHashSet();
-  Set<String> aProper=Generics.newHashSet();
+  Set<String> mProper=new HashSet<String>();
+  Set<String> aProper=new HashSet<String>();
   String mString=m.spanToString();
   String aString=a.spanToString();
   for (  CoreLabel w : m.originalSpan) {
@@ -16,16 +16,10 @@
   boolean mHasExtra=false;
   boolean aHasExtra=false;
   for (  String s : mProper) {
-    if (!aString.contains(s) && !exceptWords.contains(s.toLowerCase())) {
-      mHasExtra=true;
-      break;
-    }
+    if (!aString.contains(s) && !exceptWords.contains(s.toLowerCase()))     mHasExtra=true;
   }
   for (  String s : aProper) {
-    if (!mString.contains(s) && !exceptWords.contains(s.toLowerCase())) {
-      aHasExtra=true;
-      break;
-    }
+    if (!mString.contains(s) && !exceptWords.contains(s.toLowerCase()))     aHasExtra=true;
   }
   if (mHasExtra && aHasExtra) {
     return true;

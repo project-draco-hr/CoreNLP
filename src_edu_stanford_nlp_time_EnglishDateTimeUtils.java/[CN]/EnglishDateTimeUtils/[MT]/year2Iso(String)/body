@@ -1,0 +1,119 @@
+{
+  if (year == null)   return null;
+  if (year.matches("[+-]?[0-9X]{4}")) {
+    return year;
+  }
+  year=year.toLowerCase();
+  if (year.startsWith("'")) {
+    year=year.substring(1);
+  }
+  boolean negative=false;
+  Matcher m=yearEraPattern.matcher(year);
+  if (m.find()) {
+    String era=m.group(1);
+    year=m.replaceAll("");
+    if (era.startsWith("b")) {
+      negative=true;
+    }
+  }
+  if (year.endsWith("ties")) {
+    String[] fields=year.split("\\s+|-");
+    if (fields.length == 2) {
+      Number century=NumberNormalizer.wordToNumber(fields[0]);
+      Integer decade=teDecadeNums.get(fields[1]);
+      if (decade != null && century != null) {
+        String res=String.format("%02d%01dX",century,decade);
+        return (negative) ? "-" + res : res;
+      }
+ else {
+        throw new IllegalArgumentException("Invalid year: " + year);
+      }
+    }
+ else     if (fields.length == 1) {
+      Integer decade=teDecadeNums.get(fields[0]);
+      if (decade != null) {
+        String res=String.format("XX%01dX",decade);
+        return (negative) ? "-" + res : res;
+      }
+ else {
+        throw new IllegalArgumentException("Invalid year: " + year);
+      }
+    }
+ else {
+      throw new IllegalArgumentException("Invalid year: " + year);
+    }
+  }
+ else   if (year.endsWith("0s")) {
+    year=year.substring(0,year.length() - 1);
+    String[] fields=year.split("\\s+|-");
+    if (fields.length == 2) {
+      Number century=NumberNormalizer.wordToNumber(fields[0]);
+      Number decade=NumberNormalizer.wordToNumber(fields[1]);
+      if (decade != null && century != null) {
+        String res=String.format("%02d%01dX",century,decade.intValue() / 10);
+        return (negative) ? "-" + res : res;
+      }
+ else {
+        throw new IllegalArgumentException("Invalid year: " + year);
+      }
+    }
+ else     if (fields.length == 1) {
+      Number decade=NumberNormalizer.wordToNumber(fields[0]);
+      if (decade != null) {
+        if (decade.intValue() < 100) {
+          String res=String.format("XX%01dX",decade.intValue() / 10);
+          return (negative) ? "-" + res : res;
+        }
+ else {
+          if (decade.intValue() % 100 == 0) {
+            String res=String.format("%02dXX",decade.intValue() / 100);
+            return (negative) ? "-" + res : res;
+          }
+ else {
+            String res=String.format("%03dX",decade.intValue() / 10);
+            return (negative) ? "-" + res : res;
+          }
+        }
+      }
+ else {
+        throw new IllegalArgumentException("Invalid year: " + year);
+      }
+    }
+ else {
+      throw new IllegalArgumentException("Invalid year: " + year);
+    }
+  }
+ else {
+    if (year.contains("teen ")) {
+      String[] fields=year.split("\\s+",2);
+      if (fields.length == 2) {
+        Number a=NumberNormalizer.wordToNumber(fields[0]);
+        Number b=NumberNormalizer.wordToNumber(fields[1]);
+        if (b.intValue() > 0 && b.intValue() < 100) {
+          if (negative) {
+            int v=a.intValue() * 100 + b.intValue();
+            v=v - 1;
+            return String.format("-%04d",v);
+          }
+ else {
+            return String.format("%02d%02d",a.intValue(),b.intValue());
+          }
+        }
+      }
+    }
+    Number y=NumberNormalizer.wordToNumber(year);
+    if (y != null) {
+      int v=y.intValue();
+      if (negative) {
+        v=v - 1;
+        return String.format("-%04d",v);
+      }
+ else {
+        return String.format("%04d",v);
+      }
+    }
+ else {
+      throw new IllegalArgumentException("Invalid year: " + year);
+    }
+  }
+}

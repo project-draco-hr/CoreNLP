@@ -1,22 +1,23 @@
 {
+  HeapEntry<E> currentEntry=entry;
   HeapEntry<E> minEntry;
   do {
-    minEntry=entry;
-    HeapEntry<E> leftEntry=leftChild(entry);
+    minEntry=currentEntry;
+    HeapEntry<E> leftEntry=leftChild(currentEntry);
     if (leftEntry != null) {
       if (compare(minEntry,leftEntry) > 0) {
         minEntry=leftEntry;
       }
     }
-    HeapEntry<E> rightEntry=rightChild(entry);
+    HeapEntry<E> rightEntry=rightChild(currentEntry);
     if (rightEntry != null) {
       if (compare(minEntry,rightEntry) > 0) {
         minEntry=rightEntry;
       }
     }
-    if (minEntry != entry) {
-      swap(minEntry,entry);
+    if (minEntry != currentEntry) {
+      swap(minEntry,currentEntry);
     }
   }
- while (minEntry != entry);
+ while (minEntry != currentEntry);
 }
