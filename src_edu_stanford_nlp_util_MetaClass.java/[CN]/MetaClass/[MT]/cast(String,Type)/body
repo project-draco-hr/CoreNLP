@@ -1,16 +1,13 @@
 {
-  Class<?> clazz=null;
-  Type[] params=null;
+  Class<?> clazz;
   if (type instanceof Class) {
     clazz=(Class<?>)type;
   }
  else   if (type instanceof ParameterizedType) {
     ParameterizedType pt=(ParameterizedType)type;
-    params=pt.getActualTypeArguments();
     clazz=(Class<?>)pt.getRawType();
   }
  else {
-    clazz=type2class(type);
     throw new IllegalArgumentException("Cannot cast to type (unhandled type): " + type);
   }
   if (String.class.isAssignableFrom(clazz)) {
@@ -18,9 +15,9 @@
   }
  else   if (Boolean.class.isAssignableFrom(clazz) || boolean.class.isAssignableFrom(clazz)) {
     if ("1".equals(value)) {
-      return (E)new Boolean(true);
+      return (E)Boolean.TRUE;
     }
-    return (E)new Boolean(Boolean.parseBoolean(value));
+    return (E)Boolean.valueOf(Boolean.parseBoolean(value));
   }
  else   if (Integer.class.isAssignableFrom(clazz) || int.class.isAssignableFrom(clazz)) {
     try {
@@ -111,6 +108,9 @@
     }
     return (E)array;
   }
+ else   if (Map.class.isAssignableFrom(clazz)) {
+    return (E)decodeMap(value);
+  }
  else   if (clazz.isEnum()) {
     Class c=(Class)clazz;
     if (value == null) {
@@ -135,6 +135,55 @@
       }
     }
   }
+ else   if (ObjectOutputStream.class.isAssignableFrom(clazz)) {
+    try {
+      return (E)new ObjectOutputStream((OutputStream)cast(value,OutputStream.class));
+    }
+ catch (    IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+ else   if (ObjectInputStream.class.isAssignableFrom(clazz)) {
+    try {
+      return (E)new ObjectInputStream((InputStream)cast(value,InputStream.class));
+    }
+ catch (    IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+ else   if (OutputStream.class.isAssignableFrom(clazz)) {
+    if (value.equalsIgnoreCase("stdout") || value.equalsIgnoreCase("out")) {
+      return (E)System.out;
+    }
+    if (value.equalsIgnoreCase("stderr") || value.equalsIgnoreCase("err")) {
+      return (E)System.err;
+    }
+    File toWriteTo=cast(value,File.class);
+    try {
+      if (!toWriteTo.exists() && !toWriteTo.createNewFile()) {
+        throw new IllegalStateException("Could not create output stream (cannot write file): " + value);
+      }
+      return (E)new FileOutputStream((File)cast(value,File.class));
+    }
+ catch (    IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+ else   if (InputStream.class.isAssignableFrom(clazz)) {
+    if (value.equalsIgnoreCase("stdin") || value.equalsIgnoreCase("in")) {
+      return (E)System.in;
+    }
+    File toReadFrom=cast(value,File.class);
+    try {
+      if (!toReadFrom.exists() || !toReadFrom.canRead()) {
+        throw new IllegalStateException("Could not create input stream (cannot read file): " + value);
+      }
+      return (E)new FileInputStream((File)cast(value,File.class));
+    }
+ catch (    IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
  else {
     try {
       Method decode=clazz.getMethod("fromString",String.class);
@@ -148,6 +197,36 @@ catch (    IllegalAccessException e) {
     }
 catch (    ClassCastException e) {
     }
-    return null;
+    if (Tree.class.isAssignableFrom(clazz)) {
+      try {
+        return (E)new PennTreeReader(new StringReader(value),new LabeledScoredTreeFactory(CoreLabel.factory())).readTree();
+      }
+ catch (      IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
+ else     if (Collection.class.isAssignableFrom(clazz)) {
+      Collection rtn;
+      if (Modifier.isAbstract(clazz.getModifiers())) {
+        rtn=abstractToConcreteCollectionMap.get(clazz).createInstance();
+      }
+ else {
+        rtn=MetaClass.create(clazz).createInstance();
+      }
+      Class<?> subType=clazz.getComponentType();
+      String[] strings=decodeArray(value);
+      for (      String string : strings) {
+        if (subType == null) {
+          rtn.add(castWithoutKnowingType(string));
+        }
+ else {
+          rtn.add(cast(string,subType));
+        }
+      }
+      return (E)rtn;
+    }
+ else {
+      return null;
+    }
   }
 }
