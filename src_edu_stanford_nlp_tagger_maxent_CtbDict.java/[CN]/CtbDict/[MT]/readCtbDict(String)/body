@@ -1,20 +1,20 @@
 {
   BufferedReader ctbDetectorReader=new BufferedReader(new InputStreamReader(new FileInputStream(filename),"GB18030"));
   String ctbDetectorLine;
-  ctb_pre_dict=new HashMap<String,Set<String>>();
-  ctb_suf_dict=new HashMap<String,Set<String>>();
+  ctb_pre_dict=Generics.newHashMap();
+  ctb_suf_dict=Generics.newHashMap();
   while ((ctbDetectorLine=ctbDetectorReader.readLine()) != null) {
     String[] fields=ctbDetectorLine.split("	");
     String tag=fields[0];
     Set<String> pres=ctb_pre_dict.get(tag);
     Set<String> sufs=ctb_suf_dict.get(tag);
     if (pres == null) {
-      pres=new HashSet<String>();
+      pres=Generics.newHashSet();
       ctb_pre_dict.put(tag,pres);
     }
     pres.add(fields[1]);
     if (sufs == null) {
-      sufs=new HashSet<String>();
+      sufs=Generics.newHashSet();
       ctb_suf_dict.put(tag,sufs);
     }
     sufs.add(fields[2]);

@@ -32,7 +32,7 @@
     return;
   }
   Options op=new Options();
-  ArrayList<String> optionArgs=new ArrayList<String>();
+  List<String> optionArgs=new ArrayList<String>();
   String encoding=null;
   while (argIndex < args.length && args[argIndex].charAt(0) == '-') {
     if (args[argIndex].equalsIgnoreCase("-train") || args[argIndex].equalsIgnoreCase("-trainTreebank")) {
@@ -158,7 +158,7 @@ catch (      IllegalAccessException e) {
  else {
       int oldIndex=argIndex;
       argIndex=op.setOptionOrWarn(args,argIndex);
-      for (int i=oldIndex; i < argIndex; ++i) {
+      for (int i=oldIndex; i < argIndex; i++) {
         optionArgs.add(args[i]);
       }
     }
@@ -278,7 +278,7 @@ catch (    InvocationTargetException e) {
     testTreebank=op.tlpParams.testMemoryTreebank();
     testTreebank.loadPath(testPath,testFilter);
   }
-  op.trainOptions.sisterSplitters=new HashSet<String>(Arrays.asList(op.tlpParams.sisterSplitters()));
+  op.trainOptions.sisterSplitters=Generics.newHashSet(Arrays.asList(op.tlpParams.sisterSplitters()));
   if (saveToTextFile) {
     if (textOutputFileOrUrl != null) {
       lp.saveParserToTextFile(textOutputFileOrUrl);

@@ -17,11 +17,11 @@
     previousOffset=t.get(t.size() - 1).get(CoreAnnotations.CharacterOffsetEndAnnotation.class);
     Counter<Integer> startCounts=new ClassicCounter<Integer>();
     Counter<Integer> endCounts=new ClassicCounter<Integer>();
-    HashMap<Integer,Set<Integer>> endID=new HashMap<Integer,Set<Integer>>();
+    Map<Integer,Set<Integer>> endID=Generics.newHashMap();
     for (    Mention m : mentions) {
       startCounts.incrementCount(m.startIndex);
       endCounts.incrementCount(m.endIndex);
-      if (!endID.containsKey(m.endIndex))       endID.put(m.endIndex,new HashSet<Integer>());
+      if (!endID.containsKey(m.endIndex))       endID.put(m.endIndex,Generics.<Integer>newHashSet());
       endID.get(m.endIndex).add(m.goldCorefClusterID);
     }
     for (int j=0; j < tokens.length; j++) {

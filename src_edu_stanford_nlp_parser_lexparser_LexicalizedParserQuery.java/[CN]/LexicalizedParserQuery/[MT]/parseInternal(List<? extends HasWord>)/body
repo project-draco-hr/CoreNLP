@@ -11,17 +11,8 @@
     parseSkipped=true;
     throw new UnsupportedOperationException("Can't parse a zero-length sentence!");
   }
-  if (op.wordFunction != null) {
-    originalWords=new ArrayList<String>(sentence.size());
-    originalLemmas=new ArrayList<String>(sentence.size());
-    for (    HasWord word : sentence) {
-      originalWords.add(word.word());
-      if (word instanceof HasLemma) {
-        originalLemmas.add(((HasLemma)word).lemma());
-      }
- else {
-        originalLemmas.add(null);
-      }
+  for (  HasWord word : sentence) {
+    if (op.wordFunction != null) {
       word.setWord(op.wordFunction.apply(word.word()));
     }
   }
@@ -46,6 +37,9 @@
  else {
     sentenceB.add(new TaggedWord(Lexicon.BOUNDARY,Lexicon.BOUNDARY_TAG));
   }
+  if (Thread.interrupted()) {
+    throw new RuntimeInterruptedException();
+  }
   if (op.doPCFG) {
     if (!pparser.parse(sentenceB)) {
       restoreOriginalWords(sentence);
@@ -56,6 +50,9 @@
       treePrint.printTree(getBestPCFGParse(false),pwOut);
     }
   }
+  if (Thread.interrupted()) {
+    throw new RuntimeInterruptedException();
+  }
   if (op.doDep && !op.testOptions.useFastFactored) {
     if (!dparser.parse(sentenceB)) {
       restoreOriginalWords(sentence);
@@ -65,6 +62,9 @@
       pwOut.println("DParser output");
       treePrint.printTree(dparser.getBestParse(),pwOut);
     }
+  }
+  if (Thread.interrupted()) {
+    throw new RuntimeInterruptedException();
   }
   if (op.doPCFG && op.doDep) {
     if (!bparser.parse(sentenceB)) {

@@ -1,50 +1,25 @@
 {
   if (annotation.containsKey(CoreAnnotations.SentencesAnnotation.class)) {
-    for (    CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
-      final List<CoreLabel> words=sentence.get(CoreAnnotations.TokensAnnotation.class);
-      if (VERBOSE) {
-        System.err.println("Parsing: " + words);
+    if (nThreads != 1 || maxParseTime > 0) {
+      MulticoreWrapper<CoreMap,CoreMap> wrapper=new MulticoreWrapper<CoreMap,CoreMap>(nThreads,new ParserAnnotatorProcessor());
+      if (maxParseTime > 0) {
+        wrapper.setMaxBlockTime(maxParseTime);
       }
-      Tree tree=null;
-      if (maxSentenceLength <= 0 || words.size() < maxSentenceLength) {
-        final List<ParserConstraint> constraints=sentence.get(ParserAnnotations.ConstraintAnnotation.class);
-        if (maxParseTime > 0) {
-          final Tree[] treeMem={null};
-          Thread thread=new Thread(new Runnable(){
-            public void run(){
-              treeMem[0]=process(constraints,words);
-            }
-          }
-);
-          try {
-            thread.start();
-            thread.join(maxParseTime);
-            tree=treeMem[0];
-            if (thread.isAlive()) {
-              thread.stop();
-              if (VERBOSE) {
-                System.err.println("WARNING: " + "The parser took too long to parse: " + Sentence.listToString(words));
-              }
-            }
-          }
- catch (          InterruptedException e) {
-            if (VERBOSE) {
-              System.err.println("WARNING: Parsing of sentence failed: " + Sentence.listToString(words));
-              e.printStackTrace();
-            }
-          }
+      for (      CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
+        wrapper.put(sentence);
+        while (wrapper.peek()) {
+          wrapper.poll();
         }
+      }
+      wrapper.join();
+      while (wrapper.peek()) {
+        wrapper.poll();
+      }
+    }
  else {
-          tree=process(constraints,words);
-        }
+      for (      CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
+        doOneSentence(sentence);
       }
-      if (tree == null) {
-        tree=ParserAnnotatorUtils.xTree(words);
-      }
-      if (treeMap != null) {
-        tree=treeMap.apply(tree);
-      }
-      ParserAnnotatorUtils.fillInParseAnnotations(VERBOSE,BUILD_GRAPHS,gsf,sentence,tree);
     }
   }
  else {
