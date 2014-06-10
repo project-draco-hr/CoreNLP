@@ -1,5 +1,6 @@
 {
-  String backgroundSymbol=properties.getProperty(name + ".backgroundSymbol",SeqClassifierFlags.DEFAULT_BACKGROUND_SYMBOL);
+  String backgroundSymbol=properties.getProperty(name + ".backgroundSymbol",SeqClassifierFlags.DEFAULT_BACKGROUND_SYMBOL + ",MISC");
+  String[] backgroundSymbols=backgroundSymbol.split("\\s*,\\s*");
   String mapping=properties.getProperty(name + ".mapping",DefaultPaths.DEFAULT_REGEXNER_RULES);
   String validPosRegex=properties.getProperty(name + ".validpospattern");
   boolean overwriteMyLabels=true;
@@ -24,7 +25,7 @@
   }
   multiPatternMatcher=createPatternMatcher();
   myLabels=Generics.newHashSet();
-  myLabels.add(backgroundSymbol);
+  for (  String s : backgroundSymbols)   myLabels.add(s);
   myLabels.add(null);
   if (overwriteMyLabels) {
     for (    Entry entry : entries)     myLabels.add(entry.type);
