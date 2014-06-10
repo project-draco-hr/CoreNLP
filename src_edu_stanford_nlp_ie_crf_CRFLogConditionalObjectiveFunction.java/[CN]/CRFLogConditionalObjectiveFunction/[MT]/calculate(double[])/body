@@ -1,9 +1,10 @@
 {
   double prob=0.0;
   to2D(x,weights);
-  setWeights(weights);
   clear2D(E);
-  prob+=regularGradientAndValue();
+  for (int m=0; m < data.length; m++) {
+    prob+=expectedCountsAndValueForADoc(weights,E,m);
+  }
   if (Double.isNaN(prob)) {
     throw new RuntimeException("Got NaN for prob in CRFLogConditionalObjectiveFunction.calculate()" + " - this may well indicate numeric underflow due to overly long documents.");
   }
