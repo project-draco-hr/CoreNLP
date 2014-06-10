@@ -10,6 +10,7 @@
   String loadTextPath=crf.flags.loadTextClassifier;
   String serializeTo=crf.flags.serializeTo;
   String serializeToText=crf.flags.serializeToText;
+  String serializeWeightsTo=crf.flags.serializeWeightsTo;
   if (crf.flags.useEmbedding && crf.flags.embeddingWords != null && crf.flags.embeddingVectors != null) {
     System.err.println("Reading Embedding Files");
     BufferedReader br=IOUtils.readerFromString(crf.flags.embeddingWords);
@@ -28,9 +29,6 @@
       crf.embeddings.put(wordList.get(count++),vector);
     }
     System.err.println("Found " + count + " matching embeddings of dimension "+ vector.length);
-  }
-  if (crf.flags.loadClassIndexFrom != null) {
-    crf.classIndex=loadClassIndexFromFile(crf.flags.loadClassIndexFrom);
   }
   if (loadPath != null) {
     crf.loadClassifierNoExceptions(loadPath,props);
@@ -58,8 +56,8 @@
   if (serializeTo != null) {
     crf.serializeClassifier(serializeTo);
   }
-  if (crf.flags.serializeWeightsTo != null) {
-    crf.serializeWeights(crf.flags.serializeWeightsTo);
+  if (serializeWeightsTo != null) {
+    crf.serializeWeights(serializeWeightsTo);
   }
   if (serializeToText != null) {
     crf.serializeTextClassifier(serializeToText);
