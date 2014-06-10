@@ -6,11 +6,21 @@
  else {
     validPosPattern=null;
   }
-  entries=readEntries(mapping,ignoreCase);
-  this.ignoreCase=ignoreCase;
-  this.overwriteMyLabels=overwriteMyLabels;
+  BufferedReader rd=null;
+  try {
+    rd=IOUtils.readerFromString(mapping);
+    entries=readEntries(rd,ignoreCase);
+  }
+ catch (  IOException e) {
+    throw new RuntimeIOException("Couldn't read RegexNER from " + mapping,e);
+  }
+ finally {
+    IOUtils.closeIgnoringExceptions(rd);
+  }
   myLabels=Generics.newHashSet();
-  if (this.overwriteMyLabels) {
+  myLabels.add(flags.backgroundSymbol);
+  myLabels.add(null);
+  if (overwriteMyLabels) {
     for (    Entry entry : entries)     myLabels.add(entry.type);
   }
 }
