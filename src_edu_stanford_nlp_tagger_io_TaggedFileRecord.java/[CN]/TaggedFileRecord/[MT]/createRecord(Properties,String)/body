@@ -1,7 +1,7 @@
 {
   String[] pieces=description.split(",");
   if (pieces.length == 1) {
-    return new TaggedFileRecord(description,Format.TEXT,getEncoding(config),getTagSeparator(config),null,null,null,null,null,null);
+    return new TaggedFileRecord(description,Format.TEXT,getEncoding(config),getTagSeparator(config),null,null,null,null,null,null,null);
   }
   String[] args=new String[pieces.length - 1];
   System.arraycopy(pieces,0,args,0,pieces.length - 1);
@@ -11,6 +11,7 @@
   String tagSeparator=getTagSeparator(config);
   TreeTransformer treeTransformer=null;
   TreeNormalizer treeNormalizer=null;
+  TreeReaderFactory trf=null;
   NumberRangesFileFilter treeRange=null;
   Filter<Tree> treeFilter=null;
   Integer wordColumn=null, tagColumn=null;
@@ -34,6 +35,9 @@
  else     if (argPieces[0].equalsIgnoreCase(TREE_NORMALIZER)) {
       treeNormalizer=ReflectionLoading.loadByReflection(argPieces[1]);
     }
+ else     if (argPieces[0].equalsIgnoreCase(TREE_READER)) {
+      trf=ReflectionLoading.loadByReflection(argPieces[1]);
+    }
  else     if (argPieces[0].equalsIgnoreCase(TREE_RANGE)) {
       String range=argPieces[1].replaceAll(":",",");
       treeRange=new NumberRangesFileFilter(range,true);
@@ -51,5 +55,5 @@
       throw new IllegalArgumentException("TaggedFileRecord argument " + argPieces[0] + " is unknown");
     }
   }
-  return new TaggedFileRecord(file,format,encoding,tagSeparator,treeTransformer,treeNormalizer,treeRange,treeFilter,wordColumn,tagColumn);
+  return new TaggedFileRecord(file,format,encoding,tagSeparator,treeTransformer,treeNormalizer,trf,treeRange,treeFilter,wordColumn,tagColumn);
 }
