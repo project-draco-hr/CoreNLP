@@ -8,25 +8,25 @@
   System.out.println();
   System.out.println("Loading taggers...");
   System.out.println();
-  if (props.getProperty("model") != null) {
+  if (props.getProperty("classify") != null) {
     configs.add(props);
-    taggers.add(new MaxentTagger(configs.get(0).getProperty("model"),configs.get(0)));
+    taggers.add(new MaxentTagger(configs.get(0).getProperty("classify"),configs.get(0)));
   }
  else {
     int taggerNum=1;
-    String taggerName="model" + taggerNum;
+    String taggerName="classify" + taggerNum;
     while (props.getProperty(taggerName) != null) {
       Properties newProps=new Properties();
       newProps.putAll(props);
-      newProps.setProperty("model",props.getProperty(taggerName));
+      newProps.setProperty("classify",props.getProperty(taggerName));
       configs.add(newProps);
-      taggers.add(new MaxentTagger(configs.get(taggerNum - 1).getProperty("model"),configs.get(taggerNum - 1)));
+      taggers.add(new MaxentTagger(configs.get(taggerNum - 1).getProperty("classify"),configs.get(taggerNum - 1)));
       ++taggerNum;
-      taggerName="model" + taggerNum;
+      taggerName="classify" + taggerNum;
     }
   }
   if (taggers.size() == 0) {
-    throw new IllegalArgumentException("Please specify at least one of " + "-model or -model1");
+    throw new IllegalArgumentException("Please specify at least one of " + "-classify or -model1");
   }
   System.out.println();
   System.out.println("Running the baseline results for tagger 1");
