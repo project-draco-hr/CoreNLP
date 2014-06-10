@@ -1,4 +1,28 @@
 {
+  List<Pair<TregexPattern,TsurgeonPattern>> ops=new ArrayList<Pair<TregexPattern,TsurgeonPattern>>();
+  String line=null;
+  try {
+    BufferedReader br=getBufferedReader();
+    List<TsurgeonPattern> tsp=new ArrayList<TsurgeonPattern>();
+    while ((line=br.readLine()) != null) {
+      if (DEBUG)       System.err.print("Pattern is " + line);
+      TregexPattern matchPattern=TregexPattern.compile(line);
+      if (DEBUG)       System.err.println(" [" + matchPattern + "]");
+      tsp.clear();
+      while (continuing(line=br.readLine())) {
+        TsurgeonPattern p=Tsurgeon.parseOperation(line);
+        if (DEBUG)         System.err.println("Operation is " + line + " ["+ p+ "]");
+        tsp.add(p);
+      }
+      if (!tsp.isEmpty()) {
+        TsurgeonPattern tp=Tsurgeon.collectOperations(tsp);
+        ops.add(new Pair<TregexPattern,TsurgeonPattern>(matchPattern,tp));
+      }
+    }
+  }
+ catch (  IOException ioe) {
+    ioe.printStackTrace();
+  }
   MemoryTreebank mtb=new MemoryTreebank(tb.treeReaderFactory(),tb.encoding());
   for (  Tree t : tb) {
     mtb.add(Tsurgeon.processPatternsOnTree(ops,t));
