@@ -1,13 +1,16 @@
 {
-  Class<?> clazz;
+  Class<?> clazz=null;
+  Type[] params=null;
   if (type instanceof Class) {
     clazz=(Class<?>)type;
   }
  else   if (type instanceof ParameterizedType) {
     ParameterizedType pt=(ParameterizedType)type;
+    params=pt.getActualTypeArguments();
     clazz=(Class<?>)pt.getRawType();
   }
  else {
+    clazz=type2class(type);
     throw new IllegalArgumentException("Cannot cast to type (unhandled type): " + type);
   }
   if (String.class.isAssignableFrom(clazz)) {
@@ -15,9 +18,9 @@
   }
  else   if (Boolean.class.isAssignableFrom(clazz) || boolean.class.isAssignableFrom(clazz)) {
     if ("1".equals(value)) {
-      return (E)Boolean.TRUE;
+      return (E)new Boolean(true);
     }
-    return (E)Boolean.valueOf(Boolean.parseBoolean(value));
+    return (E)new Boolean(Boolean.parseBoolean(value));
   }
  else   if (Integer.class.isAssignableFrom(clazz) || int.class.isAssignableFrom(clazz)) {
     try {
@@ -107,9 +110,6 @@
       array[i]=cast(strings[i],subType);
     }
     return (E)array;
-  }
- else   if (Map.class.isAssignableFrom(clazz)) {
-    return (E)decodeMap(value);
   }
  else   if (clazz.isEnum()) {
     Class c=(Class)clazz;
