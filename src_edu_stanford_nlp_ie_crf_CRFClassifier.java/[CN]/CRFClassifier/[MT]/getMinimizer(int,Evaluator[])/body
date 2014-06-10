@@ -47,7 +47,8 @@
     }
   }
  else   if (flags.useAdaGradFOBOS) {
-    minimizer=new SGDWithAdaGradAndFOBOS(flags.initRate,flags.priorLambda,flags.SGDPasses,flags.tuneSampleSize,flags.stochasticBatchSize,flags.priorType,flags.priorAlpha);
+    SGDWithAdaGradAndFOBOS<DiffFunction> adaGradFobosMinimizer=new SGDWithAdaGradAndFOBOS<DiffFunction>(flags.initRate,flags.priorLambda,flags.SGDPasses,flags.tuneSampleSize,flags.stochasticBatchSize,flags.priorType,flags.priorAlpha);
+    minimizer=adaGradFobosMinimizer;
     ((SGDWithAdaGradAndFOBOS)minimizer).terminateOnEvalImprovement(flags.terminateOnEvalImprovement);
     ((SGDWithAdaGradAndFOBOS)minimizer).setTerminateOnEvalImprovementNumOfEpoch(flags.terminateOnEvalImprovementNumOfEpoch);
     ((SGDWithAdaGradAndFOBOS)minimizer).suppressTestPrompt(flags.suppressTestDebug);
