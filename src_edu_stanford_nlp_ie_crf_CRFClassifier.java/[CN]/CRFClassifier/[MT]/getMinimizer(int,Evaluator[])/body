@@ -15,7 +15,6 @@
  else {
       minimizer=new QNMinimizer(QNmem,flags.useRobustQN);
     }
-    ((QNMinimizer)minimizer).terminateOnMaxItr(flags.maxQNItr);
     ((QNMinimizer)minimizer).terminateOnEvalImprovement(flags.terminateOnEvalImprovement);
     ((QNMinimizer)minimizer).setTerminateOnEvalImprovementNumOfEpoch(flags.terminateOnEvalImprovementNumOfEpoch);
     ((QNMinimizer)minimizer).suppressTestPrompt(flags.suppressTestDebug);
@@ -69,10 +68,7 @@
     minimizer=ReflectionLoading.loadByReflection("edu.stanford.nlp.optimization.OWLQNMinimizer",flags.l1reg);
   }
   if (minimizer instanceof HasEvaluators) {
-    if (minimizer instanceof QNMinimizer) {
-      ((QNMinimizer)minimizer).setEvaluators(flags.evaluateIters,flags.startEvaluateIters,evaluators);
-    }
- else     ((HasEvaluators)minimizer).setEvaluators(flags.evaluateIters,evaluators);
+    ((HasEvaluators)minimizer).setEvaluators(flags.evaluateIters,evaluators);
   }
   if (minimizer == null) {
     throw new RuntimeException("No minimizer assigned!");
