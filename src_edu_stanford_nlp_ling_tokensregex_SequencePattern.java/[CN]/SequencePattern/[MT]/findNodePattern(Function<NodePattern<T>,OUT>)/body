@@ -1,0 +1,22 @@
+{
+  Queue<State> todo=new LinkedList<State>();
+  Set<State> seen=new HashSet<State>();
+  todo.add(root);
+  seen.add(root);
+  while (!todo.isEmpty()) {
+    State state=todo.poll();
+    if (state instanceof NodePatternState) {
+      OUT res=filter.apply(((NodePatternState)state).pattern);
+      if (res != null)       return res;
+    }
+    if (state.next != null) {
+      for (      State s : state.next) {
+        if (!seen.contains(s)) {
+          seen.add(s);
+          todo.add(s);
+        }
+      }
+    }
+  }
+  return null;
+}
