@@ -1,0 +1,17 @@
+{
+  if (phraseColIndex < 0) {
+    throw new IllegalArgumentException("Invalid phraseColIndex " + phraseColIndex);
+  }
+  Timing timer=new Timing();
+  timer.doing("Reading phrases: " + filename);
+  BufferedReader br=IOUtils.getBufferedFileReader(filename);
+  String line;
+  while ((line=br.readLine()) != null) {
+    String[] columns=tabPattern.split(line);
+    String phrase=columns[phraseColIndex];
+    String tag=(tagColIndex >= 0) ? columns[tagColIndex] : null;
+    addPhrase(phrase,tag);
+  }
+  br.close();
+  timer.done();
+}
