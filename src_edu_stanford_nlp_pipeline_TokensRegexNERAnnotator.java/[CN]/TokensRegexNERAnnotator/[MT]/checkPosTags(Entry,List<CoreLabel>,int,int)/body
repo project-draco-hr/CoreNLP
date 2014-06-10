@@ -1,0 +1,22 @@
+{
+  if (validPosPattern != null) {
+switch (posMatchType) {
+case MATCH_ONE_TOKEN_PHRASE_ONLY:
+      if (tokens.size() > 1)       return true;
+case MATCH_AT_LEAST_ONE_TOKEN:
+    for (int i=start; i < end; i++) {
+      CoreLabel token=tokens.get(i);
+      String pos=token.get(CoreAnnotations.PartOfSpeechAnnotation.class);
+      if (pos != null && validPosPattern.matcher(pos).matches()) {
+        return true;
+      }
+    }
+  return false;
+case MATCH_ALL_TOKENS:
+return true;
+default :
+return true;
+}
+}
+return true;
+}
