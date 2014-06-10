@@ -8,14 +8,7 @@
   }
   SpeakerInfo speakerInfo=(document != null) ? document.getSpeakerInfo(speaker) : null;
   if (speakerInfo != null) {
-    if (speakerInfo.containsMention(ant))     return true;
-    for (    String s : speakerInfo.getSpeakerNameStrings()) {
-      if (ant.headString.equalsIgnoreCase(s)) {
-        speakerInfo.addMention(ant);
-        return true;
-      }
-    }
-    return false;
+    return (mentionMatchesSpeaker(ant,speakerInfo,false));
   }
   if (speaker.indexOf(" ") >= 0) {
     for (    String s : WHITESPACE_PATTERN.split(speaker)) {
