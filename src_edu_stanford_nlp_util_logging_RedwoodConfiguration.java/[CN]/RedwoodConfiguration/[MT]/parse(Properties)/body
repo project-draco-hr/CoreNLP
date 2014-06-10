@@ -104,6 +104,9 @@
  else   if (channelsToHide != null) {
     config=config.printChannels(channelWidth).hideChannels(channelsToHide.split(","));
   }
+  if (get(props,"log.channels.debug","true",used).equalsIgnoreCase("false")) {
+    config=config.hideChannels(new Object[]{Redwood.DBG});
+  }
   for (  Object propAsObj : props.keySet()) {
     String prop=propAsObj.toString();
     if (prop.startsWith("log.") && !used.contains(prop)) {
