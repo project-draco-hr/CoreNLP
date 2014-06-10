@@ -132,6 +132,9 @@
       }
  else {
         CRFNonLinearLogConditionalObjectiveFunction func=new CRFNonLinearLogConditionalObjectiveFunction(data,labels,windowSize,classIndex,labelIndices,map,flags,nodeFeatureIndicesMap.size(),edgeFeatureIndicesMap.size(),featureVals);
+        if (flags.useAdaGradFOBOS) {
+          func.gradientsOnly=true;
+        }
         cliquePotentialFunctionHelper=func;
         double[] allWeights=trainWeightsUsingNonLinearCRF(func,evaluators);
         Triple<double[][],double[][],double[][]> params=func.separateWeights(allWeights);
