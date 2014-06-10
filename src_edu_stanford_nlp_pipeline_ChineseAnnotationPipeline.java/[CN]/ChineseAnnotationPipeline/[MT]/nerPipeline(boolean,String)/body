@@ -1,0 +1,12 @@
+{
+  try {
+    AnnotationPipeline ap=new AnnotationPipeline();
+    ap.addAnnotator(new ChineseSegmenterAnnotator(verbose));
+    NERClassifierCombiner nerCombiner=new NERClassifierCombiner(false,false,new Properties(),models);
+    ap.addAnnotator(new NERCombinerAnnotator(nerCombiner,verbose));
+    return ap;
+  }
+ catch (  IOException e) {
+    throw new RuntimeIOException(e);
+  }
+}
