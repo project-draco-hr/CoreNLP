@@ -2,8 +2,10 @@
   final AtomicBoolean haveStarted=new AtomicBoolean(false);
   final ReentrantLock metaInfoLock=new ReentrantLock();
   int count=0;
-  for (  Runnable runnable1 : runnables) {
+  Iterator<Runnable> iterableRunnables=runnables.iterator();
+  while (iterableRunnables.hasNext()) {
     count++;
+    iterableRunnables.next();
   }
   final int numToRun=count;
   ArrayList<Runnable> rtn=new ArrayList<Runnable>(numToRun);
