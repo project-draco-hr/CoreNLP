@@ -1,0 +1,64 @@
+{
+  List<Entry> entries=new ArrayList<Entry>();
+  TrieMap<String,Entry> seenRegexes=new TrieMap<String,Entry>();
+  int lineCount=0;
+  for (String line; (line=mapping.readLine()) != null; ) {
+    lineCount++;
+    String[] split=line.split("\t");
+    if (split.length < 2 || split.length > 4)     throw new IllegalArgumentException("Provided mapping file is in wrong format");
+    String[] regexes=split[0].trim().split("\\s+");
+    String[] key=regexes;
+    if (ignoreCase) {
+      key=new String[regexes.length];
+      for (int i=0; i < regexes.length; i++) {
+        key[i]=regexes[i].toLowerCase();
+      }
+    }
+    String type=split[1].trim();
+    Set<String> overwritableTypes=Generics.newHashSet();
+    double priority=0.0;
+    if (split.length >= 3) {
+      overwritableTypes.addAll(Arrays.asList(split[2].trim().split(",")));
+    }
+    if (split.length == 4) {
+      try {
+        priority=Double.parseDouble(split[3].trim());
+      }
+ catch (      NumberFormatException e) {
+        throw new IllegalArgumentException("ERROR: Invalid line " + lineCount + " in regexner file "+ mappingFilename+ ": \""+ line+ "\"!",e);
+      }
+    }
+    Entry entry=null;
+    if (seenRegexes.containsKey(key)) {
+      Entry oldEntry=seenRegexes.get(key);
+      if (priority > oldEntry.priority) {
+        entry=new Entry(regexes,type,overwritableTypes,priority);
+        logger.warn("TokensRegexNERAnnotator " + annotatorName + ": Replace duplicate entry (higher priority): old="+ oldEntry+ ", new="+ entry);
+      }
+ else {
+        if (!oldEntry.type.equals(type)) {
+          if (verbose) {
+            logger.warn("TokensRegexNERAnnotator " + annotatorName + ": Ignoring duplicate entry: "+ split[0]+ ", old type = "+ oldEntry.type+ ", new type = "+ type);
+          }
+        }
+        continue;
+      }
+    }
+ else {
+      entry=new Entry(regexes,type,overwritableTypes,priority);
+    }
+    int commaPos=entry.type.indexOf(',');
+    if (commaPos > 0) {
+      String newType=entry.type.substring(0,commaPos).trim();
+      logger.warn("TokensRegexNERAnnotator " + annotatorName + ": Entry has multiple type "+ entry+ ", taking type to be "+ newType);
+      entry.type=newType;
+    }
+    if (entry.overwritableTypes.isEmpty() && noDefaultOverwriteLabels.contains(entry.type)) {
+      logger.warn("TokensRegexNERAnnotator " + annotatorName + ": Entry doesn't have overwriteable types "+ entry+ ", but entry type is in noDefaultOverwriteLabels");
+    }
+    entries.add(entry);
+    seenRegexes.put(key,entry);
+  }
+  logger.log("TokensRegexNERAnnotator " + annotatorName + ": Read "+ entries.size()+ " unique entries out of "+ lineCount+ " from "+ mappingFilename);
+  return entries;
+}
