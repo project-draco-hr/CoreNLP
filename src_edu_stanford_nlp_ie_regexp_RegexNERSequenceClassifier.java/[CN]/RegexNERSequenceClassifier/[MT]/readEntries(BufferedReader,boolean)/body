@@ -4,7 +4,7 @@
   for (String line; (line=mapping.readLine()) != null; ) {
     lineCount++;
     String[] split=line.split("\t");
-    if (split.length < 2 || split.length > 4)     throw new IllegalArgumentException("Provided mapping file is in wrong format");
+    if (split.length < 2 || split.length > 4)     throw new IllegalArgumentException("Provided mapping file is in wrong format: " + line);
     String[] regexes=split[0].trim().split("\\s+");
     String type=split[1].trim();
     Set<String> overwritableTypes=Generics.newHashSet();
@@ -21,9 +21,14 @@
         throw new IllegalArgumentException("ERROR: Invalid line " + lineCount + " in regexner file "+ mapping+ ": \""+ line+ "\"!",e);
       }
     }
-    for (    String str : regexes) {
-      if (ignoreCase)       tokens.add(Pattern.compile(str,Pattern.CASE_INSENSITIVE));
- else       tokens.add(Pattern.compile(str));
+    try {
+      for (      String str : regexes) {
+        if (ignoreCase)         tokens.add(Pattern.compile(str,Pattern.CASE_INSENSITIVE));
+ else         tokens.add(Pattern.compile(str));
+      }
+    }
+ catch (    PatternSyntaxException e) {
+      throw new IllegalArgumentException("ERROR: Invalid line " + lineCount + " in regexner file "+ mapping+ ": \""+ line+ "\"!",e);
     }
     entries.add(new Entry(tokens,type,overwritableTypes,priority));
   }
