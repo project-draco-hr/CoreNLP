@@ -72,11 +72,17 @@
         speakerTokens.add(token);
       }
       if (sectionStartTag != null) {
-        if (sectionStartToken == null) {
-          sectionStartToken=token;
+        boolean okay=true;
+        if (ssplitDiscardTokensMatcher != null) {
+          okay=!ssplitDiscardTokensMatcher.matcher(token.word()).matches();
         }
-        for (        List<CoreLabel> saved : savedTokensForSection.values()) {
-          saved.add(token);
+        if (okay) {
+          if (sectionStartToken == null) {
+            sectionStartToken=token;
+          }
+          for (          List<CoreLabel> saved : savedTokensForSection.values()) {
+            saved.add(token);
+          }
         }
       }
       continue;
