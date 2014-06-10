@@ -22,6 +22,10 @@
     for (    CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
       Element sentElem=new Element("sentence",NAMESPACE_URI);
       sentElem.addAttribute(new Attribute("id",Integer.toString(sentCount)));
+      Integer lineNumber=sentence.get(CoreAnnotations.LineNumberAnnotation.class);
+      if (lineNumber != null) {
+        sentElem.addAttribute(new Attribute("line",Integer.toString(lineNumber)));
+      }
       sentCount++;
       Element wordTable=new Element("tokens",NAMESPACE_URI);
       List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
