@@ -1,23 +1,21 @@
 {
   Class<?> clazz=null;
-  Type[] params=null;
   if (type instanceof Class) {
     clazz=(Class<?>)type;
   }
  else   if (type instanceof ParameterizedType) {
     ParameterizedType pt=(ParameterizedType)type;
-    params=pt.getActualTypeArguments();
     clazz=(Class<?>)pt.getRawType();
   }
  else {
     clazz=type2class(type);
     throw new IllegalArgumentException("Cannot cast to type (unhandled type): " + type);
   }
-  if (String.class.isAssignableFrom(clazz)) {
+  if (clazz.isAssignableFrom(String.class)) {
     return (E)value;
   }
  else   if (Boolean.class.isAssignableFrom(clazz) || boolean.class.isAssignableFrom(clazz)) {
-    if ("1".equals(value)) {
+    if (value.equals("1")) {
       return (E)new Boolean(true);
     }
     return (E)new Boolean(Boolean.parseBoolean(value));
@@ -57,28 +55,6 @@
       return null;
     }
   }
- else   if (java.util.Calendar.class.isAssignableFrom(clazz)) {
-    try {
-      Date d=new Date(Long.parseLong(value));
-      GregorianCalendar cal=new GregorianCalendar();
-      cal.setTime(d);
-      return (E)cal;
-    }
- catch (    NumberFormatException e) {
-      return null;
-    }
-  }
- else   if (File.class.isAssignableFrom(clazz)) {
-    return (E)new File(value);
-  }
- else   if (Class.class.isAssignableFrom(clazz)) {
-    try {
-      return (E)Class.forName(value);
-    }
- catch (    ClassNotFoundException e) {
-      return null;
-    }
-  }
  else   if (clazz.isArray()) {
     if (value == null) {
       return null;
@@ -96,24 +72,7 @@
     if (value == null) {
       return null;
     }
-    if (value.charAt(0) == '"')     value=value.substring(1);
-    if (value.charAt(value.length() - 1) == '"')     value=value.substring(0,value.length() - 1);
-    try {
-      return (E)Enum.valueOf(c,value);
-    }
- catch (    Exception e) {
-      try {
-        return (E)Enum.valueOf(c,value.toLowerCase());
-      }
- catch (      Exception e2) {
-        try {
-          return (E)Enum.valueOf(c,value.toUpperCase());
-        }
- catch (        Exception e3) {
-          return (E)Enum.valueOf(c,(Character.isUpperCase(value.charAt(0)) ? Character.toLowerCase(value.charAt(0)) : Character.toUpperCase(value.charAt(0))) + value.substring(1));
-        }
-      }
-    }
+    return (E)Enum.valueOf(c,value);
   }
  else {
     return null;
