@@ -25,8 +25,9 @@
     }
  else {
       int pIndex=0;
-      for (      int cliqueType : map) {
-        int numCliqueTypeOutputClass=labelIndices.get(cliqueType).size();
+      for (int fIndex=0; fIndex < map.length; fIndex++) {
+        int cliqueType=map[fIndex];
+        int numCliqueTypeOutputClass=labelIndices.get(map[fIndex]).size();
         for (int cliqueOutClass=0; cliqueOutClass < numCliqueTypeOutputClass; cliqueOutClass++) {
           String name="c:" + cliqueType + "-o:"+ cliqueOutClass;
           if (featureSets.containsKey(name)) {
@@ -109,5 +110,10 @@
       throw new RuntimeException("gradient check failed");
     }
   }
-  return minimizer.minimize(func,flags.tolerance,initialWeights);
+  double[] ws=minimizer.minimize(func,flags.tolerance,initialWeights);
+  if (flags.inputDropOut != 0.0) {
+    ArrayMath.multiplyInPlace(ws,1.0 / (1.0 - flags.inputDropOut));
+    System.err.printf("Scaled weights by %f",1.0 / (1.0 - flags.inputDropOut));
+  }
+  return ws;
 }
