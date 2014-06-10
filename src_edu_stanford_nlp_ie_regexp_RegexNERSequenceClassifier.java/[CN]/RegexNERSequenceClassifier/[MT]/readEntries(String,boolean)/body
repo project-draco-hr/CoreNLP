@@ -6,7 +6,7 @@
     for (String line; (line=rd.readLine()) != null; ) {
       lineCount++;
       String[] split=line.split("\t");
-      if (split.length < 2 || split.length > 4)       throw new RuntimeException("Provided mapping file is in wrong format");
+      if (split.length < 2 || split.length > 4)       throw new RuntimeException("Provided mapping file is in wrong format: " + line);
       String[] regexes=split[0].trim().split("\\s+");
       String type=split[1].trim();
       Set<String> overwritableTypes=Generics.newHashSet();
@@ -23,6 +23,10 @@
         }
       }
  catch (      NumberFormatException e) {
+        System.err.println("ERROR: Invalid line " + lineCount + " in regexner file "+ mapping+ ": \""+ line+ "\"!");
+        throw e;
+      }
+catch (      PatternSyntaxException e) {
         System.err.println("ERROR: Invalid line " + lineCount + " in regexner file "+ mapping+ ": \""+ line+ "\"!");
         throw e;
       }
