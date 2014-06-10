@@ -12,7 +12,9 @@
  else       if (value.startsWith("/") && value.endsWith("/")) {
         value=value.substring(1,value.length() - 1);
         value=value.replaceAll("\\\\/","/");
-        p.add(c,new StringAnnotationRegexPattern((env != null) ? env.getStringPattern(value) : Pattern.compile(value)));
+        String regex=(env != null) ? env.expandStringRegex(value) : value;
+        int flags=(env != null) ? env.defaultStringPatternFlags : 0;
+        p.add(c,newStringRegexPattern(regex,flags));
       }
  else       if (value.startsWith("::")) {
         if (value.equals("::IS_NIL") || value.equals("::NOT_EXISTS")) {
