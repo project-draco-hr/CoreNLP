@@ -1,0 +1,28 @@
+{
+  if (mention.speakerInfo != null) {
+    if (mention.speakerInfo == speakerInfo)     return true;
+  }
+  if (speakerInfo.containsMention(mention))   return true;
+  if (strictMatch) {
+    String spkstr=SpeakerInfo.WHITESPACE_PATTERN.matcher(speakerInfo.getSpeakerName()).replaceAll("");
+    String mstr=SpeakerInfo.WHITESPACE_PATTERN.matcher(mention.spanToString()).replaceAll("");
+    if (spkstr.equalsIgnoreCase(mstr)) {
+      speakerInfo.addMention(mention);
+      return true;
+    }
+  }
+ else {
+    for (    String s : speakerInfo.getSpeakerNameStrings()) {
+      if (mention.headString.equalsIgnoreCase(s)) {
+        speakerInfo.addMention(mention);
+        return true;
+      }
+    }
+    if (speakerInfo.getSpeakerDesc() != null) {
+      String spkDescStr=SpeakerInfo.WHITESPACE_PATTERN.matcher(speakerInfo.getSpeakerDesc()).replaceAll("");
+      String mstr=SpeakerInfo.WHITESPACE_PATTERN.matcher(mention.spanToString()).replaceAll("");
+      if (spkDescStr.equalsIgnoreCase(mstr))       return true;
+    }
+  }
+  return false;
+}
