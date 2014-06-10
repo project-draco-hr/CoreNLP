@@ -1,0 +1,7 @@
+{
+  System.err.println("Gradient check: converting " + sentences.size() + " compressed trees");
+  IdentityHashMap<Tree,List<Tree>> topParses=CacheParseHypotheses.convertToTrees(sentences,compressedParses,op.trainOptions.trainingThreads);
+  System.err.println("Done converting trees");
+  DVParserCostAndGradient gcFunc=new DVParserCostAndGradient(sentences,topParses,dvModel,op);
+  return gcFunc.gradientCheck(1000,50,dvModel.paramsToVector());
+}
