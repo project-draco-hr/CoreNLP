@@ -1,0 +1,31 @@
+{
+  SimpleMatrix matrix;
+switch (op.trainOptions.transformMatrixType) {
+case DIAGONAL:
+    matrix=SimpleMatrix.random(numRows,numCols,-1.0 / Math.sqrt((double)numCols * 100.0),1.0 / Math.sqrt((double)numCols * 100.0),rand).plus(identity);
+  break;
+case RANDOM:
+matrix=SimpleMatrix.random(numRows,numCols,-1.0 / Math.sqrt((double)numCols),1.0 / Math.sqrt((double)numCols),rand);
+break;
+case OFF_DIAGONAL:
+matrix=SimpleMatrix.random(numRows,numCols,-1.0 / Math.sqrt((double)numCols * 100.0),1.0 / Math.sqrt((double)numCols * 100.0),rand).plus(identity);
+for (int i=0; i < numCols; ++i) {
+int x=rand.nextInt(numCols);
+int y=rand.nextInt(numCols);
+int scale=rand.nextInt(3) - 1;
+matrix.set(x,y,matrix.get(x,y) + scale);
+}
+break;
+case RANDOM_ZEROS:
+matrix=SimpleMatrix.random(numRows,numCols,-1.0 / Math.sqrt((double)numCols * 100.0),1.0 / Math.sqrt((double)numCols * 100.0),rand).plus(identity);
+for (int i=0; i < numCols; ++i) {
+int x=rand.nextInt(numCols);
+int y=rand.nextInt(numCols);
+matrix.set(x,y,0.0);
+}
+break;
+default :
+throw new IllegalArgumentException("Unexpected matrix initialization type " + op.trainOptions.transformMatrixType);
+}
+return matrix;
+}
