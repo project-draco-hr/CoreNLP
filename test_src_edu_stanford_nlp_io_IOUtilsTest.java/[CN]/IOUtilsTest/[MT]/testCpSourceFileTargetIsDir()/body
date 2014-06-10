@@ -1,0 +1,12 @@
+{
+  File source=File.createTempFile("foo",".file");
+  IOUtils.writeStringToFile("foo",source.getPath(),"utf-8");
+  File dst=File.createTempFile("foo",".file");
+  assertTrue(dst.delete());
+  assertTrue(dst.mkdir());
+  IOUtils.cp(source,dst);
+  assertEquals("foo",IOUtils.slurpFile(dst.getPath() + File.separator + source.getName()));
+  assertTrue(source.delete());
+  assertTrue(new File(dst.getPath() + File.separator + source.getName()).delete());
+  assertTrue(dst.delete());
+}
