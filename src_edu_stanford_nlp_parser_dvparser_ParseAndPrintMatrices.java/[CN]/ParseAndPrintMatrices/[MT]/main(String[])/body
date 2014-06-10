@@ -1,0 +1,75 @@
+{
+  String modelPath=null;
+  String outputPath=null;
+  String inputPath=null;
+  String testTreebankPath=null;
+  FileFilter testTreebankFilter=null;
+  List<String> unusedArgs=Generics.newArrayList();
+  for (int argIndex=0; argIndex < args.length; ) {
+    if (args[argIndex].equalsIgnoreCase("-model")) {
+      modelPath=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-output")) {
+      outputPath=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-input")) {
+      inputPath=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-testTreebank")) {
+      Pair<String,FileFilter> treebankDescription=ArgUtils.getTreebankDescription(args,argIndex,"-testTreebank");
+      argIndex=argIndex + ArgUtils.numSubArgs(args,argIndex) + 1;
+      testTreebankPath=treebankDescription.first();
+      testTreebankFilter=treebankDescription.second();
+    }
+ else {
+      unusedArgs.add(args[argIndex++]);
+    }
+  }
+  String[] newArgs=unusedArgs.toArray(new String[unusedArgs.size()]);
+  LexicalizedParser parser=LexicalizedParser.loadModel(modelPath,newArgs);
+  DVModel model=DVParser.getModelFromLexicalizedParser(parser);
+  File outputFile=new File(outputPath);
+  FileSystem.checkNotExistsOrFail(outputFile);
+  FileSystem.mkdirOrFail(outputFile);
+  int count=0;
+  if (inputPath != null) {
+    Reader input=new BufferedReader(new FileReader(inputPath));
+    DocumentPreprocessor processor=new DocumentPreprocessor(input);
+    for (    List<HasWord> sentence : processor) {
+      count++;
+      ParserQuery pq=parser.parserQuery();
+      if (!(pq instanceof RerankingParserQuery)) {
+        throw new IllegalArgumentException("Expected a RerankingParserQuery");
+      }
+      RerankingParserQuery rpq=(RerankingParserQuery)pq;
+      if (!rpq.parse(sentence)) {
+        throw new RuntimeException("Unparsable sentence: " + sentence);
+      }
+      RerankerQuery reranker=rpq.rerankerQuery();
+      if (!(reranker instanceof DVModelReranker.Query)) {
+        throw new IllegalArgumentException("Expected a DVModelReranker");
+      }
+      DeepTree deepTree=((DVModelReranker.Query)reranker).getDeepTrees().get(0);
+      IdentityHashMap<Tree,SimpleMatrix> vectors=deepTree.getVectors();
+      for (      Map.Entry<Tree,SimpleMatrix> entry : vectors.entrySet()) {
+        System.err.println(entry.getKey() + "   " + entry.getValue());
+      }
+      FileWriter fout=new FileWriter(outputPath + File.separator + "sentence"+ count+ ".txt");
+      BufferedWriter bout=new BufferedWriter(fout);
+      bout.write(Sentence.listToString(sentence));
+      bout.newLine();
+      bout.write(deepTree.getTree().toString());
+      bout.newLine();
+      for (      HasWord word : sentence) {
+        outputMatrix(bout,model.getWordVector(word.word()));
+      }
+      Tree rootTree=findRootTree(vectors);
+      outputTreeMatrices(bout,rootTree,vectors);
+      bout.flush();
+      fout.close();
+    }
+  }
+}
