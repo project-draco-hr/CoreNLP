@@ -1,0 +1,23 @@
+{
+  return new Thunk(){
+    private Redwood.RecordHandlerTree buildChain(    RedwoodConfiguration config,    LogRecordHandler[] handlers,    int i){
+      Redwood.RecordHandlerTree rtn=new Redwood.RecordHandlerTree(handlers[i]);
+      if (i < handlers.length - 1) {
+        rtn.addChildTree(buildChain(config,handlers,i + 1));
+      }
+ else {
+        destination.apply(config,rtn);
+      }
+      return rtn;
+    }
+    @Override public void apply(    RedwoodConfiguration config,    Redwood.RecordHandlerTree root){
+      if (handlers.length == 0) {
+        destination.apply(config,root);
+      }
+ else {
+        root.addChildTree(buildChain(config,handlers,0));
+      }
+    }
+  }
+;
+}
