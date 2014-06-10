@@ -1,10 +1,13 @@
 {
   this();
-  TaggerConfig oldConfig=new TaggerConfig();
   if (!props.containsKey("trainFile")) {
     try {
-      System.err.println("Loading default properties from tagger " + props.getProperty("model"));
-      DataInputStream in=new DataInputStream(IOUtils.getInputStreamFromURLOrClasspathOrFileSystem(props.getProperty("model")));
+      String name=props.getProperty("model");
+      if (name == null) {
+        name=props.getProperty("dump");
+      }
+      System.err.println("Loading default properties from tagger " + name);
+      DataInputStream in=new DataInputStream(IOUtils.getInputStreamFromURLOrClasspathOrFileSystem(name));
       this.putAll(TaggerConfig.readConfig(in));
       in.close();
     }
