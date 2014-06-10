@@ -1,6 +1,7 @@
 {
   if (verbose) {
-    System.err.print("Adding RegexNER annotations ... ");
+    timer.start();
+    System.err.print("Adding RegexNER annotation...");
   }
   if (!annotation.containsKey(CoreAnnotations.SentencesAnnotation.class))   throw new RuntimeException("Unable to find sentences in " + annotation);
   List<CoreMap> sentences=annotation.get(CoreAnnotations.SentencesAnnotation.class);
@@ -13,8 +14,8 @@
     for (int start=0; start < tokens.size(); start++) {
       CoreLabel token=tokens.get(start);
       String answerType=token.get(CoreAnnotations.AnswerAnnotation.class);
-      if (answerType == null)       continue;
       String NERType=token.get(CoreAnnotations.NamedEntityTagAnnotation.class);
+      if (answerType == null)       continue;
       int answerEnd=findEndOfAnswerAnnotation(tokens,start);
       int NERStart=findStartOfNERAnnotation(tokens,start);
       int NEREnd=findEndOfNERAnnotation(tokens,start);
@@ -24,5 +25,5 @@
       start=answerEnd - 1;
     }
   }
-  if (verbose)   System.err.println("done.");
+  if (verbose)   timer.stop("done.");
 }

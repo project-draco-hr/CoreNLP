@@ -1,8 +1,9 @@
 {
-  for (  Map<String,int[]> fAssociation : fAssociations) {
-    List<String> deadRules=new ArrayList<String>();
-    for (    String value : fAssociation.keySet()) {
-      int[] fAssociations=fAssociation.get(value);
+  for (int extractor=0; extractor < fAssociations.size(); ++extractor) {
+    List<String> deadRules=new ArrayList();
+    Map<String,int[]> featureMap=fAssociations.get(extractor);
+    for (    String value : featureMap.keySet()) {
+      int[] fAssociations=featureMap.get(value);
       boolean found=false;
       for (int index=0; index < ySize; ++index) {
         int fNum=fAssociations[index];
@@ -18,7 +19,7 @@
       }
     }
     for (    String rule : deadRules) {
-      fAssociation.remove(rule);
+      featureMap.remove(rule);
     }
   }
 }
