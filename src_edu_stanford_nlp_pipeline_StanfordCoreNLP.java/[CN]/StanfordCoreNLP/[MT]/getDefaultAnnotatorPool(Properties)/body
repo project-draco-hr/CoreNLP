@@ -41,10 +41,18 @@
       boolean allowFlawed=CleanXmlAnnotator.DEFAULT_ALLOW_FLAWS;
       if (allowFlawedString != null)       allowFlawed=Boolean.valueOf(allowFlawedString);
       String dateTags=properties.getProperty("clean.datetags",CleanXmlAnnotator.DEFAULT_DATE_TAGS);
-      return new CleanXmlAnnotator(xmlTags,sentenceEndingTags,dateTags,allowFlawed);
+      String docIdTags=properties.getProperty("clean.docIdtags",CleanXmlAnnotator.DEFAULT_DOCID_TAGS);
+      String docTypeTags=properties.getProperty("clean.docTypetags",CleanXmlAnnotator.DEFAULT_DOCTYPE_TAGS);
+      String utteranceTurnTags=properties.getProperty("clean.turntags",CleanXmlAnnotator.DEFAULT_UTTERANCE_TURN_TAGS);
+      String speakerTags=properties.getProperty("clean.speakertags",CleanXmlAnnotator.DEFAULT_SPEAKER_TAGS);
+      CleanXmlAnnotator annotator=new CleanXmlAnnotator(xmlTags,sentenceEndingTags,dateTags,allowFlawed);
+      annotator.setDocIdTagMatcher(docIdTags);
+      annotator.setDocTypeTagMatcher(docTypeTags);
+      annotator.setDiscourseTags(utteranceTurnTags,speakerTags);
+      return annotator;
     }
     @Override public String signature(){
-      return "clean.xmltags:" + properties.getProperty("clean.xmltags",CleanXmlAnnotator.DEFAULT_XML_TAGS) + "clean.sentenceendingtags:"+ properties.getProperty("clean.sentenceendingtags",CleanXmlAnnotator.DEFAULT_SENTENCE_ENDERS)+ "clean.allowflawedxml:"+ properties.getProperty("clean.allowflawedxml","")+ "clean.datetags:"+ properties.getProperty("clean.datetags",CleanXmlAnnotator.DEFAULT_DATE_TAGS);
+      return "clean.xmltags:" + properties.getProperty("clean.xmltags",CleanXmlAnnotator.DEFAULT_XML_TAGS) + "clean.sentenceendingtags:"+ properties.getProperty("clean.sentenceendingtags",CleanXmlAnnotator.DEFAULT_SENTENCE_ENDERS)+ "clean.allowflawedxml:"+ properties.getProperty("clean.allowflawedxml","")+ "clean.datetags:"+ properties.getProperty("clean.datetags",CleanXmlAnnotator.DEFAULT_DATE_TAGS)+ "clean.docidtags:"+ properties.getProperty("clean.docid",CleanXmlAnnotator.DEFAULT_DOCID_TAGS)+ "clean.doctypetags:"+ properties.getProperty("clean.doctype",CleanXmlAnnotator.DEFAULT_DOCTYPE_TAGS)+ "clean.turntags:"+ properties.getProperty("clean.turntags",CleanXmlAnnotator.DEFAULT_UTTERANCE_TURN_TAGS)+ "clean.speakertags:"+ properties.getProperty("clean.speakertags",CleanXmlAnnotator.DEFAULT_SPEAKER_TAGS);
     }
   }
 );
@@ -66,6 +74,7 @@
  else {
           wts=WordsToSentencesAnnotator.newlineSplitter(false,PTBTokenizer.getNewlineToken());
         }
+        wts.setCountLineNumbers(true);
         return wts;
       }
  else {
