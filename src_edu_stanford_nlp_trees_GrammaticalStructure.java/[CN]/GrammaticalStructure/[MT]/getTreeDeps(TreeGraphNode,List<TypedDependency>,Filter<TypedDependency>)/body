@@ -10,7 +10,7 @@
           if (!rels.isEmpty()) {
             for (            GrammaticalRelation rel : rels) {
               TypedDependency newDep=new TypedDependency(rel,gov,dep);
-              if (!basicDep.contains(newDep) && f.accept(newDep)) {
+              if (!basicDep.contains(newDep) && puncTypedDepFilter.accept(newDep)) {
                 newDep.setExtra();
                 basicDep.add(newDep);
               }
@@ -20,7 +20,7 @@
       }
     }
     for (    Tree kid : t.children()) {
-      getTreeDeps((TreeGraphNode)kid,basicDep,f);
+      getTreeDeps((TreeGraphNode)kid,basicDep,puncTypedDepFilter);
     }
   }
 }
