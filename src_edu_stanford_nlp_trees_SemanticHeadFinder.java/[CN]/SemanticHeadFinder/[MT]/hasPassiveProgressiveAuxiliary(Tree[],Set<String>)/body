@@ -8,8 +8,33 @@
     if (DEBUG) {
       System.err.println("  checking in " + kid);
     }
-    if (isVerbalAuxiliary(kid,passiveAuxiliaries,false)) {
-      foundPassiveAux=true;
+    if (kid.isPreTerminal()) {
+      Label kidLabel=kid.label();
+      String tag=null;
+      if (kidLabel instanceof HasTag) {
+        tag=((HasTag)kidLabel).tag();
+      }
+      if (tag == null) {
+        tag=kid.value();
+      }
+      Label wordLabel=kid.firstChild().label();
+      String word=null;
+      if (wordLabel instanceof HasWord) {
+        word=((HasWord)wordLabel).word();
+      }
+      if (word == null) {
+        word=wordLabel.value();
+      }
+      if (DEBUG) {
+        System.err.println("Checking " + kid.value() + " head is "+ word+ '/'+ tag);
+      }
+      String lcWord=word.toLowerCase();
+      if (verbalTags.contains(tag) && verbalSet.contains(lcWord)) {
+        if (DEBUG) {
+          System.err.println("hasPassiveProgressiveAuxiliary found passive aux");
+        }
+        foundPassiveAux=true;
+      }
     }
  else     if (kid.isPhrasal()) {
       Label kidLabel=kid.label();
