@@ -6,16 +6,11 @@
  else {
     validPosPattern=null;
   }
-  BufferedReader rd=null;
   try {
-    rd=IOUtils.readerFromString(mapping);
-    entries=readEntries(rd,ignoreCase);
+    entries=readEntries(reader,ignoreCase);
   }
  catch (  IOException e) {
-    throw new RuntimeIOException("Couldn't read RegexNER from " + mapping,e);
-  }
- finally {
-    IOUtils.closeIgnoringExceptions(rd);
+    throw new RuntimeIOException("Couldn't read RegexNER from reader",e);
   }
   this.ignoreCase=ignoreCase;
   myLabels=Generics.newHashSet();
