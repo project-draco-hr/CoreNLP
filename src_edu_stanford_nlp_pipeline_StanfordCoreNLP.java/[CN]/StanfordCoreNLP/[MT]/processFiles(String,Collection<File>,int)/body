@@ -2,6 +2,15 @@
   List<Runnable> toRun=new LinkedList<Runnable>();
   final String baseOutputDir=properties.getProperty("outputDirectory",".");
   final String baseInputDir=properties.getProperty("inputDirectory",base);
+  final String excludeFilesParam=properties.getProperty("excludeFiles");
+  final Set<String> excludeFiles=null;
+  if (excludeFilesParam != null) {
+    Iterable<String> lines=IOUtils.readLines(excludeFilesParam);
+    for (    String line : lines) {
+      String name=line.trim();
+      if (!name.isEmpty())       excludeFiles.add(name);
+    }
+  }
   final OutputFormat outputFormat=OutputFormat.valueOf(properties.getProperty("outputFormat",DEFAULT_OUTPUT_FORMAT).toUpperCase());
   String defaultExtension;
 switch (outputFormat) {
@@ -29,6 +38,10 @@ final MutableInteger totalProcessed=new MutableInteger(0);
 final MutableInteger totalSkipped=new MutableInteger(0);
 final MutableInteger totalErrorAnnotating=new MutableInteger(0);
 for (final File file : files) {
+if (excludeFiles.contains(file.getName())) {
+err("Skipping excluded file " + file.getName());
+continue;
+}
 toRun.add(new Runnable(){
 @Override public void run(){
 try {
