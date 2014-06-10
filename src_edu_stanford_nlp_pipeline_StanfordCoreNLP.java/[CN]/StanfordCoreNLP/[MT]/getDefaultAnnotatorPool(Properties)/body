@@ -120,7 +120,7 @@
       }
     }
     @Override public String signature(){
-      return "pos.maxlen:" + properties.getProperty("pos.maxlen","") + "pos.classify:"+ properties.getProperty("pos.classify",DefaultPaths.DEFAULT_POS_MODEL);
+      return "pos.maxlen:" + properties.getProperty("pos.maxlen","") + "pos.model:"+ properties.getProperty("pos.model",DefaultPaths.DEFAULT_POS_MODEL);
     }
   }
 );
@@ -160,7 +160,7 @@
       return new NERCombinerAnnotator(nerCombiner,false);
     }
     @Override public String signature(){
-      return "ner.classify:" + properties.getProperty("ner.model","") + "ner.classify.3class:"+ properties.getProperty("ner.classify.3class",DefaultPaths.DEFAULT_NER_THREECLASS_MODEL)+ "ner.classify.7class:"+ properties.getProperty("ner.classify.7class",DefaultPaths.DEFAULT_NER_MUC_MODEL)+ "ner.classify.MISCclass:"+ properties.getProperty("ner.classify.MISCclass",DefaultPaths.DEFAULT_NER_CONLL_MODEL)+ NERClassifierCombiner.APPLY_NUMERIC_CLASSIFIERS_PROPERTY+ ":"+ properties.getProperty(NERClassifierCombiner.APPLY_NUMERIC_CLASSIFIERS_PROPERTY,Boolean.toString(NERClassifierCombiner.APPLY_NUMERIC_CLASSIFIERS_DEFAULT))+ NumberSequenceClassifier.USE_SUTIME_PROPERTY+ ":"+ properties.getProperty(NumberSequenceClassifier.USE_SUTIME_PROPERTY,Boolean.toString(NumberSequenceClassifier.USE_SUTIME_DEFAULT));
+      return "ner.model:" + properties.getProperty("ner.model","") + "ner.model.3class:"+ properties.getProperty("ner.model.3class",DefaultPaths.DEFAULT_NER_THREECLASS_MODEL)+ "ner.model.7class:"+ properties.getProperty("ner.model.7class",DefaultPaths.DEFAULT_NER_MUC_MODEL)+ "ner.model.MISCclass:"+ properties.getProperty("ner.model.MISCclass",DefaultPaths.DEFAULT_NER_CONLL_MODEL)+ NERClassifierCombiner.APPLY_NUMERIC_CLASSIFIERS_PROPERTY+ ":"+ properties.getProperty(NERClassifierCombiner.APPLY_NUMERIC_CLASSIFIERS_PROPERTY,Boolean.toString(NERClassifierCombiner.APPLY_NUMERIC_CLASSIFIERS_DEFAULT))+ NumberSequenceClassifier.USE_SUTIME_PROPERTY+ ":"+ properties.getProperty(NumberSequenceClassifier.USE_SUTIME_PROPERTY,Boolean.toString(NumberSequenceClassifier.USE_SUTIME_DEFAULT));
     }
   }
 );
@@ -190,13 +190,13 @@
   pool.register(STANFORD_TRUECASE,new AnnotatorFactory(inputProps){
     private static final long serialVersionUID=1L;
     @Override public Annotator create(){
-      String model=properties.getProperty("truecase.classify",DefaultPaths.DEFAULT_TRUECASE_MODEL);
+      String model=properties.getProperty("truecase.model",DefaultPaths.DEFAULT_TRUECASE_MODEL);
       String bias=properties.getProperty("truecase.bias",TrueCaseAnnotator.DEFAULT_MODEL_BIAS);
       String mixed=properties.getProperty("truecase.mixedcasefile",DefaultPaths.DEFAULT_TRUECASE_DISAMBIGUATION_LIST);
       return new TrueCaseAnnotator(model,bias,mixed,false);
     }
     @Override public String signature(){
-      return "truecase.classify:" + properties.getProperty("truecase.classify",DefaultPaths.DEFAULT_TRUECASE_MODEL) + "truecase.bias:"+ properties.getProperty("truecase.bias",TrueCaseAnnotator.DEFAULT_MODEL_BIAS)+ "truecase.mixedcasefile:"+ properties.getProperty("truecase.mixedcasefile",DefaultPaths.DEFAULT_TRUECASE_DISAMBIGUATION_LIST);
+      return "truecase.model:" + properties.getProperty("truecase.model",DefaultPaths.DEFAULT_TRUECASE_MODEL) + "truecase.bias:"+ properties.getProperty("truecase.bias",TrueCaseAnnotator.DEFAULT_MODEL_BIAS)+ "truecase.mixedcasefile:"+ properties.getProperty("truecase.mixedcasefile",DefaultPaths.DEFAULT_TRUECASE_DISAMBIGUATION_LIST);
     }
   }
 );
@@ -218,7 +218,7 @@
       return ReflectionLoading.loadByReflection(className,properties);
     }
     @Override public String signature(){
-      return "nfl.verbose:" + properties.getProperty("nfl.verbose","false") + "nfl.relations.use.max.recall:"+ properties.getProperty("nfl.relations.use.max.recall","false")+ "nfl.relations.use.classify.merging:"+ properties.getProperty("nfl.relations.use.classify.merging","false")+ "nfl.relations.use.basic.inference:"+ properties.getProperty("nfl.relations.use.basic.inference","true")+ "nfl.gazetteer:"+ properties.getProperty("nfl.gazetteer",DefaultPaths.DEFAULT_NFL_GAZETTEER)+ "nfl.entity.classify:"+ properties.getProperty("nfl.entity.classify",DefaultPaths.DEFAULT_NFL_ENTITY_MODEL)+ "nfl.relation.classify:"+ properties.getProperty("nfl.relation.classify",DefaultPaths.DEFAULT_NFL_RELATION_MODEL);
+      return "nfl.verbose:" + properties.getProperty("nfl.verbose","false") + "nfl.relations.use.max.recall:"+ properties.getProperty("nfl.relations.use.max.recall","false")+ "nfl.relations.use.model.merging:"+ properties.getProperty("nfl.relations.use.model.merging","false")+ "nfl.relations.use.basic.inference:"+ properties.getProperty("nfl.relations.use.basic.inference","true")+ "nfl.gazetteer:"+ properties.getProperty("nfl.gazetteer",DefaultPaths.DEFAULT_NFL_GAZETTEER)+ "nfl.entity.model:"+ properties.getProperty("nfl.entity.model",DefaultPaths.DEFAULT_NFL_ENTITY_MODEL)+ "nfl.relation.model:"+ properties.getProperty("nfl.relation.model",DefaultPaths.DEFAULT_NFL_RELATION_MODEL);
     }
   }
 );
@@ -235,7 +235,7 @@
         String model=properties.getProperty("parse.model");
         String parserExecutable=properties.getProperty("parse.executable");
         if (model == null || parserExecutable == null) {
-          throw new RuntimeException("Both parse.classify and parse.executable properties must be specified if parse.type=charniak");
+          throw new RuntimeException("Both parse.model and parse.executable properties must be specified if parse.type=charniak");
         }
         int maxLen=399;
         if (maxLenStr != null) {
@@ -254,7 +254,7 @@
         return ParserAnnotator.signature("parser",properties);
       }
  else       if (type.equalsIgnoreCase("charniak")) {
-        return "parse.classify:" + properties.getProperty("parse.model","") + "parse.executable:"+ properties.getProperty("parse.executable","")+ "parse.maxlen:"+ properties.getProperty("parse.maxlen","");
+        return "parse.model:" + properties.getProperty("parse.model","") + "parse.executable:"+ properties.getProperty("parse.executable","")+ "parse.maxlen:"+ properties.getProperty("parse.maxlen","");
       }
  else {
         throw new RuntimeException("Unknown parser type: " + type + " (currently supported: stanford and charniak)");
