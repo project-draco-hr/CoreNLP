@@ -2,12 +2,21 @@
   try {
     List<Tree> trees=new ArrayList<Tree>();
     List<List<CoreLabel>> sentences=new ArrayList<List<CoreLabel>>();
+    boolean hasSpeakerAnnotations=false;
     if (annotation.containsKey(CoreAnnotations.SentencesAnnotation.class)) {
       for (      CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
         List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
         sentences.add(tokens);
         Tree tree=sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
         trees.add(tree);
+        if (!hasSpeakerAnnotations) {
+          for (          CoreLabel t : tokens) {
+            if (t.get(CoreAnnotations.SpeakerAnnotation.class) != null) {
+              hasSpeakerAnnotations=true;
+              break;
+            }
+          }
+        }
         MentionExtractor.mergeLabels(tree,tokens);
         MentionExtractor.initializeUtterance(tokens);
       }
@@ -15,6 +24,9 @@
  else {
       System.err.println("ERROR: this coreference resolution system requires SentencesAnnotation!");
       return;
+    }
+    if (hasSpeakerAnnotations) {
+      annotation.set(CoreAnnotations.UseMarkedDiscourseAnnotation.class,true);
     }
     RuleBasedCorefMentionFinder finder=new RuleBasedCorefMentionFinder();
     List<List<Mention>> allUnprocessedMentions=finder.extractPredictedMentions(annotation,0,corefSystem.dictionaries());
