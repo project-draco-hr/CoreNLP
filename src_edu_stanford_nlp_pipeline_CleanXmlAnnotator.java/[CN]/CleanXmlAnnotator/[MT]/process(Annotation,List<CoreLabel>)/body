@@ -1,0 +1,197 @@
+{
+  Stack<String> enclosingTags=new Stack<String>();
+  List<String> currentTagSet=null;
+  int matchDepth=0;
+  List<CoreLabel> newTokens=new ArrayList<CoreLabel>();
+  StringBuilder removedText=new StringBuilder();
+  Set<Class> toAnnotate=new HashSet<Class>();
+  toAnnotate.addAll(docAnnotationPatterns.keySet());
+  int utteranceIndex=0;
+  boolean inUtterance=false;
+  boolean inSpeakerTag=false;
+  String currentSpeaker=null;
+  List<CoreLabel> speakerTokens=new ArrayList<CoreLabel>();
+  List<CoreLabel> docDateTokens=new ArrayList<CoreLabel>();
+  List<CoreLabel> docTypeTokens=new ArrayList<CoreLabel>();
+  List<CoreLabel> docIdTokens=new ArrayList<CoreLabel>();
+  boolean markSingleSentence=true;
+  for (  CoreLabel token : tokens) {
+    String word=token.word().trim();
+    XMLUtils.XMLTag tag=XMLUtils.parseTag(word);
+    if (tag == null) {
+      token.setWord(XMLUtils.unescapeStringForXML(token.word()));
+      if (matchDepth > 0 || xmlTagMatcher == null || xmlTagMatcher.matcher("").matches()) {
+        newTokens.add(token);
+        if (inUtterance) {
+          token.set(CoreAnnotations.UtteranceAnnotation.class,utteranceIndex);
+          if (currentSpeaker != null)           token.set(CoreAnnotations.SpeakerAnnotation.class,currentSpeaker);
+        }
+        if (markSingleSentence) {
+          token.set(CoreAnnotations.ForcedSentenceUntilEndAnnotation.class,true);
+          markSingleSentence=false;
+        }
+      }
+      if (removedText.length() > 0) {
+        boolean added=false;
+        String before=token.get(CoreAnnotations.BeforeAnnotation.class);
+        if (before != null) {
+          token.set(CoreAnnotations.BeforeAnnotation.class,removedText + before);
+          added=true;
+        }
+        if (added && newTokens.size() > 1) {
+          CoreLabel previous=newTokens.get(newTokens.size() - 2);
+          String after=previous.get(CoreAnnotations.AfterAnnotation.class);
+          if (after != null)           previous.set(CoreAnnotations.AfterAnnotation.class,after + removedText);
+ else           previous.set(CoreAnnotations.AfterAnnotation.class,removedText.toString());
+        }
+        removedText=new StringBuilder();
+      }
+      if (currentTagSet == null) {
+        currentTagSet=Collections.unmodifiableList(new ArrayList<String>(enclosingTags));
+      }
+      token.set(CoreAnnotations.XmlContextAnnotation.class,currentTagSet);
+      if (dateTagMatcher != null && currentTagSet.size() > 0 && dateTagMatcher.matcher(currentTagSet.get(currentTagSet.size() - 1)).matches()) {
+        docDateTokens.add(token);
+      }
+      if (docIdTagMatcher != null && currentTagSet.size() > 0 && docIdTagMatcher.matcher(currentTagSet.get(currentTagSet.size() - 1)).matches()) {
+        docIdTokens.add(token);
+      }
+      if (docTypeTagMatcher != null && currentTagSet.size() > 0 && docTypeTagMatcher.matcher(currentTagSet.get(currentTagSet.size() - 1)).matches()) {
+        docTypeTokens.add(token);
+      }
+      if (inSpeakerTag) {
+        speakerTokens.add(token);
+      }
+      continue;
+    }
+    if (!toAnnotate.isEmpty() && tag.attributes != null) {
+      Set<Class> foundAnnotations=new HashSet<Class>();
+      for (      Class key : toAnnotate) {
+        for (        Pair<Pattern,Pattern> pattern : docAnnotationPatterns.get(key)) {
+          Pattern tagPattern=pattern.first;
+          Pattern attrPattern=pattern.second;
+          if (tagPattern.matcher(tag.name).matches()) {
+            boolean matched=false;
+            for (            Map.Entry<String,String> entry : tag.attributes.entrySet()) {
+              if (attrPattern.matcher(entry.getKey()).matches()) {
+                annotation.set(key,entry.getValue());
+                foundAnnotations.add(key);
+                matched=true;
+                break;
+              }
+            }
+            if (matched)             break;
+          }
+        }
+      }
+      toAnnotate.removeAll(foundAnnotations);
+    }
+    String currentRemoval=token.get(CoreAnnotations.BeforeAnnotation.class);
+    if (currentRemoval != null)     removedText.append(currentRemoval);
+    currentRemoval=token.get(CoreAnnotations.OriginalTextAnnotation.class);
+    if (currentRemoval != null)     removedText.append(currentRemoval);
+    if (token == tokens.get(tokens.size() - 1)) {
+      currentRemoval=token.get(CoreAnnotations.AfterAnnotation.class);
+      if (currentRemoval != null)       removedText.append(currentRemoval);
+    }
+    if (sentenceEndingTagMatcher != null && sentenceEndingTagMatcher.matcher(tag.name).matches() && newTokens.size() > 0) {
+      CoreLabel previous=newTokens.get(newTokens.size() - 1);
+      previous.set(CoreAnnotations.ForcedSentenceEndAnnotation.class,true);
+    }
+    if (utteranceTurnTagMatcher != null && utteranceTurnTagMatcher.matcher(tag.name).matches()) {
+      if (newTokens.size() > 0) {
+        CoreLabel previous=newTokens.get(newTokens.size() - 1);
+        previous.set(CoreAnnotations.ForcedSentenceEndAnnotation.class,true);
+      }
+      inUtterance=!(tag.isEndTag || tag.isSingleTag);
+      if (inUtterance) {
+        utteranceIndex++;
+      }
+      if (!inUtterance) {
+        currentSpeaker=null;
+      }
+    }
+    if (speakerTagMatcher != null && speakerTagMatcher.matcher(tag.name).matches()) {
+      if (newTokens.size() > 0) {
+        CoreLabel previous=newTokens.get(newTokens.size() - 1);
+        previous.set(CoreAnnotations.ForcedSentenceEndAnnotation.class,true);
+      }
+      inSpeakerTag=!(tag.isEndTag || tag.isSingleTag);
+      if (tag.isEndTag) {
+        currentSpeaker=tokensToString(annotation,speakerTokens);
+        MultiTokenTag.Tag mentionTag=new MultiTokenTag.Tag(currentSpeaker,"Speaker",speakerTokens.size());
+        int i=0;
+        for (        CoreLabel t : speakerTokens) {
+          t.set(CoreAnnotations.SpeakerAnnotation.class,currentSpeaker);
+          t.set(CoreAnnotations.MentionTokenAnnotation.class,new MultiTokenTag(mentionTag,i));
+          i++;
+        }
+      }
+ else {
+        currentSpeaker=null;
+      }
+      speakerTokens.clear();
+    }
+    if (singleSentenceTagMatcher != null && singleSentenceTagMatcher.matcher(tag.name).matches()) {
+      if (tag.isEndTag) {
+        if (newTokens.size() > 0) {
+          CoreLabel previous=newTokens.get(newTokens.size() - 1);
+          previous.set(CoreAnnotations.ForcedSentenceEndAnnotation.class,true);
+        }
+        markSingleSentence=false;
+      }
+ else       if (!tag.isSingleTag) {
+        markSingleSentence=true;
+      }
+    }
+    if (xmlTagMatcher == null)     continue;
+    if (tag.isSingleTag) {
+      continue;
+    }
+    currentTagSet=null;
+    if (tag.isEndTag) {
+      while (true) {
+        if (enclosingTags.size() == 0) {
+          throw new IllegalArgumentException("Got a close tag " + tag.name + " which does not match"+ " any open tag");
+        }
+        String lastTag=enclosingTags.pop();
+        if (xmlTagMatcher.matcher(lastTag).matches()) {
+          --matchDepth;
+        }
+        if (lastTag.equals(tag.name))         break;
+        if (!allowFlawedXml)         throw new IllegalArgumentException("Mismatched tags... " + tag.name + " closed a "+ lastTag+ " tag.");
+      }
+      if (matchDepth < 0) {
+        throw new AssertionError("Programming error?  We think there " + "have been more close tags than open tags");
+      }
+    }
+ else {
+      enclosingTags.push(tag.name);
+      if (xmlTagMatcher.matcher(tag.name).matches())       matchDepth++;
+    }
+  }
+  if (enclosingTags.size() > 0 && !allowFlawedXml) {
+    throw new IllegalArgumentException("Unclosed tags, starting with " + enclosingTags.pop());
+  }
+  if (newTokens.size() > 0 && removedText.length() > 0) {
+    CoreLabel lastToken=newTokens.get(newTokens.size() - 1);
+    if (lastToken.get(CoreAnnotations.OriginalTextAnnotation.class) != null) {
+      lastToken.set(CoreAnnotations.AfterAnnotation.class,removedText.toString());
+    }
+  }
+  if (annotation != null) {
+    if (!docIdTokens.isEmpty()) {
+      String str=tokensToString(annotation,docIdTokens).trim();
+      annotation.set(CoreAnnotations.DocIDAnnotation.class,str);
+    }
+    if (!docDateTokens.isEmpty()) {
+      String str=tokensToString(annotation,docDateTokens).trim();
+      annotation.set(CoreAnnotations.DocDateAnnotation.class,str);
+    }
+    if (!docTypeTokens.isEmpty()) {
+      String str=tokensToString(annotation,docTypeTokens).trim();
+      annotation.set(CoreAnnotations.DocTypeAnnotation.class,str);
+    }
+  }
+  return newTokens;
+}
