@@ -1,6 +1,7 @@
 {
   LikelihoodFunction df=new LikelihoodFunction(prob,tol,useGaussianPrior,priorSigmaS,sigmaSquareds);
   Minimizer<DiffFunction> owl=ReflectionLoading.loadByReflection("edu.stanford.nlp.optimization.OWLQNMinimizer",weight);
-  prob.lambda=owl.minimize(df,tol,new double[df.domainDimension()]);
-  printOptimizationResults(df,null);
+  double[] result=owl.minimize(df,tol,new double[df.domainDimension()]);
+  prob.lambda=result;
+  System.err.println("after optimization value is " + df.valueAt(result));
 }
