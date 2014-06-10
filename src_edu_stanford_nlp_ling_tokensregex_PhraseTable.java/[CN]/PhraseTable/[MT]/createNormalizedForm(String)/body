@@ -1,0 +1,18 @@
+{
+  if (normalize) {
+    word=Normalizer.normalize(word,Normalizer.Form.NFKD);
+  }
+  if (caseInsensitive) {
+    word=word.toLowerCase();
+  }
+  if (ignorePunctuation) {
+    word=punctWhitespacePattern.matcher(word).replaceAll("");
+  }
+ else   if (ignorePunctuationTokens) {
+    if (punctWhitespacePattern.matcher(word).matches()) {
+      word="";
+    }
+  }
+  word=whitespacePattern.matcher(word).replaceAll("");
+  return word;
+}
