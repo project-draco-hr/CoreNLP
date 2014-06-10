@@ -1,9 +1,13 @@
 {
   if (color != Color.NONE || style != Style.NONE) {
-    b.append(color.ansiCode);
-    b.append(style.ansiCode);
+    if (Redwood.supportsAnsi && this.supportsAnsi()) {
+      b.append(color.ansiCode);
+      b.append(style.ansiCode);
+    }
     b.append(line);
-    b.append("\033[0m");
+    if (Redwood.supportsAnsi && this.supportsAnsi()) {
+      b.append("\033[0m");
+    }
   }
  else {
     b.append(line);
