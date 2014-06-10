@@ -1,5 +1,5 @@
 {
-  CoreMapNodePattern p=new CoreMapNodePattern(new ArrayMap<Class,NodePattern>(attributes.size()));
+  CoreMapNodePattern p=new CoreMapNodePattern(new ArrayList<Pair<Class,NodePattern>>(attributes.size()));
   for (  String attr : attributes.keySet()) {
     String value=attributes.get(attr);
     Class c=EnvLookup.lookupAnnotationKey(env,attr);
@@ -7,29 +7,29 @@
       if (value.startsWith("\"") && value.endsWith("\"")) {
         value=value.substring(1,value.length() - 1);
         value=value.replaceAll("\\\\\"","\"");
-        p.annotationPatterns.put(c,new StringAnnotationPattern(value));
+        p.add(c,new StringAnnotationPattern(value));
       }
  else       if (value.startsWith("/") && value.endsWith("/")) {
         value=value.substring(1,value.length() - 1);
         value=value.replaceAll("\\\\/","/");
-        p.annotationPatterns.put(c,new StringAnnotationRegexPattern((env != null) ? env.getStringPattern(value) : Pattern.compile(value)));
+        p.add(c,new StringAnnotationRegexPattern((env != null) ? env.getStringPattern(value) : Pattern.compile(value)));
       }
  else       if (value.startsWith("::")) {
         if (value.equals("::IS_NIL") || value.equals("::NOT_EXISTS")) {
-          p.annotationPatterns.put(c,new NilAnnotationPattern());
+          p.add(c,new NilAnnotationPattern());
         }
  else         if (value.equals("::EXISTS") || value.equals("::NOT_NIL")) {
-          p.annotationPatterns.put(c,new NotNilAnnotationPattern());
+          p.add(c,new NotNilAnnotationPattern());
         }
  else         if (value.equals("::IS_NUM")) {
-          p.annotationPatterns.put(c,new NumericAnnotationPattern(0,NumericAnnotationPattern.CmpType.IS_NUM));
+          p.add(c,new NumericAnnotationPattern(0,NumericAnnotationPattern.CmpType.IS_NUM));
         }
  else {
           boolean ok=false;
           if (env != null) {
             Object custom=env.get(value);
             if (custom != null) {
-              p.annotationPatterns.put(c,(NodePattern)custom);
+              p.add(c,(NodePattern)custom);
               ok=true;
             }
           }
@@ -40,30 +40,30 @@
       }
  else       if (value.startsWith("<=")) {
         Double v=Double.parseDouble(value.substring(2));
-        p.annotationPatterns.put(c,new NumericAnnotationPattern(v,NumericAnnotationPattern.CmpType.LE));
+        p.add(c,new NumericAnnotationPattern(v,NumericAnnotationPattern.CmpType.LE));
       }
  else       if (value.startsWith(">=")) {
         Double v=Double.parseDouble(value.substring(2));
-        p.annotationPatterns.put(c,new NumericAnnotationPattern(v,NumericAnnotationPattern.CmpType.GE));
+        p.add(c,new NumericAnnotationPattern(v,NumericAnnotationPattern.CmpType.GE));
       }
  else       if (value.startsWith("==")) {
         Double v=Double.parseDouble(value.substring(2));
-        p.annotationPatterns.put(c,new NumericAnnotationPattern(v,NumericAnnotationPattern.CmpType.EQ));
+        p.add(c,new NumericAnnotationPattern(v,NumericAnnotationPattern.CmpType.EQ));
       }
  else       if (value.startsWith("!=")) {
         Double v=Double.parseDouble(value.substring(2));
-        p.annotationPatterns.put(c,new NumericAnnotationPattern(v,NumericAnnotationPattern.CmpType.NE));
+        p.add(c,new NumericAnnotationPattern(v,NumericAnnotationPattern.CmpType.NE));
       }
  else       if (value.startsWith(">")) {
         Double v=Double.parseDouble(value.substring(1));
-        p.annotationPatterns.put(c,new NumericAnnotationPattern(v,NumericAnnotationPattern.CmpType.GT));
+        p.add(c,new NumericAnnotationPattern(v,NumericAnnotationPattern.CmpType.GT));
       }
  else       if (value.startsWith("<")) {
         Double v=Double.parseDouble(value.substring(1));
-        p.annotationPatterns.put(c,new NumericAnnotationPattern(v,NumericAnnotationPattern.CmpType.LT));
+        p.add(c,new NumericAnnotationPattern(v,NumericAnnotationPattern.CmpType.LT));
       }
  else       if (value.matches("[A-Za-z0-9_+-.]+")) {
-        p.annotationPatterns.put(c,new StringAnnotationPattern(value));
+        p.add(c,new StringAnnotationPattern(value));
       }
  else {
         throw new IllegalArgumentException("Invalid value " + value + " for key: "+ attr);
