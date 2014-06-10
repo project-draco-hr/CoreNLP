@@ -1,0 +1,23 @@
+{
+  if (checkStart < tokenStart)   return -1;
+  int i;
+  int phraseSize=phrase.wordList.size();
+  for (i=checkStart; i < tokenEnd && i - tokenStart < phraseSize; i++) {
+    String word=tokens.getWord(i);
+    String phraseWord=phrase.wordList.getWord(i - tokenStart);
+    if (!phraseWord.equals(word)) {
+      return -1;
+    }
+  }
+  if (i - tokenStart == phraseSize) {
+    if (matchEnd) {
+      return (i == tokenEnd) ? i : -1;
+    }
+ else {
+      return i;
+    }
+  }
+ else {
+    return -1;
+  }
+}
