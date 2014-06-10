@@ -8,19 +8,23 @@
     int nextNerStartIndex=end;
     String startNer=tokens.get(start).ner();
     String endNer=tokens.get(end - 1).ner();
-    while (prevNerEndIndex >= 0) {
-      String ner=tokens.get(prevNerEndIndex).ner();
-      if (ner == null || !ner.equals(startNer)) {
-        break;
+    if (startNer != null && !myLabels.contains(startNer)) {
+      while (prevNerEndIndex >= 0) {
+        String ner=tokens.get(prevNerEndIndex).ner();
+        if (ner == null || !ner.equals(startNer)) {
+          break;
+        }
+        prevNerEndIndex--;
       }
-      prevNerEndIndex--;
     }
-    while (nextNerStartIndex < tokens.size()) {
-      String ner=tokens.get(nextNerStartIndex).ner();
-      if (ner == null || !ner.equals(endNer)) {
-        break;
+    if (endNer != null && !myLabels.contains(endNer)) {
+      while (nextNerStartIndex < tokens.size()) {
+        String ner=tokens.get(nextNerStartIndex).ner();
+        if (ner == null || !ner.equals(endNer)) {
+          break;
+        }
+        nextNerStartIndex++;
       }
-      nextNerStartIndex++;
     }
     boolean overwriteOriginalNer=false;
     if (prevNerEndIndex != (start - 1) && nextNerStartIndex != end) {
@@ -44,6 +48,11 @@
     if (overwriteOriginalNer) {
       for (int i=start; i < end; i++) {
         tokens.get(i).set(CoreAnnotations.NamedEntityTagAnnotation.class,entry.type);
+      }
+    }
+ else {
+      if (verbose) {
+        System.err.println("Not annotating  '" + m.group() + "': "+ StringUtils.joinFields(m.groupNodes(),CoreAnnotations.NamedEntityTagAnnotation.class)+ " with "+ entry.type+ ", sentence is '"+ StringUtils.joinWords(tokens," ")+ "'");
       }
     }
   }
