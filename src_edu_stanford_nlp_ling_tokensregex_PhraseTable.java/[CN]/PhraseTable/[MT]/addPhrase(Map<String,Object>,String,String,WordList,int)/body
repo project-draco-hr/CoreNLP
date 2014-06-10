@@ -1,0 +1,119 @@
+{
+  boolean phraseAdded=false;
+  boolean newPhraseAdded=false;
+  boolean oldPhraseNewFormAdded=false;
+  for (int i=wordIndex; i < wordList.size(); i++) {
+    String word=Interner.globalIntern(wordList.getWord(i));
+    Object node=tree.get(word);
+    if (node == null) {
+      Phrase phrase=new Phrase(wordList,phraseText,tag);
+      tree.put(word,phrase);
+      phraseAdded=true;
+      newPhraseAdded=true;
+    }
+ else     if (node instanceof Phrase) {
+      Phrase oldphrase=(Phrase)node;
+      int matchedTokenEnd=checkWordListMatch(oldphrase,wordList,0,wordList.size(),i + 1,true);
+      if (matchedTokenEnd >= 0) {
+        oldPhraseNewFormAdded=oldphrase.addForm(phraseText);
+      }
+ else {
+        Phrase newphrase=new Phrase(wordList,phraseText,tag);
+        List list=new ArrayList(2);
+        list.add(oldphrase);
+        list.add(newphrase);
+        tree.put(word,list);
+        newPhraseAdded=true;
+      }
+      phraseAdded=true;
+    }
+ else     if (node instanceof Map) {
+      tree=(Map<String,Object>)node;
+    }
+ else     if (node instanceof List) {
+      List lookupList=(List)node;
+      int nMaps=0;
+      for (      Object obj : lookupList) {
+        if (obj instanceof Phrase) {
+          Phrase oldphrase=(Phrase)obj;
+          int matchedTokenEnd=checkWordListMatch(oldphrase,wordList,0,wordList.size(),i,true);
+          if (matchedTokenEnd >= 0) {
+            oldPhraseNewFormAdded=oldphrase.addForm(phraseText);
+            phraseAdded=true;
+            break;
+          }
+        }
+ else         if (obj instanceof Map) {
+          if (nMaps == 1) {
+            throw new RuntimeException("More than one map in list while adding word " + i + "("+ word+ ") in phrase "+ phraseText);
+          }
+          tree=(Map<String,Object>)obj;
+          nMaps++;
+        }
+ else {
+          throw new RuntimeException("Unexpected class in list " + obj.getClass() + " while adding word "+ i+ "("+ word+ ") in phrase "+ phraseText);
+        }
+      }
+      if (!phraseAdded && nMaps == 0) {
+        Phrase newphrase=new Phrase(wordList,phraseText,tag);
+        lookupList.add(newphrase);
+        newPhraseAdded=true;
+        phraseAdded=true;
+        if (lookupList.size() > MAX_LIST_SIZE) {
+          Map newMap=new HashMap<String,Object>(lookupList.size());
+          for (          Object obj : lookupList) {
+            if (obj instanceof Phrase) {
+              Phrase oldphrase=(Phrase)obj;
+              addPhrase(newMap,oldphrase,i + 1);
+            }
+ else {
+              throw new RuntimeException("Unexpected class in list " + obj.getClass() + " while converting list to map");
+            }
+          }
+          tree.put(word,newMap);
+        }
+      }
+    }
+ else {
+      throw new RuntimeException("Unexpected class in list " + node.getClass() + " while adding word "+ i+ "("+ word+ ") in phrase "+ phraseText);
+    }
+    if (phraseAdded) {
+      break;
+    }
+  }
+  if (!phraseAdded) {
+    if (wordList.size() == 0) {
+      System.err.println("WARNING: " + phraseText + " not added");
+    }
+ else {
+      Phrase oldphrase=(Phrase)tree.get(PHRASE_END);
+      if (oldphrase != null) {
+        int matchedTokenEnd=checkWordListMatch(oldphrase,wordList,0,wordList.size(),wordList.size(),true);
+        if (matchedTokenEnd >= 0) {
+          oldPhraseNewFormAdded=oldphrase.addForm(phraseText);
+        }
+ else {
+          Phrase newphrase=new Phrase(wordList,phraseText,tag);
+          List list=new ArrayList(2);
+          list.add(oldphrase);
+          list.add(newphrase);
+          tree.put(PHRASE_END,list);
+          newPhraseAdded=true;
+        }
+      }
+ else {
+        Phrase newphrase=new Phrase(wordList,phraseText,tag);
+        tree.put(PHRASE_END,newphrase);
+        newPhraseAdded=true;
+      }
+    }
+  }
+  if (newPhraseAdded) {
+    nPhrases++;
+    nStrings++;
+  }
+ else {
+    nStrings++;
+  }
+  return (newPhraseAdded || oldPhraseNewFormAdded);
+}
