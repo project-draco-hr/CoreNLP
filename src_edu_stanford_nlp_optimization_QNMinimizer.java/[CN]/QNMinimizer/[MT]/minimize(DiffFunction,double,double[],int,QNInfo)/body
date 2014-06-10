@@ -167,7 +167,8 @@ throw oome;
 }
  while ((state=rec.toContinue()) == eState.CONTINUE);
 if (evaluateIters > 0) {
-doEvaluation(x);
+double evalScore=(useEvalImprovement ? doEvaluation(rec.getBest()) : doEvaluation(x));
+sayln("final evalScore is: " + evalScore);
 }
 System.err.println();
 switch (state) {
@@ -186,6 +187,7 @@ break;
 case TERMINATE_EVALIMPROVE:
 System.err.println("QNMinimizer terminated due to no improvement on eval ");
 success=true;
+x=rec.getBest();
 break;
 default :
 System.err.println("QNMinimizer terminated without converging");
