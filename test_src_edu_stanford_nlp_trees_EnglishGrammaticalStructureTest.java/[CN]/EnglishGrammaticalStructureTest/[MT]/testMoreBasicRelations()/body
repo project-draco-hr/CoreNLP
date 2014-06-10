@@ -1,0 +1,13 @@
+{
+  String[] testTrees={"(ROOT (S (NP (PRP I)) (VP (VBD saw) (NP (NP (DT the) (NN woman)) (SBAR (WHNP (WP whom)) (S (NP (PRP you)) (VP (VBD gave) (NP (DT the) (NN package)) (PP (TO to))))))) (. .)))","( (S (NP-SBJ (PRP i)) (VP (VBP m) (ADJP-PRD (JJ fat)))))"};
+  String[] testAnswers={"nsubj(saw-2, I-1)\n" + "root(ROOT-0, saw-2)\n" + "det(woman-4, the-3)\n"+ "dobj(saw-2, woman-4)\n"+ "pobj(to-10, whom-5)\n"+ "nsubj(gave-7, you-6)\n"+ "rcmod(woman-4, gave-7)\n"+ "det(package-9, the-8)\n"+ "dobj(gave-7, package-9)\n"+ "prep(gave-7, to-10)\n","nsubj(fat-3, i-1)\n" + "cop(fat-3, m-2)\n" + "root(ROOT-0, fat-3)\n"};
+  assertEquals("Test array lengths mismatch!",testTrees.length,testAnswers.length);
+  TreeReaderFactory trf=new PennTreeReaderFactory();
+  for (int i=0; i < testTrees.length; i++) {
+    String testTree=testTrees[i];
+    String testAnswer=testAnswers[i];
+    Tree tree=Tree.valueOf(testTree,trf);
+    GrammaticalStructure gs=new EnglishGrammaticalStructure(tree);
+    assertEquals("Unexpected basic dependencies for tree " + testTree,testAnswer,EnglishGrammaticalStructure.dependenciesToString(gs,gs.typedDependencies(false),tree,false,false));
+  }
+}
