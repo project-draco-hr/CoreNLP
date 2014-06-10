@@ -5,9 +5,8 @@
   String validPosRegex=properties.getProperty(name + ".validpospattern");
   this.posMatchType=PosMatchType.valueOf(properties.getProperty(name + ".posmatchtype",DEFAULT_POS_MATCH_TYPE.name()));
   boolean overwriteMyLabels=true;
-  this.noDefaultOverwriteLabels=CollectionUtils.asSet(PropertiesUtils.getStringArray(properties,name + ".noDefaultOverwriteLabels"));
-  this.ignoreCase=PropertiesUtils.getBool(properties,name + ".ignorecase",false);
-  this.verbose=PropertiesUtils.getBool(properties,name + ".verbose",false);
+  this.ignoreCase=Boolean.parseBoolean(properties.getProperty(name + ".ignorecase","false"));
+  this.verbose=Boolean.parseBoolean(properties.getProperty(name + ".verbose","false"));
   if (validPosRegex != null && !validPosRegex.equals("")) {
     validPosPattern=Pattern.compile(validPosRegex);
   }
@@ -17,7 +16,7 @@
   BufferedReader rd=null;
   try {
     rd=IOUtils.readerFromString(mapping);
-    entries=readEntries(name,mapping,rd,noDefaultOverwriteLabels,ignoreCase,verbose);
+    entries=readEntries(name,mapping,rd,ignoreCase,verbose);
   }
  catch (  IOException e) {
     throw new RuntimeIOException("Couldn't read TokensRegexNER from " + mapping,e);
