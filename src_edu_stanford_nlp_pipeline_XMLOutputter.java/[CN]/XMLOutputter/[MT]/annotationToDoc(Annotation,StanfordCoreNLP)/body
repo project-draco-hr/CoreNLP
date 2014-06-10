@@ -72,8 +72,9 @@
   }
   Map<Integer,CorefChain> corefChains=annotation.get(CorefCoreAnnotations.CorefChainAnnotation.class);
   if (corefChains != null) {
+    List<CoreMap> sentences=annotation.get(CoreAnnotations.SentencesAnnotation.class);
     Element corefInfo=new Element("coreference",NAMESPACE_URI);
-    if (addCorefGraphInfo(corefInfo,corefChains,NAMESPACE_URI))     docElem.appendChild(corefInfo);
+    if (addCorefGraphInfo(corefInfo,sentences,corefChains,NAMESPACE_URI))     docElem.appendChild(corefInfo);
   }
   return xmlDoc;
 }
