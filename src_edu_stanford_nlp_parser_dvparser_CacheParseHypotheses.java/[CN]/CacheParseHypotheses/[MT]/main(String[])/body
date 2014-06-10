@@ -1,8 +1,7 @@
 {
   String parserModel=null;
   String output=null;
-  String treebankPath=null;
-  FileFilter treebankFilter=null;
+  List<Pair<String,FileFilter>> treebanks=Generics.newArrayList();
   int dvKBest=200;
   int numThreads=1;
   for (int argIndex=0; argIndex < args.length; ) {
@@ -24,8 +23,7 @@
     if (args[argIndex].equalsIgnoreCase("-treebank")) {
       Pair<String,FileFilter> treebankDescription=ArgUtils.getTreebankDescription(args,argIndex,"-treebank");
       argIndex=argIndex + ArgUtils.numSubArgs(args,argIndex) + 1;
-      treebankPath=treebankDescription.first();
-      treebankFilter=treebankDescription.second();
+      treebanks.add(treebankDescription);
       continue;
     }
     if (args[argIndex].equalsIgnoreCase("-numThreads")) {
@@ -41,22 +39,24 @@
   if (output == null) {
     throw new IllegalArgumentException("Need to supply an output filename with -output");
   }
-  if (treebankPath == null) {
+  if (treebanks.size() == 0) {
     throw new IllegalArgumentException("Need to supply a treebank with -treebank");
   }
-  System.err.println("Reading trees from " + treebankPath);
   System.err.println("Writing output to " + output);
   System.err.println("Loading parser model " + parserModel);
   System.err.println("Writing " + dvKBest + " hypothesis trees for each tree");
   LexicalizedParser parser=LexicalizedParser.loadModel(parserModel,"-dvKBest",Integer.toString(dvKBest));
   CacheParseHypotheses cacher=new CacheParseHypotheses(parser);
-  Treebank treebank=parser.getOp().tlpParams.memoryTreebank();
-  treebank.loadPath(treebankPath,treebankFilter);
-  System.err.println("Processing " + treebank.size() + " trees");
   TreeTransformer transformer=DVParser.buildTrainTransformer(parser.getOp());
-  treebank=treebank.transform(transformer);
   List<Tree> sentences=new ArrayList<Tree>();
-  sentences.addAll(treebank);
+  for (  Pair<String,FileFilter> description : treebanks) {
+    System.err.println("Reading trees from " + description.first);
+    Treebank treebank=parser.getOp().tlpParams.memoryTreebank();
+    treebank.loadPath(description.first,description.second);
+    treebank=treebank.transform(transformer);
+    sentences.addAll(treebank);
+  }
+  System.err.println("Processing " + sentences.size() + " trees");
   List<Pair<Tree,byte[]>> cache=Generics.newArrayList();
   transformer=new SynchronizedTreeTransformer(transformer);
   MulticoreWrapper<Tree,Pair<Tree,byte[]>> wrapper=new MulticoreWrapper<Tree,Pair<Tree,byte[]>>(numThreads,new CacheProcessor(cacher,parser,dvKBest,transformer));
