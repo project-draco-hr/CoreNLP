@@ -1,0 +1,24 @@
+{
+  if (children != null) {
+    for (    K key : children.keySet()) {
+      List<K> p=new ArrayList<K>(prefix.size() + 1);
+      p.addAll(prefix);
+      p.add(key);
+      children.get(key).updateEntries(entries,p);
+    }
+  }
+  if (value != null) {
+    entries.add(new Map.Entry(){
+      @Override public Object getKey(){
+        return prefix;
+      }
+      @Override public Object getValue(){
+        return value;
+      }
+      @Override public Object setValue(      Object value){
+        throw new UnsupportedOperationException();
+      }
+    }
+);
+  }
+}
