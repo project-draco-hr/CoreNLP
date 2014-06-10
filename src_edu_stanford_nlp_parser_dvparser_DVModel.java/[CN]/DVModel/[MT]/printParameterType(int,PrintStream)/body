@@ -1,0 +1,28 @@
+{
+  int originalPos=pos;
+  Pair<String,String> binary=indexToBinaryTransform(pos);
+  if (binary != null) {
+    pos=pos % binaryTransformSize;
+    out.println("Entry " + originalPos + " is entry "+ pos+ " of binary transform "+ binary.first()+ ":"+ binary.second());
+    return;
+  }
+  String unary=indexToUnaryTransform(pos);
+  if (unary != null) {
+    pos=(pos - numBinaryMatrices * binaryTransformSize) % unaryTransformSize;
+    out.println("Entry " + originalPos + " is entry "+ pos+ " of unary transform "+ unary);
+    return;
+  }
+  binary=indexToBinaryScore(pos);
+  if (binary != null) {
+    pos=(pos - numBinaryMatrices * binaryTransformSize - numUnaryMatrices * unaryTransformSize) % binaryScoreSize;
+    out.println("Entry " + originalPos + " is entry "+ pos+ " of binary score "+ binary.first()+ ":"+ binary.second());
+    return;
+  }
+  unary=indexToUnaryScore(pos);
+  if (unary != null) {
+    pos=(pos - (numBinaryMatrices * (binaryTransformSize + binaryScoreSize)) - numUnaryMatrices * unaryTransformSize) % unaryScoreSize;
+    out.println("Entry " + originalPos + " is entry "+ pos+ " of unary score "+ unary);
+    return;
+  }
+  out.println("Index " + originalPos + " unknown");
+}
