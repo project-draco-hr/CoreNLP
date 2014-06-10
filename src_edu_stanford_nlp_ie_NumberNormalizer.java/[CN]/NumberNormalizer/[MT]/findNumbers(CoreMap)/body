@@ -24,7 +24,8 @@
       }
     }
   }
-  TokenSequenceMatcher matcher=numberPattern.getMatcher(tokens);
+  TokenSequencePattern pattern=TokenSequencePattern.compile(env,"$NUMTERM ( [/,/ & $BEFORE_WS]? [$POSINTTERM & $BEFORE_WS]  )* ( [/,/ & $BEFORE_WS]? [/and/ & $BEFORE_WS] [$POSINTTERM & $BEFORE_WS]+ )? ");
+  TokenSequenceMatcher matcher=pattern.getMatcher(tokens);
   List<CoreMap> numbers=new ArrayList<CoreMap>();
   while (matcher.find()) {
     @SuppressWarnings("unused") List<? extends CoreMap> matchedTokens=matcher.groupNodes();
