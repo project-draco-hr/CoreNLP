@@ -1,0 +1,32 @@
+{
+  String backgroundSymbol=properties.getProperty(name + ".backgroundSymbol",SeqClassifierFlags.DEFAULT_BACKGROUND_SYMBOL);
+  String mapping=properties.getProperty(name + ".mapping",DefaultPaths.DEFAULT_REGEXNER_RULES);
+  String validPosRegex=properties.getProperty(name + ".validpospattern");
+  boolean overwriteMyLabels=true;
+  this.ignoreCase=Boolean.parseBoolean(properties.getProperty(name + ".ignorecase","false"));
+  this.verbose=Boolean.parseBoolean(properties.getProperty(name + ".verbose","false"));
+  if (validPosRegex != null && !validPosRegex.equals("")) {
+    validPosPattern=Pattern.compile(validPosRegex);
+  }
+ else {
+    validPosPattern=null;
+  }
+  BufferedReader rd=null;
+  try {
+    rd=IOUtils.readerFromString(mapping);
+    entries=readEntries(name,mapping,rd,ignoreCase,verbose);
+  }
+ catch (  IOException e) {
+    throw new RuntimeIOException("Couldn't read TokensRegexNER from " + mapping,e);
+  }
+ finally {
+    IOUtils.closeIgnoringExceptions(rd);
+  }
+  multiPatternMatcher=createPatternMatcher();
+  myLabels=Generics.newHashSet();
+  myLabels.add(backgroundSymbol);
+  myLabels.add(null);
+  if (overwriteMyLabels) {
+    for (    Entry entry : entries)     myLabels.add(entry.type);
+  }
+}
