@@ -2,8 +2,7 @@
   List<CoreLabel> sent=s.get(CoreAnnotations.TokensAnnotation.class);
   Tree tree=s.get(TreeCoreAnnotations.TreeAnnotation.class);
   SemanticGraph dependency=s.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class);
-  final String mentionPattern="NP < (/^(?:NP|NNP|NML)/=m1 $.. (/^CC|,/ $.. /^(?:NP|NNP|NML)/=m2))";
-  TregexPattern tgrepPattern=TregexPattern.compile(mentionPattern);
+  TregexPattern tgrepPattern=enumerationsMentionPattern;
   TregexMatcher matcher=tgrepPattern.matcher(tree);
   Map<IntPair,Tree> spanToMentionSubTree=Generics.newHashMap();
   while (matcher.find()) {
