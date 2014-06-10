@@ -1,5 +1,8 @@
 {
-  List<CoreMap> timeExpressions=timexExtractor.extractTimeExpressionCoreMaps(sentence,document);
+  String docDate=(document != null ? document.get(CoreAnnotations.DocDateAnnotation.class) : null);
+  String sectionDate=sentence.get(CoreAnnotations.SectionDateAnnotation.class);
+  String refDate=(sectionDate != null) ? sectionDate : docDate;
+  List<CoreMap> timeExpressions=timexExtractor.extractTimeExpressionCoreMaps(sentence,refDate);
   if (timeExpressions != null) {
     if (DEBUG)     System.out.println("FOUND TEMPORALS: " + timeExpressions);
   }
