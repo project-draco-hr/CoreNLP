@@ -1,13 +1,13 @@
 {
   List<Pattern> regex=entry.regex;
-  for (int start=searchStart; start <= document.size() - regex.size(); start++) {
+  int rSize=regex.size();
+  for (int start=searchStart, end=document.size() - regex.size(); start <= end; start++) {
     boolean failed=false;
-    for (int i=0; i < regex.size(); i++) {
+    for (int i=0; i < rSize; i++) {
       Pattern pattern=regex.get(i);
       CoreLabel token=document.get(start + i);
       String NERType=token.get(CoreAnnotations.NamedEntityTagAnnotation.class);
-      String currentType=token.get(CoreAnnotations.AnswerAnnotation.class);
-      if (!pattern.matcher(token.word()).matches() || currentType != null || !(entry.overwritableTypes.contains(NERType) || myLabels.contains(NERType) || NERType.equals("O"))) {
+      if (!pattern.matcher(token.word()).matches() || token.get(CoreAnnotations.AnswerAnnotation.class) != null || !(entry.overwritableTypes.contains(NERType) || myLabels.contains(NERType))) {
         failed=true;
         break;
       }
