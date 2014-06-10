@@ -1,0 +1,14 @@
+{
+  IdentityHashMap<Tree,List<Tree>> uncompressed=Generics.newIdentityHashMap();
+  MulticoreWrapper<byte[],List<Tree>> wrapper=new MulticoreWrapper<byte[],List<Tree>>(numThreads,new DecompressionProcessor());
+  for (  Tree tree : keys) {
+    wrapper.put(compressed.get(tree));
+  }
+  for (  Tree tree : keys) {
+    if (!wrapper.peek()) {
+      wrapper.join();
+    }
+    uncompressed.put(tree,wrapper.poll());
+  }
+  return uncompressed;
+}

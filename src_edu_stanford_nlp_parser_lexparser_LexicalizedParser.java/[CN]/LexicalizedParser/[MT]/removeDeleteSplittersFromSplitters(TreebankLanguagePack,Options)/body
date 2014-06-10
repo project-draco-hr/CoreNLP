@@ -1,0 +1,21 @@
+{
+  if (op.trainOptions.deleteSplitters != null) {
+    List<String> deleted=new ArrayList<String>();
+    for (    String del : op.trainOptions.deleteSplitters) {
+      String baseDel=tlp.basicCategory(del);
+      boolean checkBasic=del.equals(baseDel);
+      for (Iterator<String> it=op.trainOptions.splitters.iterator(); it.hasNext(); ) {
+        String elem=it.next();
+        String baseElem=tlp.basicCategory(elem);
+        boolean delStr=checkBasic && baseElem.equals(baseDel) || elem.equals(del);
+        if (delStr) {
+          it.remove();
+          deleted.add(elem);
+        }
+      }
+    }
+    if (op.testOptions.verbose) {
+      System.err.println("Removed from vertical splitters: " + deleted);
+    }
+  }
+}
