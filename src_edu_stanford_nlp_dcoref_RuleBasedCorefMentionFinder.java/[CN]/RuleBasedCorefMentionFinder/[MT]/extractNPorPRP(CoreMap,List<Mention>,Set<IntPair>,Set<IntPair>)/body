@@ -3,7 +3,8 @@
   Tree tree=s.get(TreeCoreAnnotations.TreeAnnotation.class);
   tree.indexLeaves();
   SemanticGraph dependency=s.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class);
-  TregexPattern tgrepPattern=npOrPrpMentionPattern;
+  final String mentionPattern="/^(?:NP|PRP)/";
+  TregexPattern tgrepPattern=TregexPattern.compile(mentionPattern);
   TregexMatcher matcher=tgrepPattern.matcher(tree);
   while (matcher.find()) {
     Tree t=matcher.getMatch();
