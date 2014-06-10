@@ -73,6 +73,12 @@
   }
   featureIndex=new HashIndex<String>();
   map=new int[numFeatures];
+  if (flags.groupByFeatureTemplate) {
+    templateGroupIndex=new HashIndex<String>();
+    featureIndexToTemplateIndex=new HashMap<Integer,Integer>();
+  }
+  Matcher m=null;
+  String groupSuffix=null;
   for (int i=0; i < windowSize; i++) {
     Index<Integer> featureIndexMap=new HashIndex<Integer>();
     featureIndex.addAll(featureIndices[i]);
@@ -80,6 +86,16 @@
       int index=featureIndex.indexOf(str);
       map[index]=i;
       featureIndexMap.add(index);
+      if (flags.groupByFeatureTemplate) {
+        m=suffixPatt.matcher(str);
+        groupSuffix="NoTemplate";
+        if (m.matches()) {
+          groupSuffix=m.group(1);
+        }
+        groupSuffix+="-c:" + i;
+        int groupIndex=templateGroupIndex.indexOf(groupSuffix,true);
+        featureIndexToTemplateIndex.put(index,groupIndex);
+      }
     }
     if (i == 0) {
       nodeFeatureIndicesMap=featureIndexMap;
