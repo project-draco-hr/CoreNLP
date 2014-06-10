@@ -1,7 +1,7 @@
 {
   List<CoreMap> mergedNumbers=NumberNormalizer.findAndMergeNumbers(annotation);
   annotation.set(CoreAnnotations.NumerizedTokensAnnotation.class,mergedNumbers);
-  SUTime.Time docDate=null;
+  SUTime.Time docDate;
   try {
     docDate=SUTime.parseDateTime(docDateStr);
   }
@@ -18,9 +18,7 @@
       timeExpressions.add(new TimeExpression(expr));
     }
   }
-  if (timeExpressions != null) {
-    resolveTimeExpressions(annotation,timeExpressions,docDate);
-  }
+  resolveTimeExpressions(annotation,timeExpressions,docDate);
   if (options.restrictToTimex3) {
     List<TimeExpression> kept=new ArrayList<TimeExpression>(timeExpressions.size());
     for (    TimeExpression te : timeExpressions) {
@@ -63,8 +61,6 @@
     timeExpressions.addAll(nestedTimeExpressions);
   }
   Collections.sort(timeExpressions,MatchedExpression.EXPR_TOKEN_OFFSETS_NESTED_FIRST_COMPARATOR);
-  if (timeExpressions != null) {
-    resolveTimeExpressions(annotation,timeExpressions,docDate);
-  }
+  resolveTimeExpressions(annotation,timeExpressions,docDate);
   return timeExpressions;
 }
