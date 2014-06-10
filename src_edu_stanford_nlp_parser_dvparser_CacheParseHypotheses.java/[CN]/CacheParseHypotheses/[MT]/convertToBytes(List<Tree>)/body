@@ -1,0 +1,20 @@
+{
+  try {
+    ByteArrayOutputStream bos=new ByteArrayOutputStream();
+    GZIPOutputStream gos=new GZIPOutputStream(bos);
+    ObjectOutputStream oos=new ObjectOutputStream(gos);
+    List<Tree> transformed=CollectionUtils.transformAsList(input,treeBasicCategories);
+    List<Tree> filtered=CollectionUtils.filterAsList(transformed,treeFilter);
+    oos.writeObject(filtered.size());
+    for (    Tree tree : filtered) {
+      oos.writeObject(tree.toString());
+    }
+    oos.close();
+    gos.close();
+    bos.close();
+    return bos.toByteArray();
+  }
+ catch (  IOException e) {
+    throw new RuntimeIOException(e);
+  }
+}
