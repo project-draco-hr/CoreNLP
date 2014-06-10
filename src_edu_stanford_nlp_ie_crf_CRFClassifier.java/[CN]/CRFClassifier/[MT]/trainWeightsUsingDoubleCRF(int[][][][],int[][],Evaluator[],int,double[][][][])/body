@@ -1,6 +1,80 @@
 {
   CRFLogConditionalObjectiveFunction func=new CRFLogConditionalObjectiveFunction(data,labels,windowSize,classIndex,labelIndices,map,flags.priorType,flags.backgroundSymbol,flags.sigma,featureVals);
   cliquePotentialFunctionHelper=func;
+  Map<String,Set<Integer>> featureSets=null;
+  if (flags.groupByOutputClass) {
+    featureSets=new HashMap<String,Set<Integer>>();
+    if (flags.groupByFeatureTemplate) {
+      int pIndex=0;
+      for (int fIndex=0; fIndex < map.length; fIndex++) {
+        int cliqueType=map[fIndex];
+        int numCliqueTypeOutputClass=labelIndices.get(map[fIndex]).size();
+        for (int cliqueOutClass=0; cliqueOutClass < numCliqueTypeOutputClass; cliqueOutClass++) {
+          String name="c:" + cliqueType + "-o:"+ cliqueOutClass+ "-g:"+ featureIndexToTemplateIndex.get(fIndex);
+          if (featureSets.containsKey(name)) {
+            featureSets.get(name).add(pIndex);
+          }
+ else {
+            Set<Integer> newSet=new HashSet<Integer>();
+            newSet.add(pIndex);
+            featureSets.put(name,newSet);
+          }
+          pIndex++;
+        }
+      }
+    }
+ else {
+      int pIndex=0;
+      for (int fIndex=0; fIndex < map.length; fIndex++) {
+        int cliqueType=map[fIndex];
+        int numCliqueTypeOutputClass=labelIndices.get(map[fIndex]).size();
+        for (int cliqueOutClass=0; cliqueOutClass < numCliqueTypeOutputClass; cliqueOutClass++) {
+          String name="c:" + cliqueType + "-o:"+ cliqueOutClass;
+          if (featureSets.containsKey(name)) {
+            featureSets.get(name).add(pIndex);
+          }
+ else {
+            Set<Integer> newSet=new HashSet<Integer>();
+            newSet.add(pIndex);
+            featureSets.put(name,newSet);
+          }
+          pIndex++;
+        }
+      }
+    }
+  }
+ else   if (flags.groupByFeatureTemplate) {
+    featureSets=new HashMap<String,Set<Integer>>();
+    int pIndex=0;
+    for (int fIndex=0; fIndex < map.length; fIndex++) {
+      int cliqueType=map[fIndex];
+      int numCliqueTypeOutputClass=labelIndices.get(map[fIndex]).size();
+      for (int cliqueOutClass=0; cliqueOutClass < numCliqueTypeOutputClass; cliqueOutClass++) {
+        String name="c:" + cliqueType + "-g:"+ featureIndexToTemplateIndex.get(fIndex);
+        if (featureSets.containsKey(name)) {
+          featureSets.get(name).add(pIndex);
+        }
+ else {
+          Set<Integer> newSet=new HashSet<Integer>();
+          newSet.add(pIndex);
+          featureSets.put(name,newSet);
+        }
+        pIndex++;
+      }
+    }
+  }
+  if (featureSets != null) {
+    int[][] fg=new int[featureSets.size()][];
+    System.err.println("After feature grouping, total of " + fg.length + " groups");
+    int count=0;
+    for (    Set<Integer> aSet : featureSets.values()) {
+      fg[count]=new int[aSet.size()];
+      int i=0;
+      for (      Integer val : aSet)       fg[count][i++]=val;
+      count++;
+    }
+    func.setFeatureGrouping(fg);
+  }
   Minimizer minimizer=getMinimizer(pruneFeatureItr,evaluators);
   double[] initialWeights;
   if (flags.initialWeights == null) {
