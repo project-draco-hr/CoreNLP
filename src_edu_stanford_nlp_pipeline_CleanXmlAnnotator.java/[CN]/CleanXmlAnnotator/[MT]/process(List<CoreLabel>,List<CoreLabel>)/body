@@ -1,0 +1,87 @@
+{
+  Stack<String> enclosingTags=new Stack<String>();
+  List<String> currentTagSet=null;
+  int matchDepth=0;
+  List<CoreLabel> newTokens=new ArrayList<CoreLabel>();
+  StringBuilder removedText=new StringBuilder();
+  for (  CoreLabel token : tokens) {
+    String word=token.word().trim();
+    XMLUtils.XMLTag tag=XMLUtils.parseTag(word);
+    if (tag == null) {
+      token.setWord(XMLUtils.unescapeStringForXML(token.word()));
+      if (matchDepth > 0 || xmlTagMatcher == null || xmlTagMatcher.matcher("").matches()) {
+        newTokens.add(token);
+      }
+      if (removedText.length() > 0) {
+        boolean added=false;
+        String before=token.get(CoreAnnotations.BeforeAnnotation.class);
+        if (before != null) {
+          token.set(CoreAnnotations.BeforeAnnotation.class,removedText + before);
+          added=true;
+        }
+        if (added && newTokens.size() > 1) {
+          CoreLabel previous=newTokens.get(newTokens.size() - 2);
+          String after=previous.get(CoreAnnotations.AfterAnnotation.class);
+          if (after != null)           previous.set(CoreAnnotations.AfterAnnotation.class,after + removedText);
+ else           previous.set(CoreAnnotations.AfterAnnotation.class,removedText.toString());
+        }
+        removedText=new StringBuilder();
+      }
+      if (currentTagSet == null) {
+        currentTagSet=Collections.unmodifiableList(new ArrayList<String>(enclosingTags));
+      }
+      token.set(CoreAnnotations.XmlContextAnnotation.class,currentTagSet);
+      if (dateTagMatcher != null && currentTagSet.size() > 0 && dateTagMatcher.matcher(currentTagSet.get(currentTagSet.size() - 1)).matches()) {
+        dateTokens.add(token);
+      }
+      continue;
+    }
+    String currentRemoval=token.get(CoreAnnotations.BeforeAnnotation.class);
+    if (currentRemoval != null)     removedText.append(currentRemoval);
+    currentRemoval=token.get(CoreAnnotations.OriginalTextAnnotation.class);
+    if (currentRemoval != null)     removedText.append(currentRemoval);
+    if (token == tokens.get(tokens.size() - 1)) {
+      currentRemoval=token.get(CoreAnnotations.AfterAnnotation.class);
+      if (currentRemoval != null)       removedText.append(currentRemoval);
+    }
+    if (sentenceEndingTagMatcher != null && sentenceEndingTagMatcher.matcher(tag.name).matches() && newTokens.size() > 0) {
+      CoreLabel previous=newTokens.get(newTokens.size() - 1);
+      previous.set(CoreAnnotations.ForcedSentenceEndAnnotation.class,true);
+    }
+    if (xmlTagMatcher == null)     continue;
+    if (tag.isSingleTag) {
+      continue;
+    }
+    currentTagSet=null;
+    if (tag.isEndTag) {
+      while (true) {
+        if (enclosingTags.size() == 0) {
+          throw new IllegalArgumentException("Got a close tag " + tag.name + "which does not match "+ "any open tag");
+        }
+        String lastTag=enclosingTags.pop();
+        if (xmlTagMatcher.matcher(lastTag).matches()) {
+          --matchDepth;
+        }
+        if (lastTag.equals(tag.name))         break;
+        if (!allowFlawedXml)         throw new IllegalArgumentException("Mismatched tags... " + tag.name + " closed a "+ lastTag+ " tag.");
+      }
+      if (matchDepth < 0) {
+        throw new AssertionError("Programming error?  We think there " + "have been more close tags than open tags");
+      }
+    }
+ else {
+      enclosingTags.push(tag.name);
+      if (xmlTagMatcher.matcher(tag.name).matches())       matchDepth++;
+    }
+  }
+  if (enclosingTags.size() > 0 && !allowFlawedXml) {
+    throw new IllegalArgumentException("Unclosed tags, starting with " + enclosingTags.pop());
+  }
+  if (newTokens.size() > 0 && removedText.length() > 0) {
+    CoreLabel lastToken=newTokens.get(newTokens.size() - 1);
+    if (lastToken.get(CoreAnnotations.OriginalTextAnnotation.class) != null) {
+      lastToken.set(CoreAnnotations.AfterAnnotation.class,removedText.toString());
+    }
+  }
+  return newTokens;
+}
