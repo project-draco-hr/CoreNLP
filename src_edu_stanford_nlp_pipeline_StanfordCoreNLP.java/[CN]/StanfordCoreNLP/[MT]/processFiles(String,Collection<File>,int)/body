@@ -2,6 +2,15 @@
   List<Runnable> toRun=new LinkedList<Runnable>();
   final String baseOutputDir=properties.getProperty("outputDirectory",".");
   final String baseInputDir=properties.getProperty("inputDirectory",base);
+  final String excludeFilesParam=properties.getProperty("excludeFiles");
+  final Set<String> excludeFiles=new HashSet<String>();
+  if (excludeFilesParam != null) {
+    Iterable<String> lines=IOUtils.readLines(excludeFilesParam);
+    for (    String line : lines) {
+      String name=line.trim();
+      if (!name.isEmpty())       excludeFiles.add(name);
+    }
+  }
   final OutputFormat outputFormat=OutputFormat.valueOf(properties.getProperty("outputFormat",DEFAULT_OUTPUT_FORMAT).toUpperCase());
   String defaultExtension;
 switch (outputFormat) {
@@ -28,10 +37,14 @@ final boolean randomize=Boolean.parseBoolean(properties.getProperty("randomize",
 final MutableInteger totalProcessed=new MutableInteger(0);
 final MutableInteger totalSkipped=new MutableInteger(0);
 final MutableInteger totalErrorAnnotating=new MutableInteger(0);
+int nFiles=0;
 for (final File file : files) {
-toRun.add(new Runnable(){
-@Override public void run(){
-try {
+nFiles++;
+if (excludeFiles.contains(file.getName())) {
+err("Skipping excluded file " + file.getName());
+totalSkipped.incValue(1);
+continue;
+}
 String outputDir=baseOutputDir;
 if (baseInputDir != null) {
 String relDir=file.getParent().replaceFirst(Pattern.quote(baseInputDir),"");
@@ -51,19 +64,19 @@ outputFilename+=extension;
 outputFilename=new File(outputFilename).getCanonicalPath();
 if (outputFilename.equals(file.getCanonicalPath())) {
 err("Skipping " + file.getName() + ": output file "+ outputFilename+ " has the same filename as the input file -- assuming you don't actually want to do this.");
-synchronized (totalSkipped) {
 totalSkipped.incValue(1);
-}
-return;
+continue;
 }
 if (noClobber && new File(outputFilename).exists()) {
 err("Skipping " + file.getName() + ": output file "+ outputFilename+ " as it already exists.  Don't use the noClobber option to override this.");
-synchronized (totalSkipped) {
 totalSkipped.incValue(1);
+continue;
 }
-return;
-}
-forceTrack("Processing file " + file.getAbsolutePath() + " ... writing to "+ outputFilename);
+final String finalOutputFilename=outputFilename;
+toRun.add(new Runnable(){
+@Override public void run(){
+try {
+forceTrack("Processing file " + file.getAbsolutePath() + " ... writing to "+ finalOutputFilename);
 Annotation annotation=null;
 if (file.getAbsolutePath().endsWith(".ser.gz")) {
 try {
@@ -111,14 +124,14 @@ if (annotationOkay) {
 switch (outputFormat) {
 case XML:
 {
-  OutputStream fos=new BufferedOutputStream(new FileOutputStream(outputFilename));
+  OutputStream fos=new BufferedOutputStream(new FileOutputStream(finalOutputFilename));
   xmlPrint(annotation,fos);
   fos.close();
   break;
 }
 case TEXT:
 {
-OutputStream fos=new BufferedOutputStream(new FileOutputStream(outputFilename));
+OutputStream fos=new BufferedOutputStream(new FileOutputStream(finalOutputFilename));
 prettyPrint(annotation,fos);
 fos.close();
 break;
@@ -127,12 +140,12 @@ case SERIALIZED:
 {
 if (outputSerializerClass != null) {
 AnnotationSerializer outputSerializer=ReflectionLoading.loadByReflection(inputSerializerClass);
-OutputStream fos=new BufferedOutputStream(new FileOutputStream(outputFilename));
+OutputStream fos=new BufferedOutputStream(new FileOutputStream(finalOutputFilename));
 outputSerializer.save(annotation,fos);
 fos.close();
 }
  else {
-IOUtils.writeObjectToFile(annotation,outputFilename);
+IOUtils.writeObjectToFile(annotation,finalOutputFilename);
 }
 break;
 }
@@ -147,9 +160,9 @@ log("Processed " + totalProcessed + " documents");
 }
 }
  else {
-warn("Error annotating " + file.getAbsoluteFile() + " not saved to "+ outputFilename);
+warn("Error annotating " + file.getAbsoluteFile() + " not saved to "+ finalOutputFilename);
 }
-endTrack("Processing file " + file.getAbsolutePath() + " ... writing to "+ outputFilename);
+endTrack("Processing file " + file.getAbsolutePath() + " ... writing to "+ finalOutputFilename);
 }
  catch (IOException e) {
 throw new RuntimeIOException(e);
@@ -162,7 +175,7 @@ if (randomize) {
 log("Randomly shuffling input");
 Collections.shuffle(toRun);
 }
-log("Ready to process: " + toRun.size() + " files");
+log("Ready to process: " + toRun.size() + " files, skipped "+ totalSkipped+ ", total "+ nFiles);
 if (numThreads == 1) {
 for (Runnable r : toRun) {
 r.run();

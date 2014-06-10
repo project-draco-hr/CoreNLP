@@ -148,6 +148,36 @@ catch (    IllegalAccessException e) {
     }
 catch (    ClassCastException e) {
     }
-    return null;
+    if (Tree.class.isAssignableFrom(clazz)) {
+      try {
+        return (E)new PennTreeReader(new StringReader(value),new LabeledScoredTreeFactory(CoreLabel.factory())).readTree();
+      }
+ catch (      IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
+ else     if (Collection.class.isAssignableFrom(clazz)) {
+      Collection rtn;
+      if (Modifier.isAbstract(clazz.getModifiers())) {
+        rtn=abstractToConcreteCollectionMap.get(clazz).createInstance();
+      }
+ else {
+        rtn=MetaClass.create(clazz).createInstance();
+      }
+      Class<?> subType=clazz.getComponentType();
+      String[] strings=decodeArray(value);
+      for (      String string : strings) {
+        if (subType == null) {
+          rtn.add(castWithoutKnowingType(string));
+        }
+ else {
+          rtn.add(cast(string,subType));
+        }
+      }
+      return (E)rtn;
+    }
+ else {
+      return null;
+    }
   }
 }
