@@ -1,0 +1,24 @@
+{
+  if (derivative == null) {
+    derivative=new double[domainDimension()];
+  }
+  double[][] weights=to2D(x,1.0);
+  if (eHat4Update == null) {
+    eHat4Update=empty2D();
+    e4Update=new double[eHat4Update.length][];
+    for (int i=0; i < e4Update.length; i++)     e4Update[i]=new double[eHat4Update[i].length];
+  }
+ else {
+    clearUpdateEs();
+  }
+  for (  int ind : batch) {
+    empiricalCountsForADoc(eHat4Update,ind);
+    expectedCountsForADoc(weights,e4Update,ind);
+  }
+  int index=0;
+  for (int i=0; i < e4Update.length; i++) {
+    for (int j=0; j < e4Update[i].length; j++) {
+      derivative[index++]=(-eHat4Update[i][j] + e4Update[i][j]);
+    }
+  }
+}
