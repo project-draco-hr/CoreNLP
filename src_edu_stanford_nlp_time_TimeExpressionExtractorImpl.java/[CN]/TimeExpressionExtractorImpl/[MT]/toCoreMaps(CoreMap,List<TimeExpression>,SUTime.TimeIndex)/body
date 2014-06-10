@@ -1,2 +1,46 @@
 {
+  if (timeExpressions == null)   return null;
+  List<CoreMap> coreMaps=new ArrayList<CoreMap>(timeExpressions.size());
+  for (  TimeExpression te : timeExpressions) {
+    CoreMap cm=te.getAnnotation();
+    SUTime.Temporal temporal=te.getTemporal();
+    if (temporal != null) {
+      String origText=annotation.get(CoreAnnotations.TextAnnotation.class);
+      String text=cm.get(CoreAnnotations.TextAnnotation.class);
+      if (origText != null) {
+        ChunkAnnotationUtils.annotateChunkText(cm,annotation);
+        text=cm.get(CoreAnnotations.TextAnnotation.class);
+      }
+      Map<String,String> timexAttributes;
+      try {
+        timexAttributes=temporal.getTimexAttributes(timeIndex);
+        if (options.includeRange) {
+          SUTime.Temporal rangeTemporal=temporal.getRange();
+          if (rangeTemporal != null) {
+            timexAttributes.put("range",rangeTemporal.toString());
+          }
+        }
+      }
+ catch (      Exception e) {
+        logger.log(Level.WARNING,"Failed to get attributes from " + text + ", timeIndex "+ timeIndex,e);
+        continue;
+      }
+      Timex timex;
+      try {
+        timex=Timex.fromMap(text,timexAttributes);
+      }
+ catch (      Exception e) {
+        logger.log(Level.WARNING,"Failed to process " + text + " with attributes "+ timexAttributes,e);
+        continue;
+      }
+      cm.set(TimeAnnotations.TimexAnnotation.class,timex);
+      if (timex != null) {
+        coreMaps.add(cm);
+      }
+ else {
+        logger.warning("No timex expression for: " + text);
+      }
+    }
+  }
+  return coreMaps;
 }
