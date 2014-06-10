@@ -4,11 +4,10 @@
   maxentTagger.init(config);
   TaggerExperiments samples=new TaggerExperiments(config,maxentTagger);
   TaggerFeatures feats=samples.getTaggerFeatures();
-  byte[][] fnumArr=samples.getFnumArr();
   System.err.println("Samples from " + config.getFile());
   System.err.println("Number of features: " + feats.size());
   Problem p=new Problem(samples,feats);
-  LambdaSolveTagger prob=new LambdaSolveTagger(p,0.0001,fnumArr);
+  LambdaSolveTagger prob=new LambdaSolveTagger(p,0.0001,maxentTagger.fnumArr);
   maxentTagger.prob=prob;
   if (config.getSearch().equals("owlqn")) {
     CGRunner runner=new CGRunner(prob,config.getModel(),config.getSigmaSquared());
