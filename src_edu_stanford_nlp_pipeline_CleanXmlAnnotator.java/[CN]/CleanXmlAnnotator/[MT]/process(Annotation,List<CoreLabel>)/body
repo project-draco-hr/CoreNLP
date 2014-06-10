@@ -4,6 +4,7 @@
   int matchDepth=0;
   List<CoreLabel> newTokens=new ArrayList<CoreLabel>();
   StringBuilder removedText=new StringBuilder();
+  Set<Class> toAnnotate=docAnnotationPatterns.keySet();
   int utteranceIndex=0;
   boolean inUtterance=false;
   boolean inSpeakerTag=false;
@@ -56,6 +57,28 @@
         speakerTokens.add(token);
       }
       continue;
+    }
+    if (!toAnnotate.isEmpty() && tag.attributes != null) {
+      Set<Class> foundAnnotations=new HashSet<Class>();
+      for (      Class key : toAnnotate) {
+        for (        Pair<Pattern,Pattern> pattern : docAnnotationPatterns.get(key)) {
+          Pattern tagPattern=pattern.first;
+          Pattern attrPattern=pattern.second;
+          if (tagPattern.matcher(tag.name).matches()) {
+            boolean matched=false;
+            for (            Map.Entry<String,String> entry : tag.attributes.entrySet()) {
+              if (attrPattern.matcher(entry.getKey()).matches()) {
+                annotation.set(key,entry.getValue());
+                foundAnnotations.add(key);
+                matched=true;
+                break;
+              }
+            }
+            if (matched)             break;
+          }
+        }
+      }
+      toAnnotate.removeAll(foundAnnotations);
     }
     String currentRemoval=token.get(CoreAnnotations.BeforeAnnotation.class);
     if (currentRemoval != null)     removedText.append(currentRemoval);
