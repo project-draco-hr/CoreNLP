@@ -80,7 +80,11 @@
       if (pos == leftWindow) {
         score[pos][product]=windowScore[pos][product];
         if (linearConstraints != null) {
-          if (DEBUG && linearConstraints[pos][product % tagNum[pos]] != 0)           System.err.println("Applying linear constraints=" + linearConstraints[pos][product % tagNum[pos]] + " to preScore="+ windowScore[pos][product]+ " at pos="+ pos+ " for tag="+ (product % tagNum[pos]));
+          if (DEBUG) {
+            if (linearConstraints[pos][product % tagNum[pos]] != 0) {
+              System.err.println("Applying linear constraints=" + linearConstraints[pos][product % tagNum[pos]] + " to preScore="+ windowScore[pos][product]+ " at pos="+ pos+ " for tag="+ (product % tagNum[pos]));
+            }
+          }
           score[pos][product]+=linearConstraints[pos][product % tagNum[pos]];
         }
         trace[pos][product]=-1;
@@ -94,9 +98,11 @@
           int predProduct=newTagNum * factor + sharedProduct;
           double predScore=score[pos - 1][predProduct] + windowScore[pos][product];
           if (linearConstraints != null) {
-            if (DEBUG && pos == 2 && linearConstraints[pos][product % tagNum[pos]] != 0) {
-              System.err.println("Applying linear constraints=" + linearConstraints[pos][product % tagNum[pos]] + " to preScore="+ predScore+ " at pos="+ pos+ " for tag="+ (product % tagNum[pos]));
-              System.err.println("predScore:" + predScore + " = score["+ (pos - 1)+ "]["+ predProduct+ "]:"+ score[pos - 1][predProduct]+ " + windowScore["+ pos+ "]["+ product+ "]:"+ windowScore[pos][product]);
+            if (DEBUG) {
+              if (pos == 2 && linearConstraints[pos][product % tagNum[pos]] != 0) {
+                System.err.println("Applying linear constraints=" + linearConstraints[pos][product % tagNum[pos]] + " to preScore="+ predScore+ " at pos="+ pos+ " for tag="+ (product % tagNum[pos]));
+                System.err.println("predScore:" + predScore + " = score["+ (pos - 1)+ "]["+ predProduct+ "]:"+ score[pos - 1][predProduct]+ " + windowScore["+ pos+ "]["+ product+ "]:"+ windowScore[pos][product]);
+              }
             }
             predScore+=linearConstraints[pos][product % tagNum[pos]];
           }

@@ -1,6 +1,6 @@
 {
   TreeTransformer transformer1=new TreeTransformer(){
-    public Tree transformTree(    Tree t){
+    @Override public Tree transformTree(    Tree t){
       if (doSGappedStuff) {
         String lab=t.label().value();
         if (lab.equals("S") && includesEmptyNPSubj(t)) {
@@ -13,10 +13,8 @@
   }
 ;
   Filter<Tree> subtreeFilter=new Filter<Tree>(){
-    /** 
- */
     private static final long serialVersionUID=-7250433816896327901L;
-    public boolean accept(    Tree t){
+    @Override public boolean accept(    Tree t){
       Tree[] kids=t.children();
       Label l=t.label();
       if ("RS".equals(t.label().value()) || "RM".equals(t.label().value()) || "IP".equals(t.label().value())|| "CODE".equals(t.label().value())) {
@@ -30,10 +28,8 @@
   }
 ;
   Filter<Tree> nodeFilter=new Filter<Tree>(){
-    /** 
- */
     private static final long serialVersionUID=9000955019205336311L;
-    public boolean accept(    Tree t){
+    @Override public boolean accept(    Tree t){
       if (t.isLeaf() || t.isPreTerminal()) {
         return true;
       }
@@ -48,7 +44,7 @@
   }
 ;
   TreeTransformer transformer2=new TreeTransformer(){
-    public Tree transformTree(    Tree t){
+    @Override public Tree transformTree(    Tree t){
       if (temporalAnnotation == TEMPORAL_ANY_TMP_PERCOLATED) {
         String lab=t.label().value();
         if (TmpPattern.matcher(lab).matches()) {
