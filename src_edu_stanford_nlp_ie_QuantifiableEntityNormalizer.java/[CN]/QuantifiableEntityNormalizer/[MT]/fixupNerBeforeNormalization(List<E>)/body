@@ -8,10 +8,10 @@
     String numericType=wi.get(CoreAnnotations.NumericCompositeTypeAnnotation.class);
     String curWord=(wi.get(CoreAnnotations.TextAnnotation.class) != null ? wi.get(CoreAnnotations.TextAnnotation.class) : "");
     String currNerTag=wi.get(CoreAnnotations.NamedEntityTagAnnotation.class);
-    if (timex != null && numericType != null) {
-      if (DEBUG) {
-        System.err.println("fixupNerBeforeNormalization: wi is " + wi);
-      }
+    if (DEBUG) {
+      System.err.println("fixupNerBeforeNormalization: wi is " + wi);
+    }
+    if (timex == null && numericType == null) {
       if ((i + 1) < sz && ",".equals(wi.get(CoreAnnotations.TextAnnotation.class)) && "DATE".equals(prevNerTag)) {
         if (prevTimex == null && prevNumericType == null) {
           E nextToken=list.get(i + 1);
@@ -52,6 +52,11 @@
             prev.set(CoreAnnotations.NamedEntityTagAnnotation.class,"DURATION");
           }
         }
+      }
+    }
+ else {
+      if ("DURATION".equals(currNerTag) && ordinalsToValues.containsKey(curWord) && curWord.endsWith("second")&& timex.text().equals(curWord)) {
+        wi.set(CoreAnnotations.NamedEntityTagAnnotation.class,"ORDINAL");
       }
     }
     prevNerTag=currNerTag;
