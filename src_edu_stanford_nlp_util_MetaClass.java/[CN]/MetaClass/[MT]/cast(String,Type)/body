@@ -167,7 +167,12 @@ catch (    ClassCastException e) {
       Class<?> subType=clazz.getComponentType();
       String[] strings=decodeArray(value);
       for (      String string : strings) {
-        rtn.add(cast(string,subType == null ? String.class : subType));
+        if (subType == null) {
+          rtn.add(castWithoutKnowingType(string));
+        }
+ else {
+          rtn.add(cast(string,subType));
+        }
       }
       return (E)rtn;
     }
