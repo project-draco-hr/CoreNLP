@@ -23,10 +23,20 @@
     return (E)new Boolean(Boolean.parseBoolean(value));
   }
  else   if (Integer.class.isAssignableFrom(clazz) || int.class.isAssignableFrom(clazz)) {
-    return (E)new Integer(Integer.parseInt(value));
+    try {
+      return (E)new Integer(Integer.parseInt(value));
+    }
+ catch (    NumberFormatException e) {
+      return (E)new Integer((int)Double.parseDouble(value));
+    }
   }
  else   if (Long.class.isAssignableFrom(clazz) || long.class.isAssignableFrom(clazz)) {
-    return (E)new Long(Long.parseLong(value));
+    try {
+      return (E)new Long(Long.parseLong(value));
+    }
+ catch (    NumberFormatException e) {
+      return (E)new Long((long)Double.parseDouble(value));
+    }
   }
  else   if (Float.class.isAssignableFrom(clazz) || float.class.isAssignableFrom(clazz)) {
     if (value == null) {
@@ -41,10 +51,20 @@
     return (E)new Double(Double.parseDouble(value));
   }
  else   if (Short.class.isAssignableFrom(clazz) || short.class.isAssignableFrom(clazz)) {
-    return (E)new Short(Short.parseShort(value));
+    try {
+      return (E)new Short(Short.parseShort(value));
+    }
+ catch (    NumberFormatException e) {
+      return (E)new Short((short)Double.parseDouble(value));
+    }
   }
  else   if (Byte.class.isAssignableFrom(clazz) || byte.class.isAssignableFrom(clazz)) {
-    return (E)new Byte(Byte.parseByte(value));
+    try {
+      return (E)new Byte(Byte.parseByte(value));
+    }
+ catch (    NumberFormatException e) {
+      return (E)new Byte((byte)Double.parseDouble(value));
+    }
   }
  else   if (Character.class.isAssignableFrom(clazz) || char.class.isAssignableFrom(clazz)) {
     return (E)new Character((char)Integer.parseInt(value));
@@ -116,6 +136,18 @@
     }
   }
  else {
+    try {
+      Method decode=clazz.getMethod("fromString",String.class);
+      return (E)decode.invoke(MetaClass.create(clazz),value);
+    }
+ catch (    NoSuchMethodException e) {
+    }
+catch (    InvocationTargetException e) {
+    }
+catch (    IllegalAccessException e) {
+    }
+catch (    ClassCastException e) {
+    }
     return null;
   }
 }
