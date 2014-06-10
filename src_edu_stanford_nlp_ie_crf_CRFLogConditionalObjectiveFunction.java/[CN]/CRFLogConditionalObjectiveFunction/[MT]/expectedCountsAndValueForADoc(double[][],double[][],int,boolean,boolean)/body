@@ -1,5 +1,5 @@
 {
-  double prob=0;
+  double prob=0.0;
   int[][][] docData=data[docIndex];
   int[] docLabels=labels[docIndex];
   double[][][] featureVal3DArr=null;
@@ -15,6 +15,9 @@
       System.arraycopy(docLabels,docLabels.length - newDocLabels.length,newDocLabels,0,newDocLabels.length);
       docLabels=newDocLabels;
     }
+    double startPosLogProb=cliqueTree.logProbStartPos();
+    if (VERBOSE)     System.err.printf("P_-1(Background) = % 5.3f\n",startPosLogProb);
+    prob+=startPosLogProb;
     for (int i=0; i < docData.length; i++) {
       int label=docLabels[i];
       double p=cliqueTree.condLogProbGivenPrevious(i,label,given);
