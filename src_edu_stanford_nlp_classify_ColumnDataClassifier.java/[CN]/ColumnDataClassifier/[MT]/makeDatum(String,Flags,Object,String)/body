@@ -68,17 +68,25 @@
       addFeature(featuresC,featureName,DEFAULT_VALUE);
     }
   }
-  if (flags.splitWordsPattern != null || flags.splitWordsTokenizerPattern != null) {
+  if (flags.splitWordsRegexp != null || flags.splitWordsTokenizerRegexp != null) {
     String[] bits;
-    if (flags.splitWordsTokenizerPattern != null) {
+    if (flags.splitWordsTokenizerRegexp != null) {
       bits=regexpTokenize(flags.splitWordsTokenizerPattern,flags.splitWordsIgnorePattern,cWord);
     }
  else {
-      bits=splitTokenize(flags.splitWordsPattern,flags.splitWordsIgnorePattern,cWord);
-    }
-    if (flags.showTokenization) {
-      System.err.print("Tokenization: ");
-      System.err.println(Arrays.toString(bits));
+      bits=flags.splitWordsPattern.split(cWord);
+      if (flags.splitWordsIgnorePattern != null) {
+        List<String> keepBits=new ArrayList<String>(bits.length);
+        for (        String bit : bits) {
+          if (!flags.splitWordsIgnorePattern.matcher(bit).matches()) {
+            keepBits.add(bit);
+          }
+        }
+        if (keepBits.size() != bits.length) {
+          bits=new String[keepBits.size()];
+          keepBits.toArray(bits);
+        }
+      }
     }
     for (int i=0; i < bits.length; i++) {
       if (flags.useSplitWords) {
