@@ -8,7 +8,7 @@
     }
   }
   if (flags.DO_PRONOUN && Math.abs(mention2.sentNum - ant.sentNum) > 3 && mention2.person != Person.I && mention2.person != Person.YOU)   return false;
-  if (mention2.spanToString().toLowerCase().equals("this") && Math.abs(mention2.sentNum - ant.sentNum) > 3)   return false;
+  if (mention2.lowercaseNormalizedSpanString().equals("this") && Math.abs(mention2.sentNum - ant.sentNum) > 3)   return false;
   if (mention2.person == Person.YOU && document.docType == DocType.ARTICLE && mention2.headWord.get(CoreAnnotations.SpeakerAnnotation.class).equals("PER0"))   return false;
   if (document.conllDoc != null) {
     if (ant.generic && ant.person == Person.YOU)     return false;
@@ -16,15 +16,15 @@
     if (mention2.insideIn(ant) || ant.insideIn(mention2))     return false;
   }
   if (flags.USE_DISCOURSEMATCH) {
-    String mString=mention.spanToString().toLowerCase();
-    String antString=ant.spanToString().toLowerCase();
-    if (dict.firstPersonPronouns.contains(mString) && mention.number == Number.SINGULAR && dict.firstPersonPronouns.contains(antString) && ant.number == Number.SINGULAR && Rules.entitySameSpeaker(document,mention,ant)) {
+    String mString=mention.lowercaseNormalizedSpanString();
+    String antString=ant.lowercaseNormalizedSpanString();
+    if (mention.number == Number.SINGULAR && dict.firstPersonPronouns.contains(mString) && ant.number == Number.SINGULAR && dict.firstPersonPronouns.contains(antString) && Rules.entitySameSpeaker(document,mention,ant)) {
       return true;
     }
-    if (Rules.entityIsSpeaker(document,mention,ant,dict) && ((dict.firstPersonPronouns.contains(mString) && mention.number == Number.SINGULAR) || (dict.firstPersonPronouns.contains(antString) && ant.number == Number.SINGULAR))) {
+    if (((mention.number == Number.SINGULAR && dict.firstPersonPronouns.contains(mString)) || (ant.number == Number.SINGULAR && dict.firstPersonPronouns.contains(antString))) && Rules.entityIsSpeaker(document,mention,ant,dict)) {
       return true;
     }
-    if (Rules.entitySameSpeaker(document,mention,ant) && dict.secondPersonPronouns.contains(mString) && dict.secondPersonPronouns.contains(antString)) {
+    if (dict.secondPersonPronouns.contains(mString) && dict.secondPersonPronouns.contains(antString) && Rules.entitySameSpeaker(document,mention,ant)) {
       return true;
     }
     if (((mention.person == Person.I && ant.person == Person.YOU || (mention.person == Person.YOU && ant.person == Person.I)) && (mention.headWord.get(CoreAnnotations.UtteranceAnnotation.class) - ant.headWord.get(CoreAnnotations.UtteranceAnnotation.class) == 1) && document.docType == DocType.CONVERSATION)) {
@@ -39,7 +39,7 @@
   if (Constants.USE_DISCOURSE_CONSTRAINTS && !flags.USE_EXACTSTRINGMATCH && !flags.USE_RELAXED_EXACTSTRINGMATCH&& !flags.USE_APPOSITION&& !flags.USE_WORDS_INCLUSION) {
     for (    Mention m : mentionCluster.getCorefMentions()) {
       for (      Mention a : potentialAntecedent.getCorefMentions()) {
-        if (Rules.entityIsSpeaker(document,m,a,dict) && m.person != Person.I && a.person != Person.I) {
+        if (m.person != Person.I && a.person != Person.I && Rules.entityIsSpeaker(document,m,a,dict)) {
           SieveCoreferenceSystem.logger.finest("Incompatibles: not match(speaker): " + ant.spanToString() + "("+ ant.mentionID+ ") :: "+ mention.spanToString()+ "("+ mention.mentionID+ ") -> "+ (mention.goldCorefClusterID != ant.goldCorefClusterID));
           document.addIncompatible(m,a);
           return false;
@@ -90,31 +90,31 @@
     return true;
   }
   if (flags.USE_APPOSITION && Rules.entityIsApposition(mentionCluster,potentialAntecedent,mention,ant)) {
-    SieveCoreferenceSystem.logger.finer("Apposition: " + mention.spanToString() + "\tvs\t"+ ant.spanToString());
+    SieveCoreferenceSystem.logger.finest("Apposition: " + mention.spanToString() + "\tvs\t"+ ant.spanToString());
     return true;
   }
   if (flags.USE_PREDICATENOMINATIVES && Rules.entityIsPredicateNominatives(mentionCluster,potentialAntecedent,mention,ant)) {
-    SieveCoreferenceSystem.logger.finer("Predicate nominatives: " + mention.spanToString() + "\tvs\t"+ ant.spanToString());
+    SieveCoreferenceSystem.logger.finest("Predicate nominatives: " + mention.spanToString() + "\tvs\t"+ ant.spanToString());
     return true;
   }
   if (flags.USE_ACRONYM && Rules.entityIsAcronym(mentionCluster,potentialAntecedent)) {
-    SieveCoreferenceSystem.logger.finer("Acronym: " + mention.spanToString() + "\tvs\t"+ ant.spanToString());
+    SieveCoreferenceSystem.logger.finest("Acronym: " + mention.spanToString() + "\tvs\t"+ ant.spanToString());
     return true;
   }
   if (flags.USE_RELATIVEPRONOUN && Rules.entityIsRelativePronoun(mention,ant)) {
-    SieveCoreferenceSystem.logger.finer("Relative pronoun: " + mention.spanToString() + "\tvs\t"+ ant.spanToString());
+    SieveCoreferenceSystem.logger.finest("Relative pronoun: " + mention.spanToString() + "\tvs\t"+ ant.spanToString());
     return true;
   }
   if (flags.USE_DEMONYM && mention.isDemonym(ant,dict)) {
-    SieveCoreferenceSystem.logger.finer("Demonym: " + mention.spanToString() + "\tvs\t"+ ant.spanToString());
+    SieveCoreferenceSystem.logger.finest("Demonym: " + mention.spanToString() + "\tvs\t"+ ant.spanToString());
     return true;
   }
   if (flags.USE_ROLEAPPOSITION && Rules.entityIsRoleAppositive(mentionCluster,potentialAntecedent,mention,ant,dict)) {
-    SieveCoreferenceSystem.logger.finer("Role Appositive: " + mention.spanToString() + "\tvs\t"+ ant.spanToString());
+    SieveCoreferenceSystem.logger.finest("Role Appositive: " + mention.spanToString() + "\tvs\t"+ ant.spanToString());
     ret=true;
   }
   if (flags.USE_INCLUSION_HEADMATCH && Rules.entityHeadsAgree(mentionCluster,potentialAntecedent,mention,ant,dict)) {
-    SieveCoreferenceSystem.logger.finer("Entity heads agree: " + mention.spanToString() + "\tvs\t"+ ant.spanToString());
+    SieveCoreferenceSystem.logger.finest("Entity heads agree: " + mention.spanToString() + "\tvs\t"+ ant.spanToString());
     ret=true;
   }
   if (flags.USE_RELAXED_HEADMATCH && Rules.entityRelaxedHeadsAgreeBetweenMentions(mentionCluster,potentialAntecedent,mention,ant)) {
@@ -197,7 +197,7 @@
       m=mention;
     }
     if ((m.isPronominal() || dict.allPronouns.contains(m.toString())) && Rules.entityAttributesAgree(mentionCluster,potentialAntecedent)) {
-      if (dict.demonymSet.contains(ant.spanToString().toLowerCase()) && dict.notOrganizationPRP.contains(m.headString)) {
+      if (dict.demonymSet.contains(ant.lowercaseNormalizedSpanString()) && dict.notOrganizationPRP.contains(m.headString)) {
         document.addIncompatible(m,ant);
         return false;
       }
