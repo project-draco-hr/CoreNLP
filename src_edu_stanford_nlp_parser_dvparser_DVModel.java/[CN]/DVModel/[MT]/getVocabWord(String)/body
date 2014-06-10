@@ -1,0 +1,37 @@
+{
+  if (op.wordFunction != null) {
+    word=op.wordFunction.apply(word);
+  }
+  if (op.trainOptions.lowercaseWordVectors) {
+    word=word.toLowerCase();
+  }
+  if (wordVectors.containsKey(word)) {
+    return word;
+  }
+  if (op.trainOptions.unknownNumberVector && NUMBER_PATTERN.matcher(word).matches()) {
+    return UNKNOWN_NUMBER;
+  }
+  if (op.trainOptions.unknownCapsVector && CAPS_PATTERN.matcher(word).matches()) {
+    return UNKNOWN_CAPS;
+  }
+  if (op.trainOptions.unknownChineseYearVector && CHINESE_YEAR_PATTERN.matcher(word).matches()) {
+    return UNKNOWN_CHINESE_YEAR;
+  }
+  if (op.trainOptions.unknownChineseNumberVector && CHINESE_NUMBER_PATTERN.matcher(word).matches()) {
+    return UNKNOWN_CHINESE_NUMBER;
+  }
+  if (op.trainOptions.unknownChinesePercentVector && CHINESE_PERCENT_PATTERN.matcher(word).matches()) {
+    return UNKNOWN_CHINESE_PERCENT;
+  }
+  if (op.trainOptions.unknownDashedWordVectors) {
+    int index=word.lastIndexOf('-');
+    if (index >= 0 && index < word.length()) {
+      String lastPiece=word.substring(index + 1);
+      String wv=getVocabWord(lastPiece);
+      if (wv != null) {
+        return wv;
+      }
+    }
+  }
+  return UNKNOWN_WORD;
+}
