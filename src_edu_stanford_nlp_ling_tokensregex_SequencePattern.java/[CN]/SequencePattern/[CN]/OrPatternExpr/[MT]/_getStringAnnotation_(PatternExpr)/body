@@ -1,0 +1,15 @@
+{
+  if (p instanceof NodePatternExpr) {
+    NodePattern nodePattern=((NodePatternExpr)p).nodePattern;
+    if (nodePattern instanceof CoreMapNodePattern) {
+      List<Pair<Class,NodePattern>> annotationPatterns=((CoreMapNodePattern)nodePattern).getAnnotationPatterns();
+      if (annotationPatterns.size() == 1) {
+        Pair<Class,NodePattern> pair=annotationPatterns.get(0);
+        if (pair.second instanceof CoreMapNodePattern.StringAnnotationPattern) {
+          return Pair.makePair(pair.first,(CoreMapNodePattern.StringAnnotationPattern)pair.second);
+        }
+      }
+    }
+  }
+  return null;
+}
