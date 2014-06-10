@@ -94,7 +94,7 @@ annotationOkay=true;
 }
  catch (Exception ex) {
 if (continueOnAnnotateError) {
-warn("Error annotating " + file.getAbsoluteFile(),ex);
+err("Error annotating " + file.getAbsoluteFile(),ex);
 annotationOkay=false;
 synchronized (totalErrorAnnotating) {
   totalErrorAnnotating.incValue(1);
@@ -145,6 +145,9 @@ if (totalProcessed.intValue() % 1000 == 0) {
 log("Processed " + totalProcessed + " documents");
 }
 }
+}
+ else {
+warn("Error annotating " + file.getAbsoluteFile() + " not saved to "+ outputFilename);
 }
 endTrack("Processing file " + file.getAbsolutePath() + " ... writing to "+ outputFilename);
 }
