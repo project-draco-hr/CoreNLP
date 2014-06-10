@@ -1,8 +1,15 @@
 {
   final AtomicBoolean haveStarted=new AtomicBoolean(false);
   final ReentrantLock metaInfoLock=new ReentrantLock();
-  final AtomicInteger numPending=new AtomicInteger(0);
-  ArrayList<Runnable> rtn=new ArrayList<Runnable>();
+  int count=0;
+  Iterator<Runnable> iterableRunnables=runnables.iterator();
+  while (iterableRunnables.hasNext()) {
+    count++;
+    iterableRunnables.next();
+  }
+  final int numToRun=count;
+  ArrayList<Runnable> rtn=new ArrayList<Runnable>(numToRun);
+  final AtomicInteger runnablesSeen=new AtomicInteger(0);
   for (  final Runnable runnable : runnables) {
     rtn.add(new Runnable(){
       public void run(){
@@ -24,8 +31,8 @@ catch (          AssertionError e) {
             System.exit(1);
           }
           finishThread();
-          int numStillPending=numPending.decrementAndGet();
-          if (numStillPending <= 0) {
+          int seen=runnablesSeen.getAndIncrement() + 1;
+          if (seen == numToRun) {
             endThreads(title);
           }
         }
@@ -36,7 +43,6 @@ catch (          AssertionError e) {
       }
     }
 );
-    numPending.incrementAndGet();
   }
   return rtn;
 }
