@@ -7,21 +7,7 @@
     List<CoreMap> sentences=annotation.get(CoreAnnotations.SentencesAnnotation.class);
     for (    CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
       List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
-      List<CoreLabel> words=new ArrayList<CoreLabel>();
-      for (      CoreLabel token : tokens) {
-        CoreLabel word=new CoreLabel();
-        word.setWord(token.word());
-        word.setNER(token.ner());
-        word.setTag(token.tag());
-        NumberSequenceClassifier.transferAnnotations(token,word);
-        words.add(word);
-      }
-      doOneSentence(words);
-      for (int i=0; i < words.size(); i++) {
-        String ner=words.get(i).ner();
-        tokens.get(i).setNER(ner);
-        tokens.get(i).set(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class,words.get(i).get(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class));
-      }
+      annotateTokens(tokens);
     }
     if (VERBOSE) {
       timer.stop("done.");
@@ -30,21 +16,7 @@
   }
  else   if (annotation.containsKey(CoreAnnotations.TokensAnnotation.class)) {
     List<CoreLabel> tokens=annotation.get(CoreAnnotations.TokensAnnotation.class);
-    List<CoreLabel> words=new ArrayList<CoreLabel>();
-    for (    CoreLabel token : tokens) {
-      CoreLabel word=new CoreLabel();
-      word.setWord(token.word());
-      word.setNER(token.ner());
-      word.setTag(token.tag());
-      NumberSequenceClassifier.transferAnnotations(token,word);
-      words.add(word);
-    }
-    doOneSentence(words);
-    for (int i=0; i < words.size(); i++) {
-      String ner=words.get(i).ner();
-      tokens.get(i).setNER(ner);
-      tokens.get(i).set(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class,words.get(i).get(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class));
-    }
+    annotateTokens(tokens);
   }
  else {
     throw new RuntimeException("unable to find sentences in: " + annotation);
