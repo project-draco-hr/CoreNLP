@@ -1,0 +1,22 @@
+{
+  String word=(phrase.wordList.size() <= wordIndex) ? PHRASE_END : phrase.wordList.getWord(wordIndex);
+  Object node=tree.get(word);
+  if (node == null) {
+    tree.put(word,phrase);
+  }
+ else   if (node instanceof Phrase) {
+    List list=new ArrayList(2);
+    list.add(phrase);
+    list.add(node);
+    tree.put(word,list);
+  }
+ else   if (node instanceof Map) {
+    addPhrase((Map<String,Object>)node,phrase,wordIndex + 1);
+  }
+ else   if (node instanceof List) {
+    ((List)node).add(phrase);
+  }
+ else {
+    throw new RuntimeException("Unexpected class " + node.getClass() + " while adding word "+ wordIndex+ "("+ word+ ") in phrase "+ phrase.getText());
+  }
+}
