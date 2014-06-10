@@ -1,0 +1,12 @@
+{
+  System.err.println("Model loaded with " + numUnaryMatrices + " unary and "+ numBinaryMatrices+ " binary");
+  for (  TwoDimensionalMap.Entry<String,String,SimpleMatrix> binary : binaryTransform) {
+    out.println("Binary transform " + binary.getFirstKey() + ":"+ binary.getSecondKey());
+    double normf=binary.getValue().normF();
+    out.println("  Total norm " + (normf * normf));
+    normf=binary.getValue().extractMatrix(0,op.lexOptions.numHid,0,op.lexOptions.numHid).normF();
+    out.println("  Left norm (" + binary.getFirstKey() + ") "+ (normf * normf));
+    normf=binary.getValue().extractMatrix(0,op.lexOptions.numHid,op.lexOptions.numHid,op.lexOptions.numHid * 2).normF();
+    out.println("  Right norm (" + binary.getSecondKey() + ") "+ (normf * normf));
+  }
+}

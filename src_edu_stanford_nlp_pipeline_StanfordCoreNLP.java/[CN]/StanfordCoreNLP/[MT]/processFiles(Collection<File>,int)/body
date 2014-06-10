@@ -26,6 +26,11 @@ case SERIALIZED:
 default :
 throw new IllegalArgumentException("Unknown output format " + outputFormat);
 }
+AnnotationSerializer serializer=null;
+String serializerClass=properties.getProperty("serializer");
+if (serializerClass != null) {
+serializer=ReflectionLoading.loadByReflection(serializerClass);
+}
 String extension=properties.getProperty("outputExtension",defaultExtension);
 if (!outputFilename.endsWith(extension)) {
 outputFilename+=extension;
@@ -55,8 +60,18 @@ String encoding=getEncoding();
 String text=IOUtils.slurpFile(file,encoding);
 annotation=new Annotation(text);
 }
-annotate(annotation);
 forceTrack("Processing file " + file.getAbsolutePath() + " ... writing to "+ outputFilename);
+startTrack("Annotating file " + file.getAbsoluteFile());
+try {
+annotate(annotation);
+}
+ catch (Exception ex) {
+warn("Error annotating " + file.getAbsoluteFile(),ex);
+throw new RuntimeException(ex);
+}
+ finally {
+endTrack("Annotating file " + file.getAbsoluteFile());
+}
 switch (outputFormat) {
 case XML:
 {
@@ -74,7 +89,14 @@ break;
 }
 case SERIALIZED:
 {
+if (serializer != null) {
+OutputStream fos=IOUtils.getFileOutputStream(outputFilename);
+serializer.save(annotation,fos);
+fos.close();
+}
+ else {
 IOUtils.writeObjectToFile(annotation,outputFilename);
+}
 break;
 }
 default :

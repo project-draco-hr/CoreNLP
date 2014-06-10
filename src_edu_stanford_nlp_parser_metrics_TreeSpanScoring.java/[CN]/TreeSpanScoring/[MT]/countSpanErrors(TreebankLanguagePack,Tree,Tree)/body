@@ -1,0 +1,28 @@
+{
+  Set<Constituent> goldConstituents=goldTree.constituents(LabeledConstituent.factory());
+  Set<Constituent> guessConstituents=guessTree.constituents(LabeledConstituent.factory());
+  Set<Constituent> simpleGoldConstituents=simplifyConstituents(tlp,goldConstituents);
+  Set<Constituent> simpleGuessConstituents=simplifyConstituents(tlp,guessConstituents);
+  int errors=0;
+  for (  Constituent gold : simpleGoldConstituents) {
+    if (!simpleGuessConstituents.contains(gold)) {
+      ++errors;
+    }
+  }
+  for (  Constituent guess : simpleGuessConstituents) {
+    if (!simpleGoldConstituents.contains(guess)) {
+      ++errors;
+    }
+  }
+  List<TaggedWord> goldWords=goldTree.taggedYield();
+  List<TaggedWord> guessWords=guessTree.taggedYield();
+  int len=Math.min(goldWords.size(),guessWords.size());
+  for (int i=0; i < len; ++i) {
+    String goldTag=tlp.basicCategory(goldWords.get(i).tag());
+    String guessTag=tlp.basicCategory(guessWords.get(i).tag());
+    if (!goldTag.equals(guessTag)) {
+      errors+=2;
+    }
+  }
+  return errors;
+}
