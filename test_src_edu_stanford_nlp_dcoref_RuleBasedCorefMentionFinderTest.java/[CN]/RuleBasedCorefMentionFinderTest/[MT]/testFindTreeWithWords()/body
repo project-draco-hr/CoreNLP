@@ -1,0 +1,9 @@
+{
+  Tree tree=Tree.valueOf("(ROOT (S (NP (PRP$ My) (NN dog)) (ADVP (RB also)) (VP (VBZ likes) (S (VP (VBG eating) (NP (NN sausage))))) (. .)))");
+  List<CoreLabel> words=Sentence.toCoreLabelList("eating","sausage");
+  Tree subtree=RuleBasedCorefMentionFinder.findTreeWithWords(tree,words);
+  assertEquals("(VP (VBG eating) (NP (NN sausage)))",subtree.toString());
+  words=Sentence.toCoreLabelList("Restoration","Angel");
+  subtree=RuleBasedCorefMentionFinder.findTreeWithWords(tree,words);
+  assertEquals(null,subtree);
+}
