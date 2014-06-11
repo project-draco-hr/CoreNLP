@@ -71,9 +71,10 @@
     Counter<String> finalwords=chooseTopWords(phraseScores,terms,phraseScores,ignoreWordsAll,constVars.thresholdWordExtract);
     scoreForAllWordsThisIteration.clear();
     Counters.addInPlace(scoreForAllWordsThisIteration,phraseScores);
-    Redwood.log(Redwood.FORCE,channelNameLogger,"## Selected Words: " + Counters.toSortedString(finalwords,finalwords.size(),"%1$s:%2$.2f","\t"));
-    if (outDir != null && !outDir.isEmpty()) {
-      IOUtils.ensureDir(new File(outDir + "/" + identifier+ "/"+ label));
+    Redwood.log(Redwood.FORCE,"## Selected Words: " + Counters.toSortedString(finalwords,finalwords.size(),"%1$s:%2$.2f","\t"));
+    if (constVars.outDir != null && !constVars.outDir.isEmpty()) {
+      String outputdir=constVars.outDir + "/" + identifier+ "/"+ label;
+      IOUtils.ensureDir(new File(outputdir));
       TwoDimensionalCounter<String,String> reasonForWords=new TwoDimensionalCounter<String,String>();
       for (      String word : finalwords.keySet()) {
         for (        SurfacePattern l : wordsPatExtracted.getCounter(word).keySet()) {
@@ -82,7 +83,8 @@
           }
         }
       }
-      String filename=outDir + "/" + identifier+ "/"+ label+ "/words"+ ".json";
+      Redwood.log(Redwood.FORCE,"Saving output in " + outputdir);
+      String filename=outputdir + "/words.json";
       JsonArrayBuilder obj=Json.createArrayBuilder();
       if (writtenInJustification.containsKey(label) && writtenInJustification.get(label)) {
         JsonReader jsonReader=Json.createReader(new BufferedInputStream(new FileInputStream(filename)));
@@ -113,7 +115,7 @@
     }
     if (constVars.justify) {
       for (      String word : finalwords.keySet()) {
-        Redwood.log(Redwood.DBG,channelNameLogger,word + "\t" + Counters.toSortedString(wordsPatExtracted.getCounter(word),wordsPatExtracted.getCounter(word).size(),"%1$s:%2$f","\n"));
+        Redwood.log(Redwood.DBG,word + "\t" + Counters.toSortedString(wordsPatExtracted.getCounter(word),wordsPatExtracted.getCounter(word).size(),"%1$s:%2$f","\n"));
       }
     }
     return finalwords;
@@ -143,7 +145,7 @@
     }
  else     if (words.size() == 1)     bestw=words.iterator().next();
  else     return new ClassicCounter<String>();
-    Redwood.log(Redwood.FORCE,channelNameLogger,"Selected Words: " + bestw);
+    Redwood.log(Redwood.FORCE,"Selected Words: " + bestw);
     return Counters.asCounter(Arrays.asList(bestw));
   }
  else   throw new RuntimeException("wordscoring " + constVars.wordScoring + " not identified");
