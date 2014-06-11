@@ -1,22 +1,12 @@
 {
   double prob=0.0;
   to2D(x,weights);
-  if (weightSquare == null) {
-    weightSquare=new double[weights.length][];
-    for (int i=0; i < weights.length; i++)     weightSquare[i]=new double[weights[i].length];
-  }
-  double w=0;
-  for (int i=0; i < weights.length; i++) {
-    for (int j=0; j < weights[i].length; j++) {
-      w=weights[i][j];
-      weightSquare[i][j]=w * w;
-    }
-  }
+  setWeights(weights);
   clear2D(E);
-  MulticoreWrapper<Triple<Integer,Boolean,double[][]>,Quadruple<Integer,Double,Map<Integer,double[]>,Map<Integer,double[]>>> wrapper=new MulticoreWrapper<Triple<Integer,Boolean,double[][]>,Quadruple<Integer,Double,Map<Integer,double[]>,Map<Integer,double[]>>>(multiThreadGrad,dropoutPriorThreadProcessor);
+  MulticoreWrapper<Pair<Integer,Boolean>,Quadruple<Integer,Double,Map<Integer,double[]>,Map<Integer,double[]>>> wrapper=new MulticoreWrapper<Pair<Integer,Boolean>,Quadruple<Integer,Double,Map<Integer,double[]>,Map<Integer,double[]>>>(multiThreadGrad,dropoutPriorThreadProcessor);
   for (int m=0; m < totalData.length; m++) {
     boolean submitIsUnsup=(m >= unsupDropoutStartIndex);
-    wrapper.put(new Triple<Integer,Boolean,double[][]>(m,submitIsUnsup,weights));
+    wrapper.put(new Pair<Integer,Boolean>(m,submitIsUnsup));
     while (wrapper.peek()) {
       Quadruple<Integer,Double,Map<Integer,double[]>,Map<Integer,double[]>> result=wrapper.poll();
       int docIndex=result.first();
