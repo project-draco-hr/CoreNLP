@@ -1,0 +1,84 @@
+{
+  initDurationRules();
+  initDateTimeRules();
+  final SequenceMatchRules.ListExtractRule<String,TimeExpression> stringExtractRule=new SequenceMatchRules.ListExtractRule<String,TimeExpression>();
+  final SequenceMatchRules.ListExtractRule<List<? extends CoreMap>,TimeExpression> tokenSeqExtractRule=new SequenceMatchRules.ListExtractRule<List<? extends CoreMap>,TimeExpression>();
+  for (  TimeExpressionExtractors.DurationRule durationRule : durationRules) {
+    if (durationRule.useTokens()) {
+      SequenceMatchRules.SequencePatternExtractRule<CoreMap,TimeExpression> r=new SequenceMatchRules.SequencePatternExtractRule<CoreMap,TimeExpression>(durationRule.tokenPattern,new TimeExpressionExtractors.SequenceMatchExtractor(durationRule,false,durationRule.exprGroup));
+      tokenSeqExtractRule.addRules(r);
+    }
+ else {
+      SequenceMatchRules.StringPatternExtractRule<TimeExpression> r=new SequenceMatchRules.StringPatternExtractRule<TimeExpression>(env,durationRule.stringPattern.pattern(),new TimeExpressionExtractors.StringMatchExtractor(durationRule,false,durationRule.exprGroup),true);
+      stringExtractRule.addRules(r);
+    }
+  }
+  stringExtractRule.addRules(dateTimeStringRules);
+  tokenSeqExtractRule.addRules(dateTimeTokenSeqRules);
+  timeExtractionRule=new SequenceMatchRules.ExtractRule<CoreMap,TimeExpression>(){
+    public boolean extract(    CoreMap in,    List<TimeExpression> out){
+      List<CoreMap> tokens=in.get(CoreAnnotations.NumerizedTokensAnnotation.class);
+      boolean tsex=(tokens != null) && tokenSeqExtractRule.extract(tokens,out);
+      String text=in.get(CoreAnnotations.TextAnnotation.class);
+      boolean strex=(text != null) && stringExtractRule.extract(text,out);
+      return tsex || strex;
+    }
+  }
+;
+  TimeExpressionExtractors.TimePatternExtractor adjTimeExtractor=new TimeExpressionExtractors.GenericTimePatternExtractor(TokenSequencePattern.compile(env," /the/? ( ( [ { temporal::EXISTS } ] ) /,|of|in/? ( [ { temporal::IS_TIMEX_DATE } | { temporal::IS_TIMEX_TIME } ] ) | " + " ( [ { temporal::IS_TIMEX_DATE } ] ) /at/  ( [ { temporal::IS_TIMEX_TIME } ] ) | " + " ( [ { temporal::IS_TIMEX_TIME } | { temporal::IS_TIMEX_DURATION } ] ) /on/  ( [ { temporal::IS_TIMEX_DATE } ] ) | "+ " ( [ { temporal::IS_TIMEX_DATE } | { temporal::IS_TIMEX_TIME } ] ) (/'s/ | /'/ /s/) ( [ { temporal::EXISTS } ] ) )"),new TimeExpressionExtractors.TemporalComposeFunc(new TimeExpressionExtractors.TemporalOpConstFunc(SUTime.TemporalOp.INTERSECT),new TimeExpressionExtractors.TemporalGetTEFunc(1,0),new TimeExpressionExtractors.TemporalGetTEFunc(1,-1)));
+  TimeExpressionExtractors.TimePatternExtractor dateTodayExtractor=new TimeExpressionExtractors.GenericTimePatternExtractor(TokenSequencePattern.compile(env," ( [ { temporal::IS_TIMEX_DATE } | { temporal::IS_TIMEX_TIME } ] )  (/today|tonight/)"),new TimeExpressionExtractors.TemporalGetTEFunc(0,0));
+  TimeExpressionExtractors.TimePatternExtractor relTimeExtractor=new TimeExpressionExtractors.GenericTimePatternExtractor(TokenSequencePattern.compile(env," ( [ { temporal::IS_TIMEX_DURATION } ] )  (/before|from|since|after/ | /prior/ /to/) ( [ ({ temporal::IS_TIMEX_TIME }  |  { temporal::IS_TIMEX_DATE }) ] )"),new TimeExpressionExtractors.TemporalComposeFunc(new TimeExpressionExtractors.TemporalOpConstFunc(SUTime.TemporalOp.OFFSET),new TimeExpressionExtractors.TemporalGetTEFunc(0,-1),new TimeExpressionExtractors.TemporalComposeObjFunc(new TimeExpressionExtractors.TemporalOpConstFunc(SUTime.TemporalOp.MULTIPLY),new TimeExpressionExtractors.TemporalGetTEFunc(0,0),new Function<MatchResult,Integer>(){
+    public Integer apply(    MatchResult in){
+      String rel=in.group(2).toLowerCase();
+      if ("before".equals(rel) || "prior to".equals(rel)) {
+        return -1;
+      }
+ else {
+        return 1;
+      }
+    }
+  }
+)));
+  TimeExpressionExtractors.TimePatternExtractor relDurationExtractor=new TimeExpressionExtractors.GenericTimePatternExtractor(TokenSequencePattern.compile(env," ( [ { temporal::IS_TIMEX_DURATION } ] )  (/earlier|later|ago|hence/ | /from/ /now/) "),new TimeExpressionExtractors.TemporalComposeFunc(new TimeExpressionExtractors.TemporalOpConstFunc(SUTime.TemporalOp.OFFSET),new TimeExpressionExtractors.TemporalConstFunc(SUTime.TIME_REF),new TimeExpressionExtractors.TemporalComposeObjFunc(new TimeExpressionExtractors.TemporalOpConstFunc(SUTime.TemporalOp.MULTIPLY),new TimeExpressionExtractors.TemporalGetTEFunc(0,0),new Function<MatchResult,Integer>(){
+    public Integer apply(    MatchResult in){
+      String rel=in.group(2).toLowerCase();
+      if ("earlier".equals(rel) || "ago".equals(rel)) {
+        return -1;
+      }
+ else {
+        return 1;
+      }
+    }
+  }
+)));
+  TimeExpressionExtractors.TimePatternExtractor relTimeExtractor2=new TimeExpressionExtractors.GenericTimePatternExtractor(TokenSequencePattern.compile(env," ( [ { temporal::EXISTS } & !{ temporal::IS_TIMEX_DURATION } ] )  (/earlier|later|late|ago|hence/ | /from/ /now/) "),new TimeExpressionExtractors.TemporalGetTEFunc(0,0));
+  TimeExpressionExtractors.TimePatternExtractor relTimeExtractor3=new TimeExpressionExtractors.GenericTimePatternExtractor(TokenSequencePattern.compile(env," ( /this|about|nearly|early|later|earlier|late/ | " + " /more/ /than/ | /up/ /to/ | /less/ /than/ ) ( [ { temporal::EXISTS } ] ) "),new TimeExpressionExtractors.TemporalGetTEFunc(0,-1));
+  TimeExpressionExtractors.TimePatternExtractor setTimeExtractor=new TimeExpressionExtractors.GenericTimePatternExtractor(TokenSequencePattern.compile(env," ( $FREQ_MOD ) ( [ { temporal::EXISTS } & !{ temporal::IS_TIMEX_SET } ] ) "),new Function<MatchResult,SUTime.Temporal>(){
+    public SUTime.Temporal apply(    MatchResult in){
+      Function<MatchResult,SUTime.Temporal> tFunc=new TimeExpressionExtractors.TemporalGetTEFunc(0,-1);
+      SUTime.Temporal t=tFunc.apply(in);
+      return makeSet(t,in.group(1));
+    }
+  }
+);
+  TimeExpressionExtractors.TimePatternExtractor rangeTimeExtractor=new TimeExpressionExtractors.GenericTimePatternExtractor(TokenSequencePattern.compile(env," /from/? ( [ { temporal::IS_TIMEX_TIME } | { temporal::IS_TIMEX_DATE } ] ) /to|-/ ( [ { temporal::IS_TIMEX_TIME } | { temporal::IS_TIMEX_DATE } ] ) "),new Function<MatchResult,SUTime.Temporal>(){
+    public SUTime.Temporal apply(    MatchResult in){
+      Function<MatchResult,SUTime.Temporal> t1Func=new TimeExpressionExtractors.TemporalGetTEFunc(1,0);
+      Function<MatchResult,SUTime.Temporal> t2Func=new TimeExpressionExtractors.TemporalGetTEFunc(2,0);
+      SUTime.Temporal t1=t1Func.apply(in);
+      SUTime.Temporal t2=t2Func.apply(in);
+      return new SUTime.Range((SUTime.Time)t1,(SUTime.Time)t2);
+    }
+  }
+);
+  SequenceMatchRules.ListExtractRule<List<? extends CoreMap>,TimeExpression> compositeRules=new SequenceMatchRules.ListExtractRule<List<? extends CoreMap>,TimeExpression>(TimeExpressionExtractors.getSequencePatternExtractRule(relTimeExtractor.tokenPattern,relTimeExtractor),TimeExpressionExtractors.getSequencePatternExtractRule(adjTimeExtractor.tokenPattern,adjTimeExtractor),TimeExpressionExtractors.getSequencePatternExtractRule(dateTodayExtractor.tokenPattern,dateTodayExtractor),TimeExpressionExtractors.getSequencePatternExtractRule(relDurationExtractor.tokenPattern,relDurationExtractor),TimeExpressionExtractors.getSequencePatternExtractRule(relTimeExtractor2.tokenPattern,relTimeExtractor2),TimeExpressionExtractors.getSequencePatternExtractRule(relTimeExtractor3.tokenPattern,relTimeExtractor3),TimeExpressionExtractors.getSequencePatternExtractRule(setTimeExtractor.tokenPattern,setTimeExtractor));
+  if (options.markTimeRanges) {
+    TimeExpressionExtractors.SequenceMatchExtractor extractor=new TimeExpressionExtractors.SequenceMatchExtractor(rangeTimeExtractor,true,0);
+    SequenceMatchRules.SequencePatternExtractRule<CoreMap,TimeExpression> r=new SequenceMatchRules.SequencePatternExtractRule<CoreMap,TimeExpression>(rangeTimeExtractor.tokenPattern,extractor);
+    compositeRules.addRules(r);
+  }
+  compositeTimeExtractionRule=compositeRules;
+  filterRules=new ArrayList<Filter<TimeExpression>>();
+  filterRules.add(new TimeExpressionTokenSeqFilter(TokenSequencePattern.compile(env,"[ { word:/fall|spring|second|march|may/ } & !{ tag:/NN.*/ } ]"),true));
+  filterRules.add(new TimeExpressionTokenSeqFilter(TokenSequencePattern.compile(env,"/good/ /morning|evening|day|afternoon|night/"),true));
+}
