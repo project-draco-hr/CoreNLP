@@ -1,0 +1,40 @@
+{
+  Timing timing=new Timing();
+  long maxTrainTimeMillis=model.op.trainOptions.maxTrainTimeSeconds * 1000;
+  long nextDebugCycle=model.op.trainOptions.debugOutputSeconds * 1000;
+  int debugCycle=0;
+  double bestAccuracy=0.0;
+  double[] sumGradSquare=new double[model.totalParamSize()];
+  Arrays.fill(sumGradSquare,1.0);
+  int numBatches=trainingTrees.size() / model.op.trainOptions.batchSize + 1;
+  System.err.println("Training on " + trainingTrees.size() + " trees in "+ numBatches+ " batches");
+  System.err.println("Times through each training batch: " + model.op.trainOptions.iterations);
+  for (int iter=0; iter < model.op.trainOptions.iterations; ++iter) {
+    List<Tree> shuffledSentences=Generics.newArrayList(trainingTrees);
+    Collections.shuffle(shuffledSentences,model.rand);
+    for (int batch=0; batch < numBatches; ++batch) {
+      System.err.println("======================================");
+      System.err.println("Iteration " + iter + " batch "+ batch);
+      int startTree=batch * model.op.trainOptions.batchSize;
+      int endTree=(batch + 1) * model.op.trainOptions.batchSize;
+      if (endTree + model.op.trainOptions.batchSize > shuffledSentences.size()) {
+        endTree=shuffledSentences.size();
+      }
+      executeOneTrainingBatch(model,shuffledSentences.subList(startTree,endTree),sumGradSquare);
+      long totalElapsed=timing.report();
+      System.err.println("Finished iteration " + iter + " batch "+ batch+ "; total training time "+ totalElapsed+ " ms");
+      if (maxTrainTimeMillis > 0 && totalElapsed > maxTrainTimeMillis) {
+        break;
+      }
+      if (nextDebugCycle > 0 && totalElapsed > nextDebugCycle) {
+        ++debugCycle;
+        nextDebugCycle=timing.report() + model.op.trainOptions.debugOutputSeconds * 1000;
+      }
+    }
+    long totalElapsed=timing.report();
+    if (maxTrainTimeMillis > 0 && totalElapsed > maxTrainTimeMillis) {
+      System.err.println("Max training time exceeded, exiting");
+      break;
+    }
+  }
+}
