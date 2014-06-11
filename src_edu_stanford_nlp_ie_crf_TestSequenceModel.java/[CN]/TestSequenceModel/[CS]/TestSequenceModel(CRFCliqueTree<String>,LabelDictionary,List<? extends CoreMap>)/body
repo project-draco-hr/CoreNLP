@@ -12,17 +12,7 @@
     for (int i=0; i < allowedTagsAtPosition.length; ++i) {
       CoreMap token=document.get(i);
       String observation=token.get(CoreAnnotations.TextAnnotation.class);
-      if (labelDictionary.isConstrained(observation)) {
-        Set<Integer> allowedLabels=labelDictionary.getConstrainedSet(observation);
-        allowedTagsAtPosition[i]=new int[allowedLabels.size()];
-        int j=0;
-        for (        int labelIdx : allowedLabels) {
-          allowedTagsAtPosition[i][j++]=labelIdx;
-        }
-      }
- else {
-        allowedTagsAtPosition[i]=allTags;
-      }
+      allowedTagsAtPosition[i]=labelDictionary.isConstrained(observation) ? labelDictionary.getConstrainedSet(observation) : allTags;
     }
   }
 }
