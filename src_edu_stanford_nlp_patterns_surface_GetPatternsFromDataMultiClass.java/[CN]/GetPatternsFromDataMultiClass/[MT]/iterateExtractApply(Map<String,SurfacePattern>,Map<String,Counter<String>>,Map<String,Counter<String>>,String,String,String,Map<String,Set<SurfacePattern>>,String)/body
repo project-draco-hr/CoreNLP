@@ -1,0 +1,17 @@
+{
+  Redwood.log(Redwood.FORCE,"Iterating " + numIterationsForPatterns + " times.");
+  for (int i=0; i < numIterationsForPatterns; i++) {
+    Redwood.log(Redwood.FORCE,channelNameLogger,"\n\n################################ Iteration " + (i + 1) + " ##############################");
+    for (    String label : constVars.getLabelDictionary().keySet()) {
+      Redwood.log(Redwood.FORCE,channelNameLogger,"\n###Learning for label " + label + " ######");
+      String wordsout=wordsOutputFile == null ? null : wordsOutputFile + "_" + label;
+      String sentout=sentsOutFile == null ? null : sentsOutFile + "_" + label;
+      String patout=patternsOutFile == null ? null : patternsOutFile + "_" + label;
+      iterateExtractApply4Label(label,p0 != null ? p0.get(label) : null,p0Set != null ? p0Set.get(label) : null,externalWordWeights != null ? externalWordWeights.get(label) : null,wordsout,sentout,patout,ignorePatterns != null ? ignorePatterns.get(label) : null,feedbackfile,1);
+    }
+  }
+  System.out.println("\n\nAll words learned:");
+  for (  Entry<String,Counter<String>> en : this.learnedWords.entrySet()) {
+    System.out.println(en.getKey() + ":\t\t" + en.getValue().keySet()+ "\n\n");
+  }
+}

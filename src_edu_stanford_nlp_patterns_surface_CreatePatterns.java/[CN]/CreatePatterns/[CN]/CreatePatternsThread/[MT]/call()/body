@@ -1,0 +1,31 @@
+{
+  Map<String,Map<Integer,Triple<Set<SurfacePattern>,Set<SurfacePattern>,Set<SurfacePattern>>>> patternsForTokens=new HashMap<String,Map<Integer,Triple<Set<SurfacePattern>,Set<SurfacePattern>,Set<SurfacePattern>>>>();
+  for (  String id : sentIds) {
+    List<CoreLabel> sent=sents.get(id);
+    Map<Integer,Triple<Set<SurfacePattern>,Set<SurfacePattern>,Set<SurfacePattern>>> p=new HashMap<Integer,Triple<Set<SurfacePattern>,Set<SurfacePattern>,Set<SurfacePattern>>>();
+    for (int i=0; i < sent.size(); i++) {
+      p.put(i,new Triple<Set<SurfacePattern>,Set<SurfacePattern>,Set<SurfacePattern>>(new HashSet<SurfacePattern>(),new HashSet<SurfacePattern>(),new HashSet<SurfacePattern>()));
+      CoreLabel token=sent.get(i);
+      if (doNotUse(token.word(),constVars.stopWords)) {
+        continue;
+      }
+      boolean use=false;
+      String tag=token.tag();
+      if (allowedTagsInitials == null || allowedTagsInitials.get(0).equals("*"))       use=true;
+ else {
+        for (        String s : allowedTagsInitials) {
+          if (tag.startsWith(s)) {
+            use=true;
+            break;
+          }
+        }
+      }
+      if (use) {
+        Triple<Set<SurfacePattern>,Set<SurfacePattern>,Set<SurfacePattern>> pat=getContext(label,sent,i);
+        p.put(i,pat);
+      }
+    }
+    patternsForTokens.put(id,p);
+  }
+  return patternsForTokens;
+}
