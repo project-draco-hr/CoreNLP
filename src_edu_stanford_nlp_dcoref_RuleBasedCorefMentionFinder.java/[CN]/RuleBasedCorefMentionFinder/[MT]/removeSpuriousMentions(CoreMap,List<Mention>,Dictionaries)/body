@@ -7,7 +7,7 @@
     String headNE=m.headWord.get(CoreAnnotations.NamedEntityTagAnnotation.class);
     if (isPleonastic(m,tree))     remove.add(m);
     if (dict.nonWords.contains(m.headString))     remove.add(m);
-    if (dict.quantifiers.contains(m.originalSpan.get(0).get(CoreAnnotations.TextAnnotation.class).toLowerCase()))     remove.add(m);
+    if (m.originalSpan.size() > 0 && dict.quantifiers.contains(m.originalSpan.get(0).get(CoreAnnotations.TextAnnotation.class).toLowerCase()))     remove.add(m);
     if (partitiveRule(m,sent,dict))     remove.add(m);
     if (headPOS.equals("NN") && !dict.temporals.contains(m.headString) && (m.originalSpan.size() == 1 || m.originalSpan.get(0).get(CoreAnnotations.PartOfSpeechAnnotation.class).equals("JJ"))) {
       remove.add(m);
