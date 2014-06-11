@@ -7,13 +7,14 @@ case TEXT:
       return annotation;
     }
 case TREES:
-{
-    List<Tree> trees=SentimentUtils.readTreesWithGoldLabels(filename);
-    if (filterUnknown) {
-      trees=SentimentUtils.filterUnknownRoots(trees);
-    }
+  try {
+    StringBuilder result=new StringBuilder();
+    FileInputStream fin=new FileInputStream(filename);
+    InputStreamReader isr=new InputStreamReader(fin,"utf-8");
+    PennTreeReader reader=new PennTreeReader(isr);
     List<CoreMap> sentences=Generics.newArrayList();
-    for (    Tree tree : trees) {
+    Tree tree;
+    while ((tree=reader.readTree()) != null) {
       CoreMap sentence=new Annotation(Sentence.listToString(tree.yield()));
       sentence.set(TreeCoreAnnotations.BinarizedTreeAnnotation.class,tree);
       sentences.add(sentence);
@@ -21,6 +22,9 @@ case TREES:
     Annotation annotation=new Annotation("");
     annotation.set(CoreAnnotations.SentencesAnnotation.class,sentences);
     return annotation;
+  }
+ catch (  IOException e) {
+    throw new RuntimeIOException(e);
   }
 default :
 throw new IllegalArgumentException("Unknown format " + inputFormat);
