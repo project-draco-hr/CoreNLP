@@ -24,15 +24,15 @@
   double bestScore=0.0;
   int bestIteration=0;
   PriorityQueue<ScoredObject<ShiftReduceParser>> bestModels=null;
-  if (op.averagedModels > 0) {
-    bestModels=new PriorityQueue<ScoredObject<ShiftReduceParser>>(op.averagedModels + 1,ScoredComparator.ASCENDING_COMPARATOR);
+  if (op.trainOptions().averagedModels > 0) {
+    bestModels=new PriorityQueue<ScoredObject<ShiftReduceParser>>(op.trainOptions().averagedModels + 1,ScoredComparator.ASCENDING_COMPARATOR);
   }
   List<Integer> indices=Generics.newArrayList();
   for (int i=0; i < binarizedTrees.size(); ++i) {
     indices.add(i);
   }
   Oracle oracle=null;
-  if (op.trainingMethod == ShiftReduceOptions.TrainingMethod.ORACLE) {
+  if (op.trainOptions().trainingMethod == ShiftReduceTrainOptions.TrainingMethod.ORACLE) {
     oracle=new Oracle(binarizedTrees,op.compoundUnaries);
   }
   List<Update> updates=Generics.newArrayList();
@@ -87,7 +87,7 @@
       }
       if (bestModels != null) {
         bestModels.add(new ScoredObject<ShiftReduceParser>(this.deepCopy(),labelF1));
-        if (bestModels.size() > op.averagedModels) {
+        if (bestModels.size() > op.trainOptions().averagedModels) {
           bestModels.poll();
         }
       }
@@ -106,7 +106,7 @@
     wrapper.join();
   }
   if (bestModels != null) {
-    if (op.cvAveragedModels && devTreebank != null) {
+    if (op.trainOptions().cvAveragedModels && devTreebank != null) {
       List<ScoredObject<ShiftReduceParser>> models=Generics.newArrayList();
       while (bestModels.size() > 0) {
         models.add(bestModels.poll());

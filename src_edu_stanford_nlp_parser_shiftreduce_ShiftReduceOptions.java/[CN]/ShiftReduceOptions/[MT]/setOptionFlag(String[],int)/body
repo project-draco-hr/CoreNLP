@@ -4,7 +4,11 @@
     return j;
   }
   if (args[i].equalsIgnoreCase("-beamSize")) {
-    beamSize=Integer.valueOf(args[i + 1]);
+    testOptions().beamSize=Integer.valueOf(args[i + 1]);
+    i+=2;
+  }
+ else   if (args[i].equalsIgnoreCase("-trainBeamSize")) {
+    trainOptions().beamSize=Integer.valueOf(args[i + 1]);
     i+=2;
   }
  else   if (args[i].equalsIgnoreCase("-compoundUnaries")) {
@@ -20,27 +24,27 @@
     i+=2;
   }
  else   if (args[i].equalsIgnoreCase("-averagedModels")) {
-    averagedModels=Integer.valueOf(args[i + 1]);
+    trainOptions().averagedModels=Integer.valueOf(args[i + 1]);
     i+=2;
   }
  else   if (args[i].equalsIgnoreCase("-cvAveragedModels")) {
-    cvAveragedModels=true;
+    trainOptions().cvAveragedModels=true;
     i++;
   }
  else   if (args[i].equalsIgnoreCase("-noCVAveragedModels")) {
-    cvAveragedModels=false;
+    trainOptions().cvAveragedModels=false;
     i++;
   }
+ else   if (args[i].equalsIgnoreCase("-trainingMethod")) {
+    trainOptions().trainingMethod=ShiftReduceTrainOptions.TrainingMethod.valueOf(args[i + 1].toUpperCase());
+    i+=2;
+  }
  else   if (args[i].equalsIgnoreCase("-recordBinarized")) {
-    recordBinarized=args[i + 1];
+    testOptions().recordBinarized=args[i + 1];
     i+=2;
   }
  else   if (args[i].equalsIgnoreCase("-recordDebinarized")) {
-    recordDebinarized=args[i + 1];
-    i+=2;
-  }
- else   if (args[i].equalsIgnoreCase("-trainingMethod")) {
-    trainingMethod=TrainingMethod.valueOf(args[i + 1].toUpperCase());
+    testOptions().recordDebinarized=args[i + 1];
     i+=2;
   }
   return i;
