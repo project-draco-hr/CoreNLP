@@ -1,0 +1,26 @@
+{
+  String lastLabel=ContinuationSymbol;
+  String firstLabel=BeginSymbol;
+  if (applyRewriteRules) {
+    String rawToken=tokenLabel.word();
+    String tag=tokenLabel.tag();
+    MorphoFeatureSpecification featureSpec=new ArabicMorphoFeatureSpecification();
+    featureSpec.activate(MorphoFeatureType.NGEN);
+    featureSpec.activate(MorphoFeatureType.NNUM);
+    MorphoFeatures features=featureSpec.strToFeatures(tag);
+    if (features.getValue(MorphoFeatureType.NGEN).equals("F") && features.getValue(MorphoFeatureType.NNUM).equals("SG") && rawToken.endsWith("??-")) {
+      lastLabel=RewriteTahSymbol;
+    }
+    if (lastToken.equals("??") && rawToken.startsWith("-??")) {
+      firstLabel=RewriteTareefSymbol;
+    }
+  }
+  String firstChar=String.valueOf(token.charAt(0));
+  iobList.add(createDatum(firstChar,firstLabel,charIndex++));
+  final int numChars=token.length();
+  for (int j=1; j < numChars; ++j) {
+    String thisChar=String.valueOf(token.charAt(j));
+    String charLabel=(j == numChars - 1) ? lastLabel : ContinuationSymbol;
+    iobList.add(createDatum(thisChar,charLabel,charIndex++));
+  }
+}
