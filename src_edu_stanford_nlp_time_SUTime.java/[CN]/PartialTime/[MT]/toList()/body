@@ -13,10 +13,14 @@
         return null;
       }
     }
-    while (candidate.get(DateTimeFieldType.monthOfYear()) == base.get(DateTimeFieldType.monthOfYear())) {
-      list.add(new PartialTime(this,candidate));
-      pt=JodaTimeUtils.setField(pt,DateTimeFieldType.dayOfMonth(),pt.get(DateTimeFieldType.dayOfMonth()) + 7);
-      candidate=JodaTimeUtils.resolveDowToDay(base,pt);
+    try {
+      while (candidate.get(DateTimeFieldType.monthOfYear()) == base.get(DateTimeFieldType.monthOfYear())) {
+        list.add(new PartialTime(this,candidate));
+        pt=JodaTimeUtils.setField(pt,DateTimeFieldType.dayOfMonth(),pt.get(DateTimeFieldType.dayOfMonth()) + 7);
+        candidate=JodaTimeUtils.resolveDowToDay(base,pt);
+      }
+    }
+ catch (    IllegalFieldValueException ex) {
     }
     return list;
   }
