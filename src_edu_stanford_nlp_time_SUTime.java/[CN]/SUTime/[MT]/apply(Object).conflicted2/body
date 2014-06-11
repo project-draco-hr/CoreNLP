@@ -1,13 +1,10 @@
 {
   if (args.length == 2) {
-    if (args[0] instanceof TimeUnit && args[1] instanceof Number) {
-      return apply((TimeUnit)args[0],((Number)args[1]).intValue());
+    if (args[0] instanceof Duration && (args[1] instanceof Integer || args[1] instanceof Long)) {
+      return apply((Duration)args[0],((Number)args[1]).intValue());
     }
- else     if (args[0] instanceof StandardTemporalType && args[1] instanceof Number) {
-      return ((StandardTemporalType)args[0]).createTemporal(((Number)args[1]).intValue());
-    }
- else     if (args[0] instanceof Temporal && args[1] instanceof Number) {
-      return new OrdinalTime((Temporal)args[0],((Number)args[1]).intValue());
+    if (args[0] instanceof PeriodicTemporalSet && (args[1] instanceof Integer || args[1] instanceof Long)) {
+      return apply((PeriodicTemporalSet)args[0],((Number)args[1]).intValue());
     }
   }
   throw new UnsupportedOperationException("apply(Object...) not implemented for TemporalOp " + this);
