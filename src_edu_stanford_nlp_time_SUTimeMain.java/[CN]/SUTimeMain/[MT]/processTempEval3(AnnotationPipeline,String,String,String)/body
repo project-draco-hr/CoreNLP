@@ -1,0 +1,25 @@
+{
+  File inFile=new File(in);
+  if (inFile.isDirectory()) {
+    Pattern teinputPattern=Pattern.compile("\\.(TE3input|tml)$");
+    Iterable<File> files=IOUtils.iterFilesRecursive(inFile,teinputPattern);
+    File outDir=new File(out);
+    outDir.mkdirs();
+    for (    File file : files) {
+      String inputFilename=file.getAbsolutePath();
+      String outputFilename=inputFilename.replace(in,out).replace(".TE3input","");
+      if (!outputFilename.equalsIgnoreCase(inputFilename)) {
+        processTempEval3File(pipeline,inputFilename,outputFilename);
+      }
+ else {
+        System.err.println("ABORTING: Input file and output is the same - " + inputFilename);
+        System.exit(-1);
+      }
+    }
+  }
+ else {
+    processTempEval3File(pipeline,in,out);
+  }
+  if (evalCmd != null) {
+  }
+}
