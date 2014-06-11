@@ -1,0 +1,13 @@
+import sys
+import re
+from optparse import OptionParser
+from utf8utils import uprint, uopen
+from edits import get_edits, SEG_MARKER
+from output_to_tedeval import is_deleted
+FALSE_OPTIONS = FalseOptions()
+NUMBER_BOUNDARY = re.compile('(?<=[^0-9 -])(?=[0-9])|(?<=[0-9])(?=[^0-9 -])')
+if (__name__ == '__main__'):
+    files = parse_args()
+    with uopen(files[0], 'r') as infile:
+        with uopen(files[1], 'r') as tagsfile:
+            convert(infile, tagsfile)
