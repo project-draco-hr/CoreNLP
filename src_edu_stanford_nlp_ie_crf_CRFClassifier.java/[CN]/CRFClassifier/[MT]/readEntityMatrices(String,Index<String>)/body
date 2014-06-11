@@ -4,10 +4,9 @@
   String[] matrixLines=new String[matrixSize];
   String[] subMatrixLines=new String[matrixSize];
   try {
-    BufferedReader br=new BufferedReader(new InputStreamReader(new FileInputStream(new File(fileName))));
-    String line=null;
+    BufferedReader br=IOUtils.readerFromString(fileName);
     int lineCount=0;
-    while ((line=br.readLine()) != null) {
+    for (String line; (line=br.readLine()) != null; ) {
       line=line.trim();
       if (lineCount < matrixSize)       matrixLines[lineCount]=line;
  else       subMatrixLines[lineCount - matrixSize]=line;
@@ -15,8 +14,7 @@
     }
   }
  catch (  Exception ex) {
-    ex.printStackTrace();
-    System.exit(-1);
+    throw new RuntimeIOException(ex);
   }
   double[][] matrix=parseMatrix(matrixLines,tagIndex,matrixSize,true);
   double[][] subMatrix=parseMatrix(subMatrixLines,tagIndex,matrixSize,true);
