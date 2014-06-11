@@ -1,0 +1,17 @@
+{
+  if (tree.isLeaf()) {
+    return 1;
+  }
+  int treeSize=0;
+  for (  Tree child : tree.children()) {
+    treeSize+=countTreeHelper(child,prediction,ngrams);
+  }
+  PriorityQueue<Tree> queue=getPriorityQueue(treeSize,prediction,ngrams);
+  if (!queue.contains(tree)) {
+    queue.add(tree);
+  }
+  if (queue.size() > ngramCount) {
+    queue.poll();
+  }
+  return treeSize;
+}
