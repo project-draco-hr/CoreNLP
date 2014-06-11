@@ -192,10 +192,13 @@
   pool.register(STANFORD_REGEXNER,new AnnotatorFactory(inputProps){
     private static final long serialVersionUID=1L;
     @Override public Annotator create(){
-      return new TokensRegexNERAnnotator("regexner",properties);
+      String mapping=properties.getProperty("regexner.mapping",DefaultPaths.DEFAULT_REGEXNER_RULES);
+      String ignoreCase=properties.getProperty("regexner.ignorecase","false");
+      String validPosPattern=properties.getProperty("regexner.validpospattern",RegexNERSequenceClassifier.DEFAULT_VALID_POS);
+      return new RegexNERAnnotator(mapping,Boolean.valueOf(ignoreCase),validPosPattern);
     }
     @Override public String signature(){
-      return PropertiesUtils.getSignature("regexner",properties,TokensRegexNERAnnotator.SUPPORTED_PROPERTIES);
+      return "regexner.mapping:" + properties.getProperty("regexner.mapping",DefaultPaths.DEFAULT_REGEXNER_RULES) + "regexner.ignorecase:"+ properties.getProperty("regexner.ignorecase","false")+ "regexner.validpospattern:"+ properties.getProperty("regexner.validpospattern",RegexNERSequenceClassifier.DEFAULT_VALID_POS);
     }
   }
 );
