@@ -4,6 +4,7 @@
   String devPath=null;
   boolean runGradientCheck=false;
   boolean runTraining=false;
+  boolean filterNeutral=false;
   String modelPath=null;
   for (int argIndex=0; argIndex < args.length; ) {
     if (args[argIndex].equalsIgnoreCase("-train")) {
@@ -26,6 +27,10 @@
       modelPath=args[argIndex + 1];
       argIndex+=2;
     }
+ else     if (args[argIndex].equalsIgnoreCase("-filterNeutral")) {
+      filterNeutral=true;
+      argIndex++;
+    }
  else {
       int newArgIndex=op.setOption(args,argIndex);
       if (newArgIndex == argIndex) {
@@ -35,7 +40,22 @@
     }
   }
   List<Tree> trainingTrees=SentimentUtils.readTreesWithGoldLabels(trainPath);
+  System.err.println("Read in " + trainingTrees.size() + " training trees");
   List<Tree> devTrees=SentimentUtils.readTreesWithGoldLabels(devPath);
+  System.err.println("Read in " + devTrees.size() + " dev trees");
+  if (filterNeutral) {
+    Filter<Tree> neutralFilter=new Filter<Tree>(){
+      public boolean accept(      Tree tree){
+        int gold=RNNCoreAnnotations.getGoldClass(tree);
+        return gold != 2;
+      }
+    }
+;
+    trainingTrees=CollectionUtils.filterAsList(trainingTrees,neutralFilter);
+    devTrees=CollectionUtils.filterAsList(devTrees,neutralFilter);
+    System.err.println("Filtered training trees: " + trainingTrees.size());
+    System.err.println("Filtered dev trees: " + devTrees.size());
+  }
   System.err.println("Sentiment model options:\n" + op);
   SentimentModel model=new SentimentModel(op,trainingTrees);
   if (runGradientCheck) {
