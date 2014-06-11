@@ -1,0 +1,24 @@
+{
+  lock.readLock().lock();
+  if (!item2Index.containsKey(o) && add) {
+    lock.readLock().unlock();
+    lock.writeLock().lock();
+    try {
+      if (!item2Index.containsKey(o)) {
+        item2Index.put(o,index2Item.size());
+        index2Item.add(o);
+      }
+      lock.readLock().lock();
+    }
+  finally {
+      lock.writeLock().unlock();
+    }
+  }
+  try {
+    Integer id=item2Index.get(o);
+    return id == null ? UNKNOWN_ID : id;
+  }
+  finally {
+    lock.readLock().unlock();
+  }
+}

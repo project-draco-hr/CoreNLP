@@ -3,7 +3,7 @@
     b.append(channelStr);
   }
  else {
-    String channelToString=channel.toString().toLowerCase();
+    String channelToString=channel.toString().toLowerCase(Locale.ENGLISH);
     Color color=Color.NONE;
     Style style=Style.NONE;
     if (this.channelColors != null) {
@@ -12,7 +12,7 @@
         color=candColor;
       }
  else       if (addRandomColors) {
-        color=Color.values()[(Math.abs(channelToString.hashCode()) % (Color.values().length - 3)) + 3];
+        color=Color.values()[SloppyMath.pythonMod(channelToString.hashCode(),(Color.values().length - 3)) + 3];
         if (channelToString.equals(Redwood.ERR.toString().toLowerCase())) {
           color=Color.RED;
         }
