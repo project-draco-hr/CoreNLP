@@ -1,0 +1,26 @@
+{
+  if (labelDictionary != null)   throw new RuntimeException("Dictionary is already locked");
+  if (DEBUG) {
+    System.err.println("Label Dictionary Status:");
+    System.err.printf("# Observations: %d%n",(int)observationCounts.totalCount());
+  }
+  labelDictionary=new HashMap<String,Set<Integer>>();
+  for (  String observation : observationCounts.keySet()) {
+    if (observationCounts.getCount(observation) >= threshold) {
+      Set<Integer> allowedLabelIds=Generics.newHashSet();
+      Set<String> allowedLabels=observedLabels.get(observation);
+      for (      String label : allowedLabels) {
+        allowedLabelIds.add(classIndex.indexOf(label));
+      }
+      labelDictionary.put(observation,allowedLabelIds);
+      if (DEBUG) {
+        System.err.printf("%s : %s%n",observation,allowedLabels.toString());
+      }
+    }
+  }
+  if (DEBUG) {
+    System.err.printf("#constraints: %d%n",labelDictionary.keySet().size());
+  }
+  observationCounts=null;
+  observedLabels=null;
+}
