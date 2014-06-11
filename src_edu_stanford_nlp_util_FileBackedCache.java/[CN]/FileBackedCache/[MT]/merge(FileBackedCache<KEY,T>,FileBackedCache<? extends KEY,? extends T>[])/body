@@ -1,7 +1,7 @@
 {
   startTrack("Merging Caches");
   forceTrack("Reading Constituents");
-  Map<String,Map<KEY,T>> combinedMapping=Generics.newHashMap();
+  Map<String,Map<KEY,T>> combinedMapping=new HashMap<String,Map<KEY,T>>();
   try {
     for (int i=0; i < constituents.length; ++i) {
       FileBackedCache<? extends KEY,? extends T> constituent=constituents[i];
@@ -49,7 +49,7 @@
       boolean exists=toWrite.exists();
       Pair<? extends OutputStream,CloseAction> writer=destination.newOutputStream(toWrite,exists);
       for (      Entry<KEY,T> entry : blockEntry.getValue().entrySet()) {
-        destination.writeNextObject(writer.first,Pair.makePair(entry.getKey(),entry.getValue()));
+        destination.writeNextObject(writer.first,new Pair<KEY,T>(entry.getKey(),entry.getValue()));
       }
       writer.second.apply();
     }
