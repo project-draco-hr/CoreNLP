@@ -1,0 +1,31 @@
+{
+  unit=unit.toLowerCase();
+  if (unit.endsWith(".")) {
+    unit=unit.substring(0,unit.length() - 1);
+  }
+  SUTime.Duration d=abbToTimeUnit.get(unit);
+  if (d != null) {
+    if ("X".equals(val)) {
+      return d.makeInexact();
+    }
+    if (val == null) {
+      return null;
+    }
+    Matcher matcher=Pattern.compile("(\\d+)").matcher(val);
+    if (matcher.find()) {
+      int m=Integer.parseInt(matcher.group());
+      d=d.multiplyBy(m);
+    }
+ else {
+      Number n=null;
+      n=NumberNormalizer.wordToNumber(val);
+      if (n != null) {
+        int m=n.intValue();
+        d=d.multiplyBy(m);
+      }
+ else {
+      }
+    }
+  }
+  return d;
+}
