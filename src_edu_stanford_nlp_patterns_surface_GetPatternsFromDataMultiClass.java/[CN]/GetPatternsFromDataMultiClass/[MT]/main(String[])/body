@@ -23,7 +23,7 @@
         seedWords4Label.add(line);
       }
       seedWords.put(label,seedWords4Label);
-      Redwood.log(ConstantsAndVariables.minimaldebug,"Number of seed words for label " + label + " is "+ seedWords4Label.size());
+      Redwood.log(Redwood.FORCE,"Number of seed words for label " + label + " is "+ seedWords4Label.size());
     }
     Map<String,Class> answerClasses=new HashMap<String,Class>();
     String ansClasses=props.getProperty("answerClasses");
@@ -74,8 +74,7 @@
         boolean splitOnPunct=Boolean.parseBoolean(props.getProperty("splitOnPunct","true"));
         List<File> allFiles=GetPatternsFromDataMultiClass.getAllFiles(evalFileWithGoldLabels);
         int numFile=0;
-        String evalFileFormat=props.getProperty("evalFileFormat");
-        if (evalFileFormat == null || evalFileFormat.equalsIgnoreCase("text") || evalFileFormat.equalsIgnoreCase("txt")) {
+        if (fileFormat == null || fileFormat.equalsIgnoreCase("text") || fileFormat.equalsIgnoreCase("txt")) {
           for (          File f : allFiles) {
             numFile++;
             Redwood.log(Redwood.DBG,"Annotating text in " + f + ". Num file "+ numFile);
@@ -88,8 +87,10 @@
             evalsents.putAll((Map<? extends String,? extends List<CoreLabel>>)IOUtils.readObjectFromFile(f));
           }
         }
-        Redwood.log(Redwood.DBG,"Adding " + evalsents.size() + " eval sents to the training set");
-        sents.putAll(evalsents);
+        if (addEvalSentsToTrain) {
+          Redwood.log(Redwood.DBG,"Adding " + evalsents.size() + " eval sents to the training set");
+          sents.putAll(evalsents);
+        }
       }
     }
     boolean learn=Boolean.parseBoolean(props.getProperty("learn","true"));
@@ -105,7 +106,7 @@
     }
     Execution.fillOptions(g,props);
     if (learn) {
-      Redwood.log(ConstantsAndVariables.minimaldebug,"Total number of training sentences " + Data.sents.size());
+      Redwood.log(Redwood.FORCE,"Total number of training sentences " + Data.sents.size());
       String sentsOutFile=props.getProperty("sentsOutFile");
       String wordsOutputFile=props.getProperty("wordsOutputFile");
       String patternOutFile=props.getProperty("patternOutFile");
@@ -125,7 +126,7 @@
  else               goldWords4Label.put(line,true);
             }
             Pair<Double,Double> pr=g.getPrecisionRecall(label,goldWords4Label);
-            Redwood.log(ConstantsAndVariables.minimaldebug,"\nFor label " + label + ": Number of gold entities is "+ goldWords4Label.size()+ ", Precision is "+ g.df.format(pr.first() * 100)+ ", Recall is "+ g.df.format(pr.second() * 100)+ ", F1 is "+ g.df.format(g.FScore(pr.first(),pr.second(),1.0) * 100)+ "\n\n");
+            Redwood.log(Redwood.FORCE,"For label " + label + ": Number of gold entities is "+ goldWords4Label.size()+ ", Precision is "+ g.df.format(pr.first() * 100)+ ", Recall is "+ g.df.format(pr.second() * 100)+ ", F1 is "+ g.df.format(g.FScore(pr.first(),pr.second(),1.0) * 100));
           }
         }
         if (evalsents.size() > 0) {
