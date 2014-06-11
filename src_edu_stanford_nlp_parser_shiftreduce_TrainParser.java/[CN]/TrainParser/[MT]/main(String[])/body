@@ -124,13 +124,9 @@ catch (    ClassNotFoundException e) {
     System.err.println("Loading test trees from " + testTreebankPath);
     Treebank testTreebank=parser.op.tlpParams.memoryTreebank();
     testTreebank.loadPath(testTreebankPath,testTreebankFilter);
-    for (    Tree tree : testTreebank) {
-      ShiftReduceParserQuery query=new ShiftReduceParserQuery(parser);
-      query.parse(tree);
-      System.err.println("Input tree: " + tree);
-      System.err.println("Debinarized tree: " + query.getBestParse());
-      System.err.println("Parsed binarized tree: " + query.getBestBinarizedParse());
-      System.err.println("Predicted transition sequence: " + query.getBestTransitionSequence());
-    }
+    System.err.println("Loaded " + testTreebank.size() + " trees");
+    parser.op.setOptions("-forceTags");
+    EvaluateTreebank evaluator=new EvaluateTreebank(parser.op,null,parser);
+    evaluator.testOnTreebank(testTreebank);
   }
 }
