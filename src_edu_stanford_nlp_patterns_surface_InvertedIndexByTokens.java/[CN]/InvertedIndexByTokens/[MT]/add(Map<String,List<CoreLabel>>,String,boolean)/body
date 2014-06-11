@@ -4,13 +4,14 @@
       String w=l.word();
       if (indexLemma)       w=l.lemma();
       if (convertToLowercase)       w=w.toLowerCase();
-      Hashtable<String,Set<String>> t=index.get(w);
+      StringwithConsistentHashCode ws=new StringwithConsistentHashCode(w);
+      Hashtable<String,Set<String>> t=index.get(ws);
       if (t == null)       t=new Hashtable<String,Set<String>>();
       Set<String> sentids=t.get(filename);
       if (sentids == null)       sentids=new HashSet<String>();
       sentids.add(sEn.getKey());
       t.put(filename,sentids);
-      index.put(w,t);
+      index.put(ws,t);
     }
   }
 }
