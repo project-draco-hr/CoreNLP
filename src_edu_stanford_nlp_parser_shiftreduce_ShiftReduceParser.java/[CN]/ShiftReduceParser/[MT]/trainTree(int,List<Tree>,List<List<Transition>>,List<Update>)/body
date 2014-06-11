@@ -16,6 +16,9 @@
       numWrong++;
       updates.add(new Update(features,transitionNum,predictedNum,1.0));
     }
+    if (op.trainingErrorHandling == ShiftReduceOptions.TrainingErrorHandling.EARLY_TERMINATION && transitionNum != predictedNum) {
+      break;
+    }
     state=transition.apply(state);
   }
   return Pair.makePair(numCorrect,numWrong);
