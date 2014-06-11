@@ -34,11 +34,18 @@
     tree.percolateHeadAnnotations(binaryHeadFinder);
     binarizedTrees.add(tree);
   }
+  FeatureFactory featureFactory=new BasicFeatureFactory();
   Index<Transition> transitionIndex=new HashIndex<Transition>();
+  Index<String> featureIndex=new HashIndex<String>();
   for (  Tree tree : binarizedTrees) {
     List<Transition> transitions=CreateTransitionSequence.createTransitionSequence(tree);
     transitionIndex.addAll(transitions);
+    State state=initialStateFromTrainingTree(tree);
+    for (    Transition transition : transitions) {
+      Set<String> features=featureFactory.featurize(state);
+      featureIndex.addAll(features);
+      state=transition.apply(state);
+    }
   }
   System.err.println(transitionIndex);
-  Index<String> featureIndex=new HashIndex<String>();
 }
