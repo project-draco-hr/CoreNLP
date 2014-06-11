@@ -29,7 +29,12 @@
     List<Future<Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<String,Integer>>>> list=new ArrayList<Future<Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<String,Integer>>>>();
     for (int i=0; i < constVars.numThreads; i++) {
       Callable<Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<String,Integer>>> task=null;
-      task=new ApplyPatterns(keyset.subList(i * num,Math.min(keyset.size(),(i + 1) * num)),patternsLearnedThisIter,constVars.getCommonEngWords(),alreadyIdentifiedWords,constVars.restrictToMatched,label,constVars.removeStopWordsFromSelectedPhrases,constVars.removePhrasesWithStopWords,constVars);
+      Map<TokenSequencePattern,SurfacePattern> patternsLearnedThisIterConverted=new HashMap<TokenSequencePattern,SurfacePattern>();
+      for (      SurfacePattern p : patternsLearnedThisIter.keySet()) {
+        TokenSequencePattern pat=TokenSequencePattern.compile(constVars.env.get(label),p.toString());
+        patternsLearnedThisIterConverted.put(pat,p);
+      }
+      task=new ApplyPatternsMulti(keyset.subList(i * num,Math.min(keyset.size(),(i + 1) * num)),patternsLearnedThisIterConverted,constVars.getCommonEngWords(),alreadyIdentifiedWords,constVars.restrictToMatched,label,constVars.removeStopWordsFromSelectedPhrases,constVars.removePhrasesWithStopWords,constVars);
       Future<Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<String,Integer>>> submit=executor.submit(task);
       list.add(submit);
     }
