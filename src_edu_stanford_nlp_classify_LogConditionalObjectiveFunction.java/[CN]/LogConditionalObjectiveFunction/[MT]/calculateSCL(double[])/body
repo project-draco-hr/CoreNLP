@@ -9,8 +9,8 @@
     int[] features=data[d];
     Arrays.fill(sums,0.0);
     for (int c=0; c < numClasses; c++) {
-      for (int f=0; f < features.length; f++) {
-        int i=indexOf(features[f],c);
+      for (      int feature : features) {
+        int i=indexOf(feature,c);
         sums[c]+=x[i];
       }
     }
@@ -18,13 +18,13 @@
     int ld=labels[d];
     for (int c=0; c < numClasses; c++) {
       probs[c]=Math.exp(sums[c] - total);
-      for (int f=0; f < features.length; f++) {
-        int i=indexOf(features[f],c);
+      for (      int feature : features) {
+        int i=indexOf(feature,c);
         derivative[i]+=probs[ld] * probs[c];
       }
     }
-    for (int f=0; f < features.length; f++) {
-      int i=indexOf(features[f],labels[d]);
+    for (    int feature : features) {
+      int i=indexOf(feature,labels[d]);
       derivative[i]-=probs[ld];
     }
     value-=probs[ld];
