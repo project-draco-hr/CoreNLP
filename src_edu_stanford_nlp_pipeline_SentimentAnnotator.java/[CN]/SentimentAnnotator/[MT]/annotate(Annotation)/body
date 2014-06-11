@@ -1,0 +1,15 @@
+{
+  if (annotation.containsKey(CoreAnnotations.SentencesAnnotation.class)) {
+    List<CoreMap> sentences=annotation.get(CoreAnnotations.SentencesAnnotation.class);
+    for (    CoreMap sentence : sentences) {
+      Tree binarized=sentence.get(TreeCoreAnnotations.BinarizedTreeAnnotation.class);
+      Tree collapsedUnary=transformer.transformTree(binarized);
+      SentimentCostAndGradient scorer=new SentimentCostAndGradient(model,null);
+      scorer.forwardPropagateTree(collapsedUnary);
+      sentence.set(SentimentCoreAnnotations.AnnotatedTree.class,collapsedUnary);
+    }
+  }
+ else {
+    throw new RuntimeException("unable to find sentences in: " + annotation);
+  }
+}
