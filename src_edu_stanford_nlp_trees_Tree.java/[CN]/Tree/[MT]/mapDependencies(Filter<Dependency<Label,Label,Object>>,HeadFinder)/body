@@ -1,6 +1,6 @@
 {
   if (hf == null) {
-    throw new IllegalArgumentException("mapDependencies: need HeadFinder");
+    throw new IllegalArgumentException("mapDependencies: need headfinder");
   }
   Set<Dependency<Label,Label,Object>> deps=Generics.newHashSet();
   for (  Tree node : this) {
@@ -9,12 +9,12 @@
     }
     Tree hwt=node.headTerminal(hf);
     if (hwt == null) {
-      throw new IllegalStateException("mapDependencies: HeadFinder failed!");
+      throw new IllegalStateException("mapDependencies: headFinder failed!");
     }
     for (    Tree child : node.children()) {
       Tree dwt=child.headTerminal(hf);
       if (dwt == null) {
-        throw new IllegalStateException("mapDependencies: HeadFinder failed!");
+        throw new IllegalStateException("mapDependencies: headFinder failed!");
       }
       if (dwt != hwt) {
         Dependency<Label,Label,Object> p=new UnnamedDependency(hwt.label(),dwt.label());
