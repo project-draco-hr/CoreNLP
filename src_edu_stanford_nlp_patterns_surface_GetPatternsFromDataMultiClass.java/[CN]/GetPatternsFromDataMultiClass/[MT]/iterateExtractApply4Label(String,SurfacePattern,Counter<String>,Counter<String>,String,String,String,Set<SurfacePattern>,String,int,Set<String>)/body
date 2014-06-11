@@ -1,0 +1,44 @@
+{
+  if (!learnedPatterns.containsKey(label)) {
+    learnedPatterns.put(label,new ClassicCounter<SurfacePattern>());
+  }
+  if (!learnedWords.containsKey(label)) {
+    learnedWords.put(label,new ClassicCounter<String>());
+  }
+  CollectionValuedMap<String,Integer> tokensMatchedPatterns=new CollectionValuedMap<String,Integer>();
+  BufferedWriter wordsOutput=null;
+  if (wordsOutputFile != null)   wordsOutput=new BufferedWriter(new FileWriter(wordsOutputFile));
+  TwoDimensionalCounter<String,SurfacePattern> terms=new TwoDimensionalCounter<String,SurfacePattern>();
+  Counter<String> identifiedWords=new ClassicCounter<String>();
+  Counter<SurfacePattern> patterns=new ClassicCounter<SurfacePattern>();
+  for (int i=0; i < numIter; i++) {
+    patterns.addAll(getPatterns(label,learnedPatterns.get(label).keySet(),p0,p0Set,ignorePatterns,dictOddsWordWeights));
+    learnedPatterns.get(label).addAll(patterns);
+    if (sentsOutFile != null)     sentsOutFile=sentsOutFile + "_" + i+ "iter.ser";
+    Counter<String> scoreForAllWordsThisIteration=new ClassicCounter<String>();
+    identifiedWords.addAll(scorePhrases.learnNewPhrases(label,Data.sents,this.patternsForEachToken,patterns,learnedPatterns.get(label),dictOddsWordWeights,tokensMatchedPatterns,scoreForAllWordsThisIteration,terms,wordsPatExtracted.get(label),currentPatternWeights.get(label),this.patternsandWords.get(label),this.allPatternsandWords.get(label),identifier,ignoreWords));
+    if (usePatternResultAsLabel)     if (constVars.getLabelDictionary().containsKey(label))     labelWords(label,Data.sents,identifiedWords.keySet(),patterns.keySet(),sentsOutFile,tokensMatchedPatterns);
+ else     throw new RuntimeException("why is the answer label null?");
+    learnedWords.get(label).addAll(identifiedWords);
+    if (wordsOutput != null) {
+      if (i > 0)       wordsOutput.write(",");
+      wordsOutput.write("'#Iteration " + (i + 1) + ",");
+      wordsOutput.write(Counters.toSortedString(identifiedWords,identifiedWords.size(),"'%1$s'",","));
+      wordsOutput.flush();
+    }
+    if (patterns.size() == 0 && identifiedWords.size() == 0) {
+      if (learnedWords.get(label).size() >= maxExtractNumWords) {
+        System.out.println("Ending because no new words identified and total words learned till now >= max words " + maxExtractNumWords);
+        break;
+      }
+      if (tuneThresholdKeepRunning) {
+        thresholdSelectPattern=0.8 * thresholdSelectPattern;
+        System.out.println("\n\nTuning thresholds to keep running. New Pattern threshold is  " + thresholdSelectPattern);
+      }
+ else       break;
+    }
+  }
+  if (wordsOutput != null)   wordsOutput.close();
+  if (patternsOutFile != null)   this.writePatternsToFile(learnedPatterns.get(label),patternsOutFile);
+  return new Pair(patterns,identifiedWords);
+}
