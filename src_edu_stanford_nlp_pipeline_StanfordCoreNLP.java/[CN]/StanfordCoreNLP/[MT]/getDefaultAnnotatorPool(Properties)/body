@@ -255,7 +255,7 @@
     @Override public String signature(){
       String type=properties.getProperty("parse.type","stanford");
       if (type.equalsIgnoreCase("stanford")) {
-        return ParserAnnotator.signature("parser",properties);
+        return ParserAnnotator.signature("parse",properties);
       }
  else       if (type.equalsIgnoreCase("charniak")) {
         return "parse.model:" + properties.getProperty("parse.model","") + "parse.executable:"+ properties.getProperty("parse.executable","")+ "parse.maxlen:"+ properties.getProperty("parse.maxlen","");
@@ -276,9 +276,7 @@
     }
   }
 );
-  for (  Object propertyKey : inputProps.stringPropertyNames()) {
-    if (!(propertyKey instanceof String))     continue;
-    String property=(String)propertyKey;
+  for (  String property : inputProps.stringPropertyNames()) {
     if (property.startsWith(CUSTOM_ANNOTATOR_PREFIX)) {
       final String customName=property.substring(CUSTOM_ANNOTATOR_PREFIX.length());
       final String customClassName=inputProps.getProperty(property);
