@@ -13,8 +13,8 @@
     learnedPatterns.get(label).addAll(patterns);
     if (sentsOutFile != null)     sentsOutFile=sentsOutFile + "_" + i+ "iter.ser";
     Counter<String> scoreForAllWordsThisIteration=new ClassicCounter<String>();
-    identifiedWords.addAll(scorePhrases.learnNewPhrases(label,Data.sents,this.patternsForEachToken,patterns,learnedPatterns.get(label),matchedTokensByPat,scoreForAllWordsThisIteration,terms,wordsPatExtracted.get(label),currentPatternWeights.get(label),this.patternsandWords.get(label),this.allPatternsandWords.get(label),constVars.identifier,ignoreWords));
-    if (constVars.usePatternResultAsLabel)     if (constVars.getLabelDictionary().containsKey(label))     labelWords(label,Data.sents,identifiedWords.keySet(),patterns.keySet(),sentsOutFile,matchedTokensByPat);
+    identifiedWords.addAll(scorePhrases.learnNewPhrases(label,Data.sents,this.patternsForEachToken,patterns,learnedPatterns.get(label),matchedTokensByPat,scoreForAllWordsThisIteration,terms,wordsPatExtracted.get(label),currentPatternWeights.get(label),this.patternsandWords.get(label),this.allPatternsandWords.get(label),identifier,ignoreWords));
+    if (usePatternResultAsLabel)     if (constVars.getLabelDictionary().containsKey(label))     labelWords(label,Data.sents,identifiedWords.keySet(),patterns.keySet(),sentsOutFile,matchedTokensByPat);
  else     throw new RuntimeException("why is the answer label null?");
     learnedWords.get(label).addAll(identifiedWords);
     if (wordsOutput != null) {
@@ -22,13 +22,13 @@
       wordsOutput.flush();
     }
     if (patterns.size() == 0 && identifiedWords.size() == 0) {
-      if (learnedWords.get(label).size() >= constVars.maxExtractNumWords) {
-        System.out.println("Ending because no new words identified and total words learned till now >= max words " + constVars.maxExtractNumWords);
+      if (learnedWords.get(label).size() >= maxExtractNumWords) {
+        System.out.println("Ending because no new words identified and total words learned till now >= max words " + maxExtractNumWords);
         break;
       }
-      if (constVars.tuneThresholdKeepRunning) {
-        constVars.thresholdSelectPattern=0.8 * constVars.thresholdSelectPattern;
-        System.out.println("\n\nTuning thresholds to keep running. New Pattern threshold is  " + constVars.thresholdSelectPattern);
+      if (tuneThresholdKeepRunning) {
+        thresholdSelectPattern=0.8 * thresholdSelectPattern;
+        System.out.println("\n\nTuning thresholds to keep running. New Pattern threshold is  " + thresholdSelectPattern);
       }
  else       break;
     }
