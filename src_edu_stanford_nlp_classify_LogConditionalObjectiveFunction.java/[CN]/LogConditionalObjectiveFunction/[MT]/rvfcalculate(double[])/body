@@ -7,11 +7,11 @@
       final double[] vals=values[d];
       for (int f=0; f < features.length; f++) {
         int i=indexOf(features[f],labels[d]);
-        if (dataWeights == null) {
+        if (dataweights == null) {
           derivativeNumerator[i]-=vals[f];
         }
  else {
-          derivativeNumerator[i]-=dataWeights[d] * vals[f];
+          derivativeNumerator[i]-=dataweights[d] * vals[f];
         }
       }
     }
@@ -34,8 +34,8 @@
     double total=ArrayMath.logSum(sums);
     for (int c=0; c < numClasses; c++) {
       probs[c]=Math.exp(sums[c] - total);
-      if (dataWeights != null) {
-        probs[c]*=dataWeights[d];
+      if (dataweights != null) {
+        probs[c]*=dataweights[d];
       }
     }
     for (int f=0; f < features.length; f++) {
@@ -47,8 +47,8 @@
       }
     }
     double dV=sums[labels[d]] - total;
-    if (dataWeights != null) {
-      dV*=dataWeights[d];
+    if (dataweights != null) {
+      dV*=dataweights[d];
     }
     value-=dV;
   }
