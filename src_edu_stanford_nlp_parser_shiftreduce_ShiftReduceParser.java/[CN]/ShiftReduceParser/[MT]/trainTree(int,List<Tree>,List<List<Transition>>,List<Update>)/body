@@ -1,0 +1,25 @@
+{
+  int numCorrect=0;
+  int numWrong=0;
+  Tree tree=binarizedTrees.get(index);
+  List<Transition> transitions=transitionLists.get(index);
+  State state=ShiftReduceParser.initialStateFromGoldTagTree(tree);
+  for (  Transition transition : transitions) {
+    int transitionNum=transitionIndex.indexOf(transition);
+    List<String> features=featureFactory.featurize(state);
+    int predictedNum=findHighestScoringTransition(state,features,false).object();
+    Transition predicted=transitionIndex.get(predictedNum);
+    if (transitionNum == predictedNum) {
+      numCorrect++;
+    }
+ else {
+      numWrong++;
+      updates.add(new Update(features,transitionNum,predictedNum,1.0));
+    }
+    if (op.trainingErrorHandling == ShiftReduceOptions.TrainingErrorHandling.EARLY_TERMINATION && transitionNum != predictedNum) {
+      break;
+    }
+    state=transition.apply(state);
+  }
+  return Pair.makePair(numCorrect,numWrong);
+}
