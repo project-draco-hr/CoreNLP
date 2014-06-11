@@ -1,0 +1,32 @@
+{
+  Triple<int[][][],int[],double[][][]> p=documentToDataAndLabels(document);
+  int[][][] data=p.first();
+  CliquePotentialFunction cliquePotentialFunc=new LinearCliquePotentialFunction(weights);
+  CRFCliqueTree cliqueTree=CRFCliqueTree.getCalibratedCliqueTree(data,labelIndices,classIndex.size(),classIndex,flags.backgroundSymbol,cliquePotentialFunc,null);
+  for (int i=0; i < cliqueTree.length(); i++) {
+    CoreLabel wi=document.get(i);
+    String highestLabel="";
+    double highestProb=0.0;
+    String line="";
+    for (Iterator<String> iter=classIndex.iterator(); iter.hasNext(); ) {
+      String label=iter.next();
+      int index=classIndex.indexOf(label);
+      double prob=cliqueTree.prob(i,index);
+      if (highestProb < prob) {
+        highestProb=prob;
+        highestLabel=label.toString();
+      }
+      line+=label.toString() + "=" + prob;
+      if (iter.hasNext()) {
+        line+="\t";
+      }
+ else {
+        line+="\n";
+      }
+    }
+    int errorType=highestLabel.equals(wi.get(CoreAnnotations.GoldAnswerAnnotation.class)) ? 0 : 1;
+    errorType=highestLabel.equals("O") && errorType != 0 ? 2 : errorType;
+    errorType=wi.get(CoreAnnotations.GoldAnswerAnnotation.class).equals("O") && errorType != 0 ? 3 : errorType;
+    System.out.println(highestProb + "\t" + errorType+ "\t"+ (wi.get(CoreAnnotations.GoldAnswerAnnotation.class).equals("O") ? 1 : 0));
+  }
+}
