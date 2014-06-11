@@ -2,11 +2,10 @@
   if (t == null || t == TIME_UNKNOWN)   return this;
   if (base == null)   return t;
   if (t instanceof PartialTime) {
-    Pair<PartialTime,PartialTime> compatible=getCompatible(this,(PartialTime)t);
-    if (compatible == null) {
+    if (!isCompatible((PartialTime)t)) {
       return null;
     }
-    Partial p=JodaTimeUtils.combine(compatible.first.base,compatible.second.base);
+    Partial p=JodaTimeUtils.combine(this.base,((PartialTime)t).base);
     if (t instanceof CompositePartialTime) {
       CompositePartialTime cpt=(CompositePartialTime)t;
       Time ntod=Time.intersect(tod,cpt.tod);
