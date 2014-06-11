@@ -11,15 +11,18 @@
   TreeGraphNode rootDep=null;
   Collection<TypedDependency> roots=getRoots(basicDep);
   if (roots.size() == 0) {
-    List<Tree> leaves=Trees.leaves(root());
-    if (leaves.size() > 0) {
-      Tree leaf=leaves.get(0);
-      if (!(leaf instanceof TreeGraphNode)) {
-        throw new AssertionError("Leaves should be TreeGraphNodes");
-      }
-      rootDep=(TreeGraphNode)leaf;
-      if (rootDep.headWordNode() != null) {
-        rootDep=rootDep.headWordNode();
+    rootDep=root().headWordNode();
+    if (rootDep == null) {
+      List<Tree> leaves=Trees.leaves(root());
+      if (leaves.size() > 0) {
+        Tree leaf=leaves.get(0);
+        if (!(leaf instanceof TreeGraphNode)) {
+          throw new AssertionError("Leaves should be TreeGraphNodes");
+        }
+        rootDep=(TreeGraphNode)leaf;
+        if (rootDep.headWordNode() != null) {
+          rootDep=rootDep.headWordNode();
+        }
       }
     }
   }
