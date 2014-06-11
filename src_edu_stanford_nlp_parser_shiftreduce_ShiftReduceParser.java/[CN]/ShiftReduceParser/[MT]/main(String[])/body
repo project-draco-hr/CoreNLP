@@ -8,6 +8,7 @@
   FileFilter devTreebankFilter=null;
   String serializedPath=null;
   String tlppClass=null;
+  String continueTraining=null;
   for (int argIndex=0; argIndex < args.length; ) {
     if (args[argIndex].equalsIgnoreCase("-trainTreebank")) {
       Pair<String,FileFilter> treebankDescription=ArgUtils.getTreebankDescription(args,argIndex,"-trainTreebank");
@@ -35,6 +36,10 @@
       tlppClass=args[argIndex] + 1;
       argIndex+=2;
     }
+ else     if (args[argIndex].equalsIgnoreCase("-continueTraining")) {
+      continueTraining=args[argIndex + 1];
+      argIndex+=2;
+    }
  else {
       remainingArgs.add(args[argIndex]);
       ++argIndex;
@@ -47,21 +52,18 @@
   }
   ShiftReduceParser parser=null;
   if (trainTreebankPath != null) {
-    ShiftReduceOptions op=buildTrainingOptions(tlppClass,newArgs);
-    parser=new ShiftReduceParser(op);
+    if (continueTraining != null) {
+      parser=ShiftReduceParser.loadModel(continueTraining,"-forceTags");
+    }
+ else {
+      ShiftReduceOptions op=buildTrainingOptions(tlppClass,newArgs);
+      parser=new ShiftReduceParser(op);
+    }
     parser.trainAndSave(trainTreebankPath,trainTreebankFilter,devTreebankPath,devTreebankFilter,serializedPath);
   }
   if (serializedPath != null && parser == null) {
-    try {
-      parser=IOUtils.readObjectFromFile(serializedPath);
-      parser.op.setOptions("-forceTags");
-    }
- catch (    IOException e) {
-      throw new RuntimeIOException(e);
-    }
-catch (    ClassNotFoundException e) {
-      throw new RuntimeIOException(e);
-    }
+    parser=ShiftReduceParser.loadModel(serializedPath);
+    parser.op.setOptions("-forceTags");
     parser.op.setOptions(newArgs);
   }
   if (testTreebankPath != null) {
