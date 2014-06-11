@@ -122,21 +122,12 @@ catch (    InstantiationException e) {
       notchoose=true;
       continue;
     }
-    SurfacePattern removeIdentifiedPattern=null, removeChosenPat=null;
+    SurfacePattern removeChosenPat=null;
     if (!notchoose) {
       if (alreadyIdentifiedPatterns != null) {
         for (        SurfacePattern p : alreadyIdentifiedPatterns) {
-          if (pat.getNextContextStr().contains(p.getNextContextStr()) && pat.getPrevContextStr().contains(p.getPrevContextStr())) {
+          if (SurfacePattern.subsumes(pat,p)) {
             Redwood.log(ConstantsAndVariables.extremedebug,"Removing pattern " + pat + " because it is contained in or contains the already chosen pattern "+ p);
-            notchoose=true;
-            break;
-          }
-          int rest=pat.equalContext(p);
-          if (rest == Integer.MAX_VALUE)           continue;
-          if (rest < 0) {
-            removeIdentifiedPattern=p;
-          }
- else {
             notchoose=true;
             break;
           }
@@ -145,7 +136,7 @@ catch (    InstantiationException e) {
     }
     if (!notchoose) {
       for (      SurfacePattern p : chosenPat.keySet()) {
-        if (pat.getNextContextStr().contains(p.getNextContextStr()) && pat.getPrevContextStr().contains(p.getPrevContextStr())) {
+        if (SurfacePattern.subsumes(pat,p)) {
           Redwood.log(ConstantsAndVariables.extremedebug,"Removing pattern " + pat + " because it is contained in or contains the already chosen pattern "+ p);
           notchoose=true;
           break;
@@ -157,25 +148,15 @@ catch (    InstantiationException e) {
           num--;
         }
  else {
-          removeIdentifiedPattern=null;
           notchoose=true;
           break;
         }
       }
     }
     if (notchoose)     continue;
-    if (removeChosenPat != null) {
-      Redwood.log(ConstantsAndVariables.extremedebug,"Removing already chosen pattern in this iteration " + removeChosenPat + " in favor of "+ pat);
-      chosenPat.remove(removeChosenPat);
-    }
-    if (removeIdentifiedPattern != null) {
-      Redwood.log(ConstantsAndVariables.extremedebug,"Removing already identified pattern " + removeChosenPat + " in favor of "+ pat);
-      removePatterns.add(removeIdentifiedPattern);
-    }
     chosenPat.setCount(pat,currentPatternWeights4Label.getCount(pat));
     num++;
   }
-  this.removeLearnedPatterns(label,removePatterns);
   Redwood.log(Redwood.DBG,"final size of the patterns is " + chosenPat.size());
   Redwood.log(ConstantsAndVariables.minimaldebug,"## Selected Patterns ## \n");
   List<Pair<SurfacePattern,Double>> chosenPatSorted=Counters.toSortedListWithCounts(chosenPat);
