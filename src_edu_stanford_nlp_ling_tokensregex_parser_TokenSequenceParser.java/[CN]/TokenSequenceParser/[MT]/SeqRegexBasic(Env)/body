@@ -5,11 +5,13 @@
   SequencePattern.PatternExpr expr;
   Object value=null;
   label_10:   while (true) {
-switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
+switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
 case 31:
-      node=BracketedNode(env);
-    expr=new SequencePattern.NodePatternExpr(node);
-  break;
+{
+        node=BracketedNode(env);
+        expr=new SequencePattern.NodePatternExpr(node);
+        break;
+      }
 case IDENTIFIER:
 case NONNEGINT:
 case INT:
@@ -18,40 +20,52 @@ case REAL:
 case REGEX:
 case STR:
 case STRSIMPLE:
-node=CoreMapWordPattern(env);
-expr=new SequencePattern.NodePatternExpr(node);
-break;
+{
+      node=CoreMapWordPattern(env);
+      expr=new SequencePattern.NodePatternExpr(node);
+      break;
+    }
 case 50:
-multiNode=MultiNodePattern(env);
-expr=new SequencePattern.MultiNodePatternExpr(multiNode);
-break;
+{
+    multiNode=MultiNodePattern(env);
+    expr=new SequencePattern.MultiNodePatternExpr(multiNode);
+    break;
+  }
 case 25:
-expr=SeqRegexGroup(env);
-break;
+{
+  expr=SeqRegexGroup(env);
+  break;
+}
 case REGEXVAR:
+{
 expr=SeqVar(env);
 break;
+}
 case BACKREF:
+{
 expr=SeqBackRef(env);
 break;
+}
 default :
 jj_la1[23]=jj_gen;
 jj_consume_token(-1);
 throw new ParseException();
 }
-switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
+switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
 case 22:
 case 40:
 case 41:
 case 42:
+{
 expr=SeqRegexRepeatTimes(env,expr);
 break;
+}
 default :
 jj_la1[24]=jj_gen;
 ;
 }
 children.add(expr);
-switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
+switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
 case IDENTIFIER:
 case REGEXVAR:
 case BACKREF:
@@ -65,18 +79,22 @@ case STRSIMPLE:
 case 25:
 case 31:
 case 50:
+{
 ;
 break;
+}
 default :
 jj_la1[25]=jj_gen;
 break label_10;
 }
 }
-switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
+switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
 case 23:
+{
 jj_consume_token(23);
 value=Expression(env);
 break;
+}
 default :
 jj_la1[26]=jj_gen;
 ;
@@ -88,7 +106,7 @@ if (value != null) {
 expr=new SequencePattern.ValuePatternExpr(expr,value);
 }
 {
-if (true) return expr;
+if ("" != null) return expr;
 }
 throw new Error("Missing return statement in function");
 }
