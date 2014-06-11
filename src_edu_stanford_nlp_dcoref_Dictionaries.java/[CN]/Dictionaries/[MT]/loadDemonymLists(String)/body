@@ -2,15 +2,16 @@
   BufferedReader reader=null;
   try {
     reader=IOUtils.readerFromString(demonymFile);
-    while (reader.ready()) {
-      String[] line=reader.readLine().split("\t");
-      if (line[0].startsWith("#"))       continue;
+    for (String line; (line=reader.readLine()) != null; ) {
+      line=line.toLowerCase(Locale.ENGLISH);
+      String[] tokens=line.split("\t");
+      if (tokens[0].startsWith("#"))       continue;
       Set<String> set=Generics.newHashSet();
-      for (      String s : line) {
-        set.add(s.toLowerCase());
-        demonymSet.add(s.toLowerCase());
+      for (      String s : tokens) {
+        set.add(s);
+        demonymSet.add(s);
       }
-      demonyms.put(line[0].toLowerCase(),set);
+      demonyms.put(tokens[0],set);
     }
     adjectiveNation.addAll(demonymSet);
     adjectiveNation.removeAll(demonyms.keySet());
