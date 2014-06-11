@@ -16,7 +16,7 @@
     }
     boolean nonStopW=false;
     for (    String w : relwordsThisPat) {
-      if (!stopWords.contains(w)) {
+      if (!stopWords.contains(w) && !specialWords.contains(w)) {
         relevantWords.add(w);
         nonStopW=true;
       }
@@ -24,5 +24,6 @@
     if (!nonStopW)     relevantWords.addAll(relwordsThisPat);
   }
   System.out.println("searching for " + relevantWords);
+  relevantWords.removeAll(specialWords);
   return getFileSentIds(relevantWords);
 }
