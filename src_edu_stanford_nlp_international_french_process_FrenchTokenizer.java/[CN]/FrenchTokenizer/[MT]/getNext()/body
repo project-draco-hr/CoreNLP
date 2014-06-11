@@ -2,9 +2,15 @@
   try {
     T nextToken=null;
     do {
-      nextToken=(T)lexer.next();
+      nextToken=(splitCompounds && compoundBuffer.size() > 0) ? (T)compoundBuffer.remove(0) : (T)lexer.next();
     }
  while (nextToken != null && nextToken.word().length() == 0);
+    if (splitCompounds && nextToken instanceof CoreLabel) {
+      CoreLabel cl=(CoreLabel)nextToken;
+      if (cl.containsKey(ParentAnnotation.class) && cl.get(ParentAnnotation.class).equals(FrenchLexer.COMPOUND_ANNOTATION)) {
+        nextToken=(T)processCompound(cl);
+      }
+    }
     return nextToken;
   }
  catch (  IOException e) {
