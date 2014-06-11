@@ -10,8 +10,9 @@
   if (wordsOutputFile != null)   wordsOutput=new BufferedWriter(new FileWriter(wordsOutputFile));
   TwoDimensionalCounter<String,SurfacePattern> terms=new TwoDimensionalCounter<String,SurfacePattern>();
   Counter<String> identifiedWords=new ClassicCounter<String>();
+  Counter<SurfacePattern> patterns=new ClassicCounter<SurfacePattern>();
   for (int i=0; i < numIter; i++) {
-    Counter<SurfacePattern> patterns=getPatterns(label,learnedPatterns.get(label).keySet(),p0,p0Set,ignorePatterns,dictOddsWordWeights);
+    patterns.addAll(getPatterns(label,learnedPatterns.get(label).keySet(),p0,p0Set,ignorePatterns,dictOddsWordWeights));
     learnedPatterns.get(label).addAll(patterns);
     if (sentsOutFile != null)     sentsOutFile=sentsOutFile + "_" + i+ "iter.ser";
     Counter<String> scoreForAllWordsThisIteration=new ClassicCounter<String>();
@@ -39,5 +40,5 @@
   }
   if (wordsOutput != null)   wordsOutput.close();
   if (patternsOutFile != null)   this.writePatternsToFile(learnedPatterns.get(label),patternsOutFile);
-  return identifiedWords;
+  return new Pair(patterns,identifiedWords);
 }
