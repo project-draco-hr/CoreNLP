@@ -147,29 +147,53 @@ jjtc000=false;
 }
  else {
 switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
-case ADJOIN:
+case CREATE_SUBTREE:
 {
-    operator=jj_consume_token(ADJOIN);
-    tree=TreeRoot(true);
-    child1=NodeSelection();
+    operator=jj_consume_token(CREATE_SUBTREE);
+    newLabel=jj_consume_token(IDENTIFIER);
+    nodeSelections=NodeSelectionList(new ArrayList<TsurgeonPattern>());
     jjtree.closeNodeScope(jjtn000,true);
     jjtc000=false;
+    if (nodeSelections.size() == 1) {
 {
-      if ("" != null)       return new AdjoinNode(tree,child1);
+        if ("" != null)         return new CreateSubtreeNode(nodeSelections.get(0),newLabel.image);
+      }
+    }
+ else     if (nodeSelections.size() == 2) {
+{
+        if ("" != null)         return new CreateSubtreeNode(nodeSelections.get(0),nodeSelections.get(1),newLabel.image);
+      }
+    }
+ else {
+{
+        if (true)         throw new ParseException("Illegal number of nodes given to createSubtree (" + nodeSelections.size() + ")");
+      }
     }
     break;
   }
-case ADJOIN_TO_HEAD:
+case ADJOIN:
 {
-  operator=jj_consume_token(ADJOIN_TO_HEAD);
+  operator=jj_consume_token(ADJOIN);
   tree=TreeRoot(true);
   child1=NodeSelection();
   jjtree.closeNodeScope(jjtn000,true);
   jjtc000=false;
 {
-    if ("" != null)     return new AdjoinToHeadNode(tree,child1);
+    if ("" != null)     return new AdjoinNode(tree,child1);
   }
   break;
+}
+case ADJOIN_TO_HEAD:
+{
+operator=jj_consume_token(ADJOIN_TO_HEAD);
+tree=TreeRoot(true);
+child1=NodeSelection();
+jjtree.closeNodeScope(jjtn000,true);
+jjtc000=false;
+{
+  if ("" != null)   return new AdjoinToHeadNode(tree,child1);
+}
+break;
 }
 case ADJOIN_TO_FOOT:
 {
@@ -179,7 +203,7 @@ child1=NodeSelection();
 jjtree.closeNodeScope(jjtn000,true);
 jjtc000=false;
 {
-  if ("" != null)   return new AdjoinToFootNode(tree,child1);
+if ("" != null) return new AdjoinToFootNode(tree,child1);
 }
 break;
 }
