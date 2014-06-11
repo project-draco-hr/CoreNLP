@@ -2,16 +2,14 @@
   Iterator<String> termIter=Counters.toPriorityQueue(newdt).iterator();
   Counter<String> finalwords=new ClassicCounter<String>();
   while (termIter.hasNext()) {
-    if (finalwords.size() >= constVars.numWordsToAdd) {
-      break;
-    }
+    if (finalwords.size() >= constVars.numWordsToAdd)     break;
     String w=termIter.next();
     if (newdt.getCount(w) < thresholdWordExtract) {
       break;
     }
     assert(newdt.getCount(w) != Double.POSITIVE_INFINITY);
     if (useThresholdNumPatternsForTheseWords.containsKey(w) && numNonRedundantPatterns(terms,w) < constVars.thresholdNumPatternsApplied) {
-      Redwood.log("extremePatDebug","Not adding " + w + " because the number of non redundant patterns are below threshold: "+ terms.getCounter(w).keySet());
+      Redwood.log("extremePatDebug",channelNameLogger,"Not adding " + w + " because the number of non redundant patterns are below threshold: "+ terms.getCounter(w).keySet());
       continue;
     }
     String matchedFuzzy=null;
@@ -21,18 +19,9 @@
       finalwords.setCount(w,newdt.getCount(w));
     }
  else {
-      Redwood.log("extremePatDebug","not adding " + w + " because it matched "+ matchedFuzzy+ " in common English word");
+      Redwood.log("extremePatDebug",channelNameLogger,"not adding " + w + " because it matched "+ matchedFuzzy+ " in common English word");
       ignoreWords.add(w);
     }
   }
-  String nextFive="";
-  int n=0;
-  while (termIter.hasNext()) {
-    n++;
-    if (n > 5)     break;
-    String w=termIter.next();
-    nextFive+=";\t" + w + ":"+ newdt.getCount(w);
-  }
-  Redwood.log(Redwood.DBG,"Next five phrases were " + nextFive);
   return finalwords;
 }

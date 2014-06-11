@@ -36,25 +36,20 @@
  else     if (label.equals(BoundarySymbol)) {
       sb.append(" ");
     }
- else     if (label.equals(RewriteTahSymbol)) {
-      if (applyRewrites) {
-        sb.append("??");
+ else     if (label.equals(RewriteSymbol) || label.equals("REWAL") || label.equals("REWTA")) {
+      if (token.equals("??")) {
+        sb.append((applyRewrites ? "??" : "??") + (addSpace ? " " : ""));
+        if (addSuffixMarker)         sb.append(suffixMarker);
+ else         if (addPrefixMarker && !addSpace)         sb.append(prefixMarker);
+      }
+ else       if (token.equals("??")) {
+        sb.append((addPrefixMarker ? prefixMarker : "") + (addSpace ? " " : "") + (applyRewrites ? "????" : "??"));
+      }
+ else       if (token.equals("??") || token.equals("??")) {
+        sb.append((applyRewrites ? "??" : token) + (addSpace ? " " : ""));
       }
  else {
-        sb.append("??");
-      }
-      if (addSpace)       sb.append(" ");
-      if (addSuffixMarker)       sb.append(suffixMarker);
- else       if (addPrefixMarker && !addSpace)       sb.append(prefixMarker);
-    }
- else     if (label.equals(RewriteTareefSymbol)) {
-      if (addPrefixMarker)       sb.append(prefixMarker);
-      if (addSpace)       sb.append(" ");
-      if (applyRewrites) {
-        sb.append("????");
-      }
- else {
-        sb.append("??");
+        sb.append(token);
       }
     }
  else {
