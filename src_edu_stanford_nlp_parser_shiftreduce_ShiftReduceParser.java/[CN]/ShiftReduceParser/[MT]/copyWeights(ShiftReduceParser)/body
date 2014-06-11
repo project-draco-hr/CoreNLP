@@ -1,0 +1,25 @@
+{
+  transitionIndex.clear();
+  for (  Transition transition : other.transitionIndex) {
+    transitionIndex.add(transition);
+  }
+  featureWeights.clear();
+  for (  String feature : other.featureWeights.keySet()) {
+    int count=0;
+    for (    ScoredObject<Integer> weight : other.featureWeights.get(feature)) {
+      if (weight.score() != 0.0) {
+        ++count;
+      }
+    }
+    if (count == 0) {
+      continue;
+    }
+    List<ScoredObject<Integer>> newWeights=Generics.newArrayList(count);
+    for (    ScoredObject<Integer> weight : other.featureWeights.get(feature)) {
+      if (weight.score() != 0.0) {
+        newWeights.add(new ScoredObject<Integer>(weight.object(),weight.score()));
+      }
+    }
+    featureWeights.put(feature,newWeights);
+  }
+}
