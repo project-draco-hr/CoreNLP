@@ -15,6 +15,8 @@
         maxEnd=right.maxEnd;
         left=right.left;
         right=right.right;
+        if (left != null)         left.parent=this;
+        if (right != null)         right.parent=this;
       }
     }
  else     if (rightSize == 0) {
@@ -23,6 +25,8 @@
       maxEnd=left.maxEnd;
       left=left.left;
       right=left.right;
+      if (left != null)       left.parent=this;
+      if (right != null)       right.parent=this;
     }
  else {
       value=left.value;
@@ -31,8 +35,14 @@
       IntervalTree<E,T> origRight=right;
       right=left.right;
       left=left.left;
+      if (left != null)       left.parent=this;
+      if (right != null)       right.parent=this;
       IntervalTree<E,T> rightmost=getRightmostNode();
       rightmost.right=origRight;
+      if (rightmost.right != null) {
+        rightmost.right.parent=rightmost;
+        adjustUpwards(rightmost.right);
+      }
     }
     return true;
   }
