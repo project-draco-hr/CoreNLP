@@ -26,13 +26,13 @@
     tags.read(rf);
     readExtractors(rf);
     dict.setAmbClasses(ambClasses,veryCommonWordThresh,tags);
-    int[] numFA=new int[extractors.size() + extractorsRare.size()];
+    int[] numFA=new int[extractors.getSize() + extractorsRare.getSize()];
     int sizeAssoc=rf.readInt();
     fAssociations=new ArrayList<Map<String,int[]>>();
-    for (int i=0; i < extractors.size() + extractorsRare.size(); ++i) {
+    for (int i=0; i < extractors.getSize() + extractorsRare.getSize(); ++i) {
       fAssociations.add(Generics.<String,int[]>newHashMap());
     }
-    if (VERBOSE)     System.err.printf("Reading %d feature keys...%n",sizeAssoc);
+    if (VERBOSE)     System.err.printf("Reading %d feature keys...\n",sizeAssoc);
     PrintFile pfVP=null;
     if (VERBOSE) {
       pfVP=new PrintFile("pairs.txt");
@@ -54,7 +54,7 @@
       fTagAssociations[tags.getIndex(fK.tag)]=numF;
     }
     if (VERBOSE) {
-      IOUtils.closeIgnoringExceptions(pfVP);
+      pfVP.close();
     }
     if (VERBOSE) {
       for (int k=0; k < numFA.length; k++) {

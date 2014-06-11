@@ -6,9 +6,6 @@
   for (  Mention m : c.getCorefMentions()) {
     CorefMention men=new CorefMention(m,positions.get(m));
     mentions.add(men);
-  }
-  Collections.sort(mentions,new CorefMentionComparator());
-  for (  CorefMention men : mentions) {
     IntPair position=new IntPair(men.sentNum,men.headIndex);
     if (!mentionMap.containsKey(position))     mentionMap.put(position,Generics.<CorefMention>newHashSet());
     mentionMap.get(position).add(men);
@@ -17,4 +14,5 @@
     }
   }
   representative=represents;
+  Collections.sort(mentions,new MentionComparator());
 }

@@ -1,0 +1,17 @@
+{
+  String word;
+  if (o instanceof HasWord) {
+    HasWord h=(HasWord)o;
+    word=h.word();
+  }
+ else   if (o instanceof String) {
+    word=(String)o;
+  }
+ else   if (o instanceof CoreMap) {
+    word=((CoreMap)o).get(CoreAnnotations.TextAnnotation.class);
+  }
+ else {
+    throw new RuntimeException("Expected token to be either Word or String.");
+  }
+  return word;
+}

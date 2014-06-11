@@ -5,14 +5,14 @@
     System.exit(-1);
   }
   final TokenizerFactory<CoreLabel> tf=options.containsKey("ftb") ? FrenchTokenizer.ftbFactory() : FrenchTokenizer.factory();
-  String orthoOptions=options.getProperty("orthoOpts","");
-  tf.setOptions(orthoOptions);
+  for (  String option : options.stringPropertyNames()) {
+    tf.setOptions(option);
+  }
   tf.setOptions("tokenizeNLs");
-  final String encoding=options.getProperty("encoding","UTF-8");
-  final boolean toLower=PropertiesUtils.getBool(options,"lowerCase",false);
   int nLines=0;
   int nTokens=0;
-  final long startTime=System.nanoTime();
+  final String encoding=options.getProperty("encoding","UTF-8");
+  final boolean toLower=PropertiesUtils.getBool(options,"lowerCase",false);
   try {
     Tokenizer<CoreLabel> tokenizer=tf.getTokenizer(new InputStreamReader(System.in,encoding));
     boolean printSpace=false;
@@ -26,8 +26,7 @@
       }
  else {
         if (printSpace)         System.out.print(" ");
-        String outputToken=toLower ? word.toLowerCase(Locale.FRENCH) : word;
-        System.out.print(outputToken);
+        System.out.print(toLower ? word.toLowerCase(Locale.FRENCH) : word);
         printSpace=true;
       }
     }
@@ -35,7 +34,5 @@
  catch (  UnsupportedEncodingException e) {
     e.printStackTrace();
   }
-  long elapsedTime=System.nanoTime() - startTime;
-  double linesPerSec=(double)nLines / (elapsedTime / 1e9);
-  System.err.printf("Done! Tokenized %d lines (%d tokens) at %.2f lines/sec%n",nLines,nTokens,linesPerSec);
+  System.err.printf("Done! Tokenized %d lines (%d tokens)%n",nLines,nTokens);
 }

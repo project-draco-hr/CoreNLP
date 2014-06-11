@@ -72,7 +72,11 @@
   do {
     try {
       sayln();
-      boolean doEval=(its >= 0 && its >= startEvaluateIters && evaluateIters > 0 && its % evaluateIters == 0);
+      boolean doEval=(its > 0 && evaluateIters > 0 && its % evaluateIters == 0);
+      double evalScore=Double.NEGATIVE_INFINITY;
+      if (doEval) {
+        evalScore=doEvaluation(x);
+      }
       its+=1;
       double newValue;
       double[] newPoint=new double[3];
@@ -121,10 +125,6 @@ System.arraycopy(dfunction.derivativeAt(newX),0,newGrad,0,newGrad.length);
 qn.update(newX,x,newGrad,grad,newPoint[a]);
 if (useOWLQN) {
 newGrad=pseudoGradientOWL(newX,newGrad,dfunction);
-}
-double evalScore=Double.NEGATIVE_INFINITY;
-if (doEval) {
-evalScore=doEvaluation(newX);
 }
 rec.add(newValue,newGrad,newX,fevals,evalScore);
 value=newValue;
@@ -182,10 +182,6 @@ success=true;
 break;
 case TERMINATE_AVERAGEIMPROVE:
 System.err.println("QNMinimizer terminated due to average improvement: | newest_val - previous_val | / |newestVal| < TOL ");
-success=true;
-break;
-case TERMINATE_MAXITR:
-System.err.println("QNMinimizer terminated due to reached max iteration " + maxItr);
 success=true;
 break;
 case TERMINATE_EVALIMPROVE:

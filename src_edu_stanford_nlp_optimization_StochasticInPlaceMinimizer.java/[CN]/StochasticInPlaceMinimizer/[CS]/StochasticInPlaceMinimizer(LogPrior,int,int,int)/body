@@ -1,0 +1,23 @@
+{
+  if (LogPrior.LogPriorType.QUADRATIC == prior.getType()) {
+    sigma=prior.getSigma();
+  }
+ else {
+    throw new RuntimeException("Unsupported prior type " + prior.getType());
+  }
+  if (numPasses >= 0) {
+    this.numPasses=numPasses;
+  }
+ else {
+    this.numPasses=DEFAULT_NUM_PASSES;
+    sayln("  StochasticInPlaceMinimizer: numPasses=" + numPasses + ", defaulting to "+ this.numPasses);
+  }
+  this.bSize=batchSize;
+  if (tuningSamples > 0) {
+    this.tuningSamples=tuningSamples;
+  }
+ else {
+    this.tuningSamples=DEFAULT_TUNING_SAMPLES;
+    sayln("  StochasticInPlaceMinimizer: tuneSampleSize=" + tuningSamples + ", defaulting to "+ this.tuningSamples);
+  }
+}

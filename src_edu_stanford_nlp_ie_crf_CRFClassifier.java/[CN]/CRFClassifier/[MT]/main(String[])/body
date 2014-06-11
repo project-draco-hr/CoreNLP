@@ -1,16 +1,15 @@
 {
   StringUtils.printErrInvocationString("CRFClassifier",args);
   Properties props=StringUtils.argsToProperties(args);
-  SeqClassifierFlags flags=new SeqClassifierFlags(props);
-  CRFClassifier<CoreLabel> crf=chooseCRFClassifier(flags);
-  String testFile=flags.testFile;
-  String testFiles=flags.testFiles;
-  String textFile=flags.textFile;
-  String textFiles=flags.textFiles;
-  String loadPath=flags.loadClassifier;
-  String loadTextPath=flags.loadTextClassifier;
-  String serializeTo=flags.serializeTo;
-  String serializeToText=flags.serializeToText;
+  CRFClassifier<CoreLabel> crf=new CRFClassifier<CoreLabel>(props);
+  String testFile=crf.flags.testFile;
+  String testFiles=crf.flags.testFiles;
+  String textFile=crf.flags.textFile;
+  String textFiles=crf.flags.textFiles;
+  String loadPath=crf.flags.loadClassifier;
+  String loadTextPath=crf.flags.loadTextClassifier;
+  String serializeTo=crf.flags.serializeTo;
+  String serializeToText=crf.flags.serializeToText;
   if (crf.flags.useEmbedding && crf.flags.embeddingWords != null && crf.flags.embeddingVectors != null) {
     System.err.println("Reading Embedding Files");
     BufferedReader br=IOUtils.readerFromString(crf.flags.embeddingWords);
@@ -29,9 +28,6 @@
       crf.embeddings.put(wordList.get(count++),vector);
     }
     System.err.println("Found " + count + " matching embeddings of dimension "+ vector.length);
-  }
-  if (crf.flags.loadClassIndexFrom != null) {
-    crf.classIndex=loadClassIndexFromFile(crf.flags.loadClassIndexFrom);
   }
   if (loadPath != null) {
     crf.loadClassifierNoExceptions(loadPath,props);
@@ -58,12 +54,6 @@
   crf.loadTagIndex();
   if (serializeTo != null) {
     crf.serializeClassifier(serializeTo);
-  }
-  if (crf.flags.serializeWeightsTo != null) {
-    crf.serializeWeights(crf.flags.serializeWeightsTo);
-  }
-  if (crf.flags.serializeFeatureIndexTo != null) {
-    crf.serializeFeatureIndex(crf.flags.serializeFeatureIndexTo);
   }
   if (serializeToText != null) {
     crf.serializeTextClassifier(serializeToText);

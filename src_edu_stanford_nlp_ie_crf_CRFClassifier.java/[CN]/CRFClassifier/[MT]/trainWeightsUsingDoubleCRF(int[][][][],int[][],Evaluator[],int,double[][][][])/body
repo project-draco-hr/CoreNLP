@@ -1,0 +1,113 @@
+{
+  CRFLogConditionalObjectiveFunction func=new CRFLogConditionalObjectiveFunction(data,labels,windowSize,classIndex,labelIndices,map,flags.priorType,flags.backgroundSymbol,flags.sigma,featureVals);
+  cliquePotentialFunctionHelper=func;
+  Map<String,Set<Integer>> featureSets=null;
+  if (flags.groupByOutputClass) {
+    featureSets=new HashMap<String,Set<Integer>>();
+    if (flags.groupByFeatureTemplate) {
+      int pIndex=0;
+      for (int fIndex=0; fIndex < map.length; fIndex++) {
+        int cliqueType=map[fIndex];
+        int numCliqueTypeOutputClass=labelIndices.get(map[fIndex]).size();
+        for (int cliqueOutClass=0; cliqueOutClass < numCliqueTypeOutputClass; cliqueOutClass++) {
+          String name="c:" + cliqueType + "-o:"+ cliqueOutClass+ "-g:"+ featureIndexToTemplateIndex.get(fIndex);
+          if (featureSets.containsKey(name)) {
+            featureSets.get(name).add(pIndex);
+          }
+ else {
+            Set<Integer> newSet=new HashSet<Integer>();
+            newSet.add(pIndex);
+            featureSets.put(name,newSet);
+          }
+          pIndex++;
+        }
+      }
+    }
+ else {
+      int pIndex=0;
+      for (      int cliqueType : map) {
+        int numCliqueTypeOutputClass=labelIndices.get(cliqueType).size();
+        for (int cliqueOutClass=0; cliqueOutClass < numCliqueTypeOutputClass; cliqueOutClass++) {
+          String name="c:" + cliqueType + "-o:"+ cliqueOutClass;
+          if (featureSets.containsKey(name)) {
+            featureSets.get(name).add(pIndex);
+          }
+ else {
+            Set<Integer> newSet=new HashSet<Integer>();
+            newSet.add(pIndex);
+            featureSets.put(name,newSet);
+          }
+          pIndex++;
+        }
+      }
+    }
+  }
+ else   if (flags.groupByFeatureTemplate) {
+    featureSets=new HashMap<String,Set<Integer>>();
+    int pIndex=0;
+    for (int fIndex=0; fIndex < map.length; fIndex++) {
+      int cliqueType=map[fIndex];
+      int numCliqueTypeOutputClass=labelIndices.get(map[fIndex]).size();
+      for (int cliqueOutClass=0; cliqueOutClass < numCliqueTypeOutputClass; cliqueOutClass++) {
+        String name="c:" + cliqueType + "-g:"+ featureIndexToTemplateIndex.get(fIndex);
+        if (featureSets.containsKey(name)) {
+          featureSets.get(name).add(pIndex);
+        }
+ else {
+          Set<Integer> newSet=new HashSet<Integer>();
+          newSet.add(pIndex);
+          featureSets.put(name,newSet);
+        }
+        pIndex++;
+      }
+    }
+  }
+  if (featureSets != null) {
+    int[][] fg=new int[featureSets.size()][];
+    System.err.println("After feature grouping, total of " + fg.length + " groups");
+    int count=0;
+    for (    Set<Integer> aSet : featureSets.values()) {
+      fg[count]=new int[aSet.size()];
+      int i=0;
+      for (      Integer val : aSet)       fg[count][i++]=val;
+      count++;
+    }
+    func.setFeatureGrouping(fg);
+  }
+  Minimizer minimizer=getMinimizer(pruneFeatureItr,evaluators);
+  double[] initialWeights;
+  if (flags.initialWeights == null) {
+    initialWeights=func.initial();
+  }
+ else {
+    try {
+      System.err.println("Reading initial weights from file " + flags.initialWeights);
+      DataInputStream dis=new DataInputStream(new BufferedInputStream(new GZIPInputStream(new FileInputStream(flags.initialWeights))));
+      initialWeights=ConvertByteArray.readDoubleArr(dis);
+    }
+ catch (    IOException e) {
+      throw new RuntimeException("Could not read from double initial weight file " + flags.initialWeights);
+    }
+  }
+  System.err.println("numWeights: " + initialWeights.length);
+  if (flags.testObjFunction) {
+    StochasticDiffFunctionTester tester=new StochasticDiffFunctionTester(func);
+    if (tester.testSumOfBatches(initialWeights,1e-4)) {
+      System.err.println("Testing complete... exiting");
+      System.exit(1);
+    }
+ else {
+      System.err.println("Testing failed....exiting");
+      System.exit(1);
+    }
+  }
+  if (flags.checkGradient) {
+    if (func.gradientCheck()) {
+      System.err.println("gradient check passed");
+    }
+ else {
+      throw new RuntimeException("gradient check failed");
+    }
+  }
+  return minimizer.minimize(func,flags.tolerance,initialWeights);
+}

@@ -1,0 +1,13 @@
+{
+  Iterator<Tree> itr=verb.iterator();
+  while (itr.hasNext()) {
+    Tree vpHead=itr.next();
+    List<Tree> scoredYield=vpHead.getLeaves();
+    if (scoredYield.size() != 1) {
+      System.err.printf("Verb of length %d\n",scoredYield.size());
+      continue;
+    }
+    int index=(int)scoredYield.get(0).score();
+    if (!labels.get(index).matches(".*NP_SUBJ.*"))     labels.set(index,verbLabel);
+  }
+}

@@ -4,7 +4,7 @@
     SequenceMatcher<? super IN> matcher=sentenceBoundaryMultiTokenPattern.getMatcher(words);
     while (matcher.find()) {
       List nodes=matcher.groupNodes();
-      if (nodes != null && nodes.size() > 0) {
+      if (nodes != null & nodes.size() > 0) {
         isSentenceBoundary.put(nodes.get(nodes.size() - 1),true);
       }
     }
@@ -14,87 +14,62 @@
   List<IN> lastSentence=null;
   boolean insideRegion=false;
   boolean inWaitForForcedEnd=false;
-  boolean lastTokenWasNewline=false;
   for (  IN o : words) {
-    String word=getString(o);
-    boolean forcedEnd=isForcedEndToken(o);
+    String word=getWord(o);
+    boolean forcedEnd=false;
     boolean inMultiTokenExpr=false;
     boolean discardToken=false;
     if (o instanceof CoreMap) {
       CoreMap cm=(CoreMap)o;
+      Boolean forcedEndValue=cm.get(CoreAnnotations.ForcedSentenceEndAnnotation.class);
       Boolean forcedUntilEndValue=cm.get(CoreAnnotations.ForcedSentenceUntilEndAnnotation.class);
-      if (!forcedEnd) {
-        if (forcedUntilEndValue != null && forcedUntilEndValue)         inWaitForForcedEnd=true;
+      if (forcedEndValue != null)       forcedEnd=forcedEndValue;
+ else       if (forcedUntilEndValue != null && forcedUntilEndValue)       inWaitForForcedEnd=true;
  else {
-          MultiTokenTag mt=cm.get(CoreAnnotations.MentionTokenAnnotation.class);
-          if (mt != null && !mt.isEnd()) {
-            inMultiTokenExpr=true;
-          }
+        MultiTokenTag mt=cm.get(CoreAnnotations.MentionTokenAnnotation.class);
+        if (mt != null && !mt.isEnd()) {
+          inMultiTokenExpr=true;
         }
       }
-    }
-    if (tokenPatternsToDiscard != null) {
-      discardToken=matchesTokenPatternsToDiscard(word);
+      if (tokenPatternsToDiscard != null) {
+        discardToken=matchesTokenPatternsToDiscard(word);
+      }
     }
     if (DEBUG) {
       EncodingPrintWriter.err.println("Word is " + word,"UTF-8");
     }
     if (sentenceRegionBeginPattern != null && !insideRegion) {
-      if (DEBUG) {
-        System.err.println("  outside region; deleted");
-      }
       if (sentenceRegionBeginPattern.matcher(word).matches()) {
         insideRegion=true;
-        if (DEBUG) {
-          System.err.println("  entering region");
-        }
       }
-      lastTokenWasNewline=false;
+      if (DEBUG) {
+        System.err.println("  outside region");
+      }
       continue;
     }
-    if (lastSentence != null && currentSentence.isEmpty() && sentenceBoundaryFollowers.contains(word)) {
+    if (sentenceBoundaryFollowers.contains(word) && lastSentence != null && currentSentence.isEmpty()) {
       if (!discardToken)       lastSentence.add(o);
       if (DEBUG) {
-        System.err.println(discardToken ? "discarded" : "  added to last sentence");
-      }
-      lastTokenWasNewline=false;
-      continue;
-    }
-    boolean newSent=false;
-    String debugText=(discardToken) ? "discarded" : "added to current";
-    if (inWaitForForcedEnd && !forcedEnd) {
-      if (!discardToken)       currentSentence.add(o);
-      if (DEBUG) {
-        System.err.println("  is in wait for forced end; " + debugText);
-      }
-    }
- else     if (inMultiTokenExpr && !forcedEnd) {
-      if (!discardToken)       currentSentence.add(o);
-      if (DEBUG) {
-        System.err.println("  is in multi token expr; " + debugText);
-      }
-    }
- else     if (sentenceBoundaryToDiscard.contains(word)) {
-      if (newlineIsSentenceBreak == NewlineIsSentenceBreak.ALWAYS) {
-        newSent=true;
-      }
- else       if (newlineIsSentenceBreak == NewlineIsSentenceBreak.TWO_CONSECUTIVE) {
-        if (lastTokenWasNewline) {
-          newSent=true;
-        }
-      }
-      lastTokenWasNewline=true;
-      if (DEBUG) {
-        System.err.println("  discarded sentence boundary");
+        System.err.println(discardToken ? "discarded" : "  added to last");
       }
     }
  else {
-      lastTokenWasNewline=false;
-      if (xmlBreakElementsToDiscard != null && matchesXmlBreakElementToDiscard(word)) {
-        newSent=true;
+      boolean newSent=false;
+      String debugText=(discardToken) ? "discarded" : "added to current";
+      if (inWaitForForcedEnd && !forcedEnd) {
+        if (!discardToken)         currentSentence.add(o);
         if (DEBUG) {
-          System.err.println("  is XML break element; discarded");
+          System.err.println("  is in wait for forced end; " + debugText);
         }
+      }
+ else       if (inMultiTokenExpr && !forcedEnd) {
+        if (!discardToken)         currentSentence.add(o);
+        if (DEBUG) {
+          System.err.println("  is in multi token expr; " + debugText);
+        }
+      }
+ else       if (matchesSentenceBoundaryToDiscard(word)) {
+        newSent=true;
       }
  else       if (sentenceRegionEndPattern != null && sentenceRegionEndPattern.matcher(word).matches()) {
         insideRegion=false;
@@ -128,14 +103,14 @@
           System.err.println("  " + debugText);
         }
       }
-    }
-    if (newSent && (!currentSentence.isEmpty() || allowEmptySentences)) {
-      if (DEBUG) {
-        System.err.println("  beginning new sentence");
+      if (newSent && (!currentSentence.isEmpty() || allowEmptySentences())) {
+        if (DEBUG) {
+          System.err.println("  beginning new sentence");
+        }
+        sentences.add(currentSentence);
+        lastSentence=currentSentence;
+        currentSentence=new ArrayList<IN>();
       }
-      sentences.add(currentSentence);
-      lastSentence=currentSentence;
-      currentSentence=new ArrayList<IN>();
     }
   }
   if (!currentSentence.isEmpty()) {

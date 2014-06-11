@@ -16,6 +16,19 @@
   if (flags.useEmbedding) {
     embeddings=(Map<String,double[]>)ois.readObject();
   }
+  if (flags.nonLinearCRF) {
+    nodeFeatureIndicesMap=(Index<Integer>)ois.readObject();
+    edgeFeatureIndicesMap=(Index<Integer>)ois.readObject();
+    if (flags.secondOrderNonLinear) {
+      inputLayerWeights4Edge=(double[][])ois.readObject();
+      outputLayerWeights4Edge=(double[][])ois.readObject();
+    }
+ else {
+      linearWeights=(double[][])ois.readObject();
+    }
+    inputLayerWeights=(double[][])ois.readObject();
+    outputLayerWeights=(double[][])ois.readObject();
+  }
   featureFactory=(edu.stanford.nlp.sequences.FeatureFactory)ois.readObject();
   if (props != null) {
     flags.setProperties(props,false);
@@ -24,9 +37,6 @@
   windowSize=ois.readInt();
   weights=(double[][])ois.readObject();
   knownLCWords=(Set<String>)ois.readObject();
-  if (flags.labelDictionaryCutoff > 0) {
-    labelDictionary=(LabelDictionary)ois.readObject();
-  }
   if (VERBOSE) {
     System.err.println("windowSize=" + windowSize);
     System.err.println("flags=\n" + flags);

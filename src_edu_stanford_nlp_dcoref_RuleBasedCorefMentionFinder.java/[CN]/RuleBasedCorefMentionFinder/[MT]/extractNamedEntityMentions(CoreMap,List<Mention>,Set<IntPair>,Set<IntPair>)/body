@@ -7,12 +7,12 @@
     String nerString=w.get(CoreAnnotations.NamedEntityTagAnnotation.class);
     if (!nerString.equals(preNE)) {
       int endIndex=w.get(CoreAnnotations.IndexAnnotation.class) - 1;
-      if (!preNE.matches("O|QUANTITY|CARDINAL|PERCENT|DATE|DURATION|TIME|SET")) {
+      if (!preNE.equals("O") && !preNE.equals("QUANTITY") && !preNE.equals("CARDINAL")&& !preNE.equals("PERCENT")) {
         if (w.get(CoreAnnotations.TextAnnotation.class).equals("'s"))         endIndex++;
         IntPair mSpan=new IntPair(beginIndex,endIndex);
         if (beginIndex < endIndex && !mentionSpanSet.contains(mSpan)) {
-          int dummyMentionId=-1;
-          Mention m=new Mention(dummyMentionId,beginIndex,endIndex,dependency,new ArrayList<CoreLabel>(sent.subList(beginIndex,endIndex)));
+          int mentionId=assignIds ? ++maxID : -1;
+          Mention m=new Mention(mentionId,beginIndex,endIndex,dependency,new ArrayList<CoreLabel>(sent.subList(beginIndex,endIndex)));
           mentions.add(m);
           mentionSpanSet.add(mSpan);
           namedEntitySpanSet.add(mSpan);
@@ -22,11 +22,11 @@
       preNE=nerString;
     }
   }
-  if (!preNE.matches("O|QUANTITY|CARDINAL|PERCENT|DATE|DURATION|TIME|SET")) {
+  if (!preNE.equals("O") && !preNE.equals("QUANTITY") && !preNE.equals("CARDINAL")&& !preNE.equals("PERCENT")) {
     IntPair mSpan=new IntPair(beginIndex,sent.size());
     if (!mentionSpanSet.contains(mSpan)) {
-      int dummyMentionId=-1;
-      Mention m=new Mention(dummyMentionId,beginIndex,sent.size(),dependency,new ArrayList<CoreLabel>(sent.subList(beginIndex,sent.size())));
+      int mentionId=assignIds ? ++maxID : -1;
+      Mention m=new Mention(mentionId,beginIndex,sent.size(),dependency,new ArrayList<CoreLabel>(sent.subList(beginIndex,sent.size())));
       mentions.add(m);
       mentionSpanSet.add(mSpan);
       namedEntitySpanSet.add(mSpan);
