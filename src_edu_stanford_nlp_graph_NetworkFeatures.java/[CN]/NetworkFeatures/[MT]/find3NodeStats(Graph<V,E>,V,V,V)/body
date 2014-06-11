@@ -1,0 +1,19 @@
+{
+  Set<ThreeNodeStat> stats=Generics.newHashSet();
+  if (graph.isEdge(a,b)) {
+    stats.add(ThreeNodeStat.GENEROSITY);
+    if (graph.isEdge(b,c)) {
+      stats.add(ThreeNodeStat.TRANSITIVE);
+    }
+ else     if (graph.isEdge(c,b)) {
+      stats.add(ThreeNodeStat.COSUPPORTING);
+    }
+ else     stats.add(ThreeNodeStat.GENEROSITY);
+  }
+  if (graph.isEdge(b,a)) {
+    if (graph.isEdge(c,b))     stats.add(ThreeNodeStat.REVTRANSITIVE);
+ else     if (graph.isEdge(b,c))     stats.add(ThreeNodeStat.COSUPPORTED);
+  }
+  if (graph.isEdge(b,c))   stats.add(ThreeNodeStat.POPULARITY);
+  return stats;
+}
