@@ -1,2 +1,24 @@
 {
+  this(ID);
+  corefMentions.addAll(mentions);
+  for (  Mention m : mentions) {
+    animacies.add(m.animacy);
+    genders.add(m.gender);
+    numbers.add(m.number);
+    nerStrings.add(m.nerString);
+    heads.add(m.headString);
+    if (!m.isPronominal()) {
+      for (      CoreLabel w : m.originalSpan) {
+        words.add(w.get(CoreAnnotations.TextAnnotation.class).toLowerCase());
+      }
+    }
+    if (firstMention == null)     firstMention=m;
+ else {
+      if (m.appearEarlierThan(firstMention))       firstMention=m;
+    }
+  }
+  representative=firstMention;
+  for (  Mention m : mentions) {
+    if (m.moreRepresentativeThan(representative))     representative=m;
+  }
 }
