@@ -1,15 +1,16 @@
 {
+  final int maxBeamSize=parser.op.beamSize;
   success=true;
   unparsable=false;
-  PriorityQueue<State> beam=new PriorityQueue<State>(BEAM_SIZE + 1,ScoredComparator.ASCENDING_COMPARATOR);
+  PriorityQueue<State> beam=new PriorityQueue<State>(maxBeamSize + 1,ScoredComparator.ASCENDING_COMPARATOR);
   beam.add(initialState);
   while (beam.size() > 0) {
     PriorityQueue<State> oldBeam=beam;
-    beam=new PriorityQueue<State>(BEAM_SIZE + 1,ScoredComparator.ASCENDING_COMPARATOR);
+    beam=new PriorityQueue<State>(maxBeamSize + 1,ScoredComparator.ASCENDING_COMPARATOR);
     State bestState=null;
     for (    State state : oldBeam) {
       Set<String> features=parser.featureFactory.featurize(state);
-      Collection<ScoredObject<Integer>> predictedTransitions=parser.findHighestScoringTransitions(state,features,true,BEAM_SIZE);
+      Collection<ScoredObject<Integer>> predictedTransitions=parser.findHighestScoringTransitions(state,features,true,maxBeamSize);
       for (      ScoredObject<Integer> predictedTransition : predictedTransitions) {
         Transition transition=parser.transitionIndex.get(predictedTransition.object());
         State newState=transition.apply(state,predictedTransition.score());
@@ -17,7 +18,7 @@
           bestState=newState;
         }
         beam.add(newState);
-        if (beam.size() > BEAM_SIZE) {
+        if (beam.size() > maxBeamSize) {
           beam.poll();
         }
       }
