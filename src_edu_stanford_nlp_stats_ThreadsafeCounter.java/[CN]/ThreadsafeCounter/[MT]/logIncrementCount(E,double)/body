@@ -1,0 +1,12 @@
+{
+  double oldV;
+  double newV;
+synchronized (map) {
+    Double v=map.get(key);
+    oldV=v == null ? 0.0 : (double)v;
+    newV=SloppyMath.logAdd(value,oldV);
+    map.put(key,newV);
+  }
+  totalCount+=newV - oldV;
+  return newV;
+}
