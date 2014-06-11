@@ -4,7 +4,7 @@
   String filename=null;
   String fileList=null;
   boolean stdin=false;
-  List<Output> outputFormats=Arrays.asList(new Output[]{Output.ROOT});
+  Output output=Output.ROOT;
   for (int argIndex=0; argIndex < args.length; ) {
     if (args[argIndex].equalsIgnoreCase("-sentimentModel")) {
       sentimentModel=args[argIndex + 1];
@@ -27,11 +27,8 @@
       argIndex++;
     }
  else     if (args[argIndex].equalsIgnoreCase("-output")) {
-      String[] formats=args[argIndex + 1].split(",");
-      outputFormats=new ArrayList<Output>();
-      for (      String format : formats) {
-        outputFormats.add(Output.valueOf(format.toUpperCase()));
-      }
+      String format=args[argIndex + 1];
+      output=Output.valueOf(format.toUpperCase());
       argIndex+=2;
     }
  else     if (args[argIndex].equalsIgnoreCase("-help")) {
@@ -72,7 +69,7 @@
     for (    CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
       Tree tree=sentence.get(SentimentCoreAnnotations.AnnotatedTree.class);
       System.out.println(sentence);
-      outputTree(System.out,tree,outputFormats);
+      outputTree(System.out,tree,output);
     }
   }
  else   if (fileList != null) {
@@ -85,7 +82,7 @@
       for (      CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
         Tree tree=sentence.get(SentimentCoreAnnotations.AnnotatedTree.class);
         pout.println(sentence);
-        outputTree(pout,tree,outputFormats);
+        outputTree(pout,tree,output);
       }
       pout.flush();
       fout.close();
@@ -106,7 +103,7 @@
         Annotation annotation=pipeline.process(line);
         for (        CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
           Tree tree=sentence.get(SentimentCoreAnnotations.AnnotatedTree.class);
-          outputTree(System.out,tree,outputFormats);
+          outputTree(System.out,tree,output);
         }
       }
  else {
