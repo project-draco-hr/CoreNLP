@@ -14,7 +14,12 @@
     list.add(submit);
   }
   for (  Future<Map<String,List<CoreLabel>>> future : list) {
-    sents.putAll(future.get());
+    try {
+      sents.putAll(future.get());
+    }
+ catch (    Exception e) {
+      throw new RuntimeException(e);
+    }
   }
   executor.shutdown();
 }
