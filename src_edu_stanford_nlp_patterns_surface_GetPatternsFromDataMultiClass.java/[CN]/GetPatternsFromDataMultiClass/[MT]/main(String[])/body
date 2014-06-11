@@ -1,0 +1,92 @@
+{
+  try {
+    Properties props=StringUtils.argsToPropertiesWithResolve(args);
+    boolean readFromSavedInstance=Boolean.parseBoolean(props.getProperty("readFromSavedInstance"));
+    String inputSavedInstanceFile=props.getProperty("inputSavedInstanceFile");
+    boolean saveInstance=Boolean.parseBoolean(props.getProperty("saveInstance"));
+    String outputSavedInstanceFile=props.getProperty("outputSavedInstanceFile");
+    GetPatternsFromDataMultiClass g=null;
+    String patternOutFile=props.getProperty("patternOutFile");
+    String sentsOutFile=props.getProperty("sentsOutFile");
+    String wordsOutputFile=props.getProperty("wordsOutputFile");
+    Map<String,Set<SurfacePattern>> ignorePatterns=new HashMap<String,Set<SurfacePattern>>();
+    Map<String,SurfacePattern> p0=new HashMap<String,SurfacePattern>();
+    Map<String,Counter<String>> p0Set=new HashMap<String,Counter<String>>();
+    Map<String,Counter<String>> externalWordWeights=new HashMap<String,Counter<String>>();
+    if (inputSavedInstanceFile == null || !new File(inputSavedInstanceFile).exists()) {
+      readFromSavedInstance=false;
+    }
+    Map<String,Set<String>> seedWords=new HashMap<String,Set<String>>();
+    if (readFromSavedInstance) {
+      System.out.println("Reading the GetPatternsFromData instance from " + inputSavedInstanceFile);
+      g=IOUtils.readObjectFromFile(inputSavedInstanceFile);
+    }
+ else {
+      String seedWordsFiles=props.getProperty("seedWordsFiles");
+      if (seedWordsFiles == null) {
+        throw new RuntimeException("Needs both seedWordsFiles and file parameters to run this class!\nseedWordsFiles has format: label1,filewithlistofwords1;label2,filewithlistofwords2;...");
+      }
+      for (      String seedFile : seedWordsFiles.split(";")) {
+        String[] t=seedFile.split(",");
+        String label=t[0];
+        String seedWordsFile=t[1];
+        Set<String> seedWords4Label=new HashSet<String>();
+        for (        String line : IOUtils.readLines(seedWordsFile)) {
+          line=line.trim();
+          if (line.isEmpty() || line.startsWith("#"))           continue;
+          seedWords4Label.add(line);
+        }
+        seedWords.put(label,seedWords4Label);
+        System.out.println("Number of seed words for label " + label + " is "+ seedWords4Label.size());
+      }
+      Map<String,Class> answerClasses=new HashMap<String,Class>();
+      String ansClasses=props.getProperty("answerClasses");
+      if (ansClasses != null) {
+        for (        String l : ansClasses.split(";")) {
+          String[] t=l.split(",");
+          String label=t[0];
+          String cl=t[1];
+          Class answerClass=ClassLoader.getSystemClassLoader().loadClass(cl);
+          answerClasses.put(label,answerClass);
+        }
+      }
+      Map<String,List<CoreLabel>> sents=null;
+      String fileFormat=props.getProperty("fileFormat");
+      String file=props.getProperty("file");
+      String posModelPath=props.getProperty("posModelPath");
+      boolean lowercase=Boolean.parseBoolean(props.getProperty("lowercaseText"));
+      boolean useTargetNERRestriction=Boolean.parseBoolean(props.getProperty("useTargetNERRestriction"));
+      if (fileFormat == null || fileFormat.equalsIgnoreCase("text") || fileFormat.equalsIgnoreCase("txt")) {
+        String text=IOUtils.stringFromFile(file);
+        sents=tokenize(text,posModelPath,lowercase,useTargetNERRestriction);
+      }
+ else       if (fileFormat.equalsIgnoreCase("ser")) {
+        sents=IOUtils.readObjectFromFile(file);
+      }
+ else       throw new RuntimeException("Cannot identify the file format. Valid values are text (or txt) and ser, where the serialized file is of the type Map<String, List<CoreLabel>>.");
+      System.out.println("Processing # sents " + sents.size());
+      g=new GetPatternsFromDataMultiClass(props,sents,seedWords);
+      Execution.fillOptions(g,props);
+      g.extremedebug=Boolean.parseBoolean(props.getProperty("extremedebug"));
+      g.setUp();
+      for (      String l : seedWords.keySet()) {
+        g.runLabelSeedWords(l,seedWords.get(l));
+      }
+    }
+    g.extremedebug=Boolean.parseBoolean(props.getProperty("extremedebug"));
+    String feedbackfile=props.getProperty("feedbackFile");
+    System.out.println("Already learned words are " + g.getLearnedWords("onelabel"));
+    g.iterateExtractApply(p0,p0Set,externalWordWeights,wordsOutputFile,sentsOutFile,patternOutFile,ignorePatterns,feedbackfile);
+    if (saveInstance) {
+      System.out.println("Saving the instance to " + outputSavedInstanceFile);
+      IOUtils.writeObjectToFile(g,outputSavedInstanceFile);
+    }
+    boolean evaluate=Boolean.parseBoolean(props.getProperty("evaluate"));
+    if (evaluate) {
+      throw new RuntimeException("not implemented");
+    }
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+  }
+}
