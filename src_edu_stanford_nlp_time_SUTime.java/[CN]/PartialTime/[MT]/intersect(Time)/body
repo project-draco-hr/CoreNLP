@@ -1,6 +1,13 @@
 {
   if (t == null || t == TIME_UNKNOWN)   return this;
-  if (base == null)   return t;
+  if (base == null) {
+    if (dateTimeZone != null) {
+      return (Time)t.setTimeZone(dateTimeZone);
+    }
+ else {
+      return t;
+    }
+  }
   if (t instanceof CompositePartialTime) {
     return t.intersect(this);
   }
@@ -10,7 +17,15 @@
       return null;
     }
     Partial p=JodaTimeUtils.combine(compatible.first.base,compatible.second.base);
-    return new PartialTime(p);
+    DateTimeZone dtz=(dateTimeZone != null) ? dateTimeZone : ((PartialTime)t).dateTimeZone;
+    PartialTime res=new PartialTime(p);
+    if (dtz != null)     return res.setTimeZone(dtz);
+ else     return res;
+  }
+ else   if (t instanceof OrdinalTime) {
+    Temporal temp=t.resolve(this);
+    if (temp instanceof PartialTime)     return (Time)temp;
+ else     return t.intersect(this);
   }
  else   if (t instanceof GroundedTime) {
     return t.intersect(this);
