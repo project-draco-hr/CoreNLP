@@ -1,10 +1,4 @@
 {
-  Partial pbase=base;
-  if (JodaTimeUtils.hasField(granularity.getJodaTimePeriod(),DurationFieldType.weeks())) {
-    if (!JodaTimeUtils.hasField(pbase,DateTimeFieldType.weekOfWeekyear())) {
-      pbase=JodaTimeUtils.resolveWeek(pbase);
-    }
-  }
-  Partial p=JodaTimeUtils.discardMoreSpecificFields(pbase,JodaTimeUtils.getMostSpecific(granularity.getJodaTimePeriod()));
+  Partial p=JodaTimeUtils.discardMoreSpecificFields(base,JodaTimeUtils.getMostSpecific(granularity.getJodaTimePeriod()));
   return new PartialTime(this,p);
 }
