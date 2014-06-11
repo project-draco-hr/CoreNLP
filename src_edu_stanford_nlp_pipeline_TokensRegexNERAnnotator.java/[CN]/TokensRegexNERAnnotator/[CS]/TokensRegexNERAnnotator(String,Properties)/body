@@ -1,13 +1,16 @@
 {
-  String backgroundSymbol=properties.getProperty(name + ".backgroundSymbol",SeqClassifierFlags.DEFAULT_BACKGROUND_SYMBOL + ",MISC");
+  String prefix=(name != null && !name.isEmpty()) ? name + "." : "";
+  String backgroundSymbol=properties.getProperty(prefix + "backgroundSymbol",DEFAULT_BACKGROUND_SYMBOL);
   String[] backgroundSymbols=backgroundSymbol.split("\\s*,\\s*");
-  String[] mappings=PropertiesUtils.getStringArray(properties,name + ".mapping",new String[]{DefaultPaths.DEFAULT_REGEXNER_RULES});
-  String validPosRegex=properties.getProperty(name + ".validpospattern");
-  this.posMatchType=PosMatchType.valueOf(properties.getProperty(name + ".posmatchtype",DEFAULT_POS_MATCH_TYPE.name()));
+  String mappingFiles=properties.getProperty(prefix + "mapping",DefaultPaths.DEFAULT_REGEXNER_RULES);
+  String[] mappings=mappingFiles.split("\\s*[,;]\\s*");
+  String validPosRegex=properties.getProperty(prefix + "validpospattern");
+  this.posMatchType=PosMatchType.valueOf(properties.getProperty(prefix + "posmatchtype",DEFAULT_POS_MATCH_TYPE.name()));
   boolean overwriteMyLabels=true;
-  this.noDefaultOverwriteLabels=CollectionUtils.asSet(PropertiesUtils.getStringArray(properties,name + ".noDefaultOverwriteLabels"));
-  this.ignoreCase=PropertiesUtils.getBool(properties,name + ".ignorecase",false);
-  this.verbose=PropertiesUtils.getBool(properties,name + ".verbose",false);
+  String noDefaultOverwriteLabelsProp=properties.getProperty(prefix + "noDefaultOverwriteLabels");
+  this.noDefaultOverwriteLabels=(noDefaultOverwriteLabelsProp != null) ? CollectionUtils.asSet(noDefaultOverwriteLabelsProp.split("\\s*,\\s*")) : new HashSet<String>();
+  this.ignoreCase=PropertiesUtils.getBool(properties,prefix + "ignorecase",false);
+  this.verbose=PropertiesUtils.getBool(properties,prefix + "verbose",false);
   if (validPosRegex != null && !validPosRegex.equals("")) {
     validPosPattern=Pattern.compile(validPosRegex);
   }

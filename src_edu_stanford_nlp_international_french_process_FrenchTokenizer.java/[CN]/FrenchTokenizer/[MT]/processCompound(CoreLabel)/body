@@ -1,0 +1,11 @@
+{
+  cl.remove(ParentAnnotation.class);
+  String[] parts=cl.word().replaceAll("\\-"," - ").split("\\s+");
+  for (  String part : parts) {
+    CoreLabel newLabel=new CoreLabel(cl);
+    newLabel.setWord(part);
+    newLabel.setValue(part);
+    compoundBuffer.add(newLabel);
+  }
+  return compoundBuffer.remove(0);
+}

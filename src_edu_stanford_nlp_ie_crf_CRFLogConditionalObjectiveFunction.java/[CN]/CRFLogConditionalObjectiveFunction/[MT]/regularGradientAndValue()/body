@@ -1,0 +1,24 @@
+{
+  double objective=0.0;
+  MulticoreWrapper<Pair<Integer,List<Integer>>,Pair<Integer,Double>> wrapper=new MulticoreWrapper<Pair<Integer,List<Integer>>,Pair<Integer,Double>>(multiThreadGrad,gradientThreadProcessor);
+  int totalLen=data.length;
+  List<Integer> docIDs=new ArrayList<Integer>(totalLen);
+  for (int m=0; m < totalLen; m++)   docIDs.add(m);
+  int partLen=totalLen / multiThreadGrad;
+  int currIndex=0;
+  for (int part=0; part < multiThreadGrad; part++) {
+    int endIndex=currIndex + partLen;
+    if (part == multiThreadGrad - 1)     endIndex=totalLen;
+    List<Integer> subList=docIDs.subList(currIndex,endIndex);
+    wrapper.put(new Pair<Integer,List<Integer>>(part,subList));
+    currIndex=endIndex;
+  }
+  wrapper.join();
+  while (wrapper.peek()) {
+    Pair<Integer,Double> result=wrapper.poll();
+    int tID=result.first();
+    objective+=result.second();
+    if (multiThreadGrad > 1)     combine2DArr(E,parallelE[tID]);
+  }
+  return objective;
+}

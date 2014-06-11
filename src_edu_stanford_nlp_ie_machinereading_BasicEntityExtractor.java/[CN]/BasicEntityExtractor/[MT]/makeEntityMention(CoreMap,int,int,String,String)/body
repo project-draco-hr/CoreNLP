@@ -1,0 +1,17 @@
+{
+  Span span=new Span(start,end);
+  String type=null, subtype=null;
+  if (!label.startsWith("B-") && !label.startsWith("I-")) {
+    type=label;
+    subtype=null;
+  }
+ else {
+    type=label.substring(2);
+    subtype=null;
+  }
+  EntityMention entity=entityMentionFactory.constructEntityMention(identifier,sentence,span,span,type,subtype,null);
+  Counter<String> probs=new ClassicCounter<String>();
+  probs.setCount(entity.getType(),1.0);
+  entity.setTypeProbabilities(probs);
+  return entity;
+}

@@ -165,18 +165,30 @@ return getNext(txt,origText);
 }
 case 62:
 break;
+case 48:
+{
+if (splitAssimilations) {
+yypushback(2);
+return getNext();
+}
+ else {
+return getNext();
+}
+}
+case 63:
+break;
 case 49:
 yypushback(1);
 {
 return getNormalizedAmpNext();
 }
-case 63:
+case 64:
 break;
 case 36:
 {
 return getNormalizedAmpNext();
 }
-case 64:
+case 65:
 break;
 case 23:
 {
@@ -184,7 +196,7 @@ if (invertible) {
 prevWordAfter.append(yytext());
 }
 }
-case 65:
+case 66:
 break;
 case 37:
 {
@@ -197,21 +209,21 @@ txt=txt.replace(' ','\u00A0');
 }
 return getNext(txt,yytext());
 }
-case 66:
+case 67:
 break;
 case 53:
 yypushback(4);
 {
 return getNext();
 }
-case 67:
+case 68:
 break;
 case 46:
 yypushback(2);
 {
 return getNext();
 }
-case 68:
+case 69:
 break;
 case 42:
 {
@@ -243,7 +255,7 @@ zzMarkedPos=zzFPos;
 {
 return getNext();
 }
-case 69:
+case 70:
 break;
 case 41:
 {
@@ -275,7 +287,7 @@ zzMarkedPos=zzFPos;
 {
 return getNext();
 }
-case 70:
+case 71:
 break;
 case 40:
 {
@@ -307,20 +319,20 @@ zzMarkedPos=zzFPos;
 {
 return getNext();
 }
-case 71:
+case 72:
 break;
 case 3:
 {
 return getNext();
 }
-case 72:
+case 73:
 break;
 case 24:
 yypushback(1);
 {
 return getNext();
 }
-case 73:
+case 74:
 break;
 case 51:
 {
@@ -330,7 +342,7 @@ txt=delimit(txt,'/');
 }
 return getNext(txt,yytext());
 }
-case 74:
+case 75:
 break;
 case 26:
 {
@@ -341,7 +353,7 @@ txt=txt.replace(' ','\u00A0');
 }
 return getNext(txt,origTxt);
 }
-case 75:
+case 76:
 break;
 case 6:
 {
@@ -352,7 +364,7 @@ tmp=Americanize.americanize(tmp);
 }
 return getNext(tmp,origTxt);
 }
-case 76:
+case 77:
 break;
 case 29:
 {
@@ -389,7 +401,7 @@ tmp=Americanize.americanize(tmp);
 }
 return getNext(tmp,origTxt);
 }
-case 77:
+case 78:
 break;
 case 16:
 {
@@ -400,18 +412,11 @@ return getNext(closebrace,yytext());
 return getNext();
 }
 }
-case 78:
+case 79:
 break;
 case 2:
 {
 return getNext("<",yytext());
-}
-case 79:
-break;
-case 48:
-{
-yypushback(2);
-return getNext();
 }
 case 80:
 break;
@@ -451,19 +456,12 @@ return getNext(txt,yytext());
 }
 case 83:
 break;
-case 50:
-{
-yypushback(3);
-return getNext();
-}
-case 84:
-break;
 case 25:
 yypushback(1);
 {
 return handleQuotes(yytext(),true);
 }
-case 85:
+case 84:
 break;
 case 39:
 {
@@ -496,12 +494,24 @@ zzMarkedPos=zzFPos;
 final String txt=yytext();
 return getNext(removeSoftHyphens(txt),txt);
 }
-case 86:
+case 85:
 break;
 case 21:
 {
 if (normalizeOtherBrackets) {
 return getNext(openbrace,yytext());
+}
+ else {
+return getNext();
+}
+}
+case 86:
+break;
+case 50:
+{
+if (splitAssimilations) {
+yypushback(3);
+return getNext();
 }
  else {
 return getNext();
