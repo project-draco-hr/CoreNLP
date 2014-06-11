@@ -1,0 +1,20 @@
+{
+  String testText="The meeting is scheduled for 09/18/05 or 18 Sep '05.\n";
+  Iterator<Timex> expectedTimexes=Arrays.asList(Timex.fromXml("<TIMEX3 tid=\"t1\" value=\"XX05-09-18\" type=\"DATE\">09/18/05</TIMEX3>"),Timex.fromXml("<TIMEX3 tid=\"t2\" value=\"XX05-09-18\" type=\"DATE\">18 Sep '05</TIMEX3>")).iterator();
+  Iterator<Timex> expectedTimexesResolved=Arrays.asList(Timex.fromXml("<TIMEX3 tid=\"t1\" value=\"2005-09-18\" type=\"DATE\">09/18/05</TIMEX3>"),Timex.fromXml("<TIMEX3 tid=\"t2\" value=\"2005-09-18\" type=\"DATE\">18 Sep '05</TIMEX3>")).iterator();
+  Annotation document=createDocument(testText);
+  TimeAnnotator sutime=getTimeAnnotator();
+  sutime.annotate(document);
+  for (  CoreMap timexAnn : document.get(TimeAnnotations.TimexAnnotations.class)) {
+    Timex expectedTimex=expectedTimexes.next();
+    testTimex(testText,expectedTimex.text(),expectedTimex,timexAnn);
+  }
+  assertFalse(expectedTimexes.hasNext());
+  Annotation documentWithRefTime=createDocument(testText,"20090812");
+  sutime.annotate(documentWithRefTime);
+  for (  CoreMap timexAnn : documentWithRefTime.get(TimeAnnotations.TimexAnnotations.class)) {
+    Timex expectedTimex=expectedTimexesResolved.next();
+    testTimex(testText,expectedTimex.text(),expectedTimex,timexAnn);
+  }
+  assertFalse(expectedTimexes.hasNext());
+}
