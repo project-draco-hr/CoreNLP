@@ -1,0 +1,17 @@
+{
+  if (transition < 0) {
+    return;
+  }
+  for (int i=0; i < weights.size(); ++i) {
+    ScoredObject<Integer> weight=weights.get(i);
+    if (weight.object() == transition) {
+      weight.setScore(weight.score() + delta);
+      return;
+    }
+ else     if (weight.object() > transition) {
+      weights.add(i,new ScoredObject<Integer>(transition,delta));
+      return;
+    }
+  }
+  weights.add(new ScoredObject<Integer>(transition,delta));
+}
