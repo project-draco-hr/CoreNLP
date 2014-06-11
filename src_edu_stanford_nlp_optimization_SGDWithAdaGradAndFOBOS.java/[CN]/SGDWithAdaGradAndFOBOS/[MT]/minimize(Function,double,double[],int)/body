@@ -1,16 +1,10 @@
 {
   int totalSamples=0;
-  int tuneSampleSize=0;
   sayln("Using lambda=" + lambda);
   if (f instanceof AbstractStochasticCachingDiffUpdateFunction) {
     AbstractStochasticCachingDiffUpdateFunction func=(AbstractStochasticCachingDiffUpdateFunction)f;
     func.sampleMethod=AbstractStochasticCachingDiffFunction.SamplingMethod.Shuffled;
     totalSamples=func.dataDimension();
-    tuneSampleSize=Math.min(totalSamples,tuningSamples);
-    if (tuneSampleSize < tuningSamples) {
-      System.err.println("WARNING: Total number of samples=" + totalSamples + " is smaller than requested tuning sample size="+ tuningSamples+ "!!!");
-    }
-    sayln("Using sample size=" + tuneSampleSize);
     if (bSize > totalSamples) {
       System.err.println("WARNING: Total number of samples=" + totalSamples + " is smaller than requested batch size="+ bSize+ "!!!");
       bSize=totalSamples;
@@ -26,11 +20,11 @@
   double[] testUpdateCache=null, currentRateCache=null, bCache=null;
   double[] sumGradSquare=new double[initial.length];
   int[][] featureGrouping=null;
-  if (prior != Prior.LASSO) {
+  if (prior != Prior.LASSO && prior != Prior.NONE) {
     testUpdateCache=new double[initial.length];
     currentRateCache=new double[initial.length];
   }
-  if (prior != Prior.LASSO && prior != Prior.RIDGE) {
+  if (prior != Prior.LASSO && prior != Prior.RIDGE && prior != Prior.GAUSSIAN) {
     if (!(f instanceof HasFeatureGrouping)) {
       throw new UnsupportedOperationException("prior is specified to be ae-lasso or g-lasso, but function does not support feature grouping");
     }
@@ -72,6 +66,7 @@
       evalScore=doEvaluation(x);
       if (useEvalImprovement && !toContinue(x,evalScore))       break;
     }
+    double objVal=0;
     say("Iter: " + iters + " pass "+ pass+ " batch 1 ... ");
     int numOfNonZero=0, numOfNonZeroGroup=0;
     String gSizeStr="";
@@ -80,14 +75,39 @@
       double[] gradients=null;
       if (f instanceof AbstractStochasticCachingDiffUpdateFunction) {
         AbstractStochasticCachingDiffUpdateFunction func=(AbstractStochasticCachingDiffUpdateFunction)f;
-        func.calculateStochasticGradient(x,bSize);
-        gradients=func.getDerivative();
+        if (bSize == totalSamples) {
+          objVal=func.valueAt(x);
+          gradients=func.getDerivative();
+        }
+ else {
+          func.calculateStochasticGradient(x,bSize);
+          gradients=func.getDerivative();
+        }
       }
  else       if (f instanceof AbstractCachingDiffFunction) {
         AbstractCachingDiffFunction func=(AbstractCachingDiffFunction)f;
         gradients=func.derivativeAt(x);
       }
-      if (prior == Prior.LASSO || prior == Prior.RIDGE) {
+      if (prior == Prior.NONE) {
+        Set<Integer> paramRange=null;
+        if (f instanceof HasRegularizerParamRange) {
+          paramRange=((HasRegularizerParamRange)f).getRegularizerParamRange(x);
+        }
+ else {
+          paramRange=new HashSet<Integer>();
+          for (int i=0; i < x.length; i++)           paramRange.add(i);
+        }
+        for (        int index : paramRange) {
+          gValue=gradients[index];
+          sgsValue=gValue * gValue;
+          sumGradSquare[index]+=sgsValue;
+          wValue=x[index];
+          currentRate=initRate / (Math.sqrt(sumGradSquare[index]) + eps);
+          testUpdate=wValue - (currentRate * gValue);
+          x[index]=testUpdate;
+        }
+      }
+ else       if (prior == Prior.LASSO || prior == Prior.RIDGE || prior == Prior.GAUSSIAN) {
         double testUpdateSquaredSum=0;
         Set<Integer> paramRange=null;
         if (f instanceof HasRegularizerParamRange) {
@@ -104,8 +124,9 @@
           wValue=x[index];
           currentRate=initRate / (Math.sqrt(sumGradSquare[index]) + eps);
           testUpdate=wValue - (currentRate * gValue);
+          double currentLambda=currentRate * lambda;
           if (prior == Prior.LASSO) {
-            realUpdate=Math.signum(testUpdate) * pospart(Math.abs(testUpdate) - currentRate * lambda);
+            realUpdate=Math.signum(testUpdate) * pospart(Math.abs(testUpdate) - currentLambda);
             x[index]=realUpdate;
             if (realUpdate != 0)             numOfNonZero++;
           }
@@ -113,6 +134,11 @@
             testUpdateSquaredSum+=testUpdate * testUpdate;
             testUpdateCache[index]=testUpdate;
             currentRateCache[index]=currentRate;
+          }
+ else           if (prior == Prior.GAUSSIAN) {
+            realUpdate=testUpdate / (1 + currentLambda);
+            x[index]=realUpdate;
+            objVal+=currentLambda * wValue * wValue;
           }
         }
         if (prior == Prior.RIDGE) {
@@ -207,7 +233,7 @@
       }
       break;
     }
-    sayln(String.valueOf(numBatches) + ", n0-fCount:" + numOfNonZero+ ((prior != Prior.LASSO && prior != Prior.RIDGE) ? ", n0-gCount:" + numOfNonZeroGroup : "")+ ((evalScore != Double.NEGATIVE_INFINITY) ? ", evalScore:" + evalScore : ""));
+    sayln(String.valueOf(numBatches) + ", n0-fCount:" + numOfNonZero+ ((prior != Prior.LASSO && prior != Prior.RIDGE) ? ", n0-gCount:" + numOfNonZeroGroup : "")+ ((evalScore != Double.NEGATIVE_INFINITY) ? ", evalScore:" + evalScore : "")+ ", obj_val:"+ nf.format(objVal));
     if (iters >= maxIterations) {
       sayln("Online Optimization complete.  Stopped after max iterations");
       break;
