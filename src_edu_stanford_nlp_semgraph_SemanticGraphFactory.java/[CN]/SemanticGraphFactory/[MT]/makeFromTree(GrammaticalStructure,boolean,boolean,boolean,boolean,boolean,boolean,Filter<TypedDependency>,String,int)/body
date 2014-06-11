@@ -1,0 +1,29 @@
+{
+  addProjectedCategoriesToGrammaticalStructure(gs);
+  Collection<TypedDependency> deps;
+  if (tree) {
+    deps=gs.typedDependenciesCollapsedTree();
+  }
+ else   if (collapse) {
+    if (ccProcess) {
+      deps=gs.typedDependenciesCCprocessed(includeExtras);
+    }
+ else {
+      deps=gs.typedDependenciesCollapsed(includeExtras);
+    }
+  }
+ else {
+    deps=gs.typedDependencies(includeExtras);
+  }
+  if (filter != null) {
+    List<TypedDependency> depsFiltered=Generics.newArrayList();
+    for (    TypedDependency td : deps) {
+      if (filter.accept(td)) {
+        depsFiltered.add(td);
+      }
+    }
+    deps=depsFiltered;
+  }
+  Collection<TreeGraphNode> roots=Generics.newHashSet();
+  return new SemanticGraph(deps,docID,sentIndex,lemmatize);
+}
