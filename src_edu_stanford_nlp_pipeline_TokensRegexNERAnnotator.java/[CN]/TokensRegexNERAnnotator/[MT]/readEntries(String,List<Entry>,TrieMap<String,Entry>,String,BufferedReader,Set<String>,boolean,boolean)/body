@@ -10,7 +10,7 @@
     String tokensRegex=null;
     String[] regexes=null;
     if (regex.startsWith("( ") && regex.endsWith(" )")) {
-      tokensRegex=regex;
+      tokensRegex=regex.substring(1,regex.length() - 1).trim();
     }
  else {
       regexes=regex.split("\\s+");
@@ -37,7 +37,8 @@
         throw new IllegalArgumentException("ERROR: Invalid line " + lineCount + " in regexner file "+ mappingFilename+ ": \""+ line+ "\"!",e);
       }
     }
-    Entry entry=new Entry(tokensRegex,regexes,type,overwritableTypes,priority);
+    int annotateGroup=0;
+    Entry entry=new Entry(tokensRegex,regexes,type,overwritableTypes,priority,annotateGroup);
     if (seenRegexes.containsKey(key)) {
       Entry oldEntry=seenRegexes.get(key);
       if (priority > oldEntry.priority) {

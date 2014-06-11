@@ -1,0 +1,37 @@
+{
+  List<CoreLabel> testSentence=AnnotationUtils.sentenceEntityMentionsToCoreLabels(sentence,false,annotationsToSkip,null,useSubTypes,useBIO);
+  List<CoreLabel> annotatedSentence=this.classifier.classify(testSentence);
+  logger.finest("CLASSFIER OUTPUT: " + annotatedSentence);
+  List<EntityMention> extractedEntities=new ArrayList<EntityMention>();
+  int i=0;
+  String lastType=null;
+  int startIndex=-1;
+  for (  CoreLabel label : annotatedSentence) {
+    String type=label.get(AnswerAnnotation.class);
+    if (type.equals(SeqClassifierFlags.DEFAULT_BACKGROUND_SYMBOL)) {
+      type=null;
+    }
+    if (type == null && lastType != null) {
+      makeEntityMention(sentence,startIndex,i,lastType,extractedEntities,sentCount);
+      logger.info("Found entity: " + extractedEntities.get(extractedEntities.size() - 1));
+      startIndex=-1;
+    }
+ else     if (lastType == null && type != null) {
+      startIndex=i;
+    }
+ else     if (lastType != null && type != null && (type.startsWith("B-") || (lastType.startsWith("I-") && type.startsWith("I-") && !lastType.equals(type)) || (notBIO(lastType) && notBIO(type) && !lastType.equals(type)))) {
+      makeEntityMention(sentence,startIndex,i,lastType,extractedEntities,sentCount);
+      logger.info("Found entity: " + extractedEntities.get(extractedEntities.size() - 1));
+      startIndex=i;
+    }
+    lastType=type;
+    i++;
+  }
+  sentence.set(MachineReadingAnnotations.EntityMentionsAnnotation.class,extractedEntities);
+  logger.finest("EXTRACTED ENTITIES: ");
+  for (  EntityMention e : extractedEntities) {
+    logger.finest("\t" + e);
+  }
+  postprocessSentence(sentence,sentCount);
+  return sentence;
+}

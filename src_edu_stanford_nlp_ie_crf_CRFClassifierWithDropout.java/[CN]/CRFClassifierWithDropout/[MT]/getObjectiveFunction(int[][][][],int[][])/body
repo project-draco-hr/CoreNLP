@@ -1,0 +1,14 @@
+{
+  int[][][][] unsupDropoutData=null;
+  if (unsupDocs != null) {
+    Timing timer=new Timing();
+    timer.start();
+    List<Triple<int[][][],int[],double[][][]>> unsupDataAndLabels=documentsToDataAndLabelsList(unsupDocs);
+    unsupDropoutData=new int[unsupDataAndLabels.size()][][][];
+    for (int q=0; q < unsupDropoutData.length; q++)     unsupDropoutData[q]=unsupDataAndLabels.get(q).first();
+    long elapsedMs=timer.stop();
+    System.err.println("Time to read unsupervised dropout data: " + Timing.toSecondsString(elapsedMs) + " seconds, read "+ unsupDropoutData.length+ " files");
+  }
+  CRFLogConditionalObjectiveFunction func=new CRFLogConditionalObjectiveFunctionWithDropout(data,labels,windowSize,classIndex,labelIndices,map,flags.priorType,flags.backgroundSymbol,flags.sigma,null,flags.dropoutRate,flags.dropoutScale,flags.multiThreadGrad,flags.dropoutApprox,flags.unsupDropoutScale,unsupDropoutData);
+  return func;
+}
