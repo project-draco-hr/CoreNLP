@@ -2,27 +2,22 @@
   if (index < 0) {
     return;
   }
-  if (indices == null) {
-    indices=new int[1];
-    indices[0]=index;
-    values=new float[1];
-    values[0]=increment;
+  if (packed == null) {
+    packed=new long[1];
+    packed[0]=pack(index,increment);
     return;
   }
-  for (int i=0; i < indices.length; ++i) {
-    if (indices[i] == index) {
-      values[i]+=increment;
+  for (int i=0; i < packed.length; ++i) {
+    if (unpackIndex(i) == index) {
+      float score=unpackScore(i);
+      packed[i]=pack(index,score + increment);
       return;
     }
   }
-  int[] newIndices=new int[indices.length + 1];
-  float[] newValues=new float[values.length + 1];
-  for (int i=0; i < indices.length; ++i) {
-    newIndices[i]=indices[i];
-    newValues[i]=values[i];
+  long[] newPacked=new long[packed.length + 1];
+  for (int i=0; i < packed.length; ++i) {
+    newPacked[i]=packed[i];
   }
-  newIndices[indices.length]=index;
-  newValues[values.length]=increment;
-  indices=newIndices;
-  values=newValues;
+  newPacked[packed.length]=pack(index,increment);
+  packed=newPacked;
 }
