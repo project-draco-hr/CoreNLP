@@ -2,18 +2,8 @@
   if (this.patternsForEachToken == null) {
     if (constVars.computeAllPatterns) {
       Redwood.log(Redwood.DBG,"Computing all patterns");
-      if (!constVars.batchProcessSents) {
-        this.patternsForEachToken=createPats.getAllPatterns(label,Data.sents);
-      }
- else {
-        this.patternsForEachToken=new HashMap<String,Map<Integer,Triple<Set<SurfacePattern>,Set<SurfacePattern>,Set<SurfacePattern>>>>();
-        for (        File f : Data.sentsFiles) {
-          Redwood.log(Redwood.DBG,"Creating patterns from " + f);
-          Map<String,List<CoreLabel>> sents=IOUtils.readObjectFromFile(f);
-          this.patternsForEachToken.putAll(createPats.getAllPatterns(label,sents));
-        }
-      }
-      if (constVars.allPatternsFile != null)       IOUtils.writeObjectToFile(this.patternsForEachToken,constVars.allPatternsFile + "/001.ser");
+      this.patternsForEachToken=createPats.getAllPatterns(label,Data.sents);
+      if (constVars.allPatternsFile != null)       IOUtils.writeObjectToFile(this.patternsForEachToken,constVars.allPatternsFile);
     }
  else {
       this.patternsForEachToken=IOUtils.readObjectFromFile(constVars.allPatternsFile);
