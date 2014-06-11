@@ -18,11 +18,17 @@
     }
   }
   for (  Tree subtree : newTree) {
-    if (subtree.value().equals("ROOT") && subtree.firstChild().isLeaf() && "CP".equals(subtree.firstChild().value())) {
-      EncodingPrintWriter.err.println("Correcting error: seriously messed up tree in CTB6: " + newTree,ChineseTreebankLanguagePack.ENCODING);
-      List<Tree> children=subtree.getChildrenAsList();
-      children=children.subList(1,children.size() - 1);
-      subtree.setChildren(children);
+    if (subtree.value().equals("CP") && subtree.numChildren() == 1) {
+      Tree subsubtree=subtree.firstChild();
+      if (subsubtree.value().equals("ROOT")) {
+        if (subsubtree.firstChild().isLeaf() && "CP".equals(subsubtree.firstChild().value())) {
+          EncodingPrintWriter.err.println("Correcting error: seriously messed up tree in CTB6: " + newTree,ChineseTreebankLanguagePack.ENCODING);
+          List<Tree> children=subsubtree.getChildrenAsList();
+          children=children.subList(1,children.size());
+          subtree.setChildren(children);
+          EncodingPrintWriter.err.println("  Corrected as:                                     " + newTree,ChineseTreebankLanguagePack.ENCODING);
+        }
+      }
     }
     if (subtree.isPreTerminal()) {
       if (subtree.value().matches("NP")) {
