@@ -1,0 +1,12 @@
+{
+  LexicalizedParser parser=LexicalizedParser.loadModel(args[0]);
+  Set<String> tags=Generics.newHashSet();
+  for (  String tag : parser.tagIndex) {
+    String[] pieces=tag.split("\\^");
+    pieces[0]=pieces[0].replaceAll("-[A-Z]+$","");
+    tags.add(pieces[0]);
+  }
+  List<String> sortedTags=Generics.newArrayList(tags);
+  Collections.sort(sortedTags);
+  System.err.println(sortedTags);
+}
