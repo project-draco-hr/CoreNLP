@@ -46,6 +46,12 @@
     backpropDerivativesAndError(tree,binaryTD,binaryCD,binaryTensorTD,unaryCD,wordVectorD);
     error+=sumError(tree);
   }
-  value=error;
+  double scale=(1.0 / trainingBatch.size());
+  value=error * scale;
+  value+=scaleAndRegularize(binaryTD,model.binaryTransform,scale,model.op.trainOptions.regTransform);
+  value+=scaleAndRegularize(binaryCD,model.binaryClassification,scale,model.op.trainOptions.regClassification);
+  value+=scaleAndRegularizeTensor(binaryTensorTD,model.binaryTensors,scale,model.op.trainOptions.regTransform);
+  value+=scaleAndRegularize(unaryCD,model.unaryClassification,scale,model.op.trainOptions.regClassification);
+  value+=scaleAndRegularize(wordVectorD,model.wordVectors,scale,model.op.trainOptions.regWordVector);
   derivative=RNNUtils.paramsToVector(theta.length,binaryTD.valueIterator(),binaryCD.valueIterator(),SimpleTensor.iteratorSimpleMatrix(binaryTensorTD.valueIterator()),unaryCD.values().iterator(),wordVectorD.values().iterator());
 }
