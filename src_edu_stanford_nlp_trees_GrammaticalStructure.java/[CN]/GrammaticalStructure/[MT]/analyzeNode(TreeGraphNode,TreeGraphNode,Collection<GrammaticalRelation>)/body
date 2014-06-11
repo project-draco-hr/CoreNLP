@@ -1,0 +1,15 @@
+{
+  if (t.isPhrasal()) {
+    TreeGraphNode tHigh=t.highestNodeWithSameHead();
+    for (    GrammaticalRelation egr : relations) {
+      if (egr.isApplicable(t)) {
+        for (        Tree u : egr.getRelatedNodes(t,root)) {
+          tHigh.addArc(GrammaticalRelation.getAnnotationClass(egr),(TreeGraphNode)u);
+        }
+      }
+    }
+    for (    TreeGraphNode kid : t.children()) {
+      analyzeNode(kid,root,relations);
+    }
+  }
+}

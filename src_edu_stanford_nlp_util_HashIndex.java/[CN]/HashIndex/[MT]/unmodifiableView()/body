@@ -1,11 +1,13 @@
 {
-  HashIndex<E> newIndex=new HashIndex<E>(objects,indexes){
+  HashIndex<E> newIndex=new HashIndex<E>(){
     @Override public void unlock(){
       throw new UnsupportedOperationException("This is an unmodifiable view!");
     }
     private static final long serialVersionUID=3415903369787491736L;
   }
 ;
+  newIndex.objects=objects;
+  newIndex.indexes=indexes;
   newIndex.lock();
   return newIndex;
 }
