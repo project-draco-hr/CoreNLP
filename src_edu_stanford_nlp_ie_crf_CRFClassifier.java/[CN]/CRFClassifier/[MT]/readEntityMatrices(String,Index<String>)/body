@@ -1,16 +1,26 @@
 {
   int numTags=tagIndex.size();
-  int matrixSize=numTags - 1;
-  String[] matrixLines=new String[matrixSize];
-  String[] subMatrixLines=new String[matrixSize];
+  double[][] matrix=new double[numTags - 1][numTags - 1];
+  for (int i=0; i < numTags - 1; i++)   matrix[i]=new double[numTags - 1];
+  double[][] subMatrix=new double[numTags - 1][numTags - 1];
+  for (int i=0; i < numTags - 1; i++)   subMatrix[i]=new double[numTags - 1];
   try {
     BufferedReader br=new BufferedReader(new InputStreamReader(new FileInputStream(new File(fileName))));
     String line=null;
     int lineCount=0;
     while ((line=br.readLine()) != null) {
       line=line.trim();
-      if (lineCount < matrixSize)       matrixLines[lineCount]=line;
- else       subMatrixLines[lineCount - matrixSize]=line;
+      String[] parts=line.split("\t");
+      for (      String part : parts) {
+        String[] subparts=part.split(" ");
+        String[] subsubparts=subparts[0].split(":");
+        double counts=Double.parseDouble(subparts[1]);
+        if (counts == 0.0)         counts=1.0;
+        int tagIndex1=tagIndex.indexOf(subsubparts[0]);
+        int tagIndex2=tagIndex.indexOf(subsubparts[1]);
+        if (lineCount < numTags - 1)         matrix[tagIndex1][tagIndex2]=counts;
+ else         subMatrix[tagIndex1][tagIndex2]=counts;
+      }
       lineCount++;
     }
   }
@@ -18,10 +28,13 @@
     ex.printStackTrace();
     System.exit(-1);
   }
-  double[][] matrix=parseMatrix(matrixLines,tagIndex,matrixSize,true);
-  double[][] subMatrix=parseMatrix(subMatrixLines,tagIndex,matrixSize,true);
   for (int i=0; i < matrix.length; i++) {
-    for (int j=0; j < matrix[i].length; j++)     matrix[i][j]=matrix[i][j] / 2;
+    double sum=ArrayMath.sum(matrix[i]);
+    for (int j=0; j < matrix[i].length; j++)     matrix[i][j]=Math.log(matrix[i][j] / sum) / 2;
+  }
+  for (int i=0; i < subMatrix.length; i++) {
+    double sum=ArrayMath.sum(subMatrix[i]);
+    for (int j=0; j < subMatrix[i].length; j++)     subMatrix[i][j]=Math.log(subMatrix[i][j] / sum);
   }
   System.err.println("Matrix: ");
   System.err.println(ArrayUtils.toString(matrix));
