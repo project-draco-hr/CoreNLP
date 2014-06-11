@@ -2,8 +2,10 @@
   String parserModel=null;
   String sentimentModel=null;
   String filename=null;
+  String fileList=null;
   boolean stdin=false;
-  Output output=Output.ROOT;
+  List<Output> outputFormats=Arrays.asList(new Output[]{Output.ROOT});
+  Input inputFormat=Input.TEXT;
   for (int argIndex=0; argIndex < args.length; ) {
     if (args[argIndex].equalsIgnoreCase("-sentimentModel")) {
       sentimentModel=args[argIndex + 1];
@@ -17,13 +19,24 @@
       filename=args[argIndex + 1];
       argIndex+=2;
     }
+ else     if (args[argIndex].equalsIgnoreCase("-fileList")) {
+      fileList=args[argIndex + 1];
+      argIndex+=2;
+    }
  else     if (args[argIndex].equalsIgnoreCase("-stdin")) {
       stdin=true;
       argIndex++;
     }
+ else     if (args[argIndex].equalsIgnoreCase("-input")) {
+      inputFormat=Input.valueOf(args[argIndex + 1].toUpperCase());
+      argIndex+=2;
+    }
  else     if (args[argIndex].equalsIgnoreCase("-output")) {
-      String format=args[argIndex + 1];
-      output=Output.valueOf(format.toUpperCase());
+      String[] formats=args[argIndex + 1].split(",");
+      outputFormats=new ArrayList<Output>();
+      for (      String format : formats) {
+        outputFormats.add(Output.valueOf(format.toUpperCase()));
+      }
       argIndex+=2;
     }
  else     if (args[argIndex].equalsIgnoreCase("-help")) {
@@ -36,31 +49,53 @@
     }
   }
   Properties props=new Properties();
-  props.setProperty("annotators","tokenize, ssplit, parse, sentiment");
   if (sentimentModel != null) {
     props.setProperty("sentiment.model",sentimentModel);
   }
   if (parserModel != null) {
     props.setProperty("parse.model",parserModel);
   }
-  if (filename != null && stdin) {
-    throw new IllegalArgumentException("Please only specify one of -file or -stdin");
-  }
-  if (filename == null && !stdin) {
-    throw new IllegalArgumentException("Please specify either -file or -stdin");
-  }
   if (stdin) {
     props.setProperty("ssplit.eolonly","true");
   }
+  if (inputFormat == Input.TREES) {
+    props.setProperty("annotators","sentiment");
+    props.setProperty("enforceRequirements","false");
+  }
+ else {
+    props.setProperty("annotators","tokenize, ssplit, parse, sentiment");
+  }
+  int count=0;
+  if (filename != null)   count++;
+  if (fileList != null)   count++;
+  if (stdin)   count++;
+  if (count > 1) {
+    throw new IllegalArgumentException("Please only specify one of -file, -fileList or -stdin");
+  }
+  if (count == 0) {
+    throw new IllegalArgumentException("Please specify either -file, -fileList or -stdin");
+  }
   StanfordCoreNLP pipeline=new StanfordCoreNLP(props);
   if (filename != null) {
-    String text=IOUtils.slurpFileNoExceptions(filename);
-    Annotation annotation=new Annotation(text);
+    Annotation annotation=getAnnotation(inputFormat,filename);
     pipeline.annotate(annotation);
     for (    CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
-      Tree tree=sentence.get(SentimentCoreAnnotations.AnnotatedTree.class);
       System.out.println(sentence);
-      outputTree(tree,output);
+      outputTree(System.out,sentence,outputFormats);
+    }
+  }
+ else   if (fileList != null) {
+    for (    String file : fileList.split(",")) {
+      Annotation annotation=getAnnotation(inputFormat,file);
+      pipeline.annotate(annotation);
+      FileOutputStream fout=new FileOutputStream(file + ".out");
+      PrintStream pout=new PrintStream(fout);
+      for (      CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
+        pout.println(sentence);
+        outputTree(pout,sentence,outputFormats);
+      }
+      pout.flush();
+      fout.close();
     }
   }
  else {
@@ -77,8 +112,7 @@
       if (line.length() > 0) {
         Annotation annotation=pipeline.process(line);
         for (        CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
-          Tree tree=sentence.get(SentimentCoreAnnotations.AnnotatedTree.class);
-          outputTree(tree,output);
+          outputTree(System.out,sentence,outputFormats);
         }
       }
  else {
