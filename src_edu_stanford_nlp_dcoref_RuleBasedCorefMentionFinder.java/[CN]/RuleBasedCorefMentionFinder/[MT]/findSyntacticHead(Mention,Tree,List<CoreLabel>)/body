@@ -1,9 +1,7 @@
 {
   int endIdx=m.endIndex;
-  if (m.originalSpan.size() > 0) {
-    String lastWord=m.originalSpan.get(m.originalSpan.size() - 1).get(CoreAnnotations.TextAnnotation.class);
-    if ((lastWord.equals("'s") || lastWord.equals("'")) && m.originalSpan.size() != 1)     endIdx--;
-  }
+  String lastWord=m.originalSpan.get(m.originalSpan.size() - 1).get(CoreAnnotations.TextAnnotation.class);
+  if ((lastWord.equals("'s") || lastWord.equals("'")) && m.originalSpan.size() != 1)   endIdx--;
   Tree exactMatch=findTreeWithSpan(root,m.startIndex,endIdx);
   if (exactMatch != null) {
     return safeHead(exactMatch,endIdx);

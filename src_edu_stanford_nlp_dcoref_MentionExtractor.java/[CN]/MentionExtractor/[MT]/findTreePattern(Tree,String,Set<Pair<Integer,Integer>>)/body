@@ -1,7 +1,16 @@
 {
   try {
-    TregexPattern tgrepPattern=TregexPattern.compile(tregex);
-    findTreePattern(tree,tgrepPattern,foundPairs);
+    TregexPattern tgrepPattern=TregexPattern.compile(pattern);
+    TregexMatcher m=tgrepPattern.matcher(tree);
+    while (m.find()) {
+      Tree t=m.getMatch();
+      Tree np1=m.getNode("m1");
+      Tree np2=m.getNode("m2");
+      Tree np3=null;
+      if (pattern.contains("m3"))       np3=m.getNode("m3");
+      addFoundPair(np1,np2,t,foundPairs);
+      if (np3 != null)       addFoundPair(np2,np3,t,foundPairs);
+    }
   }
  catch (  Exception e) {
     throw new RuntimeException(e);
