@@ -48,7 +48,8 @@
     }
   }
  else   if (flags.useAdaGradFOBOS) {
-    minimizer=new SGDWithAdaGradAndFOBOS(flags.initRate,flags.priorLambda,flags.SGDPasses,flags.tuneSampleSize,flags.stochasticBatchSize,flags.priorType,flags.priorAlpha);
+    double lambda=0.5 / (flags.sigma * flags.sigma);
+    minimizer=new SGDWithAdaGradAndFOBOS<DiffFunction>(flags.initRate,lambda,flags.SGDPasses,flags.stochasticBatchSize,flags.priorType,flags.priorAlpha);
     ((SGDWithAdaGradAndFOBOS)minimizer).terminateOnEvalImprovement(flags.terminateOnEvalImprovement);
     ((SGDWithAdaGradAndFOBOS)minimizer).setTerminateOnEvalImprovementNumOfEpoch(flags.terminateOnEvalImprovementNumOfEpoch);
     ((SGDWithAdaGradAndFOBOS)minimizer).suppressTestPrompt(flags.suppressTestDebug);
@@ -57,10 +58,10 @@
     minimizer=new SGDToQNMinimizer(flags.initialGain,flags.stochasticBatchSize,flags.SGDPasses,flags.QNPasses,flags.SGD2QNhessSamples,flags.QNsize,flags.outputIterationsToFile);
   }
  else   if (flags.useSMD) {
-    minimizer=new SMDMinimizer(flags.initialGain,flags.stochasticBatchSize,flags.stochasticMethod,flags.SGDPasses);
+    minimizer=new SMDMinimizer<DiffFunction>(flags.initialGain,flags.stochasticBatchSize,flags.stochasticMethod,flags.SGDPasses);
   }
  else   if (flags.useSGD) {
-    minimizer=new InefficientSGDMinimizer(flags.initialGain,flags.stochasticBatchSize);
+    minimizer=new InefficientSGDMinimizer<DiffFunction>(flags.initialGain,flags.stochasticBatchSize);
   }
  else   if (flags.useScaledSGD) {
     minimizer=new ScaledSGDMinimizer(flags.initialGain,flags.stochasticBatchSize,flags.SGDPasses,flags.scaledSGDMethod);
