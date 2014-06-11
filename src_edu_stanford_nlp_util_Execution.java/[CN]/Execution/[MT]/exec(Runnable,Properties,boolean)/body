@@ -1,0 +1,22 @@
+{
+  fillOptionsImpl(BOOTSTRAP_CLASSES,options,false);
+  startTrack("init");
+  Class<?>[] visibleClasses=optionClasses;
+  if (visibleClasses == null)   visibleClasses=getVisibleClasses();
+  Map<String,Field> optionFields=fillOptionsImpl(visibleClasses,options);
+  endTrack("init");
+  StanfordRedwoodConfiguration.apply(options);
+  int exitCode=0;
+  startTrack("main");
+  try {
+    toRun.run();
+  }
+ catch (  Throwable t) {
+    log(FORCE,t);
+    exitCode=1;
+  }
+  endTrack("main");
+  if (exit) {
+    System.exit(exitCode);
+  }
+}
