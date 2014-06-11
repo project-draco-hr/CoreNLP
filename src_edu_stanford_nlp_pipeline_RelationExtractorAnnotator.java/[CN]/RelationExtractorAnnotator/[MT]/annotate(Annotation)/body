@@ -23,5 +23,33 @@
         }
       }
     }
+    boolean verboseRevert=false;
+    String origText=annotation.get(CoreAnnotations.TextAnnotation.class);
+    if (origText == null)     throw new RuntimeException("Found corpus without text!");
+    if (verboseRevert)     System.err.println("REVERTING SENT: " + origSent.get(TextAnnotation.class));
+    List<CoreLabel> tokens=origSent.get(TokensAnnotation.class);
+    List<Pair<Integer,String>> changes=new ArrayList<Pair<Integer,String>>();
+    int position=0;
+    for (    CoreLabel token : tokens) {
+      String tokenText=token.word();
+      if (verboseRevert)       System.err.println("TOKEN " + tokenText + " "+ token.beginPosition()+ " "+ token.endPosition());
+      String origToken=origText.substring(token.beginPosition(),token.endPosition());
+      if (!origToken.equals(tokenText)) {
+        if (verboseRevert)         System.err.println("Found difference at position #" + position + ": token ["+ tokenText+ "] vs text ["+ origToken+ "]");
+        token.set(TextAnnotation.class,origToken);
+        changes.add(new Pair<Integer,String>(position,origToken));
+      }
+      position++;
+    }
+    Tree tree=origSent.get(TreeAnnotation.class);
+    if (tree != null && changes.size() > 0) {
+      List<Tree> leaves=tree.getLeaves();
+      for (      Pair<Integer,String> change : changes) {
+        Tree leaf=leaves.get(change.first);
+        if (verboseRevert)         System.err.println("CHANGING LEAF " + leaf);
+        leaf.setValue(change.second);
+        if (verboseRevert)         System.err.println("NEW LEAF: " + leaf);
+      }
+    }
   }
 }
