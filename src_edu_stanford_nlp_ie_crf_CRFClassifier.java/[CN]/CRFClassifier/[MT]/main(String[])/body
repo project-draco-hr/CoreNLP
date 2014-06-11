@@ -29,6 +29,9 @@
     }
     System.err.println("Found " + count + " matching embeddings of dimension "+ vector.length);
   }
+  if (crf.flags.loadClassIndexFrom != null) {
+    crf.classIndex=loadClassIndexFromFile(crf.flags.loadClassIndexFrom);
+  }
   if (loadPath != null) {
     crf.loadClassifierNoExceptions(loadPath,props);
   }
@@ -54,6 +57,12 @@
   crf.loadTagIndex();
   if (serializeTo != null) {
     crf.serializeClassifier(serializeTo);
+  }
+  if (crf.flags.serializeWeightsTo != null) {
+    crf.serializeWeights(crf.flags.serializeWeightsTo);
+  }
+  if (crf.flags.serializeFeatureIndexTo != null) {
+    crf.serializeFeatureIndex(crf.flags.serializeFeatureIndexTo);
   }
   if (serializeToText != null) {
     crf.serializeTextClassifier(serializeToText);
