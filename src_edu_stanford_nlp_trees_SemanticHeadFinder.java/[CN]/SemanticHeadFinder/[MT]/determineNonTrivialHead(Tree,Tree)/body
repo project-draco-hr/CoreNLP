@@ -3,6 +3,14 @@
   if (DEBUG) {
     System.err.println("At " + motherCat + ", my parent is "+ parent);
   }
+  if (motherCat.equals("CONJP")) {
+    for (    TregexPattern pattern : headOfConjpTregex) {
+      TregexMatcher matcher=pattern.matcher(t);
+      if (matcher.matchesAt(t)) {
+        return matcher.getNode("head");
+      }
+    }
+  }
   if (motherCat.equals("SBARQ")) {
     if (!makeCopulaHead) {
       for (      TregexPattern pattern : headOfCopulaTregex) {
@@ -38,10 +46,8 @@
  else {
         how=new String[]{"left","VP","ADJP","NP","WHADJP","WHNP"};
       }
-      Tree pti=traverseLocate(kids,how,false);
-      if (pti != null && pti.label() != null && pti.label().value().contains("-TMP")) {
-        pti=null;
-      }
+      Tree[] filteredChildren=ArrayUtils.filter(kids,REMOVE_TMP_AND_ADV);
+      Tree pti=traverseLocate(filteredChildren,how,false);
       if (motherCat.equals("SQ") && pti != null && pti.label() != null && pti.label().value().startsWith("NP")) {
         boolean foundAnotherNp=false;
         for (        Tree kid : kids) {
