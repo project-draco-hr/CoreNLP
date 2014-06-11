@@ -9,6 +9,7 @@
   List<CoreLabel> tokens=annotation.get(CoreAnnotations.TokensAnnotation.class);
   int tokenOffset=0;
   int lineNumber=0;
+  CoreMap sectionAnnotations=null;
   List<CoreMap> sentences=new ArrayList<CoreMap>();
   for (  List<CoreLabel> sentenceTokens : this.wts.process(tokens)) {
     if (countLineNumbers) {
@@ -36,6 +37,19 @@
     sentence.set(CoreAnnotations.SentenceIndexAnnotation.class,sentences.size());
     if (countLineNumbers) {
       sentence.set(CoreAnnotations.LineNumberAnnotation.class,lineNumber);
+    }
+    CoreLabel sentenceStartToken=sentenceTokens.get(0);
+    CoreLabel sentenceEndToken=sentenceTokens.get(sentenceTokens.size() - 1);
+    CoreMap sectionStart=sentenceStartToken.get(CoreAnnotations.SectionStartAnnotation.class);
+    if (sectionStart != null) {
+      sectionAnnotations=sectionStart;
+    }
+    if (sectionAnnotations != null) {
+      ChunkAnnotationUtils.copyUnsetAnnotations(sectionAnnotations,sentence);
+    }
+    String sectionEnd=sentenceEndToken.get(CoreAnnotations.SectionEndAnnotation.class);
+    if (sectionEnd != null) {
+      sectionAnnotations=null;
     }
     sentences.add(sentence);
   }

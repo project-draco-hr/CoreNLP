@@ -1,0 +1,47 @@
+{
+  if (!MachineReadingProperties.crossValidate) {
+    datasets=new Pair[1];
+    Annotation trainingEnhanced=training;
+    if (auxDataset != null) {
+      trainingEnhanced=new Annotation(training.get(TextAnnotation.class));
+      for (int i=0; i < AnnotationUtils.sentenceCount(training); i++) {
+        AnnotationUtils.addSentence(trainingEnhanced,AnnotationUtils.getSentence(training,i));
+      }
+      for (int ind=0; ind < AnnotationUtils.sentenceCount(auxDataset); ind++) {
+        AnnotationUtils.addSentence(trainingEnhanced,AnnotationUtils.getSentence(auxDataset,ind));
+      }
+    }
+    datasets[0]=new Pair<Annotation,Annotation>(trainingEnhanced,testing);
+    predictions=new Annotation[3][1];
+  }
+ else {
+    assert(MachineReadingProperties.kfold > 1);
+    datasets=new Pair[MachineReadingProperties.kfold];
+    AnnotationUtils.shuffleSentences(training);
+    for (int partition=0; partition < MachineReadingProperties.kfold; partition++) {
+      int begin=AnnotationUtils.sentenceCount(training) * partition / MachineReadingProperties.kfold;
+      int end=AnnotationUtils.sentenceCount(training) * (partition + 1) / MachineReadingProperties.kfold;
+      MachineReadingProperties.logger.info("Creating partition #" + partition + " using offsets ["+ begin+ ", "+ end+ ") out of "+ AnnotationUtils.sentenceCount(training));
+      Annotation partitionTrain=new Annotation("");
+      Annotation partitionTest=new Annotation("");
+      for (int i=0; i < AnnotationUtils.sentenceCount(training); i++) {
+        if (i < begin) {
+          AnnotationUtils.addSentence(partitionTrain,AnnotationUtils.getSentence(training,i));
+        }
+ else         if (i < end) {
+          AnnotationUtils.addSentence(partitionTest,AnnotationUtils.getSentence(training,i));
+        }
+ else {
+          AnnotationUtils.addSentence(partitionTrain,AnnotationUtils.getSentence(training,i));
+        }
+      }
+      if (auxDataset != null) {
+        for (int ind=0; ind < AnnotationUtils.sentenceCount(auxDataset); ind++) {
+          AnnotationUtils.addSentence(partitionTrain,AnnotationUtils.getSentence(auxDataset,ind));
+        }
+      }
+      datasets[partition]=new Pair<Annotation,Annotation>(partitionTrain,partitionTest);
+    }
+    predictions=new Annotation[3][MachineReadingProperties.kfold];
+  }
+}

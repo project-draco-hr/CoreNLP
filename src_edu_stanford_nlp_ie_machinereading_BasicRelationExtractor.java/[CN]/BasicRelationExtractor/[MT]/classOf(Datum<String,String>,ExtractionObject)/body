@@ -1,0 +1,11 @@
+{
+  Counter<String> probs=classifier.probabilityOf(datum);
+  List<Pair<String,Double>> sortedProbs=Counters.toDescendingMagnitudeSortedListWithCounts(probs);
+  double nrProb=probs.getCount(RelationMention.UNRELATED);
+  for (  Pair<String,Double> choice : sortedProbs) {
+    if (choice.first.equals(RelationMention.UNRELATED))     return choice.first;
+    if (nrProb >= choice.second)     return RelationMention.UNRELATED;
+    if (compatibleLabel(choice.first,rel))     return choice.first;
+  }
+  return RelationMention.UNRELATED;
+}
