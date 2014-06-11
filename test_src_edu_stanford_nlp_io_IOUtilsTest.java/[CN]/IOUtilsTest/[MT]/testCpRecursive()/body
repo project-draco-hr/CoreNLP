@@ -1,0 +1,24 @@
+{
+  File sourceDir=File.createTempFile("directory",".file");
+  assertTrue(sourceDir.delete());
+  assertTrue(sourceDir.mkdir());
+  File sourceSubDir=new File(sourceDir + File.separator + "d2");
+  assertTrue(sourceSubDir.mkdir());
+  File foo=new File(sourceSubDir + File.separator + "foo");
+  IOUtils.writeStringToFile("foo",foo.getPath(),"utf-8");
+  File bar=new File(sourceDir + File.separator + "bar");
+  IOUtils.writeStringToFile("bar",bar.getPath(),"utf-8");
+  File dst=File.createTempFile("dst",".file");
+  assertTrue(dst.delete());
+  IOUtils.cp(sourceDir,dst,true);
+  assertEquals("foo",IOUtils.slurpFile(dst + File.separator + "d2"+ File.separator+ "foo"));
+  assertEquals("bar",IOUtils.slurpFile(dst + File.separator + "bar"));
+  assertTrue(foo.delete());
+  assertTrue(bar.delete());
+  assertTrue(sourceSubDir.delete());
+  assertTrue(sourceDir.delete());
+  assertTrue(new File(dst + File.separator + "d2"+ File.separator+ "foo").delete());
+  assertTrue(new File(dst + File.separator + "d2").delete());
+  assertTrue(new File(dst + File.separator + "bar").delete());
+  assertTrue(dst.delete());
+}
