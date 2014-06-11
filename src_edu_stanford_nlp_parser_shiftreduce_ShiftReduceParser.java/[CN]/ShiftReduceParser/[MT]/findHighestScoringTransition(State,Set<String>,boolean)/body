@@ -1,0 +1,23 @@
+{
+  double[] scores=new double[featureWeights.length];
+  for (  String feature : features) {
+    int featureNum=featureIndex.indexOf(feature);
+    if (featureNum >= 0) {
+      for (int i=0; i < scores.length; ++i) {
+        scores[i]+=featureWeights[i][featureNum];
+      }
+    }
+  }
+  int bestTransition=-1;
+  for (int i=0; i < scores.length; ++i) {
+    if ((bestTransition < 0 || scores[i] > scores[bestTransition]) && (!requireLegal || transitionIndex.get(i).isLegal(state))) {
+      bestTransition=i;
+    }
+  }
+  if (bestTransition >= 0) {
+    return new ScoredObject<Integer>(bestTransition,scores[bestTransition]);
+  }
+ else {
+    return new ScoredObject<Integer>(-1,Double.NEGATIVE_INFINITY);
+  }
+}

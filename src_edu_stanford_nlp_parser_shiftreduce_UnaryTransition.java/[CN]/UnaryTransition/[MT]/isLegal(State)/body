@@ -1,0 +1,22 @@
+{
+  if (state.finished) {
+    return false;
+  }
+  if (state.stack.size() == 0) {
+    return false;
+  }
+  Tree top=state.stack.peek();
+  if (top.label().value().equals(label)) {
+    return false;
+  }
+  if (top.children().length == 1) {
+    Tree child=top.children()[0];
+    if (child.children().length == 1) {
+      Tree grandChild=child.children()[0];
+      if (grandChild.children().length == 1) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
