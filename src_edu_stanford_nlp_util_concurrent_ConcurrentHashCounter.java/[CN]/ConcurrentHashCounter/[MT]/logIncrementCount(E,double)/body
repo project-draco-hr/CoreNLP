@@ -1,12 +1,27 @@
 {
-  double oldV;
-  double newV;
-synchronized (map) {
-    AtomicDouble v=map.putIfAbsent(key,new AtomicDouble());
-    oldV=v.get();
-    newV=SloppyMath.logAdd(value,oldV);
-    map.get(key).set(newV);
+  outer:   for (; ; ) {
+    AtomicDouble atomic=map.get(key);
+    if (atomic == null) {
+      atomic=map.putIfAbsent(key,new AtomicDouble(value));
+      if (atomic == null) {
+        totalCount.addAndGet(value);
+        return value;
+      }
+    }
+    for (; ; ) {
+      double oldValue=atomic.get();
+      if (oldValue == 0.0) {
+        if (map.replace(key,atomic,new AtomicDouble(value))) {
+          totalCount.addAndGet(value);
+          return value;
+        }
+        continue outer;
+      }
+      double newValue=SloppyMath.logAdd(oldValue,value);
+      if (atomic.compareAndSet(oldValue,newValue)) {
+        totalCount.addAndGet(value);
+        return newValue;
+      }
+    }
   }
-  totalCount.addAndGet(newV - oldV);
-  return newV;
 }
