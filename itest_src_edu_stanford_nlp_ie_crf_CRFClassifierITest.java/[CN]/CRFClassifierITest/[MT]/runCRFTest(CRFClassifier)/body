@@ -21,16 +21,5 @@
       Triple<String,Integer,Integer> x=trip.get(trip.size() - 1);
       assertEquals("CRF buggy on classifyToCharacterOffsets abbreviation period",'r',testText[0].charAt(x.third() - 1));
     }
-    if (i == 3) {
-      List<List<CoreLabel>> doc=crf.classify(testText[0]);
-      assertEquals("Wrong number of sentences",1,doc.size());
-      List<CoreLabel> tokens=doc.get(0);
-      assertEquals("Wrong number of tokens",offsets.length,tokens.size());
-      for (int j=0, sz=tokens.size(); j < sz; j++) {
-        CoreLabel token=tokens.get(j);
-        assertEquals("Wrong begin offset",offsets[j][0],(int)token.get(CoreAnnotations.CharacterOffsetBeginAnnotation.class));
-        assertEquals("Wrong end offset",offsets[j][1],(int)token.get(CoreAnnotations.CharacterOffsetEndAnnotation.class));
-      }
-    }
   }
 }
