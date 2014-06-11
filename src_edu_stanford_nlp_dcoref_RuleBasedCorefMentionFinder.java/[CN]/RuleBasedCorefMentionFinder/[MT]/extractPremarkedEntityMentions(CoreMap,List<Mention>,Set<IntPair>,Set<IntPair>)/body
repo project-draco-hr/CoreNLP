@@ -1,0 +1,27 @@
+{
+  List<CoreLabel> sent=s.get(CoreAnnotations.TokensAnnotation.class);
+  SemanticGraph dependency=s.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class);
+  int beginIndex=-1;
+  for (  CoreLabel w : sent) {
+    MultiTokenTag t=w.get(CoreAnnotations.MentionTokenAnnotation.class);
+    if (t != null) {
+      if (t.isStart()) {
+        beginIndex=w.get(CoreAnnotations.IndexAnnotation.class) - 1;
+      }
+      if (t.isEnd()) {
+        int endIndex=w.get(CoreAnnotations.IndexAnnotation.class);
+        if (beginIndex >= 0) {
+          IntPair mSpan=new IntPair(beginIndex,endIndex);
+          int mentionId=assignIds ? ++maxID : -1;
+          Mention m=new Mention(mentionId,beginIndex,endIndex,dependency,new ArrayList<CoreLabel>(sent.subList(beginIndex,endIndex)));
+          mentions.add(m);
+          mentionSpanSet.add(mSpan);
+          beginIndex=-1;
+        }
+ else {
+          SieveCoreferenceSystem.logger.warning("Start of marked mention not found in sentence: " + t + " at tokenIndex="+ (w.get(CoreAnnotations.IndexAnnotation.class) - 1)+ " for "+ s.get(CoreAnnotations.TextAnnotation.class));
+        }
+      }
+    }
+  }
+}
