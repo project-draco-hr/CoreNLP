@@ -69,26 +69,28 @@
     }
     Map<String,List<CoreLabel>> evalsents=new HashMap<String,List<CoreLabel>>();
     if (evaluate) {
-      Map setClassForTheseLabels=new HashMap<String,Class>();
-      boolean splitOnPunct=Boolean.parseBoolean(props.getProperty("splitOnPunct","true"));
-      List<File> allFiles=GetPatternsFromDataMultiClass.getAllFiles(evalFileWithGoldLabels);
-      int numFile=0;
-      if (fileFormat == null || fileFormat.equalsIgnoreCase("text") || fileFormat.equalsIgnoreCase("txt")) {
-        for (        File f : allFiles) {
-          numFile++;
-          Redwood.log(Redwood.DBG,"Annotating text in " + f + ". Num file "+ numFile);
-          List<CoreMap> sentsCMs=AnnotatedTextReader.parseFile(new BufferedReader(new FileReader(f)),seedWords.keySet(),setClassForTheseLabels,true,splitOnPunct,lowercase,f.getName());
-          evalsents.putAll(runPOSNEROnTokens(sentsCMs,posModelPath,useTargetNERRestriction || useContextNERRestriction,"",useTargetParserParentRestriction,props.getProperty("numThreads")));
+      if (evalFileWithGoldLabels != null) {
+        Map setClassForTheseLabels=new HashMap<String,Class>();
+        boolean splitOnPunct=Boolean.parseBoolean(props.getProperty("splitOnPunct","true"));
+        List<File> allFiles=GetPatternsFromDataMultiClass.getAllFiles(evalFileWithGoldLabels);
+        int numFile=0;
+        if (fileFormat == null || fileFormat.equalsIgnoreCase("text") || fileFormat.equalsIgnoreCase("txt")) {
+          for (          File f : allFiles) {
+            numFile++;
+            Redwood.log(Redwood.DBG,"Annotating text in " + f + ". Num file "+ numFile);
+            List<CoreMap> sentsCMs=AnnotatedTextReader.parseFile(new BufferedReader(new FileReader(f)),seedWords.keySet(),setClassForTheseLabels,true,splitOnPunct,lowercase,f.getName());
+            evalsents.putAll(runPOSNEROnTokens(sentsCMs,posModelPath,useTargetNERRestriction || useContextNERRestriction,"",useTargetParserParentRestriction,props.getProperty("numThreads")));
+          }
         }
-      }
- else       if (fileFormat.equalsIgnoreCase("ser")) {
-        for (        File f : allFiles) {
-          evalsents.putAll((Map<? extends String,? extends List<CoreLabel>>)IOUtils.readObjectFromFile(f));
+ else         if (fileFormat.equalsIgnoreCase("ser")) {
+          for (          File f : allFiles) {
+            evalsents.putAll((Map<? extends String,? extends List<CoreLabel>>)IOUtils.readObjectFromFile(f));
+          }
         }
-      }
-      if (addEvalSentsToTrain) {
-        Redwood.log(Redwood.DBG,"Adding " + evalsents.size() + " eval sents to the training set");
-        sents.putAll(evalsents);
+        if (addEvalSentsToTrain) {
+          Redwood.log(Redwood.DBG,"Adding " + evalsents.size() + " eval sents to the training set");
+          sents.putAll(evalsents);
+        }
       }
     }
     boolean learn=Boolean.parseBoolean(props.getProperty("learn","true"));
@@ -110,8 +112,28 @@
       String patternOutFile=props.getProperty("patternOutFile");
       g.iterateExtractApply(p0,p0Set,wordsOutputFile,sentsOutFile,patternOutFile,ignorePatterns);
       if (evaluate) {
-        boolean evalPerEntity=Boolean.parseBoolean(props.getProperty("evalPerEntity","true"));
-        g.evaluate(evalsents,evalPerEntity);
+        String goldEntitiesEvalFiles=props.getProperty("goldEntitiesEvalFiles");
+        if (goldEntitiesEvalFiles != null) {
+          for (          String gfile : goldEntitiesEvalFiles.split(";")) {
+            String[] t=gfile.split(",");
+            String label=t[0];
+            String goldfile=t[1];
+            Map<String,Boolean> goldWords4Label=new HashMap<String,Boolean>();
+            for (            String line : IOUtils.readLines(goldfile)) {
+              line=line.trim();
+              if (line.isEmpty())               continue;
+              if (line.endsWith("#"))               goldWords4Label.put(line.substring(0,line.length() - 1),false);
+ else               goldWords4Label.put(line,true);
+            }
+            Pair<Double,Double> pr=g.getPrecisionRecall(label,goldWords4Label);
+            Redwood.log(Redwood.FORCE,"For label " + label + ": Number of gold entities is "+ goldWords4Label.size()+ ", Precision is "+ g.df.format(pr.first() * 100)+ ", Recall is "+ g.df.format(pr.second() * 100)+ ", F1 is "+ g.df.format(g.FScore(pr.first(),pr.second(),1.0) * 100));
+          }
+        }
+        if (evalsents.size() > 0) {
+          boolean evalPerEntity=Boolean.parseBoolean(props.getProperty("evalPerEntity","true"));
+          g.evaluate(evalsents,evalPerEntity);
+        }
+        if (evalsents.size() == 0 && goldEntitiesEvalFiles == null)         System.err.println("No eval sentences or list of gold entities provided to evaluate! Make sure evalFileWithGoldLabels or goldEntitiesEvalFiles is set, or turn off the evaluate flag");
       }
     }
   }
