@@ -80,9 +80,8 @@
     Annotation annotation=getAnnotation(inputFormat,filename);
     pipeline.annotate(annotation);
     for (    CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
-      Tree tree=sentence.get(SentimentCoreAnnotations.AnnotatedTree.class);
       System.out.println(sentence);
-      outputTree(System.out,tree,outputFormats);
+      outputTree(System.out,sentence,outputFormats);
     }
   }
  else   if (fileList != null) {
@@ -92,9 +91,8 @@
       FileOutputStream fout=new FileOutputStream(file + ".out");
       PrintStream pout=new PrintStream(fout);
       for (      CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
-        Tree tree=sentence.get(SentimentCoreAnnotations.AnnotatedTree.class);
         pout.println(sentence);
-        outputTree(pout,tree,outputFormats);
+        outputTree(pout,sentence,outputFormats);
       }
       pout.flush();
       fout.close();
@@ -114,8 +112,7 @@
       if (line.length() > 0) {
         Annotation annotation=pipeline.process(line);
         for (        CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
-          Tree tree=sentence.get(SentimentCoreAnnotations.AnnotatedTree.class);
-          outputTree(System.out,tree,outputFormats);
+          outputTree(System.out,sentence,outputFormats);
         }
       }
  else {
