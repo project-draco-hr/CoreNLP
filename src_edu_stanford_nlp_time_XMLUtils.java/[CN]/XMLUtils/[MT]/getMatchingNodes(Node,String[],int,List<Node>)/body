@@ -1,0 +1,19 @@
+{
+  if (cur < 0 || cur >= nodePath.length)   return;
+  boolean last=(cur == nodePath.length - 1);
+  String name=nodePath[cur];
+  if (node.hasChildNodes()) {
+    NodeList children=node.getChildNodes();
+    for (int i=0; i < children.getLength(); i++) {
+      Node c=children.item(i);
+      if (name.equals(c.getNodeName())) {
+        if (last) {
+          res.add(c);
+        }
+ else {
+          getMatchingNodes(c,nodePath,cur + 1,res);
+        }
+      }
+    }
+  }
+}
