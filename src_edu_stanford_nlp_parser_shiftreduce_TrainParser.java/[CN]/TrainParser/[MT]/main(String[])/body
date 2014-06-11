@@ -90,8 +90,12 @@
     System.err.println("Number of unique features: " + featureIndex.size());
     System.err.println("Number of transitions: " + transitionIndex.size());
     System.err.println("Feature space will be " + (featureIndex.size() * transitionIndex.size()));
-    double[][] featureWeights=new double[transitionIndex.size()][featureIndex.size()];
-    parser=new ShiftReduceParser(transitionIndex,featureIndex,featureWeights,op,featureFactory);
+    Map<String,List<ScoredObject<Integer>>> featureWeights=Generics.newHashMap();
+    for (    String feature : featureIndex) {
+      List<ScoredObject<Integer>> weights=Generics.newArrayList();
+      featureWeights.put(feature,weights);
+    }
+    parser=new ShiftReduceParser(transitionIndex,featureWeights,op,featureFactory);
     Random random=new Random(parser.op.trainOptions.randomSeed);
     Treebank devTreebank=null;
     if (devTreebankPath != null) {
@@ -100,7 +104,7 @@
       devTreebank.loadPath(devTreebankPath,devTreebankFilter);
       System.err.println("Loaded " + devTreebank.size() + " trees");
     }
-    for (int i=0; i < parser.op.trainOptions.trainingIterations; ++i) {
+    for (int iteration=1; iteration <= parser.op.trainOptions.trainingIterations; ++iteration) {
       int numCorrect=0;
       int numWrong=0;
       Collections.shuffle(binarizedTrees,random);
@@ -118,21 +122,21 @@
  else {
             numWrong++;
             for (            String feature : features) {
-              int featureNum=featureIndex.indexOf(feature);
-              featureWeights[predictedNum][featureNum]-=1.0;
-              featureWeights[transitionNum][featureNum]+=1.0;
+              List<ScoredObject<Integer>> weights=featureWeights.get(feature);
+              updateWeight(weights,transitionNum,1.0);
+              updateWeight(weights,predictedNum,-1.0);
             }
           }
           state=transition.apply(state);
         }
       }
-      System.err.println("Iteration " + i + " complete");
+      System.err.println("Iteration " + iteration + " complete");
       System.err.println("While training, got " + numCorrect + " transitions correct and "+ numWrong+ " transitions wrong");
       if (devTreebank != null) {
         EvaluateTreebank evaluator=new EvaluateTreebank(parser.op,null,parser);
         evaluator.testOnTreebank(devTreebank);
         double labelF1=evaluator.getLBScore();
-        System.err.println("Label F1 after " + i + " iterations: "+ labelF1);
+        System.err.println("Label F1 after " + iteration + " iterations: "+ labelF1);
       }
     }
     parser.condenseFeatures();
