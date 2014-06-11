@@ -1,23 +1,24 @@
 {
+  final Options op=model.op;
   Timing timing=new Timing();
-  long maxTrainTimeMillis=model.op.maxTrainTimeSeconds * 1000;
-  long nextDebugCycle=model.op.debugOutputSeconds * 1000;
+  long maxTrainTimeMillis=model.op.trainOptions.maxTrainTimeSeconds * 1000;
+  long nextDebugCycle=model.op.trainOptions.debugOutputSeconds * 1000;
   int debugCycle=0;
   double bestAccuracy=0.0;
   double[] sumGradSquare=new double[model.totalParamSize()];
   Arrays.fill(sumGradSquare,1.0);
-  int numBatches=trainingTrees.size() / op.batchSize + 1;
+  int numBatches=trainingTrees.size() / op.trainOptions.batchSize + 1;
   System.err.println("Training on " + trainingTrees.size() + " trees in "+ numBatches+ " batches");
-  System.err.println("Times through each training batch: " + op.iterations);
-  for (int iter=0; iter < op.trainOptions.dvIterations; ++iter) {
-    List<Tree> shuffledSentences=new ArrayList<Tree>(sentences);
-    Collections.shuffle(shuffledSentences,dvModel.rand);
+  System.err.println("Times through each training batch: " + op.trainOptions.iterations);
+  for (int iter=0; iter < op.trainOptions.iterations; ++iter) {
+    List<Tree> shuffledSentences=Generics.newArrayList(trainingTrees);
+    Collections.shuffle(shuffledSentences,model.rand);
     for (int batch=0; batch < numBatches; ++batch) {
       System.err.println("======================================");
       System.err.println("Iteration " + iter + " batch "+ batch);
-      int startTree=batch * op.batchSize;
-      int endTree=(batch + 1) * op.batchSize;
-      if (endTree + op.batchSize > shuffledSentences.size()) {
+      int startTree=batch * op.trainOptions.batchSize;
+      int endTree=(batch + 1) * op.trainOptions.batchSize;
+      if (endTree + op.trainOptions.batchSize > shuffledSentences.size()) {
         endTree=shuffledSentences.size();
       }
       executeOneTrainingBatch(model,shuffledSentences.subList(startTree,endTree),sumGradSquare);
