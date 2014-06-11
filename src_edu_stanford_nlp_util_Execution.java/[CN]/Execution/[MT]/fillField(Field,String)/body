@@ -1,0 +1,47 @@
+{
+  try {
+    boolean accessState=true;
+    if (Modifier.isFinal(f.getModifiers())) {
+      fatal("Option cannot be final: " + f);
+    }
+    if (!f.isAccessible()) {
+      accessState=false;
+      f.setAccessible(true);
+    }
+    Object objVal=MetaClass.cast(value,f.getGenericType());
+    if (objVal != null) {
+      if (objVal.getClass().isArray()) {
+        Object[] array=(Object[])objVal;
+        if (!f.getType().isArray()) {
+          fatal("Setting an array to a non-array field. field: " + f + " value: "+ Arrays.toString(array)+ " src: "+ value);
+        }
+        Object toSet=Array.newInstance(f.getType().getComponentType(),array.length);
+        for (int i=0; i < array.length; i++) {
+          Array.set(toSet,i,array[i]);
+        }
+        f.set(null,toSet);
+      }
+ else {
+        f.set(null,objVal);
+      }
+    }
+ else {
+      fatal("Cannot assign option field: " + f + " value: "+ value+ "; invalid type");
+    }
+    if (!accessState) {
+      f.setAccessible(false);
+    }
+  }
+ catch (  IllegalArgumentException e) {
+    err(e);
+    fatal("Cannot assign option field: " + f.getDeclaringClass().getCanonicalName() + "."+ f.getName()+ " value: "+ value+ " cause: "+ e.getMessage());
+  }
+catch (  IllegalAccessException e) {
+    err(e);
+    fatal("Cannot access option field: " + f.getDeclaringClass().getCanonicalName() + "."+ f.getName());
+  }
+catch (  Exception e) {
+    err(e);
+    fatal("Cannot assign option field: " + f.getDeclaringClass().getCanonicalName() + "."+ f.getName()+ " value: "+ value+ " cause: "+ e.getMessage());
+  }
+}
