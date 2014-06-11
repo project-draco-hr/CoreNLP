@@ -1,0 +1,12 @@
+{
+  assert(s != null);
+  assert(t != null);
+  assert(threshold >= 0);
+  assert(s.length() < Short.MAX_VALUE);
+  assert(t.length() < Short.MAX_VALUE);
+  if (s.length() + 1 > threadLocalBufferSize || t.length() + 1 > threadLocalBufferSize)   return editDistanceWithNewBuffers(s,t,(short)threshold);
+  short[] cost=costLocal.get();
+  short[] back1=back1Local.get();
+  short[] back2=back2Local.get();
+  return editDistanceWithBuffers(s,t,(short)threshold,back2,back1,cost);
+}

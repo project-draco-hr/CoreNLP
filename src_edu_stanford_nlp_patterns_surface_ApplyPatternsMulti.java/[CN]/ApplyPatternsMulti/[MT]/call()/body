@@ -1,0 +1,46 @@
+{
+  CollectionValuedMap<SurfacePattern,Triple<String,Integer,Integer>> matchedTokensByPat=new CollectionValuedMap<SurfacePattern,Triple<String,Integer,Integer>>();
+  TwoDimensionalCounter<Pair<String,String>,SurfacePattern> allFreq=new TwoDimensionalCounter<Pair<String,String>,SurfacePattern>();
+  for (  String sentid : sentids) {
+    List<CoreLabel> sent=Data.sents.get(sentid);
+    Iterable<SequenceMatchResult<CoreMap>> matched=multiPatternMatcher.findAllNonOverlappingMatchesPerPattern(sent);
+    for (    SequenceMatchResult<CoreMap> m : matched) {
+      int s=m.start("$term");
+      int e=m.end("$term");
+      SurfacePattern matchedPat=patterns.get(m.pattern());
+      matchedTokensByPat.add(matchedPat,new Triple<String,Integer,Integer>(sentid,s,e));
+      String phrase="";
+      String phraseLemma="";
+      boolean useWordNotLabeled=false;
+      boolean doNotUse=false;
+      for (int i=s; i < e; i++) {
+        CoreLabel l=sent.get(i);
+        l.set(PatternsAnnotations.MatchedPattern.class,true);
+        for (        Entry<Class,Object> ig : constVars.ignoreWordswithClassesDuringSelection.get(label).entrySet()) {
+          if (l.containsKey(ig.getKey()) && l.get(ig.getKey()).equals(ig.getValue())) {
+            doNotUse=true;
+          }
+        }
+        boolean containsStop=containsStopWord(l,constVars.getCommonEngWords(),constVars.ignoreWordRegex,ignoreWords);
+        if (removePhrasesWithStopWords && containsStop) {
+          doNotUse=true;
+        }
+ else {
+          if (!containsStop || !removeStopWordsFromSelectedPhrases) {
+            if (label == null || l.get(constVars.answerClass.get(label)) == null || !l.get(constVars.answerClass.get(label)).equals(label.toString())) {
+              useWordNotLabeled=true;
+            }
+            phrase+=" " + l.word();
+            phraseLemma+=" " + l.lemma();
+          }
+        }
+      }
+      if (!doNotUse && useWordNotLabeled) {
+        phrase=phrase.trim();
+        phraseLemma=phraseLemma.trim();
+        allFreq.incrementCount(new Pair<String,String>(phrase,phraseLemma),matchedPat,1.0);
+      }
+    }
+  }
+  return new Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<SurfacePattern,Triple<String,Integer,Integer>>>(allFreq,matchedTokensByPat);
+}
