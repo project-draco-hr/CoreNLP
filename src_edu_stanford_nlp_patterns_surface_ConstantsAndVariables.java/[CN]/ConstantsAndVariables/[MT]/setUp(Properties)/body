@@ -49,12 +49,20 @@
     env.get(label).bind("$MOD","[{tag:/JJ.*/}]");
     if (matchLowerCaseContext)     env.get(label).setDefaultStringPatternFlags(Pattern.CASE_INSENSITIVE);
     env.get(label).bind("OTHERSEM",PatternsAnnotations.OtherSemanticLabel.class);
+    env.get(label).bind("grandparentparsetag",CoreAnnotations.GrandparentAnnotation.class);
   }
   if (wordClassClusterFile != null) {
     wordClassClusters=new HashMap<String,Integer>();
     for (    String line : IOUtils.readLines(wordClassClusterFile)) {
       String[] t=line.split("\t");
       wordClassClusters.put(t[0],Integer.parseInt(t[1]));
+    }
+  }
+  if (generalWordClassClusterFile != null) {
+    setGeneralWordClassClusters(new HashMap<String,Integer>());
+    for (    String line : IOUtils.readLines(generalWordClassClusterFile)) {
+      String[] t=line.split("\t");
+      getGeneralWordClassClusters().put(t[0],Integer.parseInt(t[1]));
     }
   }
   alreadySetUp=true;
