@@ -40,7 +40,10 @@
   }
   if (sents.size() > 0 && batchProcessSents) {
     numFilesTillNow++;
-    IOUtils.writeObjectToFile(sents,saveSentencesSerDirFile + "/sents_" + numFilesTillNow);
+    File file=new File(saveSentencesSerDirFile + "/sents_" + numFilesTillNow);
+    IOUtils.writeObjectToFile(sents,file);
+    Data.sentsFiles.add(file);
+    sents.clear();
   }
   if (batchProcessSents)   sents=null;
   return numFilesTillNow;
