@@ -3,24 +3,18 @@
   if (start < 0)   start=0;
   TreebankLanguagePack tlp=op.tlpParams.treebankLanguagePack();
   for (int i=length - 1; i >= start; i--) {
-    Object item=sentence.get(i);
+    HasWord item=sentence.get(i);
     String tag=null;
     if (item instanceof HasTag) {
       tag=((HasTag)item).tag();
     }
-    if (tag != null && !"".equals(tag)) {
+    if (tag != null && !tag.isEmpty()) {
       if (tlp.isSentenceFinalPunctuationTag(tag)) {
         return;
       }
     }
- else     if (item instanceof HasWord) {
-      String str=((HasWord)item).word();
-      if (tlp.isPunctuationWord(str)) {
-        return;
-      }
-    }
  else {
-      String str=item.toString();
+      String str=item.word();
       if (tlp.isPunctuationWord(str)) {
         return;
       }
