@@ -11,19 +11,23 @@
   }
   Tree tt=UCPtransform(tx);
   if (VERBOSE) {
-    System.err.println("After UCPTransformer:             " + t);
+    System.err.println("After UCPTransformer:             " + tt);
   }
   Tree ttt=CCtransform(tt);
   if (VERBOSE) {
-    System.err.println("After CCTransformer:              " + t);
+    System.err.println("After CCTransformer:              " + ttt);
   }
   Tree tttt=qp.transformTree(ttt);
   if (VERBOSE) {
-    System.err.println("After QPTreeTransformer:          " + t);
+    System.err.println("After QPTreeTransformer:          " + tttt);
   }
-  Tree ret=dates.transformTree(tttt);
+  Tree flatSQ=SQflatten(tttt);
   if (VERBOSE) {
-    System.err.println("After DateTreeTransformer:        " + t);
+    System.err.println("After SQ flattening:              " + flatSQ);
+  }
+  Tree ret=dates.transformTree(flatSQ);
+  if (VERBOSE) {
+    System.err.println("After DateTreeTransformer:        " + ret);
   }
   return ret;
 }
