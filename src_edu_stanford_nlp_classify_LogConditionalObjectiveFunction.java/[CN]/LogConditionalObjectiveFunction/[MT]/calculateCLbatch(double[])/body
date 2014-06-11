@@ -19,10 +19,10 @@
   double[] sums=new double[numClasses];
   double[] probs=new double[numClasses];
   for (int d=0; d < data.length; d++) {
-    int[] features=data[d];
     Arrays.fill(sums,0.0);
-    for (int c=0; c < numClasses; c++) {
-      for (      int feature : features) {
+    int[] featuresArr=data[d];
+    for (    int feature : featuresArr) {
+      for (int c=0; c < numClasses; c++) {
         int i=indexOf(feature,c);
         sums[c]+=x[i];
       }
@@ -33,17 +33,19 @@
       if (dataWeights != null) {
         probs[c]*=dataWeights[d];
       }
-      for (      int feature : features) {
+    }
+    for (    int feature : featuresArr) {
+      for (int c=0; c < numClasses; c++) {
         int i=indexOf(feature,c);
         derivative[i]+=probs[c];
       }
     }
-    double dV=sums[labels[d]] - total;
+    int labelindex=labels[d];
+    double dV=sums[labelindex] - total;
     if (dataWeights != null) {
       dV*=dataWeights[d];
     }
     value-=dV;
   }
-  double[] newX=ArrayMath.pairwiseSubtract(x,weights);
-  value+=prior.compute(newX,derivative);
+  value+=prior.compute(x,derivative);
 }
