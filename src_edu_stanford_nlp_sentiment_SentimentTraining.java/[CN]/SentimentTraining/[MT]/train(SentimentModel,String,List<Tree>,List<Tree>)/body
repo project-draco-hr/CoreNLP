@@ -27,13 +27,20 @@
         break;
       }
       if (nextDebugCycle > 0 && totalElapsed > nextDebugCycle) {
+        Evaluate eval=new Evaluate(model);
+        eval.eval(devTrees);
+        eval.printSummary();
+        double score=eval.exactNodeAccuracy();
         if (modelPath != null) {
           String tempPath=modelPath;
           if (modelPath.endsWith(".ser.gz")) {
-            tempPath=modelPath.substring(0,modelPath.length() - 7) + "-" + FILENAME.format(debugCycle)+ ".ser.gz";
+            tempPath=modelPath.substring(0,modelPath.length() - 7) + "-" + FILENAME.format(debugCycle)+ "-"+ NF.format(score)+ ".ser.gz";
           }
  else           if (modelPath.endsWith(".gz")) {
-            tempPath=modelPath.substring(0,modelPath.length() - 3) + "-" + FILENAME.format(debugCycle)+ ".ser.gz";
+            tempPath=modelPath.substring(0,modelPath.length() - 3) + "-" + FILENAME.format(debugCycle)+ "-"+ NF.format(score)+ ".gz";
+          }
+ else {
+            tempPath=modelPath.substring(0,modelPath.length() - 3) + "-" + FILENAME.format(debugCycle)+ "-"+ NF.format(score);
           }
           model.saveSerialized(tempPath);
         }
