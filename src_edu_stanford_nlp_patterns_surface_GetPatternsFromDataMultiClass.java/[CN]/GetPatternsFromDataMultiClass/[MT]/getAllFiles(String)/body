@@ -2,17 +2,16 @@
   List<File> allFiles=new ArrayList<File>();
   for (  String tokfile : file.split("[,;]")) {
     File filef=new File(tokfile);
-    String path=".*";
+    String ext=".*";
     File dir=null;
     if (filef.isDirectory()) {
       dir=filef;
     }
  else {
       dir=filef.getParentFile();
-      path="^" + filef.getAbsolutePath() + "$";
+      ext=filef.getName();
     }
-    for (    File f : IOUtils.iterFilesRecursive(dir,Pattern.compile(path))) {
-      System.out.println("Reading file " + f);
+    for (    File f : IOUtils.iterFilesRecursive(dir,Pattern.compile(ext))) {
       allFiles.add(f);
     }
   }
