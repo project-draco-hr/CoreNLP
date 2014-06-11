@@ -1,16 +1,16 @@
 {
-  if (RelationExtractorProps.relationExtractorClassifierType.equalsIgnoreCase("linear")) {
-    LinearClassifierFactory<String,String> lcFactory=new LinearClassifierFactory<String,String>(1e-4,false,RelationExtractorProps.sigma);
+  if (relationExtractorClassifierType.equalsIgnoreCase("linear")) {
+    LinearClassifierFactory<String,String> lcFactory=new LinearClassifierFactory<String,String>(1e-4,false,sigma);
     lcFactory.setVerbose(false);
     classifier=lcFactory.trainClassifier(trainSet);
   }
- else   if (RelationExtractorProps.relationExtractorClassifierType.equalsIgnoreCase("svm")) {
+ else   if (relationExtractorClassifierType.equalsIgnoreCase("svm")) {
     SVMLightClassifierFactory<String,String> svmFactory=new SVMLightClassifierFactory<String,String>();
-    svmFactory.setC(RelationExtractorProps.sigma);
+    svmFactory.setC(sigma);
     classifier=svmFactory.trainClassifier(trainSet);
   }
  else {
-    throw new RuntimeException("Invalid classifier type: " + RelationExtractorProps.relationExtractorClassifierType);
+    throw new RuntimeException("Invalid classifier type: " + relationExtractorClassifierType);
   }
   if (logger.isLoggable(Level.FINE)) {
     reportWeights(classifier,null);
