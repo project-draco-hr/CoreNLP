@@ -1,0 +1,21 @@
+{
+  if (op.numHid == 0) {
+    throw new RuntimeException("Cannot create random word vectors for an unknown numHid");
+  }
+  Set<String> words=Generics.newHashSet();
+  for (  Tree tree : trainingTrees) {
+    List<Tree> leaves=tree.getLeaves();
+    for (    Tree leaf : leaves) {
+      String word=leaf.label().value();
+      if (op.lowercaseWordVectors) {
+        word=word.toLowerCase();
+      }
+      words.add(word);
+    }
+  }
+  this.wordVectors=Generics.newTreeMap();
+  for (  String word : words) {
+    SimpleMatrix vector=SimpleMatrix.random(1,numHid,-1.0 / Math.sqrt((double)numHid),1.0 / Math.sqrt((double)numHid),rand);
+    wordVectors.put(word,vector);
+  }
+}

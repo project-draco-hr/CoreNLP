@@ -20,11 +20,15 @@
       argIndex=newArgIndex;
     }
   }
-  List<Tree> trainingTrees=null;
+  List<Tree> trainingTrees=Generics.newArrayList();
+  MemoryTreebank treebank=new MemoryTreebank();
+  treebank.loadPath("sentimentTreesDebug.txt",null);
+  for (  Tree tree : treebank) {
+    trainingTrees.add(tree);
+  }
   List<Tree> devTrees=null;
-  TwoDimensionalSet<String,String> binaryRules=new TwoDimensionalSet<String,String>();
-  Set<String> unaryRules=Generics.newHashSet();
-  SentimentModel model=new SentimentModel(op,binaryRules,unaryRules);
+  List<Tree> testTrees=null;
+  SentimentModel model=new SentimentModel(op,trainingTrees);
   if (runGradientCheck) {
     runGradientCheck(model,trainingTrees);
   }
