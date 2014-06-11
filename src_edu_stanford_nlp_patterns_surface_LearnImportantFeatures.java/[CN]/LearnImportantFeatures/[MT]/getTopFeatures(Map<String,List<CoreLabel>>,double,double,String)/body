@@ -1,0 +1,47 @@
+{
+  Counter<String> features=new ClassicCounter<String>();
+  RVFDataset<String,String> dataset=new RVFDataset<String,String>();
+  Random r=new Random(10);
+  Random rneg=new Random(10);
+  int numrand=0;
+  List<Pair<String,Integer>> chosen=new ArrayList<Pair<String,Integer>>();
+  for (  Entry<String,List<CoreLabel>> en : sents.entrySet()) {
+    CoreLabel[] sent=en.getValue().toArray(new CoreLabel[0]);
+    for (int i=0; i < sent.length; i++) {
+      CoreLabel l=sent[i];
+      boolean chooseThis=false;
+      if (l.get(answerClass).equals(answerLabel)) {
+        chooseThis=true;
+      }
+ else       if ((!l.get(answerClass).equals("O") || negativeWords.contains(l.word().toLowerCase())) && getRandomBoolean(r,perSelectNeg)) {
+        chooseThis=true;
+      }
+ else       if (getRandomBoolean(r,perSelectRand)) {
+        numrand++;
+        chooseThis=true;
+      }
+ else       chooseThis=false;
+      if (chooseThis) {
+        chosen.add(new Pair(en.getKey(),i));
+        RVFDatum<String,String> d=getDatum(sent,i);
+        dataset.add(d,en.getKey(),Integer.toString(i));
+      }
+    }
+  }
+  System.out.println("num random chosen: " + numrand);
+  System.out.println("Number of datums per label: " + dataset.numDatumsPerLabel());
+  LogisticClassifierFactory<String,String> logfactory=new LogisticClassifierFactory<String,String>();
+  LogisticClassifier<String,String> classifier=logfactory.trainClassifier(dataset);
+  Counter<String> weights=classifier.weightsAsGenericCounter();
+  if (!classifier.getLabelForInternalPositiveClass().equals(answerLabel))   weights=Counters.scale(weights,-1);
+  if (thresholdWeight != null) {
+    HashSet<String> removeKeys=new HashSet<String>();
+    for (    Entry<String,Double> en : weights.entrySet()) {
+      if (Math.abs(en.getValue()) <= thresholdWeight)       removeKeys.add(en.getKey());
+    }
+    Counters.removeKeys(weights,removeKeys);
+    System.out.println("Removing " + removeKeys);
+  }
+  IOUtils.writeStringToFile(Counters.toSortedString(weights,weights.size(),"%1$s:%2$f","\n"),externalFeatureWeightsFileLabel,"utf8");
+  return features;
+}
