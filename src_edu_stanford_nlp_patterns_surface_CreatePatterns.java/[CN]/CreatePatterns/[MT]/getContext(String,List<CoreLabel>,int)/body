@@ -1,0 +1,199 @@
+{
+  Set<SurfacePattern> prevpatterns=new HashSet<SurfacePattern>();
+  Set<SurfacePattern> nextpatterns=new HashSet<SurfacePattern>();
+  Set<SurfacePattern> prevnextpatterns=new HashSet<SurfacePattern>();
+  String fulltag=sent.get(i).tag();
+  String tag=fulltag.substring(0,Math.min(fulltag.length(),2));
+  for (int maxWin=1; maxWin <= maxWindow4Pattern; maxWin++) {
+    List<String> previousTokens=new ArrayList<String>();
+    String originalPrevStr="", originalNextStr="";
+    List<String> nextTokens=new ArrayList<String>();
+    int numStopWordsprev=0, numStopWordsnext=0;
+    int numNonStopWordsNext=0, numNonStopWordsPrev=0;
+    boolean useprev=false, usenext=false;
+    if (usePreviousContext) {
+      int j=i - 1;
+      int numTokens=0;
+      while (numTokens < maxWin && j >= 0) {
+        CoreLabel tokenj=sent.get(j);
+        if (useFillerWordsInPat && constVars.fillerWords.contains(tokenj.word().toLowerCase())) {
+          j--;
+          continue;
+        }
+        if (!tokenj.containsKey(constVars.answerClass.get(label))) {
+          throw new RuntimeException("how come the class " + constVars.answerClass.get(label) + " for token "+ tokenj.word()+ " in "+ sent+ " is not set");
+        }
+        String strgeneric="";
+        String strOriginal="";
+        boolean isLabeledO=true;
+        for (        Entry<String,Class> e : constVars.answerClass.entrySet()) {
+          if (!tokenj.get(e.getValue()).equals(constVars.backgroundSymbol)) {
+            isLabeledO=false;
+            if (strgeneric.isEmpty()) {
+              strgeneric="{" + e.getKey() + ":"+ e.getKey()+ "}";
+              strOriginal=e.getKey();
+            }
+ else {
+              strgeneric+=" | " + "{" + e.getKey() + ":"+ e.getKey()+ "}";
+              strOriginal+="|" + e.getKey();
+            }
+          }
+        }
+        if (!isLabeledO) {
+          previousTokens.add(0,"[" + strgeneric + "]");
+          originalPrevStr=strOriginal + " " + originalPrevStr;
+          numNonStopWordsPrev++;
+        }
+ else         if (tokenj.word().startsWith("http")) {
+          useprev=false;
+          previousTokens.clear();
+          originalPrevStr="";
+          break;
+        }
+ else {
+          String str=SurfacePattern.getContextStr(tokenj);
+          previousTokens.add(0,str);
+          originalPrevStr=tokenj.lemma() + " " + originalPrevStr;
+          if (doNotUse(tokenj.lemma(),constVars.stopWords)) {
+            numStopWordsprev++;
+          }
+ else           numNonStopWordsPrev++;
+        }
+        numTokens++;
+        j--;
+      }
+    }
+    if (useNextContext) {
+      int numTokens=0;
+      int j=i + 1;
+      while (numTokens < maxWin && j < sent.size()) {
+        CoreLabel tokenj=sent.get(j);
+        if (useFillerWordsInPat && constVars.fillerWords.contains(tokenj.word().toLowerCase())) {
+          j++;
+          continue;
+        }
+        if (!tokenj.containsKey(constVars.answerClass.get(label))) {
+          throw new RuntimeException("how come the dict annotation for token " + tokenj.word() + " in "+ sent+ " is not set");
+        }
+        String strgeneric="";
+        String strOriginal="";
+        boolean isLabeledO=true;
+        for (        Entry<String,Class> e : constVars.answerClass.entrySet()) {
+          if (!tokenj.get(e.getValue()).equals(constVars.backgroundSymbol)) {
+            isLabeledO=false;
+            if (strgeneric.isEmpty()) {
+              strgeneric="{" + e.getKey() + ":"+ e.getKey()+ "}";
+              strOriginal=e.getKey();
+            }
+ else {
+              strgeneric+=" | " + "{" + e.getKey() + ":"+ e.getKey()+ "}";
+              strOriginal+="|" + e.getKey();
+            }
+          }
+        }
+        if (!isLabeledO) {
+          numNonStopWordsNext++;
+          nextTokens.add("[" + strgeneric + "]");
+          originalNextStr+=strOriginal;
+        }
+ else         if (tokenj.word().startsWith("http")) {
+          usenext=false;
+          nextTokens.clear();
+          originalNextStr="";
+          break;
+        }
+ else {
+          String str=SurfacePattern.getContextStr(tokenj);
+          nextTokens.add(str);
+          originalNextStr+=" " + tokenj.lemma();
+          if (doNotUse(tokenj.lemma(),constVars.stopWords)) {
+            numStopWordsnext++;
+          }
+ else           numNonStopWordsNext++;
+        }
+        j++;
+        numTokens++;
+      }
+    }
+    String prevContext=null, nextContext=null;
+    String fw=" ";
+    if (useFillerWordsInPat)     fw=" $FILLER{0,2} ";
+    String sw="";
+    if (useStopWordsBeforeTerm) {
+      sw=" $STOPWORD{0,2} ";
+    }
+    if (previousTokens.size() >= minWindow4Pattern && (numNonStopWordsPrev > 0 || numStopWordsprev > numMinStopWordsToAdd)) {
+      prevContext=StringUtils.join(previousTokens,fw);
+      String str=prevContext + fw + sw;
+      PatternToken twithoutPOS=null;
+      if (addPatWithoutPOS) {
+        twithoutPOS=new PatternToken(tag,false,constVars.numWordsCompound > 1,constVars.numWordsCompound);
+      }
+      PatternToken twithPOS=null;
+      if (usePOS4Pattern) {
+        twithPOS=new PatternToken(tag,true,constVars.numWordsCompound > 1,constVars.numWordsCompound);
+      }
+      if (isASCII(prevContext)) {
+        if (previousTokens.size() >= minWindow4Pattern) {
+          if (twithoutPOS != null) {
+            SurfacePattern pat=new SurfacePattern(str,twithoutPOS,"",originalPrevStr,"");
+            prevpatterns.add(pat);
+          }
+          if (twithPOS != null) {
+            SurfacePattern patPOS=new SurfacePattern(str,twithPOS,"",originalPrevStr,"");
+            prevpatterns.add(patPOS);
+          }
+        }
+        useprev=true;
+      }
+    }
+    if (nextTokens.size() > 0 && (numNonStopWordsNext > 0 || numStopWordsnext > numMinStopWordsToAdd)) {
+      nextContext=StringUtils.join(nextTokens,fw);
+      String str="";
+      PatternToken twithoutPOS=null;
+      if (addPatWithoutPOS) {
+        twithoutPOS=new PatternToken(tag,false,constVars.numWordsCompound > 1,constVars.numWordsCompound);
+      }
+      PatternToken twithPOS=null;
+      if (usePOS4Pattern) {
+        twithPOS=new PatternToken(tag,true,constVars.numWordsCompound > 1,constVars.numWordsCompound);
+      }
+      str+=sw + fw + nextContext;
+      if (nextTokens.size() >= minWindow4Pattern) {
+        if (twithoutPOS != null) {
+          SurfacePattern pat=new SurfacePattern("",twithoutPOS,str,"",originalNextStr);
+          nextpatterns.add(pat);
+        }
+        if (twithPOS != null) {
+          SurfacePattern patPOS=new SurfacePattern("",twithPOS,str,"",originalNextStr);
+          nextpatterns.add(patPOS);
+        }
+      }
+      usenext=true;
+    }
+    if (useprev && usenext) {
+      String strprev=prevContext + fw + sw;
+      PatternToken twithoutPOS=null;
+      if (addPatWithoutPOS) {
+        twithoutPOS=new PatternToken(tag,false,constVars.numWordsCompound > 1,constVars.numWordsCompound);
+      }
+      PatternToken twithPOS=null;
+      if (usePOS4Pattern) {
+        twithPOS=new PatternToken(tag,true,constVars.numWordsCompound > 1,constVars.numWordsCompound);
+      }
+      String strnext=sw + fw + nextContext;
+      if (previousTokens.size() + nextTokens.size() >= minWindow4Pattern) {
+        if (twithoutPOS != null) {
+          SurfacePattern pat=new SurfacePattern(strprev,twithoutPOS,strnext,originalPrevStr,originalNextStr);
+          prevnextpatterns.add(pat);
+        }
+        if (twithPOS != null) {
+          SurfacePattern patPOS=new SurfacePattern(strprev,twithPOS,strnext,originalPrevStr,originalNextStr);
+          prevnextpatterns.add(patPOS);
+        }
+      }
+    }
+  }
+  Triple<Set<SurfacePattern>,Set<SurfacePattern>,Set<SurfacePattern>> patterns=new Triple<Set<SurfacePattern>,Set<SurfacePattern>,Set<SurfacePattern>>(prevpatterns,nextpatterns,prevnextpatterns);
+  return patterns;
+}

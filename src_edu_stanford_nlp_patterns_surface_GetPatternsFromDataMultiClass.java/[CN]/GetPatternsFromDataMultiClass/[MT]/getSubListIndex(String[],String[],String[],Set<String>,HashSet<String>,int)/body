@@ -1,0 +1,65 @@
+{
+  if (l1.length > l2.length)   return null;
+  EditDistance editDistance=new EditDistance(true);
+  List<Integer> allIndices=new ArrayList<Integer>();
+  boolean matched=false;
+  int index=-1;
+  int lastUnmatchedIndex=0;
+  for (int i=0; i < l2.length; ) {
+    for (int j=0; j < l1.length; ) {
+      boolean d1=false, d2=false;
+      boolean compareFuzzy=true;
+      if (englishWords.contains(l2[i]) || englishWords.contains(subl2[i]) || l2[i].length() <= minLen4Fuzzy || subl2[i].length() <= minLen4Fuzzy)       compareFuzzy=false;
+      if (compareFuzzy == false || l1[j].length() <= minLen4Fuzzy) {
+        d1=l1[j].equals(l2[i]) ? true : false;
+        if (!d1)         d2=subl2[i].equals(l1[j]) ? true : false;
+      }
+ else {
+        String combo=l1[j] + "#" + l2[i];
+        if (l1[j].equals(l2[i]) || seenFuzzyMatches.contains(combo))         d1=true;
+ else {
+          d1=editDistance.score(l1[j],l2[i]) <= 1;
+          if (!d1) {
+            String combo2=l1[j] + "#" + subl2[i];
+            if (l1[j].equals(subl2[i]) || seenFuzzyMatches.contains(combo2))             d2=true;
+ else {
+              d2=editDistance.score(l1[j],subl2[i]) <= 1;
+              if (d2) {
+                seenFuzzyMatches.add(combo2);
+              }
+            }
+          }
+ else           if (d1) {
+            seenFuzzyMatches.add(combo);
+          }
+        }
+      }
+      if (d1 || d2) {
+        index=i;
+        i++;
+        j++;
+        if (j == l1.length) {
+          matched=true;
+          break;
+        }
+      }
+ else {
+        j=0;
+        i=lastUnmatchedIndex + 1;
+        lastUnmatchedIndex=i;
+        index=-1;
+        if (lastUnmatchedIndex == l2.length)         break;
+      }
+      if (i >= l2.length) {
+        index=-1;
+        break;
+      }
+    }
+    if (i == l2.length || matched) {
+      if (index >= 0)       allIndices.add(index - l1.length + 1);
+      matched=false;
+      lastUnmatchedIndex=index;
+    }
+  }
+  return allIndices;
+}
