@@ -1,0 +1,21 @@
+{
+  double[] scores=new double[featureWeights.length];
+  for (  String feature : features) {
+    int featureNum=featureIndex.indexOf(feature);
+    if (featureNum >= 0) {
+      for (int i=0; i < scores.length; ++i) {
+        scores[i]+=featureWeights[i][featureNum];
+      }
+    }
+  }
+  PriorityQueue<ScoredObject<Integer>> queue=new PriorityQueue<ScoredObject<Integer>>(numTransitions + 1,ScoredComparator.ASCENDING_COMPARATOR);
+  for (int i=0; i < scores.length; ++i) {
+    if (!requireLegal || transitionIndex.get(i).isLegal(state)) {
+      queue.add(new ScoredObject<Integer>(i,scores[i]));
+      if (queue.size() > numTransitions) {
+        queue.poll();
+      }
+    }
+  }
+  return queue;
+}
