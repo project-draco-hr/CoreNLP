@@ -8,7 +8,7 @@
     }
     while (true) {
       if (children[currChild] == null) {
-        children[currChild]=myNode.children.get(currChild).matcher(root,tree,nodesToParents,namesToNodes,variableStrings,headFinder);
+        children[currChild]=myNode.children.get(currChild).matcher(root,tree,nodesToParents,namesToNodes,variableStrings);
         children[currChild].resetChildIter(tree);
       }
       if (myNode.isNegated() != children[currChild].matches()) {
@@ -32,7 +32,7 @@
  else {
     for (; currChild < children.length; currChild++) {
       if (children[currChild] == null) {
-        children[currChild]=myNode.children.get(currChild).matcher(root,tree,nodesToParents,namesToNodes,variableStrings,headFinder);
+        children[currChild]=myNode.children.get(currChild).matcher(root,tree,nodesToParents,namesToNodes,variableStrings);
         children[currChild].resetChildIter(tree);
       }
       if (myNode.isNegated() != children[currChild].matches()) {
@@ -46,9 +46,7 @@
       currChild=children.length;
     }
     for (int resetChild=0; resetChild < currChild; ++resetChild) {
-      if (children[resetChild] != null) {
-        children[resetChild].resetChildIter();
-      }
+      children[resetChild].resetChildIter();
     }
     return myNode.isOptional();
   }
