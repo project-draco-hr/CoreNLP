@@ -1,0 +1,22 @@
+{
+  if (mention.headWord == null) {
+    return false;
+  }
+  String speaker=mention.headWord.get(CoreAnnotations.SpeakerAnnotation.class);
+  if (speaker == null) {
+    return false;
+  }
+  SpeakerInfo speakerInfo=(document != null) ? document.getSpeakerInfo(speaker) : null;
+  if (speakerInfo != null) {
+    return (mentionMatchesSpeaker(ant,speakerInfo,false));
+  }
+  if (speaker.indexOf(" ") >= 0) {
+    for (    String s : WHITESPACE_PATTERN.split(speaker)) {
+      if (ant.headString.equalsIgnoreCase(s))       return true;
+    }
+  }
+ else {
+    if (ant.headString.equalsIgnoreCase(speaker))     return true;
+  }
+  return false;
+}
