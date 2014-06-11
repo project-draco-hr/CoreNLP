@@ -47,9 +47,15 @@
         }
       }
     }
-    if (!keepRunning && !constVars.tuneThresholdKeepRunning) {
-      Redwood.log(Redwood.FORCE,"No patterns learned for all labels. Ending iterations.");
-      break;
+    if (!keepRunning) {
+      if (!constVars.tuneThresholdKeepRunning) {
+        Redwood.log(Redwood.FORCE,"No patterns learned for all labels. Ending iterations.");
+        break;
+      }
+ else {
+        constVars.thresholdSelectPattern=0.8 * constVars.thresholdSelectPattern;
+        Redwood.log(Redwood.FORCE,"\n\nTuning thresholds to keep running. New Pattern threshold is  " + constVars.thresholdSelectPattern);
+      }
     }
   }
   if (constVars.outDir != null && !constVars.outDir.isEmpty()) {
