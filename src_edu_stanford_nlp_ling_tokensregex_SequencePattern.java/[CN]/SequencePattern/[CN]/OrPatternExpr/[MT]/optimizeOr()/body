@@ -62,23 +62,24 @@
   }
   Map<PatternExpr,Boolean> alreadyOptimized=new IdentityHashMap<PatternExpr,Boolean>();
   List<PatternExpr> finalOptimizedPatterns=new ArrayList<PatternExpr>(patterns.size());
-  for (  Pair<Class,Boolean> key : stringPatterns.keySet()) {
-    Pair<Collection<PatternExpr>,Set<String>> saved=stringPatterns.get(key);
+  for (  Map.Entry<Pair<Class,Boolean>,Pair<Collection<PatternExpr>,Set<String>>> entry : stringPatterns.entrySet()) {
+    Pair<Collection<PatternExpr>,Set<String>> saved=entry.getValue();
     Set<String> set=saved.second;
-    int flags=(key.second) ? NodePattern.CASE_INSENSITIVE : 0;
+    int flags=(entry.getKey().second) ? NodePattern.CASE_INSENSITIVE : 0;
     if (set.size() > OPTIMIZE_MIN_SIZE) {
-      PatternExpr optimized=new NodePatternExpr(new CoreMapNodePattern(key.first,new CoreMapNodePattern.StringInSetAnnotationPattern(set,flags)));
+      PatternExpr optimized=new NodePatternExpr(new CoreMapNodePattern(entry.getKey().first,new CoreMapNodePattern.StringInSetAnnotationPattern(set,flags)));
       finalOptimizedPatterns.add(optimized);
       for (      PatternExpr p : saved.first) {
         alreadyOptimized.put(p,true);
       }
     }
   }
-  for (  Pair<Class,Boolean> key : stringSeqPatterns.keySet()) {
-    Pair<Collection<PatternExpr>,Set<List<String>>> saved=stringSeqPatterns.get(key);
+  for (  Map.Entry<Pair<Class,Boolean>,Pair<Collection<PatternExpr>,Set<List<String>>>> entry : stringSeqPatterns.entrySet()) {
+    Pair<Collection<PatternExpr>,Set<List<String>>> saved=entry.getValue();
     Set<List<String>> set=saved.second;
     if (set.size() > OPTIMIZE_MIN_SIZE) {
-      PatternExpr optimized=new MultiNodePatternExpr(new MultiCoreMapNodePattern.StringSequenceAnnotationPattern(key.first,set,key.second));
+      Pair<Class,Boolean> key=entry.getKey();
+      PatternExpr optimized=new MultiNodePatternExpr(new MultiCoreMapNodePattern.StringSequenceAnnotationPattern(key.first(),set,key.second()));
       finalOptimizedPatterns.add(optimized);
       for (      PatternExpr p : saved.first) {
         alreadyOptimized.put(p,true);

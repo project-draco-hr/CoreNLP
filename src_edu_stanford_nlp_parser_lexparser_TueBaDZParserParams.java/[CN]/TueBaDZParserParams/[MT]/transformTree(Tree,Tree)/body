@@ -3,11 +3,16 @@
     return t;
   }
   List<String> annotations=new ArrayList<String>();
-  CategoryWordTag lab=(CategoryWordTag)t.label();
-  String word=lab.word();
-  String tag=lab.tag();
+  Label lab=t.label();
+  String word=null;
+  if (lab instanceof HasWord) {
+    word=((HasWord)lab).word();
+  }
+  String tag=null;
+  if (lab instanceof HasTag) {
+    tag=((HasTag)lab).tag();
+  }
   String cat=lab.value();
-  Tree parent=t.parent(root);
   if (t.isPhrasal()) {
     List<String> childBasicCats=childBasicCats(t);
     if (markZu && cat.startsWith("V") && (childBasicCats.contains("PTKZU") || childBasicCats.contains("PTKZU-HD") || childBasicCats.contains("VVIZU")|| childBasicCats.contains("VVIZU-HD"))) {
@@ -34,13 +39,12 @@
     }
   }
  else {
-    if (markColons && cat.equals("$.") && (word.equals(":") || word.equals(";"))) {
+    if (markColons && cat.equals("$.") && word != null && (word.equals(":") || word.equals(";"))) {
       annotations.add("-%colon");
     }
     if (leftPhrasal && leftPhrasal(t)) {
       annotations.add("%LP");
     }
-    ;
   }
   StringBuilder catSB=new StringBuilder(cat);
   for (  String annotation : annotations) {
