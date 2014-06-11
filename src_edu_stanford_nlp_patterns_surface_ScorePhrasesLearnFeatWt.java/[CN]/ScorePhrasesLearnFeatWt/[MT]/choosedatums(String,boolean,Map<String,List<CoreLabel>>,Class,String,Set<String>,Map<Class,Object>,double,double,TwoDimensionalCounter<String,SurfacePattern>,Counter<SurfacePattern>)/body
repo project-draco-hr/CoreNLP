@@ -5,14 +5,17 @@
   int numpos=0, numneg=0;
   List<Pair<String,Integer>> chosen=new ArrayList<Pair<String,Integer>>();
   for (  Entry<String,List<CoreLabel>> en : sents.entrySet()) {
-    CoreLabel[] sent=en.getValue().toArray(new CoreLabel[0]);
+    List<CoreLabel> value=en.getValue();
+    CoreLabel[] sent=value.toArray(new CoreLabel[value.size()]);
     for (int i=0; i < sent.length; i++) {
       CoreLabel l=sent[i];
       boolean chooseThis=false;
       boolean ignoreclass=false;
       Boolean datumlabel=false;
       for (      Class cl : otherIgnoreClasses.keySet()) {
-        if ((boolean)l.get(cl))         ignoreclass=true;
+        if ((Boolean)l.get(cl)) {
+          ignoreclass=true;
+        }
       }
       if (l.get(answerClass).equals(answerLabel)) {
         datumlabel=true;
