@@ -1,9 +1,10 @@
 {
-  if (target == null)   return;
+  if (target == null)   return false;
   if (value == null) {
     this.value=target;
     this.maxEnd=target.getInterval().getEnd();
     this.size=1;
+    return true;
   }
  else {
     this.maxEnd=Interval.max(maxEnd,target.getInterval().getEnd());
@@ -11,14 +12,16 @@
     if (target.getInterval().getBegin().compareTo(value.getInterval().getBegin()) <= 0) {
       if (left == null) {
         left=new IntervalTree<E,T>();
+        left.parent=this;
       }
-      left.add(target);
+      return left.add(target);
     }
  else {
       if (right == null) {
         right=new IntervalTree<E,T>();
+        right.parent=this;
       }
-      right.add(target);
+      return right.add(target);
     }
   }
 }
