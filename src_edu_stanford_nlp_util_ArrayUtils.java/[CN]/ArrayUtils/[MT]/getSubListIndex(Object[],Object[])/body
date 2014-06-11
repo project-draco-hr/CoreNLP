@@ -1,16 +1,16 @@
 {
-  if (l1.length > l2.length)   return null;
+  if (tofind.length > tokens.length)   return null;
   List<Integer> allIndices=new ArrayList<Integer>();
   boolean matched=false;
   int index=-1;
   int lastUnmatchedIndex=0;
-  for (int i=0; i < l2.length; ) {
-    for (int j=0; j < l1.length; ) {
-      if (l1[j].equals(l2[i])) {
+  for (int i=0; i < tokens.length; ) {
+    for (int j=0; j < tofind.length; ) {
+      if (tofind[j].equals(tokens[i])) {
         index=i;
         i++;
         j++;
-        if (j == l1.length) {
+        if (j == tofind.length) {
           matched=true;
           break;
         }
@@ -20,15 +20,15 @@
         i=lastUnmatchedIndex + 1;
         lastUnmatchedIndex=i;
         index=-1;
-        if (lastUnmatchedIndex == l2.length)         break;
+        if (lastUnmatchedIndex == tokens.length)         break;
       }
-      if (i >= l2.length) {
+      if (i >= tokens.length) {
         index=-1;
         break;
       }
     }
-    if (i == l2.length || matched) {
-      if (index >= 0)       allIndices.add(index - l1.length + 1);
+    if (i == tokens.length || matched) {
+      if (index >= 0)       allIndices.add(index - tofind.length + 1);
       matched=false;
       lastUnmatchedIndex=index;
     }
