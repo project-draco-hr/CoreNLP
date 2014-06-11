@@ -1,7 +1,7 @@
 {
   nThreads=numThreads <= 0 ? Runtime.getRuntime().availableProcessors() : numThreads;
   this.orderResults=orderResults;
-  outputQueue=new PriorityQueue<QueueItem<O>>(10 * nThreads);
+  outputQueue=new PriorityBlockingQueue<QueueItem<O>>(10 * nThreads);
   threadPool=(ThreadPoolExecutor)Executors.newFixedThreadPool(nThreads);
   queue=new ExecutorCompletionService<JobResult<O>>(threadPool);
   processorList=new ArrayList<ThreadsafeProcessor<I,O>>(nThreads);
