@@ -1,0 +1,19 @@
+{
+  if (tree.isLeaf()) {
+  }
+ else   if (tree.isPreTerminal()) {
+    transitions.add(new ShiftTransition());
+  }
+ else   if (tree.children().length == 1) {
+    createTransitionSequenceHelper(transitions,tree.children()[0]);
+    transitions.add(new UnaryTransition(tree.label().value()));
+  }
+ else   if (tree.children().length == 2) {
+    createTransitionSequenceHelper(transitions,tree.children()[0]);
+    createTransitionSequenceHelper(transitions,tree.children()[1]);
+    transitions.add(new BinaryTransition(tree.label().value()));
+  }
+ else {
+    throw new IllegalArgumentException("Expected a binarized tree");
+  }
+}
