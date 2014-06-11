@@ -1,0 +1,27 @@
+{
+  if (!wordVectors.containsKey(UNKNOWN_WORD)) {
+    String unkStr="";
+    if (wordVectors.containsKey("UNK")) {
+      unkStr="UNK";
+    }
+    if (wordVectors.containsKey("UUUNKKK")) {
+      unkStr="UUUNKKK";
+    }
+    if (wordVectors.containsKey("UNKNOWN")) {
+      unkStr="UNKNOWN";
+    }
+    if (wordVectors.containsKey("*UNKNOWN*")) {
+      unkStr="*UNKNOWN*";
+    }
+    if (wordVectors.containsKey("<unk>")) {
+      unkStr="<unk>";
+    }
+    if (!unkStr.equals("")) {
+      wordVectors.put(UNKNOWN_WORD,wordVectors.get(unkStr));
+    }
+ else {
+      throw new RuntimeException("! wordVectors used to initialize Embedding doesn't contain any recognized form of " + UNKNOWN_WORD);
+    }
+  }
+  return wordVectors.get(UNKNOWN_WORD).getNumElements();
+}
