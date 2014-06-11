@@ -3,18 +3,11 @@
   this.orderResults=orderResults;
   outputQueue=new PriorityQueue<QueueItem<O>>(10 * nThreads);
   threadPool=(ThreadPoolExecutor)Executors.newFixedThreadPool(nThreads);
+  queue=new ExecutorCompletionService<JobResult<O>>(threadPool);
   processorList=new ArrayList<ThreadsafeProcessor<I,O>>(nThreads);
-  idleProcessors=new LinkedBlockingQueue<Integer>();
-  runningJobs=new HashMap<Integer,Future<Integer>>();
-  callback=new JobCallback<O>(){
-    @Override public void call(    QueueItem<O> result,    int processorId){
-      outputQueue.add(result);
-      idleProcessors.add(processorId);
-    }
-  }
-;
+  idleProcessors=new ConcurrentLinkedQueue<Integer>();
+  runningJobs=new HashMap<Integer,Future<JobResult<O>>>();
   threadPool.allowCoreThreadTimeOut(false);
-  threadPool.prestartAllCoreThreads();
   processorList.add(processor);
   idleProcessors.add(0);
   for (int i=1; i < nThreads; ++i) {
