@@ -72,9 +72,8 @@
     scoreForAllWordsThisIteration.clear();
     Counters.addInPlace(scoreForAllWordsThisIteration,phraseScores);
     Redwood.log(Redwood.FORCE,channelNameLogger,"## Selected Words: " + Counters.toSortedString(finalwords,finalwords.size(),"%1$s:%2$.2f","\t"));
-    if (constVars.outDir != null && !constVars.outDir.isEmpty()) {
-      String outputdir=constVars.outDir + "/" + identifier+ "/"+ label;
-      IOUtils.ensureDir(new File(outputdir));
+    if (outDir != null && !outDir.isEmpty()) {
+      IOUtils.ensureDir(new File(outDir + "/" + identifier+ "/"+ label));
       TwoDimensionalCounter<String,String> reasonForWords=new TwoDimensionalCounter<String,String>();
       for (      String word : finalwords.keySet()) {
         for (        SurfacePattern l : wordsPatExtracted.getCounter(word).keySet()) {
@@ -83,8 +82,7 @@
           }
         }
       }
-      Redwood.log(Redwood.FORCE,"Saving output in " + outputdir);
-      String filename=outputdir + "/words.json";
+      String filename=outDir + "/" + identifier+ "/"+ label+ "/words"+ ".json";
       JsonArrayBuilder obj=Json.createArrayBuilder();
       if (writtenInJustification.containsKey(label) && writtenInJustification.get(label)) {
         JsonReader jsonReader=Json.createReader(new BufferedInputStream(new FileInputStream(filename)));
