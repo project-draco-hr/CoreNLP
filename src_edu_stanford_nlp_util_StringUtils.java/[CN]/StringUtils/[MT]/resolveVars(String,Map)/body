@@ -7,11 +7,13 @@
     String varName=null == m.group(1) ? m.group(2) : m.group(1);
     String vrValue;
     if (props.containsKey(varName)) {
-      vrValue=(String)props.get(varName);
+      vrValue=((String)props.get(varName));
+      vrValue=Matcher.quoteReplacement(vrValue);
     }
  else {
       vrValue=System.getenv(varName);
     }
+    System.out.println(varName + ":" + sb+ " and "+ vrValue);
     m.appendReplacement(sb,null == vrValue ? "" : vrValue);
   }
   m.appendTail(sb);
