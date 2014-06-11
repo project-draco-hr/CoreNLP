@@ -6,8 +6,9 @@
   String[] mappings=mappingFiles.split("\\s*[,;]\\s*");
   String validPosRegex=properties.getProperty(prefix + "validpospattern");
   this.posMatchType=PosMatchType.valueOf(properties.getProperty(prefix + "posmatchtype",DEFAULT_POS_MATCH_TYPE.name()));
+  boolean overwriteMyLabels=true;
   String noDefaultOverwriteLabelsProp=properties.getProperty(prefix + "noDefaultOverwriteLabels");
-  this.noDefaultOverwriteLabels=(noDefaultOverwriteLabelsProp != null) ? Collections.unmodifiableSet(CollectionUtils.asSet(noDefaultOverwriteLabelsProp.split("\\s*,\\s*"))) : Collections.unmodifiableSet(new HashSet<String>());
+  this.noDefaultOverwriteLabels=(noDefaultOverwriteLabelsProp != null) ? CollectionUtils.asSet(noDefaultOverwriteLabelsProp.split("\\s*,\\s*")) : new HashSet<String>();
   this.ignoreCase=PropertiesUtils.getBool(properties,prefix + "ignorecase",false);
   this.verbose=PropertiesUtils.getBool(properties,prefix + "verbose",false);
   if (validPosRegex != null && !validPosRegex.equals("")) {
@@ -16,13 +17,12 @@
  else {
     validPosPattern=null;
   }
-  entries=Collections.unmodifiableList(readEntries(name,noDefaultOverwriteLabels,ignoreCase,verbose,mappings));
-  IdentityHashMap<SequencePattern<CoreMap>,Entry> patternToEntry=new IdentityHashMap<SequencePattern<CoreMap>,Entry>();
-  multiPatternMatcher=createPatternMatcher(patternToEntry);
-  this.patternToEntry=Collections.unmodifiableMap(patternToEntry);
-  Set<String> myLabels=Generics.newHashSet();
-  Collections.addAll(myLabels,backgroundSymbols);
+  entries=readEntries(name,noDefaultOverwriteLabels,ignoreCase,verbose,mappings);
+  multiPatternMatcher=createPatternMatcher();
+  myLabels=Generics.newHashSet();
+  for (  String s : backgroundSymbols)   myLabels.add(s);
   myLabels.add(null);
-  for (  Entry entry : entries)   myLabels.add(entry.type);
-  this.myLabels=Collections.unmodifiableSet(myLabels);
+  if (overwriteMyLabels) {
+    for (    Entry entry : entries)     myLabels.add(entry.type);
+  }
 }
