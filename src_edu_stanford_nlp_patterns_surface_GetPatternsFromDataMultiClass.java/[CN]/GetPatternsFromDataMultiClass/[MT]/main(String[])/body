@@ -52,6 +52,7 @@
       List<File> allFiles=GetPatternsFromDataMultiClass.getAllFiles(file);
       if (fileFormat == null || fileFormat.equalsIgnoreCase("text") || fileFormat.equalsIgnoreCase("txt")) {
         for (        File f : allFiles) {
+          Redwood.log(Redwood.DBG,"Annotating text in " + f);
           String text=IOUtils.stringFromFile(f.getAbsolutePath());
           sents.putAll(tokenize(text,posModelPath,lowercase,useTargetNERRestriction | useContextNERRestriction,f.getName() + "-",useTargetParserParentRestriction));
         }
@@ -70,9 +71,21 @@
       Map setClassForTheseLabels=new HashMap<String,Class>();
       boolean splitOnPunct=Boolean.parseBoolean(props.getProperty("splitOnPunct","true"));
       List<File> allFiles=GetPatternsFromDataMultiClass.getAllFiles(evalFileWithGoldLabels);
-      for (      File f : allFiles) {
-        List<CoreMap> sentsCMs=AnnotatedTextReader.parseFile(new BufferedReader(new FileReader(f)),seedWords.keySet(),setClassForTheseLabels,true,splitOnPunct,lowercase,f.getName());
-        evalsents.putAll(runPOSNEROnTokens(sentsCMs,posModelPath,useTargetNERRestriction | useContextNERRestriction,"",useTargetParserParentRestriction));
+      if (fileFormat == null || fileFormat.equalsIgnoreCase("text") || fileFormat.equalsIgnoreCase("txt")) {
+        for (        File f : allFiles) {
+          Redwood.log(Redwood.DBG,"Annotating text in " + f);
+          List<CoreMap> sentsCMs=AnnotatedTextReader.parseFile(new BufferedReader(new FileReader(f)),seedWords.keySet(),setClassForTheseLabels,true,splitOnPunct,lowercase,f.getName());
+          evalsents.putAll(runPOSNEROnTokens(sentsCMs,posModelPath,useTargetNERRestriction | useContextNERRestriction,"",useTargetParserParentRestriction));
+        }
+        String saveEvalSentencesSerFile=props.getProperty("saveEvalSentencesSerFile");
+        if (saveEvalSentencesSerFile != null) {
+          IOUtils.writeObjectToFile(evalsents,saveEvalSentencesSerFile);
+        }
+      }
+ else       if (fileFormat.equalsIgnoreCase("ser")) {
+        for (        File f : allFiles) {
+          evalsents.putAll((Map<? extends String,? extends List<CoreLabel>>)IOUtils.readObjectFromFile(f));
+        }
       }
       if (addEvalSentsToTrain) {
         Redwood.log(Redwood.DBG,"Adding " + evalsents.size() + " eval sents to the training set");
