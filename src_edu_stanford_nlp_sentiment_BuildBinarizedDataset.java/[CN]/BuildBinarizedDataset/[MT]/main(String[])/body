@@ -30,13 +30,15 @@
     DocumentPreprocessor document=new DocumentPreprocessor(sin);
     document.setSentenceFinalPuncWords(new String[]{"\n"});
     List<HasWord> tokens=document.iterator().next();
+    Integer mainLabel=new Integer(tokens.get(0).word());
+    tokens=tokens.subList(1,tokens.size());
     Map<Pair<Integer,Integer>,String> spanToLabels=Generics.newHashMap();
     for (int i=1; i < lines.length; ++i) {
       extractLabels(spanToLabels,tokens,lines[i]);
     }
     Tree tree=parser.apply(tokens);
     Tree binarized=binarizer.transformTree(tree);
-    setUnknownLabels(binarized);
+    setUnknownLabels(binarized,mainLabel);
     Tree collapsedUnary=transformer.transformTree(binarized);
     Trees.convertToCoreLabels(collapsedUnary);
     collapsedUnary.indexSpans();
