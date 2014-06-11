@@ -1,7 +1,11 @@
 {
-  Stack<Object> stack=(Stack<Object>)variables.get(name);
+  Map<String,Object> vars=threadLocalVariables.get();
+  if (vars == null) {
+    threadLocalVariables.set(vars=Generics.newHashMap());
+  }
+  Stack<Object> stack=(Stack<Object>)vars.get(name);
   if (stack == null) {
-    variables.put(name,stack=new Stack<Object>());
+    vars.put(name,stack=new Stack<Object>());
   }
   stack.push(value);
 }
