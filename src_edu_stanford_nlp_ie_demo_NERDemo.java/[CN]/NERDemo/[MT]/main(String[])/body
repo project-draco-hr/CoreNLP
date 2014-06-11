@@ -3,7 +3,7 @@
   if (args.length > 0) {
     serializedClassifier=args[0];
   }
-  AbstractSequenceClassifier<CoreLabel> classifier=CRFClassifier.getClassifierNoExceptions(serializedClassifier);
+  AbstractSequenceClassifier<CoreLabel> classifier=CRFClassifier.getClassifier(serializedClassifier);
   if (args.length > 1) {
     String fileContents=IOUtils.slurpFile(args[1]);
     List<List<CoreLabel>> out=classifier.classify(fileContents);
@@ -13,6 +13,7 @@
       }
       System.out.println();
     }
+    System.out.println("---");
     out=classifier.classifyFile(args[1]);
     for (    List<CoreLabel> sentence : out) {
       for (      CoreLabel word : sentence) {
@@ -22,16 +23,30 @@
     }
   }
  else {
-    String s1="Good afternoon Rajat Raina, how are you today?";
-    String s2="I go to school at Stanford University, which is located in California.";
-    System.out.println(classifier.classifyToString(s1));
-    System.out.println(classifier.classifyWithInlineXML(s2));
-    System.out.println(classifier.classifyToString(s2,"xml",true));
+    String[] example={"Good afternoon Rajat Raina, how are you today?","I go to school at Stanford University, which is located in California."};
+    for (    String str : example) {
+      System.out.println(classifier.classifyToString(str));
+    }
+    System.out.println("---");
+    for (    String str : example) {
+      System.out.print(classifier.classifyToString(str,"slashTags",false));
+    }
+    System.out.println("---");
+    for (    String str : example) {
+      System.out.println(classifier.classifyWithInlineXML(str));
+    }
+    System.out.println("---");
+    for (    String str : example) {
+      System.out.println(classifier.classifyToString(str,"xml",true));
+    }
+    System.out.println("---");
     int i=0;
-    for (    List<CoreLabel> lcl : classifier.classify(s2)) {
-      for (      CoreLabel cl : lcl) {
-        System.out.println(i++ + ":");
-        System.out.println(cl);
+    for (    String str : example) {
+      for (      List<CoreLabel> lcl : classifier.classify(str)) {
+        for (        CoreLabel cl : lcl) {
+          System.out.print(i++ + ": ");
+          System.out.println(cl.toShorterString());
+        }
       }
     }
   }
