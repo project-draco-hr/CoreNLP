@@ -1,7 +1,6 @@
 {
   Timing timing=new Timing();
   long maxTrainTimeMillis=model.op.trainOptions.maxTrainTimeSeconds * 1000;
-  long nextDebugCycle=model.op.trainOptions.debugOutputSeconds * 1000;
   int debugCycle=0;
   double bestAccuracy=0.0;
   double[] sumGradSquare=new double[model.totalParamSize()];
@@ -32,7 +31,7 @@
       if (maxTrainTimeMillis > 0 && totalElapsed > maxTrainTimeMillis) {
         break;
       }
-      if (nextDebugCycle > 0 && totalElapsed > nextDebugCycle) {
+      if (epoch > 0 && epoch % model.op.trainOptions.debugOutputEpochs == 0) {
         Evaluate eval=new Evaluate(model);
         eval.eval(devTrees);
         eval.printSummary();
@@ -51,7 +50,6 @@
           model.saveSerialized(tempPath);
         }
         ++debugCycle;
-        nextDebugCycle=timing.report() + model.op.trainOptions.debugOutputSeconds * 1000;
       }
     }
     long totalElapsed=timing.report();
