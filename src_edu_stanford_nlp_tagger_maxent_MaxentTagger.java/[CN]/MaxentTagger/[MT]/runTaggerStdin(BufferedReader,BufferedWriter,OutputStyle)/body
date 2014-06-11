@@ -10,17 +10,12 @@
     writer.write("<?xml version=\"1.0\" encoding=\"" + config.getEncoding() + "\"?>\n");
     writer.write("<pos>\n");
   }
-  String sentenceDelimiter=config.getSentenceDelimiter();
-  if (sentenceDelimiter != null && sentenceDelimiter.equals("newline")) {
-    sentenceDelimiter="\n";
-  }
   while (true) {
     final DocumentPreprocessor docProcessor;
     String line=reader.readLine();
     if (line == null)     break;
-    docProcessor=new DocumentPreprocessor(new StringReader(line));
+    docProcessor=new DocumentPreprocessor(new BufferedReader(new StringReader(line)));
     docProcessor.setTokenizerFactory(tokenizerFactory);
-    docProcessor.setSentenceDelimiter(sentenceDelimiter);
     if (config.keepEmptySentences()) {
       docProcessor.setKeepEmptySentences(true);
     }
