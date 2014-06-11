@@ -3,6 +3,13 @@
   TregexGUI.instance=this;
   setDefaultLookAndFeelDecorated(true);
   setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+  String transformerClass=props.getProperty(TRANSFORMER,null);
+  if (transformerClass == null) {
+    transformer=null;
+  }
+ else {
+    transformer=ReflectionLoading.loadByReflection(transformerClass);
+  }
   initAboutBox();
   Container content=getContentPane();
   content.setBackground(Color.lightGray);
@@ -33,10 +40,10 @@
   displayMatchesPanel.setPreferredSize(displayMatchesSize);
   setBounds(begX,begY,screenSize.width,screenSize.height);
   pack();
-  if (initialFiles.length > 0) {
-    File[] files=new File[initialFiles.length];
-    for (int i=0; i < initialFiles.length; ++i) {
-      files[i]=new File(initialFiles[i]);
+  if (initialFiles.size() > 0) {
+    File[] files=new File[initialFiles.size()];
+    for (int i=0; i < initialFiles.size(); ++i) {
+      files[i]=new File(initialFiles.get(i));
     }
     startFileLoadingThread(new EnumMap<FilterType,String>(FilterType.class),files);
   }
