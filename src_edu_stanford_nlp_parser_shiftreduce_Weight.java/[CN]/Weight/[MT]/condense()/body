@@ -1,32 +1,30 @@
 {
-  if (values == null) {
+  if (packed == null) {
     return;
   }
   int nonzero=0;
-  for (int i=0; i < values.length; ++i) {
-    if (values[i] != 0.0f) {
+  for (int i=0; i < packed.length; ++i) {
+    if (unpackScore(i) != 0.0f) {
       ++nonzero;
     }
   }
   if (nonzero == 0) {
-    indices=null;
-    values=null;
+    packed=null;
     return;
   }
-  if (nonzero == indices.length) {
+  if (nonzero == packed.length) {
     return;
   }
-  int[] newIndices=new int[nonzero];
-  float[] newValues=new float[nonzero];
+  long[] newPacked=new long[nonzero];
   int j=0;
-  for (int i=0; i < values.length; ++i) {
-    if (values[i] == 0.0f) {
+  for (int i=0; i < packed.length; ++i) {
+    if (unpackScore(i) == 0.0f) {
       continue;
     }
-    newIndices[j]=indices[i];
-    newValues[j]=values[i];
+    int index=unpackIndex(i);
+    float score=unpackScore(i);
+    newPacked[j]=pack(index,score);
     ++j;
   }
-  indices=newIndices;
-  values=newValues;
+  packed=newPacked;
 }
