@@ -1,0 +1,48 @@
+{
+  CollapseUnaryTransformer transformer=new CollapseUnaryTransformer();
+  String parserModel="edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz";
+  String inputPath=null;
+  for (int argIndex=0; argIndex < args.length; ++argIndex) {
+    if (args[argIndex].equalsIgnoreCase("-input")) {
+      inputPath=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-parserModel")) {
+      parserModel=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else {
+      System.err.println("Unknown argument " + args[argIndex]);
+      System.exit(2);
+    }
+  }
+  LexicalizedParser parser=LexicalizedParser.loadModel(parserModel);
+  TreeBinarizer binarizer=new TreeBinarizer(parser.getTLPParams().headFinder(),parser.treebankLanguagePack(),false,false,0,false,false,0.0,false,true,true);
+  String text=IOUtils.slurpFileNoExceptions(inputPath);
+  String[] chunks=text.split("\\n\\s*\\n+");
+  for (  String chunk : chunks) {
+    if (chunk.trim() == "") {
+      continue;
+    }
+    String[] lines=chunk.trim().split("\\n");
+    String sentence=lines[0];
+    StringReader sin=new StringReader(sentence);
+    DocumentPreprocessor document=new DocumentPreprocessor(sin);
+    document.setSentenceFinalPuncWords(new String[]{"\n"});
+    List<HasWord> tokens=document.iterator().next();
+    Map<Pair<Integer,Integer>,String> spanToLabels=Generics.newHashMap();
+    for (int i=1; i < lines.length; ++i) {
+      extractLabels(spanToLabels,tokens,lines[i]);
+    }
+    Tree tree=parser.apply(tokens);
+    Tree binarized=binarizer.transformTree(tree);
+    setUnknownLabels(binarized);
+    Tree collapsedUnary=transformer.transformTree(binarized);
+    Trees.convertToCoreLabels(collapsedUnary);
+    collapsedUnary.indexSpans();
+    for (    Pair<Integer,Integer> span : spanToLabels.keySet()) {
+      setSpanLabel(collapsedUnary,span,spanToLabels.get(span));
+    }
+    System.out.println(collapsedUnary);
+  }
+}
