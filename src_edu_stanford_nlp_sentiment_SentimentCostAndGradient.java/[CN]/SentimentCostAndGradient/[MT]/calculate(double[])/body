@@ -1,0 +1,25 @@
+{
+  model.vectorToParams(theta);
+  double localValue=0.0;
+  double[] localDerivative=new double[theta.length];
+  TwoDimensionalMap<String,String,SimpleMatrix> binaryTD;
+  binaryTD=TwoDimensionalMap.treeMap();
+  TwoDimensionalMap<String,String,SimpleMatrix> binaryCD;
+  binaryCD=TwoDimensionalMap.treeMap();
+  Map<String,SimpleMatrix> wordVectorD=Generics.newTreeMap();
+  for (  TwoDimensionalMap.Entry<String,String,SimpleMatrix> entry : model.binaryTransform) {
+    int numRows=entry.getValue().numRows();
+    int numCols=entry.getValue().numCols();
+    binaryTD.put(entry.getFirstKey(),entry.getSecondKey(),new SimpleMatrix(numRows,numCols));
+    binaryCD.put(entry.getFirstKey(),entry.getSecondKey(),new SimpleMatrix(model.numClasses,numRows));
+  }
+  for (  Map.Entry<String,SimpleMatrix> entry : model.wordVectors.entrySet()) {
+    int numRows=entry.getValue().numRows();
+    int numCols=entry.getValue().numCols();
+    wordVectorD.put(entry.getKey(),new SimpleMatrix(numRows,numCols));
+  }
+  for (  Tree tree : trainingBatch) {
+    Tree trainingTree=tree.deepCopy();
+    forwardPropagateTree(trainingTree);
+  }
+}
