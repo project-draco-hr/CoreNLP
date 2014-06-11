@@ -5,9 +5,11 @@
       advance();
     }
     @Override public void advance(){
+      HeadFinder headFinder=matcher.getHeadFinder();
+      if (headFinder == null)       headFinder=hf;
       Tree last=next;
       next=matcher.getParent(next);
-      if (next != null && hf.determineHead(next) != last) {
+      if (next != null && headFinder.determineHead(next) != last) {
         next=null;
       }
     }
