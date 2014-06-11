@@ -4,11 +4,11 @@
   if (constVars.numThreads == 1)   num=keyset.size();
  else   num=keyset.size() / (constVars.numThreads - 1);
   ExecutorService executor=Executors.newFixedThreadPool(constVars.numThreads);
-  Redwood.log(ConstantsAndVariables.extremedebug,"keyset size is " + keyset.size());
+  Redwood.log(Redwood.DBG,"keyset size is " + keyset.size());
   List<Future<Map<String,List<CoreLabel>>>> list=new ArrayList<Future<Map<String,List<CoreLabel>>>>();
   for (int i=0; i < constVars.numThreads; i++) {
     List<String> keys=keyset.subList(i * num,Math.min(keyset.size(),(i + 1) * num));
-    Redwood.log(ConstantsAndVariables.extremedebug,"assigning from " + i * num + " till " + Math.min(keyset.size(),(i + 1) * num));
+    Redwood.log(Redwood.DBG,"assigning from " + i * num + " till " + Math.min(keyset.size(),(i + 1) * num));
     Callable<Map<String,List<CoreLabel>>> task=new LabelWithSeedWords(seedWords,sents,keys,answerclass,label);
     Future<Map<String,List<CoreLabel>>> submit=executor.submit(task);
     list.add(submit);
