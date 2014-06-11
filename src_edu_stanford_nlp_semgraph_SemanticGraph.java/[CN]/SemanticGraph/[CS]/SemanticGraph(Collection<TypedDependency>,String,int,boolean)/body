@@ -6,12 +6,10 @@
     TreeGraphNode gov=d.gov();
     TreeGraphNode dep=d.dep();
     GrammaticalRelation reln=d.reln();
-    CoreLabel govLabel=new CoreLabel(gov.label());
-    CoreLabel depLabel=new CoreLabel(dep.label());
     if (reln != ROOT) {
-      IndexedWord govVertex=new IndexedWord(docID,sentIndex,gov.index(),govLabel);
+      IndexedWord govVertex=new IndexedWord(docID,sentIndex,gov.index(),gov.label());
       govVertex.setTag(gov.highestNodeWithSameHead().headTagNode().value());
-      IndexedWord depVertex=new IndexedWord(docID,sentIndex,dep.index(),depLabel);
+      IndexedWord depVertex=new IndexedWord(docID,sentIndex,dep.index(),dep.label());
       depVertex.setTag(dep.highestNodeWithSameHead().headTagNode().value());
       if (lemmatize) {
         govVertex.setLemma(morphology.lemma(govVertex.value(),govVertex.tag(),true));
@@ -22,7 +20,7 @@
       addEdge(govVertex,depVertex,reln,Double.NEGATIVE_INFINITY,d.extra());
     }
  else {
-      IndexedWord depVertex=new IndexedWord(docID,sentIndex,dep.index(),depLabel);
+      IndexedWord depVertex=new IndexedWord(docID,sentIndex,dep.index(),dep.label());
       depVertex.setTag(dep.highestNodeWithSameHead().headTagNode().value());
       if (lemmatize) {
         depVertex.setLemma(morphology.lemma(depVertex.value(),depVertex.tag(),true));
