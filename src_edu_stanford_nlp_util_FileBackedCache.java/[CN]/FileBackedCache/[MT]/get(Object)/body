@@ -18,6 +18,14 @@
     return get(key);
   }
  else {
-    return referenceOrNull;
+    if (referenceOrNull instanceof Collection) {
+      return (T)Collections.unmodifiableCollection((Collection)referenceOrNull);
+    }
+ else     if (referenceOrNull instanceof Map) {
+      return (T)Collections.unmodifiableMap((Map)referenceOrNull);
+    }
+ else {
+      return referenceOrNull;
+    }
   }
 }
