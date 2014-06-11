@@ -40,6 +40,7 @@
     builder.appendLiteral(PAD_FIELD_UNKNOWN4);
     hasDate=false;
   }
+  boolean appendHalf=false;
   boolean appendQuarter=false;
   boolean appendMonthDay=false;
   boolean appendWeekDay=false;
@@ -54,13 +55,21 @@
       appendMonthDay=true;
     }
  else     if (JodaTimeUtils.hasField(base,JodaTimeUtils.QuarterOfYear)) {
-      appendQuarter=true;
+      if (!isISO)       appendQuarter=true;
+    }
+ else     if (JodaTimeUtils.hasField(base,JodaTimeUtils.HalfYearOfYear)) {
+      if (!isISO)       appendHalf=true;
     }
   }
  else {
+    appendHalf=true;
     appendQuarter=true;
     appendMonthDay=true;
     appendWeekDay=true;
+  }
+  if (appendHalf && JodaTimeUtils.hasField(base,JodaTimeUtils.HalfYearOfYear)) {
+    builder.appendLiteral("-H");
+    builder.appendDecimal(JodaTimeUtils.HalfYearOfYear,1,1);
   }
   if (appendQuarter && JodaTimeUtils.hasField(base,JodaTimeUtils.QuarterOfYear)) {
     builder.appendLiteral("-Q");
