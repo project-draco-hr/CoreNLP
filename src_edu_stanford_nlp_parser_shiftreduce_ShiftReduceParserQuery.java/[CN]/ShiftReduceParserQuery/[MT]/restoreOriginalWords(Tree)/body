@@ -1,0 +1,13 @@
+{
+  if (originalSentence == null || tree == null) {
+    return;
+  }
+  List<Tree> leaves=tree.getLeaves();
+  if (leaves.size() != originalSentence.size()) {
+    throw new IllegalStateException("originalWords and sentence of different sizes: " + originalSentence.size() + " vs. "+ leaves.size()+ "\n Orig: "+ Sentence.listToString(originalSentence)+ "\n Pars: "+ Sentence.listToString(leaves));
+  }
+  Iterator<? extends Label> wordsIterator=(Iterator<? extends Label>)originalSentence.iterator();
+  for (  Tree leaf : leaves) {
+    leaf.setLabel(wordsIterator.next());
+  }
+}

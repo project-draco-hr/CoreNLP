@@ -12,18 +12,8 @@
     learnedPatterns.get(label).addAll(patterns);
     if (sentsOutFile != null)     sentsOutFile=sentsOutFile + "_" + i+ "iter.ser";
     Counter<String> scoreForAllWordsThisIteration=new ClassicCounter<String>();
-    identifiedWords.addAll(scorePhrases.learnNewPhrases(label,this.patternsForEachToken,patterns,learnedPatterns.get(label),matchedTokensByPat,scoreForAllWordsThisIteration,terms,wordsPatExtracted.get(label),currentPatternWeights.get(label),this.patternsandWords.get(label),this.allPatternsandWords.get(label),constVars.identifier,ignoreWords));
-    if (constVars.usePatternResultAsLabel)     if (constVars.getLabelDictionary().containsKey(label)) {
-      if (constVars.batchProcessSents) {
-        for (        File f : Data.sentsFiles) {
-          Redwood.log(Redwood.DBG,"labeling sentences from " + f);
-          Map<String,List<CoreLabel>> sents=IOUtils.readObjectFromFile(f);
-          labelWords(label,sents,identifiedWords.keySet(),patterns.keySet(),sentsOutFile,matchedTokensByPat);
-          IOUtils.writeObjectToFile(sents,f);
-        }
-      }
- else       labelWords(label,Data.sents,identifiedWords.keySet(),patterns.keySet(),sentsOutFile,matchedTokensByPat);
-    }
+    identifiedWords.addAll(scorePhrases.learnNewPhrases(label,Data.sents,this.patternsForEachToken,patterns,learnedPatterns.get(label),matchedTokensByPat,scoreForAllWordsThisIteration,terms,wordsPatExtracted.get(label),currentPatternWeights.get(label),this.patternsandWords.get(label),this.allPatternsandWords.get(label),constVars.identifier,ignoreWords));
+    if (constVars.usePatternResultAsLabel)     if (constVars.getLabelDictionary().containsKey(label))     labelWords(label,Data.sents,identifiedWords.keySet(),patterns.keySet(),sentsOutFile,matchedTokensByPat);
  else     throw new RuntimeException("why is the answer label null?");
     learnedWords.get(label).addAll(identifiedWords);
     if (wordsOutput != null) {
