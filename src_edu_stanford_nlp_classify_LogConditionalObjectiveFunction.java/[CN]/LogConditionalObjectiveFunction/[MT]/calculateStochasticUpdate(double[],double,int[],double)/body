@@ -1,8 +1,10 @@
 {
   value=0.0;
+  int batchSize=batch.length;
   double[] sums=new double[numClasses];
   double[] probs=new double[numClasses];
-  for (  int m : batch) {
+  for (int d=0; d < batchSize; d++) {
+    int m=batch[d];
     int[] features=data[m];
     Arrays.fill(sums,0.0);
     for (int c=0; c < numClasses; c++) {
@@ -19,14 +21,14 @@
     for (int f=0; f < features.length; f++) {
       int i=indexOf(features[f],labels[m]);
       double v=(values != null) ? values[m][f] : 1;
-      double delta=(dataWeights != null) ? dataWeights[m] * v : v;
+      double delta=(dataweights != null) ? dataweights[m] * v : v;
       x[i]+=delta * gain;
     }
     double total=ArrayMath.logSum(sums);
     for (int c=0; c < numClasses; c++) {
       probs[c]=Math.exp(sums[c] - total);
-      if (dataWeights != null) {
-        probs[c]*=dataWeights[m];
+      if (dataweights != null) {
+        probs[c]*=dataweights[m];
       }
       for (int f=0; f < features.length; f++) {
         int i=indexOf(features[f],c);
@@ -36,8 +38,8 @@
       }
     }
     double dV=sums[labels[m]] - total;
-    if (dataWeights != null) {
-      dV*=dataWeights[m];
+    if (dataweights != null) {
+      dV*=dataweights[m];
     }
     value-=dV;
   }

@@ -1,0 +1,38 @@
+{
+  Map<String,Set<String>> ignoreWordsAll=new HashMap<String,Set<String>>();
+  if (this.useOtherLabelsWordsasNegative) {
+    for (    String label : constVars.getLabelDictionary().keySet()) {
+      Set<String> w=new HashSet<String>();
+      for (      Entry<String,Set<String>> en : constVars.getLabelDictionary().entrySet()) {
+        if (en.getKey().equals(label))         continue;
+        w.addAll(en.getValue());
+      }
+      ignoreWordsAll.put(label,w);
+    }
+  }
+  Redwood.log(Redwood.FORCE,"Iterating " + numIterationsForPatterns + " times.");
+  for (int i=0; i < numIterationsForPatterns; i++) {
+    Redwood.log(Redwood.FORCE,channelNameLogger,"\n\n################################ Iteration " + (i + 1) + " ##############################");
+    Map<String,Counter<String>> learnedWordsThisIter=new HashMap<String,Counter<String>>();
+    for (    String label : constVars.getLabelDictionary().keySet()) {
+      Redwood.log(Redwood.FORCE,channelNameLogger,"\n###Learning for label " + label + " ######");
+      String wordsout=wordsOutputFile == null ? null : wordsOutputFile + "_" + label;
+      String sentout=sentsOutFile == null ? null : sentsOutFile + "_" + label;
+      String patout=patternsOutFile == null ? null : patternsOutFile + "_" + label;
+      Counter<String> learnedWords4label=iterateExtractApply4Label(label,p0 != null ? p0.get(label) : null,p0Set != null ? p0Set.get(label) : null,externalWordWeights != null ? externalWordWeights.get(label) : null,wordsout,sentout,patout,ignorePatterns != null ? ignorePatterns.get(label) : null,feedbackfile,1,ignoreWordsAll.get(label));
+      learnedWordsThisIter.put(label,learnedWords4label);
+    }
+    if (this.useOtherLabelsWordsasNegative) {
+      for (      String label : constVars.getLabelDictionary().keySet()) {
+        for (        Entry<String,Counter<String>> en : learnedWordsThisIter.entrySet()) {
+          if (en.getKey().equals(label))           continue;
+          ignoreWordsAll.get(label).addAll(en.getValue().keySet());
+        }
+      }
+    }
+  }
+  System.out.println("\n\nAll words learned:");
+  for (  Entry<String,Counter<String>> en : this.learnedWords.entrySet()) {
+    System.out.println(en.getKey() + ":\t\t" + en.getValue().keySet()+ "\n\n");
+  }
+}
