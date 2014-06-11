@@ -1,5 +1,5 @@
 {
-  boolean useFeatureCountThresh=flags.featureCountThresh > 1;
+  boolean useFeatureCountThresh=flags.featureCountThresh > 1 ? true : false;
   Set<String>[] featureIndices=new HashSet[windowSize];
   Map<String,Integer>[] featureCountIndices=null;
   for (int i=0; i < windowSize; i++) {
@@ -16,15 +16,12 @@
     labelIndices.add(new HashIndex<CRFLabel>());
   }
   Index<CRFLabel> labelIndex=labelIndices.get(windowSize - 1);
-  if (classIndex == null)   classIndex=new HashIndex<String>();
+  classIndex=new HashIndex<String>();
   classIndex.add(flags.backgroundSymbol);
   Set<String>[] seenBackgroundFeatures=new HashSet[2];
   seenBackgroundFeatures[0]=Generics.newHashSet();
   seenBackgroundFeatures[1]=Generics.newHashSet();
   int wordCount=0;
-  if (flags.labelDictionaryCutoff > 0) {
-    this.labelDictionary=new LabelDictionary();
-  }
   for (  List<IN> doc : ob) {
     if (flags.useReverse) {
       Collections.reverse(doc);
@@ -36,10 +33,6 @@
         throw new IllegalArgumentException("Word " + wordCount + " (\""+ token.get(CoreAnnotations.TextAnnotation.class)+ "\") has a blank answer");
       }
       classIndex.add(ans);
-      if (labelDictionary != null) {
-        String observation=token.get(CoreAnnotations.TextAnnotation.class);
-        labelDictionary.increment(observation,ans);
-      }
     }
     for (int j=0, docSize=doc.size(); j < docSize; j++) {
       CRFDatum<List<String>,CRFLabel> d=makeDatum(doc,j,featureFactory);
@@ -140,6 +133,8 @@
     templateGroupIndex=new HashIndex<String>();
     featureIndexToTemplateIndex=new HashMap<Integer,Integer>();
   }
+  Matcher m=null;
+  String groupSuffix=null;
   for (int i=0; i < windowSize; i++) {
     Index<Integer> featureIndexMap=new HashIndex<Integer>();
     featureIndex.addAll(featureIndices[i]);
@@ -148,8 +143,8 @@
       map[index]=i;
       featureIndexMap.add(index);
       if (flags.groupByFeatureTemplate) {
-        Matcher m=suffixPatt.matcher(str);
-        String groupSuffix="NoTemplate";
+        m=suffixPatt.matcher(str);
+        groupSuffix="NoTemplate";
         if (m.matches()) {
           groupSuffix=m.group(1);
         }
@@ -189,8 +184,5 @@
     for (int i=0, fiSize=featureIndex.size(); i < fiSize; i++) {
       System.out.println(i + ": " + featureIndex.get(i));
     }
-  }
-  if (labelDictionary != null) {
-    labelDictionary.lock(flags.labelDictionaryCutoff,classIndex);
   }
 }

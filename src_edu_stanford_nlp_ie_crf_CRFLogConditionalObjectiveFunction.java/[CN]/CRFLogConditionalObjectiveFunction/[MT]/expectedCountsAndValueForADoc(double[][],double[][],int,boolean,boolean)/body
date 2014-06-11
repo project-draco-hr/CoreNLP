@@ -1,0 +1,49 @@
+{
+  double prob=0.0;
+  int[][][] docData=data[docIndex];
+  int[] docLabels=labels[docIndex];
+  double[][][] featureVal3DArr=null;
+  if (featureVal != null)   featureVal3DArr=featureVal[docIndex];
+  CliquePotentialFunction cliquePotentialFunc=new LinearCliquePotentialFunction(weights);
+  CRFCliqueTree cliqueTree=CRFCliqueTree.getCalibratedCliqueTree(docData,labelIndices,numClasses,classIndex,backgroundSymbol,cliquePotentialFunc,featureVal3DArr);
+  if (!skipValCalc) {
+    int[] given=new int[window - 1];
+    Arrays.fill(given,classIndex.indexOf(backgroundSymbol));
+    if (docLabels.length > docData.length) {
+      System.arraycopy(docLabels,0,given,0,given.length);
+      int[] newDocLabels=new int[docData.length];
+      System.arraycopy(docLabels,docLabels.length - newDocLabels.length,newDocLabels,0,newDocLabels.length);
+      docLabels=newDocLabels;
+    }
+    double startPosLogProb=cliqueTree.logProbStartPos();
+    if (VERBOSE)     System.err.printf("P_-1(Background) = % 5.3f\n",startPosLogProb);
+    prob+=startPosLogProb;
+    for (int i=0; i < docData.length; i++) {
+      int label=docLabels[i];
+      double p=cliqueTree.condLogProbGivenPrevious(i,label,given);
+      if (VERBOSE) {
+        System.err.println("P(" + label + "|"+ ArrayMath.toString(given)+ ")="+ p);
+      }
+      prob+=p;
+      System.arraycopy(given,1,given,0,given.length - 1);
+      given[given.length - 1]=label;
+    }
+  }
+  if (!skipExpectedCountCalc) {
+    for (int i=0; i < docData.length; i++) {
+      for (int j=0; j < docData[i].length; j++) {
+        Index<CRFLabel> labelIndex=labelIndices.get(j);
+        for (int k=0; k < labelIndex.size(); k++) {
+          int[] label=labelIndex.get(k).getLabel();
+          double p=cliqueTree.prob(i,label);
+          for (int n=0; n < docData[i][j].length; n++) {
+            double fVal=1.0;
+            if (j == 0 && featureVal3DArr != null)             fVal=featureVal3DArr[i][j][n];
+            E[docData[i][j][n]][k]+=p * fVal;
+          }
+        }
+      }
+    }
+  }
+  return prob;
+}

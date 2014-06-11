@@ -1,11 +1,10 @@
 {
   double prob=0.0;
-  to2D(x,weights);
-  setWeights(weights);
+  double[][] weights=to2D(x);
   double batchScale=((double)batch.length) / ((double)this.dataDimension());
   double[][] E=empty2D();
   for (  int ind : batch) {
-    prob+=valueForADoc(ind);
+    prob+=expectedCountsAndValueForADoc(weights,ind).second();
   }
   if (Double.isNaN(prob)) {
     throw new RuntimeException("Got NaN for prob in CRFLogConditionalObjectiveFunction.calculate()");

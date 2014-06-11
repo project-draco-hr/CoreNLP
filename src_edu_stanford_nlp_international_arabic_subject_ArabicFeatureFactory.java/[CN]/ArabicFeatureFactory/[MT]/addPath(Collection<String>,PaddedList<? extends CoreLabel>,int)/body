@@ -1,0 +1,14 @@
+{
+  StringBuilder path=new StringBuilder();
+  String cTag=cInfo.get(loc).getString(CoreAnnotations.PartOfSpeechAnnotation.class);
+  path.append(cTag);
+  for (int i=1; i <= pathLength && (loc - i) >= 0; i++) {
+    String thisTag=cInfo.get(loc - i).getString(CoreAnnotations.PartOfSpeechAnnotation.class);
+    path.append("-" + thisTag);
+    Matcher m=verbTagStem.matcher(thisTag);
+    if (m.lookingAt()) {
+      features.add(path.toString() + "-PATH");
+      break;
+    }
+  }
+}
