@@ -28,7 +28,7 @@
  else {
     throw new AssertionError("Tree not correctly binarized");
   }
-  SimpleMatrix predictions=RNNUtils.softmax(classification.mult(nodeVector));
+  SimpleMatrix predictions=RNNUtils.softmax(classification.mult(RNNUtils.concatenateWithBias(nodeVector)));
   int index=getPredictedClass(predictions);
   if (!(tree.label() instanceof CoreLabel)) {
     throw new AssertionError("Expected CoreLabels in the nodes");
