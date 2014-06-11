@@ -7,8 +7,9 @@
   derivativeAt(x);
   double[] savedDeriv=new double[xLen];
   System.arraycopy(derivative,0,savedDeriv,0,derivative.length);
+  double oldX, plusVal, minusVal, appDeriv, calcDeriv, diff, pct=0;
   int interval=Math.max(1,x.length / numOfChecks);
-  Set<Integer> indicesToCheck=new HashSet<Integer>();
+  List<Integer> indicesToCheck=new ArrayList<Integer>();
   for (int paramIndex=0; paramIndex < xLen; paramIndex+=interval) {
     indicesToCheck.add(paramIndex);
   }
@@ -23,15 +24,15 @@
   }
   boolean returnVal=true;
   for (  int paramIndex : indicesToCheck) {
-    double oldX=x[paramIndex];
+    oldX=x[paramIndex];
     x[paramIndex]=oldX + epsilon;
-    double plusVal=valueAt(x);
+    plusVal=valueAt(x);
     x[paramIndex]=oldX - epsilon;
-    double minusVal=valueAt(x);
-    double appDeriv=(plusVal - minusVal) / twoEpsilon;
-    double calcDeriv=savedDeriv[paramIndex];
-    double diff=Math.abs(appDeriv - calcDeriv);
-    double pct=diff / Math.min(Math.abs(appDeriv),Math.abs(calcDeriv));
+    minusVal=valueAt(x);
+    appDeriv=(plusVal - minusVal) / twoEpsilon;
+    calcDeriv=savedDeriv[paramIndex];
+    diff=Math.abs(appDeriv - calcDeriv);
+    pct=diff / Math.min(Math.abs(appDeriv),Math.abs(calcDeriv));
     if (diff > diffThreshold && pct > diffPctThreshold) {
       System.err.printf("Grad fail at %2d, appGrad=%9.7f, calcGrad=%9.7f, diff=%9.7f, pct=%9.7f\n",paramIndex,appDeriv,calcDeriv,diff,pct);
       returnVal=false;
