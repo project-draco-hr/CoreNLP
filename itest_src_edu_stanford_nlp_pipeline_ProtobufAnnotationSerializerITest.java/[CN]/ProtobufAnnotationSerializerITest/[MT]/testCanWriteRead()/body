@@ -1,0 +1,17 @@
+{
+  try {
+    AnnotationSerializer serializer=new ProtobufAnnotationSerializer();
+    StanfordCoreNLP pipe=new StanfordCoreNLP(new Properties());
+    Annotation doc=pipe.process(prideAndPrejudiceFirstBit);
+    ByteArrayOutputStream ks=new ByteArrayOutputStream();
+    serializer.save(doc,ks);
+    ks.close();
+    InputStream kis=new ByteArrayInputStream(ks.toByteArray());
+    Annotation readDoc=serializer.load(kis);
+    kis.close();
+    sameAsRead(doc,readDoc);
+  }
+ catch (  Exception e) {
+    throw new RuntimeException(e);
+  }
+}
