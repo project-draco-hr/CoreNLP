@@ -5,14 +5,14 @@
   }
   if (Constants.USE_DISCOURSE_SALIENCE) {
     SieveCoreferenceSystem.logger.finest("DOING COREF FOR:\t" + m1.spanToString());
-    if (m1.appositions == null && m1.predicateNominatives == null && (m1.lowercaseNormalizedSpanString().startsWith("a ") || m1.lowercaseNormalizedSpanString().startsWith("an ")) && !flags.USE_EXACTSTRINGMATCH) {
+    if (m1.appositions == null && m1.predicateNominatives == null && (m1.spanToString().toLowerCase().startsWith("a ") || m1.spanToString().toLowerCase().startsWith("an ")) && !flags.USE_EXACTSTRINGMATCH) {
       skip=true;
     }
-    if (dict.indefinitePronouns.contains(m1.lowercaseNormalizedSpanString())) {
+    if (dict.indefinitePronouns.contains(m1.spanToString().toLowerCase())) {
       skip=true;
     }
     for (    String indef : dict.indefinitePronouns) {
-      if (m1.lowercaseNormalizedSpanString().startsWith(indef + " ")) {
+      if (m1.spanToString().toLowerCase().startsWith(indef + " ")) {
         skip=true;
         break;
       }
