@@ -8,7 +8,7 @@
   SimpleMatrix goldLabel=new SimpleMatrix(model.numClasses,1);
   int goldClass=RNNCoreAnnotations.getGoldClass(tree);
   goldLabel.set(goldClass,1.0);
-  double nodeWeight=model.op.getClassWeight(goldClass);
+  double nodeWeight=model.op.trainOptions.getClassWeight(goldClass);
   SimpleMatrix predictions=RNNCoreAnnotations.getPredictions(tree);
   SimpleMatrix deltaClass=predictions.minus(goldLabel).scale(nodeWeight);
   SimpleMatrix localCD=deltaClass.mult(RNNUtils.concatenateWithBias(currentVector).transpose());
