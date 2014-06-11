@@ -1,0 +1,32 @@
+{
+  CoreNLPProtos.Document.Builder builder=CoreNLPProtos.Document.newBuilder();
+  Set<Class<?>> keysToSerialize=new HashSet<Class<?>>(doc.keySet());
+  builder.setText(doc.get(TextAnnotation.class));
+  keysToSerialize.remove(TextAnnotation.class);
+  if (doc.containsKey(TokensAnnotation.class)) {
+    for (    CoreLabel tok : doc.get(TokensAnnotation.class)) {
+      builder.addToken(toProto(tok));
+    }
+    keysToSerialize.remove(TokensAnnotation.class);
+  }
+  if (doc.containsKey(SentencesAnnotation.class)) {
+    for (    CoreMap sentence : doc.get(SentencesAnnotation.class)) {
+      builder.addSentence(toProto(sentence));
+    }
+    keysToSerialize.remove(SentencesAnnotation.class);
+  }
+  if (doc.containsKey(DocIDAnnotation.class)) {
+    builder.setDocID(doc.get(DocIDAnnotation.class));
+    keysToSerialize.remove(DocIDAnnotation.class);
+  }
+  if (doc.containsKey(CorefChainAnnotation.class)) {
+    for (    Map.Entry<Integer,CorefChain> chain : doc.get(CorefChainAnnotation.class).entrySet()) {
+      builder.addCorefChain(toProto(chain.getValue()));
+    }
+    keysToSerialize.remove(CorefChainAnnotation.class);
+  }
+  if (!keysToSerialize.isEmpty()) {
+    throw new IllegalArgumentException("Keys are not being serialized: " + StringUtils.join(keysToSerialize));
+  }
+  return builder.build();
+}
