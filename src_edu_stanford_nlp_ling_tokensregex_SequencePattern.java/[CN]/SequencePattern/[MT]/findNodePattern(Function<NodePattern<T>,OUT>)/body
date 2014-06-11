@@ -6,7 +6,8 @@
   while (!todo.isEmpty()) {
     State state=todo.poll();
     if (state instanceof NodePatternState) {
-      OUT res=filter.apply(((NodePatternState)state).pattern);
+      NodePattern<T> pattern=((NodePatternState)state).pattern;
+      OUT res=filter.apply(pattern);
       if (res != null)       return res;
     }
     if (state.next != null) {
