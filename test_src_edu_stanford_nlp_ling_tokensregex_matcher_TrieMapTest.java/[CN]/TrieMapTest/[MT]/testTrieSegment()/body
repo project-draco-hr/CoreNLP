@@ -6,13 +6,13 @@
   trieMap.put(new String[]{"a","black","cat","climbed","on","the","sofa"},Boolean.TRUE);
   trieMap.put(new String[]{"white"},Boolean.TRUE);
   TrieMapMatcher<String,Boolean> matcher=new TrieMapMatcher<String,Boolean>(trieMap);
-  List<Match<String,Boolean>> matches=matcher.segment(new String[]{"a","white","cat","is","wearing","a","white","hat","and","a","black","cat","climbed","on","the","sofa"});
+  List<Match<String,Boolean>> matches=matcher.segment("a","white","cat","is","wearing","a","white","hat","and","a","black","cat","climbed","on","the","sofa");
   List<Match<String,Boolean>> expected=new ArrayList<Match<String,Boolean>>();
-  expected.add(new Match(Arrays.asList(new String[]{"a","white","cat"}),Boolean.TRUE,0,3));
-  expected.add(new Match(Arrays.asList(new String[]{"is","wearing"}),null,3,5));
-  expected.add(new Match(Arrays.asList(new String[]{"a","white","hat"}),Boolean.TRUE,5,8));
-  expected.add(new Match(Arrays.asList(new String[]{"and"}),null,8,9));
-  expected.add(new Match(Arrays.asList(new String[]{"a","black","cat","climbed","on","the","sofa"}),Boolean.TRUE,9,16));
+  expected.add(new Match<String,Boolean>(Arrays.asList("a","white","cat"),Boolean.TRUE,0,3));
+  expected.add(new Match<String,Boolean>(Arrays.asList("is","wearing"),null,3,5));
+  expected.add(new Match<String,Boolean>(Arrays.asList("a","white","hat"),Boolean.TRUE,5,8));
+  expected.add(new Match<String,Boolean>(Arrays.asList("and"),null,8,9));
+  expected.add(new Match<String,Boolean>(Arrays.asList("a","black","cat","climbed","on","the","sofa"),Boolean.TRUE,9,16));
   assertEquals("Expecting " + expected.size() + " matches: got "+ matches,expected.size(),matches.size());
   assertEquals("Expecting " + expected + ", got "+ matches,expected,matches);
 }
