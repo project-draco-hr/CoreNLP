@@ -1,16 +1,11 @@
 {
-  System.err.print("Output format: ");
-  if (globalFlags.displayedColumn >= 0) {
-    System.err.printf("dataColumn%d\t",globalFlags.displayedColumn);
-  }
-  System.err.print("goldAnswer\t");
-  if (globalFlags.displayAllAnswers) {
-    System.err.println("[P(class) class]+ {sorted by probability}");
-  }
- else {
-    System.err.println("classifierAnswer\tP(clAnswer)\tP(goldAnswer)");
+  if (globalFlags.printFeatures != null) {
+    newFeaturePrinter(globalFlags.printFeatures,"test");
   }
   Counter<String> contingency=new ClassicCounter<String>();
+  Pair<GeneralDataset<String,String>,List<String[]>> testInfo=readTestExamples(filename);
+  GeneralDataset<String,String> test=testInfo.first();
+  List<String[]> lineInfos=testInfo.second();
   for (int i=0; i < test.size; i++) {
     String[] simpleLineInfo=lineInfos.get(i);
     Datum<String,String> d;
@@ -75,5 +70,5 @@
   if (globalFlags.printFeatures != null) {
     closeFeaturePrinter();
   }
-  return writeResultsSummary(test.size,contingency,cl.labels());
+  writeResultsSummary(test.size,contingency,cl.labels());
 }
