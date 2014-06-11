@@ -52,7 +52,7 @@
       if (fileFormat == null || fileFormat.equalsIgnoreCase("text") || fileFormat.equalsIgnoreCase("txt")) {
         for (        File f : allFiles) {
           String text=IOUtils.stringFromFile(f.getAbsolutePath());
-          sents.putAll(tokenize(text,posModelPath,lowercase,useTargetNERRestriction || useContextNERRestriction,f.getName() + "-"));
+          sents.putAll(tokenize(text,posModelPath,lowercase,useTargetNERRestriction | useContextNERRestriction,f.getName() + "-"));
         }
       }
  else       if (fileFormat.equalsIgnoreCase("ser")) {
@@ -67,7 +67,7 @@
       List<File> allFiles=GetPatternsFromDataMultiClass.getAllFiles(evalFileWithGoldLabels);
       for (      File f : allFiles) {
         List<CoreMap> sentsCMs=AnnotatedTextReader.parseFile(new BufferedReader(new FileReader(f)),seedWords.keySet(),setClassForTheseLabels,true,splitOnPunct,lowercase,f.getName());
-        evalsents.putAll(runPOSNEROnTokens(sentsCMs,posModelPath,useTargetNERRestriction || useContextNERRestriction,""));
+        evalsents.putAll(runPOSNEROnTokens(sentsCMs,posModelPath,useTargetNERRestriction | useContextNERRestriction,""));
       }
       if (addEvalSentsToTrain) {
         Redwood.log(Redwood.DBG,"Adding " + evalsents.size() + " eval sents to the training set");
