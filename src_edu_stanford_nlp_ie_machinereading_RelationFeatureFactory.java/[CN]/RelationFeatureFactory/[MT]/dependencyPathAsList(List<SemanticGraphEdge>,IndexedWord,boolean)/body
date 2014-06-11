@@ -1,0 +1,26 @@
+{
+  if (edgePath == null)   return null;
+  List<String> path=new ArrayList<String>();
+  for (  SemanticGraphEdge edge : edgePath) {
+    IndexedWord nextNode;
+    GrammaticalRelation relation;
+    if (generalize) {
+      relation=generalizeRelation(edge.getRelation());
+    }
+ else {
+      relation=edge.getRelation();
+    }
+    if (node.equals(edge.getDependent())) {
+      String v=(relation + "->").intern();
+      path.add(v);
+      nextNode=edge.getGovernor();
+    }
+ else {
+      String v=("<-" + relation).intern();
+      path.add(v);
+      nextNode=edge.getDependent();
+    }
+    node=nextNode;
+  }
+  return path;
+}

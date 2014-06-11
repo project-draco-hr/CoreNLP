@@ -74,54 +74,45 @@
       boolean nlSplitting=Boolean.valueOf(properties.getProperty(NEWLINE_SPLITTER_PROPERTY,"false"));
       if (nlSplitting) {
         boolean whitespaceTokenization=Boolean.valueOf(properties.getProperty("tokenize.whitespace","false"));
-        WordsToSentencesAnnotator wts;
         if (whitespaceTokenization) {
           if (System.getProperty("line.separator").equals("\n")) {
-            wts=WordsToSentencesAnnotator.newlineSplitter(false,"\n");
+            return WordsToSentencesAnnotator.newlineSplitter(false,"\n");
           }
  else {
-            wts=WordsToSentencesAnnotator.newlineSplitter(false,System.getProperty("line.separator"),"\n");
+            return WordsToSentencesAnnotator.newlineSplitter(false,System.getProperty("line.separator"),"\n");
           }
         }
  else {
-          wts=WordsToSentencesAnnotator.newlineSplitter(false,PTBTokenizer.getNewlineToken());
+          return WordsToSentencesAnnotator.newlineSplitter(false,PTBTokenizer.getNewlineToken());
         }
-        wts.setCountLineNumbers(true);
-        return wts;
       }
  else {
-        WordsToSentencesAnnotator wts;
-        String boundaryTokenRegex=properties.getProperty("ssplit.boundaryTokenRegex");
-        if (boundaryTokenRegex != null) {
-          wts=new WordsToSentencesAnnotator(false,boundaryTokenRegex);
-        }
- else {
-          wts=new WordsToSentencesAnnotator();
+        String isOneSentence=properties.getProperty("ssplit.isOneSentence");
+        if (Boolean.parseBoolean(isOneSentence)) {
+          return WordsToSentencesAnnotator.nonSplitter(false);
         }
         String boundaryMultiTokenRegex=properties.getProperty("ssplit.boundaryMultiTokenRegex");
-        if (boundaryMultiTokenRegex != null) {
-          wts.setSentenceBoundaryMultiTokenRegex(boundaryMultiTokenRegex);
+        String tokenPatternsToDiscardProp=properties.getProperty("ssplit.tokenPatternsToDiscard");
+        Set<String> tokenRegexesToDiscard=null;
+        if (tokenPatternsToDiscardProp != null) {
+          String[] toks=tokenPatternsToDiscardProp.split(",");
+          tokenRegexesToDiscard=Generics.newHashSet(Arrays.asList(toks));
         }
-        String tokenPatternsToDiscard=properties.getProperty("ssplit.tokenPatternsToDiscard");
-        if (tokenPatternsToDiscard != null) {
-          String[] toks=tokenPatternsToDiscard.split(",");
-          wts.setTokenPatternsToDiscard(Generics.newHashSet(Arrays.asList(toks)));
-        }
+        String boundaryTokenRegex=properties.getProperty("ssplit.boundaryTokenRegex");
+        Set<String> boundariesToDiscard=null;
         String bounds=properties.getProperty("ssplit.boundariesToDiscard");
         if (bounds != null) {
           String[] toks=bounds.split(",");
-          wts.setSentenceBoundaryToDiscard(Generics.newHashSet(Arrays.asList(toks)));
+          boundariesToDiscard=Generics.newHashSet(Arrays.asList(toks));
         }
+        Set<String> htmlElementsToDiscard=null;
         bounds=properties.getProperty("ssplit.htmlBoundariesToDiscard");
         if (bounds != null) {
-          String[] toks=bounds.split(",");
-          wts.addHtmlSentenceBoundaryToDiscard(Generics.newHashSet(Arrays.asList(toks)));
+          String[] elements=bounds.split(",");
+          htmlElementsToDiscard=Generics.newHashSet(Arrays.asList(elements));
         }
-        String isOneSentence=properties.getProperty("ssplit.isOneSentence");
-        if (isOneSentence != null) {
-          wts.setOneSentence(Boolean.parseBoolean(isOneSentence));
-        }
-        return wts;
+        String nlsb=properties.getProperty("ssplit.newlineIsSentenceBreak","two");
+        return new WordsToSentencesAnnotator(false,boundaryTokenRegex,boundariesToDiscard,htmlElementsToDiscard,nlsb,boundaryMultiTokenRegex,tokenRegexesToDiscard);
       }
     }
     @Override public String signature(){
@@ -131,9 +122,13 @@
         os.append("tokenize.whitespace:" + properties.getProperty("tokenize.whitespace","false"));
       }
  else {
-        os.append("ssplit.boundariesToDiscard:" + properties.getProperty("ssplit.boundariesToDiscard",""));
-        os.append("ssplit.htmlBoundariesToDiscard:" + properties.getProperty("ssplit.htmlBoundariesToDiscard",""));
-        os.append("ssplit.isOneSentence:" + properties.getProperty("ssplit.isOneSentence",""));
+        os.append("ssplit.isOneSentence:" + properties.getProperty("ssplit.isOneSentence","false"));
+        if (!Boolean.valueOf(properties.getProperty("ssplit.isOneSentence","false"))) {
+          os.append("ssplit.boundaryTokenRegex:" + properties.getProperty("ssplit.boundaryTokenRegex",""));
+          os.append("ssplit.boundariesToDiscard:" + properties.getProperty("ssplit.boundariesToDiscard",""));
+          os.append("ssplit.htmlBoundariesToDiscard:" + properties.getProperty("ssplit.htmlBoundariesToDiscard",""));
+          os.append("ssplit.newlineIsSentenceBreak:" + properties.getProperty("ssplit.newlineIsSentenceBreak","two"));
+        }
       }
       return os.toString();
     }
@@ -197,13 +192,10 @@
   pool.register(STANFORD_REGEXNER,new AnnotatorFactory(inputProps){
     private static final long serialVersionUID=1L;
     @Override public Annotator create(){
-      String mapping=properties.getProperty("regexner.mapping",DefaultPaths.DEFAULT_REGEXNER_RULES);
-      String ignoreCase=properties.getProperty("regexner.ignorecase","false");
-      String validPosPattern=properties.getProperty("regexner.validpospattern",RegexNERSequenceClassifier.DEFAULT_VALID_POS);
-      return new RegexNERAnnotator(mapping,Boolean.valueOf(ignoreCase),validPosPattern);
+      return new TokensRegexNERAnnotator("regexner",properties);
     }
     @Override public String signature(){
-      return "regexner.mapping:" + properties.getProperty("regexner.mapping",DefaultPaths.DEFAULT_REGEXNER_RULES) + "regexner.ignorecase:"+ properties.getProperty("regexner.ignorecase","false")+ "regexner.validpospattern:"+ properties.getProperty("regexner.validpospattern",RegexNERSequenceClassifier.DEFAULT_VALID_POS);
+      return PropertiesUtils.getSignature("regexner",properties,TokensRegexNERAnnotator.SUPPORTED_PROPERTIES);
     }
   }
 );
@@ -227,28 +219,6 @@
     }
     @Override public String signature(){
       return "truecase.model:" + properties.getProperty("truecase.model",DefaultPaths.DEFAULT_TRUECASE_MODEL) + "truecase.bias:"+ properties.getProperty("truecase.bias",TrueCaseAnnotator.DEFAULT_MODEL_BIAS)+ "truecase.mixedcasefile:"+ properties.getProperty("truecase.mixedcasefile",DefaultPaths.DEFAULT_TRUECASE_DISAMBIGUATION_LIST);
-    }
-  }
-);
-  pool.register(STANFORD_NFL_TOKENIZE,new AnnotatorFactory(inputProps){
-    private static final long serialVersionUID=1L;
-    @Override public Annotator create(){
-      final String className="edu.stanford.nlp.pipeline.NFLTokenizerAnnotator";
-      return ReflectionLoading.loadByReflection(className);
-    }
-    @Override public String signature(){
-      return "";
-    }
-  }
-);
-  pool.register(STANFORD_NFL,new AnnotatorFactory(inputProps){
-    private static final long serialVersionUID=1L;
-    @Override public Annotator create(){
-      final String className="edu.stanford.nlp.pipeline.NFLAnnotator";
-      return ReflectionLoading.loadByReflection(className,properties);
-    }
-    @Override public String signature(){
-      return "nfl.verbose:" + properties.getProperty("nfl.verbose","false") + "nfl.relations.use.max.recall:"+ properties.getProperty("nfl.relations.use.max.recall","false")+ "nfl.relations.use.model.merging:"+ properties.getProperty("nfl.relations.use.model.merging","false")+ "nfl.relations.use.basic.inference:"+ properties.getProperty("nfl.relations.use.basic.inference","true")+ "nfl.gazetteer:"+ properties.getProperty("nfl.gazetteer",DefaultPaths.DEFAULT_NFL_GAZETTEER)+ "nfl.entity.model:"+ properties.getProperty("nfl.entity.model",DefaultPaths.DEFAULT_NFL_ENTITY_MODEL)+ "nfl.relation.model:"+ properties.getProperty("nfl.relation.model",DefaultPaths.DEFAULT_NFL_RELATION_MODEL);
     }
   }
 );
@@ -328,5 +298,15 @@
 );
     }
   }
+  pool.register(STANFORD_RELATION,new AnnotatorFactory(inputProps){
+    private static final long serialVersionUID=1L;
+    @Override public Annotator create(){
+      return new RelationExtractorAnnotator(properties);
+    }
+    @Override public String signature(){
+      return "sup.relation.verbose:" + properties.getProperty("sup.relation.verbose","false") + properties.getProperty("sup.relation.model",DefaultPaths.DEFAULT_SUP_RELATION_EX_RELATION_MODEL);
+    }
+  }
+);
   return pool;
 }

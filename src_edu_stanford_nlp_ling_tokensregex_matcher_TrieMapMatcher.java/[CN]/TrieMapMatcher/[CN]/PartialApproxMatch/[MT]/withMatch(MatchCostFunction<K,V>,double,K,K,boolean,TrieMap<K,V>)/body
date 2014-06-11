@@ -1,24 +1,18 @@
 {
   PartialApproxMatch<K,V> res=withMatch(costFunction,deltaCost,t,k);
-  if (multimatch && matched != null && res.value != null) {
-    if (res.multivalues == null) {
-      res.multivalues=new ArrayList<V>(1);
+  if (multimatch && res.matched != null && res.value != null) {
+    if (res.multimatches == null) {
+      res.multimatches=new ArrayList<Match<K,V>>(1);
     }
  else {
-      res.multivalues=new ArrayList<V>(multivalues.size() + 1);
-      res.multivalues.addAll(multivalues);
+      res.multimatches=new ArrayList<Match<K,V>>(multimatches.size() + 1);
+      res.multimatches.addAll(multimatches);
     }
-    res.multivalues.add(res.value);
-    if (res.multimatched == null) {
-      res.multimatched=new ArrayList<List<K>>(1);
-    }
- else {
-      res.multimatched=new ArrayList<List<K>>(multimatched.size() + 1);
-      res.multimatched.addAll(multimatched);
-    }
-    res.multimatched.add(matched.subList(lastMultimatchedStartIndex,matched.size()));
-    res.cost+=costFunction.multiMatchDeltaCost(res.multimatched.get(res.multimatched.size() - 1),res.value,res.multimatched.size());
-    res.lastMultimatchedStartIndex=matched.size();
+    List<K> newlyMatched=res.matched.subList(lastMultimatchedMatchedStartIndex,res.matched.size());
+    res.multimatches.add(new Match<K,V>(newlyMatched,res.value,lastMultimatchedOriginalStartIndex,res.end));
+    res.cost+=costFunction.multiMatchDeltaCost(newlyMatched,res.value,multimatches,res.multimatches);
+    res.lastMultimatchedMatchedStartIndex=res.matched.size();
+    res.lastMultimatchedOriginalStartIndex=res.end;
     res.trie=root;
   }
   return res;

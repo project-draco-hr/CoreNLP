@@ -1,0 +1,16 @@
+{
+  txt=removeSoftHyphens(txt);
+  CoreLabel word=(CoreLabel)tokenFactory.makeToken(txt,yychar,yylength());
+  if (invertible) {
+    String str=prevWordAfter.toString();
+    prevWordAfter.setLength(0);
+    word.set(CoreAnnotations.OriginalTextAnnotation.class,originalText);
+    word.set(CoreAnnotations.BeforeAnnotation.class,str);
+    prevWord.set(CoreAnnotations.AfterAnnotation.class,str);
+    prevWord=word;
+  }
+  if (annotation != null) {
+    word.set(CoreAnnotations.ParentAnnotation.class,annotation);
+  }
+  return word;
+}

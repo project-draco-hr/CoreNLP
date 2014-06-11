@@ -1,0 +1,14 @@
+{
+  verbose=Boolean.parseBoolean(props.getProperty("sup.relation.verbose","false"));
+  String relationModel=props.getProperty("sup.relation.model",DefaultPaths.DEFAULT_SUP_RELATION_EX_RELATION_MODEL);
+  try {
+    Extractor entityExtractor=new RothEntityExtractor();
+    BasicRelationExtractor relationExtractor=BasicRelationExtractor.load(relationModel);
+    System.out.println("Loading relation model " + relationModel + " and the features are "+ relationExtractor.featureFactory);
+    mr=MachineReading.makeMachineReadingForAnnotation(new RothCONLL04Reader(),entityExtractor,relationExtractor,null,null,null,true,verbose);
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+    throw new RuntimeException(e);
+  }
+}
