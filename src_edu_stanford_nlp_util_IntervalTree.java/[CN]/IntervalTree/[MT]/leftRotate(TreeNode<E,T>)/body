@@ -1,0 +1,25 @@
+{
+  if (oldRoot == null || oldRoot.isEmpty() || oldRoot.right == null)   return oldRoot;
+  TreeNode<E,T> oldRightLeft=oldRoot.right.left;
+  TreeNode<E,T> newRoot=oldRoot.right;
+  newRoot.left=oldRoot;
+  oldRoot.right=oldRightLeft;
+  newRoot.parent=oldRoot.parent;
+  newRoot.maxEnd=oldRoot.maxEnd;
+  newRoot.size=oldRoot.size;
+  if (newRoot.parent != null) {
+    if (newRoot.parent.left == oldRoot) {
+      newRoot.parent.left=newRoot;
+    }
+ else     if (newRoot.parent.right == oldRoot) {
+      newRoot.parent.right=newRoot;
+    }
+ else {
+      throw new IllegalStateException("Old root not a child of it's parent");
+    }
+  }
+  oldRoot.parent=newRoot;
+  if (oldRightLeft != null)   oldRightLeft.parent=oldRoot;
+  adjust(oldRoot);
+  return newRoot;
+}
