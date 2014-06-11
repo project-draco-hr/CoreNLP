@@ -2,7 +2,7 @@
   return new Iterator<Annotation>(){
     private Iterator<BufferedReader> readers=Iterables.transform(files,new Function<File,BufferedReader>(){
       @Override public BufferedReader apply(      File file){
-        return IOUtils.readerFromFile(file);
+        return new BufferedReader(new InputStreamReader(IOUtils.openFile(file)));
       }
     }
 ).iterator();
