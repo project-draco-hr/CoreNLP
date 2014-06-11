@@ -49,6 +49,7 @@
     sentimentScores.put(id,score);
   }
   int index=0;
+  PTBEscapingProcessor escaper=new PTBEscapingProcessor();
   for (  String line : IOUtils.readLines(parseFilename)) {
     String[] pieces=line.split("\\|");
     List<Integer> parentPointers=CollectionUtils.transformAsList(Arrays.asList(pieces),new Function<String,Integer>(){
@@ -57,8 +58,8 @@
       }
     }
 );
-    Tree tree=convertTree(parentPointers,sentences.get(index),phraseIds,sentimentScores);
+    Tree tree=convertTree(parentPointers,sentences.get(index),phraseIds,sentimentScores,escaper);
     ++index;
-    System.err.println(tree);
+    System.out.println(tree);
   }
 }
