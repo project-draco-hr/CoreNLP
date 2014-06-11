@@ -10,12 +10,13 @@
   int chineseYearCount=0;
   int chineseNumberCount=0;
   int chinesePercentCount=0;
-  Map<String,SimpleMatrix> rawWordVectors=RNNUtils.readRawWordVectors(op.lexOptions.wordVectorFile,op.lexOptions.numHid);
+  Embedding rawWordVectors=new Embedding(op.lexOptions.wordVectorFile,op.lexOptions.numHid);
   for (  String word : rawWordVectors.keySet()) {
     SimpleMatrix vector=rawWordVectors.get(word);
     if (op.wordFunction != null) {
       word=op.wordFunction.apply(word);
     }
+    wordVectors.put(word,vector);
     if (op.lexOptions.numHid <= 0) {
       op.lexOptions.numHid=vector.getNumElements();
     }
