@@ -1,0 +1,26 @@
+{
+  String modelPath="/u/nlp/data/srparser/englishSR.ser.gz";
+  String taggerPath="/u/nlp/data/pos-tagger/distrib/english-left3words-distsim.tagger";
+  for (int argIndex=0; argIndex < args.length; ) {
+    if (args[argIndex].equals("-tagger")) {
+      taggerPath=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equals("-model")) {
+      modelPath=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else {
+      throw new RuntimeException("Unknown argument " + args[argIndex]);
+    }
+  }
+  String text="My dog likes to shake his stuffed chickadee toy.";
+  MaxentTagger tagger=new MaxentTagger(taggerPath);
+  ShiftReduceParser model=ShiftReduceParser.loadModel(modelPath);
+  DocumentPreprocessor tokenizer=new DocumentPreprocessor(new StringReader(text));
+  for (  List<HasWord> sentence : tokenizer) {
+    List<TaggedWord> tagged=tagger.tagSentence(sentence);
+    Tree tree=model.apply(tagged);
+    System.err.println(tree);
+  }
+}
