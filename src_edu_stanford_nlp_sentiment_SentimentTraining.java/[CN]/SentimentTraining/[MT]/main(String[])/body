@@ -1,0 +1,44 @@
+{
+  RNNOptions op=new RNNOptions();
+  String trainPath="sentimentTreesDebug.txt";
+  boolean runGradientCheck=false;
+  boolean runTraining=false;
+  String modelPath=null;
+  for (int argIndex=0; argIndex < args.length; ) {
+    if (args[argIndex].equalsIgnoreCase("-train")) {
+      runTraining=true;
+      argIndex++;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-gradientcheck")) {
+      runGradientCheck=true;
+      argIndex++;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-trainpath")) {
+      trainPath=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-model")) {
+      modelPath=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else {
+      int newArgIndex=op.setOption(args,argIndex);
+      if (newArgIndex == argIndex) {
+        throw new IllegalArgumentException("Unknown argument " + args[argIndex]);
+      }
+      argIndex=newArgIndex;
+    }
+  }
+  List<Tree> trainingTrees=SentimentUtils.readTreesWithGoldLabels(trainPath);
+  List<Tree> devTrees=null;
+  List<Tree> testTrees=null;
+  System.err.println("Random seed for model: " + op.randomSeed);
+  SentimentModel model=new SentimentModel(op,trainingTrees);
+  if (runGradientCheck) {
+    runGradientCheck(model,trainingTrees);
+  }
+  if (runTraining) {
+    train(model,modelPath,trainingTrees,devTrees);
+    model.saveSerialized(modelPath);
+  }
+}
