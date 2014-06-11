@@ -2,7 +2,7 @@
   if (t.isPreTerminal()) {
     if (t.value().startsWith("CC")) {
       Tree parent=t.parent(root);
-      if (parent.value().startsWith("NP")) {
+      if (parent != null && parent.value().startsWith("NP")) {
         List<Tree> children=parent.getChildrenAsList();
         int ccIndex=children.indexOf(t);
         if (children.size() > ccIndex + 2 && notNP(children,ccIndex) && ccIndex != 0 && (ccIndex == children.size() - 1 || !children.get(ccIndex + 1).value().startsWith("CC"))) {

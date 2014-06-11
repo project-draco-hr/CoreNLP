@@ -1,0 +1,15 @@
+{
+  temporary.add(vertex);
+  for (  SemanticGraphEdge edge : outgoingEdgeIterable(vertex)) {
+    IndexedWord target=edge.getTarget();
+    if (permanent.contains(target)) {
+      continue;
+    }
+    if (temporary.contains(target)) {
+      throw new IllegalStateException("This graph has cycles. Topological sort not possible: " + this.toString());
+    }
+    topologicalSortHelper(target,temporary,permanent,result);
+  }
+  result.add(vertex);
+  permanent.add(vertex);
+}
