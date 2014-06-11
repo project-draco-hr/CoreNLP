@@ -1,0 +1,26 @@
+{
+  MachineReading mr=new MachineReading(args);
+  Execution.fillOptions(MachineReadingProperties.class,args);
+  System.err.println("PERCENTAGE OF TRAIN: " + MachineReadingProperties.percentageOfTrain);
+  Properties props=StringUtils.argsToProperties(args);
+  if (props == null) {
+    throw new RuntimeException("ERROR: failed to find Properties in the given arguments!");
+  }
+  String logLevel=props.getProperty("logLevel","INFO");
+  setLoggerLevel(Level.parse(logLevel.toUpperCase()));
+  GenericDataSetReader reader=mr.makeReader(props);
+  GenericDataSetReader auxReader=mr.makeAuxReader();
+  Level readerLogLevel=Level.parse(MachineReadingProperties.readerLogLevel.toUpperCase());
+  reader.setLoggerLevel(readerLogLevel);
+  if (auxReader != null) {
+    auxReader.setLoggerLevel(readerLogLevel);
+  }
+  System.err.println("The reader log level is set to " + readerLogLevel);
+  StanfordCoreNLP pipe=new StanfordCoreNLP(props,false);
+  reader.setProcessor(pipe);
+  if (auxReader != null) {
+    auxReader.setProcessor(pipe);
+  }
+  mr.makeResultsPrinters(args);
+  return mr;
+}
