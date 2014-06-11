@@ -7,6 +7,8 @@
       SentimentCostAndGradient scorer=new SentimentCostAndGradient(model,null);
       scorer.forwardPropagateTree(collapsedUnary);
       sentence.set(SentimentCoreAnnotations.AnnotatedTree.class,collapsedUnary);
+      int sentiment=RNNCoreAnnotations.getPredictedClass(collapsedUnary);
+      sentence.set(SentimentCoreAnnotations.ClassName.class,SentimentUtils.sentimentString(model,sentiment));
     }
   }
  else {
