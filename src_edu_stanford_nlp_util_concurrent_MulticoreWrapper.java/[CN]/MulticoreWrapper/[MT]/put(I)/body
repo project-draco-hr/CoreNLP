@@ -1,8 +1,13 @@
 {
-  if (idleProcessors.peek() == null)   blockingGetResult();
-  int procId=idleProcessors.poll();
+  int procId;
+  try {
+    procId=idleProcessors.poll(maxSubmitBlockTime,TimeUnit.MILLISECONDS);
+  }
+ catch (  InterruptedException e) {
+    e.printStackTrace();
+    return;
+  }
   int itemId=lastSubmittedItemId++;
-  CallableJob<I,O> job=new CallableJob<I,O>(item,itemId,processorList.get(procId),procId);
-  Future<JobResult<O>> future=queue.submit(job);
-  runningJobs.put(itemId,future);
+  CallableJob<I,O> job=new CallableJob<I,O>(item,itemId,processorList.get(procId),procId,callback);
+  Future<Integer> future=threadPool.submit(job);
 }
