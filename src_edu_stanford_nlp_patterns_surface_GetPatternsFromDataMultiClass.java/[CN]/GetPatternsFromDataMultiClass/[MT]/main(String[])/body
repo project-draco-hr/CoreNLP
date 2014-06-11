@@ -110,8 +110,11 @@
       String patternOutFile=props.getProperty("patternOutFile");
       g.iterateExtractApply(p0,p0Set,wordsOutputFile,sentsOutFile,patternOutFile,ignorePatterns);
       if (evaluate) {
-        boolean evalPerEntity=Boolean.parseBoolean(props.getProperty("evalPerEntity","true"));
-        g.evaluate(evalsents,evalPerEntity);
+        if (evalsents.size() == 0)         System.err.println("No eval sentences provided to evaluate! Make sure evalFileWithGoldLabels is set or turn off the evaluate flag");
+ else {
+          boolean evalPerEntity=Boolean.parseBoolean(props.getProperty("evalPerEntity","true"));
+          g.evaluate(evalsents,evalPerEntity);
+        }
       }
     }
   }
