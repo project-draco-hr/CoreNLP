@@ -14,9 +14,8 @@
   if (crf.flags.useEmbedding && crf.flags.embeddingWords != null && crf.flags.embeddingVectors != null) {
     System.err.println("Reading Embedding Files");
     BufferedReader br=IOUtils.readerFromString(crf.flags.embeddingWords);
-    String line=null;
     List<String> wordList=new ArrayList<String>();
-    while ((line=br.readLine()) != null) {
+    for (String line; (line=br.readLine()) != null; ) {
       wordList.add(line.trim());
     }
     System.err.println("Found a dictionary of size " + wordList.size());
@@ -24,7 +23,7 @@
     crf.embeddings=Generics.newHashMap();
     double[] vector=null;
     int count=0;
-    while ((line=br.readLine()) != null) {
+    for (String line; (line=br.readLine()) != null; ) {
       vector=ArrayUtils.toDoubleArray(line.trim().split(" "));
       crf.embeddings.put(wordList.get(count++),vector);
     }
