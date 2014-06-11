@@ -26,12 +26,10 @@
         p=new PartialTime(p,p2);
         unsupported=unsupported.withYears(0);
       }
-      if (unsupported.getDays() != 0 && !JodaTimeUtils.hasField(p.base,DateTimeFieldType.dayOfYear()) && !JodaTimeUtils.hasField(p.base,DateTimeFieldType.dayOfMonth()) && !JodaTimeUtils.hasField(p.base,DateTimeFieldType.dayOfWeek()) && JodaTimeUtils.hasField(p.base,DateTimeFieldType.monthOfYear())) {
-        if (p.getGranularity().compareTo(DAY) <= 0) {
-          Partial p2=p.base.with(DateTimeFieldType.dayOfMonth(),unsupported.getDays());
-          p=new PartialTime(p,p2);
-          unsupported=unsupported.withDays(0);
-        }
+      if (unsupported.getDays() > 0 && !JodaTimeUtils.hasField(p.base,DateTimeFieldType.dayOfYear()) && !JodaTimeUtils.hasField(p.base,DateTimeFieldType.dayOfMonth()) && !JodaTimeUtils.hasField(p.base,DateTimeFieldType.dayOfWeek()) && JodaTimeUtils.hasField(p.base,DateTimeFieldType.monthOfYear())) {
+        Partial p2=p.base.with(DateTimeFieldType.dayOfMonth(),unsupported.getDays());
+        p=new PartialTime(p,p2);
+        unsupported=unsupported.withDays(0);
       }
       if (!unsupported.equals(Period.ZERO)) {
         t=new RelativeTime(p,new DurationWithFields(unsupported));
