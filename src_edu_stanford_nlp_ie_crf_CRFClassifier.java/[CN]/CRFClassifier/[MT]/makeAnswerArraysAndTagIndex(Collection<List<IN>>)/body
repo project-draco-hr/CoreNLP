@@ -1,5 +1,5 @@
 {
-  boolean useFeatureCountThresh=flags.featureCountThresh > 1;
+  boolean useFeatureCountThresh=flags.featureCountThresh > 1 ? true : false;
   Set<String>[] featureIndices=new HashSet[windowSize];
   Map<String,Integer>[] featureCountIndices=null;
   for (int i=0; i < windowSize; i++) {
@@ -133,6 +133,8 @@
     templateGroupIndex=new HashIndex<String>();
     featureIndexToTemplateIndex=new HashMap<Integer,Integer>();
   }
+  Matcher m=null;
+  String groupSuffix=null;
   for (int i=0; i < windowSize; i++) {
     Index<Integer> featureIndexMap=new HashIndex<Integer>();
     featureIndex.addAll(featureIndices[i]);
@@ -141,8 +143,8 @@
       map[index]=i;
       featureIndexMap.add(index);
       if (flags.groupByFeatureTemplate) {
-        Matcher m=suffixPatt.matcher(str);
-        String groupSuffix="NoTemplate";
+        m=suffixPatt.matcher(str);
+        groupSuffix="NoTemplate";
         if (m.matches()) {
           groupSuffix=m.group(1);
         }
