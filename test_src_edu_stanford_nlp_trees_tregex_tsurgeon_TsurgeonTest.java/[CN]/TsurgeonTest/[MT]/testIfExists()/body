@@ -1,0 +1,9 @@
+{
+  TregexPattern tregex=TregexPattern.compile("A=foo [ << B=bar | << C=baz ]");
+  TsurgeonPattern tsurgeon=Tsurgeon.parseOperation("if exists bar relabel bar BAR");
+  runTest(tregex,tsurgeon,"(A (B foo))","(A (BAR foo))");
+  tsurgeon=Tsurgeon.parseOperation("[if exists bar relabel bar BAR] [if exists baz relabel baz BAZ]");
+  runTest(tregex,tsurgeon,"(A (B foo))","(A (BAR foo))");
+  runTest(tregex,tsurgeon,"(A (C foo))","(A (BAZ foo))");
+  runTest(tregex,tsurgeon,"(A (B foo) (C foo))","(A (BAR foo) (BAZ foo))");
+}

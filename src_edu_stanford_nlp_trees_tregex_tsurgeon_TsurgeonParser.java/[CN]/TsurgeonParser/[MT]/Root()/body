@@ -2,42 +2,108 @@
   SimpleNode jjtn000=new SimpleNode(JJTROOT);
   boolean jjtc000=true;
   jjtree.openNodeScope(jjtn000);
+  Token name;
   TsurgeonPattern result;
+  List<TsurgeonPattern> results=null;
   try {
-    result=Operation();
-    jj_consume_token(26);
-    jjtree.closeNodeScope(jjtn000,true);
-    jjtc000=false;
+switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+case DELETE:
+case PRUNE:
+case RELABEL:
+case EXCISE:
+case INSERT:
+case MOVE:
+case REPLACE:
+case CREATE_SUBTREE:
+case ADJOIN:
+case ADJOIN_TO_HEAD:
+case ADJOIN_TO_FOOT:
+case COINDEX:
 {
-      if ("" != null)       return result;
-    }
-  }
- catch (  Throwable jjte000) {
-    if (jjtc000) {
-      jjtree.clearNodeScope(jjtn000);
-      jjtc000=false;
-    }
- else {
-      jjtree.popNode();
-    }
-    if (jjte000 instanceof RuntimeException) {
+        result=Operation();
+        jjtree.closeNodeScope(jjtn000,true);
+        jjtc000=false;
 {
-        if (true)         throw (RuntimeException)jjte000;
+          if ("" != null)           return new TsurgeonPatternRoot(result);
+        }
+        break;
       }
-    }
-    if (jjte000 instanceof ParseException) {
+case IF:
 {
-        if (true)         throw (ParseException)jjte000;
-      }
-    }
-{
-      if (true)       throw (Error)jjte000;
-    }
-  }
- finally {
-    if (jjtc000) {
+      jj_consume_token(IF);
+      jj_consume_token(EXISTS);
+      name=jj_consume_token(NAME);
+      result=Root();
       jjtree.closeNodeScope(jjtn000,true);
+      jjtc000=false;
+{
+        if ("" != null)         return new TsurgeonPatternRoot(new IfExistsNode(name.image,result.children));
+      }
+      break;
     }
-  }
-  throw new Error("Missing return statement in function");
+case OPEN_BRACKET:
+{
+    label_1:     while (true) {
+      jj_consume_token(OPEN_BRACKET);
+      result=Root();
+      jj_consume_token(CLOSE_BRACKET);
+      if (results == null) {
+        results=Generics.newArrayList();
+      }
+      for (      TsurgeonPattern child : result.children) {
+        results.add(child);
+      }
+switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+case OPEN_BRACKET:
+{
+          ;
+          break;
+        }
+default :
+      jj_la1[0]=jj_gen;
+    break label_1;
+}
+}
+jjtree.closeNodeScope(jjtn000,true);
+jjtc000=false;
+TsurgeonPattern[] array=new TsurgeonPattern[results.size()];
+{
+if ("" != null) return new TsurgeonPatternRoot(results.toArray(array));
+}
+break;
+}
+default :
+jj_la1[1]=jj_gen;
+jj_consume_token(-1);
+throw new ParseException();
+}
+}
+ catch (Throwable jjte000) {
+if (jjtc000) {
+jjtree.clearNodeScope(jjtn000);
+jjtc000=false;
+}
+ else {
+jjtree.popNode();
+}
+if (jjte000 instanceof RuntimeException) {
+{
+if (true) throw (RuntimeException)jjte000;
+}
+}
+if (jjte000 instanceof ParseException) {
+{
+if (true) throw (ParseException)jjte000;
+}
+}
+{
+if (true) throw (Error)jjte000;
+}
+}
+ finally {
+if (jjtc000) {
+jjtree.closeNodeScope(jjtn000,true);
+}
+}
+throw new Error("Missing return statement in function");
 }

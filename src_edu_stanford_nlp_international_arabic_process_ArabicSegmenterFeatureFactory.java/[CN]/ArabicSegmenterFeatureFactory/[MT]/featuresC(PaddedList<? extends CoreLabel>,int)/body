@@ -20,26 +20,17 @@
   }
   boolean seenPunc=false;
   boolean seenDigit=false;
-  for (int i=0; i < charc.length(); ++i) {
+  for (int i=0, limit=charc.length(); i < limit; ++i) {
     char charcC=charc.charAt(i);
-    if (!seenPunc && Characters.isPunctuation(charcC)) {
-      seenPunc=true;
-      features.add("haspunc");
-    }
-    if (!seenDigit && Character.isDigit(charcC)) {
-      seenDigit=true;
-      features.add("hasdigit");
-    }
+    seenPunc=seenPunc || Characters.isPunctuation(charcC);
+    seenDigit=seenDigit || Character.isDigit(charcC);
     String cuBlock=Characters.unicodeBlockStringOf(charcC);
     features.add(cuBlock + "-uBlock");
     String cuType=String.valueOf(Character.getType(charcC));
     features.add(cuType + "-uType");
   }
-  String word=c.word();
-  int index=c.index();
-  features.add(Math.min(MAX_BEFORE,index) + "-before");
-  features.add(Math.min(MAX_AFTER,word.length() - charc.length() - index) + "-after");
-  features.add(Math.min(MAX_LENGTH,word.length()) + "-length");
+  if (seenPunc)   features.add("haspunc");
+  if (seenDigit)   features.add("hasdigit");
   features.add("cliqueC");
   return features;
 }
