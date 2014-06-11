@@ -11,7 +11,7 @@
       }
     }
   }
-  if (motherCat.equals("SBARQ") || motherCat.equals("SINV")) {
+  if (motherCat.equals("SBARQ")) {
     if (!makeCopulaHead) {
       for (      TregexPattern pattern : headOfCopulaTregex) {
         TregexMatcher matcher=pattern.matcher(t);
@@ -21,7 +21,6 @@
       }
     }
   }
-  Tree[] tmpFilteredChildren=null;
   if ((motherCat.equals("VP") || motherCat.equals("SQ") || motherCat.equals("SINV"))) {
     Tree[] kids=t.children();
     if (DEBUG) {
@@ -31,10 +30,7 @@
     }
     if (hasVerbalAuxiliary(kids,verbalAuxiliaries,true) || hasPassiveProgressiveAuxiliary(kids)) {
       String[] how={"left","VP","ADJP"};
-      if (tmpFilteredChildren == null) {
-        tmpFilteredChildren=ArrayUtils.filter(kids,REMOVE_TMP_AND_ADV);
-      }
-      Tree pti=traverseLocate(tmpFilteredChildren,how,false);
+      Tree pti=traverseLocate(kids,how,false);
       if (DEBUG) {
         System.err.println("Determined head (case 1) for " + t.value() + " is: "+ pti);
       }
@@ -50,10 +46,8 @@
  else {
         how=new String[]{"left","VP","ADJP","NP","WHADJP","WHNP"};
       }
-      if (tmpFilteredChildren == null) {
-        tmpFilteredChildren=ArrayUtils.filter(kids,REMOVE_TMP_AND_ADV);
-      }
-      Tree pti=traverseLocate(tmpFilteredChildren,how,false);
+      Tree[] filteredChildren=ArrayUtils.filter(kids,REMOVE_TMP_AND_ADV);
+      Tree pti=traverseLocate(filteredChildren,how,false);
       if (motherCat.equals("SQ") && pti != null && pti.label() != null && pti.label().value().startsWith("NP")) {
         boolean foundAnotherNp=false;
         for (        Tree kid : kids) {
