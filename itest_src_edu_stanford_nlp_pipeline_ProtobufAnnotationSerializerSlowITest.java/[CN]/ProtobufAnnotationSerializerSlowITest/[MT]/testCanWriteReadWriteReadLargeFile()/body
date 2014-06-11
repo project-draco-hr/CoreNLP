@@ -1,0 +1,25 @@
+{
+  try {
+    AnnotationSerializer serializer=new ProtobufAnnotationSerializer();
+    StanfordCoreNLP pipe=new StanfordCoreNLP(new Properties());
+    Annotation doc=pipe.process(prideAndPrejudiceChapters1to5);
+    ByteArrayOutputStream ks=new ByteArrayOutputStream();
+    serializer.save(doc,ks);
+    ks.close();
+    InputStream kis=new ByteArrayInputStream(ks.toByteArray());
+    Annotation readDoc=serializer.load(kis);
+    kis.close();
+    sameAsRead(doc,readDoc);
+    ByteArrayOutputStream ks2=new ByteArrayOutputStream();
+    serializer.save(readDoc,ks2);
+    ks2.close();
+    InputStream kis2=new ByteArrayInputStream(ks2.toByteArray());
+    Annotation readDoc2=serializer.load(kis2);
+    kis2.close();
+    sameAsRead(readDoc,readDoc2);
+    sameAsRead(doc,readDoc2);
+  }
+ catch (  Exception e) {
+    throw new RuntimeException(e);
+  }
+}
