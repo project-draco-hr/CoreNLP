@@ -1,0 +1,18 @@
+{
+  List<Tree> preterminals=Generics.newArrayList();
+  for (  TaggedWord tw : tree.taggedYield()) {
+    CoreLabel word=new CoreLabel();
+    word.setValue(tw.word());
+    CoreLabel tag=new CoreLabel();
+    tag.setValue(tw.tag());
+    LabeledScoredTreeNode wordNode=new LabeledScoredTreeNode(word);
+    LabeledScoredTreeNode tagNode=new LabeledScoredTreeNode(tag);
+    tagNode.addChild(wordNode);
+    word.set(TreeCoreAnnotations.HeadWordAnnotation.class,wordNode);
+    word.set(TreeCoreAnnotations.HeadTagAnnotation.class,tagNode);
+    tag.set(TreeCoreAnnotations.HeadWordAnnotation.class,wordNode);
+    tag.set(TreeCoreAnnotations.HeadTagAnnotation.class,tagNode);
+    preterminals.add(tagNode);
+  }
+  return new State(preterminals);
+}
