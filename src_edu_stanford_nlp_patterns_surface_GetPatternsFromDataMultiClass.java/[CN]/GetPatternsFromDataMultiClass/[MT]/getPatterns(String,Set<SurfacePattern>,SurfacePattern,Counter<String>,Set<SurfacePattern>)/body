@@ -103,6 +103,13 @@
       }
     }
   }
+  Set<SurfacePattern> removePats=enforceMinSupportRequirements(patternsandWords4Label,unLabeledPatternsandWords4Label);
+  Counters.removeKeys(patternsandWords4Label,removePats);
+  Counters.removeKeys(unLabeledPatternsandWords4Label,removePats);
+  Counters.removeKeys(negandUnLabeledPatternsandWords4Label,removePats);
+  Counters.removeKeys(allPatternsandWords4Label,removePats);
+  Counters.removeKeys(posnegPatternsandWords4Label,removePats);
+  Counters.removeKeys(negPatternsandWords4Label,removePats);
   Redwood.log("extremePatDebug","Patterns around positive words in the label " + label + " are "+ patternsandWords4Label);
   ScorePatterns scorePatterns;
   if (constVars.patternScoring.equals(PatternScoring.F1)) {
@@ -159,7 +166,7 @@ catch (    NoSuchMethodException|InvocationTargetException|IllegalAccessExceptio
       break;
     }
     boolean notchoose=false;
-    if (constVars.discardPatternsWithNoUnlabSupport && (!unLabeledPatternsandWords4Label.containsFirstKey(pat) || unLabeledPatternsandWords4Label.getCounter(pat).isEmpty())) {
+    if (!unLabeledPatternsandWords4Label.containsFirstKey(pat) || unLabeledPatternsandWords4Label.getCounter(pat).isEmpty()) {
       Redwood.log("extremePatDebug","Removing pattern " + pat + " because it has no unlab support; pos words: "+ patternsandWords4Label.getCounter(pat)+ " and all words "+ allPatternsandWords4Label.getCounter(pat));
       notchoose=true;
       continue;
