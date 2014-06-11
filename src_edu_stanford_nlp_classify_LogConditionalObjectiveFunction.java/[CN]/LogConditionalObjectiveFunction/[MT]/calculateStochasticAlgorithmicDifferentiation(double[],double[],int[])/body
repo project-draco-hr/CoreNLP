@@ -1,21 +1,29 @@
 {
   System.err.print("*");
   value=0.0;
-  DoubleAD[] derivativeAD=new DoubleAD[x.length];
-  for (int i=0; i < x.length; i++) {
-    derivativeAD[i]=new DoubleAD(0.0,0.0);
+  if (derivativeAD == null) {
+    derivativeAD=new DoubleAD[x.length];
+    for (int i=0; i < x.length; i++) {
+      derivativeAD[i]=new DoubleAD(0.0,0.0);
+    }
   }
-  DoubleAD[] xAD=new DoubleAD[x.length];
-  for (int i=0; i < x.length; i++) {
-    xAD[i]=new DoubleAD(x[i],v[i]);
+  if (xAD == null) {
+    xAD=new DoubleAD[x.length];
+    for (int i=0; i < x.length; i++) {
+      xAD[i]=new DoubleAD(x[i],v[i]);
+    }
   }
-  DoubleAD[] sums=new DoubleAD[numClasses];
-  for (int c=0; c < numClasses; c++) {
-    sums[c]=new DoubleAD(0,0);
+  if (sums == null) {
+    sums=new DoubleAD[numClasses];
+    for (int c=0; c < numClasses; c++) {
+      sums[c]=new DoubleAD(0,0);
+    }
   }
-  DoubleAD[] probs=new DoubleAD[numClasses];
-  for (int c=0; c < numClasses; c++) {
-    probs[c]=new DoubleAD(0,0);
+  if (probs == null) {
+    probs=new DoubleAD[numClasses];
+    for (int c=0; c < numClasses; c++) {
+      probs[c]=new DoubleAD(0,0);
+    }
   }
   for (int i=0; i < x.length; i++) {
     xAD[i].set(x[i],v[i]);
@@ -28,8 +36,8 @@
       sums[c].set(0.0,0.0);
     }
     for (int c=0; c < numClasses; c++) {
-      for (      int feature : features) {
-        int i=indexOf(feature,c);
+      for (int f=0; f < features.length; f++) {
+        int i=indexOf(features[f],c);
         sums[c]=ADMath.plus(sums[c],xAD[i]);
       }
     }
@@ -39,8 +47,8 @@
       if (dataweights != null) {
         probs[c]=ADMath.multConst(probs[c],dataweights[d]);
       }
-      for (      int feature : features) {
-        int i=indexOf(feature,c);
+      for (int f=0; f < features.length; f++) {
+        int i=indexOf(features[f],c);
         if (c == labels[m]) {
           derivativeAD[i].plusEqualsConst(-1.0);
         }

@@ -12,12 +12,13 @@
   derivative=ArrayMath.multiply(x,priorFactor);
   double[] sums=new double[numClasses];
   double[] probs=new double[numClasses];
-  for (  int m : batch) {
+  for (int d=0; d < batchSize; d++) {
+    int m=batch[d];
     int[] features=data[m];
     Arrays.fill(sums,0.0);
     for (int c=0; c < numClasses; c++) {
-      for (      int feature : features) {
-        int i=indexOf(feature,c);
+      for (int f=0; f < features.length; f++) {
+        int i=indexOf(features[f],c);
         sums[c]+=x[i];
       }
     }
@@ -27,8 +28,8 @@
       if (dataweights != null) {
         probs[c]*=dataweights[m];
       }
-      for (      int feature : features) {
-        int i=indexOf(feature,c);
+      for (int f=0; f < features.length; f++) {
+        int i=indexOf(features[f],c);
         derivative[i]+=probs[c];
         if (c == labels[m]) {
           derivative[i]-=1;
