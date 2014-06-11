@@ -25,9 +25,21 @@
   if (VERBOSE) {
     System.err.println("After SQ flattening:              " + flatSQ);
   }
-  Tree ret=dates.transformTree(flatSQ);
+  Tree fixedDates=dates.transformTree(flatSQ);
   if (VERBOSE) {
-    System.err.println("After DateTreeTransformer:        " + ret);
+    System.err.println("After DateTreeTransformer:        " + fixedDates);
   }
-  return ret;
+  Tree removedXX=removeXOverX(fixedDates);
+  if (VERBOSE) {
+    System.err.println("After removeXoverX:               " + removedXX);
+  }
+  Tree conjp=combineConjp(removedXX);
+  if (VERBOSE) {
+    System.err.println("After combineConjp:               " + conjp);
+  }
+  Tree movedRB=moveRB(conjp);
+  if (VERBOSE) {
+    System.err.println("After moveRB:                     " + movedRB);
+  }
+  return movedRB;
 }
