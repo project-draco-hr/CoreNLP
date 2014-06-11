@@ -3,6 +3,7 @@
   String sentimentModel=null;
   String filename=null;
   boolean stdin=false;
+  boolean pennTrees=false;
   for (int argIndex=0; argIndex < args.length; ) {
     if (args[argIndex].equalsIgnoreCase("-sentimentModel")) {
       sentimentModel=args[argIndex + 1];
@@ -18,6 +19,10 @@
     }
  else     if (args[argIndex].equalsIgnoreCase("-stdin")) {
       stdin=true;
+      argIndex++;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-pennTrees")) {
+      pennTrees=true;
       argIndex++;
     }
  else {
@@ -49,9 +54,16 @@
     pipeline.annotate(annotation);
     for (    CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
       Tree tree=sentence.get(SentimentCoreAnnotations.AnnotatedTree.class);
-      int sentiment=RNNCoreAnnotations.getPredictedClass(tree);
       System.err.println(sentence);
-      System.err.println("  Predicted sentiment: " + SentimentUtils.sentimentString(sentiment));
+      if (pennTrees) {
+        Tree copy=tree.deepCopy();
+        setSentimentLabels(copy);
+        System.err.println(copy);
+      }
+ else {
+        int sentiment=RNNCoreAnnotations.getPredictedClass(tree);
+        System.err.println("  Predicted sentiment: " + SentimentUtils.sentimentString(sentiment));
+      }
     }
   }
  else {
@@ -69,8 +81,15 @@
         Annotation annotation=pipeline.process(line);
         for (        CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
           Tree tree=sentence.get(SentimentCoreAnnotations.AnnotatedTree.class);
-          int sentiment=RNNCoreAnnotations.getPredictedClass(tree);
-          System.err.println("  " + SentimentUtils.sentimentString(sentiment));
+          if (pennTrees) {
+            Tree copy=tree.deepCopy();
+            setSentimentLabels(copy);
+            System.err.println(copy);
+          }
+ else {
+            int sentiment=RNNCoreAnnotations.getPredictedClass(tree);
+            System.err.println("  " + SentimentUtils.sentimentString(sentiment));
+          }
         }
       }
  else {
