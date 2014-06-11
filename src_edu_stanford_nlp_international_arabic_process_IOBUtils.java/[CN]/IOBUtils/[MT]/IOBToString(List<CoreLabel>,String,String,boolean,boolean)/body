@@ -3,7 +3,6 @@
   String lastLabel="";
   final boolean addPrefixMarker=prefixMarker != null && prefixMarker.length() > 0;
   final boolean addSuffixMarker=suffixMarker != null && suffixMarker.length() > 0;
-  if (addPrefixMarker || addSuffixMarker)   annotateMarkers(labeledSequence);
   final int sequenceLength=labeledSequence.size();
   for (int i=0; i < sequenceLength; ++i) {
     CoreLabel labeledChar=labeledSequence.get(i);
@@ -37,20 +36,25 @@
  else     if (label.equals(BoundarySymbol)) {
       sb.append(" ");
     }
- else     if (label.equals(RewriteSymbol) || label.equals("REWAL") || label.equals("REWTA")) {
-      if (token.equals("??")) {
-        sb.append((applyRewrites ? "??" : "??") + (addSpace ? " " : ""));
-        if (addSuffixMarker)         sb.append(suffixMarker);
- else         if (addPrefixMarker && !addSpace)         sb.append(prefixMarker);
-      }
- else       if (token.equals("??")) {
-        sb.append((addPrefixMarker ? prefixMarker : "") + (addSpace ? " " : "") + (applyRewrites ? "????" : "??"));
-      }
- else       if (token.equals("??") || token.equals("??")) {
-        sb.append((applyRewrites ? "??" : token) + (addSpace ? " " : ""));
+ else     if (label.equals(RewriteTahSymbol)) {
+      if (applyRewrites) {
+        sb.append("??");
       }
  else {
-        sb.append(token);
+        sb.append("??");
+      }
+      if (addSpace)       sb.append(" ");
+      if (addSuffixMarker)       sb.append(suffixMarker);
+ else       if (addPrefixMarker && !addSpace)       sb.append(prefixMarker);
+    }
+ else     if (label.equals(RewriteTareefSymbol)) {
+      if (addPrefixMarker)       sb.append(prefixMarker);
+      if (addSpace)       sb.append(" ");
+      if (applyRewrites) {
+        sb.append("????");
+      }
+ else {
+        sb.append("??");
       }
     }
  else {
