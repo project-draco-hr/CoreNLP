@@ -3,6 +3,7 @@
   String lastLabel="";
   final boolean addPrefixMarker=prefixMarker != null && prefixMarker.length() > 0;
   final boolean addSuffixMarker=suffixMarker != null && suffixMarker.length() > 0;
+  if (addPrefixMarker || addSuffixMarker)   annotateMarkers(labeledSequence);
   final int sequenceLength=labeledSequence.size();
   for (int i=0; i < sequenceLength; ++i) {
     CoreLabel labeledChar=labeledSequence.get(i);
@@ -10,8 +11,11 @@
     if (addPrefixMarker && token.equals(prefixMarker))     token="#pm#";
     if (addSuffixMarker && token.equals(suffixMarker))     token="#sm#";
     String label=labeledChar.get(CoreAnnotations.AnswerAnnotation.class);
-    if (label.equals(BeginSymbol)) {
-      if (lastLabel.equals(ContinuationSymbol) || lastLabel.equals(BeginSymbol)) {
+    if (token.equals(BoundaryChar)) {
+      sb.append(" ");
+    }
+ else     if (label.equals(BeginSymbol)) {
+      if (lastLabel.equals(ContinuationSymbol) || lastLabel.equals(BeginSymbol) || lastLabel.equals(RewriteSymbol)) {
         if (addPrefixMarker && (!addSpace || addPrefixMarker(i,labeledSequence))) {
           sb.append(prefixMarker);
         }
@@ -24,37 +28,27 @@
       }
       sb.append(token);
     }
- else     if (label.equals(ContinuationSymbol)) {
+ else     if (label.equals(ContinuationSymbol) || label.equals(BoundarySymbol)) {
       sb.append(token);
     }
  else     if (label.equals(NosegSymbol)) {
-      if (!lastLabel.equals(BoundarySymbol)) {
+      if (!lastLabel.equals(BoundarySymbol) && addSpace) {
         sb.append(" ");
       }
       sb.append(token);
     }
- else     if (label.equals(BoundarySymbol)) {
-      sb.append(" ");
-    }
- else     if (label.equals(RewriteTahSymbol)) {
-      if (applyRewrites) {
-        sb.append("??");
+ else     if (label.equals(RewriteSymbol) || label.equals("REWAL") || label.equals("REWTA")) {
+      if (token.equals("??")) {
+        sb.append(applyRewrites ? "??" : "??");
+      }
+ else       if (token.equals("??")) {
+        sb.append((addPrefixMarker ? prefixMarker : "") + (addSpace ? " " : "") + (applyRewrites ? "????" : "??"));
+      }
+ else       if (token.equals("??") || token.equals("??")) {
+        sb.append(applyRewrites ? "??" : token);
       }
  else {
-        sb.append("??");
-      }
-      if (addSpace)       sb.append(" ");
-      if (addSuffixMarker)       sb.append(suffixMarker);
- else       if (addPrefixMarker && !addSpace)       sb.append(prefixMarker);
-    }
- else     if (label.equals(RewriteTareefSymbol)) {
-      if (addPrefixMarker)       sb.append(prefixMarker);
-      if (addSpace)       sb.append(" ");
-      if (applyRewrites) {
-        sb.append("????");
-      }
- else {
-        sb.append("??");
+        sb.append(token);
       }
     }
  else {

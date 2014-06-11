@@ -2,17 +2,18 @@
   List<File> allFiles=new ArrayList<File>();
   for (  String tokfile : file.split("[,;]")) {
     File filef=new File(tokfile);
+    String path=".*";
+    File dir=null;
     if (filef.isDirectory()) {
-      String path=".*";
-      File dir=filef;
-      for (      File f : IOUtils.iterFilesRecursive(dir,Pattern.compile(path))) {
-        Redwood.log(Redwood.DBG,"Reading file " + f);
-        allFiles.add(f);
-      }
+      dir=filef;
     }
  else {
-      Redwood.log(Redwood.DBG,"Reading file " + filef);
-      allFiles.add(filef);
+      dir=filef.getParentFile();
+      path="^" + filef.getAbsolutePath() + "$";
+    }
+    for (    File f : IOUtils.iterFilesRecursive(dir,Pattern.compile(path))) {
+      System.out.println("Reading file " + f);
+      allFiles.add(f);
     }
   }
   return allFiles;
