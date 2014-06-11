@@ -1,0 +1,15 @@
+{
+  try {
+    List<String> lines=IOUtils.linesFromFile(dir + "/param.txt");
+    boolean lc=Boolean.parseBoolean(lines.get(0));
+    boolean batchProcessSents=Boolean.parseBoolean(lines.get(1));
+    Set<String> stopwords=IOUtils.readObjectFromFile(dir + "/stopwords.ser");
+    Set<String> specialwords=IOUtils.readObjectFromFile(dir + "/specialwords.ser");
+    Map<String,Hashtable<String,Set<String>>> index=null;
+    index=IOUtils.readObjectFromFile(dir + "/map.ser");
+    return new InvertedIndexByTokens(index,lc,stopwords,specialwords,batchProcessSents);
+  }
+ catch (  Exception e) {
+    throw new RuntimeException("Cannot load the inverted index. " + e);
+  }
+}
