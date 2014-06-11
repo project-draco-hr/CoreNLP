@@ -1,0 +1,18 @@
+{
+  double[] scores=new double[featureWeights.length];
+  for (  String feature : features) {
+    int featureNum=featureIndex.indexOf(feature);
+    if (featureNum >= 0) {
+      for (int i=0; i < scores.length; ++i) {
+        scores[i]+=featureWeights[i][featureNum];
+      }
+    }
+  }
+  int bestFeature=-1;
+  for (int i=0; i < scores.length; ++i) {
+    if ((bestFeature < 0 || scores[i] > scores[bestFeature]) && (!requireLegal || transitionIndex.get(i).isLegal(state))) {
+      bestFeature=i;
+    }
+  }
+  return bestFeature;
+}
