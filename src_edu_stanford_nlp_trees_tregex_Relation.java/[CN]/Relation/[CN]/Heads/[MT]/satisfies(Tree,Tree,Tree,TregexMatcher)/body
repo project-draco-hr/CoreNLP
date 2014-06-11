@@ -1,0 +1,19 @@
+{
+  if (t2.isLeaf()) {
+    return false;
+  }
+ else   if (t2.isPreTerminal()) {
+    return (t2.firstChild() == t1);
+  }
+ else {
+    HeadFinder headFinder=matcher.getHeadFinder();
+    if (headFinder == null)     headFinder=this.hf;
+    Tree head=headFinder.determineHead(t2);
+    if (head == t1) {
+      return true;
+    }
+ else {
+      return satisfies(t1,head,root,matcher);
+    }
+  }
+}
