@@ -1,0 +1,15 @@
+{
+  double minD=editDistMax;
+  String minPh=ph;
+  for (  String e : words) {
+    if (e.equals(ph))     return new Pair<String,Double>(ph,0.0);
+    double d=EditDistanceDamerauLevenshteinLike.editDistance(e,ph,3);
+    if (d == 1)     return new Pair<String,Double>(e,d);
+    if (d == -1)     d=editDistMax;
+    if (d < minD) {
+      minD=d;
+      minPh=e;
+    }
+  }
+  return new Pair<String,Double>(minPh,minD);
+}
