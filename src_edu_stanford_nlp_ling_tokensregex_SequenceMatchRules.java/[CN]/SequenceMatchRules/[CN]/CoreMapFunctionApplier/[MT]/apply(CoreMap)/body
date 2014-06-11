@@ -1,4 +1,11 @@
 {
+  if (env != null) {
+    env.push(Expressions.VAR_SELF,cm);
+  }
   T field=(T)cm.get(annotationField);
-  return func.apply(field);
+  O res=func.apply(field);
+  if (env != null) {
+    env.pop(Expressions.VAR_SELF);
+  }
+  return res;
 }
