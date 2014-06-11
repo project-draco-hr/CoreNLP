@@ -18,13 +18,13 @@
     }
     countResults(doc,entityTP,entityFP,entityFN,constVars.backgroundSymbol,wordTP,wordTN,wordFP,wordFN,CoreAnnotations.AnswerAnnotation.class,evalPerEntity);
   }
-  System.out.println("\n\n True Positives: " + entityTP);
-  System.out.println("\n\n False Positives: " + entityFP);
-  System.out.println("\n\n False Negatives: " + entityFN);
+  Redwood.log(Redwood.DBG,"\n\n True Positives: " + entityTP);
+  Redwood.log(Redwood.DBG,"\n\n False Positives: " + entityFP);
+  Redwood.log(Redwood.DBG,"\n\n False Negatives: " + entityFN);
   Counter<String> precision=Counters.division(entityTP,Counters.add(entityTP,entityFP));
   Counter<String> recall=Counters.division(entityTP,Counters.add(entityTP,entityFN));
-  System.out.println("\n Precision: " + precision);
-  System.out.println("\n Recall: " + recall);
-  System.out.println("\n F1 score:  " + FScore(precision,recall,1));
-  System.out.println("Total: " + Counters.add(entityFP,entityTP));
+  Redwood.log(Redwood.FORCE,"\n Precision: " + precision);
+  Redwood.log(Redwood.FORCE,"\n Recall: " + recall);
+  Redwood.log(Redwood.FORCE,"\n F1 score:  " + FScore(precision,recall,1));
+  Redwood.log(Redwood.FORCE,"Total: " + Counters.add(entityFP,entityTP));
 }
