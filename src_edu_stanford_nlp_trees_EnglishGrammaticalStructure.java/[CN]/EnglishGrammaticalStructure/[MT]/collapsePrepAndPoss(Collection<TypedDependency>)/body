@@ -1,14 +1,27 @@
 {
   Collection<TypedDependency> newTypedDeps=new ArrayList<TypedDependency>();
   Map<TreeGraphNode,SortedSet<TypedDependency>> map=Generics.newHashMap();
-  List<TreeGraphNode> partmod=new ArrayList<TreeGraphNode>();
+  List<TreeGraphNode> vmod=new ArrayList<TreeGraphNode>();
   for (  TypedDependency typedDep : list) {
     if (!map.containsKey(typedDep.gov())) {
       map.put(typedDep.gov(),new TreeSet<TypedDependency>());
     }
     map.get(typedDep.gov()).add(typedDep);
-    if (typedDep.reln() == PARTICIPIAL_MODIFIER) {
-      partmod.add(typedDep.dep());
+    if (typedDep.reln() == VERBAL_MODIFIER) {
+      boolean foundAux=false;
+      for (      TypedDependency auxDep : list) {
+        if (auxDep.reln() != AUX_MODIFIER) {
+          continue;
+        }
+        if (auxDep.gov() != typedDep.dep() || !auxDep.dep().value().equalsIgnoreCase("to")) {
+          continue;
+        }
+        foundAux=true;
+        break;
+      }
+      if (!foundAux) {
+        vmod.add(typedDep.dep());
+      }
     }
   }
   for (  TypedDependency td1 : list) {
@@ -95,7 +108,7 @@
       }
     }
     if (samePrepositionInEachConjunct) {
-      GrammaticalRelation reln=determinePrepRelation(map,partmod,td1,td1,prepDep.second());
+      GrammaticalRelation reln=determinePrepRelation(map,vmod,td1,td1,prepDep.second());
       TypedDependency tdNew=new TypedDependency(reln,td1.gov(),prepDep.first().dep());
       newTypedDeps.add(tdNew);
       if (DEBUG) {
@@ -154,7 +167,7 @@
         trip.setThird(prepDep.second());
       }
     }
-    GrammaticalRelation reln=determinePrepRelation(map,partmod,td1,td1,prepDep.second());
+    GrammaticalRelation reln=determinePrepRelation(map,vmod,td1,td1,prepDep.second());
     TypedDependency tdNew=new TypedDependency(reln,td1.gov(),prepDep.first().dep());
     newTypedDeps.add(tdNew);
     if (DEBUG) {
@@ -177,7 +190,7 @@
       TypedDependency tdNew2=new TypedDependency(conjValue(ccDep.dep().value()),td1.gov(),copy);
       newTypedDeps.add(tdNew2);
       TypedDependency tdNew3;
-      GrammaticalRelation reln2=determinePrepRelation(map,partmod,conjDep,td1,pobj);
+      GrammaticalRelation reln2=determinePrepRelation(map,vmod,conjDep,td1,pobj);
       tdNew3=new TypedDependency(reln2,copy,prepOtherDep.dep());
       newTypedDeps.add(tdNew3);
       if (DEBUG) {
@@ -229,7 +242,7 @@
             if (td2.reln() == PREPOSITIONAL_COMPLEMENT) {
               pobj=false;
             }
-            GrammaticalRelation reln=determinePrepRelation(map,partmod,td1,td1,pobj);
+            GrammaticalRelation reln=determinePrepRelation(map,vmod,td1,td1,pobj);
             TypedDependency td3=new TypedDependency(reln,td1.gov(),td2.dep());
             if (DEBUG) {
               System.err.println("PP adding: " + td3 + " deleting: "+ td1+ ' '+ td2);
