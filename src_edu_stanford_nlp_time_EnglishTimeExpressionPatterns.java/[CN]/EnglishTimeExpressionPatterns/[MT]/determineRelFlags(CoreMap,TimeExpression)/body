@@ -1,0 +1,90 @@
+{
+  int flags=0;
+  String reason="";
+  if (options.teRelHeurLevel != Options.RelativeHeuristicLevel.NONE) {
+    String vb2="";
+    String vb2Pos="";
+    String vbPos="";
+    String vb="";
+    String precedingWord="";
+    int limit=2;
+    List<CoreLabel> tokens=annotation.get(CoreAnnotations.TokensAnnotation.class);
+    Integer tokenOffset=annotation.get(CoreAnnotations.TokenBeginAnnotation.class);
+    if (tokenOffset == null)     tokenOffset=0;
+    int tokenBegin=te.getTokenOffsets().getBegin() - tokenOffset;
+    int tokenEnd=te.getTokenOffsets().getEnd() - tokenOffset;
+    List<? extends CoreMap> lead=tokens.subList(Math.max(0,tokenBegin - limit),tokenBegin);
+    if (lead.size() > 0) {
+      precedingWord=lead.get(lead.size() - 1).get(CoreAnnotations.TextAnnotation.class);
+    }
+    List<? extends CoreMap> after=tokens.subList(tokenEnd,Math.min(tokens.size(),tokenEnd + limit));
+    TokenSequenceMatcher vbMatcher=VB_NODE_PATTERN1.getMatcher(lead);
+    boolean found=vbMatcher.find();
+    if (!found) {
+      vbMatcher=VB_NODE_PATTERN1.getMatcher(after);
+      found=vbMatcher.find();
+      if (limit < 0 && !found) {
+        vbMatcher=VB_NODE_PATTERN1.getMatcher(tokens);
+        found=vbMatcher.find();
+      }
+    }
+    if (found) {
+      vb=vbMatcher.groupNodes().get(0).get(CoreAnnotations.TextAnnotation.class).toLowerCase();
+      vbPos=vbMatcher.groupNodes().get(0).get(CoreAnnotations.PartOfSpeechAnnotation.class).toUpperCase();
+      vbMatcher=VB_NODE_PATTERN2.getMatcher(vbMatcher.groupNodes(SequenceMatchResult.GROUP_AFTER_MATCH));
+      if (vbMatcher.find()) {
+        vb2=vbMatcher.groupNodes().get(0).get(CoreAnnotations.TextAnnotation.class).toLowerCase();
+        vb2Pos=vbMatcher.groupNodes().get(0).get(CoreAnnotations.PartOfSpeechAnnotation.class).toUpperCase();
+      }
+    }
+ else {
+      vbPos="X";
+      vb="NoVerb";
+    }
+    if (vbPos.matches("(VBP|VBZ|MD)")) {
+      vbMatcher=GOING_TO.getMatcher(tokens);
+      if (vbMatcher.find()) {
+        vbPos="MD";
+        vb="going_to";
+      }
+    }
+    if ("VBD".equals(vbPos)) {
+      flags|=SUTime.RESOLVE_TO_PAST;
+      reason=vbPos;
+    }
+ else     if ("MD".equals(vbPos)) {
+      if (vb.matches(".*(will|'ll|going_to).*")) {
+        flags|=SUTime.RESOLVE_TO_FUTURE;
+        reason=vbPos + ":" + vb;
+      }
+ else       if ("have".equals(vb2)) {
+        flags|=SUTime.RESOLVE_TO_PAST;
+        reason=vbPos + ":" + vb;
+      }
+ else       if (vb.matches(".*(?:would|could|should|'d)")) {
+        flags|=SUTime.RESOLVE_TO_FUTURE;
+        reason=vbPos + ":" + vb;
+      }
+    }
+    if ((options.teRelHeurLevel == Options.RelativeHeuristicLevel.MORE) && (flags == 0)) {
+      if ("since".equals(precedingWord)) {
+        flags|=SUTime.RESOLVE_TO_PAST;
+        reason="since";
+      }
+ else       if ("until".equals(precedingWord)) {
+        flags|=SUTime.RESOLVE_TO_FUTURE;
+        reason="until";
+      }
+    }
+  }
+  if (flags != 0) {
+    logger.warning("Should resolve " + te + " using flags "+ flags+ " due to reason "+ reason);
+    logger.warning("Resolution context " + annotation.get(CoreAnnotations.TextAnnotation.class));
+  }
+ else {
+    if (te.getTemporal() instanceof SUTime.PartialTime) {
+      flags=SUTime.RESOLVE_TO_CLOSEST;
+    }
+  }
+  return flags;
+}
