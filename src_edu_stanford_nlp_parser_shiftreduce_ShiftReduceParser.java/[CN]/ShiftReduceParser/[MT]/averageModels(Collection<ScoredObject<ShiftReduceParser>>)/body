@@ -1,0 +1,49 @@
+{
+  if (scoredModels.size() == 0) {
+    throw new IllegalArgumentException("Cannot average empty models");
+  }
+  System.err.print("Averaging models with scores");
+  for (  ScoredObject<ShiftReduceParser> model : scoredModels) {
+    System.err.print(" " + NF.format(model.score()));
+  }
+  System.err.println();
+  List<ShiftReduceParser> models=CollectionUtils.transformAsList(scoredModels,new Function<ScoredObject<ShiftReduceParser>,ShiftReduceParser>(){
+    public ShiftReduceParser apply(    ScoredObject<ShiftReduceParser> object){
+      return object.object();
+    }
+  }
+);
+  ShiftReduceParser firstModel=models.iterator().next();
+  ShiftReduceOptions op=firstModel.op;
+  ShiftReduceParser copy=new ShiftReduceParser(op);
+  for (  Transition transition : firstModel.transitionIndex) {
+    copy.transitionIndex.add(transition);
+  }
+  for (  ShiftReduceParser model : models) {
+    if (!model.transitionIndex.equals(copy.transitionIndex)) {
+      throw new IllegalArgumentException("Can only average models with the same transition index");
+    }
+  }
+  Set<String> features=Generics.newHashSet();
+  for (  ShiftReduceParser model : models) {
+    for (    String feature : model.featureWeights.keySet()) {
+      features.add(feature);
+    }
+  }
+  for (  String feature : features) {
+    List<ScoredObject<Integer>> weights=Generics.newArrayList();
+    copy.featureWeights.put(feature,weights);
+  }
+  int numModels=models.size();
+  for (  String feature : features) {
+    for (    ShiftReduceParser model : models) {
+      if (!model.featureWeights.containsKey(feature)) {
+        continue;
+      }
+      for (      ScoredObject<Integer> weight : model.featureWeights.get(feature)) {
+        updateWeight(copy.featureWeights.get(feature),weight.object(),weight.score() / numModels);
+      }
+    }
+  }
+  return copy;
+}
