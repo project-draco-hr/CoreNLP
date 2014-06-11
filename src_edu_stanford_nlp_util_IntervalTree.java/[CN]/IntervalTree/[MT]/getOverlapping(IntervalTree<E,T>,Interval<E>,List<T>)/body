@@ -1,0 +1,16 @@
+{
+  if (n == null || n.isEmpty())   return;
+  if (target.first.compareTo(n.maxEnd) > 0)   return;
+  if (n.left != null) {
+    getOverlapping(n.left,target,result);
+  }
+  if (n.value.getInterval().overlaps(target)) {
+    result.add(n.value);
+  }
+  if (target.second.compareTo(n.value.getInterval().first()) < 0) {
+    return;
+  }
+  if (n.right != null) {
+    getOverlapping(n.right,target,result);
+  }
+}
