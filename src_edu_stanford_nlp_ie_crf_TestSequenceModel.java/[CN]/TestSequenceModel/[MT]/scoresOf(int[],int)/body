@@ -1,0 +1,13 @@
+{
+  int[] allowedTags=getPossibleValues(pos);
+  int realPos=pos - window + 1;
+  int[] previous=new int[window - 1];
+  for (int i=0; i < window - 1; i++) {
+    previous[i]=tags[realPos + i];
+  }
+  double[] scores=new double[allowedTags.length];
+  for (int i=0; i < allowedTags.length; i++) {
+    scores[i]=cliqueTree.condLogProbGivenPrevious(realPos,allowedTags[i],previous);
+  }
+  return scores;
+}
