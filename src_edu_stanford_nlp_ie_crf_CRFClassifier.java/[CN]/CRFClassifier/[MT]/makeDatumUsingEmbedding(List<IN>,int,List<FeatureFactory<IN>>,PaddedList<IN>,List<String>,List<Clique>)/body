@@ -54,9 +54,11 @@
   if (flags.prependEmbedding) {
     int additionalFeatureCount=0;
     for (    Clique c : windowCliques) {
-      Collection<String> fCol=featureFactory.getCliqueFeatures(pInfo,loc,c);
-      featuresC.addAll(fCol);
-      additionalFeatureCount+=fCol.size();
+      for (      FeatureFactory featureFactory : featureFactories) {
+        Collection<String> fCol=featureFactory.getCliqueFeatures(pInfo,loc,c);
+        featuresC.addAll(fCol);
+        additionalFeatureCount+=fCol.size();
+      }
     }
     featureValArr=new double[concatEmbedding.length + additionalFeatureCount];
     System.arraycopy(concatEmbedding,0,featureValArr,0,concatEmbedding.length);
