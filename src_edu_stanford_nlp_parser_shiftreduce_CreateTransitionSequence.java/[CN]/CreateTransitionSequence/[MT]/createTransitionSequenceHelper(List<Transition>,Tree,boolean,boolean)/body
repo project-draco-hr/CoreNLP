@@ -11,17 +11,17 @@
         labels.add(tree.label().value());
         tree=tree.children()[0];
       }
-      createTransitionSequenceHelper(transitions,tree,compoundUnary);
-      transitions.add(new CompoundUnaryTransition(labels));
+      createTransitionSequenceHelper(transitions,tree,compoundUnary,false);
+      transitions.add(new CompoundUnaryTransition(labels,isRoot));
     }
  else {
-      createTransitionSequenceHelper(transitions,tree.children()[0],compoundUnary);
-      transitions.add(new UnaryTransition(tree.label().value()));
+      createTransitionSequenceHelper(transitions,tree.children()[0],compoundUnary,false);
+      transitions.add(new UnaryTransition(tree.label().value(),isRoot));
     }
   }
  else   if (tree.children().length == 2) {
-    createTransitionSequenceHelper(transitions,tree.children()[0],compoundUnary);
-    createTransitionSequenceHelper(transitions,tree.children()[1],compoundUnary);
+    createTransitionSequenceHelper(transitions,tree.children()[0],compoundUnary,false);
+    createTransitionSequenceHelper(transitions,tree.children()[1],compoundUnary,false);
     if (!(tree.label() instanceof CoreLabel) || !(tree.children()[0].label() instanceof CoreLabel) || !(tree.children()[1].label() instanceof CoreLabel)) {
       throw new IllegalArgumentException("Expected tree labels to be CoreLabel");
     }
