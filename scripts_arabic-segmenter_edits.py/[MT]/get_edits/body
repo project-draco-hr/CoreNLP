@@ -1,11 +1,11 @@
-def get_edits(line, options):
+def get_edits(line, options, special_noseg=True):
     if ('\t' not in line):
         if options.verbose:
             uprint("ignoring line that doesn't have two parts:")
             uprint(('    ' + repr(line)))
         return
     (raw, seg) = line.split('\t')
-    if ((raw != seg) and (SEG_MARKER not in seg)):
+    if (special_noseg and (raw != seg) and (SEG_MARKER not in seg)):
         return ([u'<other>'] * len(raw))
     if (seg == ''):
         return ([u' <del> '] * len(raw))

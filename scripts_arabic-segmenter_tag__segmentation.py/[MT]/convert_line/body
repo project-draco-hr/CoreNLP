@@ -1,12 +1,13 @@
 def convert_line(line):
     if ('\t' not in line):
-        return ''
+        return ('', '')
     line = line[:(-1)]
-    edits = get_edits(line, FALSE_OPTIONS)
+    edits = get_edits(line, FALSE_OPTIONS, special_noseg=False)
     (raw, segmented) = line.split('\t')
     if (edits is None):
-        reconstructed = segmented
+        norew = rew = segmented
     else:
-        reconstructed = apply_edits(edits, raw)
-    segs = reconstructed.split(SEG_MARKER)
-    return unescape('- -'.join(segs)).split()
+        (norew, rew) = apply_edits(edits, raw)
+    segs_norew = norew.split(SEG_MARKER)
+    segs_rew = rew.split(SEG_MARKER)
+    return (unescape('- -'.join(segs_norew)).split(), unescape('- -'.join(segs_rew)).split())
