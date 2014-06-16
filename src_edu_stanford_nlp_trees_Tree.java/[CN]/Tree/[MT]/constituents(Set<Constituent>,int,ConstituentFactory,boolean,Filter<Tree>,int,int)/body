@@ -3,9 +3,9 @@
   int position=left;
   Tree[] kids=children();
   for (  Tree kid : kids) {
-    position=kid.constituents(constituentsSet,position,cf,charLevel,filter);
+    position=kid.constituents(constituentsSet,position,cf,charLevel,filter,maxDepth,depth + 1);
   }
-  if (filter == null || filter.accept(this)) {
+  if ((filter == null || filter.accept(this)) && (maxDepth < 0 || depth <= maxDepth)) {
     constituentsSet.add(cf.newConstituent(left,position - 1,label(),score()));
   }
   return position;
