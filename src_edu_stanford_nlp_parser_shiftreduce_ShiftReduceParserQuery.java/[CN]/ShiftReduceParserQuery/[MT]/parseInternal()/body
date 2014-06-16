@@ -23,6 +23,18 @@
         }
       }
     }
+    if (beam.size() == 0) {
+      for (      State state : oldBeam) {
+        Transition transition=parser.findEmergencyTransition(state);
+        if (transition != null) {
+          State newState=transition.apply(state);
+          if (bestState == null || bestState.score() < newState.score()) {
+            bestState=newState;
+          }
+          beam.add(newState);
+        }
+      }
+    }
     if (bestState == null || bestState.isFinished()) {
       break;
     }
