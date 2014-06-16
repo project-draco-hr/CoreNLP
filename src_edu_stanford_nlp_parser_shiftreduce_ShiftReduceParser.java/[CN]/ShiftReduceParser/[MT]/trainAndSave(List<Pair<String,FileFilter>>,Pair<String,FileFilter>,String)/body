@@ -5,10 +5,10 @@
   }
   int nThreads=op.trainOptions.trainingThreads;
   nThreads=nThreads <= 0 ? Runtime.getRuntime().availableProcessors() : nThreads;
-  MaxentTagger tagger=null;
+  Tagger tagger=null;
   if (op.testOptions.preTag) {
     Timing retagTimer=new Timing();
-    tagger=new MaxentTagger(op.testOptions.taggerSerializedFile);
+    tagger=Tagger.loadModel(op.testOptions.taggerSerializedFile);
     redoTags(binarizedTrees,tagger,nThreads);
     retagTimer.done("Retagging");
   }
