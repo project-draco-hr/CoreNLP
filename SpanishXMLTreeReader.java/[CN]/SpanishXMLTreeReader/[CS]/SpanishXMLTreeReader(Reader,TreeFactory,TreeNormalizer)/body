@@ -1,0 +1,19 @@
+{
+  TreebankLanguagePack tlp=new SpanishTreebankLanguagePack();
+  stream=new ReaderInputStream(in,tlp.getEncoding());
+  treeFactory=tf;
+  treeNormalizer=tn;
+  DocumentBuilder parser=XMLUtils.getXmlParser();
+  try {
+    final Document xml=parser.parse(stream);
+    final Element root=xml.getDocumentElement();
+    sentences=root.getElementsByTagName(NODE_SENT);
+    sentIdx=0;
+  }
+ catch (  SAXException e) {
+    e.printStackTrace();
+  }
+catch (  IOException e) {
+    e.printStackTrace();
+  }
+}
