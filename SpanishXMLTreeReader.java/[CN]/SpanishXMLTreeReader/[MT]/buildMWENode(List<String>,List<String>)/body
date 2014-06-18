@@ -1,0 +1,18 @@
+{
+  List<Tree> kids=new ArrayList<Tree>();
+  for (int i=0; i < tokens.size(); ++i) {
+    String tok=tokens.get(i);
+    String s=treeNormalizer.normalizeTerminal(tok);
+    List<Tree> leafList=new ArrayList<Tree>();
+    Tree leafNode=treeFactory.newLeaf(s);
+    if (leafNode.label() instanceof HasWord)     ((HasWord)leafNode.label()).setWord(s);
+    if (leafNode.label() instanceof CoreLabel && lemmas != null) {
+      ((CoreLabel)leafNode.label()).setLemma(lemmas.get(i));
+    }
+    leafList.add(leafNode);
+    Tree posNode=treeFactory.newTreeNode(MISSING_POS,leafList);
+    if (posNode.label() instanceof HasTag)     ((HasTag)posNode.label()).setTag(MISSING_POS);
+    kids.add(posNode);
+  }
+  return treeFactory.newTreeNode(MISSING_PHRASAL,kids);
+}

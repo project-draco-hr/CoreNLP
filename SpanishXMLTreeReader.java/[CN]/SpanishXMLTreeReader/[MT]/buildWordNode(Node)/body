@@ -1,0 +1,14 @@
+{
+  Element eRoot=(Element)root;
+  String posStr=getPOS(eRoot);
+  posStr=treeNormalizer.normalizeNonterminal(posStr);
+  List<String> lemmas=getLemma(eRoot);
+  List<String> leafToks=getWordString(eRoot.getAttribute(ATTR_WORD).trim());
+  if (lemmas != null && lemmas.size() != leafToks.size()) {
+    System.err.println("Lemmas don't match tokens, ignoring lemmas: " + "lemmas " + lemmas + ", tokens "+ leafToks);
+    lemmas=null;
+  }
+  boolean isMWE=leafToks.size() > 1;
+  Tree t=isMWE ? buildMWENode(leafToks,lemmas) : buildLeafWordNode(leafToks.get(0),posStr,lemmas == null ? null : lemmas.get(0));
+  return t;
+}
