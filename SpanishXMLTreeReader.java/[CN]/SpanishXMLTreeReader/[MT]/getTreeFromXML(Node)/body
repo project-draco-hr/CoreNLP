@@ -1,47 +1,7 @@
 {
   final Element eRoot=(Element)root;
-  boolean isMWE=false;
   if (isWordNode(eRoot)) {
-    String posStr=getPOS(eRoot);
-    posStr=treeNormalizer.normalizeNonterminal(posStr);
-    List<String> lemmas=getLemma(eRoot);
-    List<String> leafToks=getWordString(eRoot.getAttribute(ATTR_WORD).trim());
-    if (lemmas != null && lemmas.size() != leafToks.size()) {
-      System.err.println("Lemmas don't match tokens, ignoring lemmas: " + "lemmas " + lemmas + ", tokens "+ leafToks);
-      lemmas=null;
-    }
-    Tree t=null;
-    List<Tree> kids=new ArrayList<Tree>();
-    if (leafToks.size() > 1) {
-      isMWE=true;
-      for (int i=0; i < leafToks.size(); ++i) {
-        String tok=leafToks.get(i);
-        String s=treeNormalizer.normalizeTerminal(tok);
-        List<Tree> leafList=new ArrayList<Tree>();
-        Tree leafNode=treeFactory.newLeaf(s);
-        if (leafNode.label() instanceof HasWord)         ((HasWord)leafNode.label()).setWord(s);
-        if (leafNode.label() instanceof CoreLabel && lemmas != null) {
-          ((CoreLabel)leafNode.label()).setLemma(lemmas.get(i));
-        }
-        leafList.add(leafNode);
-        Tree posNode=treeFactory.newTreeNode(MISSING_POS,leafList);
-        if (posNode.label() instanceof HasTag)         ((HasTag)posNode.label()).setTag(MISSING_POS);
-        kids.add(posNode);
-      }
-      t=treeFactory.newTreeNode(MISSING_PHRASAL,kids);
-    }
- else {
-      String leafStr=treeNormalizer.normalizeTerminal(leafToks.get(0));
-      Tree leafNode=treeFactory.newLeaf(leafStr);
-      if (leafNode.label() instanceof HasWord)       ((HasWord)leafNode.label()).setWord(leafStr);
-      if (leafNode.label() instanceof CoreLabel && lemmas != null) {
-        ((CoreLabel)leafNode.label()).setLemma(lemmas.get(0));
-      }
-      kids.add(leafNode);
-      t=treeFactory.newTreeNode(posStr,kids);
-      if (t.label() instanceof HasTag)       ((HasTag)t.label()).setTag(posStr);
-    }
-    return t;
+    return buildWordNode(eRoot);
   }
  else   if (isEllipticNode(eRoot)) {
     String constituentStr=eRoot.getNodeName();
@@ -64,8 +24,6 @@
     }
   }
   String rootLabel=eRoot.getNodeName().trim();
-  if (isMWE)   rootLabel=eRoot.getAttribute(ATTR_POS).trim();
   Tree t=(kids.size() == 0) ? null : treeFactory.newTreeNode(treeNormalizer.normalizeNonterminal(rootLabel),kids);
-  if (t != null && isMWE)   t=postProcessMWE(t);
   return t;
 }
