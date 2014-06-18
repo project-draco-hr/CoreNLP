@@ -1,14 +1,18 @@
 {
   Element eRoot=(Element)root;
-  String posStr=getPOS(eRoot);
+  String posStr=eRoot.getAttribute(ATTR_POS);
   posStr=treeNormalizer.normalizeNonterminal(posStr);
-  List<String> lemmas=getLemma(eRoot);
-  List<String> leafToks=getWordString(eRoot.getAttribute(ATTR_WORD).trim());
-  if (lemmas != null && lemmas.size() != leafToks.size()) {
-    System.err.println("Lemmas don't match tokens, ignoring lemmas: " + "lemmas " + lemmas + ", tokens "+ leafToks);
-    lemmas=null;
+  String lemma=eRoot.getAttribute(ATTR_LEMMA);
+  String word=getWord(eRoot);
+  String leafStr=treeNormalizer.normalizeTerminal(word);
+  Tree leafNode=treeFactory.newLeaf(leafStr);
+  if (leafNode.label() instanceof HasWord)   ((HasWord)leafNode.label()).setWord(leafStr);
+  if (leafNode.label() instanceof CoreLabel && lemma != null) {
+    ((CoreLabel)leafNode.label()).setLemma(lemma);
   }
-  boolean isMWE=leafToks.size() > 1;
-  Tree t=isMWE ? buildMWENode(leafToks,lemmas) : buildLeafWordNode(leafToks.get(0),posStr,lemmas == null ? null : lemmas.get(0));
+  List<Tree> kids=new ArrayList<Tree>();
+  kids.add(leafNode);
+  Tree t=treeFactory.newTreeNode(posStr,kids);
+  if (t.label() instanceof HasTag)   ((HasTag)t.label()).setTag(posStr);
   return t;
 }
