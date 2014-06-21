@@ -8,27 +8,19 @@
   }
   TreeGraphNode dependencyRoot=new TreeGraphNode(new Word("ROOT"));
   dependencyRoot.setIndex(0);
-  TreeGraphNode rootDep=null;
-  Collection<TypedDependency> roots=getRoots(basicDep);
-  if (roots.size() == 0) {
-    rootDep=root().headWordNode();
-    if (rootDep == null) {
-      List<Tree> leaves=Trees.leaves(root());
-      if (leaves.size() > 0) {
-        Tree leaf=leaves.get(0);
-        if (!(leaf instanceof TreeGraphNode)) {
-          throw new AssertionError("Leaves should be TreeGraphNodes");
-        }
-        rootDep=(TreeGraphNode)leaf;
-        if (rootDep.headWordNode() != null) {
-          rootDep=rootDep.headWordNode();
-        }
+  TreeGraphNode rootDep=root().headWordNode();
+  if (rootDep == null) {
+    List<Tree> leaves=Trees.leaves(root());
+    if (leaves.size() > 0) {
+      Tree leaf=leaves.get(0);
+      if (!(leaf instanceof TreeGraphNode)) {
+        throw new AssertionError("Leaves should be TreeGraphNodes");
+      }
+      rootDep=(TreeGraphNode)leaf;
+      if (rootDep.headWordNode() != null) {
+        rootDep=rootDep.headWordNode();
       }
     }
-  }
- else {
-    Iterator<TypedDependency> iterator=roots.iterator();
-    rootDep=iterator.next().gov();
   }
   if (rootDep != null) {
     TypedDependency rootTypedDep=new TypedDependency(ROOT,dependencyRoot,rootDep);
