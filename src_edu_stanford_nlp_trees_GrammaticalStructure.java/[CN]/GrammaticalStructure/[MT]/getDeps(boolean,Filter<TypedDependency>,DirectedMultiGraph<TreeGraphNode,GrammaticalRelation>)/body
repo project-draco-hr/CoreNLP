@@ -1,10 +1,10 @@
 {
   List<TypedDependency> basicDep=Generics.newArrayList();
-  for (  Dependency<Label,Label,Object> d : dependencies) {
-    TreeGraphNode gov=(TreeGraphNode)d.governor();
-    TreeGraphNode dep=(TreeGraphNode)d.dependent();
-    GrammaticalRelation reln=getGrammaticalRelation(gov,dep);
-    basicDep.add(new TypedDependency(reln,gov,dep));
+  for (  TreeGraphNode gov : basicGraph.getAllVertices()) {
+    for (    TreeGraphNode dep : basicGraph.getChildren(gov)) {
+      GrammaticalRelation reln=getGrammaticalRelation(gov,dep);
+      basicDep.add(new TypedDependency(reln,gov.headWordNode(),dep.headWordNode()));
+    }
   }
   TreeGraphNode dependencyRoot=new TreeGraphNode(new Word("ROOT"));
   dependencyRoot.setIndex(0);
