@@ -36,5 +36,46 @@
   if (state.stack.size() > 2 && ShiftReduceUtils.isTemporary(state.stack.pop().pop().peek()) && isBinarized() && side == Side.RIGHT) {
     return false;
   }
+  if (constraints == null) {
+    return true;
+  }
+  final Tree top=state.stack.peek();
+  final int leftTop=ShiftReduceUtils.leftIndex(top);
+  final int rightTop=ShiftReduceUtils.rightIndex(top);
+  final Tree next=state.stack.pop().peek();
+  final int leftNext=ShiftReduceUtils.leftIndex(next);
+  for (  ParserConstraint constraint : constraints) {
+    if (leftTop == constraint.start) {
+      if (rightTop == constraint.end - 1) {
+        if (!ShiftReduceUtils.constraintMatchesTreeTop(top,constraint)) {
+          return false;
+        }
+ else {
+          continue;
+        }
+      }
+ else       if (rightTop >= constraint.end) {
+        continue;
+      }
+ else {
+        return false;
+      }
+    }
+    if (leftTop < constraint.start) {
+      continue;
+    }
+    if (leftTop >= constraint.end) {
+      continue;
+    }
+    if (leftNext < constraint.start) {
+      return false;
+    }
+    if (leftNext > constraint.start) {
+      continue;
+    }
+    if (rightTop == constraint.end - 1 && isBinarized()) {
+      return false;
+    }
+  }
   return true;
 }

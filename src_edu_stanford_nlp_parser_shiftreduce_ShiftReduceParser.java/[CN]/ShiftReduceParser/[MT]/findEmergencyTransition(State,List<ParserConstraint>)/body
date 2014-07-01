@@ -2,6 +2,22 @@
   if (state.stack.size() == 0) {
     return null;
   }
+  if (constraints != null) {
+    final Tree top=state.stack.peek();
+    for (    ParserConstraint constraint : constraints) {
+      if (ShiftReduceUtils.leftIndex(top) != constraint.start || ShiftReduceUtils.rightIndex(top) != constraint.end - 1) {
+        continue;
+      }
+      if (ShiftReduceUtils.constraintMatchesTreeTop(top,constraint)) {
+        continue;
+      }
+      for (      String label : knownStates) {
+        if (constraint.state.matcher(label).matches()) {
+          return ((op.compoundUnaries) ? new CompoundUnaryTransition(Collections.singletonList(label),false) : new UnaryTransition(label,false));
+        }
+      }
+    }
+  }
   if (ShiftReduceUtils.isTemporary(state.stack.peek()) && (state.stack.size() == 1 || ShiftReduceUtils.isTemporary(state.stack.pop().peek()))) {
     return ((op.compoundUnaries) ? new CompoundUnaryTransition(Collections.singletonList(state.stack.peek().value().substring(1)),false) : new UnaryTransition(state.stack.peek().value().substring(1),false));
   }
