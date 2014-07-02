@@ -1,0 +1,23 @@
+{
+  if (index < 0) {
+    return;
+  }
+  if (packed == null) {
+    packed=new long[1];
+    packed[0]=pack(index,increment);
+    return;
+  }
+  for (int i=0; i < packed.length; ++i) {
+    if (unpackIndex(i) == index) {
+      float score=unpackScore(i);
+      packed[i]=pack(index,score + increment);
+      return;
+    }
+  }
+  long[] newPacked=new long[packed.length + 1];
+  for (int i=0; i < packed.length; ++i) {
+    newPacked[i]=packed[i];
+  }
+  newPacked[packed.length]=pack(index,increment);
+  packed=newPacked;
+}
