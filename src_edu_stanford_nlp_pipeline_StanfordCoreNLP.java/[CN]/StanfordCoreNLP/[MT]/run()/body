@@ -1,0 +1,44 @@
+{
+  Timing tim=new Timing();
+  StanfordRedwoodConfiguration.minimalSetup();
+  String numThreadsString=(this.properties == null) ? null : this.properties.getProperty("threads");
+  int numThreads=1;
+  try {
+    if (numThreadsString != null) {
+      numThreads=Integer.parseInt(numThreadsString);
+    }
+  }
+ catch (  NumberFormatException e) {
+    err("-threads [number]: was not given a valid number: " + numThreadsString);
+  }
+  long setupTime=tim.report();
+  log("");
+  if (properties.containsKey("file")) {
+    String fileName=properties.getProperty("file");
+    Collection<File> files=new FileSequentialCollection(new File(fileName),properties.getProperty("extension"),true);
+    this.processFiles(null,files,numThreads);
+  }
+ else   if (properties.containsKey("filelist")) {
+    String fileName=properties.getProperty("filelist");
+    Collection<File> inputfiles=readFileList(fileName);
+    Collection<File> files=new ArrayList<File>(inputfiles.size());
+    for (    File file : inputfiles) {
+      if (file.isDirectory()) {
+        files.addAll(new FileSequentialCollection(new File(fileName),properties.getProperty("extension"),true));
+      }
+ else {
+        files.add(file);
+      }
+    }
+    this.processFiles(null,files,numThreads);
+  }
+ else {
+    shell(this);
+  }
+  if (TIME) {
+    log();
+    log(this.timingInformation());
+    log("Pipeline setup: " + Timing.toSecondsString(setupTime) + " sec.");
+    log("Total time for StanfordCoreNLP pipeline: " + tim.toSecondsString() + " sec.");
+  }
+}
