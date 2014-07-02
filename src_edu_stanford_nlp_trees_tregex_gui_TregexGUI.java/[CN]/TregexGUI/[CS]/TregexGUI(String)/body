@@ -1,0 +1,44 @@
+{
+  super("Tregex");
+  TregexGUI.instance=this;
+  setDefaultLookAndFeelDecorated(true);
+  setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+  initAboutBox();
+  Container content=getContentPane();
+  content.setBackground(Color.lightGray);
+  JMenuBar mbar=getMenu();
+  JPanel displayMatchesPanel=DisplayMatchesPanel.getInstance();
+  JSplitPane inputAndMatchesPanel=setUpTopPanels();
+  MatchesPanel.getInstance().addListener(this);
+  this.setFocusTraversalKeysEnabled(true);
+  macOSXRegistration();
+  setJMenuBar(mbar);
+  content.setLayout(new BorderLayout());
+  JSplitPane verticalSplit=new JSplitPane(JSplitPane.VERTICAL_SPLIT,inputAndMatchesPanel,displayMatchesPanel);
+  verticalSplit.setResizeWeight(.2);
+  this.add(verticalSplit,BorderLayout.CENTER);
+  Dimension screenSize=Toolkit.getDefaultToolkit().getScreenSize();
+  int begX=(int)(screenSize.width * 0.05);
+  int begY=(int)(screenSize.height * 0.05);
+  screenSize.width=(int)(screenSize.width * 0.9);
+  screenSize.height=(int)(screenSize.height * 0.9);
+  if (screenSize.width > 1200) {
+    screenSize.width=1200;
+  }
+  if (screenSize.height > 800) {
+    screenSize.height=800;
+  }
+  setPreferredSize(screenSize);
+  Dimension displayMatchesSize=new Dimension((int)(screenSize.getWidth()),(int)(screenSize.getHeight() * 3 / 4.));
+  displayMatchesPanel.setPreferredSize(displayMatchesSize);
+  setBounds(begX,begY,screenSize.width,screenSize.height);
+  pack();
+  if (initialFiles.length > 0) {
+    File[] files=new File[initialFiles.length];
+    for (int i=0; i < initialFiles.length; ++i) {
+      files[i]=new File(initialFiles[i]);
+    }
+    startFileLoadingThread(new EnumMap<FilterType,String>(FilterType.class),files);
+  }
+  setVisible(true);
+}
