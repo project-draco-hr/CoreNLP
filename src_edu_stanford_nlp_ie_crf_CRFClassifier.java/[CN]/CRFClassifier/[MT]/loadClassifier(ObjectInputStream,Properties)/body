@@ -16,14 +16,7 @@
   if (flags.useEmbedding) {
     embeddings=(Map<String,double[]>)ois.readObject();
   }
-  Object featureFactory=ois.readObject();
-  if (featureFactory instanceof List) {
-    featureFactories=ErasureUtils.uncheckedCast(featureFactories);
-  }
- else   if (featureFactory instanceof FeatureFactory) {
-    featureFactories=Generics.newArrayList();
-    featureFactories.add((FeatureFactory)featureFactory);
-  }
+  featureFactory=(edu.stanford.nlp.sequences.FeatureFactory)ois.readObject();
   if (props != null) {
     flags.setProperties(props,false);
   }

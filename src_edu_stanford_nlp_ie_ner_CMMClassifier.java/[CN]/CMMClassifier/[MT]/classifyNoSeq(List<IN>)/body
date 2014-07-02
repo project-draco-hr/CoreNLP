@@ -6,7 +6,7 @@
     System.err.println("Using NEWGENE threshold: " + flags.newgeneThreshold);
     for (int i=0, docSize=document.size(); i < docSize; i++) {
       CoreLabel wordInfo=document.get(i);
-      Datum<String,String> d=makeDatum(document,i,featureFactories);
+      Datum<String,String> d=makeDatum(document,i,featureFactory);
       Counter<String> scores=classifier.scoresOf(d);
       String answer=flags.backgroundSymbol;
       if ("NEWGENE".equals(wordInfo.get(CoreAnnotations.GazAnnotation.class))) {
@@ -34,7 +34,7 @@
         CoreLabel lineInfo=document.get(i);
         System.err.print("@@ Position " + i + ": ");
         System.err.println(lineInfo.word() + " chose " + lineInfo.get(CoreAnnotations.AnswerAnnotation.class));
-        lc.justificationOf(makeDatum(document,i,featureFactories));
+        lc.justificationOf(makeDatum(document,i,featureFactory));
       }
     }
   }
