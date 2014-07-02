@@ -1,0 +1,41 @@
+{
+  this.numWords=0;
+  this.constituentTreePrinter=new TreePrint("penn");
+  this.dependencyTreePrinter=new TreePrint("typedDependenciesCollapsed");
+  if (props == null) {
+    props=loadPropertiesFromClasspath();
+  }
+ else   if (props.getProperty("annotators") == null) {
+    Properties fromClassPath=loadPropertiesFromClasspath();
+    fromClassPath.putAll(props);
+    props=fromClassPath;
+  }
+  this.properties=props;
+  AnnotatorPool pool=getDefaultAnnotatorPool(props,annotatorImplementations);
+  List<String> annoNames=Arrays.asList(getRequiredProperty(props,"annotators").split("[, \t]+"));
+  Set<String> alreadyAddedAnnoNames=Generics.newHashSet();
+  Set<Requirement> requirementsSatisfied=Generics.newHashSet();
+  for (  String name : annoNames) {
+    name=name.trim();
+    if (name.isEmpty()) {
+      continue;
+    }
+    System.err.println("Adding annotator " + name);
+    Annotator an=pool.get(name);
+    this.addAnnotator(an);
+    if (enforceRequirements) {
+      Set<Requirement> allRequirements=an.requires();
+      for (      Requirement requirement : allRequirements) {
+        if (!requirementsSatisfied.contains(requirement)) {
+          String fmt="annotator \"%s\" requires annotator \"%s\"";
+          throw new IllegalArgumentException(String.format(fmt,name,requirement));
+        }
+      }
+      requirementsSatisfied.addAll(an.requirementsSatisfied());
+    }
+    alreadyAddedAnnoNames.add(name);
+  }
+  if (!alreadyAddedAnnoNames.contains(STANFORD_SSPLIT)) {
+    System.setProperty(NEWLINE_SPLITTER_PROPERTY,"false");
+  }
+}
