@@ -1,27 +1,30 @@
 {
-  CoreMap lossySentence=fromProtoNoTokens(proto);
-  List<CoreLabel> tokens=new ArrayList<CoreLabel>();
-  for (  CoreNLPProtos.Token token : proto.getTokenList()) {
-    tokens.add(fromProto(token));
+  CoreMap sentence=new ArrayCoreMap();
+  sentence.set(TokenBeginAnnotation.class,proto.getTokenOffsetBegin());
+  sentence.set(TokenEndAnnotation.class,proto.getTokenOffsetEnd());
+  if (proto.hasSentenceIndex()) {
+    sentence.set(SentenceIndexAnnotation.class,proto.getSentenceIndex());
   }
-  lossySentence.set(TokensAnnotation.class,tokens);
-  StringBuilder text=new StringBuilder();
-  if (tokens.size() > 0) {
-    if (tokens.get(0).before() != null) {
-      text.append(tokens.get(0).before());
-    }
+  if (proto.hasCharacterOffsetBegin()) {
+    sentence.set(CharacterOffsetBeginAnnotation.class,proto.getCharacterOffsetBegin());
   }
-  for (  CoreLabel token : tokens) {
-    if (token.originalText() != null) {
-      text.append(token.originalText());
-    }
- else {
-      text.append(token.word());
-    }
-    if (token.after() != null) {
-      text.append(token.after());
-    }
+  if (proto.hasCharacterOffsetEnd()) {
+    sentence.set(CharacterOffsetEndAnnotation.class,proto.getCharacterOffsetEnd());
   }
-  lossySentence.set(TextAnnotation.class,text.toString());
-  return lossySentence;
+  if (proto.hasParseTree()) {
+    sentence.set(TreeAnnotation.class,fromProto(proto.getParseTree()));
+  }
+  if (proto.hasHasRelationAnnotations() && proto.getHasRelationAnnotations()) {
+    List<EntityMention> entities=new ArrayList<EntityMention>();
+    for (    CoreNLPProtos.Entity entity : proto.getEntityList()) {
+      entities.add(fromProto(entity,sentence));
+    }
+    sentence.set(EntityMentionsAnnotation.class,entities);
+    List<RelationMention> relations=new ArrayList<RelationMention>();
+    for (    CoreNLPProtos.Relation relation : proto.getRelationList()) {
+      relations.add(fromProto(relation,sentence));
+    }
+    sentence.set(RelationMentionsAnnotation.class,relations);
+  }
+  return sentence;
 }

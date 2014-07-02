@@ -1,27 +1,12 @@
 {
   Annotation ann=new Annotation(proto.getText());
-  List<CoreLabel> tokens=new ArrayList<CoreLabel>();
-  if (proto.getSentenceCount() > 0) {
-    for (    CoreNLPProtos.Sentence sentence : proto.getSentenceList()) {
-      for (      CoreNLPProtos.Token token : sentence.getTokenList()) {
-        CoreLabel coreLabel=fromProto(token);
-        if (proto.hasDocID()) {
-          coreLabel.setDocID(proto.getDocID());
-        }
-        tokens.add(coreLabel);
-      }
+  List<CoreLabel> tokens=new ArrayList<CoreLabel>(proto.getTokenCount());
+  for (  CoreNLPProtos.Token token : proto.getTokenList()) {
+    CoreLabel coreLabel=fromProto(token);
+    if (proto.hasDocID()) {
+      coreLabel.setDocID(proto.getDocID());
     }
-  }
- else   if (proto.getSentencelessTokenCount() > 0) {
-    if (proto.getSentencelessTokenCount() > 0) {
-      for (      CoreNLPProtos.Token token : proto.getSentencelessTokenList()) {
-        CoreLabel coreLabel=fromProto(token);
-        if (proto.hasDocID()) {
-          coreLabel.setDocID(proto.getDocID());
-        }
-        tokens.add(coreLabel);
-      }
-    }
+    tokens.add(coreLabel);
   }
   if (!tokens.isEmpty()) {
     ann.set(TokensAnnotation.class,tokens);
@@ -29,21 +14,17 @@
   List<CoreMap> sentences=new ArrayList<CoreMap>(proto.getSentenceCount());
   for (int sentIndex=0; sentIndex < proto.getSentenceCount(); ++sentIndex) {
     CoreNLPProtos.Sentence sentence=proto.getSentence(sentIndex);
-    CoreMap map=fromProtoNoTokens(sentence);
+    CoreMap map=fromProto(sentence);
     if (!tokens.isEmpty() && sentence.hasTokenOffsetBegin() && sentence.hasTokenOffsetEnd()) {
-      int tokenBegin=Math.min(sentence.getTokenOffsetBegin(),tokens.size());
-      int tokenEnd=Math.min(sentence.getTokenOffsetEnd(),tokens.size());
-      map.set(TokensAnnotation.class,tokens.subList(tokenBegin,tokenEnd));
-      for (int i=tokenBegin; i < tokenEnd; ++i) {
+      map.set(TokensAnnotation.class,tokens.subList(sentence.getTokenOffsetBegin(),sentence.getTokenOffsetEnd()));
+      for (int i=sentence.getTokenOffsetBegin(); i < sentence.getTokenOffsetEnd(); ++i) {
         tokens.get(i).setSentIndex(sentIndex);
         tokens.get(i).setIndex(i - sentence.getTokenOffsetBegin() + 1);
         if (sentence.hasParagraph()) {
           tokens.get(i).set(ParagraphAnnotation.class,sentence.getParagraph());
         }
       }
-      int characterBegin=Math.min(sentence.getCharacterOffsetBegin(),proto.getText().length());
-      int characterEnd=Math.min(sentence.getCharacterOffsetEnd(),proto.getText().length());
-      map.set(TextAnnotation.class,proto.getText().substring(characterBegin,characterEnd));
+      map.set(TextAnnotation.class,proto.getText().substring(sentence.getCharacterOffsetBegin(),sentence.getCharacterOffsetEnd()));
     }
     sentences.add(map);
   }
