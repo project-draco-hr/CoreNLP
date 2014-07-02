@@ -1,13 +1,33 @@
 {
   try {
     getWordsFromFile(neutralWordsFile,neutralWords,false);
-    Map<List<String>,Gender> temp=IOUtils.readObjectFromURLOrClasspathOrFileSystem(file);
-    genderNumber.putAll(temp);
+    BufferedReader reader=IOUtils.readerFromString(file);
+    for (String line; (line=reader.readLine()) != null; ) {
+      String[] split=line.split("\t");
+      String[] countStr=split[1].split(" ");
+      int male=Integer.parseInt(countStr[0]);
+      int female=Integer.parseInt(countStr[1]);
+      int neutral=Integer.parseInt(countStr[2]);
+      Gender gender=Gender.UNKNOWN;
+      if (male * 0.5 > female + neutral && male > 2) {
+        gender=Gender.MALE;
+      }
+ else       if (female * 0.5 > male + neutral && female > 2) {
+        gender=Gender.FEMALE;
+      }
+ else       if (neutral * 0.5 > male + female && neutral > 2) {
+        gender=Gender.NEUTRAL;
+      }
+      if (gender == Gender.UNKNOWN) {
+        continue;
+      }
+      String[] words=split[0].split(" ");
+      List<String> tokens=Arrays.asList(words);
+      genderNumber.put(tokens,gender);
+    }
+    reader.close();
   }
  catch (  IOException e) {
-    throw new RuntimeIOException(e);
-  }
-catch (  ClassNotFoundException e) {
     throw new RuntimeIOException(e);
   }
 }

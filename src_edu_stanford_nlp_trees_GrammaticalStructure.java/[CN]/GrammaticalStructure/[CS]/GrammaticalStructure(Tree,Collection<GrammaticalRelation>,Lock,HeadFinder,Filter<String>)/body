@@ -10,21 +10,23 @@
   this.puncFilter=puncFilter;
   NoPunctFilter puncDepFilter=new NoPunctFilter(puncFilter);
   NoPunctTypedDependencyFilter puncTypedDepFilter=new NoPunctTypedDependencyFilter(puncFilter);
-  DirectedMultiGraph<TreeGraphNode,GrammaticalRelation> basicGraph=new DirectedMultiGraph<TreeGraphNode,GrammaticalRelation>();
+  dependencies=root.dependencies(puncDepFilter,null);
+  for (  Dependency<Label,Label,Object> p : dependencies) {
+    TreeGraphNode gov=(TreeGraphNode)p.governor();
+    TreeGraphNode dep=(TreeGraphNode)p.dependent();
+    dep.addArc(GrammaticalRelation.getAnnotationClass(GOVERNOR),gov);
+  }
   if (relationsLock != null) {
     relationsLock.lock();
   }
   try {
-    analyzeNode(root,root,relations,hf,puncFilter,basicGraph);
+    analyzeNode(root,root,relations,hf);
   }
   finally {
     if (relationsLock != null) {
       relationsLock.unlock();
     }
   }
-  attachStrandedNodes(root,root,false,puncFilter,basicGraph);
-  addGovernorArcLabels(basicGraph);
-  typedDependencies=getDeps(puncTypedDepFilter,basicGraph);
-  allTypedDependencies=Generics.newArrayList(typedDependencies);
-  getExtraDeps(allTypedDependencies,puncTypedDepFilter);
+  typedDependencies=getDeps(false,puncTypedDepFilter);
+  allTypedDependencies=getDeps(true,puncTypedDepFilter);
 }

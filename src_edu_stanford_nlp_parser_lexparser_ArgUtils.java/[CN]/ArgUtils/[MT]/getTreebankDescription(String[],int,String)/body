@@ -1,0 +1,27 @@
+{
+  String path=null;
+  FileFilter filter=null;
+  int numSubArgs=numSubArgs(args,argIndex);
+  if (numSubArgs > 0 && numSubArgs < 3) {
+    argIndex++;
+    path=args[argIndex++];
+    if (numSubArgs == 2) {
+      filter=new NumberRangesFileFilter(args[argIndex++],true);
+    }
+ else     if (numSubArgs == 3) {
+      try {
+        int low=Integer.parseInt(args[argIndex]);
+        int high=Integer.parseInt(args[argIndex + 1]);
+        filter=new NumberRangeFileFilter(low,high,true);
+        argIndex+=2;
+      }
+ catch (      NumberFormatException e) {
+        filter=new NumberRangesFileFilter(args[argIndex++],true);
+      }
+    }
+  }
+ else {
+    throw new IllegalArgumentException("Bad arguments after " + flag);
+  }
+  return Pair.makePair(path,filter);
+}
