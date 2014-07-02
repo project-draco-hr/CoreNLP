@@ -5,23 +5,6 @@
     tokens.add(fromProto(token));
   }
   lossySentence.set(TokensAnnotation.class,tokens);
-  StringBuilder text=new StringBuilder();
-  if (tokens.size() > 0) {
-    if (tokens.get(0).before() != null) {
-      text.append(tokens.get(0).before());
-    }
-  }
-  for (  CoreLabel token : tokens) {
-    if (token.originalText() != null) {
-      text.append(token.originalText());
-    }
- else {
-      text.append(token.word());
-    }
-    if (token.after() != null) {
-      text.append(token.after());
-    }
-  }
-  lossySentence.set(TextAnnotation.class,text.toString());
+  lossySentence.set(TextAnnotation.class,recoverOriginalText(tokens,proto));
   return lossySentence;
 }
