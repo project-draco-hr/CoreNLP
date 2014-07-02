@@ -1,3 +1,18 @@
 {
-  return toString(maxKeysToPrint,"%.3f");
+  if (maxKeysToPrint <= 0)   maxKeysToPrint=Integer.MAX_VALUE;
+  FixedPrioritiesPriorityQueue<E> pq=clone();
+  StringBuilder sb=new StringBuilder("[");
+  int numKeysPrinted=0;
+  while (numKeysPrinted < maxKeysToPrint && pq.hasNext()) {
+    double priority=pq.getPriority();
+    E element=pq.next();
+    sb.append(element.toString());
+    sb.append(" : ");
+    sb.append(priority);
+    if (numKeysPrinted < size() - 1)     sb.append(", ");
+    numKeysPrinted++;
+  }
+  if (numKeysPrinted < size())   sb.append("...");
+  sb.append("]");
+  return sb.toString();
 }
