@@ -16,6 +16,9 @@
     if (line == null)     break;
     docProcessor=new DocumentPreprocessor(new BufferedReader(new StringReader(line)));
     docProcessor.setTokenizerFactory(tokenizerFactory);
+    if (config.keepEmptySentences()) {
+      docProcessor.setKeepEmptySentences(true);
+    }
     for (    List<HasWord> sentence : docProcessor) {
       numWords+=sentence.size();
       Timing t=new Timing();
