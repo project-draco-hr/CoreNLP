@@ -30,28 +30,16 @@
         dataset=new Dataset<String,String>();
       }
       int lineNo=0;
-      int minColumns=Integer.MAX_VALUE;
-      int maxColumns=0;
       for (      String line : ObjectBank.getLineIterator(new File(filename),Flags.encoding)) {
         lineNo++;
-        String[] strings=tab.split(line);
-        if (strings.length < 2) {
-          throw new RuntimeException("Line format error at line " + lineNo + ": "+ line);
-        }
-        if (strings.length < minColumns) {
-          minColumns=strings.length;
-        }
-        if (strings.length > maxColumns) {
-          maxColumns=strings.length;
-        }
         if (inTestPhase) {
-          lineInfos.add(strings);
+          String[] wi=makeSimpleLineInfo(line,lineNo);
+          lineInfos.add(wi);
         }
-        dataset.add(makeDatumFromStrings(strings));
-      }
-      if (lineNo > 0 && minColumns != maxColumns) {
-        System.err.println();
-        System.err.println("WARNING: Number of tab-separated columns in " + filename + " varies between "+ minColumns+ " and "+ maxColumns);
+        Datum<String,String> d=makeDatumFromLine(line,lineNo);
+        if (d != null) {
+          dataset.add(d);
+        }
       }
     }
  catch (    Exception e) {

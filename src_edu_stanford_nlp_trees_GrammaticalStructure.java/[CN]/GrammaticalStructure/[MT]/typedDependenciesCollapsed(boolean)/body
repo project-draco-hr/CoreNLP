@@ -1,5 +1,9 @@
 {
-  List<TypedDependency> tdl=typedDependencies(includeExtras);
+  List<TypedDependency> tdl=typedDependencies(false);
+  if (includeExtras) {
+    getExtras(tdl);
+    getTreeDeps(root(),tdl,new NoPunctTypedDependencyFilter(puncFilter),extraTreeDepFilter());
+  }
   collapseDependencies(tdl,false,includeExtras);
   return tdl;
 }
