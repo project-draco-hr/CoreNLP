@@ -1,0 +1,25 @@
+{
+  File[] files=cacheDir.listFiles();
+  if (files == null) {
+    return 0;
+  }
+  for (int i=0; i < files.length; ++i) {
+    try {
+      files[i]=canonicalFile.intern(files[i].getCanonicalFile());
+    }
+ catch (    IOException e) {
+      throw throwSafe(e);
+    }
+  }
+  int count=0;
+  for (  File f : files) {
+    try {
+      Collection<Pair<KEY,T>> block=readBlock(f);
+      count+=block.size();
+    }
+ catch (    Exception e) {
+      throw throwSafe(e);
+    }
+  }
+  return count;
+}

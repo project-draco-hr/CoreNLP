@@ -1,0 +1,46 @@
+{
+  String strgeneric="";
+  String strOriginal="";
+  boolean isLabeledO=true;
+  for (  Entry<String,Class<? extends TypesafeMap.Key<String>>> e : constVars.answerClass.entrySet()) {
+    if (!tokenj.get(e.getValue()).equals(constVars.backgroundSymbol)) {
+      isLabeledO=false;
+      if (strgeneric.isEmpty()) {
+        strgeneric="{" + e.getKey() + ":"+ e.getKey()+ "}";
+        strOriginal=e.getKey();
+      }
+ else {
+        strgeneric+=" | " + "{" + e.getKey() + ":"+ e.getKey()+ "}";
+        strOriginal+="|" + e.getKey();
+      }
+    }
+  }
+  for (  Entry<String,Class> e : constVars.getGeneralizeClasses().entrySet()) {
+    if (!tokenj.get(e.getValue()).equals(constVars.backgroundSymbol)) {
+      isLabeledO=false;
+      if (strgeneric.isEmpty()) {
+        strgeneric="{" + e.getKey() + ":"+ tokenj.get(e.getValue())+ "}";
+        strOriginal=e.getKey();
+      }
+ else {
+        strgeneric+=" | " + "{" + e.getKey() + ":"+ tokenj.get(e.getValue())+ "}";
+        strOriginal+="|" + e.getKey();
+      }
+    }
+  }
+  if (constVars.useContextNERRestriction) {
+    String nerTag=tokenj.get(CoreAnnotations.NamedEntityTagAnnotation.class);
+    if (nerTag != null && !nerTag.equals(SeqClassifierFlags.DEFAULT_BACKGROUND_SYMBOL)) {
+      isLabeledO=false;
+      if (strgeneric.isEmpty()) {
+        strgeneric="{ner:" + nerTag + "}";
+        strOriginal=nerTag;
+      }
+ else {
+        strgeneric+=" | " + "{ner:" + nerTag + "}";
+        strOriginal+="|" + nerTag;
+      }
+    }
+  }
+  return new Triple<Boolean,String,String>(isLabeledO,strgeneric,strOriginal);
+}

@@ -46,8 +46,9 @@
         }
       }
       if (!matched) {
-        System.err.printf("%s: Unknown token in %s (line %d)\n",this.getClass().getName(),configFile,reader.getLineNumber());
-        System.exit(-1);
+        String error=(this.getClass().getName() + ": Unknown token in " + configFile+ " (line "+ reader.getLineNumber()+ ")\n");
+        System.err.printf(error);
+        throw new IllegalArgumentException(error);
       }
     }
     if (paramsForDataset != null)     datasetList.add(paramsForDataset);
