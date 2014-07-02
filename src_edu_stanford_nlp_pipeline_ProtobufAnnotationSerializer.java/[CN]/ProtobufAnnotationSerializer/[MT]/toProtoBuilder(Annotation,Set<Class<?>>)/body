@@ -2,17 +2,16 @@
   CoreNLPProtos.Document.Builder builder=CoreNLPProtos.Document.newBuilder();
   builder.setText(doc.get(TextAnnotation.class));
   keysToSerialize.remove(TextAnnotation.class);
-  if (doc.containsKey(TokensAnnotation.class)) {
-    for (    CoreLabel tok : doc.get(TokensAnnotation.class)) {
-      builder.addToken(toProto(tok));
-    }
-    keysToSerialize.remove(TokensAnnotation.class);
-  }
   if (doc.containsKey(SentencesAnnotation.class)) {
     for (    CoreMap sentence : doc.get(SentencesAnnotation.class)) {
       builder.addSentence(toProto(sentence));
     }
     keysToSerialize.remove(SentencesAnnotation.class);
+  }
+ else   if (doc.containsKey(TokensAnnotation.class)) {
+    for (    CoreLabel token : doc.get(TokensAnnotation.class)) {
+      builder.addSentencelessToken(toProto(token));
+    }
   }
   if (doc.containsKey(DocIDAnnotation.class)) {
     builder.setDocID(doc.get(DocIDAnnotation.class));
