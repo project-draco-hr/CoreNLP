@@ -1,12 +1,7 @@
 {
-  lock.lock();
-  try {
-    int size=item2Index.size();
-    item2Index.clear();
-    Object[] arr=new Object[size];
-    index2Item.set(arr);
-  }
-  finally {
-    lock.unlock();
+synchronized (this) {
+    item2Index=new ConcurrentHashMap<E,Integer>();
+    index2Item=new ConcurrentHashMap<Integer,E>();
+    index=new AtomicInteger();
   }
 }
