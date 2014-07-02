@@ -1,0 +1,34 @@
+{
+  if (state.finished) {
+    return false;
+  }
+  if (state.tokenPosition >= state.sentence.size()) {
+    return false;
+  }
+  if (state.stack.size() > 0) {
+    Tree top=state.stack.peek();
+    if (top.label().value().startsWith("@") && top.children().length == 2 && ShiftReduceUtils.getBinarySide(top) == BinaryTransition.Side.RIGHT) {
+      return false;
+    }
+  }
+  if (constraints == null || state.stack.size() == 0) {
+    return true;
+  }
+  final Tree top=state.stack.peek();
+  for (  ParserConstraint constraint : constraints) {
+    if (ShiftReduceUtils.rightIndex(top) != constraint.end - 1) {
+      continue;
+    }
+    int left=ShiftReduceUtils.leftIndex(top);
+    if (left < constraint.start) {
+      continue;
+    }
+    if (left > constraint.start) {
+      return false;
+    }
+    if (!ShiftReduceUtils.constraintMatchesTreeTop(top,constraint)) {
+      return false;
+    }
+  }
+  return true;
+}

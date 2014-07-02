@@ -1,0 +1,21 @@
+def rewrite_with_label(char, label, apply_rewrites):
+    if (label == 'BEGIN'):
+        return (SEG_MARKER + char)
+    elif (label == 'CONT'):
+        return char
+    elif (label == 'REW'):
+        if (char == u'\u0644'):
+            return u':\u0627\u0644'
+        elif apply_rewrites:
+            if (char in u'\u062a\u0647'):
+                return u'\u0629'
+            elif (char == u'\u0629'):
+                return u'\u0647'
+            elif (char == u'\u064a'):
+                return u'\u0649'
+            elif (char == u'\u0649'):
+                return u'\u064a'
+        else:
+            return char
+    else:
+        assert False, ('unrecognized label: ' + label)

@@ -1,0 +1,14 @@
+{
+  Pair<Integer,Integer> headBounds=getHeadBounds(segments);
+  int currentIndex=0;
+  for (int i=wordBegin; i < wordEnd; i++) {
+    String label=labeledSequence.get(i).get(CoreAnnotations.AnswerAnnotation.class);
+    labeledSequence.get(i).set(PrefixMarkerAnnotation.class,Boolean.FALSE);
+    labeledSequence.get(i).set(SuffixMarkerAnnotation.class,Boolean.FALSE);
+    if (label.equals(BeginSymbol)) {
+      if (currentIndex <= headBounds.first && currentIndex != 0)       labeledSequence.get(i).set(PrefixMarkerAnnotation.class,Boolean.TRUE);
+      if (currentIndex >= headBounds.second)       labeledSequence.get(i).set(SuffixMarkerAnnotation.class,Boolean.TRUE);
+      currentIndex++;
+    }
+  }
+}

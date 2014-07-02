@@ -23,6 +23,9 @@
     @Override public String additionalSignature(){
       StringBuilder os=new StringBuilder();
       os.append("tokenize.whitespace:" + properties.getProperty("tokenize.whitespace","false"));
+      if (properties.getProperty("tokenize.options") != null) {
+        os.append(":tokenize.options:" + properties.getProperty("tokenize.options"));
+      }
       if (Boolean.valueOf(properties.getProperty("tokenize.whitespace","false"))) {
         os.append(WhitespaceTokenizerAnnotator.EOL_PROPERTY + ":" + properties.getProperty(WhitespaceTokenizerAnnotator.EOL_PROPERTY,"false"));
         os.append(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY + ":" + properties.getProperty(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY,"false"));
@@ -75,6 +78,7 @@
   pool.register(STANFORD_SSPLIT,new AnnotatorFactory(inputProps,annotatorImplementation){
     private static final long serialVersionUID=1L;
     @Override public Annotator create(){
+      System.err.println(signature());
       boolean nlSplitting=Boolean.valueOf(properties.getProperty(NEWLINE_SPLITTER_PROPERTY,"false"));
       if (nlSplitting) {
         boolean whitespaceTokenization=Boolean.valueOf(properties.getProperty("tokenize.whitespace","false"));
@@ -121,18 +125,12 @@
     }
     @Override public String additionalSignature(){
       StringBuilder os=new StringBuilder();
-      os.append(NEWLINE_SPLITTER_PROPERTY + ":" + properties.getProperty(NEWLINE_SPLITTER_PROPERTY,"false"));
       if (Boolean.valueOf(properties.getProperty(NEWLINE_SPLITTER_PROPERTY,"false"))) {
-        os.append("tokenize.whitespace:" + properties.getProperty("tokenize.whitespace","false"));
+        os.append(NEWLINE_SPLITTER_PROPERTY + "=").append(properties.getProperty(NEWLINE_SPLITTER_PROPERTY,"false")).append("\n");
+        os.append("tokenize.whitespace=").append(properties.getProperty("tokenize.whitespace","false")).append("\n");
       }
  else {
-        os.append("ssplit.isOneSentence:" + properties.getProperty("ssplit.isOneSentence","false"));
-        if (!Boolean.valueOf(properties.getProperty("ssplit.isOneSentence","false"))) {
-          os.append("ssplit.boundaryTokenRegex:" + properties.getProperty("ssplit.boundaryTokenRegex",""));
-          os.append("ssplit.boundariesToDiscard:" + properties.getProperty("ssplit.boundariesToDiscard",""));
-          os.append("ssplit.htmlBoundariesToDiscard:" + properties.getProperty("ssplit.htmlBoundariesToDiscard",""));
-          os.append(NEWLINE_IS_SENTENCE_BREAK_PROPERTY + ":" + properties.getProperty(NEWLINE_IS_SENTENCE_BREAK_PROPERTY,DEFAULT_NEWLINE_IS_SENTENCE_BREAK));
-        }
+        os.append(baseSignature(properties,STANFORD_SSPLIT));
       }
       return os.toString();
     }
@@ -149,7 +147,7 @@
       }
     }
     @Override public String additionalSignature(){
-      return ("pos.maxlen:" + properties.getProperty("pos.maxlen","") + "pos.model:"+ properties.getProperty("pos.model",DefaultPaths.DEFAULT_POS_MODEL)+ "pos.nthreads:"+ properties.getProperty("pos.nthreads",properties.getProperty("nthreads","")));
+      return POSTaggerAnnotator.signature(properties);
     }
   }
 );
@@ -219,7 +217,7 @@
     @Override public String additionalSignature(){
       String type=properties.getProperty("parse.type","stanford");
       if (type.equalsIgnoreCase("stanford")) {
-        return ParserAnnotator.signature("parser",properties);
+        return ParserAnnotator.signature("parse",properties);
       }
  else       if (type.equalsIgnoreCase("charniak")) {
         return "parse.model:" + properties.getProperty("parse.model","") + "parse.executable:"+ properties.getProperty("parse.executable","")+ "parse.maxlen:"+ properties.getProperty("parse.maxlen","");
@@ -280,7 +278,7 @@
       return annotatorImplementation.sentiment(properties,STANFORD_SENTIMENT);
     }
     @Override public String additionalSignature(){
-      return "model=" + inputProps.get("model");
+      return "sentiment.model=" + inputProps.get("sentiment.model");
     }
   }
 );

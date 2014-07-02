@@ -1,0 +1,9 @@
+def apply_edits(edits, raw):
+    if (len(edits) != len(raw)):
+        print  >> sys.stderr, 'Number of edits is not equal to number of characters'
+        print  >> sys.stderr, (' word: %s\n edits: %s' % (raw, ', '.join(edits)))
+        raise AssertionError
+    labels = [crf_label(raw[i], edits[i]) for i in range(len(raw))]
+    norew = ''.join((rewrite_with_label(raw[i], labels[i], False) for i in range(len(raw))))
+    rew = ''.join((rewrite_with_label(raw[i], labels[i], True) for i in range(len(raw))))
+    return (norew, rew)

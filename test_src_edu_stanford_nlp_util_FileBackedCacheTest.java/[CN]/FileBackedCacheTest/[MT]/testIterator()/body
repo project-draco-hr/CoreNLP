@@ -1,0 +1,14 @@
+{
+  cache.put("key","value");
+  cache.put("key2","value2");
+  int count=0;
+  Iterator<Map.Entry<String,String>> iterator=cache.iterator();
+  while (iterator.hasNext()) {
+    Map.Entry<String,String> entry=iterator.next();
+    if (entry.getKey() == "key")     assertEquals("value",entry.getValue());
+    if (entry.getKey() == "key2")     assertEquals("value2",entry.getValue());
+    count+=1;
+  }
+  assertEquals(2,count);
+  assertTrue(FileBackedCache.locksHeld().isEmpty());
+}
