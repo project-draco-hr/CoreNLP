@@ -1,0 +1,14 @@
+{
+  TsurgeonPattern tsurgeon=Tsurgeon.parseOperation("replace foo (BAR 1)");
+  TregexPattern tregex=TregexPattern.compile("B=foo");
+  runTest(tregex,tsurgeon,"(A (B 0) (B 1) (C 2))","(A (BAR 1) (BAR 1) (C 2))");
+  runTest(tregex,tsurgeon,"(B (C 1))","(BAR 1)");
+  tsurgeon=Tsurgeon.parseOperation("replace foo (BAR 1) (BAZ 2)");
+  runTest(tregex,tsurgeon,"(A (B 0) (B 1) (C 2))","(A (BAR 1) (BAZ 2) (BAR 1) (BAZ 2) (C 2))");
+  try {
+    runTest(tregex,tsurgeon,"(B 0)","(B 0)");
+    throw new RuntimeException("Expected a failure");
+  }
+ catch (  TsurgeonRuntimeException e) {
+  }
+}
