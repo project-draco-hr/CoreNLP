@@ -1,12 +1,12 @@
 {
   return new Iterator<E>(){
+    private final List<Integer> sortedKeys=Generics.newArrayList(new TreeSet<Integer>(index2Item.keySet()));
     private int index=0;
-    private int size=ConcurrentHashIndex.this.size();
     @Override public boolean hasNext(){
-      return index < size;
+      return index < sortedKeys.size();
     }
     @Override public E next(){
-      return ConcurrentHashIndex.this.get(index++);
+      return index2Item.get(index++);
     }
     @Override public void remove(){
       throw new UnsupportedOperationException();
