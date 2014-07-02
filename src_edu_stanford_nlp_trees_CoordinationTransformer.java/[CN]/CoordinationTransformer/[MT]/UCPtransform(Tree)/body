@@ -6,7 +6,9 @@
   if (firstChild != null) {
     List<Pair<TregexPattern,TsurgeonPattern>> ops=Generics.newArrayList();
     for (int i=0; i < operations.length; i++) {
-      ops.add(Generics.newPair(matchPatterns[i],operations[i]));
+      for (      TregexPattern pattern : matchPatterns[i]) {
+        ops.add(Generics.newPair(pattern,operations[i]));
+      }
     }
     return Tsurgeon.processPatternsOnTree(ops,t);
   }
