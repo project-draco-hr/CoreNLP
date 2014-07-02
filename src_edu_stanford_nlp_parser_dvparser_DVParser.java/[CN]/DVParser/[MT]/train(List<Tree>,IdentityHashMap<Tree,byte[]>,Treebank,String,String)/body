@@ -12,20 +12,20 @@
   }
   double[] sumGradSquare=new double[dvModel.totalParamSize()];
   Arrays.fill(sumGradSquare,1.0);
-  int numBatches=sentences.size() / op.trainOptions.dvBatchSize + 1;
+  int numBatches=sentences.size() / op.trainOptions.batchSize + 1;
   System.err.println("Training on " + sentences.size() + " trees in "+ numBatches+ " batches");
-  System.err.println("Times through each training batch: " + op.trainOptions.dvIterations);
+  System.err.println("Times through each training batch: " + op.trainOptions.trainingIterations);
   System.err.println("QN iterations per batch: " + op.trainOptions.qnIterationsPerBatch);
-  for (int iter=0; iter < op.trainOptions.dvIterations; ++iter) {
+  for (int iter=0; iter < op.trainOptions.trainingIterations; ++iter) {
     List<Tree> shuffledSentences=new ArrayList<Tree>(sentences);
     Collections.shuffle(shuffledSentences,dvModel.rand);
     for (int batch=0; batch < numBatches; ++batch) {
       ++batchCount;
       System.err.println("======================================");
       System.err.println("Iteration " + iter + " batch "+ batch);
-      int startTree=batch * op.trainOptions.dvBatchSize;
-      int endTree=(batch + 1) * op.trainOptions.dvBatchSize;
-      if (endTree + op.trainOptions.dvBatchSize > shuffledSentences.size()) {
+      int startTree=batch * op.trainOptions.batchSize;
+      int endTree=(batch + 1) * op.trainOptions.batchSize;
+      if (endTree + op.trainOptions.batchSize > shuffledSentences.size()) {
         endTree=shuffledSentences.size();
       }
       executeOneTrainingBatch(shuffledSentences.subList(startTree,endTree),compressedParses,sumGradSquare);

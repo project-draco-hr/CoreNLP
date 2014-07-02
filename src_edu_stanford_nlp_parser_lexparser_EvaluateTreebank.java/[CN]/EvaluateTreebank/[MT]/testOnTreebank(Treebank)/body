@@ -1,6 +1,6 @@
 {
   System.err.println("Testing on treebank");
-  Timing treebankTotalTtimer=new Timing();
+  Timing treebankTotalTimer=new Timing();
   TreePrint treePrint=op.testOptions.treePrint(op.tlpParams);
   TreebankLangParserParams tlpParams=op.tlpParams;
   TreebankLanguagePack tlp=op.langpack();
@@ -62,7 +62,7 @@
       processResults(pq,goldTree,pwErr,pwOut,pwFileOut,pwStats,treePrint);
     }
   }
-  treebankTotalTtimer.done("Testing on treebank");
+  treebankTotalTimer.done("Testing on treebank");
   if (saidMemMessage) {
     ParserUtils.printOutOfMemory(pwErr);
   }
@@ -92,10 +92,8 @@
     if (factTA != null)     factTA.display(false,pwErr);
     if (factLL != null && pq.getFactoredParser() != null)     factLL.display(false,pwErr);
     if (pcfgCatE != null)     pcfgCatE.display(false,pwErr);
-    if (extraEvals != null) {
-      for (      Eval eval : extraEvals) {
-        eval.display(false,pwErr);
-      }
+    for (    Eval eval : evals) {
+      eval.display(false,pwErr);
     }
     for (    BestOfTopKEval eval : topKEvals) {
       eval.display(false,pwErr);
@@ -127,5 +125,10 @@
   }
   if (pwFileOut != null)   pwFileOut.close();
   if (pwStats != null)   pwStats.close();
+  if (parserQueryEvals != null) {
+    for (    ParserQueryEval parserQueryEval : parserQueryEvals) {
+      parserQueryEval.display(false,pwErr);
+    }
+  }
   return f1;
 }

@@ -1,0 +1,30 @@
+{
+  if (!t.isPreTerminal()) {
+    throw new IllegalArgumentException("Can only operate on preterminals");
+  }
+  if (!(t.label() instanceof CoreLabel)) {
+    throw new IllegalArgumentException("Only operates on CoreLabels");
+  }
+  CoreLabel label=(CoreLabel)t.label();
+  Tree child=t.children()[0];
+  if (!(child.label() instanceof CoreLabel)) {
+    throw new IllegalArgumentException("Only operates on CoreLabels");
+  }
+  CoreLabel childLabel=(CoreLabel)child.label();
+  String morphStr=childLabel.originalText();
+  if (morphStr == null || morphStr.equals("")) {
+    morphStr=label.value();
+    String subCat=childLabel.category();
+    if (subCat != null && subCat != "") {
+      morphStr+="-" + subCat + "--";
+    }
+ else {
+      morphStr+="---";
+    }
+  }
+  MorphoFeatures feats=morpho.strToFeatures(morphStr);
+  if (feats.getAltTag() != null && !feats.getAltTag().equals("")) {
+    label.setValue(feats.getAltTag());
+    label.setTag(feats.getAltTag());
+  }
+}
