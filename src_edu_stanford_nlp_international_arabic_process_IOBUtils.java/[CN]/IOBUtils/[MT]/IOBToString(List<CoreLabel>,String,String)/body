@@ -1,3 +1,49 @@
 {
-  return IOBToString(labeledSequence,prefixMarker,suffixMarker,true,true);
+  StringBuilder sb=new StringBuilder();
+  String lastLabel="";
+  final boolean addPrefixMarker=prefixMarker != null && prefixMarker.length() > 0;
+  final boolean addSuffixMarker=suffixMarker != null && suffixMarker.length() > 0;
+  final int sequenceLength=labeledSequence.size();
+  for (int i=0; i < sequenceLength; ++i) {
+    CoreLabel labeledChar=labeledSequence.get(i);
+    String token=labeledChar.get(CoreAnnotations.CharAnnotation.class);
+    String label=labeledChar.get(CoreAnnotations.AnswerAnnotation.class);
+    if (label.equals(BeginSymbol)) {
+      if (lastLabel.equals(ContinuationSymbol) || lastLabel.equals(BeginSymbol)) {
+        if (addPrefixMarker && addPrefixMarker(i,labeledSequence)) {
+          sb.append(prefixMarker);
+        }
+        sb.append(" ");
+        if (addSuffixMarker && addSuffixMarker(i,labeledSequence)) {
+          sb.append(suffixMarker);
+        }
+      }
+      sb.append(token);
+    }
+ else     if (label.equals(ContinuationSymbol)) {
+      sb.append(token);
+    }
+ else     if (label.equals(NosegSymbol)) {
+      if (!lastLabel.equals(BoundarySymbol)) {
+        sb.append(" ");
+      }
+      sb.append(token);
+    }
+ else     if (label.equals(BoundarySymbol)) {
+      sb.append(" ");
+    }
+ else     if (label.equals(RewriteTahSymbol)) {
+      sb.append("?? ");
+      if (addSuffixMarker)       sb.append(suffixMarker);
+    }
+ else     if (label.equals(RewriteTareefSymbol)) {
+      if (addPrefixMarker)       sb.append(prefixMarker);
+      sb.append(" ????");
+    }
+ else {
+      throw new RuntimeException("Unknown label: " + label);
+    }
+    lastLabel=label;
+  }
+  return sb.toString().trim();
 }
