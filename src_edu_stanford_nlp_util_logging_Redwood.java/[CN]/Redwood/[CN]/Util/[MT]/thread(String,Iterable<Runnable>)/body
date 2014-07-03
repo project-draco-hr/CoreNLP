@@ -2,71 +2,41 @@
   final AtomicBoolean haveStarted=new AtomicBoolean(false);
   final ReentrantLock metaInfoLock=new ReentrantLock();
   final AtomicInteger numPending=new AtomicInteger(0);
-  final Iterator<Runnable> iter=runnables.iterator();
-  return new IterableIterator<Runnable>(new Iterator<Runnable>(){
-    @Override public boolean hasNext(){
-synchronized (iter) {
-        return iter.hasNext();
-      }
-    }
-    @Override public synchronized Runnable next(){
-      final Runnable runnable;
-synchronized (iter) {
-        runnable=iter.next();
-      }
-      while (numPending.get() > 100) {
+  ArrayList<Runnable> rtn=new ArrayList<Runnable>();
+  for (  final Runnable runnable : runnables) {
+    rtn.add(new Runnable(){
+      @Override public void run(){
         try {
-          Thread.sleep(100);
-        }
- catch (        InterruptedException e) {
-        }
-      }
-      numPending.incrementAndGet();
-      Runnable toReturn=new Runnable(){
-        public void run(){
-          boolean threadFinished=false;
+          metaInfoLock.lock();
+          if (!haveStarted.getAndSet(true)) {
+            startThreads(title);
+          }
+          metaInfoLock.unlock();
           try {
-            metaInfoLock.lock();
-            if (!haveStarted.getAndSet(true)) {
-              startThreads(title);
-            }
-            metaInfoLock.unlock();
-            try {
-              runnable.run();
-            }
- catch (            Exception e) {
-              e.printStackTrace();
-              System.exit(1);
-            }
-catch (            AssertionError e) {
-              e.printStackTrace();
-              System.exit(1);
-            }
-            finishThread();
-            threadFinished=true;
-            int numStillPending=numPending.decrementAndGet();
-synchronized (iter) {
-              if (numStillPending <= 0 && !iter.hasNext()) {
-                endThreads(title);
-              }
-            }
+            runnable.run();
           }
- catch (          Throwable t) {
-            t.printStackTrace();
-            if (!threadFinished) {
-              finishThread();
-            }
+ catch (          Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+          }
+catch (          AssertionError e) {
+            e.printStackTrace();
+            System.exit(1);
+          }
+          finishThread();
+          int numStillPending=numPending.decrementAndGet();
+          if (numStillPending <= 0) {
+            endThreads(title);
           }
         }
-      }
-;
-      return toReturn;
-    }
-    @Override public void remove(){
-synchronized (iter) {
-        iter.remove();
+ catch (        Throwable t) {
+          t.printStackTrace();
+          System.exit(1);
+        }
       }
     }
-  }
 );
+    numPending.incrementAndGet();
+  }
+  return rtn;
 }
