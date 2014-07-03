@@ -1,11 +1,11 @@
 {
   Properties props=new Properties();
   props.setProperty("annotators","tokenize,ssplit,pos,lemma,ner,parse,relation");
-  String text="Barack Obama, a Yale professor, is president.";
+  String text="Barack Obama is the 44th President of the United States.  He is the first African American president.";
   Annotation document=new Annotation(text);
   StanfordCoreNLP pipeline=new StanfordCoreNLP(props);
   pipeline.annotate(document);
-  CoreMap sentence=document.get(CoreAnnotations.SentencesAnnotation.class).get(0);
-  List<RelationMention> rel=sentence.get(MachineReadingAnnotations.RelationMentionsAnnotation.class);
-  assertEquals(rel.get(0).getType(),"Work_For");
+  StringWriter stringWriter=new StringWriter();
+  pipeline.prettyPrint(document,new PrintWriter(stringWriter));
+  String result=stringWriter.getBuffer().toString();
 }
