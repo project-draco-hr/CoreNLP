@@ -3,11 +3,38 @@
   if (other.hasText()) {
     setText(other.getText());
   }
+  if (tokenBuilder_ == null) {
+    if (!other.token_.isEmpty()) {
+      if (token_.isEmpty()) {
+        token_=other.token_;
+        bitField0_=(bitField0_ & ~0x00000002);
+      }
+ else {
+        ensureTokenIsMutable();
+        token_.addAll(other.token_);
+      }
+      onChanged();
+    }
+  }
+ else {
+    if (!other.token_.isEmpty()) {
+      if (tokenBuilder_.isEmpty()) {
+        tokenBuilder_.dispose();
+        tokenBuilder_=null;
+        token_=other.token_;
+        bitField0_=(bitField0_ & ~0x00000002);
+        tokenBuilder_=com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ? getTokenFieldBuilder() : null;
+      }
+ else {
+        tokenBuilder_.addAllMessages(other.token_);
+      }
+    }
+  }
   if (sentenceBuilder_ == null) {
     if (!other.sentence_.isEmpty()) {
       if (sentence_.isEmpty()) {
         sentence_=other.sentence_;
-        bitField0_=(bitField0_ & ~0x00000002);
+        bitField0_=(bitField0_ & ~0x00000004);
       }
  else {
         ensureSentenceIsMutable();
@@ -22,7 +49,7 @@
         sentenceBuilder_.dispose();
         sentenceBuilder_=null;
         sentence_=other.sentence_;
-        bitField0_=(bitField0_ & ~0x00000002);
+        bitField0_=(bitField0_ & ~0x00000004);
         sentenceBuilder_=com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ? getSentenceFieldBuilder() : null;
       }
  else {
@@ -34,7 +61,7 @@
     if (!other.corefChain_.isEmpty()) {
       if (corefChain_.isEmpty()) {
         corefChain_=other.corefChain_;
-        bitField0_=(bitField0_ & ~0x00000004);
+        bitField0_=(bitField0_ & ~0x00000008);
       }
  else {
         ensureCorefChainIsMutable();
@@ -49,7 +76,7 @@
         corefChainBuilder_.dispose();
         corefChainBuilder_=null;
         corefChain_=other.corefChain_;
-        bitField0_=(bitField0_ & ~0x00000004);
+        bitField0_=(bitField0_ & ~0x00000008);
         corefChainBuilder_=com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ? getCorefChainFieldBuilder() : null;
       }
  else {
@@ -60,34 +87,6 @@
   if (other.hasDocID()) {
     setDocID(other.getDocID());
   }
-  if (sentencelessTokenBuilder_ == null) {
-    if (!other.sentencelessToken_.isEmpty()) {
-      if (sentencelessToken_.isEmpty()) {
-        sentencelessToken_=other.sentencelessToken_;
-        bitField0_=(bitField0_ & ~0x00000010);
-      }
- else {
-        ensureSentencelessTokenIsMutable();
-        sentencelessToken_.addAll(other.sentencelessToken_);
-      }
-      onChanged();
-    }
-  }
- else {
-    if (!other.sentencelessToken_.isEmpty()) {
-      if (sentencelessTokenBuilder_.isEmpty()) {
-        sentencelessTokenBuilder_.dispose();
-        sentencelessTokenBuilder_=null;
-        sentencelessToken_=other.sentencelessToken_;
-        bitField0_=(bitField0_ & ~0x00000010);
-        sentencelessTokenBuilder_=com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ? getSentencelessTokenFieldBuilder() : null;
-      }
- else {
-        sentencelessTokenBuilder_.addAllMessages(other.sentencelessToken_);
-      }
-    }
-  }
-  this.mergeExtensionFields(other);
   this.mergeUnknownFields(other.getUnknownFields());
   return this;
 }
