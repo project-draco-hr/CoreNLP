@@ -1,7 +1,8 @@
 {
   IntCounter<String> tagCounter=new IntCounter<String>();
   WeightedDataset data=new WeightedDataset(datumCounter.size());
-  for (  TaggedWord word : datumCounter.keySet()) {
+  for (Iterator<TaggedWord> it=datumCounter.keySet().iterator(); it.hasNext(); ) {
+    TaggedWord word=it.next();
     int count=datumCounter.getIntCount(word);
     if (trainOnLowCount && count > trainCountThreshold) {
       continue;
