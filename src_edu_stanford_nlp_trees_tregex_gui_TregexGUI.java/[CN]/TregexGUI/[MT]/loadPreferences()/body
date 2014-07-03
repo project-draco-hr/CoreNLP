@@ -1,0 +1,25 @@
+{
+  InputPanel.getInstance().enableTsurgeon(Preferences.getEnableTsurgeon());
+  MatchesPanel.getInstance().setShowOnlyMatchedPortion(Preferences.getMatchPortionOnly());
+  MatchesPanel.getInstance().setHighlightColor(Preferences.getHighlightColor());
+  InputPanel.getInstance().setNumRecentPatterns(Preferences.getHistorySize());
+  MatchesPanel.getInstance().setMaxMatches(Preferences.getMaxMatches());
+  DisplayMatchesPanel.getInstance().setMatchedColor(Preferences.getMatchedColor());
+  DisplayMatchesPanel.getInstance().setDefaultColor(Preferences.getTreeColor());
+  DisplayMatchesPanel.getInstance().setFontName(Preferences.getFont());
+  MatchesPanel.getInstance().setFontName(Preferences.getFont());
+  int fontSize=Preferences.getFontSize();
+  if (fontSize != 0)   DisplayMatchesPanel.getInstance().setFontSize(Preferences.getFontSize());
+  HeadFinder hf=Preferences.getHeadFinder();
+  InputPanel.getInstance().setHeadFinder(hf);
+  TreeReaderFactory trf=Preferences.getTreeReaderFactory();
+  FilePanel.getInstance().setTreeReaderFactory(trf);
+  String hfName=hf.getClass().getSimpleName();
+  String trfName=trf.getClass().getSimpleName();
+  String encoding=Preferences.getEncoding();
+  if (encoding != null && !encoding.equals(""))   FileTreeModel.setCurEncoding(encoding);
+  if (PreferencesPanel.isChinese(hfName,trfName))   setChineseFont();
+ else   if (PreferencesPanel.isArabic(hfName,trfName))   setArabicFont();
+  if (preferenceDialog == null)   preferenceDialog=new PreferencesPanel(this);
+  preferenceDialog.checkEncodingAndDisplay(hfName,trfName);
+}
