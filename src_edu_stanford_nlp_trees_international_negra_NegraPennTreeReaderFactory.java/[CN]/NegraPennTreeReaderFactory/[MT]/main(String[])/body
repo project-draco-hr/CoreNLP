@@ -1,14 +1,15 @@
 {
   if (args.length < 1) {
-    System.out.printf("Usage: java %s tree_file\n",NegraPennTreeReaderFactory.class.getName());
-    System.exit(-1);
+    System.out.printf("Usage: java %s tree_file%n",NegraPennTreeReaderFactory.class.getName());
+    return;
   }
   TreebankLanguagePack tlp=new NegraPennLanguagePack();
   TreeReaderFactory trf=new NegraPennTreeReaderFactory(2,false,false,tlp);
   try {
-    TreeReader tr=trf.newTreeReader(new InputStreamReader(new BufferedInputStream(new FileInputStream(new File(args[0]))),tlp.getEncoding()));
-    Tree t;
-    while ((t=tr.readTree()) != null)     t.pennPrint();
+    TreeReader tr=trf.newTreeReader(IOUtils.readerFromString(args[0],tlp.getEncoding()));
+    for (Tree t; (t=tr.readTree()) != null; ) {
+      t.pennPrint();
+    }
     tr.close();
   }
  catch (  UnsupportedEncodingException e) {
