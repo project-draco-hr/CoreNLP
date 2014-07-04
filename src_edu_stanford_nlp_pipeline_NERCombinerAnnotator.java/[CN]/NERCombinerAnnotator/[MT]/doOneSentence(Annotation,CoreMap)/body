@@ -1,6 +1,17 @@
 {
   List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
-  List<CoreLabel> output=this.ner.classifySentenceWithGlobalInformation(tokens,annotation,sentence);
+  List<CoreLabel> output=null;
+  try {
+    output=this.ner.classifySentenceWithGlobalInformation(tokens,annotation,sentence);
+  }
+ catch (  RuntimeInterruptedException e) {
+    for (int i=0; i < tokens.size(); ++i) {
+      if (tokens.get(i).ner() == null) {
+        tokens.get(i).setNER(this.ner.backgroundSymbol());
+      }
+    }
+    return;
+  }
   if (VERBOSE) {
     boolean first=true;
     System.err.print("NERCombinerAnnotator direct output: [");
@@ -36,5 +47,4 @@
     }
     System.err.println(']');
   }
-  return sentence;
 }

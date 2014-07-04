@@ -8,9 +8,33 @@
   treeJP.setMatchedParts(matchedParts);
   treeJP.setBackground(Color.WHITE);
   treeJP.setFocusable(true);
+  final JPopupMenu treePopup=new JPopupMenu();
+  JMenuItem copy=new JMenuItem("Copy");
+  copy.setActionCommand((String)TransferHandler.getCopyAction().getValue(Action.NAME));
+  copy.addActionListener(new TregexGUI.TransferActionListener());
+  int mask=TregexGUI.isMacOSX() ? InputEvent.META_MASK : InputEvent.CTRL_MASK;
+  copy.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C,mask));
+  treePopup.add(copy);
+  JMenuItem exportTree=new JMenuItem("Export tree as image");
+  exportTree.addActionListener(new ActionListener(){
+    public void actionPerformed(    ActionEvent e){
+      doExportTree();
+    }
+  }
+);
+  treePopup.add(exportTree);
   treeJP.addMouseListener(new MouseAdapter(){
     @Override public void mouseClicked(    MouseEvent e){
       treeJP.requestFocusInWindow();
+    }
+    private void maybeShowPopup(    MouseEvent e){
+      if (e.isPopupTrigger())       treePopup.show(e.getComponent(),e.getX(),e.getY());
+    }
+    @Override public void mousePressed(    MouseEvent e){
+      maybeShowPopup(e);
+    }
+    @Override public void mouseReleased(    MouseEvent e){
+      maybeShowPopup(e);
     }
   }
 );
