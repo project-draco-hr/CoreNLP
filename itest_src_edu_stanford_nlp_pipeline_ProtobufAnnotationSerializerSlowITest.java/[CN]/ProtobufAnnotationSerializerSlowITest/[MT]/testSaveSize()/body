@@ -1,0 +1,13 @@
+{
+  ByteArrayOutputStream os=new ByteArrayOutputStream();
+  ByteArrayOutputStream compressedImpl=new ByteArrayOutputStream();
+  GZIPOutputStream compressed=new GZIPOutputStream(compressedImpl);
+  new ProtobufAnnotationSerializer().write(mkLargeAnnotation(),os).close();
+  new ProtobufAnnotationSerializer().write(mkLargeAnnotation(),compressed).close();
+  byte[] uncompressedProto=os.toByteArray();
+  byte[] compressedProto=compressedImpl.toByteArray();
+  assertNotNull(uncompressedProto);
+  assertNotNull(compressedProto);
+  assertTrue("" + compressedProto.length,compressedProto.length < 290000);
+  assertTrue("" + uncompressedProto.length,uncompressedProto.length < 1000000);
+}
