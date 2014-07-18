@@ -1,9 +1,8 @@
 {
-  Annotation document=new Annotation(TEXT + TEXT + TEXT+ TEXT);
-  threadedTimeoutPipeline.annotate(document);
-  int i=0;
-  for (  CoreMap sentence : document.get(CoreAnnotations.SentencesAnnotation.class)) {
-    Tree parse=sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
-    assertEquals(parse.toString(),XPARSES[i++ % XPARSES.length]);
-  }
+  Annotation document=new Annotation(TEXT + TEXT + TEXT+ TEXT+ TEXT);
+  threaded3TimeoutPipeline.annotate(document);
+  verifyAnswers(document,XPARSES);
+  document=new Annotation(TEXT + TEXT + TEXT+ TEXT+ TEXT);
+  threaded4TimeoutPipeline.annotate(document);
+  verifyAnswers(document,XPARSES);
 }
