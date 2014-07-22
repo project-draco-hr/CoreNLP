@@ -2,7 +2,12 @@
   InputStream is=null;
   try {
     is=inputStreamFromFile(file);
-    return new BufferedReader(new InputStreamReader(is,encoding));
+    if (encoding == null) {
+      return new BufferedReader(new InputStreamReader(is));
+    }
+ else {
+      return new BufferedReader(new InputStreamReader(is,encoding));
+    }
   }
  catch (  IOException ioe) {
     IOUtils.closeIgnoringExceptions(is);
