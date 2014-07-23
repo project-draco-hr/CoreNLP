@@ -43,11 +43,14 @@
       trainFilter=treebankDescription.second();
     }
  else     if (args[argIndex].equalsIgnoreCase("-train2")) {
-      Triple<String,FileFilter,Double> treebankDescription=ArgUtils.getWeightedTreebankDescription(args,argIndex,"-train2");
-      argIndex=argIndex + ArgUtils.numSubArgs(args,argIndex) + 1;
-      secondaryTreebankPath=treebankDescription.first();
-      secondaryTrainFilter=treebankDescription.second();
-      secondaryTreebankWeight=treebankDescription.third();
+      int numSubArgs=ArgUtils.numSubArgs(args,argIndex);
+      argIndex++;
+      if (numSubArgs < 2) {
+        throw new RuntimeException("Error: -train2 <treebankPath> [<ranges>] <weight>.");
+      }
+      secondaryTreebankPath=args[argIndex++];
+      secondaryTrainFilter=(numSubArgs == 3) ? new NumberRangesFileFilter(args[argIndex++],true) : null;
+      secondaryTreebankWeight=Double.parseDouble(args[argIndex++]);
     }
  else     if (args[argIndex].equalsIgnoreCase("-tLPP") && (argIndex + 1 < args.length)) {
       try {

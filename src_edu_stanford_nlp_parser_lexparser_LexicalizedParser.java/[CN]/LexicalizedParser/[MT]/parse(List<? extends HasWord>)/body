@@ -12,5 +12,13 @@
     e.printStackTrace();
     System.err.println("Recovering using fall through strategy: will construct an (X ...) tree.");
   }
-  return ParserUtils.xTree(lst);
+  TreeFactory lstf=new LabeledScoredTreeFactory();
+  List<Tree> lst2=new ArrayList<Tree>();
+  for (  HasWord obj : lst) {
+    String s=obj.word();
+    Tree t=lstf.newLeaf(s);
+    Tree t2=lstf.newTreeNode("X",Collections.singletonList(t));
+    lst2.add(t2);
+  }
+  return lstf.newTreeNode("X",lst2);
 }
