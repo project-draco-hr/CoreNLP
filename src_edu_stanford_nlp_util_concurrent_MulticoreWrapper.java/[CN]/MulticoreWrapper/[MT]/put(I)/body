@@ -1,13 +1,7 @@
 {
-  Integer procId;
-  try {
-    procId=maxSubmitBlockTime < 0 ? idleProcessors.take() : idleProcessors.poll(maxSubmitBlockTime,TimeUnit.MILLISECONDS);
-    if (procId == null) {
-      throw new RejectedExecutionException("Couldn't submit item to threadpool: " + item.toString());
-    }
-  }
- catch (  InterruptedException e) {
-    throw new RejectedExecutionException("Exception in threadpool: " + e.toString());
+  Integer procId=getProcessor();
+  if (procId == null) {
+    throw new RejectedExecutionException("Couldn't submit item to threadpool: " + item.toString());
   }
   final int itemId=submittedItemCounter++;
   CallableJob<I,O> job=new CallableJob<I,O>(item,itemId,processorList.get(procId),procId,callback);

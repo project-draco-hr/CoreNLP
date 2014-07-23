@@ -49,7 +49,7 @@
       State highestCurrentState=null;
       for (      State currentState : agenda) {
         List<String> features=featureFactory.featurize(currentState);
-        Collection<ScoredObject<Integer>> stateTransitions=findHighestScoringTransitions(currentState,features,true,op.trainOptions().beamSize);
+        Collection<ScoredObject<Integer>> stateTransitions=findHighestScoringTransitions(currentState,features,true,op.trainOptions().beamSize,null);
         for (        ScoredObject<Integer> transition : stateTransitions) {
           State newState=transitionIndex.get(transition.object()).apply(currentState,transition.score());
           newAgenda.add(newState);

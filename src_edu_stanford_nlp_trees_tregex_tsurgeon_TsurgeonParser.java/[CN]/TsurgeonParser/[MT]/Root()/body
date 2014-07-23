@@ -28,54 +28,70 @@ case COINDEX:
         }
         break;
       }
-case IF:
+default :
+    jj_la1[1]=jj_gen;
+  if (jj_2_1(2)) {
+    jj_consume_token(IF);
+    jj_consume_token(EXISTS);
+    name=jj_consume_token(NAME);
+    result=Root();
+    jjtree.closeNodeScope(jjtn000,true);
+    jjtc000=false;
 {
-      jj_consume_token(IF);
-      jj_consume_token(EXISTS);
-      name=jj_consume_token(NAME);
-      result=Root();
-      jjtree.closeNodeScope(jjtn000,true);
-      jjtc000=false;
-{
-        if ("" != null)         return new TsurgeonPatternRoot(new IfExistsNode(name.image,result.children));
-      }
-      break;
+      if ("" != null)       return new TsurgeonPatternRoot(new IfExistsNode(name.image,false,result.children));
     }
-case OPEN_BRACKET:
+  }
+ else   if (jj_2_2(2)) {
+    jj_consume_token(IF);
+    jj_consume_token(NOT);
+    jj_consume_token(EXISTS);
+    name=jj_consume_token(NAME);
+    result=Root();
+    jjtree.closeNodeScope(jjtn000,true);
+    jjtc000=false;
 {
-    label_1:     while (true) {
-      jj_consume_token(OPEN_BRACKET);
-      result=Root();
-      jj_consume_token(CLOSE_BRACKET);
-      if (results == null) {
-        results=Generics.newArrayList();
-      }
-      for (      TsurgeonPattern child : result.children) {
-        results.add(child);
-      }
+      if ("" != null)       return new TsurgeonPatternRoot(new IfExistsNode(name.image,true,result.children));
+    }
+  }
+ else {
 switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
 case OPEN_BRACKET:
 {
-          ;
-          break;
-        }
-default :
-      jj_la1[0]=jj_gen;
-    break label_1;
-}
-}
-jjtree.closeNodeScope(jjtn000,true);
-jjtc000=false;
-TsurgeonPattern[] array=new TsurgeonPattern[results.size()];
+        label_1:         while (true) {
+          jj_consume_token(OPEN_BRACKET);
+          result=Root();
+          jj_consume_token(CLOSE_BRACKET);
+          if (results == null) {
+            results=Generics.newArrayList();
+          }
+          for (          TsurgeonPattern child : result.children) {
+            results.add(child);
+          }
+switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+case OPEN_BRACKET:
 {
-if ("" != null) return new TsurgeonPatternRoot(results.toArray(array));
-}
-break;
+              ;
+              break;
+            }
+default :
+          jj_la1[0]=jj_gen;
+        break label_1;
+    }
+  }
+  jjtree.closeNodeScope(jjtn000,true);
+  jjtc000=false;
+  TsurgeonPattern[] array=new TsurgeonPattern[results.size()];
+{
+    if ("" != null)     return new TsurgeonPatternRoot(results.toArray(array));
+  }
+  break;
 }
 default :
-jj_la1[1]=jj_gen;
+jj_la1[2]=jj_gen;
 jj_consume_token(-1);
 throw new ParseException();
+}
+}
 }
 }
  catch (Throwable jjte000) {
