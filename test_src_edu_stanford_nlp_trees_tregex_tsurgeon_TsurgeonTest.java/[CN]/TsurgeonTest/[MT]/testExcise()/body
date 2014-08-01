@@ -1,0 +1,9 @@
+{
+  TregexPattern tregex=TregexPattern.compile("__=repeat <: (~repeat < __)");
+  TsurgeonPattern tsurgeon=Tsurgeon.parseOperation("excise repeat repeat");
+  runTest(tregex,tsurgeon,"(A (B (B foo)))","(A (B foo))");
+  runTest(tregex,tsurgeon,"(B (B foo))","(B foo)");
+  tregex=TregexPattern.compile("A=root");
+  tsurgeon=Tsurgeon.parseOperation("excise root root");
+  runTest(tregex,tsurgeon,"(A (B bar) (C foo))",null);
+}
