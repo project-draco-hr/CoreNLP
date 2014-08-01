@@ -5,23 +5,24 @@
     transitions.add(new ShiftTransition());
   }
  else   if (tree.children().length == 1) {
+    boolean isRoot=rootOnlyStates.contains(tree.label().value());
     if (compoundUnary) {
       List<String> labels=Generics.newArrayList();
       while (tree.children().length == 1 && !tree.isPreTerminal()) {
         labels.add(tree.label().value());
         tree=tree.children()[0];
       }
-      createTransitionSequenceHelper(transitions,tree,compoundUnary,false);
+      createTransitionSequenceHelper(transitions,tree,compoundUnary,rootOnlyStates);
       transitions.add(new CompoundUnaryTransition(labels,isRoot));
     }
  else {
-      createTransitionSequenceHelper(transitions,tree.children()[0],compoundUnary,false);
+      createTransitionSequenceHelper(transitions,tree.children()[0],compoundUnary,rootOnlyStates);
       transitions.add(new UnaryTransition(tree.label().value(),isRoot));
     }
   }
  else   if (tree.children().length == 2) {
-    createTransitionSequenceHelper(transitions,tree.children()[0],compoundUnary,false);
-    createTransitionSequenceHelper(transitions,tree.children()[1],compoundUnary,false);
+    createTransitionSequenceHelper(transitions,tree.children()[0],compoundUnary,rootOnlyStates);
+    createTransitionSequenceHelper(transitions,tree.children()[1],compoundUnary,rootOnlyStates);
     if (!(tree.label() instanceof CoreLabel) || !(tree.children()[0].label() instanceof CoreLabel) || !(tree.children()[1].label() instanceof CoreLabel)) {
       throw new IllegalArgumentException("Expected tree labels to be CoreLabel");
     }
