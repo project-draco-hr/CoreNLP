@@ -66,6 +66,9 @@
       numWrong+=result.third;
       for (      Update update : result.first) {
         for (        String feature : update.features) {
+          if (allowedFeatures != null && !allowedFeatures.contains(feature)) {
+            continue;
+          }
           Weight weights=featureWeights.get(feature);
           if (weights == null) {
             weights=new Weight();
@@ -147,12 +150,4 @@
     filterFeatures(featureFrequencies.keysAbove(op.trainOptions().featureFrequencyCutoff));
   }
   condenseFeatures();
-  if (serializedPath != null) {
-    try {
-      IOUtils.writeObjectToFile(this,serializedPath);
-    }
- catch (    IOException e) {
-      throw new RuntimeIOException(e);
-    }
-  }
 }
