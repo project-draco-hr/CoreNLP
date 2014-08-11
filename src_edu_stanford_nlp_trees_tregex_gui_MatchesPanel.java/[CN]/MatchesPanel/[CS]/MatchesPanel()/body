@@ -1,6 +1,6 @@
 {
   DefaultListModel model=new DefaultListModel();
-  list=new TooltipJList<TreeFromFile>(model);
+  list=new TooltipJList(model);
   list.setCellRenderer(new MatchCellRenderer());
   list.setTransferHandler(new TreeTransferHandler());
   matchedParts=Generics.newHashMap();
@@ -13,7 +13,7 @@
         firstMouseEvent=e;
       }
       e.consume();
-      TreeFromFile selectedValue=list.getSelectedValue();
+      TreeFromFile selectedValue=(TreeFromFile)list.getSelectedValue();
       if (selectedValue == null)       return;
       JTextField label=selectedValue.getLabel();
       if (((e.getModifiersEx()) & InputEvent.SHIFT_DOWN_MASK) == InputEvent.SHIFT_DOWN_MASK) {
@@ -58,7 +58,7 @@
       if (MatchesPanel.getInstance().isEmpty())       return;
       if (firstMouseEvent != null) {
         e.consume();
-        JTextField label=list.getSelectedValue().getLabel();
+        JTextField label=((TreeFromFile)list.getSelectedValue()).getLabel();
         if (dragNDrop) {
           if (label == null)           return;
           if (Point2D.distanceSq(e.getX(),e.getY(),firstMouseEvent.getX(),firstMouseEvent.getY()) > 25) {
