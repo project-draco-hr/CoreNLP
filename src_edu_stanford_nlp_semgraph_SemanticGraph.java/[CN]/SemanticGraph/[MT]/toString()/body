@@ -1,21 +1,3 @@
 {
-  Collection<IndexedWord> rootNodes=getRoots();
-  if (rootNodes.isEmpty()) {
-    return toString(OutputFormat.READABLE);
-  }
-  StringBuilder sb=new StringBuilder();
-  Set<IndexedWord> used=Generics.newHashSet();
-  for (  IndexedWord root : rootNodes) {
-    sb.append("-> ").append(root).append(" (root)\n");
-    recToString(root,sb,1,used);
-  }
-  Set<IndexedWord> nodes=Generics.newHashSet(vertexSet());
-  nodes.removeAll(used);
-  while (!nodes.isEmpty()) {
-    IndexedWord node=nodes.iterator().next();
-    sb.append(node).append("\n");
-    recToString(node,sb,1,used);
-    nodes.removeAll(used);
-  }
-  return sb.toString();
+  return toString(IndexedWord.WORD_TAG_FORMAT);
 }
