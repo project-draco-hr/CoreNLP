@@ -87,6 +87,7 @@
     }
   }
  else   if (op.trainOptions().trainingMethod == ShiftReduceTrainOptions.TrainingMethod.REORDER_ORACLE) {
+    ReorderingOracle reorderer=new ReorderingOracle(op);
     State state=ShiftReduceParser.initialStateFromGoldTagTree(tree);
     List<Transition> transitions=transitionLists.get(index);
     transitions=Generics.newLinkedList(transitions);
@@ -103,7 +104,7 @@
  else {
         numWrong++;
         updates.add(new Update(features,transitionNum,predictedNum,1.0f));
-        boolean canContinue=ReorderingOracle.reorder(state,predicted,transitions);
+        boolean canContinue=reorderer.reorder(state,predicted,transitions);
         if (!canContinue) {
           break;
         }
