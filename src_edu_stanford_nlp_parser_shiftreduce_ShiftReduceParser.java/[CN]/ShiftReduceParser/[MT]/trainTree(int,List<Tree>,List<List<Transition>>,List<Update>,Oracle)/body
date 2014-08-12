@@ -62,27 +62,21 @@
           }
         }
       }
-      List<String> goldFeatures=featureFactory.featurize(goldState);
-      goldState=goldTransition.apply(goldState,0.0);
-      if (!goldState.areTransitionsEqual(highestScoringState)) {
+      State newGoldState=goldTransition.apply(goldState,0.0);
+      if (!newGoldState.areTransitionsEqual(highestScoringState)) {
         ++numWrong;
+        List<String> goldFeatures=featureFactory.featurize(goldState);
         int lastTransition=transitionIndex.indexOf(highestScoringState.transitions.peek());
         updates.add(new Update(featureFactory.featurize(highestCurrentState),-1,lastTransition,1.0f));
         updates.add(new Update(goldFeatures,transitionIndex.indexOf(goldTransition),-1,1.0f));
+        if (!findStateOnAgenda(newAgenda,newGoldState)) {
+          break;
+        }
       }
  else {
         ++numCorrect;
       }
-      boolean found=false;
-      for (      State otherState : newAgenda) {
-        if (otherState.areTransitionsEqual(goldState)) {
-          found=true;
-          break;
-        }
-      }
-      if (!found) {
-        break;
-      }
+      goldState=newGoldState;
       agenda=newAgenda;
     }
   }
