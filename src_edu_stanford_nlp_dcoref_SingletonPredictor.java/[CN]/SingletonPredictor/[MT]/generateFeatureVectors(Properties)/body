@@ -10,7 +10,7 @@
     for (    CorefCluster entity : entities.values()) {
       for (      Mention mention : entity.getCorefMentions()) {
         if (mention.headWord.tag().startsWith("V"))         continue;
-        CoreLabel head=mention.dependency.getNodeByIndexSafe(mention.headWord.index());
+        IndexedWord head=mention.dependency.getNodeByIndexSafe(mention.headWord.index());
         if (head == null)         continue;
         ArrayList<String> feats=mention.getSingletonFeatures(dict);
         dataset.add(new BasicDatum<String,String>(feats,"1"));
@@ -22,8 +22,8 @@
     }
     for (    Mention predicted_men : document.allPredictedMentions.values()) {
       SemanticGraph dep=predicted_men.dependency;
-      CoreLabel head=dep.getNodeByIndexSafe(predicted_men.headWord.index());
-      if (head == null)       continue;
+      IndexedWord head=dep.getNodeByIndexSafe(predicted_men.headWord.index());
+      if (head == null || !dep.vertexSet().contains(head))       continue;
       if (predicted_men.headWord.tag().startsWith("V"))       continue;
       if (gold_heads.contains(predicted_men.headWord))       continue;
       dataset.add(new BasicDatum<String,String>(predicted_men.getSingletonFeatures(dict),"0"));

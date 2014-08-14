@@ -1,9 +1,18 @@
 {
+  TreeGraphNode govH=gov.highestNodeWithSameHead();
+  TreeGraphNode depH=dep.highestNodeWithSameHead();
   List<GrammaticalRelation> labels=Generics.newArrayList();
-  for (  TypedDependency dependency : typedDependencies(true)) {
-    if (dependency.gov() == gov && dependency.dep() == dep) {
-      labels.add(dependency.reln());
+  for (  Class<? extends GrammaticalRelationAnnotation> arcLabel : govH.arcLabelsToNode(depH)) {
+    if (arcLabel == null) {
+      continue;
+    }
+    try {
+      GrammaticalRelation reln=GrammaticalRelation.getRelation(arcLabel);
+      labels.add(reln);
+    }
+ catch (    Exception e) {
+      continue;
     }
   }
-  return getGrammaticalRelationCommonAncestor(gov,dep,labels);
+  return getGrammaticalRelation(govH,depH,labels);
 }
