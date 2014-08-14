@@ -1,0 +1,20 @@
+{
+  List<GrammaticalRelation> filtered=Generics.newArrayList();
+  for (  GrammaticalRelation reln : original) {
+    boolean descendantFound=false;
+    for (int index=0; index < filtered.size(); ++index) {
+      GrammaticalRelation gr=filtered.get(index);
+      if (gr.isAncestor(reln)) {
+        filtered.remove(index);
+        --index;
+      }
+ else       if (reln.isAncestor(gr)) {
+        descendantFound=true;
+      }
+    }
+    if (!descendantFound) {
+      filtered.add(reln);
+    }
+  }
+  return filtered;
+}
