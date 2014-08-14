@@ -7,15 +7,9 @@
     tree.pennPrint(System.err);
   }
   if (buildGraphs) {
-    String docID=sentence.get(CoreAnnotations.DocIDAnnotation.class);
-    if (docID == null) {
-      docID="";
-    }
-    Integer sentenceIndex=sentence.get(CoreAnnotations.SentenceIndexAnnotation.class);
-    int index=(sentenceIndex == null) ? 0 : sentenceIndex;
-    SemanticGraph deps=SemanticGraphFactory.generateCollapsedDependencies(gsf.newGrammaticalStructure(tree),docID,index);
-    SemanticGraph uncollapsedDeps=SemanticGraphFactory.generateUncollapsedDependencies(gsf.newGrammaticalStructure(tree),docID,index);
-    SemanticGraph ccDeps=SemanticGraphFactory.generateCCProcessedDependencies(gsf.newGrammaticalStructure(tree),docID,index);
+    SemanticGraph deps=SemanticGraphFactory.generateCollapsedDependencies(gsf.newGrammaticalStructure(tree));
+    SemanticGraph uncollapsedDeps=SemanticGraphFactory.generateUncollapsedDependencies(gsf.newGrammaticalStructure(tree));
+    SemanticGraph ccDeps=SemanticGraphFactory.generateCCProcessedDependencies(gsf.newGrammaticalStructure(tree));
     if (verbose) {
       System.err.println("SDs:");
       System.err.println(deps.toString(SemanticGraph.OutputFormat.LIST));
