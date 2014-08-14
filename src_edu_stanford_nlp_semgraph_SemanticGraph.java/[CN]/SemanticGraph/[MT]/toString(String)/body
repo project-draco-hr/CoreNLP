@@ -4,13 +4,12 @@
     return toString(OutputFormat.READABLE);
   }
   StringBuilder sb=new StringBuilder();
-  Set<IndexedWord> used=wordMapFactory.newSet();
+  Set<IndexedWord> used=Generics.newHashSet();
   for (  IndexedWord root : rootNodes) {
     sb.append("-> ").append(root.toString(wordFormat)).append(" (root)\n");
     recToString(root,wordFormat,sb,1,used);
   }
-  Set<IndexedWord> nodes=wordMapFactory.newSet();
-  nodes.addAll(vertexSet());
+  Set<IndexedWord> nodes=Generics.newHashSet(vertexSet());
   nodes.removeAll(used);
   while (!nodes.isEmpty()) {
     IndexedWord node=nodes.iterator().next();
