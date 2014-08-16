@@ -10,8 +10,8 @@
         return;
       }
       neighborIterator=null;
-      searchedNodes=Generics.newHashSet();
-      matchedNodes=Generics.newHashSet();
+      searchedNodes=Generics.newIdentityHashSet();
+      matchedNodes=Generics.newIdentityHashSet();
       searchStack=Generics.newStack();
       searchStack.push(node);
       advance();
@@ -24,18 +24,18 @@
       while (!searchStack.isEmpty()) {
         if (neighborIterator == null || !neighborIterator.hasNext()) {
           IndexedWord search=searchStack.pop();
-          neighborIterator=sg.incomingEdgeIterator(search);
+          neighborIterator=neighborIterator(sg,search);
         }
         while (neighborIterator.hasNext()) {
           SemanticGraphEdge edge=neighborIterator.next();
-          IndexedWord source=edge.getSource();
-          if (!searchedNodes.contains(source)) {
-            searchStack.push(source);
-            searchedNodes.add(source);
+          IndexedWord otherEnd=followEdge(edge);
+          if (!searchedNodes.contains(otherEnd)) {
+            searchStack.push(otherEnd);
+            searchedNodes.add(otherEnd);
           }
-          if (type.accept(edge.getRelation().toString()) && !matchedNodes.contains(source)) {
-            matchedNodes.add(source);
-            next=source;
+          if (type.accept(edge.getRelation().toString()) && !matchedNodes.contains(otherEnd)) {
+            matchedNodes.add(otherEnd);
+            next=otherEnd;
             relation=edge.getRelation().toString();
             return;
           }
