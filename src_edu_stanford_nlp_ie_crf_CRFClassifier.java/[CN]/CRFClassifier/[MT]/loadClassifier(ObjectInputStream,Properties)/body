@@ -24,6 +24,17 @@
     featureFactories=Generics.newArrayList();
     featureFactories.add((FeatureFactory)featureFactory);
   }
+ else   if (featureFactory instanceof Integer) {
+    int size=(Integer)featureFactory;
+    featureFactories=Generics.newArrayList();
+    for (int i=0; i < size; ++i) {
+      featureFactory=ois.readObject();
+      if (!(featureFactory instanceof FeatureFactory)) {
+        throw new RuntimeIOException();
+      }
+      featureFactories.add((FeatureFactory)featureFactory);
+    }
+  }
   if (props != null) {
     flags.setProperties(props,false);
   }
