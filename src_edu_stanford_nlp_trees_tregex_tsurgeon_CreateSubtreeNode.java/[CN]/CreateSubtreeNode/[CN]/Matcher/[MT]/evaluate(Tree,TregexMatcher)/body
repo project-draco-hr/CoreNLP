@@ -1,0 +1,34 @@
+{
+  Tree startChild=childMatcher[0].evaluate(tree,tregex);
+  Tree endChild=(childMatcher.length == 2) ? childMatcher[1].evaluate(tree,tregex) : startChild;
+  Tree parent=startChild.parent(tree);
+  if (parent != endChild.parent(tree)) {
+    throw new TsurgeonRuntimeException("Parents did not match for trees when applied to " + this);
+  }
+  AuxiliaryTree treeCopy=auxTree.copy(this);
+  List<Tree> children=Generics.newArrayList();
+  List<Tree> innerChildren=Generics.newArrayList();
+  boolean insideSpan=false;
+  for (  Tree child : parent.children()) {
+    if (child == startChild || child == endChild) {
+      if (!insideSpan && startChild != endChild) {
+        insideSpan=true;
+        innerChildren.add(child);
+      }
+ else {
+        insideSpan=false;
+        innerChildren.add(child);
+        treeCopy.foot.setChildren(innerChildren);
+        children.add(treeCopy.tree);
+      }
+    }
+ else     if (insideSpan) {
+      innerChildren.add(child);
+    }
+ else {
+      children.add(child);
+    }
+  }
+  parent.setChildren(children);
+  return tree;
+}
