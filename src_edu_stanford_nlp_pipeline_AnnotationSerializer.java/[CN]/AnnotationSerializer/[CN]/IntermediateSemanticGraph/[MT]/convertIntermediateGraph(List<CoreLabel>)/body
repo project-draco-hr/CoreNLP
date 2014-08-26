@@ -1,12 +1,12 @@
 {
   SemanticGraph graph=new SemanticGraph();
-  TwoDimensionalMap<Integer,Integer,IndexedWord> nodes=TwoDimensionalMap.hashMap();
-  for (  IntermediateNode in : ig.nodes) {
+  TwoDimensionalMap<Integer,Integer,IndexedWord> nodeMap=TwoDimensionalMap.hashMap();
+  for (  IntermediateNode in : nodes) {
     CoreLabel token=sentence.get(in.index - 1);
     IndexedWord word;
     if (in.copyAnnotation > 0) {
       word=new IndexedWord(new CoreLabel(token));
-      word.set(CoreAnnotations.CopyAnnotation.class,in.copyAnnotation);
+      word.setCopyCount(in.copyAnnotation);
     }
  else {
       word=new IndexedWord(token);
@@ -20,18 +20,18 @@
     if (word.index() < 0 && in.index >= 0) {
       word.setIndex(in.index);
     }
-    nodes.put(word.index(),word.copyCount(),word);
+    nodeMap.put(word.index(),word.copyCount(),word);
     graph.addVertex(word);
     if (in.isRoot) {
       graph.addRoot(word);
     }
   }
-  for (  IntermediateEdge ie : ig.edges) {
-    IndexedWord source=nodes.get(ie.source,ie.sourceCopy);
+  for (  IntermediateEdge ie : edges) {
+    IndexedWord source=nodeMap.get(ie.source,ie.sourceCopy);
     if (source == null) {
       throw new RuntimeIOException("Failed to find node " + ie.source + "-"+ ie.sourceCopy);
     }
-    IndexedWord target=nodes.get(ie.target,ie.targetCopy);
+    IndexedWord target=nodeMap.get(ie.target,ie.targetCopy);
     if (target == null) {
       throw new RuntimeIOException("Failed to find node " + ie.target + "-"+ ie.targetCopy);
     }
