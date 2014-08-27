@@ -2,11 +2,10 @@
   t=Tsurgeon.processPattern(clauselessVerbWithCliticPronouns,clausifyVerbWithCliticPronouns,t);
   TregexMatcher matcher=verbWithCliticPronouns.matcher(t);
   while (matcher.find()) {
-    Tree clause=matcher.getNode("clause");
-    Tree target=matcher.getNode("target");
-    Tree verb=matcher.getNode("vb");
-    int idx=clause.objectIndexOf(target) + 1;
-    Pair<String,List<String>> split=SpanishVerbStripper.separatePronouns(verb.value());
+    Tree verbNode=matcher.getNode("vb");
+    String verb=verbNode.value();
+    if (!SpanishVerbStripper.isStrippable(verb))     continue;
+    Pair<String,List<String>> split=SpanishVerbStripper.separatePronouns(verb);
     if (split == null)     continue;
     List<String> pronouns=split.second();
     for (int i=pronouns.size() - 1; i >= 0; i--) {
