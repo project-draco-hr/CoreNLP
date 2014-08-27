@@ -3,12 +3,6 @@
   String containingPhraseStr=getContainingPhrase(t,parent);
   String overrideTag=ManualUWModel.getOverrideTag(word,containingPhraseStr);
   if (overrideTag != null)   return overrideTag;
-  Set<String> unigramTaggerKeys=unigramTagger.firstKeySet();
-  Pair<String,List<String>> strippedVerb=SpanishVerbStripper.separatePronouns(word);
-  if (strippedVerb != null && unigramTaggerKeys.contains(strippedVerb.first())) {
-    String pos=Counters.argmax(unigramTagger.getCounter(strippedVerb.first()));
-    if (pos.startsWith("v"))     return pos;
-  }
   if (unigramTagger.firstKeySet().contains(word))   return Counters.argmax(unigramTagger.getCounter(word));
   return ManualUWModel.getTag(word,containingPhraseStr);
 }

@@ -14,13 +14,13 @@
   while (splitter.hasMoreTokens()) {
     String word=splitter.nextToken();
     remainingTokens--;
-    if (shouldDropWord(word))     continue;
+    if (word.length() == 1 && WORD_SEPARATORS_DROP.indexOf(word.charAt(0)) != -1)     continue;
     if (remainingTokens >= 2 && hyphenBoundMorphemes.contains(word)) {
       String hyphen=splitter.nextToken();
       remainingTokens--;
       if (!hyphen.equals("-")) {
         words.add(word);
-        if (!shouldDropWord(hyphen))         words.add(hyphen);
+        words.add(hyphen);
         continue;
       }
       String freeMorpheme=splitter.nextToken();
