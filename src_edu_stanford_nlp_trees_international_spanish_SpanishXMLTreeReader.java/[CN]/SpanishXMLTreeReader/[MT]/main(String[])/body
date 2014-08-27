@@ -8,10 +8,11 @@
   final Pattern wordPattern=options.containsKey("searchWord") ? Pattern.compile(options.getProperty("searchWord")) : null;
   final boolean plainPrint=PropertiesUtils.getBool(options,"plain",false);
   final boolean ner=PropertiesUtils.getBool(options,"ner",false);
+  final boolean detailedAnnotations=PropertiesUtils.getBool(options,"detailedAnnotations",false);
   String[] remainingArgs=options.getProperty("").split(" ");
   List<File> fileList=new ArrayList<File>();
   for (int i=0; i < remainingArgs.length; i++)   fileList.add(new File(remainingArgs[i]));
-  final SpanishXMLTreeReaderFactory trf=new SpanishXMLTreeReaderFactory(true,true,ner);
+  final SpanishXMLTreeReaderFactory trf=new SpanishXMLTreeReaderFactory(true,true,ner,detailedAnnotations);
   ExecutorService pool=Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
   for (  final File file : fileList) {
     pool.execute(new Runnable(){
