@@ -5,15 +5,20 @@
   pool.register(STANFORD_TOKENIZE,new AnnotatorFactory(inputProps,annotatorImplementation){
     private static final long serialVersionUID=1L;
     @Override public Annotator create(){
-      String extraOptions=null;
-      boolean keepNewline=Boolean.valueOf(properties.getProperty(NEWLINE_SPLITTER_PROPERTY,"false"));
-      if (properties.getProperty(NEWLINE_IS_SENTENCE_BREAK_PROPERTY) != null) {
-        keepNewline=true;
+      if (Boolean.valueOf(properties.getProperty("tokenize.whitespace","false"))) {
+        return annotatorImplementation.whitespaceTokenizer(properties);
       }
-      if (keepNewline) {
-        extraOptions="tokenizeNLs,";
+ else {
+        String options=properties.getProperty("tokenize.options",null);
+        boolean keepNewline=Boolean.valueOf(properties.getProperty(NEWLINE_SPLITTER_PROPERTY,"false"));
+        if (properties.getProperty(NEWLINE_IS_SENTENCE_BREAK_PROPERTY) != null) {
+          keepNewline=true;
+        }
+        if (keepNewline) {
+          options="tokenizeNLs," + options;
+        }
+        return annotatorImplementation.ptbTokenizer(properties,false,options);
       }
-      return annotatorImplementation.ptbTokenizer(properties,false,extraOptions);
     }
     @Override public String additionalSignature(){
       StringBuilder os=new StringBuilder();
