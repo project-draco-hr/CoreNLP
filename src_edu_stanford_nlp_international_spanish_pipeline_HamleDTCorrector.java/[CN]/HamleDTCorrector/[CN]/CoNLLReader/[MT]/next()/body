@@ -1,0 +1,15 @@
+{
+  if (!hasNext())   throw new NoSuchElementException("No more sentences");
+  List<CoreLabel> sentence=new ArrayList<CoreLabel>();
+  String line;
+  while (fileIterator.hasNext() && !(line=fileIterator.next()).equals("")) {
+    try {
+      sentence.add(makeCoreLabel(line));
+    }
+ catch (    ParseException e) {
+      System.err.println(e.getMessage());
+      return null;
+    }
+  }
+  return sentence;
+}
