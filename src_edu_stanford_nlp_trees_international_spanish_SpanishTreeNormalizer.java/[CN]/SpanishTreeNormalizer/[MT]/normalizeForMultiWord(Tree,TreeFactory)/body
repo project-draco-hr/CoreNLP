@@ -1,0 +1,22 @@
+{
+  Tree[] preterminals=t.children();
+  int shift=0;
+  for (int i=0; i < preterminals.length; i++) {
+    Tree leaf=preterminals[i].firstChild();
+    String leafValue=((CoreLabel)leaf.label()).value();
+    if (leafValue.indexOf('_') == -1)     continue;
+    String[] words=leafValue.split("_");
+    Tree[] newPreterminals=new Tree[words.length];
+    for (int j=0; j < words.length; j++) {
+      String word=words[j];
+      Tree newLeaf=tf.newLeaf(word);
+      if (newLeaf.label() instanceof HasWord)       ((HasWord)newLeaf.label()).setWord(word);
+      Tree newPreterminal=tf.newTreeNode(MW_TAG,Arrays.asList(newLeaf));
+      if (newPreterminal.label() instanceof HasTag)       ((HasTag)newPreterminal.label()).setTag(MW_TAG);
+      newPreterminals[j]=newPreterminal;
+    }
+    t.removeChild(i + shift);
+    for (int k=0; k < newPreterminals.length; k++)     t.addChild(i + shift + k,newPreterminals[k]);
+    shift+=words.length - 1;
+  }
+}
