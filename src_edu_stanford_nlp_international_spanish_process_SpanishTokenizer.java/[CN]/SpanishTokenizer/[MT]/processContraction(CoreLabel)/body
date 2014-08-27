@@ -1,11 +1,23 @@
 {
   cl.remove(ParentAnnotation.class);
   String word=cl.word();
-  String first=word.substring(0,word.length() - 1);
+  String first;
   String second;
+switch (word.toLowerCase()) {
+case "del":
+case "al":
+    first=word.substring(0,word.length() - 1);
   char lastChar=word.charAt(word.length() - 1);
-  if (Character.isLowerCase(lastChar))   second="el";
- else   second="EL";
-  compoundBuffer.add(copyCoreLabel(cl,second));
-  return copyCoreLabel(cl,first);
+if (Character.isLowerCase(lastChar)) second="el";
+ else second="EL";
+break;
+case "conmigo":
+case "contigo":
+case "consigo":
+default :
+first=word.substring(0,3);
+second=word.substring(3,5);
+}
+compoundBuffer.add(copyCoreLabel(cl,second));
+return copyCoreLabel(cl,first);
 }
