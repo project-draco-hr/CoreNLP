@@ -5,5 +5,8 @@
   annotations.put("-markPPHeads",new Pair("@sp",new AnnotateHeadFunction(headFinder)));
   annotations.put("-markComo",new Pair("@cs < /(?i)^como$/",new SimpleStringFunction("[como]")));
   annotations.put("-markSpecHeads",new Pair("@spec",new AnnotateHeadFunction(headFinder)));
+  annotations.put("-markSingleChildNPs",new Pair("/^(sn|grup\\.nom)/ <: __",new SimpleStringFunction("-singleChild")));
+  annotations.put("-markPPFriendlyVerbs",new Pair("/^v/ > /^grup\\.prep/",new SimpleStringFunction("-PPFriendly")));
+  annotations.put("-markConjTypes",new Pair("@conj <: /^c[cs]/=c",new MarkConjTypeFunction()));
   compileAnnotations(headFinder);
 }
