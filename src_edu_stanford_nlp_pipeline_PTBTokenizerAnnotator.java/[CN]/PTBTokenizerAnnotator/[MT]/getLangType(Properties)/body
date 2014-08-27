@@ -6,8 +6,10 @@
  else     return Language.English;
   }
   if (Boolean.valueOf(props.getProperty("tokenize.whitespace","false")))   return Language.Whitespace;
-  String language=props.getProperty("tokenize.language","english");
-  if (language.equalsIgnoreCase(SPANISH) || language.equalsIgnoreCase(ES))   return Language.Spanish;
-  if (language.equalsIgnoreCase(FRENCH) || language.equalsIgnoreCase(FR))   return Language.French;
- else   return Language.English;
+  String languageName=props.getProperty("tokenize.language","english");
+  Language language=Language.fromName(languageName);
+  if (language == null) {
+    throw new IllegalArgumentException("Tokenizer does not support language " + languageName);
+  }
+  return language;
 }
