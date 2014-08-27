@@ -9,8 +9,10 @@
   String orthoOptions=options.getProperty("orthoOpts","");
   tf.setOptions(orthoOptions);
   tf.setOptions("tokenizeNLs");
+  final bool lines=options.containsKey("lines");
   final String encoding=options.getProperty("encoding","UTF-8");
   final boolean toLower=PropertiesUtils.getBool(options,"lowerCase",false);
+  final Locale es=new Locale("es");
   int nLines=0;
   int nTokens=0;
   final long startTime=System.nanoTime();
@@ -26,8 +28,11 @@
         System.out.println();
       }
  else {
-        if (printSpace)         System.out.println();
-        String outputToken=toLower ? word.toLowerCase(Locale.FRENCH) : word;
+        if (printSpace) {
+          if (lines)           System.out.print(" ");
+ else           System.out.println();
+        }
+        String outputToken=toLower ? word.toLowerCase(es) : word;
         System.out.print(outputToken);
         printSpace=true;
       }
