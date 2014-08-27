@@ -5,32 +5,21 @@
   pool.register(STANFORD_TOKENIZE,new AnnotatorFactory(inputProps,annotatorImplementation){
     private static final long serialVersionUID=1L;
     @Override public Annotator create(){
-      if (Boolean.valueOf(properties.getProperty("tokenize.whitespace","false"))) {
-        return annotatorImplementation.whitespaceTokenizer(properties);
+      String extraOptions=null;
+      boolean keepNewline=Boolean.valueOf(properties.getProperty(NEWLINE_SPLITTER_PROPERTY,"false"));
+      if (properties.getProperty(NEWLINE_IS_SENTENCE_BREAK_PROPERTY) != null) {
+        keepNewline=true;
       }
- else {
-        String options=properties.getProperty("tokenize.options",null);
-        boolean keepNewline=Boolean.valueOf(properties.getProperty(NEWLINE_SPLITTER_PROPERTY,"false"));
-        if (properties.getProperty(NEWLINE_IS_SENTENCE_BREAK_PROPERTY) != null) {
-          keepNewline=true;
-        }
-        if (keepNewline) {
-          options="tokenizeNLs," + options;
-        }
-        return annotatorImplementation.ptbTokenizer(properties,false,options);
+      if (keepNewline) {
+        extraOptions="tokenizeNLs,";
       }
+      return annotatorImplementation.ptbTokenizer(properties,false,extraOptions);
     }
     @Override public String additionalSignature(){
       StringBuilder os=new StringBuilder();
       os.append("tokenize.whitespace:" + properties.getProperty("tokenize.whitespace","false"));
       if (properties.getProperty("tokenize.options") != null) {
         os.append(":tokenize.options:" + properties.getProperty("tokenize.options"));
-      }
-      if (properties.getProperty("tokenize.language") != null) {
-        os.append(":tokenize.language:" + properties.getProperty("tokenize.language"));
-      }
-      if (properties.getProperty("tokenize.class") != null) {
-        os.append(":tokenize.class:" + properties.getProperty("tokenize.class"));
       }
       if (Boolean.valueOf(properties.getProperty("tokenize.whitespace","false"))) {
         os.append(WhitespaceTokenizerAnnotator.EOL_PROPERTY + ":" + properties.getProperty(WhitespaceTokenizerAnnotator.EOL_PROPERTY,"false"));
