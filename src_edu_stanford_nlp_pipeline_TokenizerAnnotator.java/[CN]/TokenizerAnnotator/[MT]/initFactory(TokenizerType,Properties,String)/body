@@ -1,5 +1,5 @@
 {
-  TokenizerFactory<CoreLabel> factory=null;
+  TokenizerFactory<CoreLabel> factory;
   String options=props.getProperty("tokenize.options",null);
   if (options == null) {
     options=extraOptions;
@@ -10,13 +10,12 @@
   if (options == null) {
     options=type.getDefaultOptions();
   }
-  try {
 switch (type) {
 case Spanish:
-      factory=SpanishTokenizer.factory(new CoreLabelTokenFactory(),options);
-    break;
+    factory=SpanishTokenizer.factory(new CoreLabelTokenFactory(),options);
+  break;
 case French:
-  factory=FrenchTokenizer.factory(new CoreLabelTokenFactory(),options);
+factory=FrenchTokenizer.factory(new CoreLabelTokenFactory(),options);
 break;
 case Whitespace:
 boolean eolIsSignificant=Boolean.valueOf(props.getProperty(EOL_PROPERTY,"false"));
@@ -28,16 +27,7 @@ case German:
 factory=PTBTokenizer.factory(new CoreLabelTokenFactory(),options);
 break;
 default :
-throw new IllegalArgumentException("No valid tokenizer type provided.");
-}
-}
- catch (IllegalArgumentException e) {
-System.err.println("Illegal Argument Exception: " + e.getMessage());
-System.err.println("Use -tokenize.language, -tokenize.class, or -tokenizer.whitespace \n" + "to specify a tokenizer type.");
-System.err.println("Using PTBTokenizer as default tokenizer.");
-}
-if (factory == null) {
-factory=PTBTokenizer.factory(new CoreLabelTokenFactory(),options);
+throw new IllegalArgumentException("No valid tokenizer type provided.\n" + "Use -tokenize.language, -tokenize.class, or -tokenize.whitespace \n" + "to specify a tokenizer.");
 }
 return factory;
 }
