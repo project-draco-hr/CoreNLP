@@ -15,6 +15,8 @@
     pos=pos.substring(0,6) + annotation;
   }
  else   if (pos.equals("")) {
+    String word=getWord(node);
+    if (word.equals("."))     return "fp";
     if (namedAttribute.equals("date")) {
       return "w";
     }
@@ -32,15 +34,23 @@
       return "z0";
     }
     String posType=node.getAttribute(ATTR_POSTYPE);
-    String word=getWord(node);
     if (tagName.equals("c") && posType.equals("subordinating")) {
       return "cs";
     }
  else     if (tagName.equals("p") && posType.equals("relative") && word.equalsIgnoreCase("que")) {
       return "pr0cn000";
     }
+    if (tagName.equals("s") && (word.equalsIgnoreCase("de") || word.equalsIgnoreCase("del") || word.equalsIgnoreCase("en"))) {
+      return "sps00";
+    }
+ else     if (word.equals("REGRESA")) {
+      return "vmip3s0";
+    }
     if (simplifiedTagset) {
-      if (tagName.equals("a")) {
+      if (word.equals("verme")) {
+        return "vmn0000";
+      }
+ else       if (tagName.equals("a")) {
         return "aq0000";
       }
  else       if (posType.equals("proper")) {
@@ -48,6 +58,31 @@
       }
  else       if (posType.equals("common")) {
         return "nc0s000";
+      }
+ else       if (tagName.equals("d") && posType.equals("numeral")) {
+        return "dn0000";
+      }
+ else       if (tagName.equals("d") && (posType.equals("article") || word.equalsIgnoreCase("el") || word.equalsIgnoreCase("la"))) {
+        return "da0000";
+      }
+ else       if (tagName.equals("p") && posType.equals("relative")) {
+        return "pr000000";
+      }
+ else       if (tagName.equals("p") && posType.equals("personal")) {
+        return "pp000000";
+      }
+ else       if (tagName.equals("p") && posType.equals("indefinite")) {
+        return "pi000000";
+      }
+ else       if (tagName.equals("s") && word.equalsIgnoreCase("como")) {
+        return "sp000";
+      }
+ else       if (tagName.equals("n")) {
+        String gen=node.getAttribute(ATTR_GENDER);
+        String num=node.getAttribute(ATTR_NUMBER);
+        char genCode=gen == null ? '0' : gen.charAt(0);
+        char numCode=num == null ? '0' : num.charAt(0);
+        return 'n' + genCode + '0'+ numCode+ "000";
       }
     }
     if (node.hasAttribute(ATTR_PUNCT)) {
