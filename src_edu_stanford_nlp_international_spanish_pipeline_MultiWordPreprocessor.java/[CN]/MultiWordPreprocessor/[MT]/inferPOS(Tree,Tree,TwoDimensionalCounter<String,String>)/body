@@ -1,10 +1,8 @@
 {
   String word=t.firstChild().value();
+  String containingPhraseStr=getContainingPhrase(t,parent);
+  String overrideTag=ManualUWModel.getOverrideTag(word,containingPhraseStr);
+  if (overrideTag != null)   return overrideTag;
   if (unigramTagger.firstKeySet().contains(word))   return Counters.argmax(unigramTagger.getCounter(word));
-  if (parent == null)   return null;
-  List<Label> phraseYield=parent.yield();
-  StringBuilder containingPhrase=new StringBuilder();
-  for (  Label l : phraseYield)   containingPhrase.append(l).append(" ");
-  String containingPhraseStr=containingPhrase.toString().substring(0,containingPhrase.length() - 1);
   return ManualUWModel.getTag(word,containingPhraseStr);
 }
