@@ -1,20 +1,7 @@
 {
   String pos=node.getAttribute(ATTR_POS);
-  String namedAttribute=node.getAttribute(ATTR_NAMED_ENTITY);
-  if (pos.startsWith("np") && pos.length() == 7 && pos.charAt(pos.length() - 1) == '0') {
-    char annotation='0';
-    if (namedAttribute.equals("location")) {
-      annotation='l';
-    }
- else     if (namedAttribute.equals("person")) {
-      annotation='p';
-    }
- else     if (namedAttribute.equals("organization")) {
-      annotation='o';
-    }
-    pos=pos.substring(0,6) + annotation;
-  }
- else   if (pos.equals("")) {
+  if (pos.equals("")) {
+    String namedAttribute=node.getAttribute(ATTR_NAMED_ENTITY);
     if (namedAttribute.equals("date")) {
       return "w";
     }
@@ -42,12 +29,6 @@
     if (simplifiedTagset) {
       if (tagName.equals("a")) {
         return "aq0000";
-      }
- else       if (posType.equals("proper")) {
-        return "np00000";
-      }
- else       if (posType.equals("common")) {
-        return "nc0s000";
       }
     }
     if (node.hasAttribute(ATTR_PUNCT)) {
