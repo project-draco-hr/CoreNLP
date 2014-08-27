@@ -1,8 +1,11 @@
 {
   checkClassifier();
-  GeneralDataset<String,String> test=readDataset(datasetPath);
+  Pair<GeneralDataset<String,String>,List<String[]>> test=readDataset(datasetPath,true);
+  GeneralDataset<String,String> testDataset=test.first();
+  List<String[]> inputFields=test.second();
   IntCounter<String> contingency=new IntCounter<String>();
-  for (  Datum<String,String> datum : test) {
+  int i=0;
+  for (  Datum<String,String> datum : testDataset) {
     Counter<String> logScores=classifier.scoresOf(datum);
     String guess=classifier.classOf(datum);
     String gold=datum.label();
@@ -17,7 +20,8 @@
       }
     }
     Distribution<String> scoreDist=Distribution.distributionFromLogisticCounter(logScores);
-    outputTestExample(datum,guess,logScores,scoreDist);
+    outputTestExample(inputFields.get(i),datum,guess,logScores,scoreDist);
+    i++;
   }
-  outputTestSummary(classifier.labels(),test,contingency);
+  outputTestSummary(classifier.labels(),testDataset,contingency);
 }

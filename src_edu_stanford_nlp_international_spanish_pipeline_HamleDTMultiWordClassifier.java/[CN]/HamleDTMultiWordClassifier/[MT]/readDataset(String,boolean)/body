@@ -1,0 +1,10 @@
+{
+  GeneralDataset<String,String> dataset=new Dataset<String,String>();
+  List<String[]> lines=includeOrig ? new ArrayList<String[]>() : null;
+  for (  String line : ObjectBank.getLineIterator(new File(path))) {
+    String[] fields=line.split("\t");
+    dataset.add(makeDatumFromLine(fields));
+    if (includeOrig)     lines.add(fields);
+  }
+  return new Pair<GeneralDataset<String,String>,List<String[]>>(dataset,lines);
+}
