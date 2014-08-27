@@ -4,7 +4,7 @@
     System.err.println(usage());
     return;
   }
-  final TokenizerFactory<CoreLabel> tf=SpanishTokenizer.coreLabelFactory();
+  final TokenizerFactory<CoreLabel> tf=options.containsKey("ancora") ? SpanishTokenizer.ancoraFactory() : SpanishTokenizer.factory();
   String orthoOptions=options.getProperty("orthoOpts","");
   tf.setOptions(orthoOptions);
   tf.setOptions("tokenizeNLs");
@@ -25,7 +25,7 @@
         System.out.println();
       }
  else {
-        if (printSpace)         System.out.println();
+        if (printSpace)         System.out.print(" ");
         String outputToken=toLower ? word.toLowerCase(Locale.FRENCH) : word;
         System.out.print(outputToken);
         printSpace=true;
