@@ -11,15 +11,7 @@
   for (  Tree kid : t.children())   traverseAndFix(kid,pretermLabel,unigramTagger);
   if (t.value().startsWith(SpanishTreeNormalizer.MW_PHRASE_TAG)) {
     nMissingPhrasal++;
-    StringBuilder sb=new StringBuilder();
-    for (    Tree kid : t.children())     sb.append(kid.value()).append(" ");
-    String posSequence=sb.toString().trim();
-    if (pretermLabel.firstKeySet().contains(posSequence)) {
-      String phrasalCat=Counters.argmax(pretermLabel.getCounter(posSequence));
-      t.setValue(phrasalCat);
-    }
- else {
-      System.out.println("No phrasal cat for: " + posSequence);
-    }
+    String phrasalCat=inferPhrasalCategory(t,pretermLabel);
+    if (phrasalCat != null)     t.setValue(phrasalCat);
   }
 }
