@@ -1,13 +1,20 @@
 {
+  TwoDimensionalCounter<String,String> unigramTagger=new TwoDimensionalCounter<String,String>();
   for (  Tree t : tree) {
-    if (simplifiedTagset && t.isPreTerminal()) {
+    if (t.isPreTerminal()) {
+      String pos=t.value();
+      String word=t.firstChild().value();
+      if (word.indexOf('_') != -1)       continue;
+      unigramTagger.incrementCount(word,pos);
+    }
+    if (t.isPreTerminal() && simplifiedTagset) {
       CoreLabel label=(CoreLabel)t.label();
       String pos=label.value();
       pos=simplifyPOSTag(pos).intern();
       label.setValue(pos);
       label.setTag(pos);
     }
- else     if (aggressiveNormalization && t.isPrePreTerminal()) {
+ else     if (t.isPrePreTerminal() && aggressiveNormalization) {
       normalizeForMultiWord(t,tf);
     }
   }
