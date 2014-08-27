@@ -1,22 +1,6 @@
 {
   t=Tsurgeon.processPattern(clauselessVerbWithCliticPronouns,clausifyVerbWithCliticPronouns,t);
-  TregexMatcher matcher=verbWithCliticPronouns.matcher(t);
-  while (matcher.find()) {
-    Tree verbNode=matcher.getNode("vb");
-    String verb=verbNode.value();
-    if (!SpanishVerbStripper.isStrippable(verb))     continue;
-    Pair<String,List<String>> split=SpanishVerbStripper.separatePronouns(verb);
-    if (split == null)     continue;
-    List<String> pronouns=split.second();
-    for (int i=pronouns.size() - 1; i >= 0; i--) {
-      String pronoun=pronouns.get(i);
-      String newTreeStr=SpanishPronounDisambiguator.isAmbiguous(pronoun) ? "(PRONOUN? (pp000000 %s))" : "(sn (grup.nom (pp000000 %s)))";
-      String patternString="[insert " + String.format(newTreeStr,pronoun) + " $- target]";
-      TsurgeonPattern pattern=Tsurgeon.parseOperation(patternString);
-      t=pattern.evaluate(t,matcher);
-    }
-    TsurgeonPattern relabelOperation=Tsurgeon.parseOperation(String.format("[relabel vb /%s/]",split.first()));
-    t=relabelOperation.evaluate(t,matcher);
-  }
+  t=expandCliticPronounsInner(t,verbWithCliticPronouns);
+  t=expandCliticPronounsInner(t,verbWithCliticPronounsAndSiblings);
   return t;
 }
