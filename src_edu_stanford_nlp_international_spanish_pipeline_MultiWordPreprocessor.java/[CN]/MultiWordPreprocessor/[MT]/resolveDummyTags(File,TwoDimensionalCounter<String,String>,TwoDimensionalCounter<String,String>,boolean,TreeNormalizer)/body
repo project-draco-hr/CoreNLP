@@ -1,0 +1,28 @@
+{
+  TreeFactory tf=new LabeledScoredTreeFactory();
+  try {
+    BufferedReader br=new BufferedReader(new InputStreamReader(new FileInputStream(treeFile),"UTF-8"));
+    TreeReaderFactory trf=new SpanishTreeReaderFactory();
+    TreeReader tr=trf.newTreeReader(br);
+    PrintWriter pw=new PrintWriter(new PrintStream(new FileOutputStream(new File(treeFile + ".fixed")),false,"UTF-8"));
+    int nTrees=0;
+    for (Tree t; (t=tr.readTree()) != null; nTrees++) {
+      traverseAndFix(t,null,pretermLabel,unigramTagger,retainNER);
+      t=MultiWordTreeExpander.expandPhrases(t,tn,tf);
+      if (tn != null)       t=tn.normalizeWholeTree(t,tf);
+      pw.println(t.toString());
+    }
+    pw.close();
+    tr.close();
+    System.out.println("Processed " + nTrees + " trees");
+  }
+ catch (  UnsupportedEncodingException e) {
+    e.printStackTrace();
+  }
+catch (  FileNotFoundException e) {
+    e.printStackTrace();
+  }
+catch (  IOException e) {
+    e.printStackTrace();
+  }
+}

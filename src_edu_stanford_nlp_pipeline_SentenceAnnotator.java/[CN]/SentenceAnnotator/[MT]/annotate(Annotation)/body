@@ -1,38 +1,25 @@
 {
   if (annotation.containsKey(CoreAnnotations.SentencesAnnotation.class)) {
     if (nThreads() != 1 || maxTime() > 0) {
-      InterruptibleMulticoreWrapper<CoreMap,CoreMap> wrapper=buildWrapper(annotation);
+      MulticoreWrapper<CoreMap,CoreMap> wrapper=buildWrapper(annotation);
       for (      CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
-        boolean success=false;
         for (int attempt=0; attempt < 2; ++attempt) {
           try {
             wrapper.put(sentence);
-            success=true;
             break;
           }
  catch (          RejectedExecutionException e) {
-            List<CoreMap> failedSentences=wrapper.joinWithTimeout();
-            for (            CoreMap failed : failedSentences) {
-              doOneFailedSentence(annotation,failed);
-            }
+            wrapper.shutdownNow();
             wrapper=buildWrapper(annotation);
           }
-        }
-        if (!success) {
-          doOneFailedSentence(annotation,sentence);
         }
         while (wrapper.peek()) {
           wrapper.poll();
         }
       }
-      List<CoreMap> failedSentences=wrapper.joinWithTimeout();
+      wrapper.join();
       while (wrapper.peek()) {
         wrapper.poll();
-      }
-      if (failedSentences != null) {
-        for (        CoreMap failed : failedSentences) {
-          doOneFailedSentence(annotation,failed);
-        }
       }
     }
  else {
