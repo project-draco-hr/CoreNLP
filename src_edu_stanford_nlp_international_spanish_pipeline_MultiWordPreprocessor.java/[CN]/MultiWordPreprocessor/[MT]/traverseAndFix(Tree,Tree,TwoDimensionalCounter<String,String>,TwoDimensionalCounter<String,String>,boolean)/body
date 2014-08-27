@@ -3,7 +3,10 @@
     if (t.value().equals(SpanishTreeNormalizer.MW_TAG)) {
       nMissingPOS++;
       String pos=inferPOS(t,parent,unigramTagger);
-      if (pos != null)       t.setValue(pos);
+      if (pos != null) {
+        t.setValue(pos);
+        nFixedPOS++;
+      }
     }
     return;
   }
@@ -11,6 +14,9 @@
   if (t.value().startsWith(SpanishTreeNormalizer.MW_PHRASE_TAG)) {
     nMissingPhrasal++;
     String phrasalCat=inferPhrasalCategory(t,pretermLabel,retainNER);
-    if (phrasalCat != null)     t.setValue(phrasalCat);
+    if (phrasalCat != null) {
+      t.setValue(phrasalCat);
+      nFixedPhrasal++;
+    }
   }
 }
