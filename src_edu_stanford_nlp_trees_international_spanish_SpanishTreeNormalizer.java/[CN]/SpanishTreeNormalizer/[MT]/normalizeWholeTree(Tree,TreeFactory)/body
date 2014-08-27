@@ -1,5 +1,6 @@
 {
   tree=tree.prune(emptyFilter);
+  if (retainNER)   markSimpleNamedEntities(tree);
   TwoDimensionalCounter<String,String> unigramTagger=new TwoDimensionalCounter<String,String>();
   for (  Tree t : tree) {
     if (simplifiedTagset && t.isPreTerminal()) {
@@ -13,6 +14,7 @@
       normalizeForMultiWord(t,tf);
     }
   }
-  expandElisions(tree,tf);
+  tree=expandElisions(tree);
+  tree=expandCliticPronouns(tree);
   return tree;
 }
