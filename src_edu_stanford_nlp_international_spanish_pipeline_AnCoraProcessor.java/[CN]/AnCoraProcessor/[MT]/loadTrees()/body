@@ -3,18 +3,12 @@
   final String encoding=new SpanishTreebankLanguagePack().getEncoding();
   final SpanishXMLTreeReaderFactory trf=new SpanishXMLTreeReaderFactory(true,true,ner,false);
   MulticoreWrapper<File,Pair<TwoDimensionalCounter<String,String>,List<Tree>>> wrapper=new MulticoreWrapper<File,Pair<TwoDimensionalCounter<String,String>,List<Tree>>>(Runtime.getRuntime().availableProcessors(),new XMLTreeProcessor(trf,encoding),false);
-  for (  final File file : inputFiles) {
-    wrapper.put(file);
-    while (wrapper.peek()) {
-      Pair<TwoDimensionalCounter<String,String>,List<Tree>> result=wrapper.poll();
-      unigramTagger=Counters.add(unigramTagger,result.first());
-      trees.addAll(result.second());
-    }
-  }
+  for (  final File file : inputFiles)   wrapper.put(file);
   wrapper.join();
+  List<Tree> trees=new ArrayList<Tree>();
   while (wrapper.peek()) {
     Pair<TwoDimensionalCounter<String,String>,List<Tree>> result=wrapper.poll();
-    unigramTagger=Counters.add(unigramTagger,result.first());
+    if (buildTagger)     Counters.addInPlace(unigramTagger,result.first());
     trees.addAll(result.second());
   }
   return trees;
