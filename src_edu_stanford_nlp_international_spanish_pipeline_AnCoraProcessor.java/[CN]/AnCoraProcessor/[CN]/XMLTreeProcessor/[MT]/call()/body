@@ -1,0 +1,18 @@
+{
+  try {
+    Reader in=new BufferedReader(new InputStreamReader(new FileInputStream(file),encoding));
+    TreeReader tr=trf.newTreeReader(file.getPath(),in);
+    List<Tree> trees=new ArrayList<Tree>();
+    Tree t;
+    while ((t=tr.readTree()) != null) {
+      trees.add(t);
+      updateTagger(t);
+    }
+    tr.close();
+    return new Pair<TwoDimensionalCounter<String,String>,List<Tree>>(unigramTagger,trees);
+  }
+ catch (  IOException e) {
+    e.printStackTrace();
+    return null;
+  }
+}
