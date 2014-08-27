@@ -1,0 +1,18 @@
+{
+  if (VERBOSE) {
+    System.err.print("Tokenizing ... ");
+  }
+  if (annotation.has(CoreAnnotations.TextAnnotation.class)) {
+    String text=annotation.get(CoreAnnotations.TextAnnotation.class);
+    Reader r=new StringReader(text);
+    List<CoreLabel> tokens=getTokenizer(r).tokenize();
+    annotation.set(CoreAnnotations.TokensAnnotation.class,tokens);
+    if (VERBOSE) {
+      System.err.println("done.");
+      System.err.println("Tokens: " + annotation.get(CoreAnnotations.TokensAnnotation.class));
+    }
+  }
+ else {
+    throw new RuntimeException("Tokenizer unable to find text in annotation: " + annotation);
+  }
+}
