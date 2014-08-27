@@ -1,18 +1,5 @@
 {
-  List<String> pronouns=pair.second();
-  boolean hasOs=pronouns.size() > 0 && pronouns.get(0).equalsIgnoreCase("os");
   String stripped=pair.first().toLowerCase();
-  String verbPos=dict.get(stripped);
-  if (verbPos != null) {
-    if (verbPos.equals("VMM02P0") && hasOs)     return false;
-    return true;
-  }
-  if (hasOs) {
-    verbPos=dict.get(stripped + 'd');
-    if (verbPos != null && verbPos.equals("VMM02P0")) {
-      pair.setFirst(stripped + 'd');
-      return true;
-    }
-  }
-  return false;
+  String firstPron=pair.second().get(0).toLowerCase();
+  return (isVerb(stripped) || firstPron.matches("os") && isVerb(stripped + 'd') || firstPron.matches("nos|se") && isVerb(stripped + 's'));
 }
