@@ -5,7 +5,11 @@
   StanfordCoreNLP pipeline=new StanfordCoreNLP(props);
   Annotation document=new Annotation(TEXT);
   pipeline.annotate(document);
-  verifyAnswers(document,XPARSES);
+  int i=0;
+  for (  CoreMap sentence : document.get(CoreAnnotations.SentencesAnnotation.class)) {
+    Tree parse=sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+    assertEquals(XPARSES[i++],parse.toString());
+  }
   props.setProperty("parse.maxlen","8");
   pipeline=new StanfordCoreNLP(props);
   document=new Annotation(TEXT);

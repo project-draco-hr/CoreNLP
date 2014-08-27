@@ -1,7 +1,6 @@
 {
   tree=tree.prune(emptyFilter).spliceOut(aOverAFilter).transform(constituentRenamer);
   tree=Tsurgeon.processPatternsOnTree(cleanup,tree);
-  tree=tree.spliceOut(aOverAFilter);
   if (retainNER)   markSimpleNamedEntities(tree);
   TwoDimensionalCounter<String,String> unigramTagger=new TwoDimensionalCounter<String,String>();
   for (  Tree t : tree) {
@@ -17,7 +16,6 @@
     }
   }
   tree=expandElisions(tree);
-  tree=expandConmigo(tree);
   tree=expandCliticPronouns(tree);
   String rootLabel=tlp.startSymbol();
   if (!tree.value().equals(rootLabel))   tree=tf.newTreeNode(rootLabel,Collections.singletonList(tree));

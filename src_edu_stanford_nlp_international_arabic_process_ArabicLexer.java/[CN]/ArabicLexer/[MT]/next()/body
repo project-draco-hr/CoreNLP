@@ -14,10 +14,6 @@
     zzAction=-1;
     zzCurrentPosL=zzCurrentPos=zzStartRead=zzMarkedPosL;
     zzState=ZZ_LEXSTATE[zzLexicalState];
-    int zzAttributes=zzAttrL[zzState];
-    if ((zzAttributes & 1) == 1) {
-      zzAction=zzState;
-    }
     zzForAction: {
       while (true) {
         if (zzCurrentPosL < zzEndReadL)         zzInput=zzBufferL[zzCurrentPosL++];
@@ -44,7 +40,7 @@
         int zzNext=zzTransL[zzRowMapL[zzState] + zzCMapL[zzInput]];
         if (zzNext == -1)         break zzForAction;
         zzState=zzNext;
-        zzAttributes=zzAttrL[zzState];
+        int zzAttributes=zzAttrL[zzState];
         if ((zzAttributes & 1) == 1) {
           zzAction=zzState;
           zzMarkedPosL=zzCurrentPosL;
@@ -54,23 +50,28 @@
     }
     zzMarkedPos=zzMarkedPosL;
 switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
-case 1:
+case 6:
 {
-        System.err.printf("Untokenizable: %s%n",yytext());
-        return getNext(true);
+        return getEllipsis();
       }
 case 9:
     break;
-case 2:
+case 8:
 {
-    if (tokenizeNLs) {
-      return getNext(NEWLINE_TOKEN,yytext());
+    if (removeProMarker) {
+      if (!removeSegMarker) {
+        return getNext("-",yytext());
+      }
+    }
+ else {
+      return getNext(false);
     }
   }
 case 10:
 break;
-case 3:
+case 7:
 {
+if (!removeProMarker) return getNext(false);
 }
 case 11:
 break;
@@ -80,34 +81,27 @@ return getNext(false);
 }
 case 12:
 break;
+case 2:
+{
+return getNewline();
+}
+case 13:
+break;
 case 5:
 {
 return getNext(true);
 }
-case 13:
-break;
-case 6:
-{
-return getEllipsis();
-}
 case 14:
 break;
-case 7:
+case 3:
 {
-if (!removeProMarker) return getNext(false);
 }
 case 15:
 break;
-case 8:
+case 1:
 {
-if (removeProMarker) {
-if (!removeSegMarker) {
-return getNext("-",yytext());
-}
-}
- else {
-return getNext(false);
-}
+System.err.printf("Untokenizable: %s%n",yytext());
+return getNext(true);
 }
 case 16:
 break;
