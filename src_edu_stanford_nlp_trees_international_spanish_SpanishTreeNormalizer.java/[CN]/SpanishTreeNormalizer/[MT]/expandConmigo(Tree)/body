@@ -1,0 +1,16 @@
+{
+  TregexMatcher matcher=conmigoPattern.matcher(t);
+  while (matcher.find()) {
+    Tree conmigoNode=matcher.getNode("conmigo");
+    String word=conmigoNode.value();
+    String newPronoun=null;
+    if (word.equalsIgnoreCase("conmigo"))     newPronoun="m??";
+ else     if (word.equalsIgnoreCase("contigo"))     newPronoun="ti";
+ else     if (word.equalsIgnoreCase("consigo"))     newPronoun="s??";
+    if (word.charAt(0) == 'C')     newPronoun=newPronoun.toUpperCase();
+    String tsurgeon=String.format("[relabel conmigo /%s/]" + "[adjoinF (sp (prep (sp000 con)) foot@) sn]",newPronoun);
+    TsurgeonPattern pattern=Tsurgeon.parseOperation(tsurgeon);
+    t=pattern.evaluate(t,matcher);
+  }
+  return t;
+}
