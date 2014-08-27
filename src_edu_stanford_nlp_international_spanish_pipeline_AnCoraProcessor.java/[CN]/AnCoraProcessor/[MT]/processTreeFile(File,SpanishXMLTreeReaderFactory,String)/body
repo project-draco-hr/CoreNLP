@@ -1,4 +1,5 @@
 {
+  TwoDimensionalCounter<String,String> tagger=new TwoDimensionalCounter<String,String>();
   try {
     Reader in=new BufferedReader(new InputStreamReader(new FileInputStream(file),encoding));
     TreeReader tr=trf.newTreeReader(file.getPath(),in);
@@ -11,12 +12,12 @@
         Tree toAdd=split.first();
         t=split.second();
         trees.add(toAdd);
-        updateTagger(toAdd);
+        updateTagger(tagger,toAdd);
       }
  while (splitPoint != null);
     }
     tr.close();
-    return new Pair<TwoDimensionalCounter<String,String>,List<Tree>>(unigramTagger,trees);
+    return new Pair<TwoDimensionalCounter<String,String>,List<Tree>>(tagger,trees);
   }
  catch (  IOException e) {
     e.printStackTrace();
