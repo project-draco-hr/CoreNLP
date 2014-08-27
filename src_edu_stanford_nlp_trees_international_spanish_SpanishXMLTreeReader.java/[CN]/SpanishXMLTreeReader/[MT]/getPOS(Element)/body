@@ -12,10 +12,28 @@
     if (tagName.equals("i")) {
       return "i";
     }
+ else     if (tagName.equals("r")) {
+      return "rg";
+    }
  else     if (tagName.equals("z")) {
       return "z0";
     }
-    if (node.hasAttribute(ATTR_PUNCT))     return "f";
+    String posType=node.getAttribute(ATTR_POSTYPE);
+    String word=getWord(node);
+    if (tagName.equals("c") && posType.equals("subordinating")) {
+      return "cs";
+    }
+ else     if (tagName.equals("p") && posType.equals("relative") && word.equalsIgnoreCase("que")) {
+      return "pr0cn000";
+    }
+    if (simplifiedTagset) {
+      if (tagName.equals("a")) {
+        return "aq0000";
+      }
+    }
+    if (node.hasAttribute(ATTR_PUNCT)) {
+      return "f";
+    }
   }
   return pos;
 }
