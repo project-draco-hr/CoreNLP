@@ -2,7 +2,7 @@
   nThreads=numThreads <= 0 ? Runtime.getRuntime().availableProcessors() : numThreads;
   this.orderResults=orderResults;
   outputQueue=new ConcurrentHashMap<Integer,O>(2 * nThreads);
-  threadPool=(ThreadPoolExecutor)Executors.newFixedThreadPool(nThreads);
+  threadPool=buildThreadPool(nThreads);
   idleProcessors=new ArrayBlockingQueue<Integer>(nThreads,false);
   callback=new JobCallback<O>(){
     @Override public void call(    QueueItem<O> result,    int processorId){

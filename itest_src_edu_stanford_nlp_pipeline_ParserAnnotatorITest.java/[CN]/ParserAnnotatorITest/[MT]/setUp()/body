@@ -16,5 +16,20 @@ synchronized (ParserAnnotatorITest.class) {
     noParserPipeline.addAnnotator(new WordsToSentencesAnnotator(false));
     parserOnlyPipeline=new AnnotationPipeline();
     parserOnlyPipeline.addAnnotator(parser);
+    Properties props=new Properties();
+    props.setProperty("parse.maxtime","1");
+    props.setProperty("annotators","tokenize, ssplit, parse");
+    timeoutPipeline=new StanfordCoreNLP(props);
+    props=new Properties();
+    props.setProperty("parse.maxtime","1");
+    props.setProperty("parse.nthreads","3");
+    props.setProperty("annotators","tokenize, ssplit, parse");
+    threaded3TimeoutPipeline=new StanfordCoreNLP(props);
+    props.setProperty("parse.nthreads","4");
+    threaded4TimeoutPipeline=new StanfordCoreNLP(props);
+    props.setProperty("parse.maxtime","-1");
+    threaded4Pipeline=new StanfordCoreNLP(props);
+    props.setProperty("parse.nthreads","3");
+    threaded3Pipeline=new StanfordCoreNLP(props);
   }
 }
