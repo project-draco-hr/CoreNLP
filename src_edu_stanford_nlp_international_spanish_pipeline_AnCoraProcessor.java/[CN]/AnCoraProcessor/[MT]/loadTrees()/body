@@ -2,7 +2,7 @@
   boolean ner=PropertiesUtils.getBool(options,"ner",false);
   final String encoding=new SpanishTreebankLanguagePack().getEncoding();
   final SpanishXMLTreeReaderFactory trf=new SpanishXMLTreeReaderFactory(true,true,ner,false);
-  MulticoreWrapper<File,Pair<TwoDimensionalCounter<String,String>,List<Tree>>> wrapper=new MulticoreWrapper<File,Pair<TwoDimensionalCounter<String,String>,List<Tree>>>(Runtime.getRuntime().availableProcessors(),new XMLTreeProcessor(trf,encoding));
+  MulticoreWrapper<File,Pair<TwoDimensionalCounter<String,String>,List<Tree>>> wrapper=new MulticoreWrapper<File,Pair<TwoDimensionalCounter<String,String>,List<Tree>>>(Runtime.getRuntime().availableProcessors(),new XMLTreeProcessor(trf,encoding),false);
   for (  final File file : inputFiles) {
     wrapper.put(file);
     while (wrapper.peek()) {
