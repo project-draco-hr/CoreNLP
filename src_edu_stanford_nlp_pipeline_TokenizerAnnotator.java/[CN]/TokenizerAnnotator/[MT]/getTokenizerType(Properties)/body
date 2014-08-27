@@ -2,45 +2,22 @@
   String tokClass=props.getProperty("tokenize.class",null);
   boolean whitespace=Boolean.valueOf(props.getProperty("tokenize.whitespace","false"));
   String language=props.getProperty("tokenize.language",null);
-  if (tokClass == null && whitespace == false && language == null) {
-    return Unspecified;
-  }
-  if (tokClass != null) {
-    if (tokClass.equals("SpanishTokenizer")) {
-      return Spanish;
-    }
- else     if (tokClass.equals("FrenchTokenizer")) {
-      return French;
-    }
- else     if (tokClass.equals("PTBTokenizer")) {
-      return English;
-    }
- else     if (tokClass.equals("WhitespaceTokenizer")) {
-      return Whitespace;
-    }
- else {
-      throw new IllegalArgumentException("TokenizerAnnotator: unknown tokenize.class property " + tokClass);
-    }
-  }
   if (whitespace) {
     return Whitespace;
   }
+  if (tokClass != null) {
+    TokenizerType type=classToTokenizerMap.get(tokClass.toUpperCase());
+    if (type == null) {
+      throw new IllegalArgumentException("TokenizerAnnotator: unknown tokenize.class property " + tokClass);
+    }
+    return type;
+  }
   if (language != null) {
-    if (language.equals(SPANISH) || language.equals(ES)) {
-      return Spanish;
-    }
- else     if (language.equals(FRENCH) || language.equals(FR)) {
-      return French;
-    }
- else     if (language.equals(ENGLISH) || language.equals(EN) || language.equals(GERMAN)|| language.equals(DE)) {
-      return English;
-    }
- else     if (language.equals(WHITESPACE)) {
-      return Whitespace;
-    }
- else {
+    TokenizerType type=nameToTokenizerMap.get(language.toUpperCase());
+    if (type == null) {
       throw new IllegalArgumentException("TokenizerAnnotator: unknown tokenize.language property " + language);
     }
+    return type;
   }
-  return Unknown;
+  return Unspecified;
 }
