@@ -2,21 +2,5 @@
   if (tags == null) {
     tags=Generics.newHashMap(1);
   }
-  List<Value> tagList=null;
-  if (tags.containsKey(tag)) {
-    Value oldValue=tags.get(tag);
-    if (Expressions.TYPE_LIST.equals(oldValue.getType())) {
-      tagList=ErasureUtils.uncheckedCast(oldValue.get());
-    }
- else {
-      tagList=new ArrayList<Value>();
-      tagList.add(oldValue);
-      tags.put(tag,Expressions.createValue(Expressions.TYPE_LIST,tagList));
-    }
-  }
- else {
-    tagList=new ArrayList<Value>();
-    tags.put(tag,Expressions.createValue(Expressions.TYPE_LIST,tagList));
-  }
-  tagList.add(v);
+  tags.put(tag,v);
 }

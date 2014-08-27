@@ -50,7 +50,7 @@ case EXCISE:
   }
 default :
 jj_la1[3]=jj_gen;
-if (jj_2_3(3)) {
+if (jj_2_1(3)) {
 operator=jj_consume_token(RELABEL);
 child1=NodeSelection();
 newLabel=jj_consume_token(IDENTIFIER);
@@ -60,7 +60,7 @@ jjtc000=false;
   if ("" != null)   return new RelabelNode(child1,newLabel.image);
 }
 }
- else if (jj_2_4(3)) {
+ else if (jj_2_2(3)) {
 operator=jj_consume_token(RELABEL);
 child1=NodeSelection();
 newLabel=jj_consume_token(QUOTEX);
@@ -70,7 +70,7 @@ jjtc000=false;
   if ("" != null)   return new RelabelNode(child1,newLabel.image);
 }
 }
- else if (jj_2_5(3)) {
+ else if (jj_2_3(3)) {
 operator=jj_consume_token(RELABEL);
 child1=NodeSelection();
 regex=jj_consume_token(REGEX);
@@ -80,7 +80,7 @@ jjtc000=false;
   if ("" != null)   return new RelabelNode(child1,regex.image);
 }
 }
- else if (jj_2_6(3)) {
+ else if (jj_2_4(3)) {
 operator=jj_consume_token(RELABEL);
 child1=NodeSelection();
 newLabel=jj_consume_token(GENERAL_RELABEL);
@@ -90,7 +90,7 @@ jjtc000=false;
   if ("" != null)   return new RelabelNode(child1,newLabel.image);
 }
 }
- else if (jj_2_7(3)) {
+ else if (jj_2_5(3)) {
 operator=jj_consume_token(REPLACE);
 child1=NodeSelection();
 child2=NodeSelection();
@@ -100,7 +100,7 @@ jjtc000=false;
   if ("" != null)   return new ReplaceNode(child1,child2);
 }
 }
- else if (jj_2_8(3)) {
+ else if (jj_2_6(3)) {
 operator=jj_consume_token(REPLACE);
 child1=NodeSelection();
 treeList=TreeList(false);
@@ -126,7 +126,7 @@ case MOVE:
   }
 default :
 jj_la1[4]=jj_gen;
-if (jj_2_9(3)) {
+if (jj_2_7(3)) {
 operator=jj_consume_token(INSERT);
 child1=NodeSelection();
 loc=Location();
@@ -136,7 +136,7 @@ jjtc000=false;
   if ("" != null)   return new InsertNode(child1,loc);
 }
 }
- else if (jj_2_10(3)) {
+ else if (jj_2_8(3)) {
 operator=jj_consume_token(INSERT);
 tree=TreeRoot(false);
 loc=Location();
@@ -151,38 +151,53 @@ switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
 case CREATE_SUBTREE:
 {
     operator=jj_consume_token(CREATE_SUBTREE);
-    tree=TreeRoot(false);
-    nodeSelections=NodeSelectionList(new ArrayList<TsurgeonPattern>());
-    jjtree.closeNodeScope(jjtn000,true);
-    jjtc000=false;
-    if (nodeSelections.size() == 1) {
+switch ((jj_ntk == -1) ? jj_ntk_f() : jj_ntk) {
+case IDENTIFIER:
 {
-        if ("" != null)         return new CreateSubtreeNode(nodeSelections.get(0),tree);
+        newLabel=jj_consume_token(IDENTIFIER);
+        break;
       }
-    }
- else     if (nodeSelections.size() == 2) {
+case TREE_NODE_TERMINAL_LABEL:
 {
-        if ("" != null)         return new CreateSubtreeNode(nodeSelections.get(0),nodeSelections.get(1),tree);
-      }
+      newLabel=jj_consume_token(TREE_NODE_TERMINAL_LABEL);
+      break;
     }
+default :
+  jj_la1[2]=jj_gen;
+jj_consume_token(-1);
+throw new ParseException();
+}
+nodeSelections=NodeSelectionList(new ArrayList<TsurgeonPattern>());
+jjtree.closeNodeScope(jjtn000,true);
+jjtc000=false;
+if (nodeSelections.size() == 1) {
+{
+if ("" != null) return new CreateSubtreeNode(nodeSelections.get(0),newLabel.image);
+}
+}
+ else if (nodeSelections.size() == 2) {
+{
+if ("" != null) return new CreateSubtreeNode(nodeSelections.get(0),nodeSelections.get(1),newLabel.image);
+}
+}
  else {
 {
-        if (true)         throw new ParseException("Illegal number of nodes given to createSubtree (" + nodeSelections.size() + ")");
-      }
-    }
-    break;
-  }
+if (true) throw new ParseException("Illegal number of nodes given to createSubtree (" + nodeSelections.size() + ")");
+}
+}
+break;
+}
 case ADJOIN:
 {
-  operator=jj_consume_token(ADJOIN);
-  tree=TreeRoot(true);
-  child1=NodeSelection();
-  jjtree.closeNodeScope(jjtn000,true);
-  jjtc000=false;
+operator=jj_consume_token(ADJOIN);
+tree=TreeRoot(true);
+child1=NodeSelection();
+jjtree.closeNodeScope(jjtn000,true);
+jjtc000=false;
 {
-    if ("" != null)     return new AdjoinNode(tree,child1);
-  }
-  break;
+if ("" != null) return new AdjoinNode(tree,child1);
+}
+break;
 }
 case ADJOIN_TO_HEAD:
 {
@@ -192,7 +207,7 @@ child1=NodeSelection();
 jjtree.closeNodeScope(jjtn000,true);
 jjtc000=false;
 {
-  if ("" != null)   return new AdjoinToHeadNode(tree,child1);
+if ("" != null) return new AdjoinToHeadNode(tree,child1);
 }
 break;
 }

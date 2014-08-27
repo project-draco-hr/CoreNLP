@@ -1,11 +1,28 @@
 {
-  if (m.dependency.getRoots().size() == 0) {
-    return new Pair<IndexedWord,String>();
+  Pair<IndexedWord,String> ret=new Pair<IndexedWord,String>();
+  int headIndex=m.headIndex + 1;
+  try {
+    IndexedWord w=m.dependency.getNodeByIndex(headIndex);
+    if (w == null)     return ret;
+    while (true) {
+      IndexedWord p=null;
+      for (      Pair<GrammaticalRelation,IndexedWord> parent : m.dependency.parentPairs(w)) {
+        if (ret.second() == null) {
+          String relation=parent.first().getShortName();
+          ret.setSecond(relation);
+        }
+        p=parent.second();
+      }
+      if (p == null || p.get(CoreAnnotations.PartOfSpeechAnnotation.class).startsWith("V")) {
+        ret.setFirst(p);
+        break;
+      }
+      if (w == p)       return ret;
+      w=p;
+    }
   }
-  SemgrexPattern pattern=SemgrexPattern.compile("{idx:" + (m.headIndex + 1) + "} [ <=reln {tag:/^V.*/}=verb | <=reln ({} << {tag:/^V.*/}=verb) ]");
-  SemgrexMatcher matcher=pattern.matcher(m.dependency);
-  while (matcher.find()) {
-    return Pair.makePair(matcher.getNode("verb"),matcher.getRelnString("reln"));
+ catch (  Exception e) {
+    return ret;
   }
-  return new Pair<IndexedWord,String>();
+  return ret;
 }

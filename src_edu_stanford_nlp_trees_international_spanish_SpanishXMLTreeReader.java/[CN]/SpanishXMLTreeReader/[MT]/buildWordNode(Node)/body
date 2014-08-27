@@ -1,0 +1,18 @@
+{
+  Element eRoot=(Element)root;
+  String posStr=eRoot.getAttribute(ATTR_POS);
+  posStr=treeNormalizer.normalizeNonterminal(posStr);
+  String lemma=eRoot.getAttribute(ATTR_LEMMA);
+  String word=getWord(eRoot);
+  String leafStr=treeNormalizer.normalizeTerminal(word);
+  Tree leafNode=treeFactory.newLeaf(leafStr);
+  if (leafNode.label() instanceof HasWord)   ((HasWord)leafNode.label()).setWord(leafStr);
+  if (leafNode.label() instanceof CoreLabel && lemma != null) {
+    ((CoreLabel)leafNode.label()).setLemma(lemma);
+  }
+  List<Tree> kids=new ArrayList<Tree>();
+  kids.add(leafNode);
+  Tree t=treeFactory.newTreeNode(posStr,kids);
+  if (t.label() instanceof HasTag)   ((HasTag)t.label()).setTag(posStr);
+  return t;
+}

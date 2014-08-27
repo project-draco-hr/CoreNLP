@@ -1,22 +1,11 @@
 {
-  Collection<IndexedWord> rootNodes=getRoots();
-  if (rootNodes.isEmpty()) {
-    return toString(OutputFormat.READABLE);
+  if (format != null && format.equals("xml")) {
+    return toXMLString();
   }
-  StringBuilder sb=new StringBuilder();
-  Set<IndexedWord> used=wordMapFactory.newSet();
-  for (  IndexedWord root : rootNodes) {
-    sb.append("-> ").append(root.toString(wordFormat)).append(" (root)\n");
-    recToString(root,wordFormat,sb,1,used);
+ else   if (format != null && format.equals("readable")) {
+    return toReadableString();
   }
-  Set<IndexedWord> nodes=wordMapFactory.newSet();
-  nodes.addAll(vertexSet());
-  nodes.removeAll(used);
-  while (!nodes.isEmpty()) {
-    IndexedWord node=nodes.iterator().next();
-    sb.append(node.toString(wordFormat)).append("\n");
-    recToString(node,wordFormat,sb,1,used);
-    nodes.removeAll(used);
+ else {
+    return toList();
   }
-  return sb.toString();
 }
