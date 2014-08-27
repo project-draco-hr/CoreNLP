@@ -4,8 +4,8 @@
     if (!preterminals[i].isPreTerminal())     continue;
     Tree leaf=preterminals[i].firstChild();
     String leafValue=((CoreLabel)leaf.label()).value();
-    if (leafValue.indexOf('_') == -1)     continue;
-    String[] words=leafValue.split("_");
+    String[] words=getMultiWords(leafValue);
+    if (words.length == 1)     continue;
     List<Tree> newPreterminals=new ArrayList<Tree>(words.length);
     for (int j=0; j < words.length; j++) {
       String word=words[j];
