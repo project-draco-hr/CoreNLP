@@ -12,9 +12,12 @@
   MulticoreWrapper<Collection<Tree>,Collection<Tree>> wrapper=new MulticoreWrapper<Collection<Tree>,Collection<Tree>>(availableProcessors,processor);
   int numChunks=availableProcessors * 20;
   List<Collection<Tree>> chunked=CollectionUtils.partitionIntoFolds(trees,numChunks);
-  for (  final Collection<Tree> coll : chunked)   wrapper.put(coll);
-  wrapper.join();
   List<Tree> ret=new ArrayList<Tree>();
+  for (  final Collection<Tree> coll : chunked) {
+    wrapper.put(coll);
+    while (wrapper.peek())     ret.addAll(wrapper.poll());
+  }
+  wrapper.join();
   while (wrapper.peek())   ret.addAll(wrapper.poll());
   return ret;
 }
