@@ -1,0 +1,17 @@
+{
+  if (t.isPreTerminal()) {
+    if (t.value().equals(SpanishTreeNormalizer.MW_TAG)) {
+      nMissingPOS++;
+      String word=t.firstChild().value();
+      String tag=(unigramTagger.firstKeySet().contains(word)) ? Counters.argmax(unigramTagger.getCounter(word)) : ManualUWModel.getTag(word);
+      t.setValue(tag);
+    }
+    return;
+  }
+  for (  Tree kid : t.children())   traverseAndFix(kid,pretermLabel,unigramTagger,retainNER);
+  if (t.value().startsWith(SpanishTreeNormalizer.MW_PHRASE_TAG)) {
+    nMissingPhrasal++;
+    String phrasalCat=inferPhrasalCategory(t,pretermLabel,retainNER);
+    if (phrasalCat != null)     t.setValue(phrasalCat);
+  }
+}

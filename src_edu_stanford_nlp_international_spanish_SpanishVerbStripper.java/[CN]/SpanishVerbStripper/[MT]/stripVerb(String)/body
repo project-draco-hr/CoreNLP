@@ -1,5 +1,12 @@
 {
-  String stripped=pAttachedPronouns.matcher(verb).replaceAll("");
-  for (  Pair<Pattern,String> accentFix : accentFixes)   stripped=accentFix.first().matcher(stripped).replaceAll(accentFix.second());
+  String stripped=stripSuffix(verb,pOneAttachedPronoun);
+  if (stripped == null || (!isVerb(stripped) && !isVerb(stripped + "d"))) {
+    System.out.println(stripped);
+    stripped=stripSuffix(verb,pTwoAttachedPronouns);
+    if (stripped == null || (!isVerb(stripped) && !isVerb(stripped + "d"))) {
+      System.out.println(stripped);
+      return null;
+    }
+  }
   return stripped;
 }
