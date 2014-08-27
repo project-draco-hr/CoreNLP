@@ -1,23 +1,6 @@
 {
   super(verbose);
+  if (props == null)   props=new Properties();
   Language type=getLangType(props);
-  String options=props.getProperty("tokenize.options",null);
-switch (type) {
-case Spanish:
-    options=(options == null) ? DEFAULT_OPTIONS_ES : options;
-  factory=SpanishTokenizer.factory(new CoreLabelTokenFactory(),options);
-break;
-case French:
-options=(options == null) ? DEFAULT_OPTIONS_ES : options;
-factory=FrenchTokenizer.factory(new CoreLabelTokenFactory(),options);
-break;
-case Whitespace:
-boolean eolIsSignificant=Boolean.valueOf(props.getProperty(EOL_PROPERTY,"false"));
-eolIsSignificant=eolIsSignificant || Boolean.valueOf(props.getProperty(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY,"false"));
-factory=new WhitespaceTokenizer.WhitespaceTokenizerFactory<CoreLabel>(new CoreLabelTokenFactory(),eolIsSignificant);
-break;
-default :
-options=(options == null) ? DEFAULT_OPTIONS_EN : options;
-factory=PTBTokenizer.factory(new CoreLabelTokenFactory(),options);
-}
+  factory=initFactory(type,props);
 }
