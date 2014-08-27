@@ -7,5 +7,27 @@
     ret[2]="\"";
     return ret;
   }
-  return token.split("_");
+  StringTokenizer splitter=new StringTokenizer(token,WORD_SEPARATORS,true);
+  int remainingTokens=splitter.countTokens();
+  List<String> words=new ArrayList<String>();
+  while (splitter.hasMoreTokens()) {
+    String word=splitter.nextToken();
+    remainingTokens--;
+    if (word.length() == 1 && WORD_SEPARATORS_DROP.indexOf(word.charAt(0)) != -1)     continue;
+    if (remainingTokens >= 2 && hyphenBoundMorphemes.contains(word)) {
+      String hyphen=splitter.nextToken();
+      remainingTokens--;
+      if (!hyphen.equals("-")) {
+        words.add(word);
+        words.add(hyphen);
+        continue;
+      }
+      String freeMorpheme=splitter.nextToken();
+      remainingTokens--;
+      words.add(word + hyphen + freeMorpheme);
+      continue;
+    }
+    words.add(word);
+  }
+  return words.toArray(new String[words.size()]);
 }
