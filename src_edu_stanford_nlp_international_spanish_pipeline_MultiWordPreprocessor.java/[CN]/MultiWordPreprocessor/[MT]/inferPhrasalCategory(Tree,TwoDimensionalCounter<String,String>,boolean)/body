@@ -1,0 +1,26 @@
+{
+  String phraseValue=t.value();
+  String originalPos=phraseValue.substring(phraseValue.lastIndexOf('_') + 1);
+  if (originalPos.length() > 0 && originalPos.charAt(0) == 'n') {
+    if (!retainNER)     return "grup.nom";
+    char nerTag=phraseValue.charAt(phraseValue.length() - 1);
+switch (nerTag) {
+case 'l':
+      return "grup.nom.lug";
+case 'o':
+    return "grup.nom.org";
+case 'p':
+  return "grup.nom.pers";
+case '0':
+return "grup.nom.otros";
+default :
+return "grup.nom";
+}
+}
+StringBuilder sb=new StringBuilder();
+for (Tree kid : t.children()) sb.append(kid.value()).append(" ");
+String posSequence=sb.toString().trim();
+if (pretermLabel.firstKeySet().contains(posSequence)) return Counters.argmax(pretermLabel.getCounter(posSequence));
+ else System.err.println("No phrasal cat for: " + posSequence);
+return null;
+}

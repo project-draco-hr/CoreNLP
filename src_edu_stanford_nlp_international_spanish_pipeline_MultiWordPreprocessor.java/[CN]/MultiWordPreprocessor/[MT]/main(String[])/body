@@ -1,9 +1,11 @@
 {
-  if (args.length != 1) {
-    System.err.printf("Usage: java %s file%n",MultiWordPreprocessor.class.getName());
-    System.exit(-1);
+  Properties options=StringUtils.argsToProperties(args,argOptionDefs);
+  if (!options.containsKey("") || options.containsKey("help")) {
+    System.err.println(usage());
+    return;
   }
-  final File treeFile=new File(args[0]);
+  boolean retainNER=PropertiesUtils.getBool(options,"ner",false);
+  final File treeFile=new File(options.getProperty(""));
   TwoDimensionalCounter<String,String> labelTerm=new TwoDimensionalCounter<String,String>();
   TwoDimensionalCounter<String,String> termLabel=new TwoDimensionalCounter<String,String>();
   TwoDimensionalCounter<String,String> labelPreterm=new TwoDimensionalCounter<String,String>();
@@ -18,7 +20,7 @@
     }
     tr.close();
     System.out.println("Resolving DUMMY tags");
-    resolveDummyTags(treeFile,pretermLabel,unigramTagger);
+    resolveDummyTags(treeFile,pretermLabel,unigramTagger,retainNER);
     System.out.println("#Unknown Word Types: " + ManualUWModel.nUnknownWordTypes);
     System.out.println("#Missing POS: " + nMissingPOS);
     System.out.println("#Missing Phrasal: " + nMissingPhrasal);
