@@ -1,0 +1,23 @@
+{
+  if (classifier == null)   throw new IllegalStateException("No classifier has been trained or loaded");
+  GeneralDataset<String,String> test=readDataset(datasetPath);
+  IntCounter<String> contingency=new IntCounter<String>();
+  for (  Datum<String,String> datum : test) {
+    Counter<String> logScores=classifier.scoresOf(datum);
+    String guess=classifier.classOf(datum);
+    String gold=datum.label();
+    for (    String next : classifier.labels()) {
+      if (next.equals(gold)) {
+        if (next.equals(guess))         contingency.incrementCount(next + "|TP");
+ else         contingency.incrementCount(next + "|FN");
+      }
+ else {
+        if (next.equals(guess))         contingency.incrementCount(next + "|FP");
+ else         contingency.incrementCount(next + "|FN");
+      }
+    }
+    Distribution<String> scoreDist=Distribution.distributionFromLogisticCounter(logScores);
+    outputTestExample(datum,guess,logScores,scoreDist);
+  }
+  outputTestSummary(classifier.labels(),test,contingency);
+}
