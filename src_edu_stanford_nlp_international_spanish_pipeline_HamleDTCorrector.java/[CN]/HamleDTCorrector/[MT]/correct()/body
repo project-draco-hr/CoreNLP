@@ -1,0 +1,11 @@
+{
+  List<String> hamledtLines=IOUtils.linesFromFile(hamledtPath);
+  List<String> ancoraLines=IOUtils.linesFromFile(ancoraPath);
+  if (hamledtLines.size() != ancoraLines.size())   throw new RuntimeException("Provided files do not have the same number of lines -- check " + "that these are the same treebank!");
+  List<String> ret=new ArrayList<String>(ancoraLines.size());
+  String hamledtLine=null, ancoraLine=null;
+  for (Iterator<String> iHamledt=hamledtLines.iterator(), iAncora=ancoraLines.iterator(); iHamledt.hasNext() && iAncora.hasNext(); hamledtLine=iHamledt.next(), ancoraLine=iAncora.next()) {
+    ret.add(correctLine(hamledtLine,ancoraLine));
+  }
+  return ret;
+}
