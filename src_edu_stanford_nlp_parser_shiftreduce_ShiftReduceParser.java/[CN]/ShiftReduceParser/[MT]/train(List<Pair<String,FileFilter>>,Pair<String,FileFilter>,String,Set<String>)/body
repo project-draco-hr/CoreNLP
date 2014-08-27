@@ -1,4 +1,5 @@
 {
+  System.err.println("Training method: " + op.trainOptions().trainingMethod);
   List<Tree> binarizedTrees=Generics.newArrayList();
   for (  Pair<String,FileFilter> treebank : trainTreebankPath) {
     binarizedTrees.addAll(readBinarizedTreebank(treebank.first(),treebank.second()));
@@ -19,7 +20,7 @@
   System.err.println("States which occur at the root: " + rootStates);
   System.err.println("States which only occur at the root: " + rootStates);
   Timing transitionTimer=new Timing();
-  List<List<Transition>> transitionLists=createTransitionSequences(binarizedTrees);
+  List<List<Transition>> transitionLists=CreateTransitionSequence.createTransitionSequences(binarizedTrees,op.compoundUnaries,rootStates,rootOnlyStates);
   for (  List<Transition> transitions : transitionLists) {
     transitionIndex.addAll(transitions);
   }
@@ -104,6 +105,7 @@
           break;
         }
       }
+      System.err.println();
       if (bestModels != null) {
         bestModels.add(new ScoredObject<ShiftReduceParser>(this.deepCopy(),labelF1));
         if (bestModels.size() > op.trainOptions().averagedModels) {
