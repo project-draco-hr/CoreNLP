@@ -1,13 +1,13 @@
 {
   for (  Tree t : tree) {
-    if (t.isPreTerminal()) {
+    if (simplifiedTagset && t.isPreTerminal()) {
       CoreLabel label=(CoreLabel)t.label();
       String pos=label.value();
       pos=simplifyPOSTag(pos).intern();
       label.setValue(pos);
       label.setTag(pos);
     }
- else     if (t.isPrePreTerminal()) {
+ else     if (aggressiveNormalization && t.isPrePreTerminal()) {
       normalizeForMultiWord(t,tf);
     }
   }
