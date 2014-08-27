@@ -2,14 +2,20 @@
   boolean ner=PropertiesUtils.getBool(options,"ner",false);
   final String encoding=new SpanishTreebankLanguagePack().getEncoding();
   final SpanishXMLTreeReaderFactory trf=new SpanishXMLTreeReaderFactory(true,true,ner,false);
-  ExecutorService pool=Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-  List<Future<Pair<TwoDimensionalCounter<String,String>,List<Tree>>>> readFutures=new ArrayList<Future<Pair<TwoDimensionalCounter<String,String>,List<Tree>>>>();
-  for (  final File file : inputFiles)   readFutures.add(pool.submit(new XMLTreeProcessor(trf,file,encoding)));
-  for (  Future<Pair<TwoDimensionalCounter<String,String>,List<Tree>>> future : readFutures) {
-    Pair<TwoDimensionalCounter<String,String>,List<Tree>> result=future.get();
-    Counters.addInPlace(unigramTagger,result.first());
+  MulticoreWrapper<File,Pair<TwoDimensionalCounter<String,String>,List<Tree>>> wrapper=new MulticoreWrapper<File,Pair<TwoDimensionalCounter<String,String>,List<Tree>>>(Runtime.getRuntime().availableProcessors(),new XMLTreeProcessor(trf,encoding));
+  for (  final File file : inputFiles) {
+    wrapper.put(file);
+    while (wrapper.peek()) {
+      Pair<TwoDimensionalCounter<String,String>,List<Tree>> result=wrapper.poll();
+      unigramTagger=Counters.add(unigramTagger,result.first());
+      trees.addAll(result.second());
+    }
+  }
+  wrapper.join();
+  while (wrapper.peek()) {
+    Pair<TwoDimensionalCounter<String,String>,List<Tree>> result=wrapper.poll();
+    unigramTagger=Counters.add(unigramTagger,result.first());
     trees.addAll(result.second());
   }
-  pool.shutdown();
   return trees;
 }
