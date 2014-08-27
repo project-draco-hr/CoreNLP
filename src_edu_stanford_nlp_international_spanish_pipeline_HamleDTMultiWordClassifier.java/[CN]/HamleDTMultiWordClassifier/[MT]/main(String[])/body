@@ -1,0 +1,15 @@
+{
+  Properties options=StringUtils.argsToProperties(args,argOptionDefs);
+  if (!(options.containsKey("train") || options.containsKey("eval"))) {
+    System.err.println(USAGE);
+    System.exit(1);
+  }
+  HamleDTMultiWordClassifier classifier=options.containsKey("loadSerialized") ? null : new HamleDTMultiWordClassifier();
+  if (options.containsKey("train")) {
+    if (options.containsKey("loadSerialized"))     throw new RuntimeException("Can't re-train a pre-loaded serialized classifier -- exiting");
+    classifier.trainClassifier(options.getProperty("train"));
+  }
+  if (options.containsKey("dev")) {
+    classifier.testClassifier(options.getProperty("test"));
+  }
+}
