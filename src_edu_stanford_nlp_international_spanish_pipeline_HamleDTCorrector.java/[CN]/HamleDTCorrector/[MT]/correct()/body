@@ -1,15 +1,11 @@
 {
-  Iterator<List<CoreLabel>> hamledtSentences=new CoNLLXReader(new File(hamledtPath));
-  Iterator<List<CoreLabel>> ancoraSentences=new CoNLL2009Reader(new File(ancoraPath));
-  List<String> ret=new ArrayList<String>();
-  List<CoreLabel> hamledtSentence=null, ancoraSentence=null;
-  for (; hamledtSentences.hasNext() && ancoraSentences.hasNext(); hamledtSentence=hamledtSentences.next(), ancoraSentence=ancoraSentences.next()) {
-    if (hamledtSentence == null || ancoraSentence == null)     throw new RuntimeException("Parse exception");
-    if (hamledtSentence.size() != ancoraSentence.size()) {
-      throw new RuntimeException(String.format("Treebank mismatch: HamleDT sentence aligned with AnCora sentence of different length%n" + "\tHamleDT sentence: " + StringUtils.joinWords(hamledtSentence," ") + "%n"+ "\tAnCora sentence: "+ StringUtils.joinWords(ancoraSentence," ")));
-    }
-    List<CoreLabel> corrected=correctSentence(hamledtSentence,ancoraSentence);
-    ret.addAll(toCoNLLXString(corrected));
+  List<String> hamledtLines=IOUtils.linesFromFile(hamledtPath);
+  List<String> ancoraLines=IOUtils.linesFromFile(ancoraPath);
+  if (hamledtLines.size() != ancoraLines.size())   throw new RuntimeException("Provided files do not have the same number of lines -- check " + "that these are the same treebank!");
+  List<String> ret=new ArrayList<String>(ancoraLines.size());
+  String hamledtLine=null, ancoraLine=null;
+  for (Iterator<String> iHamledt=hamledtLines.iterator(), iAncora=ancoraLines.iterator(); iHamledt.hasNext() && iAncora.hasNext(); hamledtLine=iHamledt.next(), ancoraLine=iAncora.next()) {
+    ret.add(correctLine(hamledtLine,ancoraLine));
   }
   return ret;
 }

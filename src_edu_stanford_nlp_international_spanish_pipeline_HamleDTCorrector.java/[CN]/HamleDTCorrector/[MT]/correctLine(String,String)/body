@@ -1,0 +1,11 @@
+{
+  if (hamledtLine.equals("") && ancoraLine.equals(""))   return "";
+  String[] hFields=hamledtLine.split("\t");
+  String[] aFields=ancoraLine.split("\t");
+  String hWord=hFields[1];
+  String aWord=aFields[1];
+  if (!hWord.equals(aWord))   throw new RuntimeException(String.format("Treebank line mismatch: HamleDT '%s' does not match AnCora line '%s'",hWord,aWord));
+  String hDepRel=hFields[7];
+  hFields[7]=correctDepRel(hDepRel,aFields);
+  return StringUtils.join(hFields,"\t");
+}
