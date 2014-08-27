@@ -10,7 +10,7 @@
   this.puncFilter=puncFilter;
   NoPunctFilter puncDepFilter=new NoPunctFilter(puncFilter);
   NoPunctTypedDependencyFilter puncTypedDepFilter=new NoPunctTypedDependencyFilter(puncFilter);
-  dependencies=root.dependencies(puncDepFilter,null);
+  Set<Dependency<Label,Label,Object>> dependencies=root.dependencies(puncDepFilter,null);
   for (  Dependency<Label,Label,Object> p : dependencies) {
     TreeGraphNode gov=(TreeGraphNode)p.governor();
     TreeGraphNode dep=(TreeGraphNode)p.dependent();
@@ -27,6 +27,6 @@
       relationsLock.unlock();
     }
   }
-  typedDependencies=getDeps(false,puncTypedDepFilter);
-  allTypedDependencies=getDeps(true,puncTypedDepFilter);
+  typedDependencies=getDeps(false,puncTypedDepFilter,dependencies);
+  allTypedDependencies=getDeps(true,puncTypedDepFilter,dependencies);
 }
