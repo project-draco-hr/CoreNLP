@@ -28,6 +28,22 @@
       words.add(word + hyphen + freeMorpheme);
       continue;
     }
+ else     if (word.equals(",") && remainingTokens >= 1 && words.size() > 0) {
+      int prevIndex=words.size() - 1;
+      String prevWord=words.get(prevIndex);
+      if (StringUtils.isNumeric(prevWord)) {
+        String nextWord=splitter.nextToken();
+        remainingTokens--;
+        if (StringUtils.isNumeric(nextWord)) {
+          words.set(prevIndex,prevWord + ',' + nextWord);
+        }
+ else {
+          words.add(word);
+          words.add(nextWord);
+        }
+        continue;
+      }
+    }
     words.add(word);
   }
   return words.toArray(new String[words.size()]);

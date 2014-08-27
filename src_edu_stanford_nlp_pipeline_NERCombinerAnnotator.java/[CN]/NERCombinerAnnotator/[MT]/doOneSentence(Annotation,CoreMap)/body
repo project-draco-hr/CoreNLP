@@ -5,11 +5,7 @@
     output=this.ner.classifySentenceWithGlobalInformation(tokens,annotation,sentence);
   }
  catch (  RuntimeInterruptedException e) {
-    for (int i=0; i < tokens.size(); ++i) {
-      if (tokens.get(i).ner() == null) {
-        tokens.get(i).setNER(this.ner.backgroundSymbol());
-      }
-    }
+    doOneFailedSentence(annotation,sentence);
     return;
   }
   if (VERBOSE) {

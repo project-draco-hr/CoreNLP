@@ -1,0 +1,13 @@
+{
+  int sentenceIndex=0;
+  for (  CoreMap sentence : document.get(CoreAnnotations.SentencesAnnotation.class)) {
+    List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
+    assertEquals(expected[sentenceIndex % expected.length].length,tokens.size());
+    int token=0;
+    for (    CoreLabel word : sentence.get(CoreAnnotations.TokensAnnotation.class)) {
+      assertEquals(expected[sentenceIndex % expected.length][token],word.ner());
+      ++token;
+    }
+    ++sentenceIndex;
+  }
+}
