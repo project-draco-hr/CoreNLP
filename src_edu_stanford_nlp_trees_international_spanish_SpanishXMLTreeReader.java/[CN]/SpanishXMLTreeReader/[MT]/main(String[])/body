@@ -4,41 +4,37 @@
     System.err.println(usage());
     return;
   }
-  Pattern posPattern=options.containsKey("searchPos") ? Pattern.compile(options.getProperty("searchPos")) : null;
-  Pattern wordPattern=options.containsKey("searchWord") ? Pattern.compile(options.getProperty("searchWord")) : null;
-  boolean plainPrint=PropertiesUtils.getBool(options,"plain",false);
+  final Pattern posPattern=options.containsKey("searchPos") ? Pattern.compile(options.getProperty("searchPos")) : null;
+  final Pattern wordPattern=options.containsKey("searchWord") ? Pattern.compile(options.getProperty("searchWord")) : null;
+  final boolean plainPrint=PropertiesUtils.getBool(options,"plain",false);
   String[] remainingArgs=options.getProperty("").split(" ");
   List<File> fileList=new ArrayList<File>();
   for (int i=0; i < remainingArgs.length; i++)   fileList.add(new File(remainingArgs[i]));
-  TreeReaderFactory trf=new SpanishXMLTreeReaderFactory(true,true);
-  int totalTrees=0;
-  Set<String> morphAnalyses=Generics.newHashSet();
-  try {
-    for (    File file : fileList) {
-      TreeReader tr=trf.newTreeReader(new BufferedReader(new InputStreamReader(new FileInputStream(file),"ISO-8859-1")));
-      Tree t;
-      int numTrees;
-      String canonicalFileName=file.getName().substring(0,file.getName().lastIndexOf('.'));
-      for (numTrees=0; (t=tr.readTree()) != null; numTrees++) {
-        if (!shouldPrintTree(t,posPattern,wordPattern))         continue;
-        String ftbID=((CoreLabel)t.label()).get(CoreAnnotations.SentenceIDAnnotation.class);
-        String output=toString(t,plainPrint);
-        System.out.printf("%s-%s\t%s%n",canonicalFileName,ftbID,output);
-        List<Label> leaves=t.yield();
-        for (        Label label : leaves) {
-          if (label instanceof CoreLabel)           morphAnalyses.add(((CoreLabel)label).originalText());
+  final TreeReaderFactory trf=new SpanishXMLTreeReaderFactory(true,true);
+  ExecutorService pool=Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+  for (  final File file : fileList) {
+    pool.execute(new Runnable(){
+      public void run(){
+        try {
+          TreeReader tr=trf.newTreeReader(new BufferedReader(new InputStreamReader(new FileInputStream(file),"ISO-8859-1")));
+          process(file,tr,posPattern,wordPattern,plainPrint);
+          tr.close();
+        }
+ catch (        FileNotFoundException e) {
+          e.printStackTrace();
+        }
+catch (        IOException e) {
+          e.printStackTrace();
         }
       }
-      tr.close();
-      System.err.printf("%s: %d trees%n",file.getName(),numTrees);
-      totalTrees+=numTrees;
     }
-    System.err.printf("%nRead %d trees%n",totalTrees);
+);
   }
- catch (  FileNotFoundException e) {
-    e.printStackTrace();
+  pool.shutdown();
+  try {
+    pool.awaitTermination(Long.MAX_VALUE,TimeUnit.NANOSECONDS);
   }
-catch (  IOException e) {
+ catch (  InterruptedException e) {
     e.printStackTrace();
   }
 }
