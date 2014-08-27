@@ -26,11 +26,11 @@
   if (devTreebankPath != null) {
     devTreebank=readTreebank(devTreebankPath.first(),devTreebankPath.second());
   }
-  double bestScore=Double.MAX_VALUE;
+  double bestScore=Double.MIN_VALUE;
   int bestIteration=0;
   PriorityQueue<ScoredObject<ShiftReduceParser>> bestModels=null;
   if (op.trainOptions().averagedModels > 0) {
-    bestModels=new PriorityQueue<ScoredObject<ShiftReduceParser>>(op.trainOptions().averagedModels + 1,ScoredComparator.DESCENDING_COMPARATOR);
+    bestModels=new PriorityQueue<ScoredObject<ShiftReduceParser>>(op.trainOptions().averagedModels + 1,ScoredComparator.ASCENDING_COMPARATOR);
   }
   List<Integer> indices=Generics.newArrayList();
   for (int i=0; i < binarizedTrees.size(); ++i) {
@@ -83,9 +83,9 @@
     if (devTreebank != null) {
       EvaluateTreebank evaluator=new EvaluateTreebank(op,null,this,tagger);
       evaluator.testOnTreebank(devTreebank);
-      evaluation=evaluator.getLACorpusDistance();
-      System.err.println("Corpus-level LA after " + iteration + " iterations: "+ evaluation);
-      if (evaluation < bestScore) {
+      evaluation=-evaluator.getLACorpusDistance();
+      System.err.println("Negative corpus-level LA after " + iteration + " iterations: "+ evaluation);
+      if (evaluation > bestScore) {
         System.err.println("New best dev score (previous best " + bestScore + ")");
         bestScore=evaluation;
         bestIteration=iteration;
