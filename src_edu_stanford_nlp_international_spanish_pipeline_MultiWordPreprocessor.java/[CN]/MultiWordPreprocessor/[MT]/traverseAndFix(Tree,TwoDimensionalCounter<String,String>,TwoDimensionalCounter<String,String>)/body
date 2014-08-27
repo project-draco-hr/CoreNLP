@@ -1,0 +1,25 @@
+{
+  if (t.isPreTerminal()) {
+    if (t.value().equals(SpanishTreeNormalizer.MW_TAG)) {
+      nMissingPOS++;
+      String word=t.firstChild().value();
+      String tag=(unigramTagger.firstKeySet().contains(word)) ? Counters.argmax(unigramTagger.getCounter(word)) : ManualUWModel.getTag(word);
+      t.setValue(tag);
+    }
+    return;
+  }
+  for (  Tree kid : t.children())   traverseAndFix(kid,pretermLabel,unigramTagger);
+  if (t.value().equals(SpanishTreeNormalizer.MW_PHRASE_TAG)) {
+    nMissingPhrasal++;
+    StringBuilder sb=new StringBuilder();
+    for (    Tree kid : t.children())     sb.append(kid.value()).append(" ");
+    String posSequence=sb.toString().trim();
+    if (pretermLabel.firstKeySet().contains(posSequence)) {
+      String phrasalCat=Counters.argmax(pretermLabel.getCounter(posSequence));
+      t.setValue(phrasalCat);
+    }
+ else {
+      System.out.println("No phrasal cat for: " + posSequence);
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  if (args.length != 1) {
+    System.err.printf("Usage: java %s file%n",MultiWordPreprocessor.class.getName());
+    System.exit(-1);
+  }
+  final File treeFile=new File(args[0]);
+  TwoDimensionalCounter<String,String> labelTerm=new TwoDimensionalCounter<String,String>();
+  TwoDimensionalCounter<String,String> termLabel=new TwoDimensionalCounter<String,String>();
+  TwoDimensionalCounter<String,String> labelPreterm=new TwoDimensionalCounter<String,String>();
+  TwoDimensionalCounter<String,String> pretermLabel=new TwoDimensionalCounter<String,String>();
+  TwoDimensionalCounter<String,String> unigramTagger=new TwoDimensionalCounter<String,String>();
+  try {
+    BufferedReader br=new BufferedReader(new InputStreamReader(new FileInputStream(treeFile),"UTF-8"));
+    TreeReaderFactory trf=new SpanishTreeReaderFactory();
+    TreeReader tr=trf.newTreeReader(br);
+    for (Tree t; (t=tr.readTree()) != null; ) {
+      countMWEStatistics(t,unigramTagger,labelPreterm,pretermLabel,labelTerm,termLabel);
+    }
+    tr.close();
+    System.out.println("Resolving DUMMY tags");
+    resolveDummyTags(treeFile,pretermLabel,unigramTagger);
+    System.out.println("#Unknown Word Types: " + ManualUWModel.nUnknownWordTypes);
+    System.out.println("#Missing POS: " + nMissingPOS);
+    System.out.println("#Missing Phrasal: " + nMissingPhrasal);
+    System.out.println("Done!");
+  }
+ catch (  UnsupportedEncodingException e) {
+    e.printStackTrace();
+  }
+catch (  FileNotFoundException e) {
+    e.printStackTrace();
+  }
+catch (  IOException e) {
+    e.printStackTrace();
+  }
+}
