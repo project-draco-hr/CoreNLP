@@ -1,9 +1,7 @@
 {
   List<CoreLabel> ret=new ArrayList<CoreLabel>(hamledtSentence.size());
-  Iterator<CoreLabel> iHam=hamledtSentence.iterator(), iAnc=ancoraSentence.iterator();
-  CoreLabel hamWord=iHam.next(), ancWord=iAnc.next();
-  for (; iHam.hasNext() && iAnc.hasNext(); hamWord=iHam.next(), ancWord=iAnc.next()) {
-    ret.add(correctWord(hamWord,ancWord,hamledtSentence,ancoraSentence));
+  for (  Pair<CoreLabel,CoreLabel> pair : new ZipIterable<CoreLabel,CoreLabel>(hamledtSentence,ancoraSentence)) {
+    ret.add(correctWord(pair.first(),pair.second(),hamledtSentence,ancoraSentence));
   }
   return ret;
 }

@@ -2,8 +2,9 @@
   Iterator<List<CoreLabel>> hamledtSentences=new CoNLLXReader(new File(hamledtPath));
   Iterator<List<CoreLabel>> ancoraSentences=new CoNLL2009Reader(new File(ancoraPath));
   List<String> ret=new ArrayList<String>();
-  List<CoreLabel> hamledtSentence=hamledtSentences.next(), ancoraSentence=ancoraSentences.next();
-  for (; hamledtSentences.hasNext() && ancoraSentences.hasNext(); hamledtSentence=hamledtSentences.next(), ancoraSentence=ancoraSentences.next()) {
+  for (  Pair<List<CoreLabel>,List<CoreLabel>> pair : new ZipIterable<List<CoreLabel>,List<CoreLabel>>(hamledtSentences,ancoraSentences)) {
+    List<CoreLabel> hamledtSentence=pair.first();
+    List<CoreLabel> ancoraSentence=pair.second();
     if (hamledtSentence == null || ancoraSentence == null)     throw new RuntimeException("Parse exception");
     if (hamledtSentence.size() != ancoraSentence.size()) {
       throw new RuntimeException(String.format("Treebank mismatch: HamleDT sentence aligned with AnCora sentence of different length%n" + "\tHamleDT sentence: " + StringUtils.joinWords(hamledtSentence," ") + "%n"+ "\tAnCora sentence: "+ StringUtils.joinWords(ancoraSentence," ")));
