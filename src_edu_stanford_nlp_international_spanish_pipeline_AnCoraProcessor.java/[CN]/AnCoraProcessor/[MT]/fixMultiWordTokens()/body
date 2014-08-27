@@ -1,30 +1,20 @@
 {
-  final boolean ner=PropertiesUtils.getBool(options,"ner",false);
-  final TreeNormalizer tn=new SpanishTreeNormalizer(true,false,false);
-  final TreeFactory tf=new LabeledScoredTreeFactory();
+  boolean ner=PropertiesUtils.getBool(options,"ner",false);
+  Factory<TreeNormalizer> tnf=new Factory<TreeNormalizer>(){
+    @Override public TreeNormalizer create(){
+      return new SpanishTreeNormalizer(true,false,false);
+    }
+  }
+;
+  TreeFactory tf=new LabeledScoredTreeFactory();
+  ThreadsafeProcessor<Collection<Tree>,Collection<Tree>> processor=new MultiWordProcessor(tnf,tf,ner);
   int availableProcessors=Runtime.getRuntime().availableProcessors();
-  ExecutorService pool=Executors.newFixedThreadPool(availableProcessors);
+  MulticoreWrapper<Collection<Tree>,Collection<Tree>> wrapper=new MulticoreWrapper<Collection<Tree>,Collection<Tree>>(availableProcessors,processor);
   int numChunks=availableProcessors * 20;
   List<Collection<Tree>> chunked=CollectionUtils.partitionIntoFolds(trees,numChunks);
-  List<Future<List<Tree>>> futures=new ArrayList<Future<List<Tree>>>();
-  for (  final Collection<Tree> coll : chunked) {
-    futures.add(pool.submit(new Callable<List<Tree>>(){
-      @Override public List<Tree> call(){
-        List<Tree> ret=new ArrayList<Tree>();
-        MultiWordTreeExpander expander=new MultiWordTreeExpander();
-        for (        Tree t : coll) {
-          MultiWordPreprocessor.traverseAndFix(t,null,unigramTagger,ner);
-          t=expander.expandPhrases(t,tn,tf);
-          t=tn.normalizeWholeTree(t,tf);
-          ret.add(t);
-        }
-        return ret;
-      }
-    }
-));
-  }
+  for (  final Collection<Tree> coll : chunked)   wrapper.put(coll);
+  wrapper.join();
   List<Tree> ret=new ArrayList<Tree>();
-  for (  Future<List<Tree>> future : futures)   ret.addAll(future.get());
-  pool.shutdown();
+  while (wrapper.peek())   ret.addAll(wrapper.poll());
   return ret;
 }
