@@ -1,7 +1,13 @@
 {
   FileChannel sourceChannel=new FileInputStream(source).getChannel();
   FileChannel targetChannel=new FileOutputStream(target).getChannel();
-  sourceChannel.transferTo(0,sourceChannel.size(),targetChannel);
+  long pos=0;
+  long toCopy=sourceChannel.size();
+  while (toCopy > 0) {
+    long bytes=sourceChannel.transferTo(pos,toCopy,targetChannel);
+    pos+=bytes;
+    toCopy-=bytes;
+  }
   sourceChannel.close();
   targetChannel.close();
 }

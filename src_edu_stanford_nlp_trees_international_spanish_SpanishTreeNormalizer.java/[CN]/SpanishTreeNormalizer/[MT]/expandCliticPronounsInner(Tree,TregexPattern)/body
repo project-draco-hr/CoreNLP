@@ -1,0 +1,42 @@
+{
+  TregexMatcher matcher=pattern.matcher(t);
+  while (matcher.find()) {
+    Tree verbNode=matcher.getNode("vb");
+    String verb=verbNode.value();
+    if (!SpanishVerbStripper.isStrippable(verb))     continue;
+    Pair<String,List<String>> split=SpanishVerbStripper.separatePronouns(verb);
+    if (split == null)     continue;
+    StringBuilder clauseYieldBuilder=new StringBuilder();
+    for (    Label label : matcher.getNode("clause").yield())     clauseYieldBuilder.append(label.value()).append(" ");
+    String clauseYield=clauseYieldBuilder.toString();
+    clauseYield=clauseYield.substring(0,clauseYield.length() - 1);
+    List<String> pronouns=split.second();
+    for (int i=pronouns.size() - 1; i >= 0; i--) {
+      String pronoun=pronouns.get(i);
+      String newTreeStr=null;
+      if (SpanishPronounDisambiguator.isAmbiguous(pronoun)) {
+        SpanishPronounDisambiguator.PersonalPronounType type=SpanishPronounDisambiguator.disambiguatePersonalPronoun(split,i,clauseYield);
+switch (type) {
+case OBJECT:
+          newTreeStr="(sn (grup.nom (pp000000 %s)))";
+        break;
+case REFLEXIVE:
+      newTreeStr="(morfema.pronominal (pp000000 %s))";
+    break;
+case UNKNOWN:
+  newTreeStr="(PRONOUN? (pp000000 %s))";
+break;
+}
+}
+ else {
+newTreeStr="(sn (grup.nom (pp000000 %s)))";
+}
+String patternString="[insert " + String.format(newTreeStr,pronoun) + " $- target]";
+TsurgeonPattern insertPattern=Tsurgeon.parseOperation(patternString);
+t=insertPattern.evaluate(t,matcher);
+}
+TsurgeonPattern relabelOperation=Tsurgeon.parseOperation(String.format("[relabel vb /%s/]",split.first()));
+t=relabelOperation.evaluate(t,matcher);
+}
+return t;
+}
