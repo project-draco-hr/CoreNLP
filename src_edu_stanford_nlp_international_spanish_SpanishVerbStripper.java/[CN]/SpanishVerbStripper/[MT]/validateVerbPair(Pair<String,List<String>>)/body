@@ -1,5 +1,14 @@
 {
   String stripped=pair.first().toLowerCase();
   String firstPron=pair.second().get(0).toLowerCase();
-  return (isVerb(stripped) || firstPron.matches("os") && isVerb(stripped + 'd') || firstPron.matches("nos|se") && isVerb(stripped + 's'));
+  if (dict.containsKey(stripped))   return true;
+  if (firstPron.matches("os") && dict.containsKey(stripped + 'd')) {
+    pair.setFirst(pair.first() + getCase(pair.first(),'d'));
+    return true;
+  }
+  if (firstPron.matches("nos|se") && dict.containsKey(stripped + 's')) {
+    pair.setFirst(pair.first() + getCase(pair.first(),'s'));
+    return true;
+  }
+  return false;
 }
