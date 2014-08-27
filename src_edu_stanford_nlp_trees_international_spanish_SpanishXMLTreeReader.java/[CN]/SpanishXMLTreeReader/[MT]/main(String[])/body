@@ -7,17 +7,17 @@
   final Pattern posPattern=options.containsKey("searchPos") ? Pattern.compile(options.getProperty("searchPos")) : null;
   final Pattern wordPattern=options.containsKey("searchWord") ? Pattern.compile(options.getProperty("searchWord")) : null;
   final boolean plainPrint=PropertiesUtils.getBool(options,"plain",false);
-  final boolean ner=PropertiesUtils.getBool(options,"ner",false);
   String[] remainingArgs=options.getProperty("").split(" ");
   List<File> fileList=new ArrayList<File>();
   for (int i=0; i < remainingArgs.length; i++)   fileList.add(new File(remainingArgs[i]));
-  final TreeReaderFactory trf=new SpanishXMLTreeReaderFactory(true,true,ner);
+  final SpanishXMLTreeReaderFactory trf=new SpanishXMLTreeReaderFactory(true,true);
   ExecutorService pool=Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
   for (  final File file : fileList) {
     pool.execute(new Runnable(){
       public void run(){
         try {
-          TreeReader tr=trf.newTreeReader(new BufferedReader(new InputStreamReader(new FileInputStream(file),"ISO-8859-1")));
+          Reader in=new BufferedReader(new InputStreamReader(new FileInputStream(file),"ISO-8859-1"));
+          TreeReader tr=trf.newTreeReader(file.getPath(),in);
           process(file,tr,posPattern,wordPattern,plainPrint);
           tr.close();
         }
