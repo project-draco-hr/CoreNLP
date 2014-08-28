@@ -5,15 +5,20 @@
   pool.register(STANFORD_TOKENIZE,new AnnotatorFactory(inputProps,annotatorImplementation){
     private static final long serialVersionUID=1L;
     @Override public Annotator create(){
-      String extraOptions=null;
-      boolean keepNewline=Boolean.valueOf(properties.getProperty(NEWLINE_SPLITTER_PROPERTY,"false"));
-      if (properties.getProperty(NEWLINE_IS_SENTENCE_BREAK_PROPERTY) != null) {
-        keepNewline=true;
+      if (Boolean.valueOf(properties.getProperty("tokenize.whitespace","false"))) {
+        return annotatorImplementation.whitespaceTokenizer(properties);
       }
-      if (keepNewline) {
-        extraOptions="tokenizeNLs,";
+ else {
+        String options=properties.getProperty("tokenize.options",PTBTokenizerAnnotator.DEFAULT_OPTIONS);
+        boolean keepNewline=Boolean.valueOf(properties.getProperty(NEWLINE_SPLITTER_PROPERTY,"false"));
+        if (properties.getProperty(NEWLINE_IS_SENTENCE_BREAK_PROPERTY) != null) {
+          keepNewline=true;
+        }
+        if (keepNewline) {
+          options="tokenizeNLs," + options;
+        }
+        return annotatorImplementation.ptbTokenizer(properties,false,options);
       }
-      return annotatorImplementation.tokenizer(properties,false,extraOptions);
     }
     @Override public String additionalSignature(){
       StringBuilder os=new StringBuilder();
@@ -21,14 +26,8 @@
       if (properties.getProperty("tokenize.options") != null) {
         os.append(":tokenize.options:" + properties.getProperty("tokenize.options"));
       }
-      if (properties.getProperty("tokenize.language") != null) {
-        os.append(":tokenize.language:" + properties.getProperty("tokenize.language"));
-      }
-      if (properties.getProperty("tokenize.class") != null) {
-        os.append(":tokenize.class:" + properties.getProperty("tokenize.class"));
-      }
       if (Boolean.valueOf(properties.getProperty("tokenize.whitespace","false"))) {
-        os.append(TokenizerAnnotator.EOL_PROPERTY + ":" + properties.getProperty(TokenizerAnnotator.EOL_PROPERTY,"false"));
+        os.append(WhitespaceTokenizerAnnotator.EOL_PROPERTY + ":" + properties.getProperty(WhitespaceTokenizerAnnotator.EOL_PROPERTY,"false"));
         os.append(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY + ":" + properties.getProperty(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY,"false"));
         return os.toString();
       }
