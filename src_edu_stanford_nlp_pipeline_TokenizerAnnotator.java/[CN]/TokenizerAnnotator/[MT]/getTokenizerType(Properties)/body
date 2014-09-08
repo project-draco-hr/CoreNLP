@@ -1,0 +1,23 @@
+{
+  String tokClass=props.getProperty("tokenize.class",null);
+  boolean whitespace=Boolean.valueOf(props.getProperty("tokenize.whitespace","false"));
+  String language=props.getProperty("tokenize.language",null);
+  if (whitespace) {
+    return Whitespace;
+  }
+  if (tokClass != null) {
+    TokenizerType type=classToTokenizerMap.get(tokClass.toUpperCase());
+    if (type == null) {
+      throw new IllegalArgumentException("TokenizerAnnotator: unknown tokenize.class property " + tokClass);
+    }
+    return type;
+  }
+  if (language != null) {
+    TokenizerType type=nameToTokenizerMap.get(language.toUpperCase());
+    if (type == null) {
+      throw new IllegalArgumentException("TokenizerAnnotator: unknown tokenize.language property " + language);
+    }
+    return type;
+  }
+  return Unspecified;
+}
