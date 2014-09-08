@@ -1,0 +1,31 @@
+{
+  final String background=flags.backgroundSymbol;
+  String lastEntityType=null;
+  for (  IN wi : l) {
+    String entityType=wi.get(CoreAnnotations.AnswerAnnotation.class);
+    String token=StringUtils.getNotNullString(wi.get(CoreAnnotations.TextAnnotation.class));
+    if (entityType.equals(lastEntityType)) {
+      out.print(' ');
+      out.print(token);
+    }
+ else {
+      if (lastEntityType != null && !background.equals(lastEntityType)) {
+        out.print('\t');
+        out.print(lastEntityType);
+      }
+      if (background.equals(entityType)) {
+        if (lastEntityType == null) {
+          out.print('\t');
+        }
+        out.print('\t');
+      }
+ else {
+        out.println();
+      }
+      out.print(token);
+      lastEntityType=entityType;
+    }
+  }
+  out.println();
+  out.println();
+}
