@@ -5,20 +5,24 @@
     roots.addAll(newRoots);
     return;
   }
-  TwoDimensionalCounter<IndexedWord,IndexedWord> nodeDists=TwoDimensionalCounter.identityHashMapCounter();
-  for (  IndexedWord node1 : vertexSet()) {
-    for (    IndexedWord node2 : vertexSet()) {
+  ClassicCounter<Pair<IndexedWord,IndexedWord>> nodeDists=new ClassicCounter<Pair<IndexedWord,IndexedWord>>();
+  TreeSet<IndexedWord> nodes=new TreeSet<IndexedWord>(vertexSet());
+  for (  IndexedWord node1 : nodes) {
+    for (    IndexedWord node2 : nodes) {
+      Pair<IndexedWord,IndexedWord> key=new Pair<IndexedWord,IndexedWord>(node1,node2);
       List<SemanticGraphEdge> path=getShortestDirectedPathEdges(node1,node2);
       if (path != null) {
         int dist=path.size();
-        nodeDists.setCount(node1,node2,dist);
+        nodeDists.setCount(key,dist);
       }
     }
   }
-  ClassicCounter<IndexedWord> dominatedEdgeCount=ClassicCounter.identityHashMapCounter();
-  for (  IndexedWord outer : vertexSet()) {
-    for (    IndexedWord inner : vertexSet()) {
-      dominatedEdgeCount.incrementCount(outer,nodeDists.getCount(outer,inner));
+  ClassicCounter<IndexedWord> dominatedEdgeCount=new ClassicCounter<IndexedWord>();
+  TreeSet<IndexedWord> nodesList=new TreeSet<IndexedWord>(vertexSet());
+  for (  IndexedWord outer : nodesList) {
+    for (    IndexedWord inner : nodesList) {
+      Pair<IndexedWord,IndexedWord> key=new Pair<IndexedWord,IndexedWord>(outer,inner);
+      dominatedEdgeCount.incrementCount(outer,nodeDists.getCount(key));
     }
   }
   IndexedWord winner=Counters.argmax(dominatedEdgeCount);
