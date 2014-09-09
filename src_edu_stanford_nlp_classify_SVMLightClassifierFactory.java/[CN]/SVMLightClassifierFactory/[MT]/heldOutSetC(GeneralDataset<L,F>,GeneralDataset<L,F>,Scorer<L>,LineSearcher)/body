@@ -1,17 +1,2 @@
 {
-  useAlphaFile=true;
-  boolean oldUseSigmoid=useSigmoid;
-  useSigmoid=false;
-  Function<Double,Double> negativeScorer=new Function<Double,Double>(){
-    public Double apply(    Double cToTry){
-      C=cToTry;
-      SVMLightClassifier<L,F> classifier=trainClassifierBasic(trainSet);
-      double score=scorer.score(classifier,devSet);
-      return -score;
-    }
-  }
-;
-  C=minimizer.minimize(negativeScorer);
-  useAlphaFile=false;
-  useSigmoid=oldUseSigmoid;
 }

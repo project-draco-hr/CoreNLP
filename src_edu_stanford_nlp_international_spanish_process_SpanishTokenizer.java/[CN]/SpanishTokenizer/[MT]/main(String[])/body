@@ -1,0 +1,47 @@
+{
+  final Properties options=StringUtils.argsToProperties(args,argOptionDefs());
+  if (options.containsKey("help")) {
+    System.err.println(usage());
+    return;
+  }
+  final TokenizerFactory<CoreLabel> tf=SpanishTokenizer.coreLabelFactory();
+  if (options.containsKey("ancora"))   tf.setOptions(ANCORA_OPTS);
+  String orthoOptions=options.getProperty("orthoOpts","");
+  tf.setOptions(orthoOptions);
+  tf.setOptions("tokenizeNLs");
+  final boolean lines=options.containsKey("lines");
+  final String encoding=options.getProperty("encoding","UTF-8");
+  final boolean toLower=PropertiesUtils.getBool(options,"lowerCase",false);
+  final Locale es=new Locale("es");
+  int nLines=0;
+  int nTokens=0;
+  final long startTime=System.nanoTime();
+  try {
+    Tokenizer<CoreLabel> tokenizer=tf.getTokenizer(new InputStreamReader(System.in,encoding));
+    boolean printSpace=false;
+    while (tokenizer.hasNext()) {
+      ++nTokens;
+      String word=tokenizer.next().word();
+      if (word.equals(SpanishLexer.NEWLINE_TOKEN)) {
+        ++nLines;
+        printSpace=false;
+        System.out.println();
+      }
+ else {
+        if (printSpace) {
+          if (lines)           System.out.print(" ");
+ else           System.out.println();
+        }
+        String outputToken=toLower ? word.toLowerCase(es) : word;
+        System.out.print(outputToken);
+        printSpace=true;
+      }
+    }
+  }
+ catch (  UnsupportedEncodingException e) {
+    e.printStackTrace();
+  }
+  long elapsedTime=System.nanoTime() - startTime;
+  double linesPerSec=(double)nLines / (elapsedTime / 1e9);
+  System.err.printf("Done! Tokenized %d lines (%d tokens) at %.2f lines/sec%n",nLines,nTokens,linesPerSec);
+}

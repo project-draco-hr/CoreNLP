@@ -1,0 +1,24 @@
+{
+  tree=tree.prune(emptyFilter).spliceOut(aOverAFilter).transform(constituentRenamer);
+  tree=Tsurgeon.processPatternsOnTree(cleanup,tree);
+  tree=tree.spliceOut(aOverAFilter);
+  if (retainNER)   markSimpleNamedEntities(tree);
+  for (  Tree t : tree) {
+    if (simplifiedTagset && t.isPreTerminal()) {
+      CoreLabel label=(CoreLabel)t.label();
+      String pos=label.value();
+      pos=simplifyPOSTag(pos).intern();
+      label.setValue(pos);
+      label.setTag(pos);
+    }
+ else     if (aggressiveNormalization && isMultiWordCandidate(t)) {
+      normalizeForMultiWord(t,tf);
+    }
+  }
+  tree=expandElisions(tree);
+  tree=expandConmigo(tree);
+  tree=expandCliticPronouns(tree);
+  String rootLabel=tlp.startSymbol();
+  if (!tree.value().equals(rootLabel))   tree=tf.newTreeNode(rootLabel,Collections.singletonList(tree));
+  return tree;
+}

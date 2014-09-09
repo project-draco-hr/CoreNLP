@@ -1,0 +1,10 @@
+{
+  if (args.length < 1)   System.err.println(usage);
+  Properties options=StringUtils.argsToProperties(args,argOptionDefs);
+  String[] remainingArgs=options.getProperty("").split(" ");
+  List<File> fileList=new ArrayList<File>();
+  for (  String arg : remainingArgs)   fileList.add(new File(arg));
+  AnCoraProcessor processor=new AnCoraProcessor(fileList,options);
+  List<Tree> trees=processor.process();
+  for (  Tree t : trees)   System.out.println(t);
+}
