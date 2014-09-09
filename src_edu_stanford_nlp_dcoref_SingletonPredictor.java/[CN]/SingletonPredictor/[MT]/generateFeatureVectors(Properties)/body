@@ -23,7 +23,7 @@
     for (    Mention predicted_men : document.allPredictedMentions.values()) {
       SemanticGraph dep=predicted_men.dependency;
       IndexedWord head=dep.getNodeByIndexSafe(predicted_men.headWord.index());
-      if (head == null || !dep.vertexSet().contains(head))       continue;
+      if (head == null)       continue;
       if (predicted_men.headWord.tag().startsWith("V"))       continue;
       if (gold_heads.contains(predicted_men.headWord))       continue;
       dataset.add(new BasicDatum<String,String>(predicted_men.getSingletonFeatures(dict),"0"));

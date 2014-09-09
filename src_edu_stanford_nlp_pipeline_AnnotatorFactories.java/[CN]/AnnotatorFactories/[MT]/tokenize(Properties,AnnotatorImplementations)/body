@@ -2,35 +2,36 @@
   return new AnnotatorFactory(properties,annotatorImplementation){
     private static final long serialVersionUID=1L;
     @Override public Annotator create(){
-      if (Boolean.valueOf(properties.getProperty("tokenize.whitespace","false"))) {
-        return annotatorImplementation.whitespaceTokenizer(properties);
+      String extraOptions=null;
+      boolean keepNewline=Boolean.valueOf(properties.getProperty(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY,"false"));
+      if (properties.getProperty(StanfordCoreNLP.NEWLINE_IS_SENTENCE_BREAK_PROPERTY) != null) {
+        keepNewline=true;
       }
- else {
-        String options=properties.getProperty("tokenize.options",PTBTokenizerAnnotator.DEFAULT_OPTIONS);
-        boolean keepNewline=Boolean.valueOf(properties.getProperty(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY,"false"));
-        if (properties.getProperty(StanfordCoreNLP.NEWLINE_IS_SENTENCE_BREAK_PROPERTY) != null) {
-          keepNewline=true;
-        }
-        if (keepNewline) {
-          options="tokenizeNLs," + options;
-        }
-        return annotatorImplementation.ptbTokenizer(properties,false,options);
+      if (keepNewline) {
+        extraOptions="tokenizeNLs,";
       }
+      return annotatorImplementation.tokenizer(properties,false,extraOptions);
     }
     @Override public String additionalSignature(){
       StringBuilder os=new StringBuilder();
-      os.append("tokenize.whitespace:" + properties.getProperty("tokenize.whitespace","false"));
+      os.append("tokenize.whitespace:").append(properties.getProperty("tokenize.whitespace","false"));
       if (properties.getProperty("tokenize.options") != null) {
-        os.append(":tokenize.options:" + properties.getProperty("tokenize.options"));
+        os.append(":tokenize.options:").append(properties.getProperty("tokenize.options"));
+      }
+      if (properties.getProperty("tokenize.language") != null) {
+        os.append(":tokenize.language:").append(properties.getProperty("tokenize.language"));
+      }
+      if (properties.getProperty("tokenize.class") != null) {
+        os.append(":tokenize.class:").append(properties.getProperty("tokenize.class"));
       }
       if (Boolean.valueOf(properties.getProperty("tokenize.whitespace","false"))) {
-        os.append(WhitespaceTokenizerAnnotator.EOL_PROPERTY + ":" + properties.getProperty(WhitespaceTokenizerAnnotator.EOL_PROPERTY,"false"));
-        os.append(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY + ":" + properties.getProperty(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY,"false"));
+        os.append(TokenizerAnnotator.EOL_PROPERTY + ":").append(properties.getProperty(TokenizerAnnotator.EOL_PROPERTY,"false"));
+        os.append(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY + ":").append(properties.getProperty(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY,"false"));
         return os.toString();
       }
  else {
-        os.append(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY + ":" + Boolean.valueOf(properties.getProperty(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY,"false")));
-        os.append(StanfordCoreNLP.NEWLINE_IS_SENTENCE_BREAK_PROPERTY + ":" + properties.getProperty(StanfordCoreNLP.NEWLINE_IS_SENTENCE_BREAK_PROPERTY,StanfordCoreNLP.DEFAULT_NEWLINE_IS_SENTENCE_BREAK));
+        os.append(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY + ":").append(Boolean.valueOf(properties.getProperty(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY,"false")));
+        os.append(StanfordCoreNLP.NEWLINE_IS_SENTENCE_BREAK_PROPERTY + ":").append(properties.getProperty(StanfordCoreNLP.NEWLINE_IS_SENTENCE_BREAK_PROPERTY,StanfordCoreNLP.DEFAULT_NEWLINE_IS_SENTENCE_BREAK));
       }
       return os.toString();
     }

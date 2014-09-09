@@ -2,6 +2,10 @@
   int numCorrect=0;
   int numWrong=0;
   Tree tree=binarizedTrees.get(index);
+  ReorderingOracle reorderer=null;
+  if (op.trainOptions().trainingMethod == ShiftReduceTrainOptions.TrainingMethod.REORDER_ORACLE || op.trainOptions().trainingMethod == ShiftReduceTrainOptions.TrainingMethod.REORDER_BEAM) {
+    reorderer=new ReorderingOracle(op);
+  }
   if (op.trainOptions().trainingMethod == ShiftReduceTrainOptions.TrainingMethod.ORACLE) {
     State state=ShiftReduceParser.initialStateFromGoldTagTree(tree);
     while (!state.isFinished()) {
@@ -34,20 +38,24 @@
       state=predicted.apply(state);
     }
   }
- else   if (op.trainOptions().trainingMethod == ShiftReduceTrainOptions.TrainingMethod.BEAM) {
+ else   if (op.trainOptions().trainingMethod == ShiftReduceTrainOptions.TrainingMethod.BEAM || op.trainOptions().trainingMethod == ShiftReduceTrainOptions.TrainingMethod.REORDER_BEAM) {
     if (op.trainOptions().beamSize <= 0) {
       throw new IllegalArgumentException("Illegal beam size " + op.trainOptions().beamSize);
     }
-    List<Transition> transitions=transitionLists.get(index);
+    List<Transition> transitions=Generics.newLinkedList(transitionLists.get(index));
     PriorityQueue<State> agenda=new PriorityQueue<State>(op.trainOptions().beamSize + 1,ScoredComparator.ASCENDING_COMPARATOR);
     State goldState=ShiftReduceParser.initialStateFromGoldTagTree(tree);
     agenda.add(goldState);
     int transitionCount=0;
-    for (    Transition goldTransition : transitions) {
+    while (transitions.size() > 0) {
+      Transition goldTransition=transitions.get(0);
+      Transition highestScoringTransitionFromGoldState=null;
+      double highestScoreFromGoldState=0.0;
       PriorityQueue<State> newAgenda=new PriorityQueue<State>(op.trainOptions().beamSize + 1,ScoredComparator.ASCENDING_COMPARATOR);
       State highestScoringState=null;
       State highestCurrentState=null;
       for (      State currentState : agenda) {
+        boolean isGoldState=(op.trainOptions().trainingMethod == ShiftReduceTrainOptions.TrainingMethod.REORDER_BEAM && goldState.areTransitionsEqual(currentState));
         List<String> features=featureFactory.featurize(currentState);
         Collection<ScoredObject<Integer>> stateTransitions=findHighestScoringTransitions(currentState,features,true,op.trainOptions().beamSize,null);
         for (        ScoredObject<Integer> transition : stateTransitions) {
@@ -60,52 +68,91 @@
             highestScoringState=newState;
             highestCurrentState=currentState;
           }
+          if (isGoldState && (highestScoringTransitionFromGoldState == null || transition.score() > highestScoreFromGoldState)) {
+            highestScoringTransitionFromGoldState=transitionIndex.get(transition.object());
+            highestScoreFromGoldState=transition.score();
+          }
         }
       }
-      List<String> goldFeatures=featureFactory.featurize(goldState);
-      goldState=goldTransition.apply(goldState,0.0);
-      if (!goldState.areTransitionsEqual(highestScoringState)) {
+      if (op.trainOptions().trainingMethod == ShiftReduceTrainOptions.TrainingMethod.REORDER_BEAM && highestScoringTransitionFromGoldState == null) {
+        break;
+      }
+      State newGoldState=goldTransition.apply(goldState,0.0);
+      if (!newGoldState.areTransitionsEqual(highestScoringState)) {
         ++numWrong;
+        List<String> goldFeatures=featureFactory.featurize(goldState);
         int lastTransition=transitionIndex.indexOf(highestScoringState.transitions.peek());
         updates.add(new Update(featureFactory.featurize(highestCurrentState),-1,lastTransition,1.0f));
         updates.add(new Update(goldFeatures,transitionIndex.indexOf(goldTransition),-1,1.0f));
+        if (op.trainOptions().trainingMethod == ShiftReduceTrainOptions.TrainingMethod.BEAM) {
+          if (!findStateOnAgenda(newAgenda,newGoldState)) {
+            break;
+          }
+ else {
+            transitions.remove(0);
+          }
+        }
+ else         if (op.trainOptions().trainingMethod == ShiftReduceTrainOptions.TrainingMethod.REORDER_BEAM) {
+          if (!findStateOnAgenda(newAgenda,newGoldState)) {
+            if (!reorderer.reorder(goldState,highestScoringTransitionFromGoldState,transitions)) {
+              break;
+            }
+            newGoldState=highestScoringTransitionFromGoldState.apply(goldState);
+            if (!findStateOnAgenda(newAgenda,newGoldState)) {
+              break;
+            }
+          }
+ else {
+            transitions.remove(0);
+          }
+        }
       }
  else {
         ++numCorrect;
+        transitions.remove(0);
       }
-      boolean found=false;
-      for (      State otherState : newAgenda) {
-        if (otherState.areTransitionsEqual(goldState)) {
-          found=true;
-          break;
-        }
-      }
-      if (!found) {
-        break;
-      }
+      goldState=newGoldState;
       agenda=newAgenda;
     }
   }
- else {
+ else   if (op.trainOptions().trainingMethod == ShiftReduceTrainOptions.TrainingMethod.REORDER_ORACLE || op.trainOptions().trainingMethod == ShiftReduceTrainOptions.TrainingMethod.EARLY_TERMINATION || op.trainOptions().trainingMethod == ShiftReduceTrainOptions.TrainingMethod.GOLD) {
     State state=ShiftReduceParser.initialStateFromGoldTagTree(tree);
     List<Transition> transitions=transitionLists.get(index);
-    for (    Transition transition : transitions) {
+    transitions=Generics.newLinkedList(transitions);
+    boolean keepGoing=true;
+    while (transitions.size() > 0 && keepGoing) {
+      Transition transition=transitions.get(0);
       int transitionNum=transitionIndex.indexOf(transition);
       List<String> features=featureFactory.featurize(state);
       int predictedNum=findHighestScoringTransition(state,features,false).object();
       Transition predicted=transitionIndex.get(predictedNum);
       if (transitionNum == predictedNum) {
+        transitions.remove(0);
+        state=transition.apply(state);
         numCorrect++;
       }
  else {
         numWrong++;
         updates.add(new Update(features,transitionNum,predictedNum,1.0f));
-      }
-      if (op.trainOptions().trainingMethod == ShiftReduceTrainOptions.TrainingMethod.EARLY_TERMINATION && transitionNum != predictedNum) {
+switch (op.trainOptions().trainingMethod) {
+case EARLY_TERMINATION:
+          keepGoing=false;
         break;
-      }
-      state=transition.apply(state);
-    }
-  }
-  return Pair.makePair(numCorrect,numWrong);
+case GOLD:
+      transitions.remove(0);
+    state=transition.apply(state);
+  break;
+case REORDER_ORACLE:
+keepGoing=reorderer.reorder(state,predicted,transitions);
+if (keepGoing) {
+state=predicted.apply(state);
+}
+break;
+default :
+throw new IllegalArgumentException("Unexpected method " + op.trainOptions().trainingMethod);
+}
+}
+}
+}
+return Pair.makePair(numCorrect,numWrong);
 }
