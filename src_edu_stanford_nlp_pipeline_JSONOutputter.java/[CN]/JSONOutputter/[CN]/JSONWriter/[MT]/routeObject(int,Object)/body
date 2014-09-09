@@ -21,6 +21,18 @@
  else   if (value instanceof Consumer) {
     object(indent,(Consumer<Writer>)value);
   }
+ else   if (value instanceof Stream) {
+    routeObject(indent,((Stream)value).collect(Collectors.toList()));
+  }
+ else   if (value.getClass().isArray()) {
+    routeObject(indent,Arrays.asList((Object[])value));
+  }
+ else   if (value instanceof Integer) {
+    routeObject(indent,Integer.toString((Integer)value));
+  }
+ else   if (value instanceof Double) {
+    routeObject(indent,Double.toString((Double)value));
+  }
  else {
     throw new RuntimeException("Unknown object to serialize: " + value);
   }
