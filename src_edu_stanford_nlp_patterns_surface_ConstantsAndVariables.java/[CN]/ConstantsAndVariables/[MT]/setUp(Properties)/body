@@ -4,7 +4,7 @@
   }
   Execution.fillOptions(this,props);
   if (wordIgnoreRegex != null && !wordIgnoreRegex.isEmpty())   ignoreWordRegex=Pattern.compile(wordIgnoreRegex);
-  for (  String label : labelDictionary.keySet()) {
+  for (  String label : labels) {
     env.put(label,TokenSequencePattern.getNewEnv());
     for (    Entry<String,Class<? extends Key<String>>> en : this.answerClass.entrySet()) {
       env.get(label).bind(en.getKey(),en.getValue());
@@ -44,7 +44,7 @@
     i++;
   }
   stopStr+="/";
-  for (  String label : labelDictionary.keySet()) {
+  for (  String label : labels) {
     env.get(label).bind("$FILLER","/" + StringUtils.join(fillerWords,"|") + "/");
     env.get(label).bind("$STOPWORD",stopStr);
     env.get(label).bind("$MOD","[{tag:/JJ.*/}]");
