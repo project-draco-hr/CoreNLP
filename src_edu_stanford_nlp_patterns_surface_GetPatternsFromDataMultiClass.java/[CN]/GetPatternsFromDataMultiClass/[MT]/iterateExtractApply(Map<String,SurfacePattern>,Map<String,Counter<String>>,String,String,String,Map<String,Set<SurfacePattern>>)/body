@@ -19,9 +19,8 @@
   Map<String,BufferedWriter> patternsOutput=new HashMap<String,BufferedWriter>();
   for (  String label : constVars.getLabelDictionary().keySet()) {
     IOUtils.ensureDir(new File(constVars.outDir + "/" + constVars.identifier+ "/"+ label));
-    String wordsOutputFileLabel;
+    String wordsOutputFileLabel=wordsOutputFile + "_" + label;
     if (wordsOutputFile == null)     wordsOutputFileLabel=constVars.outDir + "/" + constVars.identifier+ "/"+ label+ "/learnedwords.txt";
- else     wordsOutputFileLabel=wordsOutputFile + "_" + label;
     wordsOutput.put(label,new BufferedWriter(new FileWriter(wordsOutputFileLabel)));
     Redwood.log(ConstantsAndVariables.minimaldebug,"Saving the learned words for label " + label + " in "+ wordsOutputFileLabel);
     String patternsOutputFileLabel=patternsOutFile + "_" + label;
