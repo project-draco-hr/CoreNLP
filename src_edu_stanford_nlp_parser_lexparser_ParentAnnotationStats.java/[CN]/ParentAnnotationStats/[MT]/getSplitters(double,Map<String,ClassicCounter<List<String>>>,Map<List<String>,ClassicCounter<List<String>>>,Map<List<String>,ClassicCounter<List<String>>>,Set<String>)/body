@@ -1,2 +1,66 @@
 {
+  for (  String node : nr.keySet()) {
+    List<Pair<List<String>,Double>> answers=new ArrayList<Pair<List<String>,Double>>();
+    ClassicCounter<List<String>> cntr=nr.get(node);
+    double support=(cntr.totalCount());
+    for (    List<String> key : pr.keySet()) {
+      if (key.get(0).equals(node)) {
+        ClassicCounter<List<String>> cntr2=pr.get(key);
+        double support2=cntr2.totalCount();
+        double kl=Counters.klDivergence(cntr2,cntr);
+        answers.add(new Pair<List<String>,Double>(key,new Double(kl * support2)));
+      }
+    }
+    Collections.sort(answers,new Comparator<Pair<List<String>,Double>>(){
+      public int compare(      Pair<List<String>,Double> o1,      Pair<List<String>,Double> o2){
+        return o2.second().compareTo(o1.second());
+      }
+    }
+);
+    for (int i=0, size=answers.size(); i < size; i++) {
+      Pair<List<String>,Double> p=answers.get(i);
+      double psd=p.second().doubleValue();
+      if (psd >= cutOff) {
+        List<String> lst=p.first();
+        String nd=lst.get(0);
+        String par=lst.get(1);
+        String name=nd + "^" + par;
+        splitters.add(name);
+      }
+    }
+  }
+  for (  List<String> node : pr.keySet()) {
+    ArrayList<Pair<List<String>,Double>> answers=Generics.newArrayList();
+    ClassicCounter<List<String>> cntr=pr.get(node);
+    double support=(cntr.totalCount());
+    if (support < SUPPCUTOFF) {
+      continue;
+    }
+    for (    List<String> key : gpr.keySet()) {
+      if (key.get(0).equals(node.get(0)) && key.get(1).equals(node.get(1))) {
+        ClassicCounter<List<String>> cntr2=gpr.get(key);
+        double support2=(cntr2.totalCount());
+        double kl=Counters.klDivergence(cntr2,cntr);
+        answers.add(new Pair<List<String>,Double>(key,new Double(kl * support2)));
+      }
+    }
+    Collections.sort(answers,new Comparator<Pair<List<String>,Double>>(){
+      public int compare(      Pair<List<String>,Double> o1,      Pair<List<String>,Double> o2){
+        return o2.second().compareTo(o1.second());
+      }
+    }
+);
+    for (int i=0, size=answers.size(); i < size; i++) {
+      Pair p=(Pair)answers.get(i);
+      double psd=((Double)p.second()).doubleValue();
+      if (psd >= cutOff) {
+        List lst=(List)p.first();
+        String nd=(String)lst.get(0);
+        String par=(String)lst.get(1);
+        String gpar=(String)lst.get(2);
+        String name=nd + "^" + par+ "~"+ gpar;
+        splitters.add(name);
+      }
+    }
+  }
 }

@@ -1,2 +1,26 @@
 {
+  ClassicCounter<String> c=new ClassicCounter<String>();
+  c.setCount("A",0);
+  c.setCount("B",1);
+  double d=Counters.klDivergence(c,c);
+  System.out.println("KL Divergence: " + d);
+  String encoding="UTF-8";
+  if (args.length > 1) {
+    encoding=args[1];
+  }
+  if (args.length < 1) {
+    System.out.println("Usage: ParentAnnotationStats treebankPath");
+  }
+ else {
+    SisterAnnotationStats pas=new SisterAnnotationStats();
+    Treebank treebank=new DiskTreebank(new TreeReaderFactory(){
+      public TreeReader newTreeReader(      Reader in){
+        return new PennTreeReader(in,new LabeledScoredTreeFactory(new StringLabelFactory()),new BobChrisTreeNormalizer());
+      }
+    }
+,encoding);
+    treebank.loadPath(args[0]);
+    treebank.apply(pas);
+    pas.printStats();
+  }
 }

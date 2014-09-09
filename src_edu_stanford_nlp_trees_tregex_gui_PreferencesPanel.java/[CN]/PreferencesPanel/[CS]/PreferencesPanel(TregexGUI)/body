@@ -1,2 +1,129 @@
 {
+  super(gui,"Preferences");
+  this.gui=gui;
+  this.setResizable(false);
+  final JPanel prefPanel=new JPanel();
+  prefPanel.setLayout(new GridBagLayout());
+  Box displayPrefs=Box.createVerticalBox();
+  displayPrefs.setBorder(BorderFactory.createTitledBorder("Display"));
+  JPanel displayOptions=new JPanel();
+  displayOptions.setLayout(new GridLayout(3,2,0,2));
+  JLabel historyLabel=new JLabel("Recent matches length: ");
+  final JTextField historySizeField=new JTextField(Integer.toString(Preferences.getHistorySize()));
+  displayOptions.add(historyLabel);
+  displayOptions.add(historySizeField);
+  JLabel maxMatchesLabel=new JLabel("Max displayed trees: ");
+  final JTextField maxMatchesSizeField=new JTextField(Integer.toString(Preferences.getMaxMatches()));
+  displayOptions.add(maxMatchesLabel);
+  displayOptions.add(maxMatchesSizeField);
+  JLabel highlightLabel=new JLabel("Highlight color:");
+  highlightButton=makeColorButton("Pick a new highlight color: ",Preferences.getHighlightColor(),prefPanel);
+  highlightButton.putClientProperty("JButton.buttonType","icon");
+  displayOptions.add(highlightLabel);
+  displayOptions.add(highlightButton);
+  displayPrefs.add(displayOptions);
+  Box treeDisplayPrefs=Box.createVerticalBox();
+  treeDisplayPrefs.setBorder(BorderFactory.createTitledBorder("Tree Display"));
+  JPanel treeDisplayOptions=new JPanel();
+  treeDisplayOptions.setLayout(new GridLayout(4,2));
+  JLabel fontName=new JLabel("Font: ");
+  final JComboBox fontPicker=new JComboBox(GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames());
+  fontPicker.setSelectedItem(Preferences.getFont());
+  JLabel sizeLabel=new JLabel("Font size: ");
+  final JTextField size=new JTextField(Integer.toString(Preferences.getFontSize()));
+  treeDisplayOptions.add(fontName);
+  treeDisplayOptions.add(fontPicker);
+  treeDisplayOptions.add(sizeLabel);
+  treeDisplayOptions.add(size);
+  JLabel defaultColorLabel=new JLabel("Tree color: ");
+  final JButton defaultColorButton=makeColorButton("Pick a new tree color: ",Preferences.getTreeColor(),prefPanel);
+  treeDisplayOptions.add(defaultColorLabel);
+  treeDisplayOptions.add(defaultColorButton);
+  JLabel matchedLabel=new JLabel("Matched node color: ");
+  final JButton matchedButton=makeColorButton("Pick a new color for matched nodes: ",Preferences.getMatchedColor(),prefPanel);
+  treeDisplayOptions.add(matchedLabel);
+  treeDisplayOptions.add(matchedButton);
+  treeDisplayPrefs.add(treeDisplayOptions);
+  JPanel advOptions=new JPanel();
+  advOptions.setBorder(BorderFactory.createTitledBorder("Advanced "));
+  advOptions.setLayout(new GridLayout(3,2,0,4));
+  JLabel headfinderName=new JLabel("Head finder:");
+  final JComboBox headfinderPicker=new JComboBox(new String[]{"ArabicHeadFinder","BikelChineseHeadFinder","ChineseHeadFinder","ChineseSemanticHeadFinder","CollinsHeadFinder","DybroFrenchHeadFinder","LeftHeadFinder","ModCollinsHeadFinder","NegraHeadFinder","SemanticHeadFinder","SunJurafskyChineseHeadFinder","TueBaDZHeadFinder"});
+  headfinderPicker.setEditable(true);
+  headfinderPicker.setSelectedItem(Preferences.getHeadFinder().getClass().getSimpleName());
+  JLabel treeReaderFactoryName=new JLabel("Tree reader factory:");
+  final JComboBox trfPicker=new JComboBox(new String[]{"ArabicTreeReaderFactory","ArabicTreeReaderFactory.ArabicRawTreeReaderFactory","CTBTreeReaderFactory","Basic categories only (LabeledScoredTreeReaderFactory)","FrenchTreeReaderFactory","NoEmptiesCTBTreeReaderFactory","PennTreeReaderFactory","TregexTreeReaderFactory"});
+  trfPicker.setEditable(true);
+  trfPicker.setSelectedItem(Preferences.getTreeReaderFactory().getClass().getSimpleName());
+  JLabel encodingLabel=new JLabel("Character encoding: ");
+  setEncoding=new JTextField(Preferences.getEncoding());
+  setEncoding.setPreferredSize(headfinderName.getPreferredSize());
+  advOptions.add(headfinderName);
+  advOptions.add(headfinderPicker);
+  advOptions.add(treeReaderFactoryName);
+  advOptions.add(trfPicker);
+  advOptions.add(encodingLabel);
+  advOptions.add(setEncoding);
+  final JCheckBox tsurgeonCheck=new JCheckBox("Enable Tsurgeon");
+  tsurgeonCheck.setSelected(Preferences.getEnableTsurgeon());
+  final JCheckBox matchPortion=new JCheckBox("Show only matched portions of tree");
+  matchPortion.setSelected(Preferences.getMatchPortionOnly());
+  GridBagConstraints c=new GridBagConstraints();
+  c.ipady=3;
+  c.fill=GridBagConstraints.BOTH;
+  c.weightx=1;
+  c.gridwidth=GridBagConstraints.REMAINDER;
+  prefPanel.add(displayPrefs,c);
+  prefPanel.add(treeDisplayPrefs,c);
+  prefPanel.add(advOptions,c);
+  prefPanel.add(tsurgeonCheck,c);
+  c.gridheight=GridBagConstraints.REMAINDER;
+  prefPanel.add(matchPortion,c);
+  JButton[] options=new JButton[2];
+  JButton okay=new JButton("Okay");
+  JButton cancel=new JButton("Cancel");
+  options[1]=cancel;
+  options[0]=okay;
+  final JOptionPane prefPane=new JOptionPane();
+  prefPane.setMessage(prefPanel);
+  prefPane.setOptions(options);
+  prefPane.setOpaque(true);
+  this.setContentPane(prefPane);
+  this.getRootPane().setDefaultButton(okay);
+  okay.addActionListener(new ActionListener(){
+    public void actionPerformed(    ActionEvent arg0){
+      try {
+        HeadFinder hf=Preferences.lookupHeadFinder(headfinderPicker.getSelectedItem().toString());
+        if (hf == null) {
+          JOptionPane.showMessageDialog(PreferencesPanel.this,"Sorry, there was an error finding or instantiating the head finder. Please choose another head finder.","Head Finder Error",JOptionPane.ERROR_MESSAGE);
+          throw new Exception("Headfinder error");
+        }
+        TreeReaderFactory trf=Preferences.lookupTreeReaderFactory(trfPicker.getSelectedItem().toString());
+        if (trf == null) {
+          JOptionPane.showMessageDialog(PreferencesPanel.this,"Sorry, there was an error finding or instantiating the tree reader factory. Please choose another tree reader factory.","Tree Reader Factory Error",JOptionPane.ERROR_MESSAGE);
+          throw new Exception("Tree reader factory error");
+        }
+        Integer historySize=checkNumberFormat(historySizeField,PreferencesPanel.HISTORY_ERROR);
+        Integer maxMatchSize=checkNumberFormat(maxMatchesSizeField,PreferencesPanel.MAX_MATCH_ERROR);
+        Integer textSize=checkNumberFormat(size,PreferencesPanel.FONT_ERROR);
+        syncFromPrefPanel(fontPicker.getSelectedItem().toString(),textSize,((ColorIcon)defaultColorButton.getIcon()).getColor(),((ColorIcon)matchedButton.getIcon()).getColor(),((ColorIcon)highlightButton.getIcon()).getColor(),historySize,maxMatchSize,tsurgeonCheck.isSelected(),matchPortion.isSelected(),hf,trf,setEncoding.getText().trim());
+        PreferencesPanel.this.setVisible(false);
+      }
+ catch (      NumberFormatException e) {
+        if (e.getMessage() == PreferencesPanel.FONT_ERROR)         JOptionPane.showMessageDialog(prefPanel,"Please enter an integer greater than 0 for the font size.","Font size error",JOptionPane.ERROR_MESSAGE);
+ else         if (e.getMessage() == PreferencesPanel.HISTORY_ERROR)         JOptionPane.showMessageDialog(prefPanel,"Please enter an integer greater than or equal to 0 for the number of recent matches to remember.","History size error",JOptionPane.ERROR_MESSAGE);
+ else         if (e.getMessage() == PreferencesPanel.HISTORY_ERROR)         JOptionPane.showMessageDialog(prefPanel,"Please enter an integer greater than or equal to 0 for the maximum number of matches to display.","Max Matches size error",JOptionPane.ERROR_MESSAGE);
+ else         JOptionPane.showMessageDialog(prefPanel,"Please check that the font size, max matches to display, and number of recent matches to remember are all integers greater than 0.","Size error",JOptionPane.ERROR_MESSAGE);
+      }
+catch (      Exception e) {
+      }
+    }
+  }
+);
+  cancel.addActionListener(new ActionListener(){
+    public void actionPerformed(    ActionEvent arg0){
+      PreferencesPanel.this.setVisible(false);
+    }
+  }
+);
 }
