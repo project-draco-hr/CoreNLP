@@ -18,6 +18,8 @@
       for (int i=s; i < e; i++) {
         CoreLabel l=sent.get(i);
         l.set(PatternsAnnotations.MatchedPattern.class,true);
+        if (!l.containsKey(PatternsAnnotations.MatchedPatterns.class))         l.set(PatternsAnnotations.MatchedPatterns.class,new HashSet<SurfacePattern>());
+        l.get(PatternsAnnotations.MatchedPatterns.class).add(matchedPat);
         for (        Entry<Class,Object> ig : constVars.ignoreWordswithClassesDuringSelection.get(label).entrySet()) {
           if (l.containsKey(ig.getKey()) && l.get(ig.getKey()).equals(ig.getValue())) {
             doNotUse=true;
