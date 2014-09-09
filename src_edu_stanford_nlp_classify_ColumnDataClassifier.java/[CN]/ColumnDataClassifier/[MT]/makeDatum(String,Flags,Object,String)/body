@@ -68,13 +68,16 @@
       addFeature(featuresC,featureName,DEFAULT_VALUE);
     }
   }
-  if (flags.splitWordsPattern != null || flags.splitWordsTokenizerPattern != null) {
+  if (flags.splitWordsPattern != null || flags.splitWordsTokenizerPattern != null || flags.splitWordsWithPTBTokenizer) {
     String[] bits;
     if (flags.splitWordsTokenizerPattern != null) {
       bits=regexpTokenize(flags.splitWordsTokenizerPattern,flags.splitWordsIgnorePattern,cWord);
     }
- else {
+ else     if (flags.splitWordsPattern != null) {
       bits=splitTokenize(flags.splitWordsPattern,flags.splitWordsIgnorePattern,cWord);
+    }
+ else {
+      bits=ptbTokenize(cWord);
     }
     if (flags.showTokenization) {
       System.err.print("Tokenization: ");
