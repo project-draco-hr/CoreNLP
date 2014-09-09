@@ -1,24 +1,2 @@
 {
-  nThreads=numThreads <= 0 ? Runtime.getRuntime().availableProcessors() : numThreads;
-  this.orderResults=orderResults;
-  outputQueue=new ConcurrentHashMap<Integer,O>(2 * nThreads);
-  threadPool=buildThreadPool(nThreads);
-  idleProcessors=new ArrayBlockingQueue<Integer>(nThreads,false);
-  callback=new JobCallback<O>(){
-    @Override public void call(    QueueItem<O> result,    int processorId){
-      outputQueue.put(result.id,result.item);
-      idleProcessors.add(processorId);
-    }
-  }
-;
-  threadPool.allowCoreThreadTimeOut(false);
-  threadPool.prestartAllCoreThreads();
-  List<ThreadsafeProcessor<I,O>> procList=new ArrayList<ThreadsafeProcessor<I,O>>(nThreads);
-  procList.add(processor);
-  idleProcessors.add(0);
-  for (int i=1; i < nThreads; ++i) {
-    procList.add(processor.newInstance());
-    idleProcessors.add(i);
-  }
-  processorList=Collections.unmodifiableList(procList);
 }

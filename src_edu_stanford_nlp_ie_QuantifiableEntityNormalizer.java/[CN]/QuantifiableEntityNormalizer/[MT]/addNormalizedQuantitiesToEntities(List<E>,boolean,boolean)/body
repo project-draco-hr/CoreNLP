@@ -25,52 +25,53 @@
         }
       }
     }
-    E wprev=(i > 0) ? list.get(i - 1) : null;
-    if ((currNerTag == null || !currNerTag.equals(prevNerTag) || !isCompatible(prevNerTag,wprev,wi)) && quantifiable.contains(prevNerTag)) {
+    if ((currNerTag == null || !currNerTag.equals(prevNerTag)) && quantifiable.contains(prevNerTag)) {
       String compModifier=null;
-      if (prevNerTag.equals("TIME")) {
+switch (prevNerTag) {
+case "TIME":
         processEntity(collector,prevNerTag,timeModifier,nextWord);
-      }
- else       if (prevNerTag.equals(("DATE"))) {
-        E prev=(beforeIndex >= 0) ? list.get(beforeIndex) : null;
-        if (usesSUTime) {
-          compModifier=detectDateRangeModifier(prev);
-        }
+      break;
+case ("DATE"):
+    E prev=(beforeIndex >= 0) ? list.get(beforeIndex) : null;
+  if (usesSUTime) {
+    compModifier=detectDateRangeModifier(prev);
+  }
  else {
-          compModifier=detectDateRangeModifier(collector,list,beforeIndex,i);
-        }
-        if (!compModifier.equals(ISODateInstance.BOUNDED_RANGE))         processEntity(collector,prevNerTag,compModifier,nextWord);
-        if (concatenate)         concatenateNumericString(collector,toRemove);
-      }
- else {
-        if (prevNerTag.equals("MONEY") || prevNerTag.equals("NUMBER") || prevNerTag.equals("PERCENT")) {
-          compModifier=detectQuantityModifier(list,beforeIndex,i);
-        }
-        processEntity(collector,prevNerTag,compModifier,nextWord);
-        if (concatenate) {
-          concatenateNumericString(collector,toRemove);
-        }
-      }
-      collector=new ArrayList<E>();
-      timeModifier="";
-    }
-    if (quantifiable.contains(currNerTag)) {
-      if (collector.isEmpty()) {
-        beforeIndex=i - 1;
-      }
-      collector.add(wi);
-    }
-    prevNerTag=currNerTag;
+    compModifier=detectDateRangeModifier(collector,list,beforeIndex,i);
   }
-  if (concatenate) {
-    list.removeAll(toRemove);
-  }
-  List<E> moreRemoves=new ArrayList<E>();
-  for (int i=0, sz=list.size(); i < sz; i++) {
-    E wi=list.get(i);
-    moreRemoves.addAll(detectTwoSidedRangeModifier(wi,list,i - 1,i + 1,concatenate));
-  }
-  if (concatenate) {
-    list.removeAll(moreRemoves);
-  }
+if (!compModifier.equals(ISODateInstance.BOUNDED_RANGE)) processEntity(collector,prevNerTag,compModifier,nextWord);
+if (concatenate) concatenateNumericString(collector,toRemove);
+break;
+default :
+if (prevNerTag.equals("MONEY") || prevNerTag.equals("NUMBER") || prevNerTag.equals("PERCENT")) {
+compModifier=detectQuantityModifier(list,beforeIndex,i);
+}
+processEntity(collector,prevNerTag,compModifier,nextWord);
+if (concatenate) {
+concatenateNumericString(collector,toRemove);
+}
+break;
+}
+collector=new ArrayList<E>();
+timeModifier="";
+}
+if (quantifiable.contains(currNerTag)) {
+if (collector.isEmpty()) {
+beforeIndex=i - 1;
+}
+collector.add(wi);
+}
+prevNerTag=currNerTag;
+}
+if (concatenate) {
+list.removeAll(toRemove);
+}
+List<E> moreRemoves=new ArrayList<E>();
+for (int i=0, sz=list.size(); i < sz; i++) {
+E wi=list.get(i);
+moreRemoves.addAll(detectTwoSidedRangeModifier(wi,list,i - 1,i + 1,concatenate));
+}
+if (concatenate) {
+list.removeAll(moreRemoves);
+}
 }

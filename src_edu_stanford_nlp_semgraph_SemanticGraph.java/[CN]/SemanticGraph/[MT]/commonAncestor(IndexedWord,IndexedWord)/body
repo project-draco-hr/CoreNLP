@@ -1,37 +1,26 @@
 {
-  if (v1.equals(v2)) {
-    return 0;
-  }
-  Set<IndexedWord> v1Parents=this.getParents(v1);
-  Set<IndexedWord> v2Parents=this.getParents(v2);
-  Set<IndexedWord> v1GrandParents=wordMapFactory.newSet();
-  Set<IndexedWord> v2GrandParents=wordMapFactory.newSet();
-  if (v1Parents.contains(v2) || v2Parents.contains(v1)) {
-    return 1;
-  }
+  List<IndexedWord> v1Parents=this.getParentList(v1);
+  List<IndexedWord> v2Parents=this.getParentList(v2);
+  List<IndexedWord> v1GrandParents=new ArrayList<IndexedWord>();
+  List<IndexedWord> v2GrandParents=new ArrayList<IndexedWord>();
   for (  IndexedWord v1Parent : v1Parents) {
     if (v2Parents.contains(v1Parent)) {
       return 1;
     }
-    v1GrandParents.addAll(this.getParents(v1Parent));
-  }
-  for (  IndexedWord v2Parent : v2Parents) {
-    v2GrandParents.addAll(this.getParentList(v2Parent));
-  }
-  if (v1GrandParents.contains(v2) || v2GrandParents.contains(v1)) {
-    return 2;
-  }
-  for (  IndexedWord v2GrandParent : v2GrandParents) {
-    if (v1Parents.contains(v2GrandParent)) {
-      return 2;
-    }
+    v1GrandParents.addAll(this.getParentList(v1Parent));
   }
   for (  IndexedWord v1GrandParent : v1GrandParents) {
     if (v2Parents.contains(v1GrandParent)) {
       return 2;
     }
   }
+  for (  IndexedWord v2Parent : v2Parents) {
+    v2GrandParents.addAll(this.getParentList(v2Parent));
+  }
   for (  IndexedWord v2GrandParent : v2GrandParents) {
+    if (v1Parents.contains(v2GrandParent)) {
+      return 1;
+    }
     if (v1GrandParents.contains(v2GrandParent)) {
       return 2;
     }

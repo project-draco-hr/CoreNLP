@@ -1,15 +1,15 @@
 {
   double output=0.0;
   if (cliqueSize > 1) {
-    for (    int cliqueFeature : cliqueFeatures) {
-      output+=linearWeights[cliqueFeature][labelIndex];
+    for (int m=0; m < cliqueFeatures.length; m++) {
+      output+=linearWeights[cliqueFeatures[m]][labelIndex];
     }
   }
  else {
     double[] hiddenLayer=hiddenLayerOutput(inputLayerWeights,cliqueFeatures,flags,featureVal);
     int outputLayerSize=inputLayerWeights.length / outputLayerWeights[0].length;
     if (flags.useOutputLayer) {
-      double[] outputWs;
+      double[] outputWs=null;
       if (flags.tieOutputLayer) {
         outputWs=outputLayerWeights[0];
       }

@@ -1,10 +1,13 @@
 {
-  Set<IndexedWord> parents=this.getParents(child);
+  List<IndexedWord> parents=this.getParentList(child);
+  if (parents == null) {
+    return -1;
+  }
   if (parents.contains(ancestor)) {
     return 1;
   }
   for (  IndexedWord parent : parents) {
-    Set<IndexedWord> grandparents=this.getParents(parent);
+    List<IndexedWord> grandparents=this.getParentList(parent);
     if (grandparents.contains(ancestor)) {
       return 2;
     }

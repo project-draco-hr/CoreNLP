@@ -1,6 +1,9 @@
 {
-  if (annotations.containsKey(args[i])) {
-    addFeature(args[i]);
+  if (annotationPatterns.keySet().contains(args[i])) {
+    if (!baselineFeatures.contains(args[i]))     additionalFeatures.add(args[i]);
+    Pair<TregexPattern,Function<TregexMatcher,String>> p=annotationPatterns.get(args[i]);
+    activeAnnotations.add(p);
+    optionsString.append("Option " + args[i] + " added annotation pattern "+ p.first()+ " with annotation "+ p.second()+ '\n');
     i++;
   }
  else   if (args[i].equals("-collinizerRetainsPunctuation")) {
@@ -27,7 +30,10 @@
     i++;
   }
  else   if (args[i].equals("-frenchFactored")) {
-    for (    String feature : factoredFeatures)     addFeature(feature);
+    for (    String annotation : baselineFeatures) {
+      String[] a={annotation};
+      setOptionFlag(a,0);
+    }
     i++;
   }
  else   if (args[i].equals("-frenchMWMap")) {
@@ -35,24 +41,24 @@
     i+=2;
   }
  else   if (args[i].equals("-tsg")) {
-    optionsString.append("Removing baseline features: -markVN, -coord1");
-    removeFeature("-markVN");
+    optionsString.append("Removing baseline features: ");
+    removeBaselineFeature("-markVN");
     optionsString.append(" (removed -markVN)");
-    removeFeature("-coord1");
+    removeBaselineFeature("-coord1");
     optionsString.append(" (removed -coord1)\n");
     i++;
   }
  else   if (args[i].equals("-factlex") && (i + 1 < args.length)) {
     String activeFeats=setupMorphoFeatures(args[i + 1]);
     optionsString.append("Factored Lexicon: active features: ").append(activeFeats);
-    removeFeature("-tagPAFr");
+    removeBaselineFeature("-tagPAFr");
     optionsString.append(" (removed -tagPAFr)\n");
     String[] option={"-mweTag"};
     setOptionFlag(option,0);
     i+=2;
   }
  else   if (args[i].equals("-noFeatures")) {
-    for (    String feature : annotations.keySet())     removeFeature(feature);
+    activeAnnotations.clear();
     optionsString.append("Removed all manual features.\n");
     i++;
   }
