@@ -39,18 +39,19 @@
     TimexAttributes timex=findTimex(timexMap,docName,tid);
     assert(timex.sentIndex == sentNo);
     assert(timex.tokenStart <= tokenNo && timex.tokenEnd > tokenNo);
-    if ("type".equals(attrname)) {
+switch (attrname) {
+case "type":
       assert(timex.type == null || timex.type.equals(attrvalue));
-      timex.type=attrvalue;
-    }
- else     if ("value".equals(attrname)) {
-      assert(timex.value == null || timex.value.equals(attrvalue));
-      timex.value=attrvalue;
-    }
- else {
-      throw new RuntimeException("Error processing " + attrsFile + ":"+ "Unknown attribute "+ attrname+ ": from line "+ line);
-    }
-  }
-  attrBr.close();
-  return timexMap;
+    timex.type=attrvalue;
+  break;
+case "value":
+assert(timex.value == null || timex.value.equals(attrvalue));
+timex.value=attrvalue;
+break;
+default :
+throw new RuntimeException("Error processing " + attrsFile + ":"+ "Unknown attribute "+ attrname+ ": from line "+ line);
+}
+}
+attrBr.close();
+return timexMap;
 }

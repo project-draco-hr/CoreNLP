@@ -5,24 +5,26 @@
   for (int i=0; i < labeledSequence.size(); i++) {
     String token=labeledSequence.get(i).get(CoreAnnotations.CharAnnotation.class);
     String label=labeledSequence.get(i).get(CoreAnnotations.AnswerAnnotation.class);
-    if (label.equals(BeginSymbol)) {
+switch (label) {
+case BeginSymbol:
       if (i != wordBegin) {
         segments.add(segment.toString());
         segment.setLength(0);
       }
-      segment.append(token);
-    }
- else     if (label.equals(BoundarySymbol)) {
-      segments.add(segment.toString());
-      segment.setLength(0);
-      annotateMarkersOnWord(labeledSequence,wordBegin,i,segments);
-      segments.clear();
-      wordBegin=i + 1;
-    }
- else {
-      segment.append(token);
-    }
-  }
-  segments.add(segment.toString());
-  annotateMarkersOnWord(labeledSequence,wordBegin,labeledSequence.size(),segments);
+    segment.append(token);
+  break;
+case BoundarySymbol:
+segments.add(segment.toString());
+segment.setLength(0);
+annotateMarkersOnWord(labeledSequence,wordBegin,i,segments);
+segments.clear();
+wordBegin=i + 1;
+break;
+default :
+segment.append(token);
+break;
+}
+}
+segments.add(segment.toString());
+annotateMarkersOnWord(labeledSequence,wordBegin,labeledSequence.size(),segments);
 }
