@@ -1,2 +1,11 @@
 {
+  final FileSemaphore lock=acquireFileLock(f);
+  final ObjectInputStream rtn=new ObjectInputStream(new GZIPInputStream(new BufferedInputStream(new FileInputStream(f))));
+  return new Pair<ObjectInputStream,CloseAction>(rtn,new CloseAction(){
+    @Override public void apply() throws IOException {
+      lock.release();
+      rtn.close();
+    }
+  }
+);
 }

@@ -1,2 +1,52 @@
 {
+  for (  CoreMap sentence : document.get(CoreAnnotations.SentencesAnnotation.class)) {
+    final List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
+    Tree tree=sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+    tree.indexSpans(0);
+    for (    CoreMap timexAnn : sentence.get(TimeAnnotations.TimexAnnotations.class)) {
+      Tree subtree;
+      final int timexBegin=beginOffset(timexAnn);
+      final int timexEnd=endOffset(timexAnn);
+      Iterable<Tree> possibleMatches;
+switch (this.matchType) {
+case ExactMatch:
+        possibleMatches=Iterables.filter(tree,new Function<Tree,Boolean>(){
+          public Boolean apply(          Tree tree){
+            int treeBegin=beginOffset(tree,tokens);
+            int treeEnd=endOffset(tree,tokens);
+            return treeBegin == timexBegin && timexEnd == treeEnd;
+          }
+        }
+);
+      Iterator<Tree> treeIter=possibleMatches.iterator();
+    subtree=treeIter.hasNext() ? treeIter.next() : null;
+  break;
+case SmallestEnclosing:
+possibleMatches=Iterables.filter(tree,new Function<Tree,Boolean>(){
+  public Boolean apply(  Tree tree){
+    int treeBegin=beginOffset(tree,tokens);
+    int treeEnd=endOffset(tree,tokens);
+    return treeBegin <= timexBegin && timexEnd <= treeEnd;
+  }
+}
+);
+List<Tree> sortedMatches=CollectionUtils.toList(possibleMatches);
+Collections.sort(sortedMatches,new Comparator<Tree>(){
+public int compare(Tree tree1,Tree tree2){
+Integer width1=endOffset(tree1,tokens) - beginOffset(tree1,tokens);
+Integer width2=endOffset(tree2,tokens) - endOffset(tree2,tokens);
+return width1.compareTo(width2);
+}
+}
+);
+subtree=sortedMatches.get(0);
+break;
+default :
+throw new RuntimeException("unexpected match type");
+}
+if (subtree != null) {
+timexAnn.set(TreeCoreAnnotations.TreeAnnotation.class,subtree);
+}
+}
+}
 }

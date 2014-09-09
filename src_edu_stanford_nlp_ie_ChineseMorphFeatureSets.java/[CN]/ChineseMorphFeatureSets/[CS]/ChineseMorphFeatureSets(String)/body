@@ -1,2 +1,17 @@
 {
+  try {
+    File dir=new File(featureDir);
+    File[] files=dir.listFiles(new FilenameFilter(){
+      public boolean accept(      File dir,      String name){
+        return name.endsWith(".gb");
+      }
+    }
+);
+    for (    File file : files) {
+      getFeatures(file);
+    }
+  }
+ catch (  IOException e) {
+    throw new RuntimeException("Error creating ChineseMaxentLexicon" + e);
+  }
 }

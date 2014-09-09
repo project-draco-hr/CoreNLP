@@ -1,3 +1,30 @@
 {
-  return getAnnotatedChunks(tokens,totalTokensOffset,textKey,labelKey,tokenChunkKey,tokenLabelKey,null);
+  List<CoreMap> chunks=new ArrayList();
+  LabelTagType prevTagType=null;
+  int tokenBegin=-1;
+  for (int i=0; i < tokens.size(); i++) {
+    CoreLabel token=tokens.get(i);
+    String label=(String)token.get(labelKey);
+    LabelTagType curTagType=getTagType(label);
+    if (isEndOfChunk(prevTagType,curTagType)) {
+      int tokenEnd=i;
+      CoreMap chunk=ChunkAnnotationUtils.getAnnotatedChunk(tokens,tokenBegin,tokenEnd,totalTokensOffset,tokenChunkKey,textKey,tokenLabelKey);
+      chunk.set(labelKey,prevTagType.type);
+      chunks.add(chunk);
+      tokenBegin=-1;
+    }
+    if (isStartOfChunk(prevTagType,curTagType)) {
+      if (tokenBegin >= 0) {
+        throw new RuntimeException("New chunk started, prev chunk not ended yet!");
+      }
+      tokenBegin=i;
+    }
+    prevTagType=curTagType;
+  }
+  if (tokenBegin >= 0) {
+    CoreMap chunk=ChunkAnnotationUtils.getAnnotatedChunk(tokens,tokenBegin,tokens.size(),totalTokensOffset,tokenChunkKey,textKey,tokenLabelKey);
+    chunk.set(labelKey,prevTagType.type);
+    chunks.add(chunk);
+  }
+  return chunks;
 }

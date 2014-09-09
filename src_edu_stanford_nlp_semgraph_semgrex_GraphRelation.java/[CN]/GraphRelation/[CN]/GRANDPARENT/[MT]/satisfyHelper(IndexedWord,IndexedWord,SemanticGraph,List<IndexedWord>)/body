@@ -1,0 +1,11 @@
+{
+  List<Pair<GrammaticalRelation,IndexedWord>> deps=sg.childPairs(parent);
+  for (  Pair<GrammaticalRelation,IndexedWord> dep : deps) {
+    if (this.type.accept(dep.first().toString()) && dep.second().equals(l2))     return true;
+  }
+  usedNodes.add(parent);
+  for (  Pair<GrammaticalRelation,IndexedWord> dep : deps) {
+    if (!usedNodes.contains(dep.second()) && satisfyHelper(dep.second(),l2,sg,usedNodes))     return true;
+  }
+  return false;
+}

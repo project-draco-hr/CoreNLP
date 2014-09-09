@@ -38,30 +38,26 @@
       sb.append(token);
     }
  else     if (label.equals(RewriteSymbol) || label.equals("REWAL") || label.equals("REWTA")) {
-switch (token) {
-case "??":
-case "??":
+      if (token.equals("??") || token.equals("??")) {
         sb.append(applyRewrites ? "??" : token);
-      break;
-case "??":
-    sb.append((addPrefixMarker ? prefixMarker : "") + (addSpace ? " " : "") + (applyRewrites ? "????" : "??"));
-  break;
-case "??":
-case "??":
-sb.append(applyRewrites ? "??" : token);
-break;
-case "??":
-sb.append(applyRewrites ? "??" : token);
-break;
-default :
-sb.append(token);
-break;
-}
-}
+      }
+ else       if (token.equals("??")) {
+        sb.append((addPrefixMarker ? prefixMarker : "") + (addSpace ? " " : "") + (applyRewrites ? "????" : "??"));
+      }
+ else       if (token.equals("??") || token.equals("??")) {
+        sb.append(applyRewrites ? "??" : token);
+      }
+ else       if (token.equals("??")) {
+        sb.append(applyRewrites ? "??" : token);
+      }
  else {
-throw new RuntimeException("Unknown label: " + label);
-}
-lastLabel=label;
-}
-return sb.toString().trim();
+        sb.append(token);
+      }
+    }
+ else {
+      throw new RuntimeException("Unknown label: " + label);
+    }
+    lastLabel=label;
+  }
+  return sb.toString().trim();
 }

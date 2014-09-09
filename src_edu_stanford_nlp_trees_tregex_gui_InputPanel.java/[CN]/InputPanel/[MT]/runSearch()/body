@@ -1,2 +1,38 @@
 {
+  setTregexState(true);
+  MatchesPanel.getInstance().removeAllMatches();
+  this.setPreferredSize(this.getSize());
+  searchThread=new Thread(){
+    @Override public void run(){
+      final String text=tregexPattern.getText().intern();
+      SwingUtilities.invokeLater(new Runnable(){
+        public void run(){
+          InputPanel.this.addRecentTregexPattern(text);
+          useProgressBar(true);
+        }
+      }
+);
+      final TRegexGUITreeVisitor visitor=getMatchTreeVisitor(text,this);
+      if (visitor != null) {
+        SwingUtilities.invokeLater(new Runnable(){
+          public void run(){
+            useProgressBar(false);
+            updateFoundStats(text,visitor.getMatches().size(),visitor.numUniqueMatches());
+            MatchesPanel.getInstance().setMatches(visitor.getMatches(),visitor.getMatchedParts());
+            MatchesPanel.getInstance().focusOnList();
+          }
+        }
+);
+      }
+      SwingUtilities.invokeLater(new Runnable(){
+        public void run(){
+          setTregexState(false);
+          InputPanel.this.searchThread=null;
+        }
+      }
+);
+    }
+  }
+;
+  searchThread.start();
 }
