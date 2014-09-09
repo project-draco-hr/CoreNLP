@@ -1,0 +1,62 @@
+{
+  return new AnnotatorFactory(properties,annotatorImplementation){
+    private static final long serialVersionUID=1L;
+    @Override public Annotator create(){
+      boolean nlSplitting=Boolean.valueOf(properties.getProperty(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY,"false"));
+      if (nlSplitting) {
+        boolean whitespaceTokenization=Boolean.valueOf(properties.getProperty("tokenize.whitespace","false"));
+        if (whitespaceTokenization) {
+          if (System.getProperty("line.separator").equals("\n")) {
+            return WordsToSentencesAnnotator.newlineSplitter(false,"\n");
+          }
+ else {
+            return WordsToSentencesAnnotator.newlineSplitter(false,System.getProperty("line.separator"),"\n");
+          }
+        }
+ else {
+          return WordsToSentencesAnnotator.newlineSplitter(false,PTBTokenizer.getNewlineToken());
+        }
+      }
+ else {
+        String isOneSentence=properties.getProperty("ssplit.isOneSentence");
+        if (Boolean.parseBoolean(isOneSentence)) {
+          return WordsToSentencesAnnotator.nonSplitter(false);
+        }
+        String boundaryMultiTokenRegex=properties.getProperty("ssplit.boundaryMultiTokenRegex");
+        String tokenPatternsToDiscardProp=properties.getProperty("ssplit.tokenPatternsToDiscard");
+        Set<String> tokenRegexesToDiscard=null;
+        if (tokenPatternsToDiscardProp != null) {
+          String[] toks=tokenPatternsToDiscardProp.split(",");
+          tokenRegexesToDiscard=Generics.newHashSet(Arrays.asList(toks));
+        }
+        String boundaryTokenRegex=properties.getProperty("ssplit.boundaryTokenRegex");
+        Set<String> boundariesToDiscard=null;
+        String bounds=properties.getProperty("ssplit.boundariesToDiscard");
+        if (bounds != null) {
+          String[] toks=bounds.split(",");
+          boundariesToDiscard=Generics.newHashSet(Arrays.asList(toks));
+        }
+        Set<String> htmlElementsToDiscard=null;
+        bounds=properties.getProperty("ssplit.htmlBoundariesToDiscard");
+        if (bounds != null) {
+          String[] elements=bounds.split(",");
+          htmlElementsToDiscard=Generics.newHashSet(Arrays.asList(elements));
+        }
+        String nlsb=properties.getProperty(StanfordCoreNLP.NEWLINE_IS_SENTENCE_BREAK_PROPERTY,StanfordCoreNLP.DEFAULT_NEWLINE_IS_SENTENCE_BREAK);
+        return annotatorImplementation.wordToSentences(properties,false,boundaryTokenRegex,boundariesToDiscard,htmlElementsToDiscard,nlsb,boundaryMultiTokenRegex,tokenRegexesToDiscard);
+      }
+    }
+    @Override public String additionalSignature(){
+      StringBuilder os=new StringBuilder();
+      if (Boolean.valueOf(properties.getProperty(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY,"false"))) {
+        os.append(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY + "=").append(properties.getProperty(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY,"false")).append("\n");
+        os.append("tokenize.whitespace=").append(properties.getProperty("tokenize.whitespace","false")).append("\n");
+      }
+ else {
+        os.append(baseSignature(properties,StanfordCoreNLP.STANFORD_SSPLIT));
+      }
+      return os.toString();
+    }
+  }
+;
+}
