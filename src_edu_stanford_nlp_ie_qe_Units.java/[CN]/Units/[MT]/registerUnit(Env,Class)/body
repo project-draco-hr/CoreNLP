@@ -1,0 +1,15 @@
+{
+  Field[] fields=clazz.getDeclaredFields();
+  for (  Field field : fields) {
+    boolean isStatic=Modifier.isStatic(field.getModifiers());
+    boolean isUnit=Unit.class.isAssignableFrom(field.getType());
+    if (isStatic && isUnit) {
+      try {
+        Unit unit=ErasureUtils.uncheckedCast(field.get(null));
+        registerUnit(env,unit);
+      }
+ catch (      IllegalAccessException ex) {
+      }
+    }
+  }
+}
