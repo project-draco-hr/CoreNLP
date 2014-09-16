@@ -1,0 +1,16 @@
+{
+  env=TokenSequencePattern.getNewEnv();
+  env.setDefaultTokensAnnotationKey(CoreAnnotations.NumerizedTokensAnnotation.class);
+  env.setDefaultStringMatchFlags(Pattern.CASE_INSENSITIVE);
+  env.setDefaultStringPatternFlags(Pattern.CASE_INSENSITIVE);
+  Units.registerUnits(env);
+  try {
+    UnitPrefix.registerPrefixes(env,options.prefixFilename);
+  }
+ catch (  IOException ex) {
+    throw new RuntimeException("Error loading prefixes from " + options.prefixFilename,ex);
+  }
+  env.bind("options",options);
+  env.bind("numcomptype",CoreAnnotations.NumericCompositeTypeAnnotation.class);
+  env.bind("numcompvalue",CoreAnnotations.NumericCompositeValueAnnotation.class);
+}

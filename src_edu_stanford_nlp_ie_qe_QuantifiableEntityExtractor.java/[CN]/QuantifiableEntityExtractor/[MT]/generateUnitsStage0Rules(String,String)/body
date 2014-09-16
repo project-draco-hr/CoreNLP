@@ -1,0 +1,13 @@
+{
+  Pattern tabPattern=Pattern.compile("\t");
+  PrintWriter pw=IOUtils.getPrintWriter(outfile);
+  BufferedReader br=IOUtils.getBufferedFileReader(infile);
+  String line;
+  pw.println("ENV.defaults[\"stage\"] = 0");
+  while ((line=br.readLine()) != null) {
+    String[] fields=tabPattern.split(line);
+    pw.println(String.format("{ pattern: ( %s ), action: Tag($0, \"Unit\", %s) }",fields[0],fields[1]));
+  }
+  br.close();
+  pw.close();
+}
