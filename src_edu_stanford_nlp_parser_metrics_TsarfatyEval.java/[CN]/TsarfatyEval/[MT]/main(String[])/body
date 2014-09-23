@@ -13,80 +13,79 @@
   String goldFile=null;
   for (int i=0; i < args.length; i++) {
     if (args[i].startsWith("-")) {
-switch (args[i]) {
-case "-l":
+      if (args[i].equals("-l")) {
         Language lang=Language.valueOf(args[++i].trim());
-      tlpp=Languages.getLanguageParams(lang);
-    break;
-case "-y":
-  maxGoldYield=Integer.parseInt(args[++i].trim());
-break;
-case "-t":
-tagMode=true;
-break;
-case "-v":
-VERBOSE=true;
-break;
-case "-g":
-maxGuessYield=Integer.parseInt(args[++i].trim());
-skipGuess=true;
-break;
-default :
-System.out.println(usage.toString());
-System.exit(-1);
-}
-}
+        tlpp=Languages.getLanguageParams(lang);
+      }
+ else       if (args[i].equals("-y")) {
+        maxGoldYield=Integer.parseInt(args[++i].trim());
+      }
+ else       if (args[i].equals("-t")) {
+        tagMode=true;
+      }
+ else       if (args[i].equals("-v")) {
+        VERBOSE=true;
+      }
+ else       if (args[i].equals("-g")) {
+        maxGuessYield=Integer.parseInt(args[++i].trim());
+        skipGuess=true;
+      }
  else {
-goldFile=args[i++];
-guessFile=args[i];
-break;
-}
-}
-final PrintWriter pwOut=tlpp.pw();
-final Treebank guessTreebank=tlpp.diskTreebank();
-guessTreebank.loadPath(guessFile);
-pwOut.println("GUESS TREEBANK:");
-pwOut.println(guessTreebank.textualSummary());
-final Treebank goldTreebank=tlpp.diskTreebank();
-goldTreebank.loadPath(goldFile);
-pwOut.println("GOLD TREEBANK:");
-pwOut.println(goldTreebank.textualSummary());
-final String evalName=(tagMode) ? "TsarfatyTAG" : "TsarfatySEG";
-final TsarfatyEval eval=new TsarfatyEval(evalName,tagMode);
-final TreeTransformer tc=tlpp.collinizer();
-final Iterator<Tree> goldItr=goldTreebank.iterator();
-int goldLineId=0;
-int skippedGuessTrees=0;
-for (final Tree guess : guessTreebank) {
-final Tree evalGuess=tc.transformTree(guess);
-final ArrayList<Label> guessSent=guess.yield();
-final String guessChars=Sentence.listToString(guessSent).replaceAll("\\s+","");
-if (guessSent.size() > maxGuessYield) {
-skippedGuessTrees++;
-continue;
-}
-boolean doneEval=false;
-while (goldItr.hasNext() && !doneEval) {
-final Tree gold=goldItr.next();
-final Tree evalGold=tc.transformTree(gold);
-goldLineId++;
-final ArrayList<Label> goldSent=gold.yield();
-final String goldChars=Sentence.listToString(goldSent).replaceAll("\\s+","");
-if (goldSent.size() > maxGoldYield) {
-continue;
-}
- else if (goldChars.length() != guessChars.length()) {
-pwOut.printf("Char level yield mismatch at line %d (guess: %d gold: %d)\n",goldLineId,guessChars.length(),goldChars.length());
-skippedGuessTrees++;
-break;
-}
-eval.evaluate(evalGuess,evalGold,((VERBOSE) ? pwOut : null));
-doneEval=true;
-}
-}
-pwOut.println("================================================================================");
-if (skippedGuessTrees != 0) pwOut.printf("%s %d guess trees\n",((skipGuess) ? "Skipped" : "Unable to evaluate"),skippedGuessTrees);
-eval.display(true,pwOut);
-pwOut.println();
-pwOut.close();
+        System.out.println(usage.toString());
+        System.exit(-1);
+      }
+    }
+ else {
+      goldFile=args[i++];
+      guessFile=args[i];
+      break;
+    }
+  }
+  final PrintWriter pwOut=tlpp.pw();
+  final Treebank guessTreebank=tlpp.diskTreebank();
+  guessTreebank.loadPath(guessFile);
+  pwOut.println("GUESS TREEBANK:");
+  pwOut.println(guessTreebank.textualSummary());
+  final Treebank goldTreebank=tlpp.diskTreebank();
+  goldTreebank.loadPath(goldFile);
+  pwOut.println("GOLD TREEBANK:");
+  pwOut.println(goldTreebank.textualSummary());
+  final String evalName=(tagMode) ? "TsarfatyTAG" : "TsarfatySEG";
+  final TsarfatyEval eval=new TsarfatyEval(evalName,tagMode);
+  final TreeTransformer tc=tlpp.collinizer();
+  final Iterator<Tree> goldItr=goldTreebank.iterator();
+  int goldLineId=0;
+  int skippedGuessTrees=0;
+  for (  final Tree guess : guessTreebank) {
+    final Tree evalGuess=tc.transformTree(guess);
+    final ArrayList<Label> guessSent=guess.yield();
+    final String guessChars=Sentence.listToString(guessSent).replaceAll("\\s+","");
+    if (guessSent.size() > maxGuessYield) {
+      skippedGuessTrees++;
+      continue;
+    }
+    boolean doneEval=false;
+    while (goldItr.hasNext() && !doneEval) {
+      final Tree gold=goldItr.next();
+      final Tree evalGold=tc.transformTree(gold);
+      goldLineId++;
+      final ArrayList<Label> goldSent=gold.yield();
+      final String goldChars=Sentence.listToString(goldSent).replaceAll("\\s+","");
+      if (goldSent.size() > maxGoldYield) {
+        continue;
+      }
+ else       if (goldChars.length() != guessChars.length()) {
+        pwOut.printf("Char level yield mismatch at line %d (guess: %d gold: %d)\n",goldLineId,guessChars.length(),goldChars.length());
+        skippedGuessTrees++;
+        break;
+      }
+      eval.evaluate(evalGuess,evalGold,((VERBOSE) ? pwOut : null));
+      doneEval=true;
+    }
+  }
+  pwOut.println("================================================================================");
+  if (skippedGuessTrees != 0)   pwOut.printf("%s %d guess trees\n",((skipGuess) ? "Skipped" : "Unable to evaluate"),skippedGuessTrees);
+  eval.display(true,pwOut);
+  pwOut.println();
+  pwOut.close();
 }

@@ -2,10 +2,12 @@
   this.sequence=initialSequence;
   entities=new EntityBIO[initialSequence.length];
   Arrays.fill(entities,null);
+  String rawTag=null;
+  String[] parts=null;
   for (int i=0; i < initialSequence.length; i++) {
     if (initialSequence[i] != backgroundSymbol) {
-      String rawTag=classIndex.get(sequence[i]);
-      String[] parts=rawTag.split("-");
+      rawTag=classIndex.get(sequence[i]);
+      parts=rawTag.split("-");
       if (parts[0].equals("B")) {
         EntityBIO entity=extractEntity(initialSequence,i,parts[1]);
         addEntityToEntitiesArray(entity);

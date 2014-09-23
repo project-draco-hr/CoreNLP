@@ -1,2 +1,59 @@
 {
+  final File[] cFiles=files;
+  final JPanel fileFilterPanel=new JPanel();
+  fileFilterPanel.setLayout(new BoxLayout(fileFilterPanel,BoxLayout.PAGE_AXIS));
+  JLabel text=new JLabel("<html>Please indicate any constraints on the files you want to load. All files in specified folders that satisfy all of the given constraints will be loaded. Just press Okay to load all files.</html>");
+  text.setAlignmentX(SwingConstants.LEADING);
+  JPanel textPanel=new JPanel(new BorderLayout());
+  textPanel.setPreferredSize(new Dimension(100,50));
+  textPanel.add(text);
+  fileFilterPanel.add(textPanel);
+  fileFilterPanel.add(Box.createVerticalStrut(5));
+  Box defaultFilter=getNewFilter();
+  fileFilterPanel.add(defaultFilter);
+  final JOptionPane fileFilterDialog=new JOptionPane();
+  fileFilterDialog.setMessage(fileFilterPanel);
+  JButton[] options=new JButton[3];
+  JButton okay=new JButton("Okay");
+  JButton add=new JButton("Add another filter");
+  JButton cancel=new JButton("Cancel");
+  options[0]=okay;
+  options[1]=add;
+  options[2]=cancel;
+  fileFilterDialog.setOptions(options);
+  final JDialog dialog=fileFilterDialog.createDialog(null,"Set file filters...");
+  okay.addActionListener(new ActionListener(){
+    @Override public void actionPerformed(    ActionEvent arg0){
+      final EnumMap<FilterType,String> filters=getFilters(fileFilterPanel);
+      if (filters.containsKey(FilterType.isInRange)) {
+        try {
+          new NumberRangesFileFilter(filters.get(FilterType.isInRange),false);
+        }
+ catch (        Exception e) {
+          JOptionPane.showMessageDialog(dialog,new JLabel("<html>Please check the range you specified for the file number.  Ranges must be numerical, and disjoint <br>ranges should be separated by commas.  For example \"1-200,250-375\" is a valid range.</html>"),"Error in File Number Range",JOptionPane.ERROR_MESSAGE);
+          return;
+        }
+      }
+      dialog.setVisible(false);
+      startFileLoadingThread(filters,cFiles);
+    }
+  }
+);
+  add.addActionListener(new ActionListener(){
+    @Override public void actionPerformed(    ActionEvent e){
+      fileFilterPanel.add(getNewFilter());
+      dialog.pack();
+    }
+  }
+);
+  cancel.addActionListener(new ActionListener(){
+    @Override public void actionPerformed(    ActionEvent e){
+      dialog.setVisible(false);
+    }
+  }
+);
+  dialog.getRootPane().setDefaultButton(okay);
+  dialog.pack();
+  dialog.setLocationRelativeTo(this);
+  dialog.setVisible(true);
 }

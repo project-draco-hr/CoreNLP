@@ -22,7 +22,7 @@
   for (int i=3; i < args.length; i++) {
     if (lex.isKnown(args[i])) {
       System.out.println(args[i] + " is a known word.  Log probabilities [log P(w|t)] for its taggings are:");
-      for (Iterator<IntTaggedWord> it=lex.ruleIteratorByWord(wordIndex.addToIndex(args[i]),i - 3,null); it.hasNext(); ) {
+      for (Iterator<IntTaggedWord> it=lex.ruleIteratorByWord(wordIndex.indexOf(args[i],true),i - 3,null); it.hasNext(); ) {
         IntTaggedWord iTW=it.next();
         System.out.println(StringUtils.pad(iTW,24) + nf.format(lex.score(iTW,i - 3,wordIndex.get(iTW.word),null)));
       }

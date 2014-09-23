@@ -1,2 +1,20 @@
 {
+  final JFileChooser chooser=new JFileChooser();
+  try {
+    chooserFile=new File((new File(".").getCanonicalPath()));
+  }
+ catch (  Exception e) {
+  }
+  chooser.setCurrentDirectory(chooserFile);
+  chooser.addActionListener(new ActionListener(){
+    @Override public void actionPerformed(    ActionEvent e){
+      if (e.getActionCommand().equals("ApproveSelection")) {
+        chooserFile=chooser.getSelectedFile();
+      }
+    }
+  }
+);
+  chooser.setMultiSelectionEnabled(true);
+  chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+  return chooser;
 }

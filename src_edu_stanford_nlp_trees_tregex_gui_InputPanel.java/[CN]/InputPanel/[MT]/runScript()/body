@@ -1,2 +1,50 @@
 {
+  setTsurgeonState(true);
+  final String script=tsurgeonScript.getText();
+  searchThread=new Thread(){
+    @Override public void run(){
+      try {
+        BufferedReader reader=new BufferedReader(new StringReader(script));
+        TsurgeonPattern operation=Tsurgeon.getTsurgeonOperationsFromReader(reader);
+        final String text=tregexPattern.getText().intern();
+        SwingUtilities.invokeLater(new Runnable(){
+          public void run(){
+            InputPanel.this.addRecentTregexPattern(text);
+            useProgressBar(true);
+          }
+        }
+);
+        final TRegexGUITreeVisitor visitor=getMatchTreeVisitor(text,this);
+        if (visitor == null)         return;
+        if (this.isInterrupted()) {
+          returnToValidState(text,visitor,new ArrayList<TreeFromFile>());
+          return;
+        }
+        List<TreeFromFile> trees=visitor.getMatches();
+        final List<TreeFromFile> modifiedTrees=new ArrayList<TreeFromFile>();
+        for (        TreeFromFile tff : trees) {
+          if (this.isInterrupted()) {
+            returnToValidState(text,visitor,trees);
+            return;
+          }
+          Tree modifiedTree=Tsurgeon.processPattern(visitor.getPattern(),operation,tff.getTree());
+          modifiedTrees.add(new TreeFromFile(modifiedTree,tff.getFilename().intern()));
+        }
+        returnToValidState(text,visitor,modifiedTrees);
+      }
+ catch (      Exception e) {
+        doError("Sorry, there was an error compiling or running the Tsurgeon script.  Please press Help if you need assistance.",e);
+        SwingUtilities.invokeLater(new Runnable(){
+          public void run(){
+            setTregexState(false);
+            setTsurgeonState(false);
+            InputPanel.this.searchThread=null;
+          }
+        }
+);
+      }
+    }
+  }
+;
+  searchThread.start();
 }

@@ -1,2 +1,26 @@
 {
+  if (chooser == null)   chooser=createFileChooser();
+  int status=chooser.showOpenDialog(this);
+  if (status == JFileChooser.APPROVE_OPTION) {
+    Thread t=new Thread(){
+      @Override public void run(){
+        try {
+          BufferedReader reader=new BufferedReader(new FileReader(chooser.getSelectedFile().toString()));
+          final String tregexPatternString=Tsurgeon.getTregexPatternFromReader(reader);
+          final String tsurgeonOperationsString=Tsurgeon.getTsurgeonTextFromReader(reader);
+          SwingUtilities.invokeLater(new Runnable(){
+            public void run(){
+              InputPanel.getInstance().setScriptAndPattern(tregexPatternString,tsurgeonOperationsString);
+            }
+          }
+);
+        }
+ catch (        IOException e) {
+          System.out.println("Error parsing Tsurgeon file");
+        }
+      }
+    }
+;
+    t.start();
+  }
 }

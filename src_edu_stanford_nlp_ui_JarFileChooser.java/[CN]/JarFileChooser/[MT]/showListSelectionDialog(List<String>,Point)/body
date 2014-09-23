@@ -1,2 +1,58 @@
 {
+  Frame frame=new Frame();
+  final JDialog dialog=new JDialog(frame,"Jar File Chooser",true);
+  dialog.setLocation(location);
+  final JList fileList=new JList(new Vector<String>(files));
+  fileList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+  MouseListener mouseListener=new MouseAdapter(){
+    public void mouseClicked(    MouseEvent e){
+      if (e.getClickCount() == 2) {
+        dialog.setVisible(false);
+      }
+    }
+  }
+;
+  fileList.addMouseListener(mouseListener);
+  final JScrollPane scroll=new JScrollPane(fileList);
+  JButton okay=new javax.swing.JButton();
+  okay.setText("Okay");
+  okay.setToolTipText("Okay");
+  okay.addActionListener(new java.awt.event.ActionListener(){
+    public void actionPerformed(    java.awt.event.ActionEvent evt){
+      dialog.setVisible(false);
+    }
+  }
+);
+  JButton cancel=new javax.swing.JButton();
+  cancel.setText("Cancel");
+  cancel.setToolTipText("Cancel");
+  cancel.addActionListener(new java.awt.event.ActionListener(){
+    public void actionPerformed(    java.awt.event.ActionEvent evt){
+      fileList.clearSelection();
+      dialog.setVisible(false);
+    }
+  }
+);
+  GridBagLayout gridbag=new GridBagLayout();
+  GridBagConstraints constraints=new GridBagConstraints();
+  dialog.setLayout(gridbag);
+  constraints.gridwidth=GridBagConstraints.REMAINDER;
+  constraints.fill=GridBagConstraints.BOTH;
+  constraints.weightx=1.0;
+  constraints.weighty=1.0;
+  gridbag.setConstraints(scroll,constraints);
+  dialog.add(scroll);
+  constraints.gridwidth=GridBagConstraints.RELATIVE;
+  constraints.fill=GridBagConstraints.NONE;
+  constraints.weighty=0.0;
+  gridbag.setConstraints(okay,constraints);
+  dialog.add(okay);
+  constraints.gridwidth=GridBagConstraints.REMAINDER;
+  gridbag.setConstraints(cancel,constraints);
+  dialog.add(cancel);
+  dialog.pack();
+  dialog.setSize(dialog.getPreferredSize());
+  dialog.setVisible(true);
+  if (fileList.isSelectionEmpty())   return null;
+  return files.get(fileList.getSelectedIndex());
 }
