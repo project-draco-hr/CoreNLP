@@ -71,12 +71,11 @@
       timer.start();
     }
     int docDataLen=docData.length;
-    boolean nextFeaturePresent=false;
     for (int i=docDataLen - 2; i >= 0; i--) {
       Set<Integer> docDataHashIPlusOne=docDataHash.get(i + 1);
       for (int fIndexPos=0; fIndexPos < activeFeatures.length; fIndexPos++) {
         fIndex=activeFeatures[fIndexPos];
-        nextFeaturePresent=docDataHashIPlusOne.contains(fIndex);
+        boolean nextFeaturePresent=docDataHashIPlusOne.contains(fIndex);
         int j=map[fIndex];
         Index<CRFLabel> labelIndex=labelIndices.get(j);
         int labelIndexSize=labelIndex.size();
@@ -118,8 +117,6 @@
   Timing innerTimer=new Timing();
   long eTiming=0;
   long dropoutTiming=0;
-  double PtYYp, PtYYpTimesOneMinusPtYYp, oneMinus2PtYYp, USum, theta, VarUp, VarU, VarUTimesOneMinus2PtYYp=0.0;
-  int fIndex, valIndex=0;
   boolean containsFeature=false;
   for (int i=1; i < docData.length; i++) {
     Set<Integer> docDataHashI=docDataHash.get(i);
@@ -130,15 +127,18 @@
       int y=label[0];
       int yP=label[1];
       if (TIMED)       innerTimer.start();
-      PtYYp=cliqueTree.prob(i,label);
-      PtYYpTimesOneMinusPtYYp=PtYYp * (1.0 - PtYYp);
-      oneMinus2PtYYp=(1.0 - 2 * PtYYp);
-      USum=0;
+      double PtYYp=cliqueTree.prob(i,label);
+      double PtYYpTimesOneMinusPtYYp=PtYYp * (1.0 - PtYYp);
+      double oneMinus2PtYYp=(1.0 - 2 * PtYYp);
+      double USum=0;
+      int fIndex;
       for (int jjj=0; jjj < labelIndices.size(); jjj++) {
         for (int n=0; n < docData[i][jjj].length; n++) {
           fIndex=docData[i][jjj][n];
+          int valIndex;
           if (jjj == 1)           valIndex=k;
  else           valIndex=yP;
+          double theta;
           try {
             theta=weights[fIndex][valIndex];
           }
@@ -147,7 +147,7 @@
             throw new RuntimeException(ex);
           }
           USum+=weightSquare[fIndex][valIndex];
-          VarUp=deltaDivByOneMinusDelta * theta;
+          double VarUp=deltaDivByOneMinusDelta * theta;
           increScoreAllowNull(dropoutPriorGradFirstHalf,fIndex,valIndex,VarUp * PtYYpTimesOneMinusPtYYp);
         }
       }
@@ -155,22 +155,21 @@
         eTiming+=innerTimer.stop();
         innerTimer.start();
       }
-      VarU=0.5 * deltaDivByOneMinusDelta * USum;
+      double VarU=0.5 * deltaDivByOneMinusDelta * USum;
       priorValue+=VarU * PtYYpTimesOneMinusPtYYp;
-      VarUTimesOneMinus2PtYYp=VarU * oneMinus2PtYYp;
-      int jj=0;
-      int[] fLabel=null;
-      double alpha, beta, fCount, condE, PtYYpPrime=0;
-      boolean prevFeaturePresent=false;
-      boolean nextFeaturePresent=false;
+      double VarUTimesOneMinus2PtYYp=VarU * oneMinus2PtYYp;
       for (int fIndexPos=0; fIndexPos < activeFeatures.length; fIndexPos++) {
         fIndex=activeFeatures[fIndexPos];
         containsFeature=docDataHashI.contains(fIndex);
-        jj=map[fIndex];
+        int jj=map[fIndex];
         Index<CRFLabel> fLabelIndex=labelIndices.get(jj);
         for (int kk=0; kk < fLabelIndex.size(); kk++) {
-          fLabel=fLabelIndex.get(kk).getLabel();
-          fCount=containsFeature && ((jj == 0 && fLabel[0] == yP) || (jj == 1 && k == kk)) ? 1 : 0;
+          int[] fLabel=fLabelIndex.get(kk).getLabel();
+          double fCount=containsFeature && ((jj == 0 && fLabel[0] == yP) || (jj == 1 && k == kk)) ? 1 : 0;
+          double alpha;
+          double beta;
+          double condE;
+          double PtYYpPrime;
           if (!dropoutApprox) {
             alpha=((FAlpha[i][fIndexPos] == null || FAlpha[i][fIndexPos][y] == null) ? 0 : FAlpha[i][fIndexPos][y][kk]);
             beta=((FBeta[i][fIndexPos] == null || FBeta[i][fIndexPos][yP] == null) ? 0 : FBeta[i][fIndexPos][yP][kk]);
@@ -212,12 +211,11 @@
     for (    int key : dropoutPriorGrad.keySet())     System.err.print(" " + key);
     System.err.println("]");
   }
-  double[] target, source=null;
   for (  Map.Entry<Integer,double[]> entry : dropoutPriorGrad.entrySet()) {
     Integer key=entry.getKey();
-    target=entry.getValue();
+    double[] target=entry.getValue();
     if (dropoutPriorGradFirstHalf.containsKey(key)) {
-      source=dropoutPriorGradFirstHalf.get(key);
+      double[] source=dropoutPriorGradFirstHalf.get(key);
       for (int i=0; i < target.length; i++) {
         target[i]+=source[i];
       }

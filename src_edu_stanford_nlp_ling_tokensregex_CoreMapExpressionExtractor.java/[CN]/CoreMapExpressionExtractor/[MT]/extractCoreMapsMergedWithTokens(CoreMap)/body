@@ -1,15 +1,2 @@
 {
-  List<CoreMap> res=extractCoreMaps(annotation);
-  Integer startTokenOffset=annotation.get(CoreAnnotations.TokenBeginAnnotation.class);
-  if (startTokenOffset == null) {
-    startTokenOffset=0;
-  }
-  final Integer startTokenOffsetFinal=startTokenOffset;
-  List<CoreMap> merged=CollectionUtils.mergeListWithSortedMatchedPreAggregated((List<CoreMap>)annotation.get(tokensAnnotationKey),res,new Function<CoreMap,Interval<Integer>>(){
-    public Interval<Integer> apply(    CoreMap in){
-      return Interval.toInterval(in.get(CoreAnnotations.TokenBeginAnnotation.class) - startTokenOffsetFinal,in.get(CoreAnnotations.TokenEndAnnotation.class) - startTokenOffsetFinal);
-    }
-  }
-);
-  return merged;
 }

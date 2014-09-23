@@ -1,0 +1,39 @@
+{
+  if (value instanceof String) {
+    writer.write("\"");
+    writer.write(cleanJSON(value.toString()));
+    writer.write("\"");
+  }
+ else   if (value instanceof Collection) {
+    writer.write("[\n");
+    Iterator<Object> elems=((Collection<Object>)value).iterator();
+    while (elems.hasNext()) {
+      indent(indent + 1);
+      routeObject(indent + 1,elems.next());
+      if (elems.hasNext()) {
+        writer.write(",");
+      }
+      writer.write("\n");
+    }
+    indent(indent);
+    writer.write("]");
+  }
+ else   if (value instanceof Consumer) {
+    object(indent,(Consumer<Writer>)value);
+  }
+ else   if (value instanceof Stream) {
+    routeObject(indent,((Stream)value).collect(Collectors.toList()));
+  }
+ else   if (value.getClass().isArray()) {
+    routeObject(indent,Arrays.asList((Object[])value));
+  }
+ else   if (value instanceof Integer) {
+    routeObject(indent,Integer.toString((Integer)value));
+  }
+ else   if (value instanceof Double) {
+    routeObject(indent,Double.toString((Double)value));
+  }
+ else {
+    throw new RuntimeException("Unknown object to serialize: " + value);
+  }
+}
