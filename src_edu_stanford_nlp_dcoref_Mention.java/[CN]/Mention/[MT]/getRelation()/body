@@ -2,7 +2,7 @@
   if (headIndexedWord == null)   return null;
   if (dependency.getRoots().isEmpty())   return null;
   if (dependency.getFirstRoot().equals(headIndexedWord))   return "root";
-  if (!dependency.vertexSet().contains(dependency.getParent(headIndexedWord)))   return null;
+  if (!dependency.containsVertex(dependency.getParent(headIndexedWord)))   return null;
   GrammaticalRelation relation=dependency.reln(dependency.getParent(headIndexedWord),headIndexedWord);
   if (relation.toString().startsWith("prep") || relation == EnglishGrammaticalRelations.PREPOSITIONAL_OBJECT || relation == EnglishGrammaticalRelations.TEMPORAL_MODIFIER || relation == EnglishGrammaticalRelations.ADV_CLAUSE_MODIFIER || relation == EnglishGrammaticalRelations.ADVERBIAL_MODIFIER || relation == EnglishGrammaticalRelations.PREPOSITIONAL_COMPLEMENT)   return "adjunct";
   if (relation == EnglishGrammaticalRelations.NOMINAL_SUBJECT || relation == EnglishGrammaticalRelations.CLAUSAL_SUBJECT)   return "subject";
