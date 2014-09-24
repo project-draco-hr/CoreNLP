@@ -1,2 +1,34 @@
 {
+  TRegexGUITreeVisitor vis=null;
+  try {
+    TregexPattern pattern=compiler.compile(patternString);
+    vis=new TRegexGUITreeVisitor(pattern);
+    List<FileTreeNode> treebanks=FilePanel.getInstance().getActiveTreebanks();
+    double multiplier=100.0 / treebanks.size();
+    int treebankNum=1;
+    for (    FileTreeNode treebank : treebanks) {
+      if (t.isInterrupted()) {
+        t.interrupt();
+        SwingUtilities.invokeLater(new Runnable(){
+          public void run(){
+            setTregexState(false);
+            InputPanel.this.searchThread=null;
+          }
+        }
+);
+        return vis;
+      }
+      vis.setFilename(treebank.getFilename().intern());
+      treebank.getTreebank().apply(vis);
+      updateProgressBar(multiplier * treebankNum++);
+    }
+  }
+ catch (  OutOfMemoryError oome) {
+    vis=null;
+    doError("Sorry, search aborted as out of memory.\nTry either running Tregex with more memory or sticking to searches that don't produce thousands of matches.",oome);
+  }
+catch (  Exception e) {
+    doError("Sorry, there was an error compiling or running the Tregex pattern.  Please press Help if you need assistance.",e);
+  }
+  return vis;
 }

@@ -1,2 +1,56 @@
 {
+  return new Iterable<Iterable<V>>(){
+    public Iterator<Iterable<V>> iterator(){
+      return new Iterator<Iterable<V>>(){
+        /** 
+ * Actual iterator 
+ */
+        Iterator<V> it=iterable.iterator();
+        /** 
+ * Next element to return 
+ */
+        V next;
+        public boolean hasNext(){
+          return next != null || it.hasNext();
+        }
+        public Iterable<V> next(){
+          return new Iterable<V>(){
+            public Iterator<V> iterator(){
+              return new Iterator<V>(){
+                V last=null;
+                public boolean hasNext(){
+                  if (next == null && it.hasNext()) {
+                    next=it.next();
+                  }
+                  if (last != null && next != null) {
+                    return comparator.compare(last,next) == 0;
+                  }
+                  return next != null;
+                }
+                public V next(){
+                  if (!hasNext()) {
+                    throw new IllegalStateException("Didn't have next");
+                  }
+                  V rv=next;
+                  last=next;
+                  next=null;
+                  return rv;
+                }
+                public void remove(){
+                  throw new UnsupportedOperationException();
+                }
+              }
+;
+            }
+          }
+;
+        }
+        public void remove(){
+          throw new UnsupportedOperationException();
+        }
+      }
+;
+    }
+  }
+;
 }
