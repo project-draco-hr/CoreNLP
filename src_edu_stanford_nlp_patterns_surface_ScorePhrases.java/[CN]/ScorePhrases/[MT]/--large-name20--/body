@@ -30,7 +30,7 @@
   }
   if (constVars.wordScoring.equals(WordScoring.WEIGHTEDNORM)) {
     for (    Pair<String,String> en : wordsandLemmaPatExtracted.firstKeySet()) {
-      if (!constVars.getOtherSemanticClasses().contains(en.first()) && !constVars.getOtherSemanticClasses().contains(en.second())) {
+      if (!constVars.getOtherSemanticClassesWords().contains(en.first()) && !constVars.getOtherSemanticClassesWords().contains(en.second())) {
         terms.addAll(en.first(),wordsandLemmaPatExtracted.getCounter(en));
       }
       wordsPatExtracted.addAll(en.first(),wordsandLemmaPatExtracted.getCounter(en));
@@ -39,9 +39,9 @@
     Counter<String> phraseScores=phraseScorer.scorePhrases(label,terms,wordsPatExtracted,allSelectedPatterns,alreadyIdentifiedWords,false);
     Set<String> ignoreWordsAll;
     if (ignoreWords != null && !ignoreWords.isEmpty()) {
-      ignoreWordsAll=CollectionUtils.unionAsSet(ignoreWords,constVars.getOtherSemanticClasses());
+      ignoreWordsAll=CollectionUtils.unionAsSet(ignoreWords,constVars.getOtherSemanticClassesWords());
     }
- else     ignoreWordsAll=constVars.getOtherSemanticClasses();
+ else     ignoreWordsAll=constVars.getOtherSemanticClassesWords();
     Counter<String> finalwords=chooseTopWords(phraseScores,terms,phraseScores,ignoreWordsAll,constVars.thresholdWordExtract);
     scoreForAllWordsThisIteration.clear();
     Counters.addInPlace(scoreForAllWordsThisIteration,phraseScores);
