@@ -1,24 +1,2 @@
 {
-  CRFClassifier.countResults(doc,entityTP,entityFP,entityFN,background);
-  for (  CoreLabel line : doc) {
-    String gold=line.get(GoldAnswerAnnotation.class);
-    String guess=line.get(whichClassToCompare);
-    if (gold == null || guess == null)     throw new RuntimeException("why is gold or guess null?");
-    if (gold.equals(guess) && !gold.equalsIgnoreCase(background)) {
-      entityTP.incrementCount(gold);
-      wordTP.incrementCount(line.word());
-    }
- else     if (!gold.equals(guess) && !gold.equalsIgnoreCase(background) && guess.equalsIgnoreCase(background)) {
-      entityFN.incrementCount(gold);
-      wordFN.incrementCount(line.word());
-    }
- else     if (!gold.equals(guess) && !guess.equalsIgnoreCase(background) && gold.equalsIgnoreCase(background)) {
-      wordFP.incrementCount(line.word());
-      entityFP.incrementCount(guess);
-    }
- else     if (gold.equals(guess) && !gold.equalsIgnoreCase(background)) {
-      wordTN.incrementCount(line.word());
-    }
- else     if (!(gold.equalsIgnoreCase(background) && guess.equalsIgnoreCase(background)))     throw new RuntimeException("don't know reached here. not meant for more than one entity label");
-  }
 }
