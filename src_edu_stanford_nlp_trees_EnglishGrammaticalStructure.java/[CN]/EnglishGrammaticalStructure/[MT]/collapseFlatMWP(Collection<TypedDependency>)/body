@@ -8,16 +8,22 @@
     TypedDependency dep=null;
     TypedDependency pobj=null;
     for (    TypedDependency td : list) {
-      if (td.gov().value().equalsIgnoreCase(mwp[1]) && td.dep().value().equalsIgnoreCase(mwp[0]) && Math.abs(td.gov().index() - td.dep().index()) == 1) {
+      if (Math.abs(td.gov().index() - td.dep().index()) == 1 && td.gov().value().equalsIgnoreCase(mwp[1]) && td.dep().value().equalsIgnoreCase(mwp[0])) {
         mwp1=td.gov();
         dep=td;
       }
+    }
+    if (mwp1 == null) {
+      continue;
     }
     for (    TypedDependency td1 : list) {
       if (td1.dep() == mwp1 && td1.reln() == PREPOSITIONAL_MODIFIER) {
         prep=td1;
         governor=prep.gov();
       }
+    }
+    if (prep == null) {
+      continue;
     }
     for (    TypedDependency td2 : list) {
       if (td2.gov() == mwp1 && td2.reln() == PREPOSITIONAL_OBJECT) {

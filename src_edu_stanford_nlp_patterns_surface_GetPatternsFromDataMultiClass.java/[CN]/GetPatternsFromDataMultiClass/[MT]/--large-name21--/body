@@ -8,12 +8,24 @@
     List<CoreLabel> sent=sentEn.getValue();
     for (int i=0; i < sent.size(); i++) {
       CoreLabel token=sent.get(i);
+      Set<String> matchedPhrases=token.get(PatternsAnnotations.MatchedPhrases.class);
       String tokenWordOrLemma=token.word();
       String longestMatchingPhrase=null;
       if (constVars.useMatchingPhrase) {
-        Map<String,String> longestMatchingPhrases=token.get(PatternsAnnotations.LongestMatchedPhraseForEachLabel.class);
-        longestMatchingPhrase=longestMatchingPhrases.get(label);
-        longestMatchingPhrase=(longestMatchingPhrase != null && (longestMatchingPhrase.length() > tokenWordOrLemma.length())) ? longestMatchingPhrase : tokenWordOrLemma;
+        if (matchedPhrases != null && !matchedPhrases.isEmpty()) {
+          for (          String s : matchedPhrases) {
+            if (s.equals(tokenWordOrLemma)) {
+              longestMatchingPhrase=tokenWordOrLemma;
+              break;
+            }
+            if (longestMatchingPhrase == null || longestMatchingPhrase.length() > s.length()) {
+              longestMatchingPhrase=s;
+            }
+          }
+        }
+ else {
+          longestMatchingPhrase=tokenWordOrLemma;
+        }
       }
  else       longestMatchingPhrase=tokenWordOrLemma;
       Triple<Set<SurfacePattern>,Set<SurfacePattern>,Set<SurfacePattern>> pat=pat4Sent.get(i);
@@ -71,7 +83,7 @@
           negToken=true;
           break;
         }
-        if (!negToken)         if (constVars.getOtherSemanticClassesWords().contains(token.word()) || constVars.getOtherSemanticClassesWords().contains(token.lemma()))         negToken=true;
+        if (!negToken)         if (constVars.getOtherSemanticClasses().contains(token.word()) || constVars.getOtherSemanticClasses().contains(token.lemma()))         negToken=true;
         for (        SurfacePattern s : CollectionUtils.union(CollectionUtils.union(prevPat,nextPat),prevnextPat)) {
           if (negToken) {
             negPatternsandWords4Label.getCounter(s).incrementCount(tokenWordOrLemma);
