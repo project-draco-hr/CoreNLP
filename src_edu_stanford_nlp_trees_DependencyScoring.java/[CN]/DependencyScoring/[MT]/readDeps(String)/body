@@ -37,9 +37,13 @@
       if (grel == null) {
         throw new RuntimeException("Unknown grammatical relation '" + depName + "'");
       }
-      Word govWord=new Word(normalizeNumbers(govName));
-      Word childWord=new Word(normalizeNumbers(childName));
-      TypedDependency dep=new TypedDependencyStringEquality(grel,new TreeGraphNode(govWord),new TreeGraphNode(childWord));
+      IndexedWord govWord=new IndexedWord();
+      govWord.setValue(normalizeNumbers(govName));
+      govWord.setWord(govWord.value());
+      IndexedWord childWord=new IndexedWord();
+      childWord.setValue(normalizeNumbers(childName));
+      childWord.setWord(childWord.value());
+      TypedDependency dep=new TypedDependencyStringEquality(grel,govWord,childWord);
       deps.add(dep);
     }
  catch (    Exception e) {

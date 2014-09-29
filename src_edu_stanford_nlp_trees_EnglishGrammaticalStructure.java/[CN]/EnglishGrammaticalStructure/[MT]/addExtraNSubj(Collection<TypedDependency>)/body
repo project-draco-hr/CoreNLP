@@ -4,41 +4,41 @@
     if (xcomp.reln() != XCLAUSAL_COMPLEMENT) {
       continue;
     }
-    TreeGraphNode modifier=xcomp.dep();
-    TreeGraphNode head=xcomp.gov();
+    IndexedWord modifier=xcomp.dep();
+    IndexedWord head=xcomp.gov();
     boolean hasSubjectDaughter=false;
     boolean hasAux=false;
-    List<TreeGraphNode> subjects=new ArrayList<TreeGraphNode>();
-    List<TreeGraphNode> objects=new ArrayList<TreeGraphNode>();
+    List<IndexedWord> subjects=Generics.newArrayList();
+    List<IndexedWord> objects=Generics.newArrayList();
     for (    TypedDependency dep : list) {
-      if ((dep.reln() == NOMINAL_SUBJECT || dep.reln() == NOMINAL_PASSIVE_SUBJECT) && dep.gov() == modifier) {
+      if ((dep.reln() == NOMINAL_SUBJECT || dep.reln() == NOMINAL_PASSIVE_SUBJECT) && dep.gov().equals(modifier)) {
         hasSubjectDaughter=true;
         break;
       }
-      if (dep.reln() == AUX_MODIFIER && dep.gov() == modifier) {
+      if (dep.reln() == AUX_MODIFIER && dep.gov().equals(modifier)) {
         hasAux=true;
       }
-      if ((dep.reln() == NOMINAL_SUBJECT || dep.reln() == NOMINAL_PASSIVE_SUBJECT) && dep.gov() == head) {
+      if ((dep.reln() == NOMINAL_SUBJECT || dep.reln() == NOMINAL_PASSIVE_SUBJECT) && dep.gov().equals(head)) {
         subjects.add(dep.dep());
       }
-      if (dep.reln() == DIRECT_OBJECT && dep.gov() == head) {
+      if (dep.reln() == DIRECT_OBJECT && dep.gov().equals(head)) {
         objects.add(dep.dep());
       }
     }
     if (hasSubjectDaughter) {
       continue;
     }
-    if ((modifier.label().value().equalsIgnoreCase("to") && hasAux) || (!modifier.label().value().equalsIgnoreCase("to") && !hasAux)) {
+    if ((modifier.value().equalsIgnoreCase("to") && hasAux) || (!modifier.value().equalsIgnoreCase("to") && !hasAux)) {
       continue;
     }
     if (objects.size() > 0) {
-      for (      TreeGraphNode object : objects) {
+      for (      IndexedWord object : objects) {
         TypedDependency newDep=new TypedDependency(NOMINAL_SUBJECT,modifier,object);
         newDeps.add(newDep);
       }
     }
  else {
-      for (      TreeGraphNode subject : subjects) {
+      for (      IndexedWord subject : subjects) {
         TypedDependency newDep=new TypedDependency(NOMINAL_SUBJECT,modifier,subject);
         newDeps.add(newDep);
       }
