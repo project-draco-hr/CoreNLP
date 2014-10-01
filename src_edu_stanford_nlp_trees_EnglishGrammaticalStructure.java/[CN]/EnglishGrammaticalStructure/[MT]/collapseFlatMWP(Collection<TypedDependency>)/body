@@ -2,8 +2,8 @@
   Collection<TypedDependency> newTypedDeps=new ArrayList<TypedDependency>();
   for (  String[] mwp : MULTIWORD_PREPS) {
     newTypedDeps.clear();
-    IndexedWord mwp1=null;
-    IndexedWord governor=null;
+    TreeGraphNode mwp1=null;
+    TreeGraphNode governor=null;
     TypedDependency prep=null;
     TypedDependency dep=null;
     TypedDependency pobj=null;
@@ -17,7 +17,7 @@
       continue;
     }
     for (    TypedDependency td1 : list) {
-      if (td1.dep().equals(mwp1) && td1.reln() == PREPOSITIONAL_MODIFIER) {
+      if (td1.dep() == mwp1 && td1.reln() == PREPOSITIONAL_MODIFIER) {
         prep=td1;
         governor=prep.gov();
       }
@@ -26,12 +26,12 @@
       continue;
     }
     for (    TypedDependency td2 : list) {
-      if (td2.gov().equals(mwp1) && td2.reln() == PREPOSITIONAL_OBJECT) {
+      if (td2.gov() == mwp1 && td2.reln() == PREPOSITIONAL_OBJECT) {
         pobj=td2;
         GrammaticalRelation gr=EnglishGrammaticalRelations.getPrep(mwp[0] + '_' + mwp[1]);
         newTypedDeps.add(new TypedDependency(gr,governor,pobj.dep()));
       }
-      if (td2.gov().equals(mwp1) && td2.reln() == PREPOSITIONAL_COMPLEMENT) {
+      if (td2.gov() == mwp1 && td2.reln() == PREPOSITIONAL_COMPLEMENT) {
         pobj=td2;
         GrammaticalRelation gr=EnglishGrammaticalRelations.getPrepC(mwp[0] + '_' + mwp[1]);
         newTypedDeps.add(new TypedDependency(gr,governor,pobj.dep()));
@@ -43,7 +43,7 @@
       pobj.setReln(KILL);
       for (      TypedDependency td1 : list) {
         if (td1.reln() != KILL) {
-          if (td1.gov().equals(mwp1)) {
+          if (td1.gov() == mwp1) {
             td1.setGov(governor);
           }
           if (!newTypedDeps.contains(td1)) {

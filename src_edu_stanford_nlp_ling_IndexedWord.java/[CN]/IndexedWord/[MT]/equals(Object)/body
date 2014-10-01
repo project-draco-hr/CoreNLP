@@ -2,12 +2,12 @@
   if (this == o)   return true;
   if (!(o instanceof IndexedWord))   return false;
   final IndexedWord otherWord=(IndexedWord)o;
-  Integer myInd=get(CoreAnnotations.IndexAnnotation.class);
-  Integer otherInd=otherWord.get(CoreAnnotations.IndexAnnotation.class);
-  if (myInd == null) {
-    if (otherInd != null)     return false;
+  String myDocID=getString(CoreAnnotations.DocIDAnnotation.class);
+  String otherDocID=otherWord.getString(CoreAnnotations.DocIDAnnotation.class);
+  if (myDocID == null) {
+    if (otherDocID != null)     return false;
   }
- else   if (!myInd.equals(otherInd)) {
+ else   if (!myDocID.equals(otherDocID)) {
     return false;
   }
   Integer mySentInd=get(CoreAnnotations.SentenceIndexAnnotation.class);
@@ -18,12 +18,12 @@
  else   if (!mySentInd.equals(otherSentInd)) {
     return false;
   }
-  String myDocID=getString(CoreAnnotations.DocIDAnnotation.class);
-  String otherDocID=otherWord.getString(CoreAnnotations.DocIDAnnotation.class);
-  if (myDocID == null) {
-    if (otherDocID != null)     return false;
+  Integer myInd=get(CoreAnnotations.IndexAnnotation.class);
+  Integer otherInd=otherWord.get(CoreAnnotations.IndexAnnotation.class);
+  if (myInd == null) {
+    if (otherInd != null)     return false;
   }
- else   if (!myDocID.equals(otherDocID)) {
+ else   if (!myInd.equals(otherInd)) {
     return false;
   }
   if (copyCount() != otherWord.copyCount()) {
