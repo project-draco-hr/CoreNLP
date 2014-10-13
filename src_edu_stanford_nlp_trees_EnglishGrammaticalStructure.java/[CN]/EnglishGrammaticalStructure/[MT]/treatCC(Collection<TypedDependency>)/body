@@ -1,9 +1,9 @@
 {
-  Map<TreeGraphNode,Set<TypedDependency>> map=Generics.newHashMap();
-  Map<TreeGraphNode,TypedDependency> subjectMap=Generics.newHashMap();
-  Set<TreeGraphNode> withPassiveAuxiliary=Generics.newHashSet();
-  List<TreeGraphNode> rcmodHeads=new ArrayList<TreeGraphNode>();
-  List<TreeGraphNode> prepcDep=new ArrayList<TreeGraphNode>();
+  Map<IndexedWord,Set<TypedDependency>> map=Generics.newHashMap();
+  Map<IndexedWord,TypedDependency> subjectMap=Generics.newHashMap();
+  Set<IndexedWord> withPassiveAuxiliary=Generics.newHashSet();
+  List<IndexedWord> rcmodHeads=Generics.newArrayList();
+  List<IndexedWord> prepcDep=Generics.newArrayList();
   for (  TypedDependency typedDep : list) {
     if (!map.containsKey(typedDep.dep())) {
       map.put(typedDep.dep(),new TreeSet<TypedDependency>());
@@ -27,13 +27,13 @@
   Collection<TypedDependency> newTypedDeps=new ArrayList<TypedDependency>(list);
   for (  TypedDependency td : list) {
     if (EnglishGrammaticalRelations.getConjs().contains(td.reln())) {
-      TreeGraphNode gov=td.gov();
-      TreeGraphNode dep=td.dep();
+      IndexedWord gov=td.gov();
+      IndexedWord dep=td.dep();
       Set<TypedDependency> gov_relations=map.get(gov);
       if (gov_relations != null) {
         for (        TypedDependency td1 : gov_relations) {
-          TreeGraphNode newGov=td1.gov();
-          if (newGov == dep) {
+          IndexedWord newGov=td1.gov();
+          if (newGov.equals(dep)) {
             continue;
           }
           GrammaticalRelation newRel=td1.reln();
@@ -55,7 +55,7 @@
           }
         }
       }
-      String tag=dep.parent().value();
+      String tag=dep.tag();
       if (subjectMap.containsKey(gov) && (tag.startsWith("VB") || tag.startsWith("JJ")) && !subjectMap.containsKey(dep)) {
         TypedDependency tdsubj=subjectMap.get(gov);
         GrammaticalRelation relation=tdsubj.reln();
