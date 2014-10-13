@@ -4,32 +4,20 @@
   }
   List<TreeGraphNode> tgWordNodes=new ArrayList<TreeGraphNode>(tokens.size());
   List<TreeGraphNode> tgPOSNodes=new ArrayList<TreeGraphNode>(tokens.size());
-  CoreLabel rootLabel=new CoreLabel();
-  rootLabel.setValue("ROOT");
-  List<IndexedWord> nodeWords=new ArrayList<IndexedWord>(tgPOSNodes.size() + 1);
-  nodeWords.add(new IndexedWord(rootLabel));
   SemanticHeadFinder headFinder=new SemanticHeadFinder();
   Iterator<String> posIter=posTags.iterator();
   for (  String wordString : tokens) {
     String posString=posIter.next();
-    CoreLabel wordLabel=new CoreLabel();
-    wordLabel.setWord(wordString);
-    wordLabel.setValue(wordString);
-    wordLabel.setTag(posString);
-    TreeGraphNode word=new TreeGraphNode(wordLabel);
-    CoreLabel tagLabel=new CoreLabel();
-    tagLabel.setValue(posString);
-    tagLabel.setWord(posString);
-    TreeGraphNode pos=new TreeGraphNode(tagLabel);
+    TreeGraphNode word=new TreeGraphNode(new Word(wordString));
+    TreeGraphNode pos=new TreeGraphNode(new Word(posString));
     tgWordNodes.add(word);
     tgPOSNodes.add(pos);
     TreeGraphNode[] childArr={word};
     pos.setChildren(childArr);
     word.setParent(pos);
     pos.percolateHeads(headFinder);
-    nodeWords.add(new IndexedWord(wordLabel));
   }
-  TreeGraphNode root=new TreeGraphNode(rootLabel);
+  TreeGraphNode root=new TreeGraphNode(new StringLabel("ROOT"));
   root.setChildren(tgPOSNodes.toArray(new TreeGraphNode[tgPOSNodes.size()]));
   root.setIndex(0);
   List<TypedDependency> tdeps=new ArrayList<TypedDependency>(deps.size());
@@ -50,7 +38,7 @@
     int parentIdx=Integer.parseInt(parentArg.substring(parentDash + 1).replace("'",""));
     int childIdx=Integer.parseInt(childArg.substring(childDash + 1).replace("'",""));
     GrammaticalRelation grel=new GrammaticalRelation(GrammaticalRelation.Language.Any,type,null,DEPENDENT);
-    TypedDependency tdep=new TypedDependency(grel,nodeWords.get(parentIdx),nodeWords.get(childIdx));
+    TypedDependency tdep=new TypedDependency(grel,(parentIdx == 0 ? root : tgWordNodes.get(parentIdx - 1)),tgWordNodes.get(childIdx - 1));
     tdeps.add(tdep);
   }
   return new GrammaticalStructure(tdeps,root){

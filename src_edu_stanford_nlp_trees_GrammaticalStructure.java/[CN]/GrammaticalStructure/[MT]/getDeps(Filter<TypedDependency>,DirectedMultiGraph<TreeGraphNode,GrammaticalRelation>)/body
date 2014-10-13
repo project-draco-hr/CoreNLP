@@ -2,8 +2,8 @@
   List<TypedDependency> basicDep=Generics.newArrayList();
   for (  TreeGraphNode gov : basicGraph.getAllVertices()) {
     for (    TreeGraphNode dep : basicGraph.getChildren(gov)) {
-      GrammaticalRelation reln=getGrammaticalRelationCommonAncestor(gov.label(),dep.label(),basicGraph.getEdges(gov,dep));
-      basicDep.add(new TypedDependency(reln,new IndexedWord(gov.headWordNode().label()),new IndexedWord(dep.headWordNode().label())));
+      GrammaticalRelation reln=getGrammaticalRelationCommonAncestor(gov,dep,basicGraph.getEdges(gov,dep));
+      basicDep.add(new TypedDependency(reln,gov.headWordNode(),dep.headWordNode()));
     }
   }
   TreeGraphNode dependencyRoot=new TreeGraphNode(new Word("ROOT"));
@@ -23,7 +23,7 @@
     }
   }
   if (rootDep != null) {
-    TypedDependency rootTypedDep=new TypedDependency(ROOT,new IndexedWord(dependencyRoot.label()),new IndexedWord(rootDep.label()));
+    TypedDependency rootTypedDep=new TypedDependency(ROOT,dependencyRoot,rootDep);
     if (puncTypedDepFilter.accept(rootTypedDep)) {
       basicDep.add(rootTypedDep);
     }
