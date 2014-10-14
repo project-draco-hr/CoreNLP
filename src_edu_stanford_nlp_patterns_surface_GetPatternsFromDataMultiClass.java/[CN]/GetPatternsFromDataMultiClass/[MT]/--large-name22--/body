@@ -1,7 +1,7 @@
 {
   Class answerClass4Label=constVars.getAnswerClass().get(label);
   for (  Entry<String,List<CoreLabel>> sentEn : sents.entrySet()) {
-    Map<Integer,Triple<Set<SurfacePattern>,Set<SurfacePattern>,Set<SurfacePattern>>> pat4Sent=patternsForEachToken.get(sentEn.getKey());
+    Map<Integer,Triple<Set<Integer>,Set<Integer>,Set<Integer>>> pat4Sent=patternsForEachToken.get(sentEn.getKey());
     if (pat4Sent == null) {
       throw new RuntimeException("How come there are no patterns for " + sentEn.getKey() + ". The total patternsForEachToken size is "+ patternsForEachToken.size()+ " and keys "+ patternsForEachToken.keySet());
     }
@@ -16,11 +16,11 @@
         longestMatchingPhrase=(longestMatchingPhrase != null && (longestMatchingPhrase.length() > tokenWordOrLemma.length())) ? longestMatchingPhrase : tokenWordOrLemma;
       }
  else       longestMatchingPhrase=tokenWordOrLemma;
-      Triple<Set<SurfacePattern>,Set<SurfacePattern>,Set<SurfacePattern>> pat=pat4Sent.get(i);
+      Triple<Set<Integer>,Set<Integer>,Set<Integer>> pat=pat4Sent.get(i);
       if (pat == null)       throw new RuntimeException("Why are patterns null for sentence " + sentEn.getKey() + " and token "+ i);
-      Set<SurfacePattern> prevPat=pat.first();
-      Set<SurfacePattern> nextPat=pat.second();
-      Set<SurfacePattern> prevnextPat=pat.third();
+      Set<Integer> prevPat=pat.first();
+      Set<Integer> nextPat=pat.second();
+      Set<Integer> prevnextPat=pat.third();
       if (constVars.ignoreWordRegex.matcher(token.word()).matches())       continue;
       String tag=token.tag();
       if (constVars.allowedTagsInitials != null && constVars.allowedTagsInitials.containsKey(label)) {
@@ -43,21 +43,24 @@
         boolean prevTokenLabel=i == 0 ? false : sent.get(i - 1).get(answerClass4Label).equals(label);
         boolean nextTokenLabel=i == sent.size() - 1 ? false : sent.get(i + 1).get(answerClass4Label).equals(label);
         if (!constVars.ignorePatWithLabeledNeigh || !prevTokenLabel) {
-          for (          SurfacePattern s : prevPat) {
+          for (          Integer sindex : prevPat) {
+            SurfacePattern s=constVars.patternIndex.get(sindex);
             patternsandWords4Label.getCounter(s).incrementCount(longestMatchingPhrase);
             posnegPatternsandWords4Label.getCounter(s).incrementCount(longestMatchingPhrase);
             allPatternsandWords4Label.getCounter(s).incrementCount(longestMatchingPhrase);
           }
         }
         if (!constVars.ignorePatWithLabeledNeigh || !nextTokenLabel) {
-          for (          SurfacePattern s : nextPat) {
+          for (          Integer sindex : nextPat) {
+            SurfacePattern s=constVars.patternIndex.get(sindex);
             patternsandWords4Label.getCounter(s).incrementCount(longestMatchingPhrase);
             posnegPatternsandWords4Label.getCounter(s).incrementCount(longestMatchingPhrase);
             allPatternsandWords4Label.getCounter(s).incrementCount(longestMatchingPhrase);
           }
         }
         if (!constVars.ignorePatWithLabeledNeigh || (!prevTokenLabel && !nextTokenLabel)) {
-          for (          SurfacePattern s : prevnextPat) {
+          for (          Integer sindex : prevnextPat) {
+            SurfacePattern s=constVars.patternIndex.get(sindex);
             patternsandWords4Label.getCounter(s).incrementCount(longestMatchingPhrase);
             posnegPatternsandWords4Label.getCounter(s).incrementCount(longestMatchingPhrase);
             allPatternsandWords4Label.getCounter(s).incrementCount(longestMatchingPhrase);
@@ -72,7 +75,8 @@
           break;
         }
         if (!negToken)         if (constVars.getOtherSemanticClassesWords().contains(token.word()) || constVars.getOtherSemanticClassesWords().contains(token.lemma()))         negToken=true;
-        for (        SurfacePattern s : CollectionUtils.union(CollectionUtils.union(prevPat,nextPat),prevnextPat)) {
+        for (        Integer sindex : CollectionUtils.union(CollectionUtils.union(prevPat,nextPat),prevnextPat)) {
+          SurfacePattern s=constVars.patternIndex.get(sindex);
           if (negToken) {
             negPatternsandWords4Label.getCounter(s).incrementCount(tokenWordOrLemma);
             posnegPatternsandWords4Label.getCounter(s).incrementCount(tokenWordOrLemma);
