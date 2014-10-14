@@ -1,0 +1,16 @@
+{
+  PreparedStatement pstmt=null;
+  if (useDB) {
+    pstmt=getPreparedStmt();
+  }
+  for (  Map.Entry<String,Map<Integer,Set<Integer>>> en : pats.entrySet()) {
+    for (    Map.Entry<Integer,Set<Integer>> en2 : en.getValue().entrySet()) {
+      addPattern(en.getKey(),en2.getKey(),en2.getValue(),pstmt);
+      if (useDB)       pstmt.addBatch();
+    }
+  }
+  if (useDB) {
+    pstmt.executeUpdate();
+    pstmt.close();
+  }
+}

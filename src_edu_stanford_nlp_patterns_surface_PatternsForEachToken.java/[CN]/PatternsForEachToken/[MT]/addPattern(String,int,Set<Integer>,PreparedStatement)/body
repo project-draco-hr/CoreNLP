@@ -1,0 +1,20 @@
+{
+  if (pstmt != null) {
+    ByteArrayOutputStream baos=new ByteArrayOutputStream();
+    ObjectOutputStream oos=new ObjectOutputStream(baos);
+    oos.writeObject(patterns);
+    byte[] patsAsBytes=baos.toByteArray();
+    ByteArrayInputStream bais=new ByteArrayInputStream(patsAsBytes);
+    pstmt.setString(1,sentId);
+    pstmt.setInt(2,tokenId);
+    pstmt.setString(3,sentId);
+    pstmt.setInt(4,tokenId);
+    pstmt.setBinaryStream(5,bais,patsAsBytes.length);
+    pstmt.setString(6,sentId);
+    pstmt.setInt(7,tokenId);
+  }
+ else {
+    if (!patternsForEachToken.containsKey(sentId))     patternsForEachToken.put(sentId,new ConcurrentHashMap<Integer,Set<Integer>>());
+    patternsForEachToken.get(sentId).put(tokenId,patterns);
+  }
+}

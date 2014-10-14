@@ -1,0 +1,15 @@
+{
+  DatabaseMetaData dbm=conn.getMetaData();
+  ResultSet tables=dbm.getTables(null,null,tableName,null);
+  if (tables.next()) {
+    if (deleteExisting) {
+      Statement stmt=conn.createStatement();
+      stmt.executeQuery("DELETE FROM " + tableName);
+    }
+  }
+ else {
+    Statement stmt=conn.createStatement();
+    String query="create table " + tableName + " (\"sentid\" text, \"tokenid\" int, \"patterns\" bytea); ";
+    stmt.execute(query);
+  }
+}
