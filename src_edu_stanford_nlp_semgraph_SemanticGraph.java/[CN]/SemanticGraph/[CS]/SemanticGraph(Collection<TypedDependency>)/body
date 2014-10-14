@@ -2,18 +2,15 @@
   graph=new DirectedMultiGraph<IndexedWord,SemanticGraphEdge>(outerMapFactory,innerMapFactory);
   roots=wordMapFactory.newSet();
   for (  TypedDependency d : dependencies) {
-    TreeGraphNode gov=d.gov();
-    TreeGraphNode dep=d.dep();
+    IndexedWord gov=d.gov();
+    IndexedWord dep=d.dep();
     GrammaticalRelation reln=d.reln();
     if (reln != ROOT) {
-      IndexedWord govVertex=new IndexedWord(gov.label());
-      IndexedWord depVertex=new IndexedWord(dep.label());
-      addEdge(govVertex,depVertex,reln,Double.NEGATIVE_INFINITY,d.extra());
+      addEdge(gov,dep,reln,Double.NEGATIVE_INFINITY,d.extra());
     }
  else {
-      IndexedWord depVertex=new IndexedWord(dep.label());
-      addVertex(depVertex);
-      roots.add(depVertex);
+      addVertex(dep);
+      roots.add(dep);
     }
   }
 }
