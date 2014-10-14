@@ -1,0 +1,18 @@
+{
+  for (  Entry<String,List<CoreLabel>> sentEn : sents.entrySet()) {
+    Map<Integer,Set<Integer>> pat4Sent=patternsForEachToken.get(sentEn.getKey());
+    if (pat4Sent == null) {
+      throw new RuntimeException("How come there are no patterns for " + sentEn.getKey() + ". The total patternsForEachToken size is "+ patternsForEachToken.size()+ " and keys "+ patternsForEachToken.keySet());
+    }
+    for (    Entry<Integer,Set<Integer>> en : pat4Sent.entrySet()) {
+      CoreLabel token=null;
+      Set<Integer> p1=en.getValue();
+      for (      Integer index : patternsLearnedThisIter.keySet()) {
+        if (p1.contains(index)) {
+          if (token == null)           token=sentEn.getValue().get(en.getKey());
+          wordsandLemmaPatExtracted.incrementCount(new Pair<String,String>(token.word(),token.lemma()),index);
+        }
+      }
+    }
+  }
+}

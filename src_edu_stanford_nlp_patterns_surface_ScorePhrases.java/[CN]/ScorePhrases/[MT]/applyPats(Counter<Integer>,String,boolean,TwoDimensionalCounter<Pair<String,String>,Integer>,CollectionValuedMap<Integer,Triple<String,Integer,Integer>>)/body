@@ -1,0 +1,78 @@
+{
+  Counter<Integer> patternsLearnedThisIterConsistsOnlyGeneralized=new ClassicCounter<Integer>();
+  Counter<Integer> patternsLearnedThisIterRest=new ClassicCounter<Integer>();
+  Set<String> specialWords=constVars.invertedIndex.getSpecialWordsList();
+  List<String> extremelySmallStopWordsList=Arrays.asList(".",",","in","on","of","a","the","an");
+  for (  Entry<Integer,Double> en : patterns.entrySet()) {
+    Integer pindex=en.getKey();
+    SurfacePattern p=constVars.getPatternIndex().get(pindex);
+    String[] n=p.getSimplerTokensNext();
+    String[] pr=p.getSimplerTokensPrev();
+    boolean rest=false;
+    if (n != null) {
+      for (      String e : n) {
+        if (!specialWords.contains(e)) {
+          rest=true;
+          break;
+        }
+      }
+    }
+    if (rest == false && pr != null) {
+      for (      String e : pr) {
+        if (!specialWords.contains(e) && !extremelySmallStopWordsList.contains(e)) {
+          rest=true;
+          break;
+        }
+      }
+    }
+    if (rest)     patternsLearnedThisIterRest.setCount(en.getKey(),en.getValue());
+ else     patternsLearnedThisIterConsistsOnlyGeneralized.setCount(en.getKey(),en.getValue());
+  }
+  Map<String,Set<String>> sentidswithfilerest=constVars.invertedIndex.getFileSentIdsFromPats(patternsLearnedThisIterRest.keySet(),constVars.getPatternIndex());
+  if (constVars.batchProcessSents) {
+    List<File> filesToLoad;
+    if (patternsLearnedThisIterConsistsOnlyGeneralized.size() > 0)     filesToLoad=Data.sentsFiles;
+ else {
+      filesToLoad=new ArrayList<File>();
+      for (      String fname : sentidswithfilerest.keySet()) {
+        String filename="";
+        if (constVars.usingDirForSentsInIndex)         filename=constVars.saveSentencesSerDir + "/" + fname;
+ else         filename=fname;
+        filesToLoad.add(new File(filename));
+      }
+    }
+    for (    File fname : filesToLoad) {
+      Redwood.log(Redwood.DBG,"Applying patterns to sents from " + fname);
+      Map<String,List<CoreLabel>> sents=IOUtils.readObjectFromFile(fname);
+      if (sentidswithfilerest != null && !sentidswithfilerest.isEmpty()) {
+        String filename="";
+        if (constVars.usingDirForSentsInIndex)         filename=constVars.saveSentencesSerDir + "/" + fname.getName();
+ else         filename=fname.getAbsolutePath();
+        Set<String> sentIDs=sentidswithfilerest.get(filename);
+        if (sentIDs != null) {
+          this.runParallelApplyPats(sents,sentIDs,label,patternsLearnedThisIterRest,wordsandLemmaPatExtracted,matchedTokensByPat);
+        }
+ else         throw new RuntimeException("How come no sentIds for " + filename + ". Index keyset is "+ constVars.invertedIndex.getKeySet());
+      }
+      if (patternsLearnedThisIterConsistsOnlyGeneralized.size() > 0) {
+        this.runParallelApplyPats(sents,sents.keySet(),label,patternsLearnedThisIterConsistsOnlyGeneralized,wordsandLemmaPatExtracted,matchedTokensByPat);
+      }
+      if (computeDataFreq)       Data.computeRawFreqIfNull(sents,constVars.numWordsCompound);
+    }
+  }
+ else {
+    if (sentidswithfilerest != null && !sentidswithfilerest.isEmpty()) {
+      String filename=CollectionUtils.toList(sentidswithfilerest.keySet()).get(0);
+      Set<String> sentids=sentidswithfilerest.get(filename);
+      if (sentids != null) {
+        this.runParallelApplyPats(Data.sents,sentids,label,patternsLearnedThisIterRest,wordsandLemmaPatExtracted,matchedTokensByPat);
+      }
+ else       throw new RuntimeException("How come no sentIds for " + filename + ". Index keyset is "+ constVars.invertedIndex.getKeySet());
+    }
+    if (patternsLearnedThisIterConsistsOnlyGeneralized.size() > 0) {
+      this.runParallelApplyPats(Data.sents,Data.sents.keySet(),label,patternsLearnedThisIterConsistsOnlyGeneralized,wordsandLemmaPatExtracted,matchedTokensByPat);
+    }
+    Data.computeRawFreqIfNull(Data.sents,constVars.numWordsCompound);
+  }
+  Redwood.log(Redwood.DBG,"# words/lemma and pattern pairs are " + wordsandLemmaPatExtracted.size());
+}
