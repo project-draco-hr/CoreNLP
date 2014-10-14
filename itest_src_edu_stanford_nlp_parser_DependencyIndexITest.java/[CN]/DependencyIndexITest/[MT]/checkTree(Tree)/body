@@ -20,12 +20,12 @@
   GrammaticalStructureFactory gsf=tlp.grammaticalStructureFactory();
   GrammaticalStructure gs=gsf.newGrammaticalStructure(tree);
   Collection<TypedDependency> deps=gs.typedDependenciesCCprocessed(true);
-  Set<IndexedWord> nodes=Generics.newHashSet();
+  Set<CoreLabel> nodes=new IdentityHashSet<CoreLabel>();
   for (  TypedDependency dep : deps) {
-    nodes.add(dep.gov());
-    nodes.add(dep.dep());
+    nodes.add(dep.gov().label());
+    nodes.add(dep.dep().label());
   }
-  for (  IndexedWord n : nodes) {
+  for (  CoreLabel n : nodes) {
     String text=n.value();
     int index=n.get(CoreAnnotations.IndexAnnotation.class);
     if (text.equals("Mary"))     assertEquals(1,index);

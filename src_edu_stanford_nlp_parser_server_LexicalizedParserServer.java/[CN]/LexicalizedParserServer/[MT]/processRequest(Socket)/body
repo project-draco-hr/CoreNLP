@@ -5,12 +5,7 @@
   if (line == null)   return;
   line=line.trim();
   String[] pieces=line.split(" ",2);
-  String[] commandPieces=pieces[0].split(":",2);
-  String command=commandPieces[0];
-  String commandArgs="";
-  if (commandPieces.length > 1) {
-    commandArgs=commandPieces[1];
-  }
+  String command=pieces[0];
   String arg=null;
   if (pieces.length > 1) {
     arg=pieces[1];
@@ -24,19 +19,10 @@ case "quit":
     handleQuit();
   break;
 case "parse":
-handleParse(arg,clientSocket.getOutputStream(),commandArgs.equals("binarized"));
-break;
-case "dependencies":
-handleDependencies(arg,clientSocket.getOutputStream(),commandArgs);
+handleParse(arg,clientSocket.getOutputStream());
 break;
 case "tree":
 handleTree(arg,clientSocket.getOutputStream());
-break;
-case "tokenize":
-handleTokenize(arg,clientSocket.getOutputStream());
-break;
-case "lemma":
-handleLemma(arg,clientSocket.getOutputStream());
 break;
 }
 System.err.println("Handled request");

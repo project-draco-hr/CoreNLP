@@ -1,7 +1,7 @@
 {
   Collection<TypedDependency> newTypedDeps=new ArrayList<TypedDependency>();
-  Map<IndexedWord,SortedSet<TypedDependency>> map=Generics.newHashMap();
-  List<IndexedWord> vmod=Generics.newArrayList();
+  Map<TreeGraphNode,SortedSet<TypedDependency>> map=Generics.newHashMap();
+  List<TreeGraphNode> vmod=new ArrayList<TreeGraphNode>();
   for (  TypedDependency typedDep : list) {
     if (!map.containsKey(typedDep.gov())) {
       map.put(typedDep.gov(),new TreeSet<TypedDependency>());
@@ -13,7 +13,7 @@
         if (auxDep.reln() != AUX_MODIFIER) {
           continue;
         }
-        if (!auxDep.gov().equals(typedDep.dep()) || !auxDep.dep().value().equalsIgnoreCase("to")) {
+        if (auxDep.gov() != typedDep.dep() || !auxDep.dep().value().equalsIgnoreCase("to")) {
           continue;
         }
         foundAux=true;
@@ -31,7 +31,7 @@
     if (td1.reln() == KILL) {
       continue;
     }
-    IndexedWord td1Dep=td1.dep();
+    TreeGraphNode td1Dep=td1.dep();
     SortedSet<TypedDependency> possibles=map.get(td1Dep);
     if (possibles == null) {
       continue;
@@ -44,8 +44,8 @@
     int conjIndex=-1;
     for (    TypedDependency td2 : possibles) {
       if (td2.reln() == CONJUNCT) {
-        IndexedWord td2Dep=td2.dep();
-        String td2DepPOS=td2Dep.tag();
+        TreeGraphNode td2Dep=td2.dep();
+        String td2DepPOS=td2Dep.parent().value();
         if (td2DepPOS.equals("IN") || td2DepPOS.equals("TO")) {
           samePrepositionInEachConjunct=samePrepositionInEachConjunct && td2Dep.value().equals(td1Dep.value());
           Set<TypedDependency> possibles2=map.get(td2Dep);
@@ -53,8 +53,8 @@
           TypedDependency prepOtherDep=null;
           if (possibles2 != null) {
             for (            TypedDependency td3 : possibles2) {
-              IndexedWord td3Dep=td3.dep();
-              String td3DepPOS=td3Dep.tag();
+              TreeGraphNode td3Dep=td3.dep();
+              String td3DepPOS=td3Dep.parent().value();
               if ((td3.reln() == PREPOSITIONAL_OBJECT || td3.reln() == PREPOSITIONAL_COMPLEMENT) && (!(td3DepPOS.equals("IN") || td3DepPOS.equals("TO"))) && prepOtherDep == null) {
                 prepOtherDep=td3;
                 if (td3.reln() == PREPOSITIONAL_COMPLEMENT) {
@@ -76,14 +76,14 @@
     if (conjs.isEmpty()) {
       continue;
     }
-    String td1DepPOS=td1Dep.tag();
+    String td1DepPOS=td1Dep.parent().value();
     for (    TypedDependency td2 : possibles) {
       if (td2.reln() == COORDINATION && td2.dep().index() < conjIndex) {
         ccDep=td2;
       }
  else {
-        IndexedWord td2Dep=td2.dep();
-        String td2DepPOS=td2Dep.tag();
+        TreeGraphNode td2Dep=td2.dep();
+        String td2DepPOS=td2Dep.parent().value();
         if ((td2.reln() == DEPENDENT || td2.reln() == PREPOSITIONAL_OBJECT || td2.reln() == PREPOSITIONAL_COMPLEMENT) && (td1DepPOS.equals("IN") || td1DepPOS.equals("TO") || td1DepPOS.equals("VBG")) && prepDep == null && (!(td2DepPOS.equals("RB") || td2DepPOS.equals("IN") || td2DepPOS.equals("TO")))) {
           prepDep=new Pair<TypedDependency,Boolean>(td2,td2.reln() != PREPOSITIONAL_COMPLEMENT);
         }
@@ -152,7 +152,7 @@
         System.err.println("td1: " + td1 + "; possibles: "+ possibles);
       }
       for (      TypedDependency td2 : possibles) {
-        if (td2.reln() != KILL && td2.gov().equals(td1.dep())) {
+        if (td2.reln() != KILL && td2.gov() == td1.dep()) {
           if (DEBUG) {
             System.err.println("Changing " + td2 + " to have governor of "+ td1+ " [a]");
           }
@@ -182,13 +182,16 @@
       TypedDependency conjDep=trip.first();
       TypedDependency prepOtherDep=trip.second();
       boolean pobj=trip.third();
-      IndexedWord label=td1.gov().makeCopy(copyNumber);
+      TreeGraphNode copy=new TreeGraphNode(td1.gov());
+      CoreLabel label=new CoreLabel(td1.gov().label());
+      label.set(CoreAnnotations.CopyAnnotation.class,copyNumber);
       copyNumber++;
-      TypedDependency tdNew2=new TypedDependency(conjValue(ccDep.dep().value()),td1.gov(),label);
+      copy.setLabel(label);
+      TypedDependency tdNew2=new TypedDependency(conjValue(ccDep.dep().value()),td1.gov(),copy);
       newTypedDeps.add(tdNew2);
       TypedDependency tdNew3;
       GrammaticalRelation reln2=determinePrepRelation(map,vmod,conjDep,td1,pobj);
-      tdNew3=new TypedDependency(reln2,label,prepOtherDep.dep());
+      tdNew3=new TypedDependency(reln2,copy,prepOtherDep.dep());
       newTypedDeps.add(tdNew3);
       if (DEBUG) {
         System.err.println("  adding: " + tdNew2 + "  "+ tdNew3);
@@ -197,7 +200,7 @@
       conjDep.setReln(KILL);
       prepOtherDep.setReln(KILL);
       for (      TypedDependency otd : otherDtrs) {
-        if (otd.dep().tag().equals("IN")) {
+        if (otd.dep().parent().value().equals("IN")) {
           otd.setReln(PREPOSITIONAL_MODIFIER);
         }
         otd.setGov(td1.gov());
@@ -216,15 +219,15 @@
     if (td1.reln() == KILL) {
       continue;
     }
-    IndexedWord td1Dep=td1.dep();
-    String td1DepPOS=td1Dep.tag();
+    TreeGraphNode td1Dep=td1.dep();
+    String td1DepPOS=td1Dep.parent().value();
     Set<TypedDependency> possibles=map.get(td1Dep);
     if (possibles != null && (td1.reln() == PREPOSITIONAL_MODIFIER || td1.reln() == POSSESSION_MODIFIER || td1.reln() == CONJUNCT)) {
       boolean pobj=true;
       for (      TypedDependency td2 : possibles) {
         if (td2.reln() != COORDINATION && td2.reln() != CONJUNCT) {
-          IndexedWord td2Dep=td2.dep();
-          String td2DepPOS=td2Dep.tag();
+          TreeGraphNode td2Dep=td2.dep();
+          String td2DepPOS=td2Dep.parent().value();
           if ((td1.reln() == POSSESSION_MODIFIER || td1.reln() == CONJUNCT)) {
             if (td2.reln() == POSSESSIVE_MODIFIER) {
               if (!map.containsKey(td2Dep)) {
