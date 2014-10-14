@@ -1,3 +1,3 @@
 {
-  return conn.prepareStatement("UPDATE table SET patterns=? WHERE sentid=? and tokenid=?; " + "INSERT INTO " + tableName + "(sentid, tokenid, patterns) + VALUES (?,?,?) WHERE NOT EXISTS (SELECT 1 FROM table WHERE sentid=? and tokenid=?;");
+  return conn.prepareStatement("UPDATE " + tableName + " SET patterns = ? WHERE sentid = ? and tokenid = ?; "+ "INSERT INTO "+ tableName+ " (sentid, tokenid, patterns) (SELECT ?,?,? WHERE NOT EXISTS (SELECT sentid FROM "+ tableName+ " WHERE sentid  =? and tokenid=?));");
 }
