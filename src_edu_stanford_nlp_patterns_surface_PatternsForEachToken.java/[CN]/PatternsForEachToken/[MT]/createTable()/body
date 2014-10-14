@@ -1,4 +1,5 @@
 {
+  Connection conn=SQLConnection.getConnection();
   DatabaseMetaData dbm=conn.getMetaData();
   ResultSet tables=dbm.getTables(null,null,tableName,null);
   if (tables.next()) {
@@ -14,4 +15,5 @@
     String query="create table  IF NOT EXISTS " + tableName + " (\"sentid\" text, \"tokenid\" int, \"patterns\" bytea); ";
     stmt.execute(query);
   }
+  conn.close();
 }

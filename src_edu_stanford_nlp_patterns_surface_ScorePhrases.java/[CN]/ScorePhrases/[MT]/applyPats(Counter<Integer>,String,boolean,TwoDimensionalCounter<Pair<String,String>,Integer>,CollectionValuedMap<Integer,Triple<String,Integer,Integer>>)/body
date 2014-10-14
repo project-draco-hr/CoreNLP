@@ -35,9 +35,8 @@
  else {
       filesToLoad=new ArrayList<File>();
       for (      String fname : sentidswithfilerest.keySet()) {
-        String filename="";
-        if (constVars.usingDirForSentsInIndex)         filename=constVars.saveSentencesSerDir + "/" + fname;
- else         filename=fname;
+        String filename;
+        filename=fname;
         filesToLoad.add(new File(filename));
       }
     }
@@ -45,19 +44,30 @@
       Redwood.log(Redwood.DBG,"Applying patterns to sents from " + fname);
       Map<String,List<CoreLabel>> sents=IOUtils.readObjectFromFile(fname);
       if (sentidswithfilerest != null && !sentidswithfilerest.isEmpty()) {
-        String filename="";
-        if (constVars.usingDirForSentsInIndex)         filename=constVars.saveSentencesSerDir + "/" + fname.getName();
- else         filename=fname.getAbsolutePath();
+        String filename;
+        filename=fname.getAbsolutePath();
         Set<String> sentIDs=sentidswithfilerest.get(filename);
         if (sentIDs != null) {
           this.runParallelApplyPats(sents,sentIDs,label,patternsLearnedThisIterRest,wordsandLemmaPatExtracted,matchedTokensByPat);
         }
- else         throw new RuntimeException("How come no sentIds for " + filename + ". Index keyset is "+ constVars.invertedIndex.getKeySet());
+ else         Redwood.log(Redwood.DBG,"No sentIds for " + filename + " in the index for the keywords from the patterns! The index came up with these files: "+ sentidswithfilerest.keySet());
       }
       if (patternsLearnedThisIterConsistsOnlyGeneralized.size() > 0) {
         this.runParallelApplyPats(sents,sents.keySet(),label,patternsLearnedThisIterConsistsOnlyGeneralized,wordsandLemmaPatExtracted,matchedTokensByPat);
       }
-      if (computeDataFreq)       Data.computeRawFreqIfNull(sents,constVars.numWordsCompound);
+      if (computeDataFreq) {
+        Data.computeRawFreqIfNull(sents,constVars.numWordsCompound);
+        Data.fileNamesUsedToComputeRawFreq.add(fname.getName());
+      }
+    }
+    if (computeDataFreq) {
+      for (      File f : Data.sentsFiles) {
+        if (!Data.fileNamesUsedToComputeRawFreq.contains(f.getName())) {
+          Map<String,List<CoreLabel>> sents=IOUtils.readObjectFromFile(f);
+          Data.computeRawFreqIfNull(sents,constVars.numWordsCompound);
+          Data.fileNamesUsedToComputeRawFreq.add(f.getName());
+        }
+      }
     }
   }
  else {

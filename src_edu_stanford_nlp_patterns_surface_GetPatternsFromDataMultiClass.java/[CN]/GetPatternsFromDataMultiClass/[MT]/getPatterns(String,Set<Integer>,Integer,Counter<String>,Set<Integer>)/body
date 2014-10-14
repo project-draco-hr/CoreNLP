@@ -6,42 +6,47 @@
   TwoDimensionalCounter<Integer,String> negandUnLabeledPatternsandWords4Label=new TwoDimensionalCounter<Integer,String>();
   TwoDimensionalCounter<Integer,String> allPatternsandWords4Label=new TwoDimensionalCounter<Integer,String>();
   if (!constVars.batchProcessSents) {
-    if (this.patternsForEachToken == null) {
+    if (this.patsForEachToken == null) {
       if (constVars.computeAllPatterns) {
+        props.setProperty("createTable","true");
+        props.setProperty("deleteExisting","true");
+        patsForEachToken=new PatternsForEachToken(props);
         Redwood.log(Redwood.DBG,"Computing all patterns");
-        this.patternsForEachToken=createPats.getAllPatterns(Data.sents);
-        constVars.computeAllPatterns=false;
+        createPats.getAllPatterns(Data.sents,patsForEachToken);
       }
- else {
-        this.patternsForEachToken=IOUtils.readObjectFromFile(constVars.allPatternsFile);
+ else       if (constVars.allPatternsFile != null) {
+        patsForEachToken=new PatternsForEachToken(props,IOUtils.readObjectFromFile(constVars.allPatternsFile));
         Redwood.log(ConstantsAndVariables.minimaldebug,"Read all patterns from " + constVars.allPatternsFile);
       }
     }
-    this.calculateSufficientStats(Data.sents,patternsForEachToken,label,patternsandWords4Label,posnegPatternsandWords4Label,allPatternsandWords4Label,negPatternsandWords4Label,unLabeledPatternsandWords4Label,negandUnLabeledPatternsandWords4Label);
+    this.calculateSufficientStats(Data.sents,patsForEachToken,label,patternsandWords4Label,posnegPatternsandWords4Label,allPatternsandWords4Label,negPatternsandWords4Label,unLabeledPatternsandWords4Label,negandUnLabeledPatternsandWords4Label);
   }
  else {
+    int i=-1;
     for (    File f : Data.sentsFiles) {
+      i++;
+      if (i == 0) {
+        if (patsForEachToken == null) {
+          if (constVars.computeAllPatterns) {
+            props.setProperty("createTable","true");
+            props.setProperty("deleteExisting","true");
+            patsForEachToken=new PatternsForEachToken(props);
+          }
+ else           patsForEachToken=new PatternsForEachToken(props,IOUtils.readObjectFromFile(constVars.allPatternsFile));
+        }
+      }
       Redwood.log(Redwood.DBG,(constVars.computeAllPatterns ? "Creating patterns and " : "") + "calculating sufficient statistics from " + f);
       Map<String,List<CoreLabel>> sents=IOUtils.readObjectFromFile(f);
-      Map<String,Map<Integer,Set<Integer>>> pats4File=null;
       if (constVars.computeAllPatterns) {
-        if (this.patternsForEachToken == null)         this.patternsForEachToken=new HashMap<String,Map<Integer,Set<Integer>>>();
-        pats4File=createPats.getAllPatterns(sents);
-        this.patternsForEachToken.putAll(pats4File);
+        createPats.getAllPatterns(sents,patsForEachToken);
       }
- else {
-        if (this.patternsForEachToken == null) {
-          this.patternsForEachToken=IOUtils.readObjectFromFile(constVars.allPatternsFile);
-          Redwood.log(ConstantsAndVariables.minimaldebug,"Read all patterns from " + constVars.allPatternsFile);
-        }
-        pats4File=this.patternsForEachToken;
-      }
-      this.calculateSufficientStats(sents,pats4File,label,patternsandWords4Label,posnegPatternsandWords4Label,allPatternsandWords4Label,negPatternsandWords4Label,unLabeledPatternsandWords4Label,negandUnLabeledPatternsandWords4Label);
+      this.calculateSufficientStats(sents,patsForEachToken,label,patternsandWords4Label,posnegPatternsandWords4Label,allPatternsandWords4Label,negPatternsandWords4Label,unLabeledPatternsandWords4Label,negandUnLabeledPatternsandWords4Label);
     }
   }
-  if (constVars.computeAllPatterns && constVars.allPatternsFile != null) {
-    IOUtils.writeObjectToFile(this.patternsForEachToken,constVars.allPatternsFile);
+  if (constVars.computeAllPatterns && constVars.allPatternsFile != null && !patsForEachToken.getUseDBForTokenPatterns()) {
+    patsForEachToken.writePatternsIfInMemory(constVars.allPatternsFile);
   }
+  constVars.computeAllPatterns=false;
   if (patternsandWords == null)   patternsandWords=new HashMap<String,TwoDimensionalCounter<Integer,String>>();
   if (allPatternsandWords == null)   allPatternsandWords=new HashMap<String,TwoDimensionalCounter<Integer,String>>();
   if (currentPatternWeights == null)   currentPatternWeights=new HashMap<String,Counter<Integer>>();
