@@ -1,14 +1,14 @@
 {
   for (  Entry<String,List<CoreLabel>> sentEn : sents.entrySet()) {
-    Map<Integer,Triple<Set<Integer>,Set<Integer>,Set<Integer>>> pat4Sent=patternsForEachToken.get(sentEn.getKey());
+    Map<Integer,Triple<Set<SurfacePattern>,Set<SurfacePattern>,Set<SurfacePattern>>> pat4Sent=patternsForEachToken.get(sentEn.getKey());
     if (pat4Sent == null) {
       throw new RuntimeException("How come there are no patterns for " + sentEn.getKey() + ". The total patternsForEachToken size is "+ patternsForEachToken.size()+ " and keys "+ patternsForEachToken.keySet());
     }
-    for (    Entry<Integer,Triple<Set<Integer>,Set<Integer>,Set<Integer>>> en : pat4Sent.entrySet()) {
+    for (    Entry<Integer,Triple<Set<SurfacePattern>,Set<SurfacePattern>,Set<SurfacePattern>>> en : pat4Sent.entrySet()) {
       CoreLabel token=null;
-      Set<Integer> p1=en.getValue().first();
-      Set<Integer> p2=en.getValue().second();
-      Set<Integer> p3=en.getValue().third();
+      Set<SurfacePattern> p1=en.getValue().first();
+      Set<SurfacePattern> p2=en.getValue().second();
+      Set<SurfacePattern> p3=en.getValue().third();
       for (      SurfacePattern p : patternsLearnedThisIter.keySet()) {
         if (p1.contains(p) || p2.contains(p) || p3.contains(p)) {
           if (token == null)           token=sentEn.getValue().get(en.getKey());

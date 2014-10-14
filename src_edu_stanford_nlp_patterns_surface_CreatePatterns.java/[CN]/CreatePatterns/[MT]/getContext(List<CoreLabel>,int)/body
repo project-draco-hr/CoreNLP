@@ -1,7 +1,7 @@
 {
-  Set<Integer> prevpatterns=new HashSet<Integer>();
-  Set<Integer> nextpatterns=new HashSet<Integer>();
-  Set<Integer> prevnextpatterns=new HashSet<Integer>();
+  Set<SurfacePattern> prevpatterns=new HashSet<SurfacePattern>();
+  Set<SurfacePattern> nextpatterns=new HashSet<SurfacePattern>();
+  Set<SurfacePattern> prevnextpatterns=new HashSet<SurfacePattern>();
   CoreLabel token=sent.get(i);
   String tag=null;
   if (usePOS4Pattern) {
@@ -133,11 +133,11 @@
         if (previousTokens.size() >= minWindow4Pattern) {
           if (twithoutPOS != null) {
             SurfacePattern pat=new SurfacePattern(prevContext,twithoutPOS,null,Genre.PREV);
-            prevpatterns.add(constVars.patternIndex.addToIndex(pat));
+            prevpatterns.add(pat);
           }
           if (twithPOS != null) {
             SurfacePattern patPOS=new SurfacePattern(prevContext,twithPOS,null,Genre.PREV);
-            prevpatterns.add(constVars.patternIndex.addToIndex(patPOS));
+            prevpatterns.add(patPOS);
           }
         }
         useprev=true;
@@ -165,11 +165,11 @@
         nextOriginalArr=nextOriginal.toArray(new String[0]);
         if (twithoutPOS != null) {
           SurfacePattern pat=new SurfacePattern(null,twithoutPOS,nextContext,Genre.NEXT);
-          nextpatterns.add(constVars.patternIndex.addToIndex(pat));
+          nextpatterns.add(pat);
         }
         if (twithPOS != null) {
           SurfacePattern patPOS=new SurfacePattern(null,twithPOS,nextContext,Genre.NEXT);
-          nextpatterns.add(constVars.patternIndex.addToIndex(patPOS));
+          nextpatterns.add(patPOS);
         }
       }
       usenext=true;
@@ -178,15 +178,15 @@
       if (previousTokens.size() + nextTokens.size() >= minWindow4Pattern) {
         if (twithoutPOS != null) {
           SurfacePattern pat=new SurfacePattern(prevContext,twithoutPOS,nextContext,Genre.PREVNEXT);
-          prevnextpatterns.add(constVars.patternIndex.addToIndex(pat));
+          prevnextpatterns.add(pat);
         }
         if (twithPOS != null) {
           SurfacePattern patPOS=new SurfacePattern(prevContext,twithPOS,nextContext,Genre.PREVNEXT);
-          prevnextpatterns.add(constVars.patternIndex.addToIndex(patPOS));
+          prevnextpatterns.add(patPOS);
         }
       }
     }
   }
-  Triple<Set<Integer>,Set<Integer>,Set<Integer>> patterns=new Triple<Set<Integer>,Set<Integer>,Set<Integer>>(prevpatterns,nextpatterns,prevnextpatterns);
+  Triple<Set<SurfacePattern>,Set<SurfacePattern>,Set<SurfacePattern>> patterns=new Triple<Set<SurfacePattern>,Set<SurfacePattern>,Set<SurfacePattern>>(prevpatterns,nextpatterns,prevnextpatterns);
   return patterns;
 }
