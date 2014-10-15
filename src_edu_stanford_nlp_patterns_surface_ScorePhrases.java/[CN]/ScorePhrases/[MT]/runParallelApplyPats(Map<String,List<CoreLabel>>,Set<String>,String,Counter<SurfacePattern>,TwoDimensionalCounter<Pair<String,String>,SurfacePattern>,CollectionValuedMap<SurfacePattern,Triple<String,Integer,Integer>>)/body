@@ -1,0 +1,40 @@
+{
+  List<String> keyset=new ArrayList<String>(sentIds);
+  List<String> notAllowedClasses=new ArrayList<String>();
+  if (constVars.doNotExtractPhraseAnyWordLabeledOtherClass) {
+    for (    String l : constVars.getAnswerClass().keySet()) {
+      if (!l.equals(label)) {
+        notAllowedClasses.add(l + ":" + l);
+      }
+    }
+    notAllowedClasses.add("OTHERSEM:OTHERSEM");
+  }
+  int num=0;
+  if (constVars.numThreads == 1)   num=keyset.size();
+ else   num=keyset.size() / (constVars.numThreads - 1);
+  ExecutorService executor=Executors.newFixedThreadPool(constVars.numThreads);
+  List<Future<Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<SurfacePattern,Triple<String,Integer,Integer>>>>> list=new ArrayList<Future<Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<SurfacePattern,Triple<String,Integer,Integer>>>>>();
+  for (int i=0; i < constVars.numThreads; i++) {
+    Callable<Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<SurfacePattern,Triple<String,Integer,Integer>>>> task=null;
+    Map<TokenSequencePattern,SurfacePattern> patternsLearnedThisIterConverted=new HashMap<TokenSequencePattern,SurfacePattern>();
+    for (    SurfacePattern p : patternsLearnedThisIter.keySet()) {
+      TokenSequencePattern pat=TokenSequencePattern.compile(constVars.env.get(label),p.toString(notAllowedClasses));
+      patternsLearnedThisIterConverted.put(pat,p);
+    }
+    task=new ApplyPatternsMulti(sents,keyset.subList(i * num,Math.min(keyset.size(),(i + 1) * num)),patternsLearnedThisIterConverted,label,constVars.removeStopWordsFromSelectedPhrases,constVars.removePhrasesWithStopWords,constVars);
+    Future<Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<SurfacePattern,Triple<String,Integer,Integer>>>> submit=executor.submit(task);
+    list.add(submit);
+  }
+  for (  Future<Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<SurfacePattern,Triple<String,Integer,Integer>>>> future : list) {
+    try {
+      Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<SurfacePattern,Triple<String,Integer,Integer>>> result=future.get();
+      wordsandLemmaPatExtracted.addAll(result.first());
+      matchedTokensByPat.addAll(result.second());
+    }
+ catch (    Exception e) {
+      executor.shutdownNow();
+      throw new RuntimeException(e);
+    }
+  }
+  executor.shutdown();
+}
