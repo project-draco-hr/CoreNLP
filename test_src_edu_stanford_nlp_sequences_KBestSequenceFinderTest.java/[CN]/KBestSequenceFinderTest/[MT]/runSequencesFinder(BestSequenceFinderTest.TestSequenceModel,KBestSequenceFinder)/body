@@ -1,0 +1,16 @@
+{
+  Counter<int[]> bestLabelsCounter=sf.kBestSequences(tsm,K2NR);
+  List<int[]> topValues=Counters.toSortedList(bestLabelsCounter);
+  Iterator<int[]> iter=topValues.iterator();
+  for (int i=0; i < K2NR; i++) {
+    int[] sequence=iter.next();
+    String strSequence=Arrays.toString(sequence);
+    double score=bestLabelsCounter.getCount(sequence);
+    if (DEBUG) {
+      System.err.println((i + 1) + " best sequence: " + strSequence+ "; score: "+ score);
+      System.err.println("    vs. correct: " + test2nrAnswers[i]);
+    }
+    assertEquals("Best sequence is wrong. Correct: " + Arrays.toString(tsm.correctAnswers()) + ", found: "+ test2nrAnswers[i],test2nrAnswers[i],strSequence);
+    assertEquals("Best sequence score is wrong.",test2nrScores[i],score,1e-8);
+  }
+}
