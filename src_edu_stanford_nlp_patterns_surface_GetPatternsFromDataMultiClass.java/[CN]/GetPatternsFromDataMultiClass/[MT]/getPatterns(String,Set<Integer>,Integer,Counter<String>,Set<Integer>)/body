@@ -40,9 +40,11 @@
       if (constVars.computeAllPatterns) {
         createPats.getAllPatterns(sents,patsForEachToken);
       }
+      Redwood.log(Redwood.DBG,"Done creating patterns for " + f);
       this.calculateSufficientStats(sents,patsForEachToken,label,patternsandWords4Label,posnegPatternsandWords4Label,allPatternsandWords4Label,negPatternsandWords4Label,unLabeledPatternsandWords4Label,negandUnLabeledPatternsandWords4Label);
     }
   }
+  if (constVars.useDBForTokenPatterns)   patsForEachToken.createIndexIfUsingDBAndNotExists();
   if (constVars.computeAllPatterns && constVars.allPatternsFile != null && !patsForEachToken.getUseDBForTokenPatterns()) {
     patsForEachToken.writePatternsIfInMemory(constVars.allPatternsFile);
   }
