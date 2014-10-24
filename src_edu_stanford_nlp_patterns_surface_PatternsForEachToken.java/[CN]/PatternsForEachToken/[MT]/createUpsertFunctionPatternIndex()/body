@@ -1,0 +1,7 @@
+{
+  Connection conn=SQLConnection.getConnection();
+  String s="CREATE OR REPLACE FUNCTION upsert_patternindex(tablename1 text, index1 bytea) RETURNS VOID AS $$\n" + "DECLARE\n" + "BEGIN\n"+ "    UPDATE " + patternindicesTable + " SET index = index1 WHERE  tablename = tablename;\n"+ "    IF NOT FOUND THEN\n"+ "    INSERT INTO "+ patternindicesTable+ "  values (tablename1, index1);\n"+ "    END IF;\n"+ "END;\n"+ "$$ LANGUAGE 'plpgsql';\n";
+  Statement st=conn.createStatement();
+  st.execute(s);
+  conn.close();
+}

@@ -1,12 +1,8 @@
 {
   String query="";
   try {
-    Connection conn=null;
-    conn=SQLConnection.getConnection();
-    DatabaseMetaData dbm=conn.getMetaData();
-    ResultSet tables=dbm.getTables(null,null,tableName,null);
-    if (tables.next()) {
-      System.out.println("Found table " + tableName);
+    Connection conn=SQLConnection.getConnection();
+    if (DBTableExists()) {
       if (deleteExisting) {
         System.out.println("deleting table " + tableName);
         Statement stmt=conn.createStatement();

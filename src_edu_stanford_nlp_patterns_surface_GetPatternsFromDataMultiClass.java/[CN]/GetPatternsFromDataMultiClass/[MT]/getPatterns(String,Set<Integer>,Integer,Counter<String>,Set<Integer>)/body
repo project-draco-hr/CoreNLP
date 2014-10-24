@@ -14,9 +14,10 @@
         Redwood.log(Redwood.DBG,"Computing all patterns");
         createPats.getAllPatterns(Data.sents,patsForEachToken);
       }
- else       if (constVars.allPatternsFile != null) {
-        patsForEachToken=new PatternsForEachToken(props,IOUtils.readObjectFromFile(constVars.allPatternsFile));
-        Redwood.log(ConstantsAndVariables.minimaldebug,"Read all patterns from " + constVars.allPatternsFile);
+ else       if (constVars.allPatternsDir != null) {
+        patsForEachToken=new PatternsForEachToken(props,IOUtils.readObjectFromFile(constVars.allPatternsDir + "/allpatterns.ser"));
+        Redwood.log(ConstantsAndVariables.minimaldebug,"Read all patterns from " + constVars.allPatternsDir + "/allpatterns.ser");
+        constVars.setPatternIndex(IOUtils.readObjectFromFile(constVars.allPatternsDir + "/patternshashindex.ser"));
       }
     }
     this.calculateSufficientStats(Data.sents,patsForEachToken,label,patternsandWords4Label,posnegPatternsandWords4Label,allPatternsandWords4Label,negPatternsandWords4Label,unLabeledPatternsandWords4Label,negandUnLabeledPatternsandWords4Label);
@@ -32,7 +33,10 @@
             props.setProperty("deleteExisting","true");
             patsForEachToken=new PatternsForEachToken(props);
           }
- else           patsForEachToken=new PatternsForEachToken(props,IOUtils.readObjectFromFile(constVars.allPatternsFile));
+ else {
+            patsForEachToken=new PatternsForEachToken(props,IOUtils.readObjectFromFile(constVars.allPatternsDir + "/allpatterns.ser"));
+            constVars.setPatternIndex(IOUtils.readObjectFromFile(constVars.allPatternsDir + "/patternshashindex.ser"));
+          }
         }
       }
       Redwood.log(Redwood.DBG,(constVars.computeAllPatterns ? "Creating patterns and " : "") + "calculating sufficient statistics from " + f);
@@ -45,8 +49,8 @@
     }
   }
   if (constVars.useDBForTokenPatterns)   patsForEachToken.createIndexIfUsingDBAndNotExists();
-  if (constVars.computeAllPatterns && constVars.allPatternsFile != null && !patsForEachToken.getUseDBForTokenPatterns()) {
-    patsForEachToken.writePatternsIfInMemory(constVars.allPatternsFile);
+  if (constVars.computeAllPatterns) {
+    savePatternIndex(constVars.allPatternsDir);
   }
   constVars.computeAllPatterns=false;
   if (patternsandWords == null)   patternsandWords=new HashMap<String,TwoDimensionalCounter<Integer,String>>();
