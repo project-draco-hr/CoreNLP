@@ -1,19 +1,27 @@
 {
-  Connection conn=SQLConnection.getConnection();
-  DatabaseMetaData dbm=conn.getMetaData();
-  ResultSet tables=dbm.getTables(null,null,tableName,null);
-  if (tables.next()) {
-    System.out.println("Found table " + tableName);
-    if (deleteExisting) {
-      System.out.println("deleting table " + tableName);
-      Statement stmt=conn.createStatement();
-      stmt.executeUpdate("DELETE FROM " + tableName);
+  String query="";
+  try {
+    Connection conn=null;
+    conn=SQLConnection.getConnection();
+    DatabaseMetaData dbm=conn.getMetaData();
+    ResultSet tables=dbm.getTables(null,null,tableName,null);
+    if (tables.next()) {
+      System.out.println("Found table " + tableName);
+      if (deleteExisting) {
+        System.out.println("deleting table " + tableName);
+        Statement stmt=conn.createStatement();
+        query="DELETE FROM " + tableName;
+        stmt.executeUpdate(query);
+      }
     }
-  }
  else {
-    Statement stmt=conn.createStatement();
-    String query="create table  IF NOT EXISTS " + tableName + " (\"sentid\" text, \"tokenid\" int, \"patterns\" bytea); ";
-    stmt.execute(query);
+      Statement stmt=conn.createStatement();
+      query="create table  IF NOT EXISTS " + tableName + " (\"sentid\" text, \"patterns\" bytea); ";
+      stmt.execute(query);
+    }
+    conn.close();
   }
-  conn.close();
+ catch (  SQLException e) {
+    throw new RuntimeException("Error executing query " + query + "\n"+ e);
+  }
 }
