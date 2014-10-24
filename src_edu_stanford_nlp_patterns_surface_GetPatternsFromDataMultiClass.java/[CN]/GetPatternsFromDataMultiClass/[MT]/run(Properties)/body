@@ -135,12 +135,6 @@
   boolean savePatternsWordsDir=Boolean.parseBoolean(props.getProperty("savePatternsWordsDir"));
   if (savePatternsWordsDir) {
     String patternsWordsDir=props.getProperty("patternsWordsDir");
-    if (!model.patsForEachToken.getUseDBForTokenPatterns() && model.constVars.allPatternsDir == null) {
-      String allPatsDir=patternsWordsDir + "/allpatterns/";
-      IOUtils.ensureDir(new File(allPatsDir));
-      model.savePatternIndex(allPatsDir);
-      Redwood.log(Redwood.FORCE,"WARNING: SAVING OF THE MODEL IS SET BUT allPatternsDir IS NOT SET. SAVING ALL PATTERNS DIR TO " + allPatsDir + ". USE THIS AS allPatternsDir WHEN LOADING THE MODEL!");
-    }
     for (    String label : model.constVars.getLabelDictionary().keySet()) {
       IOUtils.ensureDir(new File(patternsWordsDir + "/" + label));
       Counter<Integer> pats=model.getLearnedPatterns(label);
