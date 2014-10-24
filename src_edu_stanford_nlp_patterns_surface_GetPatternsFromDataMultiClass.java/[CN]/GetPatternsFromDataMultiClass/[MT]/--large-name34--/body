@@ -1,11 +1,12 @@
 {
   Class answerClass4Label=constVars.getAnswerClass().get(label);
-  for (  Entry<String,List<CoreLabel>> sentEn : sents.entrySet()) {
-    Map<Integer,Set<Integer>> pat4Sent=patternsForEachToken.getPatternsForAllTokens(sentEn.getKey());
+  Collection<String> sampledSentIds=CollectionUtils.sampleWithoutReplacement(sents.keySet(),(int)Math.round(constVars.sampleSentencesForSufficientStats * sents.size()),new Random(numCallsToCalStats.incrementAndGet()));
+  for (  String sentId : sampledSentIds) {
+    Map<Integer,Set<Integer>> pat4Sent=patternsForEachToken.getPatternsForAllTokens(sentId);
     if (pat4Sent == null) {
-      throw new RuntimeException("How come there are no patterns for " + sentEn.getKey());
+      throw new RuntimeException("How come there are no patterns for " + sentId);
     }
-    List<CoreLabel> sent=sentEn.getValue();
+    List<CoreLabel> sent=sents.get(sentId);
     for (int i=0; i < sent.size(); i++) {
       CoreLabel token=sent.get(i);
       String tokenWordOrLemma=token.word();
@@ -17,7 +18,7 @@
       }
  else       longestMatchingPhrase=tokenWordOrLemma;
       Set<Integer> pats=pat4Sent.get(i);
-      if (pats == null)       throw new RuntimeException("Why are patterns null for sentence " + sentEn.getKey() + " and token "+ i+ ". pat4Sent has token ids "+ pat4Sent.keySet()+ (constVars.batchProcessSents ? "" : ". The sentence is " + Data.sents.get(sentEn.getKey()))+ ". If you have switched batchProcessSents, recompute the patterns.");
+      if (pats == null)       throw new RuntimeException("Why are patterns null for sentence " + sentId + " and token "+ i+ ". pat4Sent has token ids "+ pat4Sent.keySet()+ (constVars.batchProcessSents ? "" : ". The sentence is " + Data.sents.get(sentId))+ ". If you have switched batchProcessSents, recompute the patterns.");
       if (constVars.ignoreWordRegex.matcher(token.word()).matches())       continue;
       String tag=token.tag();
       if (constVars.allowedTagsInitials != null && constVars.allowedTagsInitials.containsKey(label)) {
