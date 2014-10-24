@@ -1,10 +1,14 @@
 {
-  Set<String> sentids=new HashSet<String>();
+  Hashtable<String,Set<String>> sentids=new Hashtable<String,Set<String>>();
   for (  String w : words) {
-    if (matchLowerCaseContext)     w=w.toLowerCase();
-    Set<String> st=index.get(w);
+    Hashtable<String,Set<String>> st=index.get(w);
     if (st == null)     throw new RuntimeException("How come the index does not have sentences for " + w);
-    sentids.addAll(st);
+    for (    Map.Entry<String,Set<String>> en : st.entrySet()) {
+      if (!sentids.containsKey(en.getKey())) {
+        sentids.put(en.getKey(),new HashSet<String>());
+      }
+      sentids.get(en.getKey()).addAll(en.getValue());
+    }
   }
   return sentids;
 }
