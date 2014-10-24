@@ -1,0 +1,14 @@
+{
+  numAllSentences++;
+  for (  CoreLabel l : sent) {
+    Map<String,String> addThis=this.transformCoreLabeltoString.apply(l);
+    for (    Map.Entry<String,String> en : addThis.entrySet()) {
+      String val=combineKeyValue(en.getKey(),en.getValue());
+      add(val,sentId);
+    }
+    if (addProcessedText) {
+      String val=Token.getKeyForClass(PatternsAnnotations.ProcessedTextAnnotation.class) + ":" + l.get(PatternsAnnotations.ProcessedTextAnnotation.class);
+      add(val,sentId);
+    }
+  }
+}

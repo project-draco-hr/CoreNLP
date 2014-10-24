@@ -1,0 +1,12 @@
+{
+  Set<String> sentids=new HashSet<String>();
+  for (  Map.Entry<String,Collection<String>> en : relevantWords.entrySet()) {
+    for (    String en2 : en.getValue()) {
+      String w=combineKeyValue(en.getKey(),en2);
+      Set<String> st=index.get(w);
+      if (st == null)       throw new RuntimeException("How come the index does not have sentences for " + w);
+      sentids.addAll(st);
+    }
+  }
+  return sentids;
+}

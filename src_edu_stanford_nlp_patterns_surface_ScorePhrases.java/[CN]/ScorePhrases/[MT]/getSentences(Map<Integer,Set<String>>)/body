@@ -1,0 +1,34 @@
+{
+  try {
+    Set<File> files=new HashSet<File>();
+    Map<Integer,Map<String,List<CoreLabel>>> sentsAll=new HashMap<Integer,Map<String,List<CoreLabel>>>();
+    CollectionValuedMap<String,Integer> sentIds2Pats=new CollectionValuedMap<String,Integer>();
+    for (    Map.Entry<Integer,Set<String>> setEn : sentids.entrySet()) {
+      if (!sentsAll.containsKey(setEn.getKey()))       sentsAll.put(setEn.getKey(),new HashMap<String,List<CoreLabel>>());
+      for (      String s : setEn.getValue()) {
+        sentIds2Pats.add(s,setEn.getKey());
+        if (constVars.batchProcessSents)         files.add(Data.sentId2File.get(s));
+      }
+    }
+    if (constVars.batchProcessSents) {
+      for (      File f : files) {
+        Map<String,List<CoreLabel>> sentsf=IOUtils.readObjectFromFile(f);
+        for (        Map.Entry<String,List<CoreLabel>> s : sentsf.entrySet()) {
+          for (          Integer pat : sentIds2Pats.get(s.getKey()))           sentsAll.get(pat).put(s.getKey(),s.getValue());
+        }
+      }
+    }
+ else {
+      for (      Map.Entry<String,List<CoreLabel>> s : Data.sents.entrySet()) {
+        for (        Integer pat : sentIds2Pats.get(s.getKey()))         sentsAll.get(pat).put(s.getKey(),s.getValue());
+      }
+    }
+    return sentsAll;
+  }
+ catch (  ClassNotFoundException e) {
+    throw new RuntimeException(e);
+  }
+catch (  IOException e1) {
+    throw new RuntimeException(e1);
+  }
+}

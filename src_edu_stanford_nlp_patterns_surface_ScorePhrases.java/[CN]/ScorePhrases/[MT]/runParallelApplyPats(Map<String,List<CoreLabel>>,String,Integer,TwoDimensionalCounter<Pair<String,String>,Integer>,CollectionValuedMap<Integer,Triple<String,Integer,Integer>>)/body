@@ -1,0 +1,42 @@
+{
+  List<String> notAllowedClasses=new ArrayList<String>();
+  List<String> sentids=CollectionUtils.toList(sents.keySet());
+  if (constVars.doNotExtractPhraseAnyWordLabeledOtherClass) {
+    for (    String l : constVars.getAnswerClass().keySet()) {
+      if (!l.equals(label)) {
+        notAllowedClasses.add(l + ":" + l);
+      }
+    }
+    notAllowedClasses.add("OTHERSEM:OTHERSEM");
+  }
+  SurfacePattern p=constVars.getPatternIndex().get(pattern);
+  Map<TokenSequencePattern,Integer> patternsLearnedThisIterConverted=new HashMap<TokenSequencePattern,Integer>();
+  TokenSequencePattern pat=TokenSequencePattern.compile(constVars.env.get(label),p.toString(notAllowedClasses));
+  patternsLearnedThisIterConverted.put(pat,pattern);
+  int num=0;
+  int numThreads=constVars.numThreads;
+  if (sents.size() < 50)   numThreads=1;
+  if (numThreads == 1)   num=sents.size();
+ else   num=sents.size() / (numThreads - 1);
+  ExecutorService executor=Executors.newFixedThreadPool(constVars.numThreads);
+  List<Future<Pair<TwoDimensionalCounter<Pair<String,String>,Integer>,CollectionValuedMap<Integer,Triple<String,Integer,Integer>>>>> list=new ArrayList<Future<Pair<TwoDimensionalCounter<Pair<String,String>,Integer>,CollectionValuedMap<Integer,Triple<String,Integer,Integer>>>>>();
+  for (int i=0; i < constVars.numThreads; i++) {
+    Callable<Pair<TwoDimensionalCounter<Pair<String,String>,Integer>,CollectionValuedMap<Integer,Triple<String,Integer,Integer>>>> task=null;
+    task=new ApplyPatterns(sents,num == sents.size() ? sentids : sentids.subList(i * num,Math.min(sentids.size(),(i + 1) * num)),patternsLearnedThisIterConverted,label,constVars.removeStopWordsFromSelectedPhrases,constVars.removePhrasesWithStopWords,constVars);
+    Future<Pair<TwoDimensionalCounter<Pair<String,String>,Integer>,CollectionValuedMap<Integer,Triple<String,Integer,Integer>>>> submit=executor.submit(task);
+    list.add(submit);
+  }
+  for (  Future<Pair<TwoDimensionalCounter<Pair<String,String>,Integer>,CollectionValuedMap<Integer,Triple<String,Integer,Integer>>>> future : list) {
+    try {
+      Pair<TwoDimensionalCounter<Pair<String,String>,Integer>,CollectionValuedMap<Integer,Triple<String,Integer,Integer>>> result=future.get();
+      Redwood.log(ConstantsAndVariables.extremedebug,"Pattern " + p + " extracted phrases "+ result.first());
+      wordsandLemmaPatExtracted.addAll(result.first());
+      matchedTokensByPat.addAll(result.second());
+    }
+ catch (    Exception e) {
+      executor.shutdownNow();
+      throw new RuntimeException(e);
+    }
+  }
+  executor.shutdown();
+}
