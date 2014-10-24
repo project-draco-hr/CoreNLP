@@ -1,7 +1,0 @@
-{
-  Connection conn=SQLConnection.getConnection();
-  String s="CREATE OR REPLACE FUNCTION upsert_patterns(sentid1 text, pats1 bytea) RETURNS VOID AS $$\n" + "DECLARE\n" + "BEGIN\n"+ "    UPDATE " + tableName + " SET patterns = pats1 WHERE sentid = sentid1;\n"+ "    IF NOT FOUND THEN\n"+ "    INSERT INTO "+ tableName+ "  values (sentid1, pats1);\n"+ "    END IF;\n"+ "END;\n"+ "$$ LANGUAGE 'plpgsql';\n";
-  Statement st=conn.createStatement();
-  st.execute(s);
-  conn.close();
-}
