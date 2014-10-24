@@ -1,0 +1,18 @@
+{
+  for (  Map.Entry<String,List<CoreLabel>> sEn : sents.entrySet()) {
+    numAllSentences++;
+    for (    CoreLabel l : sEn.getValue()) {
+      String w=l.word();
+      if (matchLowerCaseContext)       w=w.toLowerCase();
+      w=w.replaceAll("/","\\\\/");
+      Set<String> sentids=index.get(w);
+      if (sentids == null) {
+        sentids=new HashSet<String>();
+      }
+      sentids.add(sEn.getKey());
+      index.put(w,sentids);
+    }
+  }
+  System.out.println("words are " + index.keySet());
+  System.out.println("done adding. Size is " + size() + "  and number of words in inv index is "+ index.size()+ " and sentence ids are "+ index.get("massachusetts"));
+}
