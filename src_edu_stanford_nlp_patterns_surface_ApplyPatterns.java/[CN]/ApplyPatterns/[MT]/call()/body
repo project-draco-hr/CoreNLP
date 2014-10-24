@@ -6,6 +6,7 @@
     for (    Entry<TokenSequencePattern,Integer> pEn : patterns.entrySet()) {
       if (pEn.getKey() == null)       throw new RuntimeException("why is the pattern " + pEn + " null?");
       TokenSequenceMatcher m=pEn.getKey().getMatcher(sent);
+      m.setBranchLimit(5);
       while (m.find()) {
         int s=m.start("$term");
         int e=m.end("$term");
