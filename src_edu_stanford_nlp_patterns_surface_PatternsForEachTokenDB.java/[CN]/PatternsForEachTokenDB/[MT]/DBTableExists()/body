@@ -1,0 +1,18 @@
+{
+  try {
+    Connection conn=null;
+    conn=SQLConnection.getConnection();
+    DatabaseMetaData dbm=conn.getMetaData();
+    ResultSet tables=dbm.getTables(null,null,tableName,null);
+    if (tables.next()) {
+      System.out.println("Found table " + tableName);
+      conn.close();
+      return true;
+    }
+    conn.close();
+    return false;
+  }
+ catch (  SQLException e) {
+    throw new RuntimeException(e);
+  }
+}
