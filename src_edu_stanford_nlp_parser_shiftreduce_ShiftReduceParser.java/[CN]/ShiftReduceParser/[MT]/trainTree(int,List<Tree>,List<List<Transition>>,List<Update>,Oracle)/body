@@ -9,8 +9,8 @@
   if (op.trainOptions().trainingMethod == ShiftReduceTrainOptions.TrainingMethod.ORACLE) {
     State state=ShiftReduceParser.initialStateFromGoldTagTree(tree);
     while (!state.isFinished()) {
-      List<String> features=featureFactory.featurize(state);
-      ScoredObject<Integer> prediction=findHighestScoringTransition(state,features,true);
+      List<String> features=model.featureFactory.featurize(state);
+      ScoredObject<Integer> prediction=model.findHighestScoringTransition(state,features,true);
       if (prediction == null) {
         throw new AssertionError("Did not find a legal transition");
       }
@@ -56,8 +56,8 @@
       State highestCurrentState=null;
       for (      State currentState : agenda) {
         boolean isGoldState=(op.trainOptions().trainingMethod == ShiftReduceTrainOptions.TrainingMethod.REORDER_BEAM && goldState.areTransitionsEqual(currentState));
-        List<String> features=featureFactory.featurize(currentState);
-        Collection<ScoredObject<Integer>> stateTransitions=findHighestScoringTransitions(currentState,features,true,op.trainOptions().beamSize,null);
+        List<String> features=model.featureFactory.featurize(currentState);
+        Collection<ScoredObject<Integer>> stateTransitions=model.findHighestScoringTransitions(currentState,features,true,op.trainOptions().beamSize,null);
         for (        ScoredObject<Integer> transition : stateTransitions) {
           State newState=transitionIndex.get(transition.object()).apply(currentState,transition.score());
           newAgenda.add(newState);
@@ -80,9 +80,9 @@
       State newGoldState=goldTransition.apply(goldState,0.0);
       if (!newGoldState.areTransitionsEqual(highestScoringState)) {
         ++numWrong;
-        List<String> goldFeatures=featureFactory.featurize(goldState);
+        List<String> goldFeatures=model.featureFactory.featurize(goldState);
         int lastTransition=transitionIndex.indexOf(highestScoringState.transitions.peek());
-        updates.add(new Update(featureFactory.featurize(highestCurrentState),-1,lastTransition,1.0f));
+        updates.add(new Update(model.featureFactory.featurize(highestCurrentState),-1,lastTransition,1.0f));
         updates.add(new Update(goldFeatures,transitionIndex.indexOf(goldTransition),-1,1.0f));
         if (op.trainOptions().trainingMethod == ShiftReduceTrainOptions.TrainingMethod.BEAM) {
           if (!findStateOnAgenda(newAgenda,newGoldState)) {
@@ -123,8 +123,8 @@
     while (transitions.size() > 0 && keepGoing) {
       Transition transition=transitions.get(0);
       int transitionNum=transitionIndex.indexOf(transition);
-      List<String> features=featureFactory.featurize(state);
-      int predictedNum=findHighestScoringTransition(state,features,false).object();
+      List<String> features=model.featureFactory.featurize(state);
+      int predictedNum=model.findHighestScoringTransition(state,features,false).object();
       Transition predicted=transitionIndex.get(predictedNum);
       if (transitionNum == predictedNum) {
         transitions.remove(0);
