@@ -6,7 +6,8 @@
     pstmt=getPreparedStmt(conn);
   }
   for (  Map.Entry<String,Map<Integer,Set<Integer>>> en : pats.entrySet()) {
-    addPatterns(en.getKey(),en.getValue(),pstmt);
+    addPattern(en.getKey(),en.getValue(),pstmt);
+    if (useDBForTokenPatterns)     pstmt.addBatch();
   }
   if (useDBForTokenPatterns) {
     pstmt.executeBatch();

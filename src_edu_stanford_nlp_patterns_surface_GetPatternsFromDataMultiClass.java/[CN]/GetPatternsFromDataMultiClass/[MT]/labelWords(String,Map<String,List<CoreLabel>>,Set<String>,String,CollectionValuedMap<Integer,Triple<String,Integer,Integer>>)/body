@@ -10,7 +10,9 @@
       }
     }
   }
+  Map<String,Map<Integer,Set<Integer>>> tempPatsForSents=new HashMap<String,Map<Integer,Set<Integer>>>();
   for (  Entry<String,List<CoreLabel>> sentEn : sents.entrySet()) {
+    boolean sentenceChanged=false;
     Set<String[]> identifiedWordsTokens=new HashSet<String[]>();
     for (    String s : identifiedWords) {
       String[] toks=s.split("\\s+");
@@ -42,6 +44,7 @@
             int index=idx + j;
             CoreLabel l=sentEn.getValue().get(index);
             if (constVars.usePatternResultAsLabel) {
+              sentenceChanged=true;
               l.set(constVars.getAnswerClass().get(label),label);
               CollectionValuedMap<String,String> matched=new CollectionValuedMap<String,String>();
               matched.add(label,StringUtils.join(ph," "));
@@ -55,10 +58,16 @@
         }
       }
     }
-    if (patsForEachToken != null && patsForEachToken.containsSentId(sentEn.getKey())) {
-      for (      int index : contextWordsRecalculatePats)       patsForEachToken.addPatterns(sentEn.getKey(),index,createPats.getContext(sentEn.getValue(),index));
+    if (patsForEachToken != null) {
+      for (      int index : contextWordsRecalculatePats) {
+        if (!tempPatsForSents.containsKey(sentEn.getKey()))         tempPatsForSents.put(sentEn.getKey(),new HashMap<Integer,Set<Integer>>());
+        tempPatsForSents.get(sentEn.getKey()).put(index,createPats.getContext(sentEn.getValue(),index));
+      }
     }
+    if (sentenceChanged)     constVars.invertedIndex.update(sentEn.getValue(),sentEn.getKey());
   }
+  if (patsForEachToken != null)   patsForEachToken.updatePatterns(tempPatsForSents);
+  constVars.invertedIndex.finishUpdating();
   if (outFile != null) {
     Redwood.log(ConstantsAndVariables.minimaldebug,"Writing results to " + outFile);
     IOUtils.writeObjectToFile(sents,outFile);

@@ -12,10 +12,10 @@
   }
  else {
     if (patternsLearnedThisIter.size() > 0) {
-      this.applyPats(patternsLearnedThisIter,label,computeDataFreq,wordsandLemmaPatExtracted,matchedTokensByPat);
+      this.applyPats(patternsLearnedThisIter,label,wordsandLemmaPatExtracted,matchedTokensByPat);
     }
   }
-  if (computeDataFreq) {
+  if (computeProcDataFreq) {
     if (!phraseScorer.wordFreqNorm.equals(Normalization.NONE)) {
       Redwood.log(Redwood.DBG,"computing processed freq");
       for (      Entry<String,Double> fq : Data.rawFreq.entrySet()) {
@@ -42,10 +42,11 @@
       ignoreWordsAll=CollectionUtils.unionAsSet(ignoreWords,constVars.getOtherSemanticClassesWords());
     }
  else     ignoreWordsAll=constVars.getOtherSemanticClassesWords();
+    ignoreWordsAll.addAll(constVars.getLabelDictionary().get(label));
     Counter<String> finalwords=chooseTopWords(phraseScores,terms,phraseScores,ignoreWordsAll,constVars.thresholdWordExtract);
     scoreForAllWordsThisIteration.clear();
     Counters.addInPlace(scoreForAllWordsThisIteration,phraseScores);
-    Redwood.log(ConstantsAndVariables.minimaldebug,"## Selected Words: " + Counters.toSortedString(finalwords,finalwords.size(),"%1$s:%2$.2f","\t"));
+    Redwood.log(ConstantsAndVariables.minimaldebug,"\n\n## Selected Words for " + label + " : "+ Counters.toSortedString(finalwords,finalwords.size(),"%1$s:%2$.2f","\t"));
     if (constVars.outDir != null && !constVars.outDir.isEmpty()) {
       String outputdir=constVars.outDir + "/" + identifier+ "/"+ label;
       IOUtils.ensureDir(new File(outputdir));

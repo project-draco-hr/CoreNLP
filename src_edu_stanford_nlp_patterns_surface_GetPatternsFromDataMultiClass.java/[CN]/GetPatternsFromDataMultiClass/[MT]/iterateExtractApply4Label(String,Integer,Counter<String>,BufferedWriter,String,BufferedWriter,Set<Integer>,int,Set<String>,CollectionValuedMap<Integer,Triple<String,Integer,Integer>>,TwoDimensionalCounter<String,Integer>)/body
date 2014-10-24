@@ -8,8 +8,9 @@
   Counter<String> identifiedWords=new ClassicCounter<String>();
   Counter<Integer> patterns=new ClassicCounter<Integer>();
   for (int i=0; i < numIter; i++) {
-    patterns.addAll(getPatterns(label,learnedPatterns.get(label).keySet(),p0,p0Set,ignorePatterns));
-    learnedPatterns.get(label).addAll(patterns);
+    Counter<Integer> patternThisIter=getPatterns(label,learnedPatterns.get(label).keySet(),p0,p0Set,ignorePatterns);
+    patterns.addAll(patternThisIter);
+    learnedPatterns.get(label).addAll(patternThisIter);
     if (sentsOutFile != null)     sentsOutFile=sentsOutFile + "_" + i+ "iter.ser";
     Counter<String> scoreForAllWordsThisIteration=new ClassicCounter<String>();
     identifiedWords.addAll(scorePhrases.learnNewPhrases(label,this.patsForEachToken,patterns,learnedPatterns.get(label),matchedTokensByPat,scoreForAllWordsThisIteration,terms,wordsPatExtracted.get(label),this.patternsandWords.get(label),constVars.identifier,ignoreWords));
@@ -46,6 +47,6 @@
  else       break;
     }
   }
-  if (patternsOut != null)   this.writePatternsToFile(learnedPatterns.get(label),patternsOut);
+  if (patternsOut != null)   this.writePatternsToFile(patterns,patternsOut);
   return new Pair<Counter<Integer>,Counter<String>>(patterns,identifiedWords);
 }
