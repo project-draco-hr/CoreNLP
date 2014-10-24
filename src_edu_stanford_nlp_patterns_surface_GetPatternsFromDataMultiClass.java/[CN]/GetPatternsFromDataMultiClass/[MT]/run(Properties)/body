@@ -124,8 +124,10 @@
   String wordsOutputFile=props.getProperty("wordsOutputFile");
   String patternOutFile=props.getProperty("patternOutFile");
   boolean loadSavedPatternsWordsDir=Boolean.parseBoolean(props.getProperty("loadSavedPatternsWordsDir"));
+  boolean labelSentsUsingModel=Boolean.parseBoolean(props.getProperty("labelSentsUsingModel","true"));
+  boolean applyPatsUsingModel=Boolean.parseBoolean(props.getProperty("applyPatsUsingModel","true"));
   if (loadSavedPatternsWordsDir) {
-    loadFromSavedPatternsWordsDir(model,props);
+    loadFromSavedPatternsWordsDir(model,props,labelSentsUsingModel,applyPatsUsingModel);
   }
   if (learn)   model.iterateExtractApply(p0,p0Set,wordsOutputFile,sentsOutFile,patternOutFile,ignorePatterns);
   if (model.constVars.markedOutputTextFile != null) {
@@ -172,6 +174,9 @@
   }
   if (model.constVars.saveInvertedIndex) {
     model.constVars.invertedIndex.saveIndex(model.constVars.invertedIndexDirectory);
+  }
+  if (model.constVars.storePatsForEachToken.equals(ConstantsAndVariables.PatternForEachTokenWay.LUCENE)) {
+    model.patsForEachToken.close();
   }
   return model;
 }

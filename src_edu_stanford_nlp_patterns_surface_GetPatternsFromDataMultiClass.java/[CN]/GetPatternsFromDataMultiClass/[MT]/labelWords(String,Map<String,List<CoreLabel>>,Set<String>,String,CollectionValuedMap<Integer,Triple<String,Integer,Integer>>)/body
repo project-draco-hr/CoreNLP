@@ -1,4 +1,5 @@
 {
+  Redwood.log(Redwood.DBG,"Labeling " + sents.size() + " sentences with "+ identifiedWords.size()+ " phrases for label "+ label);
   CollectionValuedMap<String,Integer> tokensMatchedPatterns=null;
   if (constVars.restrictToMatched) {
     tokensMatchedPatterns=new CollectionValuedMap<String,Integer>();
@@ -40,6 +41,8 @@
           }
         }
         if (donotuse == false) {
+          String phStr=StringUtils.join(ph," ");
+          Redwood.log(ConstantsAndVariables.extremedebug,"Labeling because of phrase " + phStr);
           for (int j=0; j < ph.length; j++) {
             int index=idx + j;
             CoreLabel l=sentEn.getValue().get(index);
@@ -47,7 +50,7 @@
               sentenceChanged=true;
               l.set(constVars.getAnswerClass().get(label),label);
               CollectionValuedMap<String,String> matched=new CollectionValuedMap<String,String>();
-              matched.add(label,StringUtils.join(ph," "));
+              matched.add(label,phStr);
               if (!l.containsKey(PatternsAnnotations.MatchedPhrases.class))               l.set(PatternsAnnotations.MatchedPhrases.class,matched);
  else               l.get(PatternsAnnotations.MatchedPhrases.class).addAll(matched);
               for (int k=Math.max(0,index - constVars.numWordsCompound); k < sentEn.getValue().size() && k <= index + constVars.numWordsCompound + 1; k++) {
