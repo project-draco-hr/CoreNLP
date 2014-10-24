@@ -60,8 +60,9 @@
     if (patsForEachToken != null && patsForEachToken.containsSentId(sentEn.getKey())) {
       for (      int index : contextWordsRecalculatePats)       patsForEachToken.addPatterns(sentEn.getKey(),index,createPats.getContext(sentEn.getValue(),index));
     }
-    if (sentenceChanged)     constVars.invertedIndex.add(sentEn.getValue(),sentEn.getKey(),false);
+    if (sentenceChanged)     constVars.invertedIndex.update(sentEn.getValue(),sentEn.getKey());
   }
+  constVars.invertedIndex.finishUpdating();
   if (outFile != null) {
     Redwood.log(ConstantsAndVariables.minimaldebug,"Writing results to " + outFile);
     IOUtils.writeObjectToFile(sents,outFile);
