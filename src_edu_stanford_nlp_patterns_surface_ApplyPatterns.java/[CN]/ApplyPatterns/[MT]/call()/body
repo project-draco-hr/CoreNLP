@@ -1,0 +1,61 @@
+{
+  TwoDimensionalCounter<Pair<String,String>,Integer> allFreq=new TwoDimensionalCounter<Pair<String,String>,Integer>();
+  CollectionValuedMap<Integer,Triple<String,Integer,Integer>> matchedTokensByPat=new CollectionValuedMap<Integer,Triple<String,Integer,Integer>>();
+  for (  String sentid : sentids) {
+    List<CoreLabel> sent=sents.get(sentid);
+    for (    Entry<TokenSequencePattern,Integer> pEn : patterns.entrySet()) {
+      if (pEn.getKey() == null)       throw new RuntimeException("why is the pattern " + pEn + " null?");
+      TokenSequenceMatcher m=pEn.getKey().getMatcher(sent);
+      while (m.find()) {
+        int s=m.start("$term");
+        int e=m.end("$term");
+        String phrase="";
+        String phraseLemma="";
+        boolean useWordNotLabeled=false;
+        boolean doNotUse=false;
+        boolean[] addedindices=new boolean[e - s];
+        Arrays.fill(addedindices,false);
+        for (int i=s; i < e; i++) {
+          CoreLabel l=sent.get(i);
+          l.set(PatternsAnnotations.MatchedPattern.class,true);
+          if (!l.containsKey(PatternsAnnotations.MatchedPatterns.class))           l.set(PatternsAnnotations.MatchedPatterns.class,new HashSet<SurfacePattern>());
+          l.get(PatternsAnnotations.MatchedPatterns.class).add(constVars.getPatternIndex().get(pEn.getValue()));
+          for (          Entry<Class,Object> ig : constVars.getIgnoreWordswithClassesDuringSelection().get(label).entrySet()) {
+            if (l.containsKey(ig.getKey()) && l.get(ig.getKey()).equals(ig.getValue())) {
+              doNotUse=true;
+            }
+          }
+          boolean containsStop=containsStopWord(l,constVars.getCommonEngWords(),constVars.ignoreWordRegex);
+          if (removePhrasesWithStopWords && containsStop) {
+            doNotUse=true;
+          }
+ else {
+            if (!containsStop || !removeStopWordsFromSelectedPhrases) {
+              if (label == null || l.get(constVars.getAnswerClass().get(label)) == null || !l.get(constVars.getAnswerClass().get(label)).equals(label.toString())) {
+                useWordNotLabeled=true;
+              }
+              phrase+=" " + l.word();
+              phraseLemma+=" " + l.lemma();
+              addedindices[i - s]=true;
+            }
+          }
+        }
+        for (int i=0; i < addedindices.length; i++) {
+          if (i > 0 && i < addedindices.length - 1 && addedindices[i - 1] == true && addedindices[i] == false && addedindices[i + 1] == true) {
+            doNotUse=true;
+            break;
+          }
+        }
+        if (!doNotUse && useWordNotLabeled) {
+          matchedTokensByPat.add(pEn.getValue(),new Triple<String,Integer,Integer>(sentid,s,e - 1));
+          if (useWordNotLabeled) {
+            phrase=phrase.trim();
+            phraseLemma=phraseLemma.trim();
+            allFreq.incrementCount(new Pair<String,String>(phrase,phraseLemma),pEn.getValue(),1.0);
+          }
+        }
+      }
+    }
+  }
+  return new Pair<TwoDimensionalCounter<Pair<String,String>,Integer>,CollectionValuedMap<Integer,Triple<String,Integer,Integer>>>(allFreq,matchedTokensByPat);
+}

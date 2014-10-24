@@ -2,17 +2,20 @@
   for (  Map.Entry<String,List<CoreLabel>> sEn : sents.entrySet()) {
     numAllSentences++;
     for (    CoreLabel l : sEn.getValue()) {
+      Map<String,Class> m=constVars.getGeneralizeClasses();
       String w=l.word();
+      if (useLemmaContextTokens)       w=l.lemma();
       if (matchLowerCaseContext)       w=w.toLowerCase();
       w=w.replaceAll("/","\\\\/");
-      Set<String> sentids=index.get(w);
-      if (sentids == null) {
-        sentids=new HashSet<String>();
+      add(w,sEn.getKey());
+      for (      Map.Entry<String,Class> gn : m.entrySet()) {
+        Object b=l.get(gn.getValue());
+        if (b != null && !b.toString().equals(constVars.backgroundSymbol)) {
+          String key=gn.getValue().toString() + ":" + b.toString();
+          add(key,sEn.getKey());
+        }
       }
-      sentids.add(sEn.getKey());
-      index.put(w,sentids);
     }
   }
-  System.out.println("words are " + index.keySet());
-  System.out.println("done adding. Size is " + size() + "  and number of words in inv index is "+ index.size()+ " and sentence ids are "+ index.get("massachusetts"));
+  System.out.println("done adding. Size is " + size() + "  and number of words in inv index is "+ index.size());
 }

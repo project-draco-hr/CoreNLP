@@ -1,0 +1,14 @@
+{
+  String str="";
+  if (classORrestrictions != null && !this.classORrestrictions.isEmpty()) {
+    for (    Map.Entry<Class,Object> en : this.classORrestrictions.entrySet()) {
+      if (str.isEmpty())       str=en.getValue().toString();
+ else       str+="|" + en.getValue().toString();
+    }
+  }
+ else   if (envBindBooleanRestriction != null && !envBindBooleanRestriction.isEmpty()) {
+    if (envBindBooleanRestriction.startsWith("$FILLER"))     str="FW";
+ else     if (envBindBooleanRestriction.startsWith("$STOP"))     str="SW";
+  }
+  return str.trim();
+}
