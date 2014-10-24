@@ -1,0 +1,26 @@
+{
+  if (models.size() == 0) {
+    throw new IllegalArgumentException("Cannot average empty models");
+  }
+  Set<String> features=Generics.newHashSet();
+  for (  PerceptronModel model : models) {
+    for (    String feature : model.featureWeights.keySet()) {
+      features.add(feature);
+    }
+  }
+  Map<String,Weight> featureWeights=Generics.newHashMap();
+  for (  String feature : features) {
+    featureWeights.put(feature,new Weight());
+  }
+  int numModels=models.size();
+  for (  String feature : features) {
+    for (    PerceptronModel model : models) {
+      if (!model.featureWeights.containsKey(feature)) {
+        continue;
+      }
+      featureWeights.get(feature).addScaled(model.featureWeights.get(feature),1.0f / numModels);
+    }
+  }
+  PerceptronModel first=models.iterator().next();
+  return new PerceptronModel(featureWeights,first.op,first.featureFactory,first.transitionIndex,first.knownStates,first.rootStates,first.rootOnlyStates);
+}
