@@ -1,10 +1,6 @@
 {
-  if (constVars.allPatternsDir != null && !patsForEachToken.getUseDBForTokenPatterns()) {
+  if (dir != null) {
     IOUtils.ensureDir(new File(dir));
-    patsForEachToken.writePatternsIfInMemory(dir + "/allpatterns.ser");
-    IOUtils.writeObjectToFile(constVars.getPatternIndex(),dir + "/patternshashindex.ser");
   }
- else   if (patsForEachToken.getUseDBForTokenPatterns()) {
-    patsForEachToken.savePatternIndexInDB(constVars.getPatternIndex());
-  }
+  patsForEachToken.savePatternIndex(constVars.getPatternIndex(),dir);
 }
