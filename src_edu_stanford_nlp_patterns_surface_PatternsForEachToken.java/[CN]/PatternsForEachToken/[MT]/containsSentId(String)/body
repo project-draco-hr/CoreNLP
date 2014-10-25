@@ -1,0 +1,16 @@
+{
+  if (!useDBForTokenPatterns)   return this.patternsForEachToken.containsKey(sentId);
+ else {
+    Connection conn=SQLConnection.getConnection();
+    String query="Select tokenid from " + tableName + " where sentid=\'"+ sentId+ "\' limit 1";
+    Statement stmt=conn.createStatement();
+    ResultSet rs=stmt.executeQuery(query);
+    boolean contains=false;
+    while (rs.next()) {
+      contains=true;
+      break;
+    }
+    conn.close();
+    return contains;
+  }
+}

@@ -1,0 +1,18 @@
+{
+  Connection conn=null;
+  PreparedStatement pstmt=null;
+  if (useDBForTokenPatterns) {
+    conn=SQLConnection.getConnection();
+    pstmt=getPreparedStmt(conn);
+  }
+  for (  Map.Entry<String,Map<Integer,Set<Integer>>> en : pats.entrySet()) {
+    addPattern(en.getKey(),en.getValue(),pstmt);
+    if (useDBForTokenPatterns)     pstmt.addBatch();
+  }
+  if (useDBForTokenPatterns) {
+    pstmt.executeBatch();
+    conn.commit();
+    pstmt.close();
+    conn.close();
+  }
+}
