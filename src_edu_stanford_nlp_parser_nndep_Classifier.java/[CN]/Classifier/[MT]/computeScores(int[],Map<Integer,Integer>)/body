@@ -1,9 +1,8 @@
 {
-  double[] scores=new double[numLabels];
   double[] hidden=new double[config.hiddenSize];
   int offset=0;
-  for (int j=0; j < config.numTokens; ++j) {
-    int tok=feature.get(j);
+  for (int j=0; j < feature.length; ++j) {
+    int tok=feature[j];
     int index=tok * config.numTokens + j;
     if (preMap.containsKey(index)) {
       int id=preMap.get(index);
@@ -18,6 +17,7 @@
     hidden[i]+=b1[i];
     hidden[i]=hidden[i] * hidden[i] * hidden[i];
   }
+  double[] scores=new double[numLabels];
   for (int i=0; i < numLabels; ++i)   for (int j=0; j < config.hiddenSize; ++j)   scores[i]+=W2[i][j] * hidden[j];
   return scores;
 }
