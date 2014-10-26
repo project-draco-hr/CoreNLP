@@ -2,7 +2,7 @@
   Map<String,Double> result=new HashMap<String,Double>();
   Set<String> punctuationTags=getPunctuationTags();
   if (trees.size() != goldTrees.size()) {
-    System.out.println("[Error] Incorrect number of trees.");
+    System.err.println("[Error] Incorrect number of trees.");
     return null;
   }
   int correctArcs=0;
@@ -17,11 +17,11 @@
   for (int i=0; i < trees.size(); ++i) {
     List<CoreLabel> tokens=sentences.get(i).get(CoreAnnotations.TokensAnnotation.class);
     if (trees.get(i).n != goldTrees.get(i).n) {
-      System.out.println("[Error] Tree " + (i + 1) + ": incorrect number of nodes.");
+      System.err.println("[Error] Tree " + (i + 1) + ": incorrect number of nodes.");
       return null;
     }
     if (!trees.get(i).isTree()) {
-      System.out.println("[Error] Tree " + (i + 1) + ": illegal.");
+      System.err.println("[Error] Tree " + (i + 1) + ": illegal.");
       return null;
     }
     int nCorrectHead=0;

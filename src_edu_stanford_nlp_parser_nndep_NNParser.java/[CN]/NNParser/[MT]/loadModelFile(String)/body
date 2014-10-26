@@ -1,7 +1,7 @@
 {
   try {
-    System.out.println(CONST.SEPARATOR);
-    System.out.println("Loading Model File: " + modelFile);
+    System.err.println(CONST.SEPARATOR);
+    System.err.println("Loading Model File: " + modelFile);
     String s;
     BufferedReader input=IOUtils.readerFromString(modelFile);
     int nDict, nPOS, nLabel;
@@ -9,7 +9,7 @@
     nDict=nPOS=nLabel=eSize=hSize=nTokens=nPreComputed=0;
     for (int k=0; k < 7; ++k) {
       s=input.readLine();
-      System.out.println(s);
+      System.err.println(s);
       int number=Integer.parseInt(s.substring(s.indexOf("=") + 1,s.length()));
 switch (k) {
 case 0:
@@ -84,6 +84,6 @@ input.close();
 classifier=new Classifier(config,E,W1,b1,W2,preComputed);
 }
  catch (Exception e) {
-System.out.println(e);
+e.printStackTrace();
 }
 }
