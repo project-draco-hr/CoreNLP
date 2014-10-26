@@ -1,7 +1,7 @@
 {
-  List<String> word=new ArrayList<String>();
-  List<String> pos=new ArrayList<String>();
-  List<String> label=new ArrayList<String>();
+  List<String> word=new ArrayList<>();
+  List<String> pos=new ArrayList<>();
+  List<String> label=new ArrayList<>();
   for (  CoreMap sentence : sents) {
     List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
     for (    CoreLabel token : tokens) {
@@ -10,8 +10,8 @@
     }
   }
   String rootLabel=null;
-  for (int i=0; i < trees.size(); ++i)   for (int k=1; k <= trees.get(i).n; ++k)   if (trees.get(i).getHead(k) == 0)   rootLabel=trees.get(i).getLabel(k);
- else   label.add(trees.get(i).getLabel(k));
+  for (  DependencyTree tree : trees)   for (int k=1; k <= tree.n; ++k)   if (tree.getHead(k) == 0)   rootLabel=tree.getLabel(k);
+ else   label.add(tree.getLabel(k));
   knownWords=Util.generateDict(word,config.wordCutOff);
   knownPos=Util.generateDict(pos);
   knownLabels=Util.generateDict(label);
@@ -23,7 +23,7 @@
   knownPos.add(1,CONST.NULL);
   knownPos.add(2,CONST.ROOT);
   knownLabels.add(0,CONST.NULL);
-  genMapping();
+  generateIDs();
   System.out.println(CONST.SEPARATOR);
   System.out.println("#Word: " + knownWords.size());
   System.out.println("#POS:" + knownPos.size());
