@@ -2,7 +2,7 @@
   List<Example> examples=Util.getRandomSubList(dataset.examples,batchSize);
   preCompute();
   FeedforwardParams params=new FeedforwardParams(regParameter,dropOutProb,W1,b1,W2,E,saved);
-  int numChunks=Runtime.getRuntime().availableProcessors() - 1;
+  int numChunks=numThreads;
   List<Collection<Example>> chunks=CollectionUtils.partitionIntoFolds(examples,numChunks);
   for (  Collection<Example> chunk : chunks)   jobHandler.put(new Pair<>(chunk,params));
   jobHandler.join(false);
