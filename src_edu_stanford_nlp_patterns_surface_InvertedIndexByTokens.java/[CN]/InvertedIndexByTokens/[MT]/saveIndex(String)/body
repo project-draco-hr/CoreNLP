@@ -1,10 +1,9 @@
 {
-  BufferedWriter w=new BufferedWriter(new FileWriter(dir + "/param.txt"));
-  w.write(String.valueOf(convertToLowercase) + "\n");
-  w.write(String.valueOf(this.batchProcessSents) + "\n");
-  w.write(this.filenamePrefix + "\n");
-  w.close();
-  IOUtils.writeObjectToFile(this.stopWords,dir + "/stopwords.ser");
-  IOUtils.writeObjectToFile(this.specialWords,dir + "/specialwords.ser");
-  IOUtils.writeObjectToFile(index,dir + "/map.ser");
+  try {
+    IOUtils.ensureDir(new File(dir));
+    IOUtils.writeObjectToFile(index,dir + "/map.ser");
+  }
+ catch (  IOException e) {
+    throw new RuntimeException(e);
+  }
 }
