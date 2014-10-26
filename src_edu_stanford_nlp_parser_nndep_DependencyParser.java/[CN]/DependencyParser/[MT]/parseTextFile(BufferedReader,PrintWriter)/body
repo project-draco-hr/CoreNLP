@@ -5,14 +5,20 @@
   preprocessor.setSentenceDelimiter(config.sentenceDelimiter);
   preprocessor.setTokenizerFactory(config.tlp.getTokenizerFactory());
   Timing timer=new Timing();
+  MaxentTagger tagger=new MaxentTagger(config.tagger);
+  List<List<TaggedWord>> tagged=new ArrayList<>();
+  for (  List<HasWord> sentence : preprocessor) {
+    tagged.add(tagger.tagSentence(sentence));
+  }
+  System.err.printf("Tagging completed in %.2f sec.%n",timer.stop() / 1000.0);
   timer.start();
   int numSentences=0;
-  for (  List<HasWord> sentence : preprocessor) {
-    GrammaticalStructure parse=predict(sentence);
+  for (  List<TaggedWord> taggedSentence : tagged) {
+    GrammaticalStructure parse=predict(taggedSentence);
     output.println(parse);
     numSentences++;
   }
   long millis=timer.stop();
   double seconds=millis / 1000.0;
-  System.err.printf("Parsed %d sentences in %.2f seconds (%.2f sents/sec).",numSentences,seconds,numSentences / seconds);
+  System.err.printf("Parsed %d sentences in %.2f seconds (%.2f sents/sec).%n",numSentences,seconds,numSentences / seconds);
 }
