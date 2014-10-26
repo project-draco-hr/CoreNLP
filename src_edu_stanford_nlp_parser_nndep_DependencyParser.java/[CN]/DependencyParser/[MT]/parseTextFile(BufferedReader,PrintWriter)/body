@@ -15,7 +15,9 @@
   int numSentences=0;
   for (  List<TaggedWord> taggedSentence : tagged) {
     GrammaticalStructure parse=predict(taggedSentence);
-    output.println(parse);
+    Collection<TypedDependency> deps=parse.typedDependencies();
+    for (    TypedDependency dep : deps)     output.println(dep);
+    output.println();
     numSentences++;
   }
   long millis=timer.stop();
