@@ -1,11 +1,11 @@
 {
   long startTime=System.currentTimeMillis();
-  saved=new double[config.numPreComputed][config.hiddenSize];
-  for (  int x : toPreCompute) {
+  saved=new double[preMap.size()][config.hiddenSize];
+  for (  int x : preMap.keySet()) {
     int mapX=preMap.get(x);
     int tok=x / config.numTokens;
     int pos=x % config.numTokens;
     for (int j=0; j < config.hiddenSize; ++j)     for (int k=0; k < config.embeddingSize; ++k)     saved[mapX][j]+=W1[j][pos * config.embeddingSize + k] * E[tok][k];
   }
-  System.out.println("PreComputed " + toPreCompute.size() + ", Elapsed Time: "+ (System.currentTimeMillis() - startTime) / 1000.0 + " (s)");
+  System.out.println("PreComputed " + preMap.size() + ", Elapsed Time: "+ (System.currentTimeMillis() - startTime) / 1000.0 + " (s)");
 }
