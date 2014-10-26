@@ -1,5 +1,6 @@
 {
   Map<String,Double> result=new HashMap<String,Double>();
+  Set<String> punctuationTags=CollectionUtils.asSet(tlp.punctuationTags());
   if (trees.size() != goldTrees.size()) {
     System.out.println("[Error] Incorrect number of trees.");
     return null;
@@ -33,7 +34,8 @@
         if (trees.get(i).getLabel(j).equals(goldTrees.get(i).getLabel(j)))         ++correctArcs;
       }
       ++sumArcs;
-      if (!pPunct.matcher(tokens.get(j - 1).tag()).matches()) {
+      String tag=tokens.get(j - 1).tag();
+      if (!punctuationTags.contains(tag)) {
         ++sumArcsWoPunc;
         ++nonPunc;
         if (trees.get(i).getHead(j) == goldTrees.get(i).getHead(j)) {
