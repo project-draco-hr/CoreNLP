@@ -10,7 +10,7 @@
     for (int k=0; k < 7; ++k) {
       s=input.readLine();
       System.err.println(s);
-      int number=Integer.parseInt(s.substring(s.indexOf("=") + 1,s.length()));
+      int number=Integer.parseInt(s.substring(s.indexOf('=') + 1));
 switch (k) {
 case 0:
         nDict=number;
@@ -85,12 +85,14 @@ preComputed=new ArrayList<Integer>();
 while (preComputed.size() < nPreComputed) {
 s=input.readLine();
 splits=s.split(" ");
-for (int i=0; i < splits.length; ++i) preComputed.add(Integer.parseInt(splits[i]));
+for (String split : splits) {
+preComputed.add(Integer.parseInt(split));
+}
 }
 input.close();
 classifier=new Classifier(config,E,W1,b1,W2,preComputed);
 }
- catch (Exception e) {
-e.printStackTrace();
+ catch (IOException e) {
+throw new RuntimeIOException(e);
 }
 }
