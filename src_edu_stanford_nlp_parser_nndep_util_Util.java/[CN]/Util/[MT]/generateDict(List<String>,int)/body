@@ -1,11 +1,10 @@
 {
-  Counter<String> freq=new Counter<String>();
-  for (int i=0; i < str.size(); ++i)   freq.add(str.get(i));
-  List<String> keys=freq.getSortedKeys();
-  List<String> dict=new ArrayList<String>();
-  for (int i=0; i < keys.size(); ++i) {
-    String s=keys.get(i);
-    if (freq.getCount(s) >= cutOff)     dict.add(s);
+  Counter<String> freq=new IntCounter<>();
+  for (  String aStr : str)   freq.incrementCount(aStr);
+  List<String> keys=Counters.toSortedList(freq,false);
+  List<String> dict=new ArrayList<>();
+  for (  String word : keys) {
+    if (freq.getCount(word) >= cutOff)     dict.add(word);
   }
   return dict;
 }
