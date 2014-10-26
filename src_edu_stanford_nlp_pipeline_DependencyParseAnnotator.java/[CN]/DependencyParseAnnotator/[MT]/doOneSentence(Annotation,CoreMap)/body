@@ -3,7 +3,7 @@
   List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
   List<TypedDependency> dependencies=new ArrayList<>();
   DependencyTree result=results.get(0);
-  IndexedWord root=new IndexedWord(new Word("ROOT"));
+  IndexedWord root=new IndexedWord(new Word("ROOT-" + (tokens.size() + 1)));
   for (int i=1; i < result.n; i++) {
     int head=result.getHead(i);
     String label=result.getLabel(i);
@@ -12,7 +12,7 @@
     dependencies.add(new TypedDependency(relation,headWord,thisWord));
   }
   GrammaticalStructureFromDependenciesFactory gsf=new EnglishGrammaticalStructure.FromDependenciesFactory();
-  TreeGraphNode rootNode=new TreeGraphNode(new Word("ROOT-" + (tokens.size() + 1)));
+  TreeGraphNode rootNode=new TreeGraphNode(root);
   GrammaticalStructure gs=gsf.build(dependencies,rootNode);
   SemanticGraph deps=SemanticGraphFactory.generateCollapsedDependencies(gs), uncollapsedDeps=SemanticGraphFactory.generateUncollapsedDependencies(gs), ccDeps=SemanticGraphFactory.generateCCProcessedDependencies(gs);
   sentence.set(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class,deps);
