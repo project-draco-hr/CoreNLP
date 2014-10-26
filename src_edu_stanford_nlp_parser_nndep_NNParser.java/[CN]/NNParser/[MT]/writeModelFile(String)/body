@@ -5,28 +5,28 @@
     double[][] W2=classifier.getW2();
     double[][] E=classifier.getE();
     BufferedWriter output=new BufferedWriter(new FileWriter(modelFile));
-    output.write("dict=" + wordDict.size() + "\n");
-    output.write("pos=" + posDict.size() + "\n");
-    output.write("label=" + labelDict.size() + "\n");
+    output.write("dict=" + knownWords.size() + "\n");
+    output.write("pos=" + knownPos.size() + "\n");
+    output.write("label=" + knownLabels.size() + "\n");
     output.write("embeddingSize=" + E[0].length + "\n");
     output.write("hiddenSize=" + b1.length + "\n");
     output.write("numTokens=" + (W1[0].length / E[0].length) + "\n");
     output.write("preComputed=" + preComputed.size() + "\n");
     int index=0;
-    for (int i=0; i < wordDict.size(); ++i) {
-      output.write(wordDict.get(i));
+    for (int i=0; i < knownWords.size(); ++i) {
+      output.write(knownWords.get(i));
       for (int k=0; k < E[index].length; ++k)       output.write(" " + E[index][k]);
       output.write("\n");
       index=index + 1;
     }
-    for (int i=0; i < posDict.size(); ++i) {
-      output.write(posDict.get(i));
+    for (int i=0; i < knownPos.size(); ++i) {
+      output.write(knownPos.get(i));
       for (int k=0; k < E[index].length; ++k)       output.write(" " + E[index][k]);
       output.write("\n");
       index=index + 1;
     }
-    for (int i=0; i < labelDict.size(); ++i) {
-      output.write(labelDict.get(i));
+    for (int i=0; i < knownLabels.size(); ++i) {
+      output.write(knownLabels.get(i));
       for (int k=0; k < E[index].length; ++k)       output.write(" " + E[index][k]);
       output.write("\n");
       index=index + 1;

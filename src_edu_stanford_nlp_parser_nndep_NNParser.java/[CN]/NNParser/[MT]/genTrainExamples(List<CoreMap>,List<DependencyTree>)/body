@@ -1,5 +1,5 @@
 {
-  trainSet=new Dataset(config.numTokens,system.transitions.size());
+  Dataset ret=new Dataset(config.numTokens,system.transitions.size());
   Counter<Integer> tokPosCount=new IntCounter<>();
   System.out.println(CONST.SEPARATOR);
   System.out.println("Generate training examples...");
@@ -20,13 +20,14 @@
  else           if (system.canApply(c,str))           label.add(0);
  else           label.add(-1);
         }
-        trainSet.addExample(feature,label);
+        ret.addExample(feature,label);
         for (int j=0; j < feature.size(); ++j)         tokPosCount.incrementCount(feature.get(j) * feature.size() + j);
         system.apply(c,oracle);
       }
     }
   }
-  System.out.println("#Train Examples: " + trainSet.n);
+  System.out.println("#Train Examples: " + ret.n);
   Counters.retainTop(tokPosCount,config.numPreComputed);
   preComputed=new ArrayList<>(tokPosCount.keySet());
+  return ret;
 }
