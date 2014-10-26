@@ -1,0 +1,18 @@
+{
+  DocumentPreprocessor preprocessor=new DocumentPreprocessor(input);
+  preprocessor.setSentenceFinalPuncWords(config.tlp.sentenceFinalPunctuationWords());
+  preprocessor.setEscaper(config.escaper);
+  preprocessor.setSentenceDelimiter(config.sentenceDelimiter);
+  preprocessor.setTokenizerFactory(config.tlp.getTokenizerFactory());
+  Timing timer=new Timing();
+  timer.start();
+  int numSentences=0;
+  for (  List<HasWord> sentence : preprocessor) {
+    GrammaticalStructure parse=predict(sentence);
+    output.println(parse);
+    numSentences++;
+  }
+  long millis=timer.stop();
+  double seconds=millis / 1000.0;
+  System.err.printf("Parsed %d sentences in %.2f seconds (%.2f sents/sec).",numSentences,seconds,numSentences / seconds);
+}
