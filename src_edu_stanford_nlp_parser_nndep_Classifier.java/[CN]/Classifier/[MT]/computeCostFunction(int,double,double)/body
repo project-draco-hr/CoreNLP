@@ -3,7 +3,7 @@
   List<Example> examples=Util.getRandomSubList(dataset.examples,batchSize);
   smallMap=makeSmallMap(examples);
   preCompute(smallMap);
-  FeedforwardParams params=new FeedforwardParams(dropOutProb);
+  FeedforwardParams params=new FeedforwardParams(batchSize,dropOutProb);
   int numChunks=config.trainingThreads;
   List<Collection<Example>> chunks=CollectionUtils.partitionIntoFolds(examples,numChunks);
   for (  Collection<Example> chunk : chunks)   jobHandler.put(new Pair<>(chunk,params));
