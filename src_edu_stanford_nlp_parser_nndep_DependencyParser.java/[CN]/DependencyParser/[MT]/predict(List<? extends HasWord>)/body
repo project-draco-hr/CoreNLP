@@ -1,6 +1,7 @@
 {
   CoreLabel sentenceLabel=new CoreLabel();
   List<CoreLabel> tokens=new ArrayList<>();
+  int i=0;
   for (  HasWord wd : sentence) {
     CoreLabel label;
     if (wd instanceof CoreLabel) {
@@ -14,6 +15,8 @@
       if (!(wd instanceof HasTag))       throw new IllegalArgumentException("Parser requires words " + "with part-of-speech tag annotations");
       label.setTag(((HasTag)wd).tag());
     }
+    label.setIndex(i);
+    i++;
     tokens.add(label);
   }
   sentenceLabel.set(CoreAnnotations.TokensAnnotation.class,tokens);
