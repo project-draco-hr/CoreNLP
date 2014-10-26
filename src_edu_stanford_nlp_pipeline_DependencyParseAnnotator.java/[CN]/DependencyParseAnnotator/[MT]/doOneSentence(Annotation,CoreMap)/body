@@ -1,0 +1,14 @@
+{
+  List<DependencyTree> results=parser.predict(Arrays.asList(makeSentence(sentence)));
+  List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
+  List<TypedDependency> dependencies=new ArrayList<>();
+  DependencyTree result=results.get(0);
+  for (int i=0; i < result.n; i++) {
+    int head=result.getHead(i);
+    String label=result.getLabel(i);
+    GrammaticalRelation relation=new GrammaticalRelation(GrammaticalRelation.Language.English,label,label,null);
+    dependencies.add(new TypedDependency(relation,new IndexedWord(tokens.get(i)),new IndexedWord(tokens.get(head))));
+  }
+  SemanticGraph deps=new SemanticGraph(dependencies);
+  sentence.set(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class,deps);
+}
