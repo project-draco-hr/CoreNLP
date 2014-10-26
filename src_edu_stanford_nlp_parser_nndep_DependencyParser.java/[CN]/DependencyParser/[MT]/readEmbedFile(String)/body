@@ -1,12 +1,13 @@
 {
   embedID=new HashMap<String,Integer>();
   if (embedFile == null)   return;
+  BufferedReader input=null;
   try {
-    BufferedReader input=new BufferedReader(new FileReader(embedFile));
-    String s;
+    input=IOUtils.readerFromString(embedFile);
     List<String> lines=new ArrayList<String>();
-    while ((s=input.readLine()) != null)     lines.add(s);
-    input.close();
+    for (String s; (s=input.readLine()) != null; ) {
+      lines.add(s);
+    }
     int nWords=lines.size();
     String[] splits=lines.get(0).split("\\s+");
     int dim=splits.length - 1;
@@ -21,5 +22,8 @@
   }
  catch (  Exception e) {
     e.printStackTrace();
+  }
+ finally {
+    IOUtils.closeIgnoringExceptions(input);
   }
 }
