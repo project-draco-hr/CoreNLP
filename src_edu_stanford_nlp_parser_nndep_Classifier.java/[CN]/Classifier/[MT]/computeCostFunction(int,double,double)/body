@@ -3,7 +3,7 @@
   Set<Integer> toPreCompute=getPreComputeTokens(examples);
   double percentagePreComputed=toPreCompute.size() / (float)config.numPreComputed;
   System.err.printf("Percent actually necessary to pre-compute: %f%%%n",percentagePreComputed * 100);
-  preCompute();
+  preCompute(toPreCompute);
   FeedforwardParams params=new FeedforwardParams(regParameter,dropOutProb,W1,b1,W2,E,saved);
   int numChunks=config.trainingThreads;
   List<Collection<Example>> chunks=CollectionUtils.partitionIntoFolds(examples,numChunks);
@@ -16,6 +16,6 @@
  else     cost.merge(otherCost);
   }
   if (cost == null)   return null;
-  cost.backpropSaved();
+  cost.backpropSaved(toPreCompute);
   return cost;
 }
