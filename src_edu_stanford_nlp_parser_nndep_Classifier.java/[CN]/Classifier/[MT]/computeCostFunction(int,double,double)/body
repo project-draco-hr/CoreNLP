@@ -1,8 +1,7 @@
 {
   validateTraining();
   List<Example> examples=Util.getRandomSubList(dataset.examples,batchSize);
-  smallMap=makeSmallMap(examples);
-  preCompute(smallMap);
+  preCompute(preMap);
   FeedforwardParams params=new FeedforwardParams(batchSize,dropOutProb);
   int numChunks=config.trainingThreads;
   List<Collection<Example>> chunks=CollectionUtils.partitionIntoFolds(examples,numChunks);
@@ -15,7 +14,7 @@
  else     cost.merge(otherCost);
   }
   if (cost == null)   return null;
-  cost.backpropSaved(smallMap);
+  cost.backpropSaved(preMap);
   cost.addL2Regularization(regParameter);
   return cost;
 }
