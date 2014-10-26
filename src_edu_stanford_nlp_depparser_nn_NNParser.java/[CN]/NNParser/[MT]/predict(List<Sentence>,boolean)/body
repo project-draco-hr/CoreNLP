@@ -1,12 +1,13 @@
 {
   if (!silent)   System.out.println("Prediction..");
+  classifier.preCompute();
   int numTrans=system.transitions.size();
   long startTime=System.currentTimeMillis();
   List<DependencyTree> trees=new ArrayList<DependencyTree>();
   for (int i=0; i < sents.size(); ++i) {
     if (!silent && i % 100 == 0)     System.out.println("DATA " + i);
     Configuration c=system.initialConfiguration(sents.get(i));
-    for (int k=0; k < numTransitions(sents.get(i)); ++k) {
+    for (int k=0; k < sents.get(i).n * 2; ++k) {
       double[] scores=classifier.computeScores(getFeatures(c));
       double optScore=Double.NEGATIVE_INFINITY;
       String optTrans=null;
