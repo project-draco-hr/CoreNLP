@@ -5,7 +5,7 @@
   int numChunks=Runtime.getRuntime().availableProcessors() - 1;
   List<Collection<Example>> chunks=CollectionUtils.partitionIntoFolds(examples,numChunks);
   for (  Collection<Example> chunk : chunks)   jobHandler.put(new Pair<>(chunk,params));
-  jobHandler.join();
+  jobHandler.join(false);
   Cost cost=null;
   while (jobHandler.peek()) {
     Cost otherCost=jobHandler.poll();
