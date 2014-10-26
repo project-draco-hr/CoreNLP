@@ -4,6 +4,7 @@
   Set<Integer> toPreCompute=getToPreCompute(examples);
   preCompute(toPreCompute);
   FeedforwardParams params=new FeedforwardParams(batchSize,dropOutProb);
+  gradSaved=new double[preMap.size()][config.hiddenSize];
   int numChunks=config.trainingThreads;
   List<Collection<Example>> chunks=CollectionUtils.partitionIntoFolds(examples,numChunks);
   for (  Collection<Example> chunk : chunks)   jobHandler.put(new Pair<>(chunk,params));
