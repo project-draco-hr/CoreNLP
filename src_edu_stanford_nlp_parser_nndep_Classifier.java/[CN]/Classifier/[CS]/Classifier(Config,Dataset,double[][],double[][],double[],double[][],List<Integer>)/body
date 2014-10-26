@@ -12,5 +12,7 @@
   eg2W2=new double[W2.length][W2[0].length];
   preMap=new HashMap<>();
   for (int i=0; i < preComputed.size(); ++i)   preMap.put(preComputed.get(i),i);
-  jobHandler=new MulticoreWrapper<>(config.trainingThreads,new CostFunction(),false);
+  isTraining=dataset != null;
+  if (isTraining)   jobHandler=new MulticoreWrapper<>(config.trainingThreads,new CostFunction(),false);
+ else   jobHandler=null;
 }
