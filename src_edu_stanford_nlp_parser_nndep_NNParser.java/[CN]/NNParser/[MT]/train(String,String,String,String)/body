@@ -17,14 +17,14 @@
   List<String> lDict=new ArrayList<String>(labelDict);
   lDict.remove(0);
   system=new ArcStandard(lDict);
-  double[][] E=new double[wordDict.size() + posDict.size() + labelDict.size()][Config.embeddingSize];
-  double[][] W1=new double[Config.hiddenSize][Config.embeddingSize * Config.numTokens];
-  double[] b1=new double[Config.hiddenSize];
-  double[][] W2=new double[labelDict.size() * 2 - 1][Config.hiddenSize];
+  double[][] E=new double[wordDict.size() + posDict.size() + labelDict.size()][config.embeddingSize];
+  double[][] W1=new double[config.hiddenSize][config.embeddingSize * config.numTokens];
+  double[] b1=new double[config.hiddenSize];
+  double[][] W2=new double[labelDict.size() * 2 - 1][config.hiddenSize];
   Random random=new Random();
-  for (int i=0; i < W1.length; ++i)   for (int j=0; j < W1[i].length; ++j)   W1[i][j]=random.nextDouble() * 2 * Config.initRange - Config.initRange;
-  for (int i=0; i < b1.length; ++i)   b1[i]=random.nextDouble() * 2 * Config.initRange - Config.initRange;
-  for (int i=0; i < W2.length; ++i)   for (int j=0; j < W2[i].length; ++j)   W2[i][j]=random.nextDouble() * 2 * Config.initRange - Config.initRange;
+  for (int i=0; i < W1.length; ++i)   for (int j=0; j < W1[i].length; ++j)   W1[i][j]=random.nextDouble() * 2 * config.initRange - config.initRange;
+  for (int i=0; i < b1.length; ++i)   b1[i]=random.nextDouble() * 2 * config.initRange - config.initRange;
+  for (int i=0; i < W2.length; ++i)   for (int j=0; j < W2[i].length; ++j)   W2[i][j]=random.nextDouble() * 2 * config.initRange - config.initRange;
   readEmbedFile(embedFile);
   int foundEmbed=0;
   for (int i=0; i < E.length; ++i) {
@@ -39,20 +39,20 @@
       for (int j=0; j < E[i].length; ++j)       E[i][j]=embeddings[index][j];
     }
  else {
-      for (int j=0; j < E[i].length; ++j)       E[i][j]=random.nextDouble() * Config.initRange * 2 - Config.initRange;
+      for (int j=0; j < E[i].length; ++j)       E[i][j]=random.nextDouble() * config.initRange * 2 - config.initRange;
     }
   }
   System.out.println("Found embeddings: " + foundEmbed + " / "+ wordDict.size());
   genTrainExamples(trainSents,trainTrees);
-  classifier=new Classifier(trainSet,E,W1,b1,W2,preComputed);
+  classifier=new Classifier(config,trainSet,E,W1,b1,W2,preComputed);
   long startTime=System.currentTimeMillis();
-  for (int iter=0; iter < Config.maxIter; ++iter) {
+  for (int iter=0; iter < config.maxIter; ++iter) {
     System.out.println("##### Iteration " + iter);
-    Classifier.Cost cost=classifier.computeCostFunction(Config.batchSize,Config.regParameter,Config.dropProb);
+    Classifier.Cost cost=classifier.computeCostFunction(config.batchSize,config.regParameter,config.dropProb);
     System.out.println("Cost = " + cost.getCost() + ", Correct(%) = "+ cost.getPercentCorrect());
-    classifier.takeAdaGradientStep(cost,Config.adaAlpha,Config.adaEps);
+    classifier.takeAdaGradientStep(cost,config.adaAlpha,config.adaEps);
     System.out.println("Elapsed Time: " + (System.currentTimeMillis() - startTime) / 1000.0 + " (s)");
-    if (devFile != null && iter % Config.evalPerIter == 0)     System.out.println("UAS: " + system.getUASScore(devSents,predict(devSents),devTrees));
+    if (devFile != null && iter % config.evalPerIter == 0)     System.out.println("UAS: " + system.getUASScore(devSents,predict(devSents),devTrees));
   }
   writeModelFile(modelFile);
 }
