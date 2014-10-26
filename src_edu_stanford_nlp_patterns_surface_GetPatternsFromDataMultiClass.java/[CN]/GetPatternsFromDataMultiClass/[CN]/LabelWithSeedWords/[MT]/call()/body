@@ -6,7 +6,6 @@
     String[] tokenslemma=new String[sent.size()];
     int num=0;
     for (    CoreLabel l : sent) {
-      l.set(PatternsAnnotations.ProcessedTextAnnotation.class,stringTransformation.apply(l));
       tokens[num]=l.word();
       if (l.lemma() == null)       throw new RuntimeException("how come lemma is null");
       tokenslemma[num]=l.lemma();
@@ -29,7 +28,7 @@
     int i=-1;
     for (    CoreLabel l : sent) {
       i++;
-      if (!l.containsKey(PatternsAnnotations.MatchedPhrases.class) || !(PatternsAnnotations.MatchedPhrases.class.isInstance(l.get(PatternsAnnotations.MatchedPhrases.class))))       l.set(PatternsAnnotations.MatchedPhrases.class,new CollectionValuedMap<String,String>());
+      if (!l.containsKey(PatternsAnnotations.MatchedPhrases.class))       l.set(PatternsAnnotations.MatchedPhrases.class,new CollectionValuedMap<String,String>());
       if (!l.containsKey(PatternsAnnotations.LongestMatchedPhraseForEachLabel.class))       l.set(PatternsAnnotations.LongestMatchedPhraseForEachLabel.class,new HashMap<String,String>());
       if (labels[i]) {
         l.set(labelClass,label);

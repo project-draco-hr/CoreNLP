@@ -1,0 +1,16 @@
+{
+  System.out.println("Test File: " + testFile);
+  System.out.println("Model File: " + modelFile);
+  loadModelFile(modelFile);
+  List<String> lDict=new ArrayList<String>(labelDict);
+  lDict.remove(0);
+  system=new ArcStandard(lDict);
+  List<Sentence> testSents=new ArrayList<Sentence>();
+  List<DependencyTree> testTrees=new ArrayList<DependencyTree>();
+  Util.loadConllFile(testFile,testSents,testTrees);
+  List<DependencyTree> trees=predict(testSents,false);
+  Map<String,Double> result=system.evaluate(testSents,trees,testTrees);
+  System.out.println("UAS = " + result.get("UASwoPunc"));
+  System.out.println("LAS = " + result.get("LASwoPunc"));
+  if (outFile != null)   Util.writeConllFile(outFile,testSents,trees);
+}
