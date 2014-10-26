@@ -1,7 +1,8 @@
 {
   validateTraining();
   List<Example> examples=Util.getRandomSubList(dataset.examples,batchSize);
-  preCompute(preMap);
+  Set<Integer> toPreCompute=getToPreCompute(examples);
+  preCompute(toPreCompute);
   FeedforwardParams params=new FeedforwardParams(batchSize,dropOutProb);
   int numChunks=config.trainingThreads;
   List<Collection<Example>> chunks=CollectionUtils.partitionIntoFolds(examples,numChunks);
