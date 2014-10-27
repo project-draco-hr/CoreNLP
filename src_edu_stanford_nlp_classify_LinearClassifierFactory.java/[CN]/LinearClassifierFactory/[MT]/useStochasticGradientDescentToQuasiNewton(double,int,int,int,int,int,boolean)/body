@@ -2,7 +2,11 @@
   this.minimizerCreator=new Factory<Minimizer<DiffFunction>>(){
     private static final long serialVersionUID=5823852936137599566L;
     @Override public Minimizer<DiffFunction> create(){
-      return new SGDToQNMinimizer(SGDGain,batchSize,sgdPasses,qnPasses,hessSamples,QNMem,outputToFile);
+      SGDToQNMinimizer sgdToQNMinimizer=new SGDToQNMinimizer(SGDGain,batchSize,sgdPasses,qnPasses,hessSamples,QNMem,outputToFile);
+      if (!verbose) {
+        sgdToQNMinimizer.shutUp();
+      }
+      return sgdToQNMinimizer;
     }
   }
 ;
