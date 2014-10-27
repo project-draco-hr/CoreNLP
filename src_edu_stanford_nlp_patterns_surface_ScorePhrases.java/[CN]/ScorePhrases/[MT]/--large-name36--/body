@@ -1,14 +1,11 @@
 {
   TwoDimensionalCounter<Pair<String,String>,Integer> wordsandLemmaPatExtracted=new TwoDimensionalCounter<Pair<String,String>,Integer>();
   if (constVars.doNotApplyPatterns) {
-    if (constVars.batchProcessSents) {
-      for (      File f : Data.sentsFiles) {
-        Redwood.log(Redwood.DBG,"Calculating stats from sents file " + f);
-        Map<String,List<CoreLabel>> sents=IOUtils.readObjectFromFile(f);
-        this.statsWithoutApplyingPatterns(sents,patternsForEachToken,patternsLearnedThisIter,wordsandLemmaPatExtracted);
-      }
+    ConstantsAndVariables.DataSentsIterator sentsIter=new ConstantsAndVariables.DataSentsIterator(constVars.batchProcessSents);
+    while (sentsIter.hasNext()) {
+      Pair<Map<String,List<CoreLabel>>,File> sentsf=sentsIter.next();
+      this.statsWithoutApplyingPatterns(sentsf.first(),patternsForEachToken,patternsLearnedThisIter,wordsandLemmaPatExtracted);
     }
- else     this.statsWithoutApplyingPatterns(Data.sents,patternsForEachToken,patternsLearnedThisIter,wordsandLemmaPatExtracted);
   }
  else {
     if (patternsLearnedThisIter.size() > 0) {

@@ -3,28 +3,17 @@
   TwoDimensionalCounter<Integer,String> negPatternsandWords4Label=new TwoDimensionalCounter<Integer,String>();
   TwoDimensionalCounter<Integer,String> unLabeledPatternsandWords4Label=new TwoDimensionalCounter<Integer,String>();
   Set<String> allCandidatePhrases=new HashSet<String>();
-  if (!constVars.batchProcessSents) {
+  ConstantsAndVariables.DataSentsIterator sentsIter=new ConstantsAndVariables.DataSentsIterator(constVars.batchProcessSents);
+  while (sentsIter.hasNext()) {
+    Pair<Map<String,List<CoreLabel>>,File> sentsPair=sentsIter.next();
     if (notComputedAllPatternsYet) {
-      processSents(Data.sents);
-      patsForEachToken=PatternsForEachToken.getPatternsInstance(props,constVars.storePatsForEachToken);
-      readSavedPatternsAndIndex();
-      System.out.println("size of pats for each token is " + patsForEachToken.size());
-    }
-    this.calculateSufficientStats(Data.sents,patsForEachToken,label,patternsandWords4Label,negPatternsandWords4Label,unLabeledPatternsandWords4Label,allCandidatePhrases);
-  }
- else {
-    for (    File f : Data.sentsFiles) {
-      Redwood.log(Redwood.DBG,(constVars.computeAllPatterns ? "Creating patterns and " : "") + "calculating sufficient statistics from " + f);
-      Map<String,List<CoreLabel>> sents=IOUtils.readObjectFromFile(f);
-      if (notComputedAllPatternsYet) {
-        processSents(sents);
-        if (patsForEachToken == null) {
-          patsForEachToken=PatternsForEachToken.getPatternsInstance(props,constVars.storePatsForEachToken);
-          readSavedPatternsAndIndex();
-        }
+      processSents(sentsPair.first());
+      if (patsForEachToken == null) {
+        patsForEachToken=PatternsForEachToken.getPatternsInstance(props,constVars.storePatsForEachToken);
+        readSavedPatternsAndIndex();
       }
-      this.calculateSufficientStats(sents,patsForEachToken,label,patternsandWords4Label,negPatternsandWords4Label,unLabeledPatternsandWords4Label,allCandidatePhrases);
     }
+    this.calculateSufficientStats(sentsPair.first(),patsForEachToken,label,patternsandWords4Label,negPatternsandWords4Label,unLabeledPatternsandWords4Label,allCandidatePhrases);
   }
   notComputedAllPatternsYet=false;
   if (constVars.computeAllPatterns) {
