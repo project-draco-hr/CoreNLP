@@ -2,12 +2,8 @@
   this.minimizerCreator=new Factory<Minimizer<DiffFunction>>(){
     private static final long serialVersionUID=-3042400543337763144L;
     @Override public Minimizer<DiffFunction> create(){
-      SGDMinimizer<DiffFunction> firstMinimizer=new SGDMinimizer<DiffFunction>(sigma,SGDPasses,tuneSampleSize);
-      QNMinimizer secondMinimizer=new QNMinimizer(mem);
-      if (!verbose) {
-        firstMinimizer.shutUp();
-        secondMinimizer.shutUp();
-      }
+      Minimizer<DiffFunction> firstMinimizer=new SGDMinimizer<DiffFunction>(sigma,SGDPasses,tuneSampleSize);
+      Minimizer<DiffFunction> secondMinimizer=new QNMinimizer(mem);
       return new HybridMinimizer(firstMinimizer,secondMinimizer,SGDPasses);
     }
   }
