@@ -1,0 +1,24 @@
+{
+  try {
+    createUpsertFunctionPatternIndex();
+    Connection conn=SQLConnection.getConnection();
+    PreparedStatement st=conn.prepareStatement("select upsert_patternindex(?,?)");
+    st.setString(1,tableName);
+    ByteArrayOutputStream baos=new ByteArrayOutputStream();
+    ObjectOutputStream oos=new ObjectOutputStream(baos);
+    oos.writeObject(index);
+    byte[] patsAsBytes=baos.toByteArray();
+    ByteArrayInputStream bais=new ByteArrayInputStream(patsAsBytes);
+    st.setBinaryStream(2,bais,patsAsBytes.length);
+    st.execute();
+    st.close();
+    conn.close();
+    System.out.println("Saved the pattern hash index for " + tableName + " in DB table "+ patternindicesTable);
+  }
+ catch (  SQLException e) {
+    throw new RuntimeException(e);
+  }
+catch (  IOException e) {
+    throw new RuntimeException(e);
+  }
+}

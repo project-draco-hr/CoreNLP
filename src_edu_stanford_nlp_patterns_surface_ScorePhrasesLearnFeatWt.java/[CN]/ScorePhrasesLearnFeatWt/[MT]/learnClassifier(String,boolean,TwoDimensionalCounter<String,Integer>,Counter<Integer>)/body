@@ -8,12 +8,17 @@
     Data.rawFreq=new ClassicCounter<String>();
     computeRawFreq=true;
   }
-  ConstantsAndVariables.DataSentsIterator sentsIter=new ConstantsAndVariables.DataSentsIterator(constVars.batchProcessSents);
-  while (sentsIter.hasNext()) {
-    Pair<Map<String,List<CoreLabel>>,File> sentsf=sentsIter.next();
-    Redwood.log(Redwood.DBG,"Sampling sentences from " + sentsf.second());
-    if (computeRawFreq)     Data.computeRawFreqIfNull(sentsf.first(),constVars.numWordsCompound);
-    dataset.addAll(choosedatums(label,forLearningPatterns,sentsf.first(),constVars.getAnswerClass().get(label),label,constVars.getOtherSemanticClassesWords(),constVars.getIgnoreWordswithClassesDuringSelection().get(label),constVars.perSelectRand,constVars.perSelectNeg,wordsPatExtracted,allSelectedPatterns));
+  if (constVars.batchProcessSents) {
+    for (    File f : Data.sentsFiles) {
+      Redwood.log(Redwood.DBG,"Sampling sentences from " + f);
+      Map<String,List<CoreLabel>> sents=IOUtils.readObjectFromFile(f);
+      if (computeRawFreq)       Data.computeRawFreqIfNull(sents,constVars.numWordsCompound);
+      dataset.addAll(choosedatums(label,forLearningPatterns,sents,constVars.getAnswerClass().get(label),label,constVars.getOtherSemanticClassesWords(),constVars.getIgnoreWordswithClassesDuringSelection().get(label),constVars.perSelectRand,constVars.perSelectNeg,wordsPatExtracted,allSelectedPatterns));
+    }
+  }
+ else {
+    if (computeRawFreq)     Data.computeRawFreqIfNull(Data.sents,constVars.numWordsCompound);
+    dataset.addAll(choosedatums(label,forLearningPatterns,Data.sents,constVars.getAnswerClass().get(label),label,constVars.getOtherSemanticClassesWords(),constVars.getIgnoreWordswithClassesDuringSelection().get(label),constVars.perSelectRand,constVars.perSelectNeg,wordsPatExtracted,allSelectedPatterns));
   }
   edu.stanford.nlp.classify.Classifier classifier;
   if (scoreClassifierType.equals(ClassifierType.LR)) {
