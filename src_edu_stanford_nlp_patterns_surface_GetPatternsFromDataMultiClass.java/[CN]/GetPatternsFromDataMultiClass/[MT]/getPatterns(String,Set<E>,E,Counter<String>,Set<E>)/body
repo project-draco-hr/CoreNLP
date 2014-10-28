@@ -4,10 +4,12 @@
   TwoDimensionalCounter<E,String> unLabeledPatternsandWords4Label=new TwoDimensionalCounter<E,String>();
   Set<String> allCandidatePhrases=new HashSet<String>();
   ConstantsAndVariables.DataSentsIterator sentsIter=new ConstantsAndVariables.DataSentsIterator(constVars.batchProcessSents);
+  boolean firstCallToProcessSents=true;
   while (sentsIter.hasNext()) {
     Pair<Map<String,List<CoreLabel>>,File> sentsPair=sentsIter.next();
     if (notComputedAllPatternsYet) {
-      processSents(sentsPair.first());
+      processSents(sentsPair.first(),firstCallToProcessSents);
+      firstCallToProcessSents=false;
       if (patsForEachToken == null) {
         patsForEachToken=PatternsForEachToken.getPatternsInstance(props,constVars.storePatsForEachToken);
         readSavedPatternsAndIndex();
