@@ -1,0 +1,59 @@
+{
+  try {
+    double[][] W1=classifier.getW1();
+    double[] b1=classifier.getb1();
+    double[][] W2=classifier.getW2();
+    double[][] E=classifier.getE();
+    Writer output=IOUtils.getPrintWriter(modelFile);
+    output.write("dict=" + knownWords.size() + "\n");
+    output.write("pos=" + knownPos.size() + "\n");
+    output.write("label=" + knownLabels.size() + "\n");
+    output.write("embeddingSize=" + E[0].length + "\n");
+    output.write("hiddenSize=" + b1.length + "\n");
+    output.write("numTokens=" + (W1[0].length / E[0].length) + "\n");
+    output.write("preComputed=" + preComputed.size() + "\n");
+    int index=0;
+    for (    String word : knownWords) {
+      output.write(word);
+      for (int k=0; k < E[index].length; ++k)       output.write(" " + E[index][k]);
+      output.write("\n");
+      index=index + 1;
+    }
+    for (    String pos : knownPos) {
+      output.write(pos);
+      for (int k=0; k < E[index].length; ++k)       output.write(" " + E[index][k]);
+      output.write("\n");
+      index=index + 1;
+    }
+    for (    String label : knownLabels) {
+      output.write(label);
+      for (int k=0; k < E[index].length; ++k)       output.write(" " + E[index][k]);
+      output.write("\n");
+      index=index + 1;
+    }
+    for (int j=0; j < W1[0].length; ++j)     for (int i=0; i < W1.length; ++i) {
+      output.write("" + W1[i][j]);
+      if (i == W1.length - 1)       output.write("\n");
+ else       output.write(" ");
+    }
+    for (int i=0; i < b1.length; ++i) {
+      output.write("" + b1[i]);
+      if (i == b1.length - 1)       output.write("\n");
+ else       output.write(" ");
+    }
+    for (int j=0; j < W2[0].length; ++j)     for (int i=0; i < W2.length; ++i) {
+      output.write("" + W2[i][j]);
+      if (i == W2.length - 1)       output.write("\n");
+ else       output.write(" ");
+    }
+    for (int i=0; i < preComputed.size(); ++i) {
+      output.write("" + preComputed.get(i));
+      if ((i + 1) % 100 == 0 || i == preComputed.size() - 1)       output.write("\n");
+ else       output.write(" ");
+    }
+    output.close();
+  }
+ catch (  IOException e) {
+    System.out.println(e);
+  }
+}
