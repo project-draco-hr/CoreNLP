@@ -1,0 +1,21 @@
+{
+  try {
+    setIndexWriter();
+    Document doc=new Document();
+    for (    CoreLabel l : tokens) {
+      for (      Map.Entry<String,String> en : transformCoreLabeltoString.apply(l).entrySet()) {
+        doc.add(new StringField(en.getKey(),en.getValue(),Field.Store.YES));
+      }
+      if (addProcessedText) {
+        String ptxt=l.get(PatternsAnnotations.ProcessedTextAnnotation.class);
+        if (!stopWords.contains(ptxt.toLowerCase()))         doc.add(new StringField(Token.getKeyForClass(PatternsAnnotations.ProcessedTextAnnotation.class),ptxt,Field.Store.YES));
+      }
+    }
+    doc.add(new StringField("sentid",sentid,Field.Store.YES));
+    if (tokens != null && saveTokens)     doc.add(new Field("tokens",getProtoBufAnnotation(tokens),LuceneFieldType.NOT_INDEXED));
+    indexWriter.addDocument(doc);
+  }
+ catch (  IOException e) {
+    throw new RuntimeException(e);
+  }
+}

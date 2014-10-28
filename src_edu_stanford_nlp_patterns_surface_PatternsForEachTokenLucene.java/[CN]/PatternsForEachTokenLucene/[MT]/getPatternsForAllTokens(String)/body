@@ -1,0 +1,24 @@
+{
+  try {
+    TermQuery query=new TermQuery(new Term("sentid",sentId));
+    TopDocs tp=searcher.search(query,1);
+    if (tp.totalHits > 0) {
+      for (      ScoreDoc s : tp.scoreDocs) {
+        int docId=s.doc;
+        Document d=searcher.doc(docId);
+        byte[] st=d.getBinaryValue("patterns").bytes;
+        ByteArrayInputStream baip=new ByteArrayInputStream(st);
+        ObjectInputStream ois=new ObjectInputStream(baip);
+        return (Map<Integer,Set<E>>)ois.readObject();
+      }
+    }
+ else     throw new RuntimeException("Why no patterns for sentid " + sentId + ". Number of documents in index are "+ size());
+  }
+ catch (  IOException e) {
+    throw new RuntimeException(e);
+  }
+catch (  ClassNotFoundException e) {
+    throw new RuntimeException(e);
+  }
+  return null;
+}
