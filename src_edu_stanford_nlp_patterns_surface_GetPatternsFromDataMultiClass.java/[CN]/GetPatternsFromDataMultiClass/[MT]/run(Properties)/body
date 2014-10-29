@@ -1,6 +1,6 @@
 {
-  Map<String,Set<Integer>> ignorePatterns=new HashMap<String,Set<Integer>>();
-  Map<String,Integer> p0=new HashMap<String,Integer>();
+  Map<String,Set<E>> ignorePatterns=new HashMap<String,Set<E>>();
+  Map<String,E> p0=new HashMap<String,E>();
   Map<String,Counter<String>> p0Set=new HashMap<String,Counter<String>>();
   String fileFormat=props.getProperty("fileFormat");
   Map<String,Set<String>> seedWords=readSeedWords(props);
@@ -68,9 +68,10 @@
     }
  else     if (fileFormat.equalsIgnoreCase("ser")) {
       for (      File f : GetPatternsFromDataMultiClass.getAllFiles(file)) {
+        Redwood.log(Redwood.DBG,"reading from ser file " + f);
         if (!batchProcessSents)         sents.putAll((Map<String,List<CoreLabel>>)IOUtils.readObjectFromFile(f));
  else {
-          File newf=new File(tempSaveSentencesDir.getAbsolutePath() + "/" + f.getAbsolutePath().replaceAll(Pattern.quote("/"),"_"));
+          File newf=new File(tempSaveSentencesDir.getAbsolutePath() + "/" + f.getAbsolutePath().replaceAll(java.util.regex.Pattern.quote("/"),"_"));
           IOUtils.cp(f,newf);
           Data.sentsFiles.add(newf);
         }
@@ -118,7 +119,7 @@
   }
   boolean learn=Boolean.parseBoolean(props.getProperty("learn","true"));
   boolean labelUsingSeedSets=Boolean.parseBoolean(props.getProperty("labelUsingSeedSets","true"));
-  GetPatternsFromDataMultiClass model=new GetPatternsFromDataMultiClass(props,sents,seedWords,labelUsingSeedSets);
+  GetPatternsFromDataMultiClass<E> model=new GetPatternsFromDataMultiClass<E>(props,sents,seedWords,labelUsingSeedSets);
   Execution.fillOptions(model,props);
   String sentsOutFile=props.getProperty("sentsOutFile");
   String wordsOutputFile=props.getProperty("wordsOutputFile");
@@ -139,9 +140,8 @@
     String patternsWordsDir=props.getProperty("patternsWordsDir");
     for (    String label : model.constVars.getLabelDictionary().keySet()) {
       IOUtils.ensureDir(new File(patternsWordsDir + "/" + label));
-      Counter<Integer> pats=model.getLearnedPatterns(label);
-      Counter<SurfacePattern> patsSur=model.constVars.transformPatternsToSurface(pats);
-      IOUtils.writeObjectToFile(patsSur,patternsWordsDir + "/" + label+ "/patterns.ser");
+      Counter<E> pats=model.getLearnedPatterns(label);
+      IOUtils.writeObjectToFile(pats,patternsWordsDir + "/" + label+ "/patterns.ser");
       BufferedWriter w=new BufferedWriter(new FileWriter(patternsWordsDir + "/" + label+ "/phrases.txt"));
       model.writeWordsToFile(model.getLearnedWords(label),w);
       w.close();
