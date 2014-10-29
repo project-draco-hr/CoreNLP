@@ -1,9 +1,13 @@
 {
   BufferedWriter writer=new BufferedWriter(new FileWriter(outFile));
-  ConstantsAndVariables.DataSentsIterator sentsIter=new ConstantsAndVariables.DataSentsIterator(constVars.batchProcessSents);
-  while (sentsIter.hasNext()) {
-    Pair<Map<String,List<CoreLabel>>,File> sentsf=sentsIter.next();
-    this.writeColumnOutputSents(sentsf.first(),writer);
+  if (!constVars.batchProcessSents) {
+    this.writeColumnOutputSents(Data.sents,writer);
+  }
+ else {
+    for (    File f : Data.sentsFiles) {
+      Map<String,List<CoreLabel>> sents=IOUtils.readObjectFromFile(f);
+      this.writeColumnOutputSents(sents,writer);
+    }
   }
   writer.close();
 }
