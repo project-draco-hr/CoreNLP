@@ -14,26 +14,8 @@
       builder.addRoot(node.index());
     }
   }
-  int numEdges=0;
-  int numEdgesWithLanguage=0;
-  Languages.Language language=Languages.Language.English;
   for (  SemanticGraphEdge edge : graph.edgeIterable()) {
-    Optional<Languages.Language> edgeLanguage=edge.getRelation().getLanguage();
-    if (edgeLanguage.isPresent()) {
-      if (edgeLanguage.get().equals(language)) {
-        numEdgesWithLanguage+=1;
-      }
- else {
-        language=edgeLanguage.get();
-        numEdgesWithLanguage+=1;
-      }
-    }
-    numEdges+=1;
-    builder.addEdge(CoreNLPProtos.DependencyGraph.Edge.newBuilder().setSource(edge.getSource().index()).setTarget(edge.getTarget().index()).setDep(edge.getRelation().toString()).setIsExtra(edge.isExtra()).setSourceCopy(edge.getSource().copyCount()).setTargetCopy(edge.getTarget().copyCount()));
+    builder.addEdge(CoreNLPProtos.DependencyGraph.Edge.newBuilder().setSource(edge.getSource().index()).setTarget(edge.getTarget().index()).setDep(edge.getRelation().toString()).setIsExtra(edge.isExtra()).setSourceCopy(edge.getSource().copyCount()).setTargetCopy(edge.getTarget().copyCount()).setLanguage(toProto(edge.getRelation().getLanguage())));
   }
-  if (numEdgesWithLanguage < numEdges / 2) {
-    System.err.println("WARNING: language is ambiguous for semantic graph");
-  }
-  builder.setLanguage(toProto(language));
   return builder.build();
 }
