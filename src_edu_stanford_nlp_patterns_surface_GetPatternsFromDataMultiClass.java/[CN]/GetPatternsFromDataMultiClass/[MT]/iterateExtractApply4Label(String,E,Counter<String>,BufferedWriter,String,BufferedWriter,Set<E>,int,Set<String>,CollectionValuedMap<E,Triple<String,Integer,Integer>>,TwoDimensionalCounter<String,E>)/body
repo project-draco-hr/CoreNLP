@@ -1,0 +1,50 @@
+{
+  if (!learnedPatterns.containsKey(label)) {
+    learnedPatterns.put(label,new ClassicCounter<E>());
+  }
+  if (!learnedWords.containsKey(label)) {
+    learnedWords.put(label,new ClassicCounter<String>());
+  }
+  Counter<String> identifiedWords=new ClassicCounter<String>();
+  Counter<E> patterns=new ClassicCounter<E>();
+  for (int i=0; i < numIter; i++) {
+    Counter<E> patternThisIter=getPatterns(label,learnedPatterns.get(label).keySet(),p0,p0Set,ignorePatterns);
+    patterns.addAll(patternThisIter);
+    learnedPatterns.get(label).addAll(patternThisIter);
+    if (sentsOutFile != null)     sentsOutFile=sentsOutFile + "_" + i+ "iter.ser";
+    Counter<String> scoreForAllWordsThisIteration=new ClassicCounter<String>();
+    identifiedWords.addAll(scorePhrases.learnNewPhrases(label,this.patsForEachToken,patterns,learnedPatterns.get(label),matchedTokensByPat,scoreForAllWordsThisIteration,terms,wordsPatExtracted.get(label),this.patternsandWords.get(label),constVars.identifier,ignoreWords));
+    if (identifiedWords.size() > 0) {
+      if (constVars.usePatternResultAsLabel) {
+        if (constVars.getLabelDictionary().containsKey(label)) {
+          ConstantsAndVariables.DataSentsIterator sentsIter=new ConstantsAndVariables.DataSentsIterator(constVars.batchProcessSents);
+          while (sentsIter.hasNext()) {
+            Pair<Map<String,List<CoreLabel>>,File> sentsf=sentsIter.next();
+            Redwood.log(Redwood.DBG,"labeling sentences from " + sentsf.second());
+            labelWords(label,sentsf.first(),identifiedWords.keySet(),sentsOutFile,matchedTokensByPat);
+            if (sentsf.second().exists())             IOUtils.writeObjectToFile(sentsf.first(),sentsf.second());
+          }
+        }
+ else         throw new RuntimeException("why is the answer label null?");
+        learnedWords.get(label).addAll(identifiedWords);
+      }
+      if (wordsOutput != null) {
+        wordsOutput.write("\n" + Counters.toSortedString(identifiedWords,identifiedWords.size(),"%1$s","\n"));
+        wordsOutput.flush();
+      }
+    }
+    if (patterns.size() == 0 && identifiedWords.size() == 0) {
+      if (learnedWords.get(label).size() >= constVars.maxExtractNumWords) {
+        System.out.println("Ending because no new words identified and total words learned till now >= max words " + constVars.maxExtractNumWords);
+        break;
+      }
+      if (constVars.tuneThresholdKeepRunning) {
+        constVars.thresholdSelectPattern=0.8 * constVars.thresholdSelectPattern;
+        System.out.println("\n\nTuning thresholds to keep running. New Pattern threshold is  " + constVars.thresholdSelectPattern);
+      }
+ else       break;
+    }
+  }
+  if (patternsOut != null)   this.writePatternsToFile(patterns,patternsOut);
+  return new Pair<Counter<E>,Counter<String>>(patterns,identifiedWords);
+}

@@ -3,7 +3,7 @@
     return;
   }
   Execution.fillOptions(this,props);
-  if (wordIgnoreRegex != null && !wordIgnoreRegex.isEmpty())   ignoreWordRegex=Pattern.compile(wordIgnoreRegex);
+  if (wordIgnoreRegex != null && !wordIgnoreRegex.isEmpty())   PatternFactory.ignoreWordRegex=Pattern.compile(wordIgnoreRegex);
   for (  String label : labels) {
     env.put(label,TokenSequencePattern.getNewEnv());
     for (    Entry<String,Class<? extends Key<String>>> en : this.answerClass.entrySet()) {
@@ -27,7 +27,7 @@
     for (    String file : otherSemanticClassesFiles.split("[;,]")) {
       for (      String w : IOUtils.linesFromFile(file)) {
         String[] t=w.split("\\s+");
-        if (t.length <= this.numWordsCompound)         otherSemanticClassesWords.add(w);
+        if (t.length <= PatternFactory.numWordsCompound)         otherSemanticClassesWords.add(w);
       }
     }
     System.out.println("Size of othersemantic class variables is " + otherSemanticClassesWords.size());
@@ -45,7 +45,7 @@
   }
   stopStr+="/";
   for (  String label : labels) {
-    env.get(label).bind("$FILLER","/" + StringUtils.join(fillerWords,"|") + "/");
+    env.get(label).bind("$FILLER","/" + StringUtils.join(PatternFactory.fillerWords,"|") + "/");
     env.get(label).bind("$STOPWORD",stopStr);
     env.get(label).bind("$MOD","[{tag:/JJ.*/}]");
     if (matchLowerCaseContext) {
@@ -78,7 +78,7 @@
       allowedTagsInitials.put(t[0],st);
     }
   }
-  if (useTargetNERRestriction && targetAllowedNERs != null) {
+  if (PatternFactory.useTargetNERRestriction && targetAllowedNERs != null) {
     allowedNERsforLabels=new HashMap<String,Set<String>>();
     for (    String labelstr : targetAllowedNERs.split(";")) {
       String[] t=labelstr.split(",");
