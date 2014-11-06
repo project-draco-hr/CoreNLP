@@ -2,7 +2,7 @@
   String[] possibleAnnotators=possibleAnnotators();
   Properties props=new Properties();
   for (int i=1; i < (0x1 << (possibleAnnotators.length)); ++i) {
-    Set<String> annotatorsToConsider=new HashSet<String>();
+    Set<String> annotatorsToConsider=new LinkedHashSet<>();
     for (int k=0; k < possibleAnnotators.length; ++k) {
       int mask=(0x1 << k);
       if ((i & mask) != 0) {
@@ -10,8 +10,8 @@
       }
     }
     new StanfordCoreNLP();
-    List<String> annotators=new ArrayList<String>();
-    Set<String> annotatorsAdded=new HashSet<String>();
+    List<String> annotators=new ArrayList<>();
+    Set<String> annotatorsAdded=new LinkedHashSet<>();
     boolean wasChanged=true;
     while (wasChanged) {
       wasChanged=false;
@@ -39,27 +39,6 @@
     if (!annotatorsToConsider.isEmpty()) {
       continue;
     }
-    props.setProperty("annotators",StringUtils.join(annotators,","));
-    StanfordCoreNLP pipeline;
-    pipeline=new StanfordCoreNLP(props);
-    try {
-      System.out.println("Testing " + props.getProperty("annotators"));
-      AnnotationSerializer serializer=new ProtobufAnnotationSerializer();
-      Annotation doc=pipeline.process(THOROUGH_TEST ? prideAndPrejudiceChapters1to5 : prideAndPrejudiceFirstBit);
-      ByteArrayOutputStream ks=new ByteArrayOutputStream();
-      serializer.write(doc,ks).close();
-      InputStream kis=new ByteArrayInputStream(ks.toByteArray());
-      Pair<Annotation,InputStream> pair=serializer.read(kis);
-      pair.second.close();
-      Annotation readDoc=pair.first;
-      kis.close();
-      sameAsRead(doc,readDoc);
-    }
- catch (    RuntimeException e) {
-      throw e;
-    }
-catch (    Exception e) {
-      throw new RuntimeException(e);
-    }
+    testAnnotators(StringUtils.join(annotators,","));
   }
 }
