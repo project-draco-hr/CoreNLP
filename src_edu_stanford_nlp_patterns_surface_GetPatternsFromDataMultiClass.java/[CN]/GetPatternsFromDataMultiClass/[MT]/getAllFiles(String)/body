@@ -3,16 +3,26 @@
   for (  String tokfile : file.split("[,;]")) {
     File filef=new File(tokfile);
     if (filef.isDirectory()) {
+      Redwood.log(Redwood.DBG,"Will read from directory " + filef);
       String path=".*";
       File dir=filef;
       for (      File f : IOUtils.iterFilesRecursive(dir,Pattern.compile(path))) {
-        Redwood.log(Redwood.DBG,"Reading file " + f);
+        Redwood.log(ConstantsAndVariables.extremedebug,"Will read from file " + f);
         allFiles.add(f);
       }
     }
  else {
-      Redwood.log(Redwood.DBG,"Reading file " + filef);
-      allFiles.add(filef);
+      if (filef.exists()) {
+        Redwood.log(Redwood.DBG,"Will read from file " + filef);
+        allFiles.add(filef);
+      }
+ else {
+        Redwood.log(Redwood.DBG,"trying to read from file " + filef);
+        RegExFileFilter fileFilter=new RegExFileFilter(Pattern.compile(filef.getName()));
+        File dir=new File(tokfile.substring(0,tokfile.lastIndexOf("/")));
+        File[] files=dir.listFiles(fileFilter);
+        allFiles.addAll(Arrays.asList(files));
+      }
     }
   }
   return allFiles;

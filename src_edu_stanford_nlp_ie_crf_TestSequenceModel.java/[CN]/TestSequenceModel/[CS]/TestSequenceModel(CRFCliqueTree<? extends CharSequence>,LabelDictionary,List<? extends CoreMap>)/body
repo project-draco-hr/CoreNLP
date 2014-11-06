@@ -1,0 +1,18 @@
+{
+  this.cliqueTree=cliqueTree;
+  this.window=cliqueTree.window();
+  int numClasses=cliqueTree.getNumClasses();
+  this.backgroundTag=new int[]{cliqueTree.backgroundIndex()};
+  allTags=new int[numClasses];
+  for (int i=0; i < allTags.length; i++) {
+    allTags[i]=i;
+  }
+  if (labelDictionary != null) {
+    allowedTagsAtPosition=new int[document.size()][];
+    for (int i=0; i < allowedTagsAtPosition.length; ++i) {
+      CoreMap token=document.get(i);
+      String observation=token.get(CoreAnnotations.TextAnnotation.class);
+      allowedTagsAtPosition[i]=labelDictionary.isConstrained(observation) ? labelDictionary.getConstrainedSet(observation) : allTags;
+    }
+  }
+}
