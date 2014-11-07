@@ -2,9 +2,7 @@
   int length=ts.length();
   int leftWindow=ts.leftWindow();
   int rightWindow=ts.rightWindow();
-  if (rightWindow != 0) {
-    throw new IllegalArgumentException("KBestSequenceFinder only works with rightWindow == 0 not " + rightWindow);
-  }
+  assert(rightWindow == 0);
   int padLength=length + leftWindow + rightWindow;
   int[][] tags=new int[padLength][];
   int[] tagNum=new int[padLength];
@@ -122,9 +120,9 @@
     for (int k1=0; k1 < score[padLength - 1][product].length; k1++) {
       for (int k2=0; k2 < bestFinalScores.length; k2++) {
         if (score[padLength - 1][product][k1] > bestFinalScores[k2]) {
-          System.arraycopy(bestFinalScores,k2,bestFinalScores,k2 + 1,bestFinalScores.length - (k2 + 1));
-          System.arraycopy(whichDerivation,k2,whichDerivation,k2 + 1,whichDerivation.length - (k2 + 1));
-          System.arraycopy(bestCurrentProducts,k2,bestCurrentProducts,k2 + 1,bestCurrentProducts.length - (k2 + 1));
+          System.arraycopy(bestFinalScores,k1,bestFinalScores,k1 + 1,bestFinalScores.length - (k1 + 1));
+          System.arraycopy(whichDerivation,k1,whichDerivation,k1 + 1,whichDerivation.length - (k1 + 1));
+          System.arraycopy(bestCurrentProducts,k1,bestCurrentProducts,k1 + 1,bestCurrentProducts.length - (k1 + 1));
           bestCurrentProducts[k2]=product;
           whichDerivation[k2]=k1;
           bestFinalScores[k2]=score[padLength - 1][product][k1];
