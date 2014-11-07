@@ -1,0 +1,12 @@
+{
+  ProtobufAnnotationSerializer p=new ProtobufAnnotationSerializer();
+  List<CoreLabel> toks=new ArrayList<CoreLabel>();
+  ByteArrayInputStream is=new ByteArrayInputStream(sent);
+  CoreNLPProtos.Token d;
+  do {
+    d=CoreNLPProtos.Token.parseDelimitedFrom(is);
+    if (d != null)     toks.add(p.fromProto(d));
+  }
+ while (d != null);
+  return toks;
+}

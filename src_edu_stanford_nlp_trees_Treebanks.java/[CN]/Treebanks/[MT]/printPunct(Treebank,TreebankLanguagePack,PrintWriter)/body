@@ -3,11 +3,11 @@
     System.err.println("The -punct option requires you to specify -tlp");
   }
  else {
-    Filter<String> punctTagFilter=tlp.punctuationTagAcceptFilter();
+    Predicate<String> punctTagFilter=tlp.punctuationTagAcceptFilter();
     for (    Tree t : treebank) {
       List<TaggedWord> tws=t.taggedYield();
       for (      TaggedWord tw : tws) {
-        if (punctTagFilter.accept(tw.tag())) {
+        if (punctTagFilter.test(tw.tag())) {
           pw.println(tw);
         }
       }
