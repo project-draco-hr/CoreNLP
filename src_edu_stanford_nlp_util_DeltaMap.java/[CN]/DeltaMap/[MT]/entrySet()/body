@@ -1,18 +1,18 @@
 {
   return new AbstractSet<Map.Entry<K,V>>(){
     @Override public Iterator<Map.Entry<K,V>> iterator(){
-      Predicate<Entry<K,V>> filter1=new Predicate<Entry<K,V>>(){
+      Filter<Map.Entry<K,V>> filter1=new Filter<Map.Entry<K,V>>(){
         private static final long serialVersionUID=1L;
-        public boolean test(        Map.Entry<K,V> e){
+        public boolean accept(        Map.Entry<K,V> e){
           K key=e.getKey();
           return !deltaMap.containsKey(key);
         }
       }
 ;
       Iterator<Map.Entry<K,V>> iter1=new FilteredIterator<Map.Entry<K,V>>(originalMap.entrySet().iterator(),filter1);
-      Predicate<Entry<K,V>> filter2=new Predicate<Entry<K,V>>(){
+      Filter<Map.Entry<K,V>> filter2=new Filter<Map.Entry<K,V>>(){
         private static final long serialVersionUID=1L;
-        public boolean test(        Map.Entry<K,V> e){
+        public boolean accept(        Map.Entry<K,V> e){
           Object value=e.getValue();
           if (value == removedValue) {
             return false;

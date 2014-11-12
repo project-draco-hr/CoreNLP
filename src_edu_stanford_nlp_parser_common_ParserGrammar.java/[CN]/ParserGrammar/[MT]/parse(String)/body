@@ -1,5 +1,7 @@
 {
-  List<? extends HasWord> tokens=tokenize(sentence);
+  TokenizerFactory<? extends HasWord> tf=getOp().tlpParams.treebankLanguagePack().getTokenizerFactory();
+  Tokenizer<? extends HasWord> tokenizer=tf.getTokenizer(new StringReader(sentence));
+  List<? extends HasWord> tokens=tokenizer.tokenize();
   if (getOp().testOptions.preTag) {
     Function<List<? extends HasWord>,List<TaggedWord>> tagger=loadTagger();
     tokens=tagger.apply(tokens);

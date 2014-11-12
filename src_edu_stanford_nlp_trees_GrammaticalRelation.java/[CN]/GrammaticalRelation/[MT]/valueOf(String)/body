@@ -1,3 +1,12 @@
 {
-  return valueOf(s,Languages.Language.English);
+  GrammaticalRelation value=null;
+  SoftReference<GrammaticalRelation> possiblyCachedValue=valueOfCache.get(s);
+  if (possiblyCachedValue != null) {
+    value=possiblyCachedValue.get();
+  }
+  if (value == null) {
+    value=valueOf(Language.English,s);
+    valueOfCache.put(s,new SoftReference<GrammaticalRelation>(value));
+  }
+  return value;
 }
