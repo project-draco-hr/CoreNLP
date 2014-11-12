@@ -1,0 +1,33 @@
+{
+  this.root=new TreeGraphNode(t,this);
+  Trees.setLeafLabels(this.root,t.yield());
+  Trees.setLeafTagsIfUnset(this.root);
+  indexNodes(this.root);
+  if (hf == null) {
+    throw new AssertionError("Cannot use null HeadFinder");
+  }
+  root.percolateHeads(hf);
+  if (root.value() == null) {
+    root.setValue("ROOT");
+  }
+  this.puncFilter=puncFilter;
+  NoPunctFilter puncDepFilter=new NoPunctFilter(puncFilter);
+  NoPunctTypedDependencyFilter puncTypedDepFilter=new NoPunctTypedDependencyFilter(puncFilter);
+  DirectedMultiGraph<TreeGraphNode,GrammaticalRelation> basicGraph=new DirectedMultiGraph<TreeGraphNode,GrammaticalRelation>();
+  DirectedMultiGraph<TreeGraphNode,GrammaticalRelation> completeGraph=new DirectedMultiGraph<TreeGraphNode,GrammaticalRelation>();
+  if (relationsLock != null) {
+    relationsLock.lock();
+  }
+  try {
+    analyzeNode(root,root,relations,hf,puncFilter,basicGraph,completeGraph);
+  }
+  finally {
+    if (relationsLock != null) {
+      relationsLock.unlock();
+    }
+  }
+  attachStrandedNodes(root,root,false,puncFilter,basicGraph);
+  typedDependencies=getDeps(puncTypedDepFilter,basicGraph);
+  allTypedDependencies=Generics.newArrayList(typedDependencies);
+  getExtraDeps(allTypedDependencies,puncTypedDepFilter,completeGraph);
+}

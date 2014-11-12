@@ -42,31 +42,32 @@
       }
     }
   }
-  if (prep != null && dep != null && pobj != null && newtd != null) {
-    if (DEBUG) {
-      System.err.println("Removing " + prep + ", "+ dep+ ", and "+ pobj);
-      System.err.println("  and adding " + newtd);
-    }
-    prep.setReln(KILL);
-    dep.setReln(KILL);
-    pobj.setReln(KILL);
-    newTypedDeps.add(newtd);
-    for (    TypedDependency td1 : list) {
-      if (td1.reln() != KILL) {
-        if (td1.gov().equals(mwp0) || td1.gov().equals(mwp1)) {
-          if (td1.reln() == TEMPORAL_MODIFIER) {
-            td1.setGov(pobj.dep());
-          }
- else {
-            td1.setGov(governor);
-          }
+  if (pobj == null || newtd == null) {
+    return;
+  }
+  if (DEBUG) {
+    System.err.println("Removing " + prep + ", "+ dep+ ", and "+ pobj);
+    System.err.println("  and adding " + newtd);
+  }
+  prep.setReln(KILL);
+  dep.setReln(KILL);
+  pobj.setReln(KILL);
+  newTypedDeps.add(newtd);
+  for (  TypedDependency td1 : list) {
+    if (td1.reln() != KILL) {
+      if (td1.gov().equals(mwp0) || td1.gov().equals(mwp1)) {
+        if (td1.reln() == TEMPORAL_MODIFIER) {
+          td1.setGov(pobj.dep());
         }
-        if (!newTypedDeps.contains(td1)) {
-          newTypedDeps.add(td1);
+ else {
+          td1.setGov(governor);
         }
       }
+      if (!newTypedDeps.contains(td1)) {
+        newTypedDeps.add(td1);
+      }
     }
-    list.clear();
-    list.addAll(newTypedDeps);
   }
+  list.clear();
+  list.addAll(newTypedDeps);
 }

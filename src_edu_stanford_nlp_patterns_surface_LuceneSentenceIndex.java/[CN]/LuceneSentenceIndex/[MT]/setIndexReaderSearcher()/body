@@ -1,0 +1,15 @@
+{
+  FSDirectory index=FSDirectory.open(indexDir);
+  if (reader == null) {
+    reader=DirectoryReader.open(index);
+    searcher=new IndexSearcher(reader);
+  }
+ else {
+    DirectoryReader newreader=DirectoryReader.openIfChanged(reader);
+    if (newreader != null) {
+      reader.close();
+      reader=newreader;
+      searcher=new IndexSearcher(reader);
+    }
+  }
+}

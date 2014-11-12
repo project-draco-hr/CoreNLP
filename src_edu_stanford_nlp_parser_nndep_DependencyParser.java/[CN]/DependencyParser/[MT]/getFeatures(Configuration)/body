@@ -1,0 +1,47 @@
+{
+  List<Integer> fWord=new ArrayList<Integer>(18);
+  List<Integer> fPos=new ArrayList<Integer>(18);
+  List<Integer> fLabel=new ArrayList<Integer>(12);
+  for (int j=2; j >= 0; --j) {
+    int index=c.getStack(j);
+    fWord.add(getWordID(c.getWord(index)));
+    fPos.add(getPosID(c.getPOS(index)));
+  }
+  for (int j=0; j <= 2; ++j) {
+    int index=c.getBuffer(j);
+    fWord.add(getWordID(c.getWord(index)));
+    fPos.add(getPosID(c.getPOS(index)));
+  }
+  for (int j=0; j <= 1; ++j) {
+    int k=c.getStack(j);
+    int index=c.getLeftChild(k);
+    fWord.add(getWordID(c.getWord(index)));
+    fPos.add(getPosID(c.getPOS(index)));
+    fLabel.add(getLabelID(c.getLabel(index)));
+    index=c.getRightChild(k);
+    fWord.add(getWordID(c.getWord(index)));
+    fPos.add(getPosID(c.getPOS(index)));
+    fLabel.add(getLabelID(c.getLabel(index)));
+    index=c.getLeftChild(k,2);
+    fWord.add(getWordID(c.getWord(index)));
+    fPos.add(getPosID(c.getPOS(index)));
+    fLabel.add(getLabelID(c.getLabel(index)));
+    index=c.getRightChild(k,2);
+    fWord.add(getWordID(c.getWord(index)));
+    fPos.add(getPosID(c.getPOS(index)));
+    fLabel.add(getLabelID(c.getLabel(index)));
+    index=c.getLeftChild(c.getLeftChild(k));
+    fWord.add(getWordID(c.getWord(index)));
+    fPos.add(getPosID(c.getPOS(index)));
+    fLabel.add(getLabelID(c.getLabel(index)));
+    index=c.getRightChild(c.getRightChild(k));
+    fWord.add(getWordID(c.getWord(index)));
+    fPos.add(getPosID(c.getPOS(index)));
+    fLabel.add(getLabelID(c.getLabel(index)));
+  }
+  List<Integer> feature=new ArrayList<>(48);
+  feature.addAll(fWord);
+  feature.addAll(fPos);
+  feature.addAll(fLabel);
+  return feature;
+}
