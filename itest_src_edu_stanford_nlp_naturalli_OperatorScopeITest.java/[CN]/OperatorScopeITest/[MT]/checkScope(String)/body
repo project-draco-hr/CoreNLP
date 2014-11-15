@@ -1,6 +1,5 @@
 {
   String[] terms=spec.split("\\s+");
-  int quantStart=-1;
   int quantEnd=-1;
   int subjBegin=-1;
   int subjEnd=-1;
@@ -12,17 +11,16 @@
   for (  String term : terms) {
 switch (term) {
 case "{":
-      quantStart=tokenIndex;
-    break;
+      break;
 case "}":
-  quantEnd=tokenIndex;
-break;
+    quantEnd=tokenIndex;
+  break;
 case "[":
 if (!seenSubj) {
-subjBegin=tokenIndex;
+  subjBegin=tokenIndex;
 }
  else {
-objBegin=tokenIndex;
+  objBegin=tokenIndex;
 }
 break;
 case "]":
@@ -43,7 +41,7 @@ break;
 Optional<OperatorSpec>[] scopes=annotate(StringUtils.join(cleanSentence," "));
 System.err.println("Checking [@ " + (quantEnd - 1) + "]:  "+ spec);
 if (objBegin >= 0 && objEnd >= 0) {
-checkScope(subjBegin,subjEnd,objBegin,scopes.length,scopes[quantEnd - 1]);
+checkScope(subjBegin,subjEnd,objBegin,objEnd,scopes[quantEnd - 1]);
 }
  else {
 checkScope(subjBegin,subjEnd,scopes[quantEnd - 1]);
