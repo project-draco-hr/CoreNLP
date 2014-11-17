@@ -2,9 +2,10 @@
   double cost=0.0;
   for (  TwoDimensionalMap.Entry<String,String,SimpleMatrix> entry : currentMatrices) {
     SimpleMatrix D=derivatives.get(entry.getFirstKey(),entry.getSecondKey());
-    D=D.scale(scale).plus(entry.getValue().scale(regCost));
+    SimpleMatrix regMatrix=entry.getValue();
+    D=D.scale(scale).plus(regMatrix.scale(regCost));
     derivatives.put(entry.getFirstKey(),entry.getSecondKey(),D);
-    cost+=entry.getValue().elementMult(entry.getValue()).elementSum() * regCost / 2.0;
+    cost+=regMatrix.elementMult(regMatrix).elementSum() * regCost / 2.0;
   }
   return cost;
 }
