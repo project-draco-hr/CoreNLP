@@ -5,7 +5,7 @@
     sortedLabels=labels;
   }
  else {
-    sortedLabels=new ArrayList(labels);
+    sortedLabels=new ArrayList<GrammaticalRelation>(labels);
     Collections.sort(sortedLabels,new NameComparator<GrammaticalRelation>());
   }
   for (  GrammaticalRelation reln2 : sortedLabels) {
@@ -18,11 +18,11 @@
   }
   if (PRINT_DEBUGGING && reln.equals(GrammaticalRelation.DEPENDENT)) {
     String topCat=govH.get(CoreAnnotations.ValueAnnotation.class);
-    String topTag=govH.get(TreeCoreAnnotations.HeadTagAnnotation.class).value();
-    String topWord=govH.get(TreeCoreAnnotations.HeadWordAnnotation.class).value();
+    String topTag=gov.tag();
+    String topWord=gov.value();
     String botCat=depH.get(CoreAnnotations.ValueAnnotation.class);
-    String botTag=depH.get(TreeCoreAnnotations.HeadTagAnnotation.class).value();
-    String botWord=depH.get(TreeCoreAnnotations.HeadWordAnnotation.class).value();
+    String botTag=dep.tag();
+    String botWord=dep.value();
     System.err.println("### dep\t" + topCat + "\t"+ topTag+ "\t"+ topWord+ "\t"+ botCat+ "\t"+ botTag+ "\t"+ botWord+ "\t");
   }
   return reln;
