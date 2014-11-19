@@ -43,10 +43,10 @@
   }
   double scale=(1.0 / trainingBatch.size());
   value=error * scale;
-  value+=scaleAndRegularize(binaryTD,model.binaryTransform,scale,model.op.trainOptions.regTransformMatrix);
-  value+=scaleAndRegularize(binaryCD,model.binaryClassification,scale,model.op.trainOptions.regClassification);
+  value+=scaleAndRegularize(binaryTD,model.binaryTransform,scale,model.op.trainOptions.regTransformMatrix,false);
+  value+=scaleAndRegularize(binaryCD,model.binaryClassification,scale,model.op.trainOptions.regClassification,true);
   value+=scaleAndRegularizeTensor(binaryTensorTD,model.binaryTensors,scale,model.op.trainOptions.regTransformTensor);
-  value+=scaleAndRegularize(unaryCD,model.unaryClassification,scale,model.op.trainOptions.regClassification,false);
-  value+=scaleAndRegularize(wordVectorD,model.wordVectors,scale,model.op.trainOptions.regWordVector,true);
+  value+=scaleAndRegularize(unaryCD,model.unaryClassification,scale,model.op.trainOptions.regClassification,false,true);
+  value+=scaleAndRegularize(wordVectorD,model.wordVectors,scale,model.op.trainOptions.regWordVector,true,false);
   derivative=NeuralUtils.paramsToVector(theta.length,binaryTD.valueIterator(),binaryCD.valueIterator(),SimpleTensor.iteratorSimpleMatrix(binaryTensorTD.valueIterator()),unaryCD.values().iterator(),wordVectorD.values().iterator());
 }

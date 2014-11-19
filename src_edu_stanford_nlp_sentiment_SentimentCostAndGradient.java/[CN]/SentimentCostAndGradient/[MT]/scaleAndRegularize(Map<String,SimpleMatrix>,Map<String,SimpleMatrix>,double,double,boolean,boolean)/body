@@ -6,9 +6,14 @@
       derivatives.put(entry.getKey(),new SimpleMatrix(entry.getValue().numRows(),entry.getValue().numCols()));
       continue;
     }
-    D=D.scale(scale).plus(entry.getValue().scale(regCost));
+    SimpleMatrix regMatrix=entry.getValue();
+    if (dropBiasColumn) {
+      regMatrix=new SimpleMatrix(regMatrix);
+      regMatrix.insertIntoThis(0,regMatrix.numCols() - 1,new SimpleMatrix(regMatrix.numRows(),1));
+    }
+    D=D.scale(scale).plus(regMatrix.scale(regCost));
     derivatives.put(entry.getKey(),D);
-    cost+=entry.getValue().elementMult(entry.getValue()).elementSum() * regCost / 2.0;
+    cost+=regMatrix.elementMult(regMatrix).elementSum() * regCost / 2.0;
   }
   return cost;
 }
