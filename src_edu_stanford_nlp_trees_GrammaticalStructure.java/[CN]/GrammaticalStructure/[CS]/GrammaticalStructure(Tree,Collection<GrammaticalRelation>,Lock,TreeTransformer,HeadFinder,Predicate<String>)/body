@@ -1,7 +1,17 @@
 {
-  this.root=new TreeGraphNode(t,(TreeGraphNode)null);
-  Trees.setLeafLabels(this.root,t.yield());
-  Trees.setLeafTagsIfUnset(this.root);
+  TreeGraphNode treegraph=new TreeGraphNode(t,(TreeGraphNode)null);
+  Trees.setLeafLabels(treegraph,t.yield());
+  Trees.setLeafTagsIfUnset(treegraph);
+  if (transformer != null) {
+    Tree transformed=transformer.transformTree(treegraph);
+    if (!(transformed instanceof TreeGraphNode)) {
+      throw new RuntimeException("Transformer did not change TreeGraphNode into another TreeGraphNode: " + transformer);
+    }
+    this.root=(TreeGraphNode)transformed;
+  }
+ else {
+    this.root=treegraph;
+  }
   indexNodes(this.root);
   if (hf == null) {
     throw new AssertionError("Cannot use null HeadFinder");
