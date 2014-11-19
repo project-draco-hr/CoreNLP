@@ -3,17 +3,17 @@
   Tree newFoot=null;
   if (node.isLeaf()) {
     if (node == foot) {
-      clone=node.treeFactory().newTreeNode(node.label(),new ArrayList<Tree>(0));
+      clone=treeFactory.newTreeNode(node.label(),new ArrayList<Tree>(0));
       newFoot=clone;
     }
  else {
-      clone=node.treeFactory().newLeaf(node.label().labelFactory().newLabel(node.label()));
+      clone=treeFactory.newLeaf(labelFactory.newLabel(node.label()));
     }
   }
  else {
     List<Tree> newChildren=new ArrayList<Tree>(node.children().length);
     for (    Tree child : node.children()) {
-      Pair<Tree,Tree> newChild=copyHelper(child,newNamesToNodes);
+      Pair<Tree,Tree> newChild=copyHelper(child,newNamesToNodes,treeFactory,labelFactory);
       newChildren.add(newChild.first());
       if (newChild.second() != null) {
         if (newFoot != null) {
@@ -22,7 +22,7 @@
         newFoot=newChild.second();
       }
     }
-    clone=node.treeFactory().newTreeNode(node.label().labelFactory().newLabel(node.label()),newChildren);
+    clone=treeFactory.newTreeNode(labelFactory.newLabel(node.label()),newChildren);
   }
   if (nodesToNames.containsKey(node))   newNamesToNodes.put(nodesToNames.get(node),clone);
   return new Pair<Tree,Tree>(clone,newFoot);
