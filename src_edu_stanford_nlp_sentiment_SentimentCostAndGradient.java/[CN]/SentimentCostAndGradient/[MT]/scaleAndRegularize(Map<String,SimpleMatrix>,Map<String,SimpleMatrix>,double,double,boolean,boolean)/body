@@ -1,0 +1,19 @@
+{
+  double cost=0.0;
+  for (  Map.Entry<String,SimpleMatrix> entry : currentMatrices.entrySet()) {
+    SimpleMatrix D=derivatives.get(entry.getKey());
+    if (activeMatricesOnly && D == null) {
+      derivatives.put(entry.getKey(),new SimpleMatrix(entry.getValue().numRows(),entry.getValue().numCols()));
+      continue;
+    }
+    SimpleMatrix regMatrix=entry.getValue();
+    if (dropBiasColumn) {
+      regMatrix=new SimpleMatrix(regMatrix);
+      regMatrix.insertIntoThis(0,regMatrix.numCols() - 1,new SimpleMatrix(regMatrix.numRows(),1));
+    }
+    D=D.scale(scale).plus(regMatrix.scale(regCost));
+    derivatives.put(entry.getKey(),D);
+    cost+=regMatrix.elementMult(regMatrix).elementSum() * regCost / 2.0;
+  }
+  return cost;
+}

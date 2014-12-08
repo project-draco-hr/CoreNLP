@@ -9,6 +9,8 @@
   String headFinderOption="-hf";
   String headFinderArgOption="-hfArg";
   String trfOption="-trf";
+  String extensionOption="-e";
+  String extension=null;
   String headFinderClassName=null;
   String[] headFinderArgs=StringUtils.EMPTY_STRING_ARRAY;
   String treeReaderFactoryClassName=null;
@@ -39,6 +41,7 @@
   flagMap.put(headFinderOption,1);
   flagMap.put(headFinderArgOption,1);
   flagMap.put(trfOption,1);
+  flagMap.put(extensionOption,1);
   flagMap.put(macroOption,1);
   flagMap.put(yieldOnly,0);
   flagMap.put(quietMode,0);
@@ -67,7 +70,7 @@
     return;
   }
   if (args.length < 1) {
-    errPW.println("Usage: java edu.stanford.nlp.trees.tregex.TregexPattern [-T] [-C] [-w] [-f] [-o] [-n] [-s] [-filter]  [-hf class] [-trf class] [-h handle]* pattern [filepath]");
+    errPW.println("Usage: java edu.stanford.nlp.trees.tregex.TregexPattern [-T] [-C] [-w] [-f] [-o] [-n] [-s] [-filter]  [-hf class] [-trf class] [-h handle]* [-e ext] pattern [filepath]");
     return;
   }
   String matchString=args[0];
@@ -84,6 +87,9 @@
   if (argsMap.containsKey(trfOption)) {
     treeReaderFactoryClassName=argsMap.get(trfOption)[0];
     errPW.println("Using tree reader factory " + treeReaderFactoryClassName + "...");
+  }
+  if (argsMap.containsKey(extensionOption)) {
+    extension=argsMap.get(extensionOption)[0];
   }
   if (argsMap.containsKey(printAllTrees)) {
     TRegexTreeVisitor.printTree=true;
@@ -165,7 +171,7 @@
       errPW.println("Reading trees from file(s) " + args[last]);
       TreeReaderFactory trf=getTreeReaderFactory(treeReaderFactoryClassName);
       treebank=new DiskTreebank(trf,encoding);
-      treebank.loadPath(args[last],null,true);
+      treebank.loadPath(args[last],extension,true);
     }
     TRegexTreeVisitor vis=new TRegexTreeVisitor(p,handles,encoding);
     treebank.apply(vis);
