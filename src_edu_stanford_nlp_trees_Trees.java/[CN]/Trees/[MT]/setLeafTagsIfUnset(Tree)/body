@@ -1,0 +1,17 @@
+{
+  if (tree.isPreTerminal()) {
+    Tree leaf=tree.children()[0];
+    if (!(leaf.label() instanceof HasTag)) {
+      return;
+    }
+    HasTag label=(HasTag)leaf.label();
+    if (label.tag() == null) {
+      label.setTag(tree.value());
+    }
+  }
+ else {
+    for (    Tree child : tree.children()) {
+      setLeafTagsIfUnset(child);
+    }
+  }
+}
