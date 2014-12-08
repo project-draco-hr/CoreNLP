@@ -1,0 +1,85 @@
+{
+  Date startTime=new Date();
+  Redwood.log(Redwood.DBG,"Labeling " + sents.size() + " sentences with "+ identifiedWords.size()+ " phrases for label "+ label);
+  CollectionValuedMap<String,Integer> tokensMatchedPatterns=null;
+  if (constVars.restrictToMatched) {
+    tokensMatchedPatterns=new CollectionValuedMap<String,Integer>();
+    for (    Entry<E,Collection<Triple<String,Integer,Integer>>> en : matchedTokensByPat.entrySet()) {
+      for (      Triple<String,Integer,Integer> en2 : en.getValue()) {
+        for (int i=en2.second(); i <= en2.third(); i++) {
+          tokensMatchedPatterns.add(en2.first(),i);
+        }
+      }
+    }
+  }
+  Map<String,Map<Integer,Set<E>>> tempPatsForSents=new HashMap<String,Map<Integer,Set<E>>>();
+  for (  Entry<String,List<CoreLabel>> sentEn : sents.entrySet()) {
+    boolean sentenceChanged=false;
+    Set<String[]> identifiedWordsTokens=new HashSet<String[]>();
+    for (    String s : identifiedWords) {
+      String[] toks=s.split("\\s+");
+      identifiedWordsTokens.add(toks);
+    }
+    String[] sent=new String[sentEn.getValue().size()];
+    int i=0;
+    Set<Integer> contextWordsRecalculatePats=new HashSet<Integer>();
+    for (    CoreLabel l : sentEn.getValue()) {
+      sent[i]=l.word();
+      i++;
+    }
+    for (    String[] ph : identifiedWordsTokens) {
+      List<Integer> ints=ArrayUtils.getSubListIndex(ph,sent);
+      if (ints == null)       continue;
+      for (      Integer idx : ints) {
+        boolean donotuse=false;
+        if (constVars.restrictToMatched) {
+          for (int j=0; j < ph.length; j++) {
+            if (!tokensMatchedPatterns.get(sentEn.getKey()).contains(idx + j)) {
+              Redwood.log(ConstantsAndVariables.extremedebug,"not labeling " + sentEn.getValue().get(idx + j).word());
+              donotuse=true;
+              break;
+            }
+          }
+        }
+        if (donotuse == false) {
+          String phStr=StringUtils.join(ph," ");
+          Redwood.log(ConstantsAndVariables.extremedebug,"Labeling because of phrase " + phStr);
+          for (int j=0; j < ph.length; j++) {
+            int index=idx + j;
+            CoreLabel l=sentEn.getValue().get(index);
+            if (constVars.usePatternResultAsLabel) {
+              sentenceChanged=true;
+              l.set(constVars.getAnswerClass().get(label),label);
+              CollectionValuedMap<String,String> matched=new CollectionValuedMap<String,String>();
+              matched.add(label,phStr);
+              if (!l.containsKey(PatternsAnnotations.MatchedPhrases.class))               l.set(PatternsAnnotations.MatchedPhrases.class,matched);
+ else               l.get(PatternsAnnotations.MatchedPhrases.class).addAll(matched);
+              for (int k=Math.max(0,index - PatternFactory.numWordsCompound); k < sentEn.getValue().size() && k <= index + PatternFactory.numWordsCompound + 1; k++) {
+                contextWordsRecalculatePats.add(k);
+              }
+            }
+          }
+        }
+      }
+    }
+    if (patsForEachToken != null) {
+      for (      int index : contextWordsRecalculatePats) {
+        if (!tempPatsForSents.containsKey(sentEn.getKey()))         tempPatsForSents.put(sentEn.getKey(),new HashMap<Integer,Set<E>>());
+        tempPatsForSents.get(sentEn.getKey()).put(index,Pattern.getContext(constVars.patternType,sentEn.getValue(),index));
+      }
+    }
+    if (sentenceChanged) {
+      constVars.invertedIndex.update(sentEn.getValue(),sentEn.getKey());
+    }
+  }
+  if (patsForEachToken != null) {
+    patsForEachToken.updatePatterns(tempPatsForSents);
+  }
+  constVars.invertedIndex.finishUpdating();
+  if (outFile != null) {
+    Redwood.log(ConstantsAndVariables.minimaldebug,"Writing results to " + outFile);
+    IOUtils.writeObjectToFile(sents,outFile);
+  }
+  Date endTime=new Date();
+  Redwood.log(Redwood.DBG,"Done labeling provided sents in " + elapsedTime(startTime,endTime));
+}

@@ -1,0 +1,19 @@
+{
+  try {
+    LuceneSentenceIndex sentindex=new LuceneSentenceIndex(props,stopWords,indexDiskDir,transformer);
+    System.out.println("Creating lucene index at " + indexDiskDir);
+    IOUtils.deleteDirRecursively(sentindex.indexDir);
+    if (sentences != null) {
+      sentindex.setIndexWriter();
+      sentindex.add(sentences,true);
+      sentindex.closeIndexWriter();
+      sentindex.setIndexReaderSearcher();
+      System.out.println("Number of documents added are " + sentindex.reader.numDocs());
+      sentindex.numAllSentences+=sentindex.reader.numDocs();
+    }
+    return sentindex;
+  }
+ catch (  IOException e) {
+    throw new RuntimeException(e);
+  }
+}
