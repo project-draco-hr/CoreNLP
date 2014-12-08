@@ -1,7 +1,6 @@
 {
-  IdentityHashMap<Object,Boolean> isSentenceBoundary=null;
+  IdentityHashMap<Object,Boolean> isSentenceBoundary=new IdentityHashMap<Object,Boolean>();
   if (sentenceBoundaryMultiTokenPattern != null) {
-    isSentenceBoundary=new IdentityHashMap<Object,Boolean>();
     SequenceMatcher<? super IN> matcher=sentenceBoundaryMultiTokenPattern.getMatcher(words);
     while (matcher.find()) {
       List nodes=matcher.groupNodes();
@@ -91,7 +90,6 @@
     }
  else {
       lastTokenWasNewline=false;
-      Boolean isb;
       if (xmlBreakElementsToDiscard != null && matchesXmlBreakElementToDiscard(word)) {
         newSent=true;
         if (DEBUG) {
@@ -102,7 +100,7 @@
         insideRegion=false;
         newSent=true;
       }
- else       if ((isSentenceBoundary != null) && ((isb=isSentenceBoundary.get(o)) != null) && isb) {
+ else       if (isSentenceBoundary.containsKey(o) && isSentenceBoundary.get(o)) {
         if (!discardToken)         currentSentence.add(o);
         if (DEBUG) {
           System.err.println("  is sentence boundary (matched multi-token pattern); " + debugText);

@@ -18,6 +18,7 @@
   tagger=PropertiesUtils.getString(props,"tagger.model",tagger);
   String escaperClass=props.getProperty("escaper");
   escaper=escaperClass != null ? ReflectionLoading.loadByReflection(escaperClass) : null;
-  language=props.containsKey("language") ? getLanguage(props.getProperty("language")) : language;
-  tlp=Languages.getLanguageParams(language).treebankLanguagePack();
+  language=PropertiesUtils.getString(props,"language",language);
+  String tlpClass=language.equals("Chinese") ? "edu.stanford.nlp.trees.international.pennchinese.ChineseTreebankLanguagePack" : "edu.stanford.nlp.trees.PennTreebankLanguagePack";
+  tlp=ReflectionLoading.loadByReflection(tlpClass);
 }

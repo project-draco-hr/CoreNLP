@@ -83,22 +83,6 @@
       System.err.print("Tokenization: ");
       System.err.println(Arrays.toString(bits));
     }
-    if (flags.splitWordCount) {
-      addFeature(featuresC,"SWNUM",bits.length);
-    }
-    if (flags.logSplitWordCount) {
-      addFeature(featuresC,"LSWNUM",Math.log(bits.length));
-    }
-    if (flags.binnedSplitWordCounts != null) {
-      String featureName=null;
-      for (int i=0; i <= flags.binnedSplitWordCounts.length; i++) {
-        if (i == flags.binnedSplitWordCounts.length || bits.length <= flags.binnedSplitWordCounts[i]) {
-          featureName="SWNUMBIN-" + ((i == 0) ? 0 : (flags.binnedSplitWordCounts[i - 1] + 1)) + '-'+ ((i == flags.binnedSplitWordCounts.length) ? "Inf" : Integer.toString(flags.binnedSplitWordCounts[i]));
-          break;
-        }
-      }
-      addFeature(featuresC,featureName,DEFAULT_VALUE);
-    }
     for (int i=0; i < bits.length; i++) {
       if (flags.useSplitWords) {
         addFeature(featuresC,"SW-" + bits[i],DEFAULT_VALUE);
