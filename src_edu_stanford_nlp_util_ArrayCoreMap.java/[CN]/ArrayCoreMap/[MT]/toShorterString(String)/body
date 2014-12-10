@@ -1,29 +1,13 @@
 {
-  StringBuilder s=new StringBuilder(SHORTER_STRING_CHARSTRING_START_SIZE);
-  s.append('[');
-  Set<String> whatSet=null;
-  if (size > 5 && what.length > 5) {
-    whatSet=new HashSet<>(Arrays.asList(what));
-  }
+  StringBuilder s=new StringBuilder("[");
   for (int i=0; i < size; i++) {
-    Class klass=keys[i];
-    String name=shortNames.get(klass);
-    if (name == null) {
-      name=klass.getSimpleName();
-      int annoIdx=name.lastIndexOf("Annotation");
-      if (annoIdx >= 0) {
-        name=name.substring(0,annoIdx);
-      }
-      shortNames.put(klass,name);
+    String name=keys[i].getSimpleName();
+    int annoIdx=name.lastIndexOf("Annotation");
+    if (annoIdx >= 0) {
+      name=name.substring(0,annoIdx);
     }
     boolean include;
-    if (what.length == 0) {
-      include=true;
-    }
- else     if (whatSet != null) {
-      include=whatSet.contains(name);
-    }
- else {
+    if (what.length > 0) {
       include=false;
       for (      String item : what) {
         if (item.equals(name)) {
@@ -31,6 +15,9 @@
           break;
         }
       }
+    }
+ else {
+      include=true;
     }
     if (include) {
       if (s.length() > 1) {
