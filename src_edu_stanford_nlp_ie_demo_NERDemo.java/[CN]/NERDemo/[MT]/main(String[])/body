@@ -21,6 +21,18 @@
       }
       System.out.println();
     }
+    System.out.println("---");
+    List<Triple<String,Integer,Integer>> list=classifier.classifyToCharacterOffsets(fileContents);
+    for (    Triple<String,Integer,Integer> item : list) {
+      System.out.println(item.first() + ": " + fileContents.substring(item.second(),item.third()));
+    }
+    System.out.println("---");
+    System.out.println("Ten best entity labelings");
+    DocumentReaderAndWriter<CoreLabel> readerAndWriter=classifier.makePlainTextReaderAndWriter();
+    classifier.classifyAndWriteAnswersKBest(args[1],10,readerAndWriter);
+    System.out.println("---");
+    System.out.println("Per-token marginalized probabilities");
+    classifier.printProbs(args[1],readerAndWriter);
   }
  else {
     String[] example={"Good afternoon Rajat Raina, how are you today?","I go to school at Stanford University, which is located in California."};
@@ -33,11 +45,28 @@
     }
     System.out.println("---");
     for (    String str : example) {
+      System.out.print(classifier.classifyToString(str,"tabbedEntities",false));
+    }
+    System.out.println("---");
+    for (    String str : example) {
       System.out.println(classifier.classifyWithInlineXML(str));
     }
     System.out.println("---");
     for (    String str : example) {
       System.out.println(classifier.classifyToString(str,"xml",true));
+    }
+    System.out.println("---");
+    for (    String str : example) {
+      System.out.print(classifier.classifyToString(str,"tsv",false));
+    }
+    System.out.println("---");
+    int j=0;
+    for (    String str : example) {
+      j++;
+      List<Triple<String,Integer,Integer>> triples=classifier.classifyToCharacterOffsets(str);
+      for (      Triple<String,Integer,Integer> trip : triples) {
+        System.out.printf("%s over character offsets [%d, %d) in sentence %d.%n",trip.first(),trip.second(),trip.third,j);
+      }
     }
     System.out.println("---");
     int i=0;
@@ -49,5 +78,6 @@
         }
       }
     }
+    System.out.println("---");
   }
 }
