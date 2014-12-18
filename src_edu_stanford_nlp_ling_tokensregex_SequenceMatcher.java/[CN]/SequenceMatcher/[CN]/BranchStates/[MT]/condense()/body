@@ -3,7 +3,9 @@
   Set<Integer> keepBidStates=new HashSet<Integer>();
   for (  MatchedStates ms : activeMatchedStates) {
     List<State> states=ms.states;
-    logger.finest("Condense matched state: curPosition=" + ms.curPosition + ", totalTokens="+ ms.matcher.elements.size()+ ", nStates="+ states.size());
+    if (logger.isLoggable(Level.FINEST)) {
+      logger.finest("Condense matched state: curPosition=" + ms.curPosition + ", totalTokens="+ ms.matcher.elements.size()+ ", nStates="+ states.size());
+    }
     for (    State state : states) {
       curBidSet.add(state.bid);
       keepBidStates.add(state.bid);
@@ -22,9 +24,13 @@
   Collection<Integer> curBidStates=new ArrayList<Integer>(branchStates.keySet());
   for (  int bid : curBidStates) {
     if (!keepBidStates.contains(bid)) {
-      logger.finest("Remove state for bid=" + bid);
+      if (logger.isLoggable(Level.FINEST)) {
+        logger.finest("Remove state for bid=" + bid);
+      }
       branchStates.remove(bid);
     }
   }
-  logger.finest("Condense matched state: oldBidStates=" + curBidStates.size() + ", newBidStates="+ branchStates.size()+ ", curBidSet="+ curBidSet.size());
+  if (logger.isLoggable(Level.FINEST)) {
+    logger.finest("Condense matched state: oldBidStates=" + curBidStates.size() + ", newBidStates="+ branchStates.size()+ ", curBidSet="+ curBidSet.size());
+  }
 }
