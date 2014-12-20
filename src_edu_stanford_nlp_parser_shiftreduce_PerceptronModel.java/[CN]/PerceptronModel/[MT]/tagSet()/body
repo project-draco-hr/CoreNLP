@@ -1,0 +1,17 @@
+{
+  Set<String> tags=Generics.newHashSet();
+  Pattern p1=Pattern.compile("Q0TQ1T-([^-]+)-.*");
+  Pattern p2=Pattern.compile("S0T-(.*)");
+  for (  String feat : featureWeights.keySet()) {
+    Matcher m1=p1.matcher(feat);
+    if (m1.matches()) {
+      tags.add(m1.group(1));
+    }
+    Matcher m2=p2.matcher(feat);
+    if (m2.matches()) {
+      tags.add(m2.group(1));
+    }
+  }
+  tags.add(Tagger.EOS_TAG);
+  return tags;
+}

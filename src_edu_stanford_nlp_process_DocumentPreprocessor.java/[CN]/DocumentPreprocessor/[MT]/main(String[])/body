@@ -2,7 +2,7 @@
   final Properties options=StringUtils.argsToProperties(args,argOptionDefs());
   if (options.containsKey("help")) {
     System.err.println(usage());
-    System.exit(-1);
+    return;
   }
   String encoding=options.getProperty("encoding","utf-8");
   boolean printSentenceLengths=PropertiesUtils.getBool(options,"printSentenceLengths",false);
@@ -23,7 +23,7 @@
   if (numFactoryFlags > 1) {
     System.err.println("Only one tokenizer flag allowed at a time: ");
     System.err.println("  -suppressEscaping, -tokenizerOptions, -printOriginalText, -whitespaceTokenization");
-    System.exit(-1);
+    return;
   }
   TokenizerFactory<? extends HasWord> tf=null;
   if (suppressEscaping) {
@@ -36,7 +36,7 @@
     tf=PTBTokenizer.factory(new CoreLabelTokenFactory(),"invertible=true");
   }
  else   if (whitespaceTokenization) {
-    List<String> whitespaceDelims=new ArrayList<String>(Arrays.asList(DocumentPreprocessor.DEFAULT_SENTENCE_DELIMS));
+    List<String> whitespaceDelims=new ArrayList<>(Arrays.asList(DocumentPreprocessor.DEFAULT_SENTENCE_DELIMS));
     whitespaceDelims.add(WhitespaceLexer.NEWLINE);
     sentenceDelims=whitespaceDelims.toArray(new String[whitespaceDelims.size()]);
   }
@@ -49,7 +49,7 @@
   PrintWriter pw=new PrintWriter(new OutputStreamWriter(System.out,encoding),true);
   for (  String file : files) {
     DocumentPreprocessor docPreprocessor;
-    if (file == null || file.length() == 0) {
+    if (file == null || file.isEmpty()) {
       docPreprocessor=new DocumentPreprocessor(new InputStreamReader(System.in,encoding));
     }
  else {
@@ -71,7 +71,7 @@
     for (    List<HasWord> sentence : docPreprocessor) {
       numSents++;
       if (printSentenceLengths) {
-        System.err.println("Length:\t" + sentence.size());
+        System.err.printf("Length: %d%n",sentence.size());
       }
       boolean printSpace=false;
       for (      HasWord word : sentence) {
@@ -94,5 +94,5 @@
     }
   }
   pw.close();
-  System.err.println("Read in " + numSents + " sentences.");
+  System.err.printf("Read in %d sentences.%n",numSents);
 }

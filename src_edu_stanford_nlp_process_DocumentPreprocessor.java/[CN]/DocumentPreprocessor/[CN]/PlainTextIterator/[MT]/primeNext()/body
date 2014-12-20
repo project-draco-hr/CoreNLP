@@ -1,4 +1,7 @@
 {
+  if (inputReader == null) {
+    return;
+  }
   nextSent=Generics.newArrayList(nextSentCarryover);
   nextSentCarryover.clear();
   boolean seenBoundary=false;
@@ -30,8 +33,8 @@
     if (!(wsPattern.matcher(token.word()).matches() || token.word().equals(PTBLexer.NEWLINE_TOKEN))) {
       nextSent.add(token);
     }
-    if (seenBoundary && delimFollowers.size() == 0) {
-      if (nextSent.size() > 0 || keepEmptySentences) {
+    if (seenBoundary && delimFollowers.isEmpty()) {
+      if (!nextSent.isEmpty() || keepEmptySentences) {
         break;
       }
  else {
@@ -40,7 +43,7 @@
     }
   }
  while (tokenizer.hasNext());
-  if (nextSent.size() == 0 && nextSentCarryover.size() == 0 && !keepEmptySentences) {
+  if (nextSent.isEmpty() && nextSentCarryover.isEmpty() && !keepEmptySentences) {
     IOUtils.closeIgnoringExceptions(inputReader);
     inputReader=null;
     nextSent=null;
