@@ -2,13 +2,13 @@
   final Properties options=StringUtils.argsToProperties(args,argOptionDefs());
   if (options.containsKey("help")) {
     System.err.println(usage());
-    return;
+    System.exit(-1);
   }
   String encoding=options.getProperty("encoding","utf-8");
   boolean printSentenceLengths=PropertiesUtils.getBool(options,"printSentenceLengths",false);
   String xmlElementDelimiter=options.getProperty("xml",null);
   DocType docType=xmlElementDelimiter == null ? DocType.Plain : DocType.XML;
-  String sentenceDelimiter=options.containsKey("noTokenization") ? System.getProperty("line.separator") : null;
+  String sentenceDelimiter=options.containsKey("-noTokenization") ? System.getProperty("line.separator") : null;
   String tagDelimiter=options.getProperty("tag",null);
   String[] sentenceDelims=null;
   int numFactoryFlags=0;
@@ -23,7 +23,7 @@
   if (numFactoryFlags > 1) {
     System.err.println("Only one tokenizer flag allowed at a time: ");
     System.err.println("  -suppressEscaping, -tokenizerOptions, -printOriginalText, -whitespaceTokenization");
-    return;
+    System.exit(-1);
   }
   TokenizerFactory<? extends HasWord> tf=null;
   if (suppressEscaping) {
@@ -36,7 +36,7 @@
     tf=PTBTokenizer.factory(new CoreLabelTokenFactory(),"invertible=true");
   }
  else   if (whitespaceTokenization) {
-    List<String> whitespaceDelims=new ArrayList<>(Arrays.asList(DocumentPreprocessor.DEFAULT_SENTENCE_DELIMS));
+    List<String> whitespaceDelims=new ArrayList<String>(Arrays.asList(DocumentPreprocessor.DEFAULT_SENTENCE_DELIMS));
     whitespaceDelims.add(WhitespaceLexer.NEWLINE);
     sentenceDelims=whitespaceDelims.toArray(new String[whitespaceDelims.size()]);
   }
@@ -49,7 +49,7 @@
   PrintWriter pw=new PrintWriter(new OutputStreamWriter(System.out,encoding),true);
   for (  String file : files) {
     DocumentPreprocessor docPreprocessor;
-    if (file == null || file.isEmpty()) {
+    if (file == null || file.length() == 0) {
       docPreprocessor=new DocumentPreprocessor(new InputStreamReader(System.in,encoding));
     }
  else {
@@ -71,7 +71,7 @@
     for (    List<HasWord> sentence : docPreprocessor) {
       numSents++;
       if (printSentenceLengths) {
-        System.err.printf("Length: %d%n",sentence.size());
+        System.err.println("Length:\t" + sentence.size());
       }
       boolean printSpace=false;
       for (      HasWord word : sentence) {
@@ -94,5 +94,5 @@
     }
   }
   pw.close();
-  System.err.printf("Read in %d sentences.%n",numSents);
+  System.err.println("Read in " + numSents + " sentences.");
 }
