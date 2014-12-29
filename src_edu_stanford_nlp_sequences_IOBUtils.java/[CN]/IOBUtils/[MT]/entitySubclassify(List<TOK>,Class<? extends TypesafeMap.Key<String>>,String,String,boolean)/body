@@ -25,6 +25,9 @@ break;
 case "noprefix":
 how=6;
 break;
+case "bilou":
+how=7;
+break;
 default :
 throw new IllegalArgumentException("entitySubclassify: unknown style: " + style);
 }
@@ -48,7 +51,7 @@ String base;
 char prefix;
 if (cAns.length() > 2 && cAns.charAt(1) == '-') {
 base=cAns.substring(2,cAns.length());
-prefix=cAns.charAt(0);
+prefix=Character.toUpperCase(cAns.charAt(0));
 }
  else {
 base=cAns;
@@ -58,7 +61,7 @@ String pBase;
 char pPrefix;
 if (pAns.length() > 2 && pAns.charAt(1) == '-') {
 pBase=pAns.substring(2,pAns.length());
-pPrefix=pAns.charAt(0);
+pPrefix=Character.toUpperCase(pAns.charAt(0));
 }
  else {
 pBase=pAns;
@@ -68,14 +71,14 @@ String nBase;
 char nPrefix;
 if (nAns.length() > 2 && nAns.charAt(1) == '-') {
 nBase=nAns.substring(2,nAns.length());
-nPrefix=nAns.charAt(0);
+nPrefix=Character.toUpperCase(nAns.charAt(0));
 }
  else {
 nBase=nAns;
 nPrefix=' ';
 }
-boolean isStartAdjacentSame=base.equals(pBase) && (prefix == 'B' || prefix == 'S' || pPrefix == 'E' || pPrefix == 'S');
-boolean isEndAdjacentSame=base.equals(nBase) && (prefix == 'E' || prefix == 'S' || nPrefix == 'B' || pPrefix == 'S');
+boolean isStartAdjacentSame=base.equals(pBase) && (prefix == 'B' || prefix == 'S' || prefix == 'U' || pPrefix == 'E' || pPrefix == 'S' || pPrefix == 'U');
+boolean isEndAdjacentSame=base.equals(nBase) && (prefix == 'E' || prefix == 'L' || prefix == 'S' || prefix == 'U' || nPrefix == 'B' || nPrefix == 'S' || nPrefix == 'U');
 boolean isFirst=!base.equals(pBase) || isStartAdjacentSame;
 boolean isLast=!base.equals(nBase) || isEndAdjacentSame;
 String newAnswer=base;
@@ -122,6 +125,20 @@ newAnswer="S-" + base;
 }
  else if ((!isFirst) && isLast) {
 newAnswer="E-" + base;
+}
+ else if (isFirst && (!isLast)) {
+newAnswer="B-" + base;
+}
+ else {
+newAnswer="I-" + base;
+}
+break;
+case 7:
+if (isFirst && isLast) {
+newAnswer="U-" + base;
+}
+ else if ((!isFirst) && isLast) {
+newAnswer="L-" + base;
 }
  else if (isFirst && (!isLast)) {
 newAnswer="B-" + base;

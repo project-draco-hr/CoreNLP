@@ -19,7 +19,7 @@
     }
  else     if (gold.length() > 2 && gold.charAt(1) == '-') {
       goldEntity=gold.substring(2,gold.length());
-      goldPrefix=gold.charAt(0);
+      goldPrefix=Character.toUpperCase(gold.charAt(0));
     }
  else {
       goldEntity=gold;
@@ -31,17 +31,16 @@
     }
  else     if (guess.length() > 2 && guess.charAt(1) == '-') {
       guessEntity=guess.substring(2,guess.length());
-      guessPrefix=guess.charAt(0);
+      guessPrefix=Character.toUpperCase(guess.charAt(0));
     }
  else {
       guessEntity=guess;
       guessPrefix=' ';
     }
-    boolean goldIsStartAdjacentSame=goldEntity.equals(previousGoldEntity) && (goldPrefix == 'B' || goldPrefix == 'S' || previousGoldPrefix == 'E' || previousGoldPrefix == 'S');
+    boolean goldIsStartAdjacentSame=goldEntity.equals(previousGoldEntity) && (goldPrefix == 'B' || goldPrefix == 'S' || goldPrefix == 'U' || previousGoldPrefix == 'E' || previousGoldPrefix == 'S' || previousGoldPrefix == 'S');
     boolean newGold=!gold.equals(background) && (!goldEntity.equals(previousGoldEntity) || goldIsStartAdjacentSame);
-    boolean guessIsStartAdjacentSame=guessEntity.equals(previousGuessEntity) && (guessPrefix == 'B' || guessPrefix == 'S' || previousGuessPrefix == 'E' || previousGuessPrefix == 'S');
+    boolean guessIsStartAdjacentSame=guessEntity.equals(previousGuessEntity) && (guessPrefix == 'B' || guessPrefix == 'S' || guessPrefix == 'U' || previousGuessPrefix == 'E' || previousGuessPrefix == 'L' || previousGuessPrefix == 'S' || previousGuessPrefix == 'U');
     boolean newGuess=!guess.equals(background) && (!guessEntity.equals(previousGuessEntity) || guessIsStartAdjacentSame);
-    ;
     boolean goldEnded=!previousGold.equals(background) && (!goldEntity.equals(previousGoldEntity) || goldIsStartAdjacentSame);
     boolean guessEnded=!previousGuess.equals(background) && (!guessEntity.equals(previousGuessEntity) || guessIsStartAdjacentSame);
     if (goldEnded && !guessEnded) {
