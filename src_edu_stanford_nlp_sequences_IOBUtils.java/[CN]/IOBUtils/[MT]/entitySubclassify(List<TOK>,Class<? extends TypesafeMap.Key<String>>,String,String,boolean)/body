@@ -28,13 +28,13 @@ break;
 default :
 throw new IllegalArgumentException("entitySubclassify: unknown style: " + style);
 }
-List<CoreLabel> paddedTokens=new PaddedList<>(tokens,new CoreLabel());
+List<TOK> paddedTokens=new PaddedList<>(tokens,(TOK)new CoreLabel());
 int size=paddedTokens.size();
 String[] newAnswers=new String[size];
 for (int i=0; i < size; i++) {
-CoreLabel c=paddedTokens.get(i);
-CoreLabel p=paddedTokens.get(i - 1);
-CoreLabel n=paddedTokens.get(i + 1);
+TOK c=paddedTokens.get(i);
+TOK p=paddedTokens.get(i - 1);
+TOK n=paddedTokens.get(i + 1);
 String cAns=c.get(key);
 String pAns=p.get(key);
 if (pAns == null) {
@@ -137,7 +137,7 @@ newAnswer=newAnswer.intern();
 newAnswers[i]=newAnswer;
 }
 for (int i=0; i < size; i++) {
-CoreLabel c=tokens.get(i);
+TOK c=tokens.get(i);
 c.set(CoreAnnotations.AnswerAnnotation.class,newAnswers[i]);
 }
 }
