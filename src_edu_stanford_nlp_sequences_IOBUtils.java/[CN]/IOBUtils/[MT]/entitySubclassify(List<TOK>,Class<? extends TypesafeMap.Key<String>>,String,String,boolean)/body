@@ -77,10 +77,10 @@ nPrefix=Character.toUpperCase(nAns.charAt(0));
 nBase=nAns;
 nPrefix=' ';
 }
-boolean isStartAdjacentSame=base.equals(pBase) && (prefix == 'B' || prefix == 'S' || prefix == 'U' || pPrefix == 'E' || pPrefix == 'S' || pPrefix == 'U');
-boolean isEndAdjacentSame=base.equals(nBase) && (prefix == 'E' || prefix == 'L' || prefix == 'S' || prefix == 'U' || nPrefix == 'B' || nPrefix == 'S' || nPrefix == 'U');
-boolean isFirst=!base.equals(pBase) || isStartAdjacentSame;
-boolean isLast=!base.equals(nBase) || isEndAdjacentSame;
+boolean isStartAdjacentSame=isSameEntityBoundary(pBase,pPrefix,base,prefix);
+boolean isEndAdjacentSame=isSameEntityBoundary(base,prefix,nBase,nPrefix);
+boolean isFirst=isDifferentEntityBoundary(pBase,base) || isStartAdjacentSame;
+boolean isLast=isDifferentEntityBoundary(base,nBase) || isEndAdjacentSame;
 String newAnswer=base;
 if (!base.equals(backgroundLabel)) {
 switch (how) {

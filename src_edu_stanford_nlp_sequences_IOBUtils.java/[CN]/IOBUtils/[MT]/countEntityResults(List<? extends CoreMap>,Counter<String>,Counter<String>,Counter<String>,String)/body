@@ -37,43 +37,47 @@
       guessEntity=guess;
       guessPrefix=' ';
     }
-    boolean goldIsStartAdjacentSame=goldEntity.equals(previousGoldEntity) && (goldPrefix == 'B' || goldPrefix == 'S' || goldPrefix == 'U' || previousGoldPrefix == 'E' || previousGoldPrefix == 'S' || previousGoldPrefix == 'S');
-    boolean newGold=!gold.equals(background) && (!goldEntity.equals(previousGoldEntity) || goldIsStartAdjacentSame);
-    boolean guessIsStartAdjacentSame=guessEntity.equals(previousGuessEntity) && (guessPrefix == 'B' || guessPrefix == 'S' || guessPrefix == 'U' || previousGuessPrefix == 'E' || previousGuessPrefix == 'L' || previousGuessPrefix == 'S' || previousGuessPrefix == 'U');
-    boolean newGuess=!guess.equals(background) && (!guessEntity.equals(previousGuessEntity) || guessIsStartAdjacentSame);
-    boolean goldEnded=!previousGold.equals(background) && (!goldEntity.equals(previousGoldEntity) || goldIsStartAdjacentSame);
-    boolean guessEnded=!previousGuess.equals(background) && (!guessEntity.equals(previousGuessEntity) || guessIsStartAdjacentSame);
-    if (goldEnded && !guessEnded) {
-      entityFN.incrementCount(previousGoldEntity);
-      entityCorrect=gold.equals(background) && guess.equals(background);
-    }
-    if (goldEnded && guessEnded) {
-      if (entityCorrect) {
-        entityTP.incrementCount(previousGoldEntity);
+    boolean newGold=!gold.equals(background) && isEntityBoundary(previousGoldEntity,previousGoldPrefix,goldEntity,goldPrefix);
+    boolean newGuess=!guess.equals(background) && isEntityBoundary(previousGuessEntity,previousGuessPrefix,guessEntity,guessPrefix);
+    boolean goldEnded=!previousGold.equals(background) && isEntityBoundary(previousGoldEntity,previousGoldPrefix,goldEntity,goldPrefix);
+    boolean guessEnded=!previousGuess.equals(background) && isEntityBoundary(previousGuessEntity,previousGuessPrefix,guessEntity,guessPrefix);
+    if (goldEnded) {
+      if (guessEnded) {
+        if (entityCorrect) {
+          entityTP.incrementCount(previousGoldEntity);
+        }
+ else {
+          entityFN.incrementCount(previousGoldEntity);
+          entityFP.incrementCount(previousGuessEntity);
+        }
+        entityCorrect=goldEntity.equals(guessEntity);
       }
  else {
         entityFN.incrementCount(previousGoldEntity);
-        entityFP.incrementCount(previousGuessEntity);
+        entityCorrect=gold.equals(background) && guess.equals(background);
       }
-      entityCorrect=goldEntity.equals(guessEntity);
     }
-    if (!goldEnded && guessEnded) {
+ else     if (guessEnded) {
       entityCorrect=false;
       entityFP.incrementCount(previousGuessEntity);
     }
-    if (newGold && !newGuess) {
-      entityCorrect=false;
+    if (newGold) {
+      if (newGuess) {
+        entityCorrect=guessEntity.equals(goldEntity);
+      }
+ else {
+        entityCorrect=false;
+      }
     }
-    if (newGold && newGuess) {
-      entityCorrect=guessEntity.equals(goldEntity);
-    }
-    if (!newGold && newGuess) {
+ else     if (newGuess) {
       entityCorrect=false;
     }
     previousGold=gold;
     previousGuess=guess;
     previousGoldEntity=goldEntity;
     previousGuessEntity=guessEntity;
+    previousGoldPrefix=goldPrefix;
+    previousGuessPrefix=guessPrefix;
   }
   if (!previousGold.equals(background)) {
     if (entityCorrect) {
