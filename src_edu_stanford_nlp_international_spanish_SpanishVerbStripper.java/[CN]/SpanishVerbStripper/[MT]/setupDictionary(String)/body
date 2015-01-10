@@ -1,15 +1,15 @@
 {
   try {
     dict=new HashMap<String,String>();
-    BufferedReader br=IOUtils.readerFromString(dictPath);
-    for (String line; (line=br.readLine()) != null; ) {
+    BufferedReader br=new BufferedReader(new InputStreamReader(IOUtils.getInputStreamFromURLOrClasspathOrFileSystem(dictPath),"UTF-8"));
+    String line=br.readLine();
+    for (; line != null; line=br.readLine()) {
       String[] words=line.trim().split("\\s");
       if (words.length < 3) {
-        System.err.printf("SpanishVerbStripper: addings words to dict, missing word, ignoring line%n");
+        System.err.printf("SpanishVerbStripper: addings words to dict, missing word, ignoring line\n");
       }
       dict.put(words[0],words[2]);
     }
-    IOUtils.closeIgnoringExceptions(br);
   }
  catch (  UnsupportedEncodingException e) {
     e.printStackTrace();
