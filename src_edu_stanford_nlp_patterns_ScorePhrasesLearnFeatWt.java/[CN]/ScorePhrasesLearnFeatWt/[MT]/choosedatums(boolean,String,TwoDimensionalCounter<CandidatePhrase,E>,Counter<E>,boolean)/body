@@ -13,19 +13,21 @@
  else       distSimClustersOfPositive.incrementCount(constVars.getWordClassClusters().get(s.getPhrase()));
     }
   }
-  Collection<CandidatePhrase> allPossibleNegativePhrases=null;
+  Map<String,Collection<CandidatePhrase>> allPossibleNegativePhrases=null;
   if (constVars.expandPositivesWhenSampling || constVars.subsampleUnkAsNegUsingSim) {
-    allPossibleNegativePhrases=new HashSet<CandidatePhrase>();
-    allPossibleNegativePhrases.addAll(constVars.getOtherSemanticClassesWords());
-    allPossibleNegativePhrases.addAll(constVars.getStopWords());
-    allPossibleNegativePhrases.addAll(CandidatePhrase.convertStringPhrases(constVars.functionWords));
-    allPossibleNegativePhrases.addAll(CandidatePhrase.convertStringPhrases(constVars.getEnglishWords()));
+    allPossibleNegativePhrases=new HashMap<String,Collection<CandidatePhrase>>();
+    Collection<CandidatePhrase> negPhrases=new HashSet<CandidatePhrase>();
+    negPhrases.addAll(constVars.getOtherSemanticClassesWords());
+    negPhrases.addAll(constVars.getStopWords());
+    negPhrases.addAll(CandidatePhrase.convertStringPhrases(constVars.functionWords));
+    negPhrases.addAll(CandidatePhrase.convertStringPhrases(constVars.getEnglishWords()));
     for (    Entry<String,Counter<CandidatePhrase>> en : constVars.getLearnedWords().entrySet()) {
       if (!en.getKey().equals(answerLabel)) {
-        allPossibleNegativePhrases.addAll(en.getValue().keySet());
-        allPossibleNegativePhrases.addAll(constVars.getSeedLabelDictionary().get(en.getKey()));
+        negPhrases.addAll(en.getValue().keySet());
+        negPhrases.addAll(constVars.getSeedLabelDictionary().get(en.getKey()));
       }
     }
+    allPossibleNegativePhrases.put("NEGATIVE",negPhrases);
   }
   RVFDataset<String,ScorePhraseMeasures> dataset=new RVFDataset<String,ScorePhraseMeasures>();
   int numpos=0;

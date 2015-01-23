@@ -1,9 +1,18 @@
 {
   Counter<CandidatePhrase> sims=new ClassicCounter<CandidatePhrase>(candidatePhrases.size());
   for (  CandidatePhrase p : candidatePhrases) {
+    Map<String,double[]> simsAvgMaxAllLabels=similaritiesWithLabeledPhrases.get(p.getPhrase());
+    if (simsAvgMaxAllLabels == null)     simsAvgMaxAllLabels=new HashMap<String,double[]>();
+    double[] simsAvgMax=simsAvgMaxAllLabels.get(label);
+    if (simsAvgMax == null) {
+      simsAvgMax=new double[Similarities.values().length];
+      Arrays.fill(simsAvgMax,0);
+    }
     if (wordVectors.containsKey(p.getPhrase()) && (!ignoreWordRegex || !PatternFactory.ignoreWordRegex.matcher(p.getPhrase()).matches())) {
       double[] d1=wordVectors.get(p.getPhrase());
       double finalSimScore=0;
+      double allsum=0;
+      double max=Double.MIN_VALUE;
       boolean donotuse=false;
       for (      CandidatePhrase pos : otherPhrases) {
         if (p.equals(pos)) {
@@ -28,7 +37,18 @@
           cacheSimilarities.setCount(pair,sim);
         }
         if (sim > finalSimScore)         finalSimScore=sim;
+        allsum+=sim;
+        if (sim > max)         max=sim;
       }
+      double prevNumItems=simsAvgMax[Similarities.NUMITEMS.ordinal()];
+      double prevAvg=simsAvgMax[Similarities.AVGSIM.ordinal()];
+      double prevMax=simsAvgMax[Similarities.MAXSIM.ordinal()];
+      double newNumItems=prevNumItems + otherPhrases.size();
+      double newAvg=(prevAvg * prevNumItems + allsum) / (newNumItems);
+      double newMax=prevMax > max ? prevMax : max;
+      simsAvgMax[Similarities.NUMITEMS.ordinal()]=newNumItems;
+      simsAvgMax[Similarities.AVGSIM.ordinal()]=newAvg;
+      simsAvgMax[Similarities.MAXSIM.ordinal()]=newMax;
       if (!donotuse) {
         sims.setCount(p,finalSimScore);
       }
