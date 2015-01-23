@@ -1,5 +1,5 @@
 {
-  final int numTopSimilar=5;
+  final int numTopSimilar=3;
   Counter<CandidatePhrase> sims=new ClassicCounter<CandidatePhrase>(candidatePhrases.size());
   for (  CandidatePhrase p : candidatePhrases) {
     Map<String,double[]> simsAvgMaxAllLabels=similaritiesWithLabeledPhrases.get(p.getPhrase());
@@ -43,11 +43,13 @@
         if (sim > max)         max=sim;
       }
       double finalSimScore=0;
+      int numEl=0;
       while (topSimPhs.hasNext()) {
         finalSimScore+=topSimPhs.getPriority();
         topSimPhs.next();
+        numEl++;
       }
-      finalSimScore/=numTopSimilar;
+      finalSimScore/=numEl;
       double prevNumItems=simsAvgMax[Similarities.NUMITEMS.ordinal()];
       double prevAvg=simsAvgMax[Similarities.AVGSIM.ordinal()];
       double prevMax=simsAvgMax[Similarities.MAXSIM.ordinal()];
