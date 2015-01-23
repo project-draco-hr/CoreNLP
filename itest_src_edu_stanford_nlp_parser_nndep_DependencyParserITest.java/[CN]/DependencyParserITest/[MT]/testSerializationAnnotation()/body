@@ -1,0 +1,11 @@
+{
+  Properties props=new Properties();
+  props.setProperty("annotators","tokenize,ssplit,pos,lemma,depparse");
+  String text="Barack Obama, a Yale professor, is president.";
+  Annotation document=new Annotation(text);
+  StanfordCoreNLP pipeline=new StanfordCoreNLP(props);
+  pipeline.annotate(document);
+  File tempfile=IOUtils.writeObjectToTempFile(document.get(CoreAnnotations.SentencesAnnotation.class),"temp");
+  List<CoreMap> readSentences=IOUtils.readObjectFromFile(tempfile);
+  assertEquals(document.get(CoreAnnotations.SentencesAnnotation.class),readSentences);
+}
