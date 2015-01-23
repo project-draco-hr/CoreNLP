@@ -20,7 +20,10 @@
       }
  else       longestMatchingPhrase=tokenWordOrLemma;
       Set<E> pats=pat4Sent.get(i);
-      if (pats == null)       throw new RuntimeException("Why are patterns null for sentence " + sentId + " and token "+ i+ ". pat4Sent has token ids "+ pat4Sent.keySet()+ (constVars.batchProcessSents ? "" : ". The sentence is " + Data.sents.get(sentId))+ ". If you have switched batchProcessSents, recompute the patterns.");
+      if (pats == null) {
+        if (!constVars.patternType.equals(PatternFactory.PatternType.DEP))         throw new RuntimeException("Why are patterns null for sentence " + sentId + " and token "+ i+ "("+ tokens.get(i)+ "). pat4Sent has token ids "+ pat4Sent.keySet()+ (constVars.batchProcessSents ? "" : ". The sentence is " + Data.sents.get(sentId))+ ". If you have switched batchProcessSents, recompute the patterns.");
+        continue;
+      }
       if (PatternFactory.ignoreWordRegex.matcher(token.word()).matches())       continue;
       String tag=token.tag();
       if (constVars.allowedTagsInitials != null && constVars.allowedTagsInitials.containsKey(label)) {
