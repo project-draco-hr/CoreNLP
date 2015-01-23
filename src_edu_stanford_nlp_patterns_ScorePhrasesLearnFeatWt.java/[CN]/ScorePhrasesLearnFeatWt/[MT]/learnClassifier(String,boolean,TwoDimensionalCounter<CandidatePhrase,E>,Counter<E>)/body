@@ -23,6 +23,10 @@
     List<Pair<String,Double>> wtd=Counters.toDescendingMagnitudeSortedListWithCounts(weights);
     Redwood.log(ConstantsAndVariables.minimaldebug,"The weights are " + StringUtils.join(wtd.subList(0,Math.min(wtd.size(),600)),"\n"));
   }
+ else   if (scoreClassifierType.equals(ClassifierType.SVM)) {
+    SVMLightClassifierFactory<String,ScorePhraseMeasures> svmcf=new SVMLightClassifierFactory<String,ScorePhraseMeasures>();
+    classifier=svmcf.trainClassifier(dataset);
+  }
  else   throw new RuntimeException("cannot identify classifier " + scoreClassifierType);
   BufferedWriter w=new BufferedWriter(new FileWriter("tempscorestrainer.txt"));
   System.out.println("size of learned scores is " + phraseScoresRaw.size());
