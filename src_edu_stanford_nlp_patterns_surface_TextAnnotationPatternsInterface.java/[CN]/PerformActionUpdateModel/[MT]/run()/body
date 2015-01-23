@@ -1,0 +1,87 @@
+{
+  PrintWriter out=null;
+  String msg="";
+  BufferedReader in=null;
+  try {
+    in=new BufferedReader(new InputStreamReader(socket.getInputStream()));
+    out=new PrintWriter(socket.getOutputStream(),true);
+  }
+ catch (  IOException e) {
+    try {
+      socket.close();
+    }
+ catch (    IOException e1) {
+      e1.printStackTrace();
+    }
+    e.printStackTrace();
+  }
+  out.println("The possible actions are " + Arrays.toString(Actions.values()) + ".Enter a line with only a period to quit");
+  Actions nextlineAction=Actions.NONE;
+  while (true) {
+    try {
+      String line=in.readLine();
+      if (line == null || line.equals(".")) {
+        break;
+      }
+      String[] toks=line.split("###");
+      try {
+        nextlineAction=Actions.valueOf(toks[0].trim());
+      }
+ catch (      IllegalArgumentException e) {
+        System.out.println("read " + toks[0] + " and cannot understand");
+        msg="Did not understand " + toks[0] + ". POSSIBLE ACTIONS ARE: "+ Arrays.toString(Actions.values());
+      }
+      String input=toks.length == 2 ? toks[1] : null;
+switch (nextlineAction) {
+case NEWPHRASES:
+        msg=doNewPhrases(input);
+      break;
+case REMOVEPHRASES:
+    msg=doRemovePhrases(input);
+  break;
+case NEWANNOTATIONS:
+msg=doNewAnnotations(input);
+break;
+case PROCESSFILE:
+msg=processFile(input);
+break;
+case REMOVEANNOTATIONS:
+msg=doRemoveAnnotations(input);
+break;
+case SUGGEST:
+msg=this.suggestPhrases();
+break;
+case MATCHEDTOKENSBYALL:
+msg=this.getMatchedTokensByAllPhrases();
+break;
+case MATCHEDTOKENSBYPHRASE:
+msg=this.getMatchedTokensByPhrase(input);
+break;
+case ALLANNOTATIONS:
+msg=this.getAllAnnotations();
+break;
+case ANNOTATIONSBYSENT:
+msg=this.getAllAnnotations(input);
+break;
+case SUMMARY:
+msg=this.currentSummary();
+break;
+case NONE:
+break;
+case CLOSE:
+msg="bye!";
+break;
+}
+System.out.println("sending msg " + msg);
+}
+ catch (Exception e) {
+msg="ERROR " + e.toString().replaceAll("\n","\t") + ". REDO.";
+nextlineAction=Actions.NONE;
+log("Error handling client# " + clientNumber);
+e.printStackTrace();
+}
+ finally {
+out.println(msg);
+}
+}
+}
