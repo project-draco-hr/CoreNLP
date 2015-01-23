@@ -1,0 +1,125 @@
+{
+  TwoDimensionalCounter<Pair<String,String>,E> wordsandLemmaPatExtracted=new TwoDimensionalCounter<Pair<String,String>,E>();
+  if (constVars.doNotApplyPatterns) {
+    ConstantsAndVariables.DataSentsIterator sentsIter=new ConstantsAndVariables.DataSentsIterator(constVars.batchProcessSents);
+    while (sentsIter.hasNext()) {
+      Pair<Map<String,DataInstance>,File> sentsf=sentsIter.next();
+      this.statsWithoutApplyingPatterns(sentsf.first(),patternsForEachToken,patternsLearnedThisIter,wordsandLemmaPatExtracted);
+    }
+  }
+ else {
+    if (patternsLearnedThisIter.size() > 0) {
+      this.applyPats(patternsLearnedThisIter,label,wordsandLemmaPatExtracted,matchedTokensByPat);
+    }
+  }
+  if (computeProcDataFreq) {
+    if (!phraseScorer.wordFreqNorm.equals(Normalization.NONE)) {
+      Redwood.log(Redwood.DBG,"computing processed freq");
+      for (      Entry<String,Double> fq : Data.rawFreq.entrySet()) {
+        double in=fq.getValue();
+        if (phraseScorer.wordFreqNorm.equals(Normalization.SQRT))         in=Math.sqrt(in);
+ else         if (phraseScorer.wordFreqNorm.equals(Normalization.LOG))         in=1 + Math.log(in);
+ else         throw new RuntimeException("can't understand the normalization");
+        Data.processedDataFreq.setCount(fq.getKey(),in);
+      }
+    }
+ else     Data.processedDataFreq=Data.rawFreq;
+  }
+  if (constVars.wordScoring.equals(WordScoring.WEIGHTEDNORM)) {
+    for (    Pair<String,String> en : wordsandLemmaPatExtracted.firstKeySet()) {
+      if (!constVars.getOtherSemanticClassesWords().contains(en.first()) && !constVars.getOtherSemanticClassesWords().contains(en.second())) {
+        terms.addAll(en.first(),wordsandLemmaPatExtracted.getCounter(en));
+      }
+      wordsPatExtracted.addAll(en.first(),wordsandLemmaPatExtracted.getCounter(en));
+    }
+    removeKeys(terms,constVars.getStopWords());
+    Counter<String> phraseScores=phraseScorer.scorePhrases(label,terms,wordsPatExtracted,allSelectedPatterns,alreadyIdentifiedWords,false);
+    Set<String> ignoreWordsAll;
+    if (ignoreWords != null && !ignoreWords.isEmpty()) {
+      ignoreWordsAll=CollectionUtils.unionAsSet(ignoreWords,constVars.getOtherSemanticClassesWords());
+    }
+ else     ignoreWordsAll=constVars.getOtherSemanticClassesWords();
+    ignoreWordsAll.addAll(constVars.getLabelDictionary().get(label));
+    Counter<String> finalwords=chooseTopWords(phraseScores,terms,phraseScores,ignoreWordsAll,constVars.thresholdWordExtract);
+    scoreForAllWordsThisIteration.clear();
+    Counters.addInPlace(scoreForAllWordsThisIteration,phraseScores);
+    Redwood.log(ConstantsAndVariables.minimaldebug,"\n\n## Selected Words for " + label + " : "+ Counters.toSortedString(finalwords,finalwords.size(),"%1$s:%2$.2f","\t"));
+    if (constVars.outDir != null && !constVars.outDir.isEmpty()) {
+      String outputdir=constVars.outDir + "/" + identifier+ "/"+ label;
+      IOUtils.ensureDir(new File(outputdir));
+      TwoDimensionalCounter<String,String> reasonForWords=new TwoDimensionalCounter<String,String>();
+      for (      String word : finalwords.keySet()) {
+        for (        E l : wordsPatExtracted.getCounter(word).keySet()) {
+          for (          String w2 : patternsAndWords4Label.getCounter(l)) {
+            reasonForWords.incrementCount(word,w2);
+          }
+        }
+      }
+      Redwood.log(ConstantsAndVariables.minimaldebug,"Saving output in " + outputdir);
+      String filename=outputdir + "/words.json";
+      JsonArrayBuilder obj=Json.createArrayBuilder();
+      if (writtenInJustification.containsKey(label) && writtenInJustification.get(label)) {
+        JsonReader jsonReader=Json.createReader(new BufferedInputStream(new FileInputStream(filename)));
+        JsonArray objarr=jsonReader.readArray();
+        for (        JsonValue o : objarr)         obj.add(o);
+        jsonReader.close();
+      }
+      JsonArrayBuilder objThisIter=Json.createArrayBuilder();
+      for (      String w : reasonForWords.firstKeySet()) {
+        JsonObjectBuilder objinner=Json.createObjectBuilder();
+        JsonArrayBuilder l=Json.createArrayBuilder();
+        for (        String w2 : reasonForWords.getCounter(w).keySet()) {
+          l.add(w2);
+        }
+        JsonArrayBuilder pats=Json.createArrayBuilder();
+        for (        E p : wordsPatExtracted.getCounter(w)) {
+          pats.add(p.toStringSimple());
+        }
+        objinner.add("reasonwords",l);
+        objinner.add("patterns",pats);
+        objinner.add("score",finalwords.getCount(w));
+        objinner.add("entity",w);
+        objThisIter.add(objinner.build());
+      }
+      obj.add(objThisIter);
+      IOUtils.writeStringToFile(obj.build().toString(),filename,"utf8");
+      writtenInJustification.put(label,true);
+    }
+    if (constVars.justify) {
+      Redwood.log(Redwood.DBG,"\nJustification for phrases:\n");
+      for (      String word : finalwords.keySet()) {
+        Redwood.log(Redwood.DBG,"Phrase " + word + " extracted because of patterns: \t"+ Counters.toSortedString(wordsPatExtracted.getCounter(word),wordsPatExtracted.getCounter(word).size(),"%1$s:%2$f","\n"));
+      }
+    }
+    return finalwords;
+  }
+ else   if (constVars.wordScoring.equals(WordScoring.BPB)) {
+    Counters.addInPlace(terms,wordsPatExtracted);
+    Counter<String> maxPatWeightTerms=new ClassicCounter<String>();
+    Map<String,E> wordMaxPat=new HashMap<String,E>();
+    for (    Entry<String,ClassicCounter<E>> en : terms.entrySet()) {
+      Counter<E> weights=new ClassicCounter<E>();
+      for (      E k : en.getValue().keySet())       weights.setCount(k,patternsLearnedThisIter.getCount(k));
+      maxPatWeightTerms.setCount(en.getKey(),Counters.max(weights));
+      wordMaxPat.put(en.getKey(),Counters.argmax(weights));
+    }
+    Counters.removeKeys(maxPatWeightTerms,alreadyIdentifiedWords);
+    double maxvalue=Counters.max(maxPatWeightTerms);
+    Set<String> words=Counters.keysAbove(maxPatWeightTerms,maxvalue - 1e-10);
+    String bestw=null;
+    if (words.size() > 1) {
+      double max=Double.NEGATIVE_INFINITY;
+      for (      String w : words) {
+        if (terms.getCount(w,wordMaxPat.get(w)) > max) {
+          max=terms.getCount(w,wordMaxPat.get(w));
+          bestw=w;
+        }
+      }
+    }
+ else     if (words.size() == 1)     bestw=words.iterator().next();
+ else     return new ClassicCounter<String>();
+    Redwood.log(ConstantsAndVariables.minimaldebug,"Selected Words: " + bestw);
+    return Counters.asCounter(Arrays.asList(bestw));
+  }
+ else   throw new RuntimeException("wordscoring " + constVars.wordScoring + " not identified");
+}

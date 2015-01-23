@@ -1,0 +1,18 @@
+{
+  for (  Entry<String,DataInstance> sent : sents.entrySet()) {
+    writer.write("\n\n" + sent.getKey() + "\n");
+    for (    CoreLabel s : sent.getValue().getTokens()) {
+      writer.write(s.word() + "\t");
+      Set<String> labels=new HashSet<String>();
+      for (      Entry<String,Class<? extends TypesafeMap.Key<String>>> as : constVars.getAnswerClass().entrySet()) {
+        String label=as.getKey();
+        if (s.get(as.getValue()).equals(label)) {
+          labels.add(label);
+        }
+      }
+      if (labels.isEmpty())       writer.write("O\n");
+ else       writer.write(StringUtils.join(labels,",") + "\n");
+    }
+    writer.write("\n");
+  }
+}
