@@ -48,8 +48,7 @@
     }
     executor.shutdown();
   }
-  Set<CandidatePhrase> knownPositivePhrases=CollectionUtils.unionAsSet(constVars.getLearnedWords().get(answerLabel).keySet(),constVars.getSeedLabelDictionary().get(answerLabel));
-  allPositivePhrases.addAll(knownPositivePhrases);
+  allPositivePhrases.addAll(constVars.getLearnedWords().get(answerLabel).keySet());
   if (constVars.expandPositivesWhenSampling) {
     Counters.retainTop(allCloseToPositivePhrases,(int)(allCloseToPositivePhrases.size() * constVars.subSampleUnkAsPosUsingSimPercentage));
     Redwood.log("Expanding positives by adding " + allCloseToPositivePhrases + " phrases");

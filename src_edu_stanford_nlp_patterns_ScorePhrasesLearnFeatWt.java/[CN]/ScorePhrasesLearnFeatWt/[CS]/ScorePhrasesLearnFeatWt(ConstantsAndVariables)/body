@@ -3,10 +3,10 @@
   if (constvar.useWordVectorsToComputeSim) {
     wordVectors=new HashMap<String,double[]>();
     for (    String line : IOUtils.readLines(constVars.wordVectorFile)) {
-      String[] tok=line.split("\t");
+      String[] tok=line.split("\\s+");
       String word=tok[0];
       CandidatePhrase p=CandidatePhrase.createOrGet(word);
-      if (Data.rawFreq.containsKey(p)) {
+      if (Data.rawFreq.containsKey(p) || constvar.getStopWords().contains(p) || constvar.getEnglishWords().contains(word)|| constvar.hasSeedWordOrOtherSem(p)) {
         double[] d=new double[tok.length - 1];
         for (int i=1; i < tok.length; i++) {
           d[i - 1]=Double.valueOf(tok[i]);
