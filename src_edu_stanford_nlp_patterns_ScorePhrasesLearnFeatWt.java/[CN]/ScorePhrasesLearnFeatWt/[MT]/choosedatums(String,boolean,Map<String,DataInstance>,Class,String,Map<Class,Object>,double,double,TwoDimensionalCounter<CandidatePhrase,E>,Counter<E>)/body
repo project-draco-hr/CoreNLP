@@ -1,0 +1,80 @@
+{
+  Random r=new Random(10);
+  Random rneg=new Random(10);
+  RVFDataset<String,ScorePhraseMeasures> dataset=new RVFDataset<String,ScorePhraseMeasures>();
+  int numpos=0, numneg=0;
+  List<Pair<String,Integer>> chosen=new ArrayList<Pair<String,Integer>>();
+  for (  Entry<String,DataInstance> en : sents.entrySet()) {
+    List<CoreLabel> value=en.getValue().getTokens();
+    CoreLabel[] sent=value.toArray(new CoreLabel[value.size()]);
+    for (int i=0; i < sent.length; i++) {
+      CoreLabel l=sent[i];
+      if (l.get(answerClass).equals(answerLabel)) {
+        CandidatePhrase candidate=l.get(PatternsAnnotations.LongestMatchedPhraseForEachLabel.class).get(label);
+        if (candidate == null) {
+          System.out.println("candidate null for " + l.word() + " and longest matching"+ l.get(PatternsAnnotations.LongestMatchedPhraseForEachLabel.class)+ " and hash amp is "+ CandidatePhrase.candidatePhraseMap);
+          throw new RuntimeException("");
+        }
+        numpos++;
+        chosen.add(new Pair<String,Integer>(en.getKey(),i));
+        Counter<ScorePhraseMeasures> feat=null;
+        if (forLearningPattern) {
+          feat=getPhraseFeaturesForPattern(label,candidate);
+        }
+ else {
+          feat=getFeatures(label,candidate,wordsPatExtracted.getCounter(candidate),allSelectedPatterns);
+        }
+        RVFDatum<String,ScorePhraseMeasures> datum=new RVFDatum<String,ScorePhraseMeasures>(feat,"true");
+        dataset.add(datum);
+      }
+    }
+    for (int i=0; i < sent.length; i++) {
+      CoreLabel l=sent[i];
+      if (numneg >= numpos)       break;
+      if (l.get(answerClass).equals(answerLabel)) {
+        continue;
+      }
+      boolean ignoreclass=false;
+      for (      Class cl : otherIgnoreClasses.keySet()) {
+        if ((Boolean)l.get(cl)) {
+          ignoreclass=true;
+        }
+      }
+      CandidatePhrase candidate=null;
+      boolean negative=false;
+      Map<String,CandidatePhrase> longestMatching=l.get(PatternsAnnotations.LongestMatchedPhraseForEachLabel.class);
+      for (      Map.Entry<String,CandidatePhrase> lo : longestMatching.entrySet()) {
+        if (!lo.getKey().equals(label) && lo.getValue() != null) {
+          negative=true;
+          candidate=lo.getValue();
+        }
+      }
+      if (!negative && ignoreclass) {
+      }
+      if (negative && getRandomBoolean(rneg,perSelectNeg)) {
+        numneg++;
+      }
+ else       if (getRandomBoolean(r,perSelectRand)) {
+        candidate=CandidatePhrase.createOrGet(l.word());
+        numneg++;
+      }
+ else {
+        continue;
+      }
+      chosen.add(new Pair<String,Integer>(en.getKey(),i));
+      Counter<ScorePhraseMeasures> feat=null;
+      if (forLearningPattern) {
+        feat=getPhraseFeaturesForPattern(label,candidate);
+      }
+ else {
+        feat=getFeatures(label,candidate,wordsPatExtracted.getCounter(candidate),allSelectedPatterns);
+      }
+      RVFDatum<String,ScorePhraseMeasures> datum=new RVFDatum<String,ScorePhraseMeasures>(feat,"false");
+      dataset.add(datum);
+    }
+  }
+  System.out.println("size of the dataset is ");
+  dataset.summaryStatistics();
+  System.out.println("number of positive datums:  " + numpos + " and number of negative datums: "+ numneg);
+  return dataset;
+}

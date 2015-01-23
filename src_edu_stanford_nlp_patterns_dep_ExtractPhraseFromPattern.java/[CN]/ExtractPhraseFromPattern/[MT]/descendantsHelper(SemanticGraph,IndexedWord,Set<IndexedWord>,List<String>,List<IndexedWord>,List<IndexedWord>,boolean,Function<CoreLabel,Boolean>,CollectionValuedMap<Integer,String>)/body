@@ -25,7 +25,10 @@
       }
     }
     if (dontuse == false) {
-      feat.incrementCount("REL-" + rel.getShortName());
+      if (!feat.containsKey(curr.index())) {
+        feat.put(curr.index(),new ArrayList<String>());
+      }
+      GetPatternsFromDataMultiClass.getFeatures(g,curr,false,feat.get(curr.index()),rel);
       descendantsHelper(g,child,descendantSet,allCutOffRels,doNotAddThese,seenNodes,ignoreCommonTags,acceptWord,feat);
     }
   }
