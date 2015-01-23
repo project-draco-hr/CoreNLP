@@ -13,6 +13,19 @@
  else       distSimClustersOfPositive.incrementCount(constVars.getWordClassClusters().get(s.getPhrase()));
     }
   }
+  Collection<CandidatePhrase> allPossibleNegativePhrases=null;
+  if (constVars.expandPositivesWhenSampling || constVars.subsampleUnkAsNegUsingSim) {
+    allPossibleNegativePhrases=new HashSet<CandidatePhrase>();
+    allPossibleNegativePhrases.addAll(constVars.getOtherSemanticClassesWords());
+    allPossibleNegativePhrases.addAll(constVars.getStopWords());
+    allPossibleNegativePhrases.addAll(CandidatePhrase.convertStringPhrases(constVars.getEnglishWords()));
+    for (    Entry<String,Counter<CandidatePhrase>> en : constVars.getLearnedWords().entrySet()) {
+      if (!en.getKey().equals(answerLabel)) {
+        allPossibleNegativePhrases.addAll(en.getValue().keySet());
+        allPossibleNegativePhrases.addAll(constVars.getSeedLabelDictionary().get(en.getKey()));
+      }
+    }
+  }
   RVFDataset<String,ScorePhraseMeasures> dataset=new RVFDataset<String,ScorePhraseMeasures>();
   int numpos=0;
   Set<CandidatePhrase> allNegativePhrases=new HashSet<CandidatePhrase>();
@@ -29,7 +42,7 @@
     ExecutorService executor=Executors.newFixedThreadPool(constVars.numThreads);
     List<Future<Quadruple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>>>> list=new ArrayList<Future<Quadruple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>>>>();
     for (    List<String> keys : threadedSentIds) {
-      Callable<Quadruple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>>> task=new ChooseDatumsThread(answerLabel,sents,keys,forLearningPattern,wordsPatExtracted,allSelectedPatterns,distSimClustersOfPositive);
+      Callable<Quadruple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>>> task=new ChooseDatumsThread(answerLabel,sents,keys,forLearningPattern,wordsPatExtracted,allSelectedPatterns,distSimClustersOfPositive,allPossibleNegativePhrases);
       Future<Quadruple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>>> submit=executor.submit(task);
       list.add(submit);
     }
@@ -75,7 +88,7 @@
   Redwood.log(Redwood.DBG,"Number of pure negative phrases is " + allNegativePhrases.size());
   Redwood.log(Redwood.DBG,"Number of unknown phrases is " + allUnknownPhrases.size());
   if (constVars.subsampleUnkAsNegUsingSim) {
-    Set<CandidatePhrase> chosenUnknown=chooseUnknownAsNegatives(allUnknownPhrases,answerLabel,constVars.subSampleUnkAsNegUsingSimPercentage,allPositivePhrases,logFile);
+    Set<CandidatePhrase> chosenUnknown=chooseUnknownAsNegatives(allUnknownPhrases,answerLabel,constVars.subSampleUnkAsNegUsingSimPercentage,allPositivePhrases,allPossibleNegativePhrases,logFile);
     Redwood.log(Redwood.DBG,"Choosing " + chosenUnknown.size() + " unknowns as negative based to their similarity to the positive phrases");
     allNegativePhrases.addAll(chosenUnknown);
   }

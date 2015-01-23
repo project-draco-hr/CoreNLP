@@ -5,7 +5,7 @@
   ExecutorService executor=Executors.newFixedThreadPool(constVars.numThreads);
   List<Future<Counter<CandidatePhrase>>> list=new ArrayList<Future<Counter<CandidatePhrase>>>();
   for (  List<CandidatePhrase> keys : threadedCandidates) {
-    Callable<Counter<CandidatePhrase>> task=new ComputeSim(label,keys,allMaxSim,positivePhrases);
+    Callable<Counter<CandidatePhrase>> task=new ComputeSim(label,keys,allMaxSim,positivePhrases,knownNegativePhrases);
     Future<Counter<CandidatePhrase>> submit=executor.submit(task);
     list.add(submit);
   }
