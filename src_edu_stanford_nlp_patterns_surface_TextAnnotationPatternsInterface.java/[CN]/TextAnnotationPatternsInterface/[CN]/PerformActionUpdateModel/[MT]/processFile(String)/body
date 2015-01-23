@@ -8,16 +8,25 @@
   }
   System.out.println("file value is " + objarr.getString("file"));
   String outputfile=props.getProperty("file") + "_processed";
-  if (!props.containsKey("fileFormat"))   props.setProperty("fileFormat","txt");
-  if (!props.containsKey("learn"))   props.setProperty("learn","false");
-  if (!props.containsKey("patternType"))   props.setProperty("patternType","SURFACE");
   if (!props.containsKey("columnOutputFile"))   props.setProperty("columnOutputFile",outputfile);
-  props.setProperty("preserveSentenceSequence","true");
-  if (!props.containsKey("debug"))   props.setProperty("debug","4");
-  if (!props.containsKey("thresholdWordExtract"))   props.setProperty("thresholdWordExtract","0.00000000000000001");
-  if (!props.containsKey("thresholdNumPatternsApplied"))   props.setProperty("thresholdNumPatternsApplied","1");
-  if (!props.containsKey("writeMatchedTokensIdsForEachPhrase"))   props.setProperty("writeMatchedTokensIdsForEachPhrase","true");
-  model=GetPatternsFromDataMultiClass.<SurfacePattern>run(props);
+  setProperties(props);
+  this.props=props;
+  seedWords=GetPatternsFromDataMultiClass.readSeedWords(props);
+  Pair<Map<String,DataInstance>,Map<String,DataInstance>> sentsPair=GetPatternsFromDataMultiClass.processSents(props,seedWords.keySet());
+  Data.sents=sentsPair.first();
+  int i=1;
+  for (  String label : seedWords.keySet()) {
+    String ansclstr="edu.stanford.nlp.patterns.PatternsAnnotations$PatternLabel" + i;
+    Class<? extends TypesafeMap.Key<String>> mcCl=(Class<? extends TypesafeMap.Key<String>>)Class.forName(ansclstr);
+    machineAnswerClasses.put(label,mcCl);
+    String humanansclstr="edu.stanford.nlp.patterns.PatternsAnnotations$PatternHumanLabel" + i;
+    humanLabelClasses.put(label,(Class<? extends TypesafeMap.Key<String>>)Class.forName(humanansclstr));
+    i++;
+  }
+  ConstantsAndVariables<SurfacePattern> constVars=new ConstantsAndVariables<SurfacePattern>(props,seedWords.keySet(),machineAnswerClasses);
+  for (  String label : seedWords.keySet()) {
+    GetPatternsFromDataMultiClass.runLabelSeedWords(Data.sents,humanLabelClasses.get(label),label,seedWords.get(label),constVars,true);
+  }
   System.out.println("written the output to " + outputfile);
   return "SUCCESS";
 }
