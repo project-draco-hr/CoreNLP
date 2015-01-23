@@ -28,35 +28,34 @@
         RVFDatum<String,ScorePhraseMeasures> datum=new RVFDatum<String,ScorePhraseMeasures>(feat,"true");
         dataset.add(datum);
       }
-    }
-    for (int i=0; i < sent.length; i++) {
-      CoreLabel l=sent[i];
-      if (allNegativePhrases.size() >= numpos)       break;
-      if (l.get(answerClass).equals(answerLabel)) {
-        continue;
-      }
-      boolean ignoreclass=false;
-      for (      Class cl : otherIgnoreClasses.keySet()) {
-        if ((Boolean)l.get(cl)) {
-          ignoreclass=true;
+ else {
+        boolean ignoreclass=false;
+        for (        Class cl : otherIgnoreClasses.keySet()) {
+          if ((Boolean)l.get(cl)) {
+            ignoreclass=true;
+          }
         }
-      }
-      CandidatePhrase candidate=null;
-      boolean negative=false;
-      Map<String,CandidatePhrase> longestMatching=l.get(PatternsAnnotations.LongestMatchedPhraseForEachLabel.class);
-      for (      Map.Entry<String,CandidatePhrase> lo : longestMatching.entrySet()) {
-        if (!lo.getKey().equals(label) && lo.getValue() != null) {
-          negative=true;
-          candidate=lo.getValue();
+        CandidatePhrase candidate=null;
+        boolean negative=false;
+        boolean add=false;
+        Map<String,CandidatePhrase> longestMatching=l.get(PatternsAnnotations.LongestMatchedPhraseForEachLabel.class);
+        for (        Map.Entry<String,CandidatePhrase> lo : longestMatching.entrySet()) {
+          if (!lo.getKey().equals(label) && lo.getValue() != null) {
+            negative=true;
+            add=true;
+            candidate=lo.getValue();
+          }
+        }
+        if (!negative && ignoreclass) {
+          candidate=longestMatching.get("OTHERSEM");
+          add=true;
+        }
+        if (add && rneg.nextDouble() < perSelectNeg) {
           allNegativePhrases.add(candidate);
         }
       }
-      if (!negative && ignoreclass) {
-        candidate=longestMatching.get("OTHERSEM");
-        allNegativePhrases.add(candidate);
-      }
     }
-    allNegativePhrases.addAll(this.chooseNegativePhrases(en.getValue(),r,perSelectRand,constVars.getAnswerClass().get(label),label,Math.max(0,(numpos - allNegativePhrases.size()))));
+    allNegativePhrases.addAll(this.chooseNegativePhrases(en.getValue(),r,perSelectRand,constVars.getAnswerClass().get(label),label,Math.max(0,Integer.MAX_VALUE)));
   }
   for (  CandidatePhrase negative : allNegativePhrases) {
     Counter<ScorePhraseMeasures> feat;
