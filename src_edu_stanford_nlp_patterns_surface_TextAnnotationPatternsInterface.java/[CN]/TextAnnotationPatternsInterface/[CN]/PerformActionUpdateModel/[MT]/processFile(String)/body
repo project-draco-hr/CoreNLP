@@ -1,13 +1,22 @@
 {
-  String outputfile=file + "_processed";
+  JsonReader jsonReader=Json.createReader(new StringReader(line));
+  JsonObject objarr=jsonReader.readObject();
+  jsonReader.close();
   Properties props=new Properties();
-  props.setProperty("file",file);
-  props.setProperty("fileFormat","txt");
-  props.setProperty("learn","false");
-  props.setProperty("labelUsingSeedSets","false");
-  props.setProperty("patternType","SURFACE");
-  props.setProperty("columnOutputFile",outputfile);
+  for (  Map.Entry<String,JsonValue> o : objarr.entrySet()) {
+    props.setProperty(o.getKey(),objarr.getString(o.getKey()));
+  }
+  System.out.println("file value is " + objarr.getString("file"));
+  String outputfile=props.getProperty("file") + "_processed";
+  if (!props.containsKey("fileFormat"))   props.setProperty("fileFormat","txt");
+  if (!props.containsKey("learn"))   props.setProperty("learn","false");
+  if (!props.containsKey("patternType"))   props.setProperty("patternType","SURFACE");
+  if (!props.containsKey("columnOutputFile"))   props.setProperty("columnOutputFile",outputfile);
   props.setProperty("preserveSentenceSequence","true");
+  if (!props.containsKey("debug"))   props.setProperty("debug","4");
+  if (!props.containsKey("thresholdWordExtract"))   props.setProperty("thresholdWordExtract","0.00000000000000001");
+  if (!props.containsKey("thresholdNumPatternsApplied"))   props.setProperty("thresholdNumPatternsApplied","1");
   model=GetPatternsFromDataMultiClass.<SurfacePattern>run(props);
   System.out.println("written the output to " + outputfile);
+  return "SUCCESS";
 }

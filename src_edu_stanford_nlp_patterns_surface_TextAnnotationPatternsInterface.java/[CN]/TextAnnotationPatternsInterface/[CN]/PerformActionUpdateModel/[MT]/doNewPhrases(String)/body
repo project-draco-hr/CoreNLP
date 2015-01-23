@@ -1,3 +1,18 @@
 {
   System.out.println("adding new phrases");
+  JsonReader jsonReader=Json.createReader(new StringReader(line));
+  JsonObject objarr=jsonReader.readObject();
+  for (  Map.Entry<String,JsonValue> o : objarr.entrySet()) {
+    String label=o.getKey();
+    Set<String> seed=new HashSet<String>();
+    JsonArray arr=objarr.getJsonArray(o.getKey());
+    for (int i=0; i < arr.size(); i++) {
+      String seedw=arr.getString(i);
+      System.out.println("adding " + seedw + " to seed ");
+      seed.add(seedw);
+    }
+    model.constVars.addSeedWords(label,seed);
+    model.labelWords(label,Data.sents,seed);
+  }
+  System.out.println("added new phrases");
 }

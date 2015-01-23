@@ -7,11 +7,12 @@
     }
     String w=termIter.next();
     if (newdt.getCount(w) < thresholdWordExtract) {
+      Redwood.log(ConstantsAndVariables.extremedebug,"not adding word " + w + " and any later words because the score "+ newdt.getCount(w)+ " is less than the threshold of  "+ thresholdWordExtract);
       break;
     }
     assert(newdt.getCount(w) != Double.POSITIVE_INFINITY);
     if (useThresholdNumPatternsForTheseWords.containsKey(w) && numNonRedundantPatterns(terms,w) < constVars.thresholdNumPatternsApplied) {
-      Redwood.log("extremePatDebug","Not adding " + w + " because the number of non redundant patterns are below threshold: "+ terms.getCounter(w).keySet());
+      Redwood.log("extremePatDebug","Not adding " + w + " because the number of non redundant patterns are below threshold of "+ constVars.thresholdNumPatternsApplied+ ":"+ terms.getCounter(w).keySet());
       continue;
     }
     String matchedFuzzy=null;

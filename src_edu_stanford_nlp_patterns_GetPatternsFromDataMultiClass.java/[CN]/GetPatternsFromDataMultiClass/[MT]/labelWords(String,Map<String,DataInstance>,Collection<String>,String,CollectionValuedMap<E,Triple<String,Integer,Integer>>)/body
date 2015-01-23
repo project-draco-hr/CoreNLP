@@ -1,6 +1,7 @@
 {
   Date startTime=new Date();
   Redwood.log(Redwood.DBG,"Labeling " + sents.size() + " sentences with "+ identifiedWords.size()+ " phrases for label "+ label);
+  int numTokensLabeled=0;
   CollectionValuedMap<String,Integer> tokensMatchedPatterns=null;
   if (constVars.restrictToMatched) {
     tokensMatchedPatterns=new CollectionValuedMap<String,Integer>();
@@ -52,6 +53,7 @@
             if (constVars.usePatternResultAsLabel) {
               sentenceChanged=true;
               l.set(constVars.getAnswerClass().get(label),label);
+              numTokensLabeled++;
               CollectionValuedMap<String,String> matched=new CollectionValuedMap<String,String>();
               matched.add(label,phStr);
               if (!l.containsKey(PatternsAnnotations.MatchedPhrases.class))               l.set(PatternsAnnotations.MatchedPhrases.class,matched);
@@ -83,5 +85,5 @@
     IOUtils.writeObjectToFile(sents,outFile);
   }
   Date endTime=new Date();
-  Redwood.log(Redwood.DBG,"Done labeling provided sents in " + elapsedTime(startTime,endTime));
+  Redwood.log(Redwood.DBG,"Done labeling provided sents in " + elapsedTime(startTime,endTime) + ". Total # of tokens labeled: "+ numTokensLabeled);
 }

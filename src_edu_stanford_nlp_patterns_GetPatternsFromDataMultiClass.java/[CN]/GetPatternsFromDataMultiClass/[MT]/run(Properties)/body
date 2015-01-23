@@ -145,12 +145,12 @@
   boolean savePatternsWordsDir=Boolean.parseBoolean(props.getProperty("savePatternsWordsDir"));
   if (savePatternsWordsDir) {
     String patternsWordsDir=props.getProperty("patternsWordsDir");
-    for (    String label : model.constVars.getLabelDictionary().keySet()) {
+    for (    String label : model.constVars.getSeedLabelDictionary().keySet()) {
       IOUtils.ensureDir(new File(patternsWordsDir + "/" + label));
       Counter<E> pats=model.getLearnedPatterns(label);
       IOUtils.writeObjectToFile(pats,patternsWordsDir + "/" + label+ "/patterns.ser");
       BufferedWriter w=new BufferedWriter(new FileWriter(patternsWordsDir + "/" + label+ "/phrases.txt"));
-      model.writeWordsToFile(model.getLearnedWords(label),w);
+      model.writeWordsToFile(model.constVars.getLearnedWords(label),w);
       w.close();
     }
   }

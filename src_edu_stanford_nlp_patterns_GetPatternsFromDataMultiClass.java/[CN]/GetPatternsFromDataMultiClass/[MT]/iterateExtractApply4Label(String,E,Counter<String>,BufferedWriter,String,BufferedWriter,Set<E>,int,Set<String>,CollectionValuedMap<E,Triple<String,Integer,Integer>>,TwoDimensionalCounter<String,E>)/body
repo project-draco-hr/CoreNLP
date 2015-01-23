@@ -2,8 +2,8 @@
   if (!learnedPatterns.containsKey(label)) {
     learnedPatterns.put(label,new ClassicCounter<E>());
   }
-  if (!learnedWords.containsKey(label)) {
-    learnedWords.put(label,new ClassicCounter<String>());
+  if (!constVars.getLearnedWords().containsKey(label)) {
+    constVars.getLearnedWords().put(label,new ClassicCounter<String>());
   }
   Counter<String> identifiedWords=new ClassicCounter<String>();
   Counter<E> patterns=new ClassicCounter<E>();
@@ -16,7 +16,7 @@
     identifiedWords.addAll(scorePhrases.learnNewPhrases(label,this.patsForEachToken,patterns,learnedPatterns.get(label),matchedTokensByPat,scoreForAllWordsThisIteration,terms,wordsPatExtracted.get(label),this.patternsandWords.get(label),constVars.identifier,ignoreWords));
     if (identifiedWords.size() > 0) {
       if (constVars.usePatternResultAsLabel) {
-        if (constVars.getLabelDictionary().containsKey(label)) {
+        if (constVars.getSeedLabelDictionary().containsKey(label)) {
           ConstantsAndVariables.DataSentsIterator sentsIter=new ConstantsAndVariables.DataSentsIterator(constVars.batchProcessSents);
           while (sentsIter.hasNext()) {
             Pair<Map<String,DataInstance>,File> sentsf=sentsIter.next();
@@ -26,7 +26,7 @@
           }
         }
  else         throw new RuntimeException("why is the answer label null?");
-        learnedWords.get(label).addAll(identifiedWords);
+        constVars.getLearnedWords().get(label).addAll(identifiedWords);
       }
       if (wordsOutput != null) {
         wordsOutput.write("\n" + Counters.toSortedString(identifiedWords,identifiedWords.size(),"%1$s","\n"));
@@ -34,7 +34,7 @@
       }
     }
     if (patterns.size() == 0 && identifiedWords.size() == 0) {
-      if (learnedWords.get(label).size() >= constVars.maxExtractNumWords) {
+      if (constVars.getLearnedWords().get(label).size() >= constVars.maxExtractNumWords) {
         System.out.println("Ending because no new words identified and total words learned till now >= max words " + constVars.maxExtractNumWords);
         break;
       }
