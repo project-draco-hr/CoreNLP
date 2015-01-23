@@ -26,6 +26,11 @@
         doRemovePhrases(input);
         nextlineAction=Actions.NONE;
       }
+ else       if (nextlineAction.equals(Actions.PROCESSFILE)) {
+        processFile(input);
+        msg="DONEPROCESS";
+        nextlineAction=Actions.NONE;
+      }
  else {
         try {
           nextlineAction=Actions.valueOf(input.trim());
@@ -38,12 +43,39 @@
  else         if (nextlineAction.equals(Actions.NEWANNOTATIONS))         msg="Please write the new annotations to add in the next line ";
  else         if (nextlineAction.equals(Actions.REMOVEPHRASES))         msg="Please write the  phrases to remove in the next line ";
  else         if (nextlineAction.equals(Actions.CLOSE))         msg="bye!";
+ else         if (nextlineAction.equals(Actions.PROCESSFILE)) {
+          msg="please write the filename to process";
+        }
       }
       System.out.println("sending msg " + msg);
       out.println(msg);
     }
   }
  catch (  IOException e) {
+    log("Error handling client# " + clientNumber + ": "+ e);
+  }
+catch (  IllegalAccessException e) {
+    log("Error handling client# " + clientNumber + ": "+ e);
+  }
+catch (  InterruptedException e) {
+    log("Error handling client# " + clientNumber + ": "+ e);
+  }
+catch (  ExecutionException e) {
+    log("Error handling client# " + clientNumber + ": "+ e);
+  }
+catch (  InstantiationException e) {
+    log("Error handling client# " + clientNumber + ": "+ e);
+  }
+catch (  SQLException e) {
+    log("Error handling client# " + clientNumber + ": "+ e);
+  }
+catch (  NoSuchMethodException e) {
+    log("Error handling client# " + clientNumber + ": "+ e);
+  }
+catch (  InvocationTargetException e) {
+    log("Error handling client# " + clientNumber + ": "+ e);
+  }
+catch (  ClassNotFoundException e) {
     log("Error handling client# " + clientNumber + ": "+ e);
   }
  finally {
