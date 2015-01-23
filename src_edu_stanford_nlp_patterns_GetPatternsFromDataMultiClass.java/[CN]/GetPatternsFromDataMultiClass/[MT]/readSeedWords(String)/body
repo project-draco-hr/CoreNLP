@@ -1,12 +1,12 @@
 {
-  Map<String,Set<String>> seedWords=new HashMap<String,Set<String>>();
+  Map<String,Set<CandidatePhrase>> seedWords=new HashMap<String,Set<CandidatePhrase>>();
   if (seedWordsFiles == null) {
     throw new RuntimeException("Needs both seedWordsFiles and file parameters to run this class!\nseedWordsFiles has format: label1,filewithlistofwords1;label2,filewithlistofwords2;...");
   }
   for (  String seedFile : seedWordsFiles.split(";")) {
     String[] t=seedFile.split(",");
     String label=t[0];
-    Set<String> seedWords4Label=new HashSet<String>();
+    Set<CandidatePhrase> seedWords4Label=new HashSet<CandidatePhrase>();
     if (t.length == 2) {
       String seedWordsFile=t[1];
       for (      String line : IOUtils.readLines(seedWordsFile)) {
@@ -14,7 +14,7 @@
         if (line.isEmpty() || line.startsWith("#")) {
           continue;
         }
-        seedWords4Label.add(line);
+        seedWords4Label.add(new CandidatePhrase(line));
       }
     }
     seedWords.put(label,seedWords4Label);

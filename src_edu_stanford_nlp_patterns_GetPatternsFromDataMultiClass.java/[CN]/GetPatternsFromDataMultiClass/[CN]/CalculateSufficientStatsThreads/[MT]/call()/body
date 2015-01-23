@@ -1,7 +1,7 @@
 {
-  List<Pair<E,String>> posWords=new ArrayList<Pair<E,String>>();
-  List<Pair<E,String>> negWords=new ArrayList<Pair<E,String>>();
-  List<Pair<E,String>> unlabWords=new ArrayList<Pair<E,String>>();
+  List<Pair<E,CandidatePhrase>> posWords=new ArrayList<Pair<E,CandidatePhrase>>();
+  List<Pair<E,CandidatePhrase>> negWords=new ArrayList<Pair<E,CandidatePhrase>>();
+  List<Pair<E,CandidatePhrase>> unlabWords=new ArrayList<Pair<E,CandidatePhrase>>();
   for (  String sentId : sentIds) {
     Map<Integer,Set<E>> pat4Sent=patternsForEachToken.getPatternsForAllTokens(sentId);
     if (pat4Sent == null) {
@@ -41,7 +41,7 @@
       }
       if (token.get(answerClass4Label).equals(label)) {
         for (        E s : pats) {
-          posWords.add(new Pair<E,String>(s,longestMatchingPhrase));
+          posWords.add(new Pair<E,CandidatePhrase>(s,new CandidatePhrase(longestMatchingPhrase)));
         }
       }
  else {
@@ -54,10 +54,10 @@
         if (!negToken)         if (constVars.getOtherSemanticClassesWords().contains(token.word()) || constVars.getOtherSemanticClassesWords().contains(token.lemma()))         negToken=true;
         for (        E sindex : pats) {
           if (negToken) {
-            negWords.add(new Pair<E,String>(sindex,tokenWordOrLemma));
+            negWords.add(new Pair<E,CandidatePhrase>(sindex,new CandidatePhrase(tokenWordOrLemma)));
           }
  else {
-            unlabWords.add(new Pair<E,String>(sindex,tokenWordOrLemma));
+            unlabWords.add(new Pair<E,CandidatePhrase>(sindex,new CandidatePhrase(tokenWordOrLemma)));
           }
         }
       }

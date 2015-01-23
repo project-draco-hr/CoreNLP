@@ -5,12 +5,12 @@
   JsonObject objarr=jsonReader.readObject();
   for (  Map.Entry<String,JsonValue> o : objarr.entrySet()) {
     String label=o.getKey();
-    Set<String> seed=new HashSet<String>();
+    Set<CandidatePhrase> seed=new HashSet<CandidatePhrase>();
     JsonArray arr=objarr.getJsonArray(o.getKey());
     for (int i=0; i < arr.size(); i++) {
       String seedw=arr.getString(i);
       System.out.println("adding " + seedw + " to seed ");
-      seed.add(seedw);
+      seed.add(new CandidatePhrase(seedw));
     }
     seedWords.get(label).addAll(seed);
     constVars.addSeedWords(label,seed);

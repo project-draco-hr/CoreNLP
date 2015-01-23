@@ -1,0 +1,17 @@
+{
+  String[] t=ph.getPhrase().split("\\s+");
+  if (t.length < 2) {
+    if (weights.containsKey(ph))     return weights.getCount(ph);
+ else     return defaultWt;
+  }
+  double totalscore=0;
+  double minScore=Double.MAX_VALUE;
+  for (  String w : t) {
+    double score=defaultWt;
+    if (weights.containsKey(new CandidatePhrase(w)))     score=weights.getCount(w);
+    if (score < minScore)     minScore=score;
+    totalscore+=score;
+  }
+  if (useAvgInsteadofMinPhraseScoring)   return totalscore / ph.getPhrase().length();
+ else   return minScore;
+}

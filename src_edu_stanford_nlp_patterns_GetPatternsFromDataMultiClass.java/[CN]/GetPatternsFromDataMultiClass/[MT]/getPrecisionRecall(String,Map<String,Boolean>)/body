@@ -1,18 +1,18 @@
 {
-  Set<String> learnedWords=constVars.getLearnedWords(label).keySet();
+  Set<CandidatePhrase> learnedWords=constVars.getLearnedWords(label).keySet();
   int numcorrect=0, numincorrect=0;
   int numgoldcorrect=0;
   for (  Entry<String,Boolean> en : goldWords4Label.entrySet()) {
     if (en.getValue())     numgoldcorrect++;
   }
   Set<String> assumedNeg=new HashSet<String>();
-  for (  String e : learnedWords) {
-    if (!goldWords4Label.containsKey(e)) {
-      assumedNeg.add(e);
+  for (  CandidatePhrase e : learnedWords) {
+    if (!goldWords4Label.containsKey(e.getPhrase())) {
+      assumedNeg.add(e.getPhrase());
       numincorrect++;
       continue;
     }
-    if (goldWords4Label.get(e)) {
+    if (goldWords4Label.get(e.getPhrase())) {
       numcorrect++;
     }
  else     numincorrect++;
