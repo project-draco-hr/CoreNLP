@@ -3,15 +3,15 @@
   Counter<CandidatePhrase> sims=new ClassicCounter<CandidatePhrase>();
   AtomicDouble allMaxSim=new AtomicDouble(Double.MIN_VALUE);
   ExecutorService executor=Executors.newFixedThreadPool(constVars.numThreads);
-  List<Future<Counter<CandidatePhrase>>> list=new ArrayList<Future<Counter<CandidatePhrase>>>();
+  List<Future<Pair<Counter<CandidatePhrase>,Counter<CandidatePhrase>>>> list=new ArrayList<Future<Pair<Counter<CandidatePhrase>,Counter<CandidatePhrase>>>>();
   for (  List<CandidatePhrase> keys : threadedCandidates) {
-    Callable<Counter<CandidatePhrase>> task=new ComputeSim(label,keys,allMaxSim,positivePhrases,knownNegativePhrases);
-    Future<Counter<CandidatePhrase>> submit=executor.submit(task);
+    Callable<Pair<Counter<CandidatePhrase>,Counter<CandidatePhrase>>> task=new ComputeSim(label,keys,allMaxSim,positivePhrases,knownNegativePhrases);
+    Future<Pair<Counter<CandidatePhrase>,Counter<CandidatePhrase>>> submit=executor.submit(task);
     list.add(submit);
   }
-  for (  Future<Counter<CandidatePhrase>> future : list) {
+  for (  Future<Pair<Counter<CandidatePhrase>,Counter<CandidatePhrase>>> future : list) {
     try {
-      sims.addAll(future.get());
+      sims.addAll(future.get().first());
     }
  catch (    Exception e) {
       executor.shutdownNow();

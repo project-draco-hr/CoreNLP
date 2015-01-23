@@ -32,6 +32,7 @@
   Set<CandidatePhrase> allUnknownPhrases=new HashSet<CandidatePhrase>();
   Set<CandidatePhrase> allPositivePhrases=new HashSet<CandidatePhrase>();
   Counter<CandidatePhrase> allCloseToPositivePhrases=new ClassicCounter<CandidatePhrase>();
+  Counter<CandidatePhrase> allCloseToNegativePhrases=new ClassicCounter<CandidatePhrase>();
   ConstantsAndVariables.DataSentsIterator sentsIter=new ConstantsAndVariables.DataSentsIterator(constVars.batchProcessSents);
   while (sentsIter.hasNext()) {
     Pair<Map<String,DataInstance>,File> sentsf=sentsIter.next();
@@ -40,15 +41,15 @@
     if (computeRawFreq)     Data.computeRawFreqIfNull(sents,PatternFactory.numWordsCompound);
     List<List<String>> threadedSentIds=GetPatternsFromDataMultiClass.getThreadBatches(new ArrayList<String>(sents.keySet()),constVars.numThreads);
     ExecutorService executor=Executors.newFixedThreadPool(constVars.numThreads);
-    List<Future<Quadruple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>>>> list=new ArrayList<Future<Quadruple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>>>>();
+    List<Future<Quintuple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>,Counter<CandidatePhrase>>>> list=new ArrayList<Future<Quintuple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>,Counter<CandidatePhrase>>>>();
     for (    List<String> keys : threadedSentIds) {
-      Callable<Quadruple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>>> task=new ChooseDatumsThread(answerLabel,sents,keys,forLearningPattern,wordsPatExtracted,allSelectedPatterns,distSimClustersOfPositive,allPossibleNegativePhrases);
-      Future<Quadruple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>>> submit=executor.submit(task);
+      Callable<Quintuple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>,Counter<CandidatePhrase>>> task=new ChooseDatumsThread(answerLabel,sents,keys,forLearningPattern,wordsPatExtracted,allSelectedPatterns,distSimClustersOfPositive,allPossibleNegativePhrases);
+      Future<Quintuple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>,Counter<CandidatePhrase>>> submit=executor.submit(task);
       list.add(submit);
     }
-    for (    Future<Quadruple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>>> future : list) {
+    for (    Future<Quintuple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>,Counter<CandidatePhrase>>> future : list) {
       try {
-        Quadruple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>> result=future.get();
+        Quintuple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>,Counter<CandidatePhrase>> result=future.get();
         allPositivePhrases.addAll(result.first());
         allNegativePhrases.addAll(result.second());
         allUnknownPhrases.addAll(result.third());
