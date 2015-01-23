@@ -63,12 +63,26 @@
     executor.shutdown();
   }
   allPositivePhrases.addAll(constVars.getLearnedWords().get(answerLabel).keySet());
+  BufferedWriter logFile=null;
+  if (constVars.logFileVectorSimilarity != null) {
+    logFile=new BufferedWriter(new FileWriter(constVars.logFileVectorSimilarity));
+    for (    CandidatePhrase p : allPositivePhrases) {
+      if (wordVectors.containsKey(p.getPhrase())) {
+        logFile.write(p.getPhrase() + "-P " + ArrayUtils.toString(wordVectors.get(p.getPhrase())," ")+ "\n");
+      }
+    }
+  }
   if (constVars.expandPositivesWhenSampling) {
     Redwood.log("Expanding positives by adding " + allCloseToPositivePhrases + " phrases");
     allPositivePhrases.addAll(allCloseToPositivePhrases.keySet());
+    if (logFile != null) {
+      for (      CandidatePhrase p : allCloseToPositivePhrases.keySet()) {
+        if (wordVectors.containsKey(p.getPhrase())) {
+          logFile.write(p.getPhrase() + "-PP " + ArrayUtils.toString(wordVectors.get(p.getPhrase())," ")+ "\n");
+        }
+      }
+    }
   }
-  BufferedWriter logFile=null;
-  if (constVars.logFileVectorSimilarity != null)   logFile=new BufferedWriter(new FileWriter(constVars.logFileVectorSimilarity));
   System.out.println("all positive phrases are  " + allPositivePhrases);
   for (  CandidatePhrase candidate : allPositivePhrases) {
     Counter<ScorePhraseMeasures> feat=null;
@@ -81,9 +95,6 @@
     RVFDatum<String,ScorePhraseMeasures> datum=new RVFDatum<String,ScorePhraseMeasures>(feat,"true");
     dataset.add(datum);
     numpos+=1;
-    if (logFile != null && wordVectors.containsKey(candidate.getPhrase())) {
-      logFile.write(candidate.getPhrase() + "-P" + " "+ ArrayUtils.toString(wordVectors.get(candidate.getPhrase())," ")+ "\n");
-    }
   }
   Redwood.log(Redwood.DBG,"Number of pure negative phrases is " + allNegativePhrases.size());
   Redwood.log(Redwood.DBG,"Number of unknown phrases is " + allUnknownPhrases.size());
