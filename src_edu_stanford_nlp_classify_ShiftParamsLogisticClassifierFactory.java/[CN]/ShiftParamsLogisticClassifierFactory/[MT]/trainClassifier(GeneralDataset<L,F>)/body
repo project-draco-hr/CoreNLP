@@ -1,0 +1,10 @@
+{
+  numClasses=dataset.numClasses();
+  numFeatures=dataset.numFeatures();
+  data=dataset.getDataArray();
+  data=augmentFeatureMatrix(data);
+  dataValues=LogisticUtils.initializeDataValues(data);
+  if (dataset instanceof RVFDataset<?,?>)   dataValues=dataset.getValuesArray();
+  labels=dataset.getLabelsArray();
+  return new MultinomialLogisticClassifier<L,F>(trainWeights(),dataset.featureIndex,dataset.labelIndex);
+}

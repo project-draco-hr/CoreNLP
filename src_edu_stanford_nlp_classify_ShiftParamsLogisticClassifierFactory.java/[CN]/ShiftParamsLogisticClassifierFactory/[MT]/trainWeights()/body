@@ -1,0 +1,15 @@
+{
+  QNMinimizer minimizer=new QNMinimizer(15,true);
+  minimizer.useOWLQN(true,lambda);
+  DiffFunction objective=new ShiftParamsLogisticObjectiveFunction(data,dataValues,convertLabels(labels),numClasses,numFeatures + data.length,numFeatures,prior);
+  double[] augmentedThetas=new double[(numClasses - 1) * (numFeatures + data.length)];
+  augmentedThetas=minimizer.minimize(objective,1e-4,augmentedThetas);
+  int count=0;
+  for (int j=numFeatures; j < augmentedThetas.length; j++) {
+    if (augmentedThetas[j] != 0)     count++;
+  }
+  Redwood.log("NUM NONZERO PARAMETERS: " + count);
+  double[][] thetas=new double[numClasses - 1][numFeatures];
+  LogisticUtils.unflatten(augmentedThetas,thetas);
+  return thetas;
+}
