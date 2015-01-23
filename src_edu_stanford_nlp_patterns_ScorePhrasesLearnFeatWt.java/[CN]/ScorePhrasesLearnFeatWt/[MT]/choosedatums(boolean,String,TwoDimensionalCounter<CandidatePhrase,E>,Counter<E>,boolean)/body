@@ -1,6 +1,10 @@
 {
+  boolean expandNeg=false;
+  if (closeToNegativesFirstIter == null && constVars.expandNegativesWhenSampling)   expandNeg=true;
+  boolean expandPos=false;
+  if (closeToPositivesFirstIter == null && constVars.expandPositivesWhenSampling)   expandPos=true;
   Counter<Integer> distSimClustersOfPositive=new ClassicCounter<Integer>();
-  if (constVars.expandPositivesWhenSampling && !constVars.useWordVectorsToComputeSim) {
+  if ((expandPos || expandNeg) && !constVars.useWordVectorsToComputeSim) {
     for (    CandidatePhrase s : CollectionUtils.union(constVars.getLearnedWords(answerLabel).keySet(),constVars.getSeedLabelDictionary().get(answerLabel))) {
       String[] toks=s.getPhrase().split("\\s+");
       if (!constVars.getWordClassClusters().containsKey(s.getPhrase())) {
@@ -13,14 +17,13 @@
  else       distSimClustersOfPositive.incrementCount(constVars.getWordClassClusters().get(s.getPhrase()));
     }
   }
-  Map<String,Collection<CandidatePhrase>> allPossibleNegativePhrases=getAllPossibleNegativePhrases(answerLabel);
+  Map<String,Collection<CandidatePhrase>> allPossibleNegativePhrases=null;
+  if (expandPos || expandNeg)   allPossibleNegativePhrases=getAllPossibleNegativePhrases(answerLabel);
   RVFDataset<String,ScorePhraseMeasures> dataset=new RVFDataset<String,ScorePhraseMeasures>();
   int numpos=0;
   Set<CandidatePhrase> allNegativePhrases=new HashSet<CandidatePhrase>();
   Set<CandidatePhrase> allUnknownPhrases=new HashSet<CandidatePhrase>();
   Set<CandidatePhrase> allPositivePhrases=new HashSet<CandidatePhrase>();
-  Counter<CandidatePhrase> allCloseToPositivePhrases=new ClassicCounter<CandidatePhrase>();
-  Counter<CandidatePhrase> allCloseToNegativePhrases=new ClassicCounter<CandidatePhrase>();
   ConstantsAndVariables.DataSentsIterator sentsIter=new ConstantsAndVariables.DataSentsIterator(constVars.batchProcessSents);
   while (sentsIter.hasNext()) {
     Pair<Map<String,DataInstance>,File> sentsf=sentsIter.next();
@@ -31,7 +34,7 @@
     ExecutorService executor=Executors.newFixedThreadPool(constVars.numThreads);
     List<Future<Quintuple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>,Counter<CandidatePhrase>>>> list=new ArrayList<Future<Quintuple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>,Counter<CandidatePhrase>>>>();
     for (    List<String> keys : threadedSentIds) {
-      Callable<Quintuple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>,Counter<CandidatePhrase>>> task=new ChooseDatumsThread(answerLabel,sents,keys,forLearningPattern,wordsPatExtracted,allSelectedPatterns,distSimClustersOfPositive,allPossibleNegativePhrases);
+      Callable<Quintuple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>,Counter<CandidatePhrase>>> task=new ChooseDatumsThread(answerLabel,sents,keys,forLearningPattern,wordsPatExtracted,allSelectedPatterns,distSimClustersOfPositive,allPossibleNegativePhrases,expandPos,expandNeg);
       Future<Quintuple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>,Counter<CandidatePhrase>>> submit=executor.submit(task);
       list.add(submit);
     }
@@ -41,8 +44,8 @@
         allPositivePhrases.addAll(result.first());
         allNegativePhrases.addAll(result.second());
         allUnknownPhrases.addAll(result.third());
-        for (        Entry<CandidatePhrase,Double> en : result.fourth().entrySet())         allCloseToPositivePhrases.setCount(en.getKey(),en.getValue());
-        for (        Entry<CandidatePhrase,Double> en : result.fifth().entrySet())         allCloseToNegativePhrases.setCount(en.getKey(),en.getValue());
+        if (expandPos)         for (        Entry<CandidatePhrase,Double> en : result.fourth().entrySet())         closeToPositivesFirstIter.setCount(en.getKey(),en.getValue());
+        if (expandNeg)         for (        Entry<CandidatePhrase,Double> en : result.fifth().entrySet())         closeToNegativesFirstIter.setCount(en.getKey(),en.getValue());
       }
  catch (      Exception e) {
         executor.shutdownNow();
@@ -66,10 +69,10 @@
     }
   }
   if (constVars.expandPositivesWhenSampling) {
-    Redwood.log("Expanding positives by adding " + allCloseToPositivePhrases + " phrases");
-    allPositivePhrases.addAll(allCloseToPositivePhrases.keySet());
-    if (logFile != null && wordVectors != null) {
-      for (      CandidatePhrase p : allCloseToPositivePhrases.keySet()) {
+    Redwood.log("Expanding positives by adding " + closeToPositivesFirstIter + " phrases");
+    allPositivePhrases.addAll(closeToPositivesFirstIter.keySet());
+    if (logFile != null && wordVectors != null && expandNeg) {
+      for (      CandidatePhrase p : closeToPositivesFirstIter.keySet()) {
         if (wordVectors.containsKey(p.getPhrase())) {
           logFile.write(p.getPhrase() + "-PP " + ArrayUtils.toString(wordVectors.get(p.getPhrase())," ")+ "\n");
         }
@@ -77,10 +80,10 @@
     }
   }
   if (constVars.expandNegativesWhenSampling) {
-    Redwood.log("Expanding negatives by adding " + allCloseToNegativePhrases + " phrases");
-    allNegativePhrases.addAll(allCloseToNegativePhrases.keySet());
-    if (logFile != null && wordVectors != null) {
-      for (      CandidatePhrase p : allCloseToNegativePhrases.keySet()) {
+    Redwood.log("Expanding negatives by adding " + closeToNegativesFirstIter + " phrases");
+    allNegativePhrases.addAll(closeToNegativesFirstIter.keySet());
+    if (logFile != null && wordVectors != null && expandNeg) {
+      for (      CandidatePhrase p : closeToNegativesFirstIter.keySet()) {
         if (wordVectors.containsKey(p.getPhrase())) {
           logFile.write(p.getPhrase() + "-NN " + ArrayUtils.toString(wordVectors.get(p.getPhrase())," ")+ "\n");
         }
