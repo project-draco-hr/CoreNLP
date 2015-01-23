@@ -67,16 +67,18 @@
   if (constVars.logFileVectorSimilarity != null) {
     logFile=new BufferedWriter(new FileWriter(constVars.logFileVectorSimilarity));
     logFileFeat=new BufferedWriter(new FileWriter(constVars.logFileVectorSimilarity + "_feat"));
-    for (    CandidatePhrase p : allPositivePhrases) {
-      if (wordVectors.containsKey(p.getPhrase())) {
-        logFile.write(p.getPhrase() + "-P " + ArrayUtils.toString(wordVectors.get(p.getPhrase())," ")+ "\n");
+    if (wordVectors != null) {
+      for (      CandidatePhrase p : allPositivePhrases) {
+        if (wordVectors.containsKey(p.getPhrase())) {
+          logFile.write(p.getPhrase() + "-P " + ArrayUtils.toString(wordVectors.get(p.getPhrase())," ")+ "\n");
+        }
       }
     }
   }
   if (constVars.expandPositivesWhenSampling) {
     Redwood.log("Expanding positives by adding " + allCloseToPositivePhrases + " phrases");
     allPositivePhrases.addAll(allCloseToPositivePhrases.keySet());
-    if (logFile != null) {
+    if (logFile != null && wordVectors != null) {
       for (      CandidatePhrase p : allCloseToPositivePhrases.keySet()) {
         if (wordVectors.containsKey(p.getPhrase())) {
           logFile.write(p.getPhrase() + "-PP " + ArrayUtils.toString(wordVectors.get(p.getPhrase())," ")+ "\n");
@@ -134,10 +136,10 @@
     }
     RVFDatum<String,ScorePhraseMeasures> datum=new RVFDatum<String,ScorePhraseMeasures>(feat,"false");
     dataset.add(datum);
-    if (logFile != null && wordVectors.containsKey(negative.getPhrase())) {
+    if (logFile != null && wordVectors != null && wordVectors.containsKey(negative.getPhrase())) {
       logFile.write(negative.getPhrase() + "-N" + " "+ ArrayUtils.toString(wordVectors.get(negative.getPhrase())," ")+ "\n");
-      logFileFeat.write("NEGATIVE " + negative.getPhrase() + "\t"+ Counters.toSortedByKeysString(feat,"%1$s:%2$.0f",";","%s")+ "\n");
     }
+    if (logFileFeat != null)     logFileFeat.write("NEGATIVE " + negative.getPhrase() + "\t"+ Counters.toSortedByKeysString(feat,"%1$s:%2$.0f",";","%s")+ "\n");
   }
   if (logFile != null) {
     logFile.close();
