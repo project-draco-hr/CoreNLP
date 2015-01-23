@@ -54,6 +54,8 @@
     Redwood.log("Expanding positives by adding " + allCloseToPositivePhrases + " phrases");
     allPositivePhrases.addAll(allCloseToPositivePhrases.keySet());
   }
+  BufferedWriter logFile=null;
+  if (constVars.logFileVectorSimilarity != null)   logFile=new BufferedWriter(new FileWriter(constVars.logFileVectorSimilarity));
   System.out.println("all positive phrases are  " + allPositivePhrases);
   for (  CandidatePhrase candidate : allPositivePhrases) {
     Counter<ScorePhraseMeasures> feat=null;
@@ -66,11 +68,14 @@
     RVFDatum<String,ScorePhraseMeasures> datum=new RVFDatum<String,ScorePhraseMeasures>(feat,"true");
     dataset.add(datum);
     numpos+=1;
+    if (logFile != null && wordVectors.containsKey(candidate.getPhrase())) {
+      logFile.write(candidate.getPhrase() + "-P" + " "+ ArrayUtils.toString(wordVectors.get(candidate.getPhrase())," ")+ "\n");
+    }
   }
   Redwood.log(Redwood.DBG,"Number of pure negative phrases is " + allNegativePhrases.size());
   Redwood.log(Redwood.DBG,"Number of unknown phrases is " + allUnknownPhrases.size());
   if (constVars.subsampleUnkAsNegUsingSim) {
-    Set<CandidatePhrase> chosenUnknown=chooseUnknownAsNegatives(allUnknownPhrases,answerLabel,constVars.subSampleUnkAsNegUsingSimPercentage,allPositivePhrases);
+    Set<CandidatePhrase> chosenUnknown=chooseUnknownAsNegatives(allUnknownPhrases,answerLabel,constVars.subSampleUnkAsNegUsingSimPercentage,allPositivePhrases,logFile);
     Redwood.log(Redwood.DBG,"Choosing " + chosenUnknown.size() + " unknowns as negative based to their similarity to the positive phrases");
     allNegativePhrases.addAll(chosenUnknown);
   }
@@ -99,6 +104,9 @@
     }
     RVFDatum<String,ScorePhraseMeasures> datum=new RVFDatum<String,ScorePhraseMeasures>(feat,"false");
     dataset.add(datum);
+    if (logFile != null && wordVectors.containsKey(negative.getPhrase())) {
+      logFile.write(negative.getPhrase() + "-N" + " "+ ArrayUtils.toString(wordVectors.get(negative.getPhrase())," ")+ "\n");
+    }
   }
   System.out.println("Before feature count threshold, dataset stats are ");
   dataset.summaryStatistics();
