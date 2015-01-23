@@ -1,6 +1,9 @@
 {
   super(constvar);
   if (constvar.useWordVectorsToComputeSim && (constvar.subsampleUnkAsNegUsingSim || constvar.expandPositivesWhenSampling)) {
+    if (Data.rawFreq == null) {
+      Data.computeRawFreqIfNull(PatternFactory.numWordsCompound,constvar.batchProcessSents);
+    }
     wordVectors=new HashMap<String,double[]>();
     for (    String line : IOUtils.readLines(constVars.wordVectorFile)) {
       String[] tok=line.split("\\s+");
