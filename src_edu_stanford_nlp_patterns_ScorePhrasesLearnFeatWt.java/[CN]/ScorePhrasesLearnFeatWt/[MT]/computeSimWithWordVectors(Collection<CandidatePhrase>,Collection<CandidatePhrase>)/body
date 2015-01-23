@@ -3,7 +3,7 @@
   for (  CandidatePhrase p : candidatePhrases) {
     if (wordVectors.containsKey(p.getPhrase())) {
       double[] d1=wordVectors.get(p.getPhrase());
-      double avgSim=0;
+      double finalSimScore=0;
       boolean donotuse=false;
       for (      CandidatePhrase pos : otherPhrases) {
         if (p.equals(pos)) {
@@ -11,8 +11,9 @@
           break;
         }
         if (!wordVectors.containsKey(pos.getPhrase()))         continue;
+        double sim;
         PhrasePair pair=new PhrasePair(p.getPhrase(),pos.getPhrase());
-        if (cacheSimilarities.containsKey(pair))         avgSim=cacheSimilarities.getCount(pair);
+        if (cacheSimilarities.containsKey(pair))         sim=cacheSimilarities.getCount(pair);
  else {
           double[] d2=wordVectors.get(pos.getPhrase());
           double sum=0;
@@ -23,14 +24,13 @@
             d1sq+=d1[i] * d1[i];
             d2sq+=d2[i] * d2[i];
           }
-          double sim=sum / (Math.sqrt(d1sq) * Math.sqrt(d2sq));
-          avgSim+=sim;
+          sim=sum / (Math.sqrt(d1sq) * Math.sqrt(d2sq));
+          cacheSimilarities.setCount(pair,sim);
         }
-        avgSim/=otherPhrases.size();
-        cacheSimilarities.setCount(pair,avgSim);
+        if (sim > finalSimScore)         finalSimScore=sim;
       }
       if (!donotuse) {
-        sims.setCount(p,avgSim);
+        sims.setCount(p,finalSimScore);
       }
     }
  else {
