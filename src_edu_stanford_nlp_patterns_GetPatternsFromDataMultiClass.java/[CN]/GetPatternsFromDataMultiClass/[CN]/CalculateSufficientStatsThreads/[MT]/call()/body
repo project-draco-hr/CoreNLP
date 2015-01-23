@@ -11,12 +11,12 @@
     List<CoreLabel> tokens=sent.getTokens();
     for (int i=0; i < tokens.size(); i++) {
       CoreLabel token=tokens.get(i);
-      String tokenWordOrLemma=token.word();
-      String longestMatchingPhrase=null;
+      CandidatePhrase tokenWordOrLemma=CandidatePhrase.createOrGet(token.word());
+      CandidatePhrase longestMatchingPhrase;
       if (constVars.useMatchingPhrase) {
-        Map<String,String> longestMatchingPhrases=token.get(PatternsAnnotations.LongestMatchedPhraseForEachLabel.class);
+        Map<String,CandidatePhrase> longestMatchingPhrases=token.get(PatternsAnnotations.LongestMatchedPhraseForEachLabel.class);
         longestMatchingPhrase=longestMatchingPhrases.get(label);
-        longestMatchingPhrase=(longestMatchingPhrase != null && (longestMatchingPhrase.length() > tokenWordOrLemma.length())) ? longestMatchingPhrase : tokenWordOrLemma;
+        longestMatchingPhrase=(longestMatchingPhrase != null && (longestMatchingPhrase.getPhrase().length() > tokenWordOrLemma.getPhrase().length())) ? longestMatchingPhrase : tokenWordOrLemma;
       }
  else       longestMatchingPhrase=tokenWordOrLemma;
       Set<E> pats=pat4Sent.get(i);
@@ -44,7 +44,7 @@
       }
       if (token.get(answerClass4Label).equals(label)) {
         for (        E s : pats) {
-          posWords.add(new Pair<E,CandidatePhrase>(s,new CandidatePhrase(longestMatchingPhrase)));
+          posWords.add(new Pair<E,CandidatePhrase>(s,longestMatchingPhrase));
         }
       }
  else {
@@ -57,10 +57,10 @@
         if (!negToken)         if (constVars.getOtherSemanticClassesWords().contains(token.word()) || constVars.getOtherSemanticClassesWords().contains(token.lemma()))         negToken=true;
         for (        E sindex : pats) {
           if (negToken) {
-            negWords.add(new Pair<E,CandidatePhrase>(sindex,new CandidatePhrase(tokenWordOrLemma)));
+            negWords.add(new Pair<E,CandidatePhrase>(sindex,tokenWordOrLemma));
           }
  else {
-            unlabWords.add(new Pair<E,CandidatePhrase>(sindex,new CandidatePhrase(tokenWordOrLemma)));
+            unlabWords.add(new Pair<E,CandidatePhrase>(sindex,tokenWordOrLemma));
           }
         }
       }

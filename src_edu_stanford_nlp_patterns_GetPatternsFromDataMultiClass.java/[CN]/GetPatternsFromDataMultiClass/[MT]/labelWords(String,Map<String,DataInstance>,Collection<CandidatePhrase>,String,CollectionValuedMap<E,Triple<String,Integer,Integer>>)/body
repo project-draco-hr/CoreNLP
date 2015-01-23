@@ -17,10 +17,10 @@
   for (  Entry<String,DataInstance> sentEn : sents.entrySet()) {
     List<CoreLabel> tokens=sentEn.getValue().getTokens();
     boolean sentenceChanged=false;
-    Set<String[]> identifiedWordsTokens=new HashSet<String[]>();
+    Map<CandidatePhrase,String[]> identifiedWordsTokens=new HashMap<CandidatePhrase,String[]>();
     for (    CandidatePhrase s : identifiedWords) {
       String[] toks=s.getPhrase().split("\\s+");
-      identifiedWordsTokens.add(toks);
+      identifiedWordsTokens.put(s,toks);
     }
     String[] sent=new String[tokens.size()];
     int i=0;
@@ -29,7 +29,8 @@
       sent[i]=l.word();
       i++;
     }
-    for (    String[] ph : identifiedWordsTokens) {
+    for (    Entry<CandidatePhrase,String[]> phEn : identifiedWordsTokens.entrySet()) {
+      String[] ph=phEn.getValue();
       List<Integer> ints=ArrayUtils.getSubListIndex(ph,sent);
       if (ints == null)       continue;
       for (      Integer idx : ints) {
@@ -54,10 +55,13 @@
               sentenceChanged=true;
               l.set(constVars.getAnswerClass().get(label),label);
               numTokensLabeled++;
-              CollectionValuedMap<String,String> matched=new CollectionValuedMap<String,String>();
-              matched.add(label,phStr);
+              CollectionValuedMap<String,CandidatePhrase> matched=new CollectionValuedMap<String,CandidatePhrase>();
+              matched.add(label,phEn.getKey());
               if (!l.containsKey(PatternsAnnotations.MatchedPhrases.class))               l.set(PatternsAnnotations.MatchedPhrases.class,matched);
  else               l.get(PatternsAnnotations.MatchedPhrases.class).addAll(matched);
+              CandidatePhrase longest=l.get(PatternsAnnotations.LongestMatchedPhraseForEachLabel.class).get(label);
+              longest=longest != null && longest.getPhrase().length() > phEn.getKey().getPhrase().length() ? longest : phEn.getKey();
+              l.get(PatternsAnnotations.LongestMatchedPhraseForEachLabel.class).put(label,longest);
               for (int k=Math.max(0,index - PatternFactory.numWordsCompound); k < tokens.size() && k <= index + PatternFactory.numWordsCompound + 1; k++) {
                 contextWordsRecalculatePats.add(k);
               }

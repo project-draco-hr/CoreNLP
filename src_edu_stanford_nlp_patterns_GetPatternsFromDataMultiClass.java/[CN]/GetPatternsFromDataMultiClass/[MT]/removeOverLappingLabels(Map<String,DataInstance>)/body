@@ -1,13 +1,13 @@
 {
   for (  Map.Entry<String,DataInstance> sentEn : sents.entrySet()) {
     for (    CoreLabel l : sentEn.getValue().getTokens()) {
-      Map<String,String> longestMatchingMap=l.get(PatternsAnnotations.LongestMatchedPhraseForEachLabel.class);
+      Map<String,CandidatePhrase> longestMatchingMap=l.get(PatternsAnnotations.LongestMatchedPhraseForEachLabel.class);
       String longestMatchingString="";
       String longestMatchingLabel=null;
-      for (      Map.Entry<String,String> en : longestMatchingMap.entrySet()) {
-        if (en.getValue().length() > longestMatchingString.length()) {
+      for (      Map.Entry<String,CandidatePhrase> en : longestMatchingMap.entrySet()) {
+        if (en.getValue().getPhrase().length() > longestMatchingString.length()) {
           longestMatchingLabel=en.getKey();
-          longestMatchingString=en.getValue();
+          longestMatchingString=en.getValue().getPhrase();
         }
       }
       if (longestMatchingLabel != null) {
