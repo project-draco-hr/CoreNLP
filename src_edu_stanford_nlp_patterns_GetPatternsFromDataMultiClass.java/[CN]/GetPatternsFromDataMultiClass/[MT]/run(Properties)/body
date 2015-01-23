@@ -47,21 +47,10 @@
   }
   boolean evaluate=Boolean.parseBoolean(props.getProperty("evaluate"));
   if (evaluate) {
-    String goldEntitiesEvalFiles=props.getProperty("goldEntitiesEvalFiles");
-    if (goldEntitiesEvalFiles != null) {
-      for (      String gfile : goldEntitiesEvalFiles.split(";")) {
-        String[] t=gfile.split(",");
-        String label=t[0];
-        String goldfile=t[1];
-        Map<String,Boolean> goldWords4Label=new HashMap<String,Boolean>();
-        for (        String line : IOUtils.readLines(goldfile)) {
-          line=line.trim();
-          if (line.isEmpty())           continue;
-          if (line.endsWith("#"))           goldWords4Label.put(line.substring(0,line.length() - 1),false);
- else           goldWords4Label.put(line,true);
-        }
-        Pair<Double,Double> pr=model.getPrecisionRecall(label,goldWords4Label);
-        Redwood.log(ConstantsAndVariables.minimaldebug,"\nFor label " + label + ": Number of gold entities is "+ goldWords4Label.size()+ ", Precision is "+ model.df.format(pr.first() * 100)+ ", Recall is "+ model.df.format(pr.second() * 100)+ ", F1 is "+ model.df.format(model.FScore(pr.first(),pr.second(),1.0) * 100)+ "\n\n");
+    if (model.constVars.goldEntitiesEvalFiles != null) {
+      for (      String label : model.constVars.getLabels()) {
+        Pair<Double,Double> pr=model.getPrecisionRecall(label,model.constVars.goldEntities.get(label));
+        Redwood.log(ConstantsAndVariables.minimaldebug,"\nFor label " + label + ": Number of gold entities is "+ model.constVars.goldEntities.get(label)+ ", Precision is "+ model.df.format(pr.first() * 100)+ ", Recall is "+ model.df.format(pr.second() * 100)+ ", F1 is "+ model.df.format(model.FScore(pr.first(),pr.second(),1.0) * 100)+ "\n\n");
       }
     }
     Map<String,DataInstance> evalsents=sentsPair.second();
@@ -69,7 +58,7 @@
       boolean evalPerEntity=Boolean.parseBoolean(props.getProperty("evalPerEntity","true"));
       model.evaluate(evalsents,evalPerEntity);
     }
-    if (evalsents.size() == 0 && goldEntitiesEvalFiles == null)     System.err.println("No eval sentences or list of gold entities provided to evaluate! Make sure evalFileWithGoldLabels or goldEntitiesEvalFiles is set, or turn off the evaluate flag");
+    if (evalsents.size() == 0 && model.constVars.goldEntitiesEvalFiles == null)     System.err.println("No eval sentences or list of gold entities provided to evaluate! Make sure evalFileWithGoldLabels or goldEntitiesEvalFiles is set, or turn off the evaluate flag");
   }
   if (model.constVars.saveInvertedIndex) {
     model.constVars.invertedIndex.saveIndex(model.constVars.invertedIndexDirectory);

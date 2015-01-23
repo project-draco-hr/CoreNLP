@@ -1,0 +1,18 @@
+{
+  Map<String,Map<String,Boolean>> goldWords=new HashMap<String,Map<String,Boolean>>();
+  if (goldEntitiesEvalFiles != null) {
+    for (    String gfile : goldEntitiesEvalFiles.split(";")) {
+      String[] t=gfile.split(",");
+      String label=t[0];
+      String goldfile=t[1];
+      Map<String,Boolean> goldWords4Label=new HashMap<String,Boolean>();
+      for (      String line : IOUtils.readLines(goldfile)) {
+        line=line.trim();
+        if (line.isEmpty())         continue;
+        if (line.endsWith("#"))         goldWords4Label.put(line.substring(0,line.length() - 1),false);
+ else         goldWords4Label.put(line,true);
+      }
+    }
+  }
+  return goldWords;
+}
