@@ -7,6 +7,7 @@
     if (hw instanceof CoreLabel) {
       wordLabel=(CoreLabel)hw;
       tag=wordLabel.tag();
+      CoreLabel cl=(CoreLabel)hw;
     }
  else {
       wordLabel=new CoreLabel();
@@ -28,10 +29,10 @@
     LabeledScoredTreeNode wordNode=new LabeledScoredTreeNode(wordLabel);
     LabeledScoredTreeNode tagNode=new LabeledScoredTreeNode(tagLabel);
     tagNode.addChild(wordNode);
-    wordLabel.set(TreeCoreAnnotations.HeadWordLabelAnnotation.class,wordLabel);
-    wordLabel.set(TreeCoreAnnotations.HeadTagLabelAnnotation.class,tagLabel);
-    tagLabel.set(TreeCoreAnnotations.HeadWordLabelAnnotation.class,wordLabel);
-    tagLabel.set(TreeCoreAnnotations.HeadTagLabelAnnotation.class,tagLabel);
+    wordLabel.set(TreeCoreAnnotations.HeadWordAnnotation.class,wordNode);
+    wordLabel.set(TreeCoreAnnotations.HeadTagAnnotation.class,tagNode);
+    tagLabel.set(TreeCoreAnnotations.HeadWordAnnotation.class,wordNode);
+    tagLabel.set(TreeCoreAnnotations.HeadTagAnnotation.class,tagNode);
     preterminals.add(tagNode);
   }
   return new State(preterminals);

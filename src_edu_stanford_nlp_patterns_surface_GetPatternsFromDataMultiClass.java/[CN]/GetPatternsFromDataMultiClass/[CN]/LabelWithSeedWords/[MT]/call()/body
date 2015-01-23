@@ -17,13 +17,18 @@
     Map<Integer,String> longestMatchedPhrases=new HashMap<Integer,String>();
     for (    String[] s : seedwordsTokens) {
       List<Integer> indices=getSubListIndex(s,tokens,tokenslemma,dictWords,seenFuzzyMatches,minLen4FuzzyForPattern);
-      if (indices != null && !indices.isEmpty())       for (      int index : indices)       for (int i=0; i < s.length; i++) {
+      if (indices != null && !indices.isEmpty()) {
         String ph=StringUtils.join(s," ");
-        matchedPhrases.add(index + i,ph);
-        String longPh=longestMatchedPhrases.get(index + i);
-        longPh=longPh != null && longPh.length() > ph.length() ? longPh : ph;
-        longestMatchedPhrases.put(index + i,longPh);
-        labels[index + i]=true;
+        for (        int index : indices) {
+          if (writeMatchedTokensIdsForEachPhrase)           Data.matchedTokensForEachPhrase.add(ph,new Triple(k,index,s.length));
+          for (int i=0; i < s.length; i++) {
+            matchedPhrases.add(index + i,ph);
+            String longPh=longestMatchedPhrases.get(index + i);
+            longPh=longPh != null && longPh.length() > ph.length() ? longPh : ph;
+            longestMatchedPhrases.put(index + i,longPh);
+            labels[index + i]=true;
+          }
+        }
       }
     }
     int i=-1;

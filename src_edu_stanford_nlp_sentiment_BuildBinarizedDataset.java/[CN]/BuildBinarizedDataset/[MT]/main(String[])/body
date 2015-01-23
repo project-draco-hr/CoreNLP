@@ -33,7 +33,7 @@
   String text=IOUtils.slurpFileNoExceptions(inputPath);
   String[] chunks=text.split("\\n\\s*\\n+");
   for (  String chunk : chunks) {
-    if (chunk.trim().isEmpty()) {
+    if (chunk.trim() == "") {
       continue;
     }
     String[] lines=chunk.trim().split("\\n");
@@ -62,8 +62,8 @@
     }
     Trees.convertToCoreLabels(collapsedUnary);
     collapsedUnary.indexSpans();
-    for (    Map.Entry<Pair<Integer,Integer>,String> pairStringEntry : spanToLabels.entrySet()) {
-      setSpanLabel(collapsedUnary,pairStringEntry.getKey(),pairStringEntry.getValue());
+    for (    Pair<Integer,Integer> span : spanToLabels.keySet()) {
+      setSpanLabel(collapsedUnary,span,spanToLabels.get(span));
     }
     System.out.println(collapsedUnary);
   }

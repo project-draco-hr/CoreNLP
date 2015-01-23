@@ -13,11 +13,15 @@
   }
   Redwood.log(Redwood.DBG,channelNameLogger,"Running with debug output");
   stopWords=new HashSet<String>();
-  Redwood.log(ConstantsAndVariables.minimaldebug,channelNameLogger,"Reading stop words from " + stopWordsPatternFiles);
-  for (  String stopwfile : stopWordsPatternFiles.split("[;,]"))   stopWords.addAll(IOUtils.linesFromFile(stopwfile));
+  if (stopWordsPatternFiles != null) {
+    Redwood.log(ConstantsAndVariables.minimaldebug,channelNameLogger,"Reading stop words from " + stopWordsPatternFiles);
+    for (    String stopwfile : stopWordsPatternFiles.split("[;,]"))     stopWords.addAll(IOUtils.linesFromFile(stopwfile));
+  }
   englishWords=new HashSet<String>();
-  System.out.println("Reading english words from " + englishWordsFiles);
-  for (  String englishWordsFile : englishWordsFiles.split("[;,]"))   englishWords.addAll(IOUtils.linesFromFile(englishWordsFile));
+  if (englishWordsFiles != null) {
+    System.out.println("Reading english words from " + englishWordsFiles);
+    for (    String englishWordsFile : englishWordsFiles.split("[;,]"))     englishWords.addAll(IOUtils.linesFromFile(englishWordsFile));
+  }
   if (commonWordsPatternFiles != null) {
     commonEngWords=Collections.synchronizedSet(new HashSet<String>());
     for (    String file : commonWordsPatternFiles.split("[;,]"))     commonEngWords.addAll(IOUtils.linesFromFile(file));

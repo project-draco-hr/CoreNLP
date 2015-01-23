@@ -1,0 +1,58 @@
+{
+  try {
+    BufferedReader in=new BufferedReader(new InputStreamReader(socket.getInputStream()));
+    PrintWriter out=new PrintWriter(socket.getOutputStream(),true);
+    out.println("Hello, you are client #" + clientNumber + ".");
+    out.println("Enter a line with only a period to quit\n");
+    Actions nextlineAction=Actions.NONE;
+    while (true) {
+      String input=in.readLine();
+      if (input == null || input.equals(".")) {
+        break;
+      }
+      String msg="";
+      if (nextlineAction.equals(Actions.NEWPHRASES)) {
+        msg="Added new phrases";
+        doNewPhrases(input);
+        nextlineAction=Actions.NONE;
+      }
+ else       if (nextlineAction.equals(Actions.NEWANNOTATIONS)) {
+        doNewAnnotations(input);
+        msg="Added new annotations";
+        nextlineAction=Actions.NONE;
+      }
+ else       if (nextlineAction.equals(Actions.REMOVEPHRASES)) {
+        msg="Removed phrases";
+        doRemovePhrases(input);
+        nextlineAction=Actions.NONE;
+      }
+ else {
+        try {
+          nextlineAction=Actions.valueOf(input.trim());
+        }
+ catch (        IllegalArgumentException e) {
+          System.out.println("read " + input + " and cannot understand");
+          msg="Did not understand " + input + ". POSSIBLE ACTIONS ARE: "+ Arrays.toString(Actions.values());
+        }
+        if (nextlineAction.equals(Actions.NEWPHRASES))         msg="Please write the new phrases to add in the next line ";
+ else         if (nextlineAction.equals(Actions.NEWANNOTATIONS))         msg="Please write the new annotations to add in the next line ";
+ else         if (nextlineAction.equals(Actions.REMOVEPHRASES))         msg="Please write the  phrases to remove in the next line ";
+ else         if (nextlineAction.equals(Actions.CLOSE))         msg="bye!";
+      }
+      System.out.println("sending msg " + msg);
+      out.println(msg);
+    }
+  }
+ catch (  IOException e) {
+    log("Error handling client# " + clientNumber + ": "+ e);
+  }
+ finally {
+    try {
+      socket.close();
+    }
+ catch (    IOException e) {
+      log("Couldn't close a socket, what's going on?");
+    }
+    log("Connection with client# " + clientNumber + " closed");
+  }
+}

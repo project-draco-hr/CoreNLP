@@ -83,22 +83,6 @@
       System.err.print("Tokenization: ");
       System.err.println(Arrays.toString(bits));
     }
-    if (flags.splitWordCount) {
-      addFeature(featuresC,"SWNUM",bits.length);
-    }
-    if (flags.logSplitWordCount) {
-      addFeature(featuresC,"LSWNUM",Math.log(bits.length));
-    }
-    if (flags.binnedSplitWordCounts != null) {
-      String featureName=null;
-      for (int i=0; i <= flags.binnedSplitWordCounts.length; i++) {
-        if (i == flags.binnedSplitWordCounts.length || bits.length <= flags.binnedSplitWordCounts[i]) {
-          featureName="SWNUMBIN-" + ((i == 0) ? 0 : (flags.binnedSplitWordCounts[i - 1] + 1)) + '-'+ ((i == flags.binnedSplitWordCounts.length) ? "Inf" : Integer.toString(flags.binnedSplitWordCounts[i]));
-          break;
-        }
-      }
-      addFeature(featuresC,featureName,DEFAULT_VALUE);
-    }
     for (int i=0; i < bits.length; i++) {
       if (flags.useSplitWords) {
         addFeature(featuresC,"SW-" + bits[i],DEFAULT_VALUE);
@@ -109,11 +93,6 @@
       if (flags.useSplitWordPairs) {
         if (i + 1 < bits.length) {
           addFeature(featuresC,"SWP-" + bits[i] + '-'+ bits[i + 1],DEFAULT_VALUE);
-        }
-      }
-      if (flags.useLowercaseSplitWordPairs) {
-        if (i + 1 < bits.length) {
-          addFeature(featuresC,"LSWP-" + bits[i].toLowerCase() + '-'+ bits[i + 1].toLowerCase(),DEFAULT_VALUE);
         }
       }
       if (flags.useAllSplitWordPairs) {
@@ -164,14 +143,6 @@
           addFeature(featuresC,"SLW-" + bits[i],DEFAULT_VALUE);
         }
       }
-      if (flags.useLowercaseSplitFirstLastWords) {
-        if (i == 0) {
-          addFeature(featuresC,"LSFW-" + bits[i].toLowerCase(),DEFAULT_VALUE);
-        }
- else         if (i == bits.length - 1) {
-          addFeature(featuresC,"SLW-" + bits[i].toLowerCase(),DEFAULT_VALUE);
-        }
-      }
       if (flags.useSplitNGrams || flags.useSplitPrefixSuffixNGrams) {
         Collection<String> featureNames=makeNGramFeatures(bits[i],flags,true,"S#");
         for (        String featureName : featureNames)         addFeature(featuresC,featureName,DEFAULT_VALUE);
@@ -179,26 +150,6 @@
       if (flags.splitWordShape > edu.stanford.nlp.process.WordShapeClassifier.NOWORDSHAPE) {
         String shape=edu.stanford.nlp.process.WordShapeClassifier.wordShape(bits[i],flags.splitWordShape);
         addFeature(featuresC,"SSHAPE-" + shape,DEFAULT_VALUE);
-      }
-    }
-    if (flags.wordVectors != null) {
-      double[] averages=null;
-      for (      String bit : bits) {
-        float[] wv=flags.wordVectors.get(bit);
-        if (wv != null) {
-          if (averages == null) {
-            averages=new double[wv.length];
-            for (int j=0; j < wv.length; j++) {
-              averages[j]+=wv[j];
-            }
-          }
-        }
-      }
-      if (averages != null) {
-        for (int j=0; j < averages.length; j++) {
-          averages[j]/=bits.length;
-          addFeature(featuresC,"SWV-" + j,averages[j]);
-        }
       }
     }
   }

@@ -29,7 +29,7 @@
   for (  List<IN> doc : documents) {
     numWords+=doc.size();
     numDocs++;
-    if (wrapper != null) {
+    if (flags.multiThreadClassifier != 0) {
       wrapper.put(doc);
       while (wrapper.peek()) {
         List<IN> results=wrapper.poll();
@@ -43,7 +43,7 @@
       resultsCounted=resultsCounted && countResults(results,entityTP,entityFP,entityFN);
     }
   }
-  if (wrapper != null) {
+  if (flags.multiThreadClassifier != 0) {
     wrapper.join();
     while (wrapper.peek()) {
       List<IN> results=wrapper.poll();

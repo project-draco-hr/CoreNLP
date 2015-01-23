@@ -18,7 +18,11 @@
   Map<String,List<CoreLabel>> sents=null;
   boolean batchProcessSents=Boolean.parseBoolean(props.getProperty("batchProcessSents","false"));
   int numMaxSentencesPerBatchFile=Integer.parseInt(props.getProperty("numMaxSentencesPerBatchFile",String.valueOf(Integer.MAX_VALUE)));
-  if (!batchProcessSents)   sents=new HashMap<String,List<CoreLabel>>();
+  boolean preserveSentenceSequence=Boolean.parseBoolean(props.getProperty("preserveSentenceSequence","false"));
+  if (!batchProcessSents) {
+    if (preserveSentenceSequence)     sents=new LinkedHashMap<String,List<CoreLabel>>();
+ else     sents=new HashMap<String,List<CoreLabel>>();
+  }
  else {
     Data.sentsFiles=new ArrayList<File>();
     Data.sentId2File=new ConcurrentHashMap<String,File>();
@@ -51,7 +55,9 @@
     tempSaveSentencesDir.mkdir();
     int numFilesTillNow=0;
     if (fileFormat == null || fileFormat.equalsIgnoreCase("text") || fileFormat.equalsIgnoreCase("txt")) {
-      Map<String,List<CoreLabel>> sentsthis=new HashMap<String,List<CoreLabel>>();
+      Map<String,List<CoreLabel>> sentsthis;
+      if (preserveSentenceSequence)       sentsthis=new LinkedHashMap<String,List<CoreLabel>>();
+ else       sentsthis=new HashMap<String,List<CoreLabel>>();
       for (      File f : GetPatternsFromDataMultiClass.getAllFiles(file)) {
         Redwood.log(Redwood.DBG,"Annotating text in " + f);
         Iterator<String> reader=IOUtils.readLines(f).iterator();

@@ -28,6 +28,9 @@
     if (td1.reln() != PREPOSITIONAL_MODIFIER) {
       continue;
     }
+    if (td1.reln() == KILL) {
+      continue;
+    }
     IndexedWord td1Dep=td1.dep();
     SortedSet<TypedDependency> possibles=map.get(td1Dep);
     if (possibles == null) {
@@ -93,14 +96,16 @@
       continue;
     }
     if (DEBUG) {
-      System.err.println("!! Conj and prep case:");
-      System.err.println("  td1 (prep): " + td1);
-      System.err.println("  Kids of td1 are: " + possibles);
-      System.err.println("  prepDep: " + prepDep);
-      System.err.println("  ccDep: " + ccDep);
-      System.err.println("  conjs: " + conjs);
-      System.err.println("  samePrepositionInEachConjunct: " + samePrepositionInEachConjunct);
-      System.err.println("  otherDtrs: " + otherDtrs);
+      if (ccDep != null) {
+        System.err.println("!! Conj and prep case:");
+        System.err.println("  td1 (prep): " + td1);
+        System.err.println("  Kids of td1 are: " + possibles);
+        System.err.println("  prepDep: " + prepDep);
+        System.err.println("  ccDep: " + ccDep);
+        System.err.println("  conjs: " + conjs);
+        System.err.println("  samePrepositionInEachConjunct: " + samePrepositionInEachConjunct);
+        System.err.println("  otherDtrs: " + otherDtrs);
+      }
     }
     if (samePrepositionInEachConjunct) {
       GrammaticalRelation reln=determinePrepRelation(map,vmod,td1,td1,prepDep.second());
@@ -162,12 +167,6 @@
         trip.setThird(prepDep.second());
       }
     }
-    IndexedWord conjHead=td1.gov();
-    for (    TypedDependency td3 : list) {
-      if (td3.dep().equals(td1.gov()) && td3.reln().equals(CONJUNCT)) {
-        conjHead=td3.gov();
-      }
-    }
     GrammaticalRelation reln=determinePrepRelation(map,vmod,td1,td1,prepDep.second());
     TypedDependency tdNew=new TypedDependency(reln,td1.gov(),prepDep.first().dep());
     newTypedDeps.add(tdNew);
@@ -183,7 +182,7 @@
       TypedDependency conjDep=trip.first();
       TypedDependency prepOtherDep=trip.second();
       boolean pobj=trip.third();
-      IndexedWord label=td1.gov().makeSoftCopy(copyNumber);
+      IndexedWord label=td1.gov().makeCopy(copyNumber);
       copyNumber++;
       TypedDependency tdNew2=new TypedDependency(conjValue(ccDep.dep().value()),td1.gov(),label);
       newTypedDeps.add(tdNew2);
