@@ -8,9 +8,14 @@
       wordClassClustersForPhrase.put(p,feat);
     }
     double maxSim=Double.MIN_VALUE;
-    for (    CandidatePhrase pos : CollectionUtils.union(constVars.getLearnedWords(label).keySet(),constVars.getSeedLabelDictionary().get(label))) {
-      double j=Counters.jaccardCoefficient(wordClassClustersForPhrase.get(pos),feat);
-      if (j > maxSim)       maxSim=j;
+    if (feat.size() > 0) {
+      for (      CandidatePhrase pos : CollectionUtils.union(constVars.getLearnedWords(label).keySet(),constVars.getSeedLabelDictionary().get(label))) {
+        Counter<Integer> posfeat=wordClassClustersForPhrase.get(pos);
+        if (posfeat.size() > 0) {
+          double j=Counters.jaccardCoefficient(posfeat,feat);
+          if (j > maxSim)           maxSim=j;
+        }
+      }
     }
     sims.setCount(p,maxSim);
     if (allMaxSim < maxSim)     allMaxSim=maxSim;
@@ -19,7 +24,7 @@
     Redwood.log(Redwood.DBG,"No similarity recorded between the positives and the unknown!");
     percentage=1.0;
   }
-  Counters.retainBottom(sims,(int)(sims.size() * percentage));
-  System.out.println("choosing " + sims + " as the negative phrases. percentage is "+ percentage+ " and allMaxsim was "+ allMaxSim);
+  Collection<CandidatePhrase> removed=Counters.retainBottom(sims,(int)(sims.size() * percentage));
+  System.out.println("not choosing " + removed + " as the negative phrases. percentage is "+ percentage+ " and allMaxsim was "+ allMaxSim);
   return sims.keySet();
 }
