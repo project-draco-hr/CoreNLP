@@ -37,6 +37,9 @@
  else   if (scoreClassifierType.equals(ClassifierType.LINEAR)) {
     LinearClassifierFactory<String,ScorePhraseMeasures> lcf=new LinearClassifierFactory<>();
     classifier=lcf.trainClassifier(dataset);
+    Set<String> labels=Generics.newHashSet(Arrays.asList("true"));
+    List<Triple<ScorePhraseMeasures,String,Double>> topfeatures=((LinearClassifier<String,ScorePhraseMeasures>)classifier).getTopFeatures(labels,0,true,-1,true);
+    Redwood.log(ConstantsAndVariables.minimaldebug,"The weights are " + StringUtils.join(topfeatures,"\n"));
   }
  else   throw new RuntimeException("cannot identify classifier " + scoreClassifierType);
   BufferedWriter w=new BufferedWriter(new FileWriter("tempscorestrainer.txt"));
