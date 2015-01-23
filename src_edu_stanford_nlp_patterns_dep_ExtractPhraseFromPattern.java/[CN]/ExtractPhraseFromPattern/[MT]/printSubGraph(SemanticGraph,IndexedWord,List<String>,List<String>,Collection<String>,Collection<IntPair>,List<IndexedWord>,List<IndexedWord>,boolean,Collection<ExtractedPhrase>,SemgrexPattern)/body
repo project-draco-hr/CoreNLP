@@ -1,0 +1,43 @@
+{
+  try {
+    if (seenNodes.contains(w))     return;
+    seenNodes.add(w);
+    if (doNotAddThese.contains(w))     return;
+    List<IndexedWord> andNodes=new ArrayList<IndexedWord>();
+    descendantsWithReln(g,w,"conj_and",new ArrayList<IndexedWord>(),andNodes);
+    for (    IndexedWord w1 : andNodes) {
+      printSubGraph(g,w1,additionalCutOffRels,textTokens,listOfOutput,listOfOutputIndices,seenNodes,doNotAddThese,findSubTrees,extractedPhrases,pattern);
+    }
+    doNotAddThese.addAll(andNodes);
+    List<String> allCutOffRels=new ArrayList<String>();
+    if (additionalCutOffRels != null)     allCutOffRels.addAll(additionalCutOffRels);
+    allCutOffRels.addAll(cutoffRelations);
+    Set<IndexedWord> words=descendants(g,w,allCutOffRels,doNotAddThese,ignoreCommonTags);
+    if (words.size() > 0) {
+      int min=Integer.MAX_VALUE, max=-1;
+      for (      IndexedWord word : words) {
+        if (word.index() < min)         min=word.index();
+        if (word.index() > max)         max=word.index();
+      }
+      IntPair indices=new IntPair(min - 1,max - 1);
+      String phrase;
+      if ((max - min + 1) <= maxPhraseLength)       phrase=StringUtils.join(textTokens.subList(min - 1,max)," ");
+ else       phrase=StringUtils.join(textTokens.subList(min - 1,min + maxPhraseLength - 1)," ");
+      phrase=phrase.trim();
+      System.out.println("phrase is " + phrase + " index is "+ indices+ " and maxphraselength is "+ maxPhraseLength+ " and descendentset is "+ words);
+      if (!listOfOutput.contains(phrase) && !doNotAddThese.contains(phrase)) {
+        listOfOutput.add(phrase);
+        if (!listOfOutputIndices.contains(indices)) {
+          listOfOutputIndices.add(indices);
+          extractedPhrases.add(new ExtractedPhrase(min - 1,max - 1,pattern,phrase));
+        }
+        if (findSubTrees == true) {
+          for (          IndexedWord word : words)           if (!seenNodes.contains(word))           printSubGraph(g,word,additionalCutOffRels,textTokens,listOfOutput,listOfOutputIndices,seenNodes,doNotAddThese,findSubTrees,extractedPhrases,pattern);
+        }
+      }
+    }
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+  }
+}

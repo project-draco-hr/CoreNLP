@@ -6,19 +6,18 @@
  else   num=keyset.size() / (constVars.numThreads);
   ExecutorService executor=Executors.newFixedThreadPool(constVars.numThreads);
   Redwood.log(ConstantsAndVariables.extremedebug,"Computing all patterns. keyset size is " + keyset.size() + ". Assigning "+ num+ " values to each thread");
-  List<Future<Map<String,Map<Integer,Set<Integer>>>>> list=new ArrayList<Future<Map<String,Map<Integer,Set<Integer>>>>>();
+  List<Future<Boolean>> list=new ArrayList<Future<Boolean>>();
   for (int i=0; i < constVars.numThreads; i++) {
     int from=i * num;
     int to=-1;
     if (i == constVars.numThreads - 1)     to=keyset.size();
  else     to=Math.min(keyset.size(),(i + 1) * num);
-    Callable<Map<String,Map<Integer,Set<Integer>>>> task=null;
     List<String> ids=keyset.subList(from,to);
-    task=new CreatePatternsThread(sents,ids,props,storePatsForEachTokenWay);
-    Future<Map<String,Map<Integer,Set<Integer>>>> submit=executor.submit(task);
+    Callable<Boolean> task=new CreatePatternsThread(sents,ids,props,storePatsForEachTokenWay);
+    Future<Boolean> submit=executor.submit(task);
     list.add(submit);
   }
-  for (  Future<Map<String,Map<Integer,Set<Integer>>>> future : list) {
+  for (  Future<Boolean> future : list) {
     try {
       future.get();
     }

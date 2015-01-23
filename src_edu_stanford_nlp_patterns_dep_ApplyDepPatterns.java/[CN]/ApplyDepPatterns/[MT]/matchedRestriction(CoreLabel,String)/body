@@ -1,0 +1,29 @@
+{
+  boolean use=false;
+  if (PatternFactory.useTargetNERRestriction) {
+    for (    String s : constVars.allowedNERsforLabels.get(label)) {
+      if (coreLabel.get(CoreAnnotations.NamedEntityTagAnnotation.class).matches(s)) {
+        use=true;
+        break;
+      }
+    }
+  }
+ else {
+    System.out.println("not matching NER");
+    use=true;
+  }
+  if (use) {
+    String tag=coreLabel.tag();
+    if (constVars.allowedTagsInitials != null && constVars.allowedTagsInitials.containsKey(label)) {
+      for (      String allowed : constVars.allowedTagsInitials.get(label)) {
+        if (tag.startsWith(allowed)) {
+          use=true;
+          break;
+        }
+        use=false;
+      }
+    }
+  }
+  if (use)   System.out.println(coreLabel.word() + " matched restriction " + (PatternFactory.useTargetNERRestriction ? constVars.allowedNERsforLabels.get(label) : "")+ "and"+ PatternFactory.useTargetNERRestriction+ " and "+ (constVars.allowedTagsInitials != null ? constVars.allowedTagsInitials.get(label) : ""));
+  return use;
+}

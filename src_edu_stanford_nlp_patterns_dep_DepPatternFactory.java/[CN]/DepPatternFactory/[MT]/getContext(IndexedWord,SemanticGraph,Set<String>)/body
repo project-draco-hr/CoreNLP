@@ -1,0 +1,24 @@
+{
+  Set<DepPattern> patterns=new HashSet<DepPattern>();
+  IndexedWord node=w;
+  int depth=1;
+  while (depth <= upDepth) {
+    IndexedWord parent=graph.getParent(node);
+    if (parent == null)     break;
+    GrammaticalRelation rel=graph.reln(parent,node);
+    for (    Pattern tagPattern : allowedTagPatternForTrigger) {
+      if (tagPattern.matcher(parent.tag()).matches()) {
+        if (!ifIgnoreRel(rel) && !stopWords.contains(parent.word()) && parent.word().length() > 1) {
+          Pair<IndexedWord,GrammaticalRelation> pattern=new Pair<IndexedWord,GrammaticalRelation>(parent,rel);
+          DepPattern patterndep=patternToDepPattern(pattern);
+          if (depth <= upDepth) {
+            patterns.add(patterndep);
+          }
+        }
+      }
+    }
+    node=parent;
+    depth++;
+  }
+  return patterns;
+}

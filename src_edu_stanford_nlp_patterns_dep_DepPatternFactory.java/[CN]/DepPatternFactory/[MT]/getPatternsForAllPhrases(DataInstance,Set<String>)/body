@@ -1,0 +1,22 @@
+{
+  SemanticGraph graph=((DataInstanceDep)sent).getGraph();
+  Map<Integer,Set<DepPattern>> pats4Sent=new HashMap<Integer,Set<DepPattern>>();
+  Map<String,List<String>> mappingsForSent=new HashMap<String,List<String>>();
+  Map<String,Counter<String>> phrasesForPatternForSent=new HashMap<String,Counter<String>>();
+  if (graph == null || graph.isEmpty()) {
+    System.out.println("graph is empty or null!");
+    return null;
+  }
+  ArrayList<IndexedWord> seenNodes=new ArrayList<IndexedWord>();
+  Set<IndexedWord> allNodes=null;
+  try {
+    allNodes=graph.descendants(graph.getFirstRoot());
+  }
+ catch (  IllegalArgumentException i) {
+    return null;
+  }
+  for (  IndexedWord w : allNodes) {
+    pats4Sent.put(w.index() - 1,getContext(w,graph,commonWords));
+  }
+  return pats4Sent;
+}

@@ -1,0 +1,181 @@
+{
+  Set<SurfacePattern> prevpatterns=new HashSet<SurfacePattern>();
+  Set<SurfacePattern> nextpatterns=new HashSet<SurfacePattern>();
+  Set<SurfacePattern> prevnextpatterns=new HashSet<SurfacePattern>();
+  CoreLabel token=sent.get(i);
+  String tag=null;
+  if (usePOS4Pattern) {
+    String fulltag=token.tag();
+    tag=fulltag.substring(0,Math.min(fulltag.length(),2));
+  }
+  String nerTag=token.get(CoreAnnotations.NamedEntityTagAnnotation.class);
+  for (int maxWin=1; maxWin <= maxWindow4Pattern; maxWin++) {
+    List<Token> previousTokens=new ArrayList<Token>();
+    List<String> originalPrev=new ArrayList<String>(), originalNext=new ArrayList<String>();
+    List<Token> nextTokens=new ArrayList<Token>();
+    int numStopWordsprev=0, numStopWordsnext=0;
+    int numNonStopWordsNext=0, numNonStopWordsPrev=0;
+    boolean useprev=false, usenext=false;
+    PatternToken twithoutPOS=null;
+    if (addPatWithoutPOS) {
+      twithoutPOS=new PatternToken(tag,false,numWordsCompound > 1,numWordsCompound,nerTag,useTargetNERRestriction,useTargetParserParentRestriction,token.get(CoreAnnotations.GrandparentAnnotation.class));
+    }
+    PatternToken twithPOS=null;
+    if (usePOS4Pattern) {
+      twithPOS=new PatternToken(tag,true,numWordsCompound > 1,numWordsCompound,nerTag,useTargetNERRestriction,useTargetParserParentRestriction,token.get(CoreAnnotations.GrandparentAnnotation.class));
+    }
+    if (usePreviousContext) {
+      int j=i - 1;
+      int numTokens=0;
+      while (numTokens < maxWin && j >= 0) {
+        CoreLabel tokenj=sent.get(j);
+        String tokenjStr;
+        if (useLemmaContextTokens)         tokenjStr=tokenj.lemma();
+ else         tokenjStr=tokenj.word();
+        if (useFillerWordsInPat && fillerWords.contains(tokenj.word().toLowerCase())) {
+          j--;
+          continue;
+        }
+        Triple<Boolean,Token,String> tr=getContextTokenStr(tokenj);
+        boolean isLabeledO=tr.first;
+        Token strgeneric=tr.second;
+        String strOriginal=tr.third;
+        if (!isLabeledO) {
+          previousTokens.add(0,strgeneric);
+          originalPrev.add(0,strOriginal);
+          numNonStopWordsPrev++;
+        }
+ else         if (tokenj.word().startsWith("http")) {
+          useprev=false;
+          previousTokens.clear();
+          originalPrev.clear();
+          break;
+        }
+ else {
+          Token str=SurfacePattern.getContextToken(tokenj);
+          previousTokens.add(0,str);
+          originalPrev.add(0,tokenjStr);
+          if (doNotUse(tokenjStr,stopWords)) {
+            numStopWordsprev++;
+          }
+ else           numNonStopWordsPrev++;
+        }
+        numTokens++;
+        j--;
+      }
+    }
+    if (useNextContext) {
+      int numTokens=0;
+      int j=i + 1;
+      while (numTokens < maxWin && j < sent.size()) {
+        CoreLabel tokenj=sent.get(j);
+        String tokenjStr;
+        if (useLemmaContextTokens)         tokenjStr=tokenj.lemma();
+ else         tokenjStr=tokenj.word();
+        if (useFillerWordsInPat && fillerWords.contains(tokenj.word().toLowerCase())) {
+          j++;
+          continue;
+        }
+        Triple<Boolean,Token,String> tr=getContextTokenStr(tokenj);
+        boolean isLabeledO=tr.first;
+        Token strgeneric=tr.second;
+        String strOriginal=tr.third;
+        if (!isLabeledO) {
+          numNonStopWordsNext++;
+          nextTokens.add(strgeneric);
+          originalNext.add(strOriginal);
+        }
+ else         if (tokenj.word().startsWith("http")) {
+          usenext=false;
+          nextTokens.clear();
+          originalNext.clear();
+          break;
+        }
+ else {
+          Token str=SurfacePattern.getContextToken(tokenj);
+          nextTokens.add(str);
+          originalNext.add(tokenjStr);
+          if (doNotUse(tokenjStr,stopWords)) {
+            numStopWordsnext++;
+          }
+ else           numNonStopWordsNext++;
+        }
+        j++;
+        numTokens++;
+      }
+    }
+    Token[] prevContext=null;
+    if (previousTokens.size() >= minWindow4Pattern && (numNonStopWordsPrev > 0 || numStopWordsprev > numMinStopWordsToAdd)) {
+      List<Token> prevContextList=new ArrayList<Token>();
+      List<String> prevOriginal=new ArrayList<String>();
+      for (      Token p : previousTokens) {
+        prevContextList.add(p);
+        if (!fw.isEmpty())         prevContextList.add(fw);
+      }
+      for (      String p : originalPrev) {
+        prevOriginal.add(p);
+        if (!fw.isEmpty())         prevOriginal.add(" FW ");
+      }
+      if (!sw.isEmpty()) {
+        prevContextList.add(sw);
+        prevOriginal.add(" SW ");
+      }
+      if (isASCII(StringUtils.join(prevOriginal))) {
+        prevContext=prevContextList.toArray(new Token[0]);
+        if (previousTokens.size() >= minWindow4Pattern) {
+          if (twithoutPOS != null) {
+            SurfacePattern pat=new SurfacePattern(prevContext,twithoutPOS,null,Genre.PREV);
+            prevpatterns.add(pat);
+          }
+          if (twithPOS != null) {
+            SurfacePattern patPOS=new SurfacePattern(prevContext,twithPOS,null,Genre.PREV);
+            prevpatterns.add(patPOS);
+          }
+        }
+        useprev=true;
+      }
+    }
+    Token[] nextContext=null;
+    if (nextTokens.size() > 0 && (numNonStopWordsNext > 0 || numStopWordsnext > numMinStopWordsToAdd)) {
+      List<Token> nextContextList=new ArrayList<Token>();
+      List<String> nextOriginal=new ArrayList<String>();
+      if (!sw.isEmpty()) {
+        nextContextList.add(sw);
+        nextOriginal.add(" SW ");
+      }
+      for (      Token n : nextTokens) {
+        if (!fw.isEmpty())         nextContextList.add(fw);
+        nextContextList.add(n);
+      }
+      for (      String n : originalNext) {
+        if (!fw.isEmpty())         nextOriginal.add(" FW ");
+        nextOriginal.add(n);
+      }
+      if (nextTokens.size() >= minWindow4Pattern) {
+        nextContext=nextContextList.toArray(new Token[0]);
+        if (twithoutPOS != null) {
+          SurfacePattern pat=new SurfacePattern(null,twithoutPOS,nextContext,Genre.NEXT);
+          nextpatterns.add(pat);
+        }
+        if (twithPOS != null) {
+          SurfacePattern patPOS=new SurfacePattern(null,twithPOS,nextContext,Genre.NEXT);
+          nextpatterns.add(patPOS);
+        }
+      }
+      usenext=true;
+    }
+    if (useprev && usenext) {
+      if (previousTokens.size() + nextTokens.size() >= minWindow4Pattern) {
+        if (twithoutPOS != null) {
+          SurfacePattern pat=new SurfacePattern(prevContext,twithoutPOS,nextContext,Genre.PREVNEXT);
+          prevnextpatterns.add(pat);
+        }
+        if (twithPOS != null) {
+          SurfacePattern patPOS=new SurfacePattern(prevContext,twithPOS,nextContext,Genre.PREVNEXT);
+          prevnextpatterns.add(patPOS);
+        }
+      }
+    }
+  }
+  return CollectionUtils.unionAsSet(prevpatterns,nextpatterns,prevnextpatterns);
+}

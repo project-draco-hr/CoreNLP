@@ -1,0 +1,25 @@
+{
+  if (seenNodes.contains(curr))   return;
+  seenNodes.add(curr);
+  if (descendantSet.contains(curr) || (doNotAddThese != null && doNotAddThese.contains(curr))) {
+    return;
+  }
+  if (!ignoreCommonTags || !ignoreTags.contains(curr.tag().trim()))   descendantSet.add(curr);
+  for (  IndexedWord child : g.getChildren(curr)) {
+    boolean dontuse=false;
+    if (doNotAddThese != null && doNotAddThese.contains(child))     dontuse=true;
+    if (dontuse == false) {
+      dontuse=checkIfSatisfiesRelConstrains(g,curr,child,allCutOffRels);
+    }
+    if (dontuse == false) {
+      for (      String cutOffTagRegex : cutoffTags) {
+        if (child.tag().matches(cutOffTagRegex)) {
+          if (DEBUG >= 5)           System.out.println("ignored tag " + child + " because it satisfied "+ cutOffTagRegex);
+          dontuse=true;
+          break;
+        }
+      }
+    }
+    if (dontuse == false)     descendantsHelper(g,child,descendantSet,allCutOffRels,doNotAddThese,seenNodes,ignoreCommonTags);
+  }
+}
