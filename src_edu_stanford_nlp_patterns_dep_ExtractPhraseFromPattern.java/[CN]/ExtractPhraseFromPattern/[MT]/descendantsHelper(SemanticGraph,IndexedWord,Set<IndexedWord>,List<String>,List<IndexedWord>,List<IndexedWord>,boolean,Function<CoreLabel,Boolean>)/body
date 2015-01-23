@@ -1,7 +1,7 @@
 {
   if (seenNodes.contains(curr))   return;
   seenNodes.add(curr);
-  if (descendantSet.contains(curr) || (doNotAddThese != null && doNotAddThese.contains(curr))) {
+  if (descendantSet.contains(curr) || (doNotAddThese != null && doNotAddThese.contains(curr)) || !acceptWord.apply(curr.backingLabel())) {
     return;
   }
   if (!ignoreCommonTags || !ignoreTags.contains(curr.tag().trim()))   descendantSet.add(curr);
@@ -20,6 +20,6 @@
         }
       }
     }
-    if (dontuse == false)     descendantsHelper(g,child,descendantSet,allCutOffRels,doNotAddThese,seenNodes,ignoreCommonTags);
+    if (dontuse == false)     descendantsHelper(g,child,descendantSet,allCutOffRels,doNotAddThese,seenNodes,ignoreCommonTags,acceptWord);
   }
 }

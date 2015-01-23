@@ -7,17 +7,19 @@
     IndexedWord parent=m.getNode("parent");
     boolean ifSatisfiedMaxDepth=checkIfSatisfiedMaxDepth(g,parent,w,new IntPair(maxDepth,0));
     if (ifSatisfiedMaxDepth == false)     continue;
-    List<Pair<String,SemanticGraph>> matchedGraphs=matchedGraphsForPattern.get(pattern);
-    if (matchedGraphs == null)     matchedGraphs=new ArrayList<Pair<String,SemanticGraph>>();
-    matchedGraphs.add(new Pair<String,SemanticGraph>(StringUtils.join(tokens," "),g));
-    if (DEBUG >= 3)     System.out.println("matched pattern is " + pattern);
-    matchedGraphsForPattern.put(pattern,matchedGraphs);
+    if (DEBUG > 3) {
+      List<Pair<String,SemanticGraph>> matchedGraphs=matchedGraphsForPattern.get(pattern);
+      if (matchedGraphs == null)       matchedGraphs=new ArrayList<Pair<String,SemanticGraph>>();
+      matchedGraphs.add(new Pair<String,SemanticGraph>(StringUtils.join(tokens," "),g));
+      if (DEBUG >= 3)       System.out.println("matched pattern is " + pattern);
+      matchedGraphsForPattern.put(pattern,matchedGraphs);
+    }
     foundWordsParents.add(parent);
     ArrayList<IndexedWord> seenNodes=new ArrayList<IndexedWord>();
     List<String> cutoffrelations=new ArrayList<String>();
     System.out.println("g is ");
     g.prettyPrint();
-    printSubGraph(g,w,cutoffrelations,tokens,outputNodes,outputIndices,seenNodes,new ArrayList<IndexedWord>(),findSubTrees,extractedPhrases,pattern);
+    printSubGraph(g,w,cutoffrelations,tokens,outputNodes,outputIndices,seenNodes,new ArrayList<IndexedWord>(),findSubTrees,extractedPhrases,pattern,acceptWord,extractFeat);
   }
   return foundWordsParents;
 }
