@@ -1,8 +1,14 @@
 {
   boolean expandNeg=false;
-  if (closeToNegativesFirstIter == null && constVars.expandNegativesWhenSampling)   expandNeg=true;
+  if (closeToNegativesFirstIter == null) {
+    closeToNegativesFirstIter=new ClassicCounter<CandidatePhrase>();
+    if (constVars.expandNegativesWhenSampling)     expandNeg=true;
+  }
   boolean expandPos=false;
-  if (closeToPositivesFirstIter == null && constVars.expandPositivesWhenSampling)   expandPos=true;
+  if (closeToPositivesFirstIter == null) {
+    closeToPositivesFirstIter=new ClassicCounter<CandidatePhrase>();
+    if (constVars.expandPositivesWhenSampling)     expandPos=true;
+  }
   Counter<Integer> distSimClustersOfPositive=new ClassicCounter<Integer>();
   if ((expandPos || expandNeg) && !constVars.useWordVectorsToComputeSim) {
     for (    CandidatePhrase s : CollectionUtils.union(constVars.getLearnedWords(answerLabel).keySet(),constVars.getSeedLabelDictionary().get(answerLabel))) {
