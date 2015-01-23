@@ -105,19 +105,7 @@
     }
     if (constVars.writeMatchedTokensIdsForEachPhrase) {
       String matchedtokensfilename=constVars.outDir + "/" + constVars.identifier+ "/tokenids4matchedphrases"+ ".json";
-      JsonObjectBuilder pats=Json.createObjectBuilder();
-      for (      Entry<String,Collection<Triple<String,Integer,Integer>>> en : Data.matchedTokensForEachPhrase.entrySet()) {
-        JsonArrayBuilder arrobj=Json.createArrayBuilder();
-        for (        Triple<String,Integer,Integer> sen : en.getValue()) {
-          JsonObjectBuilder obj=Json.createObjectBuilder();
-          obj.add("id",sen.first());
-          obj.add("start",sen.second());
-          obj.add("length",sen.third());
-          arrobj.add(obj);
-        }
-        pats.add(en.getKey(),arrobj);
-      }
-      IOUtils.writeStringToFile(pats.build().toString(),matchedtokensfilename,"utf8");
+      IOUtils.writeStringToFile(matchedTokensByPhraseJsonString(),matchedtokensfilename,"utf8");
     }
   }
   System.out.println("\n\nAll patterns learned:");

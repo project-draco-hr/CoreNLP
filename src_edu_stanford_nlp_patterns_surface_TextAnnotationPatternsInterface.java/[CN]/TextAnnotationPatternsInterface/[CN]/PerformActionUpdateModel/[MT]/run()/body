@@ -19,53 +19,39 @@
   Actions nextlineAction=Actions.NONE;
   while (true) {
     try {
-      String input=in.readLine();
-      if (input == null || input.equals(".")) {
+      String line=in.readLine();
+      if (line == null || line.equals(".")) {
         break;
       }
-      ;
+      String[] toks=line.split("###");
+      try {
+        nextlineAction=Actions.valueOf(toks[0].trim());
+      }
+ catch (      IllegalArgumentException e) {
+        System.out.println("read " + toks[0] + " and cannot understand");
+        msg="Did not understand " + toks[0] + ". POSSIBLE ACTIONS ARE: "+ Arrays.toString(Actions.values());
+      }
+      String input=toks.length == 2 ? toks[1] : null;
       if (nextlineAction.equals(Actions.NEWPHRASES)) {
-        msg="Added new phrases";
-        doNewPhrases(input);
-        nextlineAction=Actions.NONE;
+        msg=doNewPhrases(input);
       }
  else       if (nextlineAction.equals(Actions.NEWANNOTATIONS)) {
-        doNewAnnotations(input);
-        msg="Added new annotations";
-        nextlineAction=Actions.NONE;
+        msg=doNewAnnotations(input);
       }
  else       if (nextlineAction.equals(Actions.REMOVEPHRASES)) {
-        msg="Removed phrases";
-        doRemovePhrases(input);
-        nextlineAction=Actions.NONE;
+        msg=doRemovePhrases(input);
       }
  else       if (nextlineAction.equals(Actions.PROCESSFILE)) {
         msg=processFile(input);
-        nextlineAction=Actions.NONE;
       }
- else {
-        try {
-          nextlineAction=Actions.valueOf(input.trim());
-        }
- catch (        IllegalArgumentException e) {
-          System.out.println("read " + input + " and cannot understand");
-          msg="Did not understand " + input + ". POSSIBLE ACTIONS ARE: "+ Arrays.toString(Actions.values());
-        }
-        if (nextlineAction.equals(Actions.NEWPHRASES))         msg="Please write the new phrases to add in the next line ";
- else         if (nextlineAction.equals(Actions.NEWANNOTATIONS))         msg="Please write the new annotations to add in the next line ";
- else         if (nextlineAction.equals(Actions.REMOVEPHRASES))         msg="Please write the  phrases to remove in the next line ";
- else         if (nextlineAction.equals(Actions.CLOSE))         msg="bye!";
- else         if (nextlineAction.equals(Actions.PROCESSFILE)) {
-          msg="please write the filename to process";
-        }
- else         if (nextlineAction.equals(Actions.SUMMARY)) {
-          msg=this.currentSummary();
-          nextlineAction=Actions.NONE;
-        }
- else         if (nextlineAction.equals(Actions.SUGGEST)) {
-          msg=this.suggestPhrases();
-          nextlineAction=Actions.NONE;
-        }
+ else       if (nextlineAction.equals(Actions.SUMMARY)) {
+        msg=this.currentSummary();
+      }
+ else       if (nextlineAction.equals(Actions.SUGGEST)) {
+        msg=this.suggestPhrases();
+      }
+ else       if (nextlineAction.equals(Actions.CLOSE)) {
+        msg="bye!";
       }
       System.out.println("sending msg " + msg);
     }

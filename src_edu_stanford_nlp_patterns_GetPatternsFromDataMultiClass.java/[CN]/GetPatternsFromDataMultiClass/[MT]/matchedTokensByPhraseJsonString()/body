@@ -1,0 +1,17 @@
+{
+  JsonObjectBuilder pats=Json.createObjectBuilder();
+  for (  Entry<String,Map<String,List<Integer>>> en : Data.matchedTokensForEachPhrase.entrySet()) {
+    JsonArrayBuilder arrobj=Json.createArrayBuilder();
+    for (    Entry<String,List<Integer>> sen : en.getValue().entrySet()) {
+      JsonObjectBuilder obj=Json.createObjectBuilder();
+      JsonArrayBuilder tokens=Json.createArrayBuilder();
+      for (      Integer i : sen.getValue()) {
+        tokens.add(i);
+      }
+      obj.add("id",tokens);
+      arrobj.add(obj);
+    }
+    pats.add(en.getKey(),arrobj);
+  }
+  return pats.build().toString();
+}
