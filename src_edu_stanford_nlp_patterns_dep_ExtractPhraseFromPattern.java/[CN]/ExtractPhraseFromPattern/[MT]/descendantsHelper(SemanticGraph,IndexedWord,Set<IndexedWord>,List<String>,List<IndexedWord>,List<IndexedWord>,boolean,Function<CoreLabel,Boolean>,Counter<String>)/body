@@ -4,12 +4,16 @@
   if (descendantSet.contains(curr) || (doNotAddThese != null && doNotAddThese.contains(curr)) || !acceptWord.apply(curr.backingLabel())) {
     return;
   }
-  if (!ignoreCommonTags || !ignoreTags.contains(curr.tag().trim()))   descendantSet.add(curr);
+  if (!ignoreCommonTags || !ignoreTags.contains(curr.tag().trim())) {
+    descendantSet.add(curr);
+  }
   for (  IndexedWord child : g.getChildren(curr)) {
     boolean dontuse=false;
     if (doNotAddThese != null && doNotAddThese.contains(child))     dontuse=true;
+    GrammaticalRelation rel=null;
     if (dontuse == false) {
-      dontuse=checkIfSatisfiesRelConstrains(g,curr,child,allCutOffRels);
+      rel=g.reln(curr,child);
+      dontuse=checkIfSatisfiesRelConstrains(g,curr,child,allCutOffRels,rel);
     }
     if (dontuse == false) {
       for (      String cutOffTagRegex : cutoffTags) {
@@ -20,6 +24,9 @@
         }
       }
     }
-    if (dontuse == false)     descendantsHelper(g,child,descendantSet,allCutOffRels,doNotAddThese,seenNodes,ignoreCommonTags,acceptWord);
+    if (dontuse == false) {
+      feat.incrementCount("REL-" + rel.getShortName());
+      descendantsHelper(g,child,descendantSet,allCutOffRels,doNotAddThese,seenNodes,ignoreCommonTags,acceptWord,feat);
+    }
   }
 }
