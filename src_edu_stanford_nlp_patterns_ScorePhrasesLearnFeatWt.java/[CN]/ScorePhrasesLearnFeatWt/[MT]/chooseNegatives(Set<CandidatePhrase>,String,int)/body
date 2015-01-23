@@ -1,0 +1,18 @@
+{
+  Counter<CandidatePhrase> sims=new ClassicCounter<CandidatePhrase>();
+  for (  CandidatePhrase p : candidatePhrases) {
+    Counter<Integer> feat=wordClassClustersForPhrase.get(p);
+    if (feat == null) {
+      feat=wordClass(p.getPhrase(),p.getPhraseLemma());
+      wordClassClustersForPhrase.put(p,feat);
+    }
+    double maxSim=Double.MIN_VALUE;
+    for (    CandidatePhrase pos : CollectionUtils.union(constVars.getLearnedWords(label).keySet(),constVars.getSeedLabelDictionary().get(label))) {
+      double j=Counters.jaccardCoefficient(wordClassClustersForPhrase.get(pos),feat);
+      if (j > maxSim)       maxSim=j;
+    }
+    sims.setCount(p,maxSim);
+  }
+  Counters.retainBottom(sims,Math.min((int)(sims.size() * 0.8),maxNum));
+  return sims.keySet();
+}
