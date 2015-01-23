@@ -1,16 +1,9 @@
 {
   double editDist;
   String editDistPh;
-  if (editDistanceFromThisClass.containsKey(g)) {
-    editDist=editDistanceFromThisClass.get(g);
-    editDistPh=editDistanceFromThisClassMatches.get(g);
-    assert(!editDistPh.isEmpty());
-  }
- else {
-    Pair<String,Double> editMatch=getEditDistanceFromThisClass(label,g,4);
-    editDist=editMatch.second();
-    editDistPh=editMatch.first();
-    assert(!editDistPh.isEmpty());
-  }
-  return editDist / (double)editDistPh.length();
+  Pair<String,Double> editMatch=getEditDistanceFromThisClass(label,g,4);
+  editDist=editMatch.second();
+  editDistPh=editMatch.first();
+  assert(!editDistPh.isEmpty());
+  return ((editDist == editDistMax) ? 1.0 : (editDist / (double)editDistPh.length()));
 }
