@@ -16,13 +16,11 @@
     sims.setCount(p,maxSim);
     if (allMaxSim < maxSim)     allMaxSim=maxSim;
   }
-  double percentage;
   if (allMaxSim == Double.MIN_VALUE) {
     Redwood.log(Redwood.DBG,"No similarity recorded between the positives and the unknown!");
     percentage=1.0;
   }
- else   percentage=0.8;
-  Counters.retainBottom(sims,Math.min((int)(sims.size() * percentage),maxNum));
-  System.out.println("choosing " + sims + " as the negative phrases");
+  Counters.retainBottom(sims,(int)(sims.size() * percentage));
+  System.out.println("choosing " + sims + " as the negative phrases. percentage is "+ percentage+ " and allMaxsim was "+ allMaxSim);
   return sims.keySet();
 }

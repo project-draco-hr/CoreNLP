@@ -5,6 +5,7 @@
   int numpos=0;
   List<Pair<String,Integer>> chosen=new ArrayList<Pair<String,Integer>>();
   List<CandidatePhrase> allNegativePhrases=new ArrayList<CandidatePhrase>();
+  List<CandidatePhrase> allUnknownPhrases=new ArrayList<CandidatePhrase>();
   for (  Entry<String,DataInstance> en : sents.entrySet()) {
     List<CoreLabel> value=en.getValue().getTokens();
     CoreLabel[] sent=value.toArray(new CoreLabel[value.size()]);
@@ -53,6 +54,14 @@
           allNegativePhrases.add(candidate);
         }
       }
+    }
+    allUnknownPhrases.addAll(this.chooseUnknownPhrases(en.getValue(),r,perSelectRand,constVars.getAnswerClass().get(label),label,Math.max(0,Integer.MAX_VALUE)));
+  }
+  if (constVars.subsampleUnkAsNegUsingSim)   allNegativePhrases.addAll(chooseUnknownAsNegatives(allUnknownPhrases,label,constVars.subSampleUnkAsNegUsingSimPercentage));
+ else {
+    if (allUnknownPhrases.size() + allNegativePhrases.size() > 1.5 * numpos) {
+      Redwood.log(Redwood.WARN,"Num of negative (" + allNegativePhrases.size() + ") plus num of unknown phrases ("+ allUnknownPhrases.size()+ ") is much higher than number of positive phrases ("+ numpos+ "). Consider decreasing perSelectNeg and perSelect");
+      allNegativePhrases.addAll(allUnknownPhrases);
     }
   }
   for (  CandidatePhrase negative : allNegativePhrases) {
