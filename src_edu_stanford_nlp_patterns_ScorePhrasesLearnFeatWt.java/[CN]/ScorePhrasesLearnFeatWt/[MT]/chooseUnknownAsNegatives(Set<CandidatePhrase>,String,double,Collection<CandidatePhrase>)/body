@@ -22,7 +22,9 @@
   if (allMaxSim.get() == Double.MIN_VALUE) {
     Redwood.log(Redwood.DBG,"No similarity recorded between the positives and the unknown!");
   }
-  Collection<CandidatePhrase> removed=Counters.retainBottom(sims,(int)(sims.size() * percentage));
-  System.out.println("not choosing " + removed + " as the negative phrases. percentage is "+ percentage+ " and allMaxsim was "+ allMaxSim);
+  CandidatePhrase k=Counters.argmax(sims);
+  System.out.println("Maximum similarity was " + sims.getCount(k) + " for word "+ k);
+  Collection<CandidatePhrase> removed=Counters.retainBelow(sims,constVars.positiveSimilarityThreshold);
+  System.out.println("removing phrases as negative phrases that were higher that positive similarity threshold of " + constVars.positiveSimilarityThreshold + Counters.getCounts(sims,removed));
   return sims.keySet();
 }
