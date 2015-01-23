@@ -1,5 +1,4 @@
 {
-  final int numTopSimilar=3;
   Counter<CandidatePhrase> sims=new ClassicCounter<CandidatePhrase>(candidatePhrases.size());
   for (  CandidatePhrase p : candidatePhrases) {
     Map<String,double[]> simsAvgMaxAllLabels=similaritiesWithLabeledPhrases.get(p.getPhrase());
@@ -38,7 +37,7 @@
           cacheSimilarities.setCount(pair,sim);
         }
         topSimPhs.add(other,sim);
-        if (topSimPhs.size() > numTopSimilar)         topSimPhs.removeLastEntry();
+        if (topSimPhs.size() > constVars.expandPhrasesNumTopSimilar)         topSimPhs.removeLastEntry();
         allsum+=sim;
         if (sim > max)         max=sim;
       }
