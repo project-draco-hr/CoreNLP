@@ -1,6 +1,5 @@
 {
-  Counter<CandidatePhrase> sims=new ClassicCounter<CandidatePhrase>();
-  double allMaxSim=Double.MIN_VALUE;
+  Counter<CandidatePhrase> sims=new ClassicCounter<CandidatePhrase>(candidatePhrases.size());
   for (  CandidatePhrase p : candidatePhrases) {
     Counter<Integer> feat=wordClassClustersForPhrase.get(p);
     if (feat == null) {
@@ -18,13 +17,7 @@
       }
     }
     sims.setCount(p,maxSim);
-    if (allMaxSim < maxSim)     allMaxSim=maxSim;
+    if (allMaxSim.get() < maxSim)     allMaxSim.set(maxSim);
   }
-  if (allMaxSim == Double.MIN_VALUE) {
-    Redwood.log(Redwood.DBG,"No similarity recorded between the positives and the unknown!");
-    percentage=1.0;
-  }
-  Collection<CandidatePhrase> removed=Counters.retainBottom(sims,(int)(sims.size() * percentage));
-  System.out.println("not choosing " + removed + " as the negative phrases. percentage is "+ percentage+ " and allMaxsim was "+ allMaxSim);
-  return sims.keySet();
+  return sims;
 }

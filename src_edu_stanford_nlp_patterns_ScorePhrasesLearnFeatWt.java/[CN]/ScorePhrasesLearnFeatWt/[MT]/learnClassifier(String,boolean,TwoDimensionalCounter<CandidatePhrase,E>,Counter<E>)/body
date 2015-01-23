@@ -2,19 +2,12 @@
   phraseScoresRaw.clear();
   learnedScores.clear();
   if (Data.domainNGramsFile != null)   Data.loadDomainNGrams();
-  RVFDataset<String,ScorePhraseMeasures> dataset=new RVFDataset<String,ScorePhraseMeasures>();
   boolean computeRawFreq=false;
   if (Data.rawFreq == null) {
     Data.rawFreq=new ClassicCounter<CandidatePhrase>();
     computeRawFreq=true;
   }
-  ConstantsAndVariables.DataSentsIterator sentsIter=new ConstantsAndVariables.DataSentsIterator(constVars.batchProcessSents);
-  while (sentsIter.hasNext()) {
-    Pair<Map<String,DataInstance>,File> sentsf=sentsIter.next();
-    Redwood.log(Redwood.DBG,"Sampling sentences from " + sentsf.second());
-    if (computeRawFreq)     Data.computeRawFreqIfNull(sentsf.first(),PatternFactory.numWordsCompound);
-    dataset.addAll(choosedatums(label,forLearningPatterns,sentsf.first(),constVars.getAnswerClass().get(label),label,constVars.getIgnoreWordswithClassesDuringSelection().get(label),constVars.perSelectRand,constVars.perSelectNeg,wordsPatExtracted,allSelectedPatterns));
-  }
+  RVFDataset<String,ScorePhraseMeasures> dataset=choosedatums(forLearningPatterns,label,wordsPatExtracted,allSelectedPatterns,computeRawFreq);
   edu.stanford.nlp.classify.Classifier classifier;
   if (scoreClassifierType.equals(ClassifierType.LR)) {
     LogisticClassifierFactory<String,ScorePhraseMeasures> logfactory=new LogisticClassifierFactory<String,ScorePhraseMeasures>();

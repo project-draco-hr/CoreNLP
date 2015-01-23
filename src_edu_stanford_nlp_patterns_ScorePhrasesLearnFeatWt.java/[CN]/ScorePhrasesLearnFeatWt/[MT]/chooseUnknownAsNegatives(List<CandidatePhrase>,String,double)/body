@@ -1,0 +1,28 @@
+{
+  List<List<CandidatePhrase>> threadedCandidates=GetPatternsFromDataMultiClass.getThreadBatches(candidatePhrases,constVars.numThreads);
+  Counter<CandidatePhrase> sims=new ClassicCounter<CandidatePhrase>();
+  AtomicDouble allMaxSim=new AtomicDouble(Double.MIN_VALUE);
+  ExecutorService executor=Executors.newFixedThreadPool(constVars.numThreads);
+  List<Future<Counter<CandidatePhrase>>> list=new ArrayList<Future<Counter<CandidatePhrase>>>();
+  for (  List<CandidatePhrase> keys : threadedCandidates) {
+    Callable<Counter<CandidatePhrase>> task=new ComputeSim(label,keys,allMaxSim);
+    Future<Counter<CandidatePhrase>> submit=executor.submit(task);
+    list.add(submit);
+  }
+  for (  Future<Counter<CandidatePhrase>> future : list) {
+    try {
+      sims.addAll(future.get());
+    }
+ catch (    Exception e) {
+      executor.shutdownNow();
+      throw new RuntimeException(e);
+    }
+  }
+  executor.shutdown();
+  if (allMaxSim.get() == Double.MIN_VALUE) {
+    Redwood.log(Redwood.DBG,"No similarity recorded between the positives and the unknown!");
+  }
+  Collection<CandidatePhrase> removed=Counters.retainBottom(sims,(int)(sims.size() * percentage));
+  System.out.println("not choosing " + removed + " as the negative phrases. percentage is "+ percentage+ " and allMaxsim was "+ allMaxSim);
+  return sims.keySet();
+}

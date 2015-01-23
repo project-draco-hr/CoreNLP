@@ -1,18 +1,13 @@
 {
-  List<String> keyset=new ArrayList<String>(sents.keySet());
-  Redwood.log(Redwood.DBG,"Labeling " + keyset.size() + " sentences with "+ seedWords.size()+ " seeds for the label "+ label);
-  int num;
-  if (constVars.numThreads == 1)   num=keyset.size();
- else   num=keyset.size() / (constVars.numThreads - 1);
+  List<List<String>> threadedSentIds=getThreadBatches(new ArrayList<String>(sents.keySet()),constVars.numThreads);
   ExecutorService executor=Executors.newFixedThreadPool(constVars.numThreads);
-  Redwood.log(ConstantsAndVariables.extremedebug,"keyset size is " + keyset.size());
   List<Future<Map<String,DataInstance>>> list=new ArrayList<Future<Map<String,DataInstance>>>();
-  for (int i=0; i < constVars.numThreads; i++) {
-    List<String> keys=keyset.subList(i * num,Math.min(keyset.size(),(i + 1) * num));
-    Redwood.log(ConstantsAndVariables.extremedebug,"assigning from " + i * num + " till " + Math.min(keyset.size(),(i + 1) * num));
+  int i=0;
+  for (  List<String> keys : threadedSentIds) {
     Callable<Map<String,DataInstance>> task=new LabelWithSeedWords(seedWords,sents,keys,answerclass,label,constVars.minLen4FuzzyForPattern,constVars.backgroundSymbol,constVars.getEnglishWords(),stringTransformationFunction,constVars.writeMatchedTokensIdsForEachPhrase,overwriteExistingLabels,constVars.patternType);
     Future<Map<String,DataInstance>> submit=executor.submit(task);
     list.add(submit);
+    i++;
   }
   for (  Future<Map<String,DataInstance>> future : list) {
     try {
