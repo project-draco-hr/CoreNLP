@@ -52,7 +52,7 @@
         allPositivePhrases.addAll(result.first());
         allNegativePhrases.addAll(result.second());
         allUnknownPhrases.addAll(result.third());
-        allCloseToPositivePhrases.addAll(result.fourth());
+        for (        Entry<CandidatePhrase,Double> en : result.fourth().entrySet())         allCloseToPositivePhrases.setCount(en.getKey(),en.getValue());
       }
  catch (      Exception e) {
         executor.shutdownNow();
@@ -143,6 +143,8 @@
   }
   if (logFile != null) {
     logFile.close();
+  }
+  if (logFileFeat != null) {
     logFileFeat.close();
   }
   System.out.println("Before feature count threshold, dataset stats are ");
