@@ -1,8 +1,24 @@
 {
+  Counter<Integer> distSimClustersOfPositive=new ClassicCounter<Integer>();
+  if (constVars.expandPositivesWhenSampling) {
+    for (    CandidatePhrase s : CollectionUtils.union(constVars.getLearnedWords(answerLabel).keySet(),constVars.getSeedLabelDictionary().get(answerLabel))) {
+      String[] toks=s.getPhrase().split("\\s+");
+      if (!constVars.getWordClassClusters().containsKey(s.getPhrase())) {
+        for (        String tok : toks) {
+          if (constVars.getWordClassClusters().containsKey(tok)) {
+            distSimClustersOfPositive.incrementCount(constVars.getWordClassClusters().get(tok));
+          }
+        }
+      }
+ else       distSimClustersOfPositive.incrementCount(constVars.getWordClassClusters().get(s.getPhrase()));
+    }
+  }
   RVFDataset<String,ScorePhraseMeasures> dataset=new RVFDataset<String,ScorePhraseMeasures>();
   int numpos=0;
-  List<CandidatePhrase> allNegativePhrases=new ArrayList<CandidatePhrase>();
-  List<CandidatePhrase> allUnknownPhrases=new ArrayList<CandidatePhrase>();
+  Set<CandidatePhrase> allNegativePhrases=new HashSet<CandidatePhrase>();
+  Set<CandidatePhrase> allUnknownPhrases=new HashSet<CandidatePhrase>();
+  Set<CandidatePhrase> allPositivePhrases=new HashSet<CandidatePhrase>();
+  Counter<CandidatePhrase> allCloseToPositivePhrases=new ClassicCounter<CandidatePhrase>();
   ConstantsAndVariables.DataSentsIterator sentsIter=new ConstantsAndVariables.DataSentsIterator(constVars.batchProcessSents);
   while (sentsIter.hasNext()) {
     Pair<Map<String,DataInstance>,File> sentsf=sentsIter.next();
@@ -11,20 +27,19 @@
     if (computeRawFreq)     Data.computeRawFreqIfNull(sents,PatternFactory.numWordsCompound);
     List<List<String>> threadedSentIds=GetPatternsFromDataMultiClass.getThreadBatches(new ArrayList<String>(sents.keySet()),constVars.numThreads);
     ExecutorService executor=Executors.newFixedThreadPool(constVars.numThreads);
-    List<Future<Triple<List<RVFDatum<String,ScorePhraseMeasures>>,List<CandidatePhrase>,List<CandidatePhrase>>>> list=new ArrayList<Future<Triple<List<RVFDatum<String,ScorePhraseMeasures>>,List<CandidatePhrase>,List<CandidatePhrase>>>>();
+    List<Future<Quadruple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>>>> list=new ArrayList<Future<Quadruple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>>>>();
     for (    List<String> keys : threadedSentIds) {
-      Callable<Triple<List<RVFDatum<String,ScorePhraseMeasures>>,List<CandidatePhrase>,List<CandidatePhrase>>> task=new chooseDatumsThread(answerLabel,sents,keys,forLearningPattern,wordsPatExtracted,allSelectedPatterns);
-      Future<Triple<List<RVFDatum<String,ScorePhraseMeasures>>,List<CandidatePhrase>,List<CandidatePhrase>>> submit=executor.submit(task);
+      Callable<Quadruple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>>> task=new ChooseDatumsThread(answerLabel,sents,keys,forLearningPattern,wordsPatExtracted,allSelectedPatterns,distSimClustersOfPositive);
+      Future<Quadruple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>>> submit=executor.submit(task);
       list.add(submit);
     }
-    for (    Future<Triple<List<RVFDatum<String,ScorePhraseMeasures>>,List<CandidatePhrase>,List<CandidatePhrase>>> future : list) {
+    for (    Future<Quadruple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>>> future : list) {
       try {
-        Triple<List<RVFDatum<String,ScorePhraseMeasures>>,List<CandidatePhrase>,List<CandidatePhrase>> result=future.get();
-        List<RVFDatum<String,ScorePhraseMeasures>> posdatums=result.first();
-        dataset.addAll(posdatums);
-        numpos+=posdatums.size();
+        Quadruple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>> result=future.get();
+        allPositivePhrases.addAll(result.first());
         allNegativePhrases.addAll(result.second());
         allUnknownPhrases.addAll(result.third());
+        allCloseToPositivePhrases.addAll(result.fourth());
       }
  catch (      Exception e) {
         executor.shutdownNow();
@@ -33,10 +48,29 @@
     }
     executor.shutdown();
   }
+  Set<CandidatePhrase> knownPositivePhrases=CollectionUtils.unionAsSet(constVars.getLearnedWords().get(answerLabel).keySet(),constVars.getSeedLabelDictionary().get(answerLabel));
+  allPositivePhrases.addAll(knownPositivePhrases);
+  if (constVars.expandPositivesWhenSampling) {
+    Counters.retainTop(allCloseToPositivePhrases,(int)(allCloseToPositivePhrases.size() * constVars.subSampleUnkAsPosUsingSimPercentage));
+    Redwood.log("Expanding positives by adding " + allCloseToPositivePhrases + " phrases");
+    allPositivePhrases.addAll(allCloseToPositivePhrases.keySet());
+  }
+  for (  CandidatePhrase candidate : allPositivePhrases) {
+    Counter<ScorePhraseMeasures> feat=null;
+    if (forLearningPattern) {
+      feat=getPhraseFeaturesForPattern(answerLabel,candidate);
+    }
+ else {
+      feat=getFeatures(answerLabel,candidate,wordsPatExtracted.getCounter(candidate),allSelectedPatterns);
+    }
+    RVFDatum<String,ScorePhraseMeasures> datum=new RVFDatum<String,ScorePhraseMeasures>(feat,"true");
+    dataset.add(datum);
+    numpos+=1;
+  }
   Redwood.log(Redwood.DBG,"Number of pure negative phrases is " + allNegativePhrases.size());
   Redwood.log(Redwood.DBG,"Number of unknown phrases is " + allUnknownPhrases.size());
   if (constVars.subsampleUnkAsNegUsingSim) {
-    Set<CandidatePhrase> chosenUnknown=chooseUnknownAsNegatives(allUnknownPhrases,answerLabel,constVars.subSampleUnkAsNegUsingSimPercentage);
+    Set<CandidatePhrase> chosenUnknown=chooseUnknownAsNegatives(allUnknownPhrases,answerLabel,constVars.subSampleUnkAsNegUsingSimPercentage,allPositivePhrases);
     Redwood.log(Redwood.DBG,"Choosing " + chosenUnknown.size() + " unknowns as negative based to their similarity to the positive phrases");
     allNegativePhrases.addAll(chosenUnknown);
   }
@@ -45,7 +79,14 @@
   }
   if (allNegativePhrases.size() > numpos) {
     Redwood.log(Redwood.WARN,"Num of negative (" + allNegativePhrases.size() + ") is higher than number of positive phrases ("+ numpos+ ") = "+ (allNegativePhrases.size() / (double)numpos)+ ". "+ "Capping the number by taking the first numPositives as negative. Consider decreasing perSelectNeg and perSelectRand");
-    allNegativePhrases=allNegativePhrases.subList(0,numpos);
+    int i=0;
+    Set<CandidatePhrase> selectedNegPhrases=new HashSet<CandidatePhrase>();
+    for (    CandidatePhrase p : allNegativePhrases) {
+      if (i >= numpos)       break;
+      selectedNegPhrases.add(p);
+    }
+    allNegativePhrases.clear();
+    allNegativePhrases=selectedNegPhrases;
   }
   for (  CandidatePhrase negative : allNegativePhrases) {
     Counter<ScorePhraseMeasures> feat;
