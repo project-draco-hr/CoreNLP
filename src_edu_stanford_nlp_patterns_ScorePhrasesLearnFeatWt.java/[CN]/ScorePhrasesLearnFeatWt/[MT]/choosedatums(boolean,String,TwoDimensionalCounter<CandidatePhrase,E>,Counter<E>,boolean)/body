@@ -64,7 +64,6 @@
   }
   allPositivePhrases.addAll(constVars.getLearnedWords().get(answerLabel).keySet());
   if (constVars.expandPositivesWhenSampling) {
-    Counters.retainTop(allCloseToPositivePhrases,(int)(allCloseToPositivePhrases.size() * constVars.subSampleUnkAsPosUsingSimPercentage));
     Redwood.log("Expanding positives by adding " + allCloseToPositivePhrases + " phrases");
     allPositivePhrases.addAll(allCloseToPositivePhrases.keySet());
   }
@@ -89,7 +88,8 @@
   Redwood.log(Redwood.DBG,"Number of pure negative phrases is " + allNegativePhrases.size());
   Redwood.log(Redwood.DBG,"Number of unknown phrases is " + allUnknownPhrases.size());
   if (constVars.subsampleUnkAsNegUsingSim) {
-    Set<CandidatePhrase> chosenUnknown=chooseUnknownAsNegatives(allUnknownPhrases,answerLabel,constVars.subSampleUnkAsNegUsingSimPercentage,allPositivePhrases,allPossibleNegativePhrases,logFile);
+    double subSampleUnkAsNegUsingSimPercentage=1.0;
+    Set<CandidatePhrase> chosenUnknown=chooseUnknownAsNegatives(allUnknownPhrases,answerLabel,subSampleUnkAsNegUsingSimPercentage,allPositivePhrases,allPossibleNegativePhrases,logFile);
     Redwood.log(Redwood.DBG,"Choosing " + chosenUnknown.size() + " unknowns as negative based to their similarity to the positive phrases");
     allNegativePhrases.addAll(chosenUnknown);
   }
