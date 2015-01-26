@@ -21,6 +21,11 @@
       Assert.assertNotNull(token.get(CoreAnnotations.NamedEntityTagAnnotation.class));
     }
     Assert.assertNotNull(sentence.get(TreeCoreAnnotations.TreeAnnotation.class));
+    SemanticGraph deps=sentence.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class);
+    for (    IndexedWord vertex : deps.vertexSet()) {
+      Assert.assertNotNull(vertex.word());
+      Assert.assertEquals(vertex.word(),vertex.value());
+    }
   }
   StringWriter stringWriter=new StringWriter();
   pipeline.prettyPrint(document,new PrintWriter(stringWriter));
