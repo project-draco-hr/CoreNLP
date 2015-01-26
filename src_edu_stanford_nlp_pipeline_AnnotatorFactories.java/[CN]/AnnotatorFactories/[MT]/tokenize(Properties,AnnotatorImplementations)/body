@@ -6,12 +6,9 @@
       boolean keepNewline=Boolean.valueOf(properties.getProperty(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY,"false"));
       String hasSsplit=properties.getProperty("annotators");
       if (hasSsplit != null && hasSsplit.contains(StanfordCoreNLP.STANFORD_SSPLIT)) {
-        if (!Boolean.parseBoolean(properties.getProperty("ssplit.isOneSentence"))) {
-          String nlsbString=properties.getProperty(StanfordCoreNLP.NEWLINE_IS_SENTENCE_BREAK_PROPERTY,StanfordCoreNLP.DEFAULT_NEWLINE_IS_SENTENCE_BREAK);
-          WordToSentenceProcessor.NewlineIsSentenceBreak nlsb=WordToSentenceProcessor.stringToNewlineIsSentenceBreak(nlsbString);
-          if (nlsb != WordToSentenceProcessor.NewlineIsSentenceBreak.NEVER) {
-            keepNewline=true;
-          }
+        WordToSentenceProcessor.NewlineIsSentenceBreak nlsb=WordToSentenceProcessor.stringToNewlineIsSentenceBreak(properties.getProperty(StanfordCoreNLP.NEWLINE_IS_SENTENCE_BREAK_PROPERTY,StanfordCoreNLP.DEFAULT_NEWLINE_IS_SENTENCE_BREAK));
+        if (nlsb != WordToSentenceProcessor.NewlineIsSentenceBreak.NEVER) {
+          keepNewline=true;
         }
       }
       if (keepNewline) {
@@ -33,15 +30,12 @@
       }
       if (Boolean.valueOf(properties.getProperty("tokenize.whitespace","false"))) {
         os.append(TokenizerAnnotator.EOL_PROPERTY + ':').append(properties.getProperty(TokenizerAnnotator.EOL_PROPERTY,"false"));
-        os.append(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY + ':');
-        os.append(properties.getProperty(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY,"false"));
+        os.append(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY + ':').append(properties.getProperty(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY,"false"));
+        return os.toString();
       }
  else {
-        os.append(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY + ':');
-        os.append(properties.getProperty(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY,"false"));
-        os.append("ssplit.isOneSentence" + ':' + properties.getProperty("ssplit.isOneSentence","false"));
-        os.append(StanfordCoreNLP.NEWLINE_IS_SENTENCE_BREAK_PROPERTY + ':');
-        os.append(properties.getProperty(StanfordCoreNLP.NEWLINE_IS_SENTENCE_BREAK_PROPERTY,StanfordCoreNLP.DEFAULT_NEWLINE_IS_SENTENCE_BREAK));
+        os.append(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY + ':').append(Boolean.valueOf(properties.getProperty(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY,"false")));
+        os.append(StanfordCoreNLP.NEWLINE_IS_SENTENCE_BREAK_PROPERTY + ':').append(properties.getProperty(StanfordCoreNLP.NEWLINE_IS_SENTENCE_BREAK_PROPERTY,StanfordCoreNLP.DEFAULT_NEWLINE_IS_SENTENCE_BREAK));
       }
       return os.toString();
     }
