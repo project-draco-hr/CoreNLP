@@ -18,11 +18,7 @@
   stopWords=new HashSet<CandidatePhrase>();
   if (stopWordsPatternFiles != null) {
     Redwood.log(ConstantsAndVariables.minimaldebug,channelNameLogger,"Reading stop words from " + stopWordsPatternFiles);
-    for (    String stopwfile : stopWordsPatternFiles.split("[;,]")) {
-      for (      String word : IOUtils.readLines(stopwfile)) {
-        if (!word.trim().isEmpty())         stopWords.add(CandidatePhrase.createOrGet(word.trim()));
-      }
-    }
+    for (    String stopwfile : stopWordsPatternFiles.split("[;,]"))     stopWords.addAll(CandidatePhrase.convertStringPhrases(IOUtils.linesFromFile(stopwfile)));
   }
   englishWords=new HashSet<String>();
   if (englishWordsFiles != null) {

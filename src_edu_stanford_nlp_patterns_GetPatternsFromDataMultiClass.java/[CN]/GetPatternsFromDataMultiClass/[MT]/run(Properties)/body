@@ -49,10 +49,8 @@
   if (evaluate) {
     if (model.constVars.goldEntitiesEvalFiles != null) {
       for (      String label : model.constVars.getLabels()) {
-        if (model.constVars.goldEntities.containsKey(label)) {
-          Pair<Double,Double> pr=model.getPrecisionRecall(label,model.constVars.goldEntities.get(label));
-          Redwood.log(ConstantsAndVariables.minimaldebug,"\nFor label " + label + ": Number of gold entities is "+ model.constVars.goldEntities.get(label).size()+ ", Precision is "+ model.df.format(pr.first() * 100)+ ", Recall is "+ model.df.format(pr.second() * 100)+ ", F1 is "+ model.df.format(model.FScore(pr.first(),pr.second(),1.0) * 100)+ "\n\n");
-        }
+        Pair<Double,Double> pr=model.getPrecisionRecall(label,model.constVars.goldEntities.get(label));
+        Redwood.log(ConstantsAndVariables.minimaldebug,"\nFor label " + label + ": Number of gold entities is "+ model.constVars.goldEntities.get(label)+ ", Precision is "+ model.df.format(pr.first() * 100)+ ", Recall is "+ model.df.format(pr.second() * 100)+ ", F1 is "+ model.df.format(model.FScore(pr.first(),pr.second(),1.0) * 100)+ "\n\n");
       }
     }
     Map<String,DataInstance> evalsents=sentsPair.second();

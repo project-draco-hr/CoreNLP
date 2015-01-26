@@ -5,6 +5,7 @@
     if (doNotAddThese.contains(w))     return;
     List<IndexedWord> andNodes=new ArrayList<IndexedWord>();
     descendantsWithReln(g,w,"conj_and",new ArrayList<IndexedWord>(),andNodes);
+    System.out.println("and nodes are " + andNodes);
     for (    IndexedWord w1 : andNodes) {
       printSubGraph(g,w1,additionalCutOffRels,textTokens,listOfOutput,listOfOutputIndices,seenNodes,doNotAddThese,findSubTrees,extractedPhrases,pattern,acceptWord);
     }
@@ -16,6 +17,7 @@
     Collection<String> feat=new ArrayList<>();
     GetPatternsFromDataMultiClass.getFeatures(g,w,true,feat,null);
     Set<IndexedWord> words=descendants(g,w,allCutOffRels,doNotAddThese,ignoreCommonTags,acceptWord,featPerToken);
+    System.out.println("words are " + words);
     if (words.size() > 0) {
       int min=Integer.MAX_VALUE, max=-1;
       for (      IndexedWord word : words) {
@@ -31,6 +33,7 @@
       phrase=phrase.trim();
       feat.add("LENGTH-" + (max - min + 1));
       for (int i=min; i <= max; i++)       feat.addAll(featPerToken.get(i));
+      System.out.println("phrase is " + phrase + " index is "+ indices+ " and maxphraselength is "+ maxPhraseLength+ " and descendentset is "+ words);
       ExtractedPhrase extractedPh=new ExtractedPhrase(min - 1,max - 1,pattern,phrase,Counters.asCounter(feat));
       if (!listOfOutput.contains(phrase) && !doNotAddThese.contains(phrase)) {
         listOfOutput.add(phrase);
