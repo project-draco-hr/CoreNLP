@@ -22,17 +22,14 @@
       quote=null;
     }
   }
-  if (start >= 0 && start < text.length() - 2) {
-    if (!quotesMap.containsKey(quote)) {
-      quotesMap.put(quote,new ArrayList<>());
-    }
-    quotesMap.get(quote).add(new Pair(start,text.length()));
-  }
- else   if (start >= 0) {
-    System.err.println("WARNING: unmatched single quote at end of file!");
+  if (start >= 0) {
+    System.err.println("WARNING: unmatched quote of type " + quote + " at end of file!");
   }
   List<Pair<Integer,Integer>> embedded=new ArrayList<>();
   List<Pair<Integer,Integer>> quotes=new ArrayList<>();
+  if (quotesMap.size() < 1 && start >= 0) {
+    embedded=recursiveQuotes(text.substring(start,text.length()),start + offset,quote);
+  }
   for (  String qKind : quotesMap.keySet()) {
     for (    Pair<Integer,Integer> q : quotesMap.get(qKind)) {
       if (q.first() < q.second() - 2) {

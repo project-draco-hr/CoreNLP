@@ -6,13 +6,15 @@
     int begin=p.first();
     int end=p.second();
     List<CoreLabel> quoteTokens=new ArrayList<>();
-    while (currTok < tokens.size() && tokens.get(currTok).beginPosition() < begin) {
-      currTok++;
-    }
-    int i=currTok;
-    while (i < tokens.size() && tokens.get(i).endPosition() <= end) {
-      quoteTokens.add(tokens.get(i));
-      i++;
+    if (tokens != null) {
+      while (currTok < tokens.size() && tokens.get(currTok).beginPosition() < begin) {
+        currTok++;
+      }
+      int i=currTok;
+      while (i < tokens.size() && tokens.get(i).endPosition() <= end) {
+        quoteTokens.add(tokens.get(i));
+        i++;
+      }
     }
     int currQuoteSize=cmQuotes.size();
     Annotation quote=makeQuote(text,begin,end,quoteTokens,currQuoteSize,tokenOffset,docID);
