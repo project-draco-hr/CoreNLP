@@ -2,73 +2,13 @@
   if (VERBOSE) {
     System.err.print("Adding Quote annotation...");
   }
-  if (annotation.containsKey(CoreAnnotations.TokensAnnotation.class)) {
-    String text=annotation.get(CoreAnnotations.TextAnnotation.class);
-    String docID=annotation.get(CoreAnnotations.DocIDAnnotation.class);
-    List<CoreLabel> tokens=annotation.get(CoreAnnotations.TokensAnnotation.class);
-    boolean inQuote=false;
-    boolean newline=false;
-    for (    CoreLabel token : tokens) {
-      if (isAnyQuote(token)) {
-        if (!inQuote) {
-          inQuote=true;
-        }
-      }
-    }
-    if (VERBOSE) {
-      System.err.println("done. Output: " + tokens);
-    }
-    int tokenOffset=0;
-    int lineNumber=0;
-    CoreMap sectionAnnotations=null;
-    List<CoreMap> quotes=new ArrayList<CoreMap>();
-    List<List<CoreLabel>> quoteTokensOverall=process(tokens);
-    System.out.println(quoteTokensOverall);
-    for (    List<CoreLabel> quoteTokens : quoteTokensOverall) {
-      if (quoteTokens.isEmpty()) {
-        continue;
-      }
-      int begin=quoteTokens.get(0).get(CoreAnnotations.CharacterOffsetBeginAnnotation.class);
-      int last=quoteTokens.size() - 1;
-      int end=quoteTokens.get(last).get(CoreAnnotations.CharacterOffsetEndAnnotation.class);
-      String quoteText=text.substring(begin,end);
-      Annotation quote=new Annotation(quoteText);
-      quote.set(CoreAnnotations.CharacterOffsetBeginAnnotation.class,begin);
-      quote.set(CoreAnnotations.CharacterOffsetEndAnnotation.class,end);
-      quote.set(CoreAnnotations.TokensAnnotation.class,quoteTokens);
-      quote.set(CoreAnnotations.TokenBeginAnnotation.class,tokenOffset);
-      tokenOffset+=quoteTokens.size();
-      quote.set(CoreAnnotations.TokenEndAnnotation.class,tokenOffset);
-      quote.set(CoreAnnotations.SentenceIndexAnnotation.class,quotes.size());
-      CoreLabel quoteStartToken=quoteTokens.get(0);
-      CoreLabel quoteEndToken=quoteTokens.get(quoteTokens.size() - 1);
-      CoreMap sectionStart=quoteStartToken.get(CoreAnnotations.SectionStartAnnotation.class);
-      if (sectionStart != null) {
-        sectionAnnotations=sectionStart;
-      }
-      if (sectionAnnotations != null) {
-        ChunkAnnotationUtils.copyUnsetAnnotations(sectionAnnotations,quote);
-      }
-      String sectionEnd=quoteEndToken.get(CoreAnnotations.SectionEndAnnotation.class);
-      if (sectionEnd != null) {
-        sectionAnnotations=null;
-      }
-      if (docID != null) {
-        quote.set(CoreAnnotations.DocIDAnnotation.class,docID);
-      }
-      int index=1;
-      for (      CoreLabel token : quoteTokens) {
-        token.setIndex(index++);
-        token.setSentIndex(quotes.size());
-        if (docID != null) {
-          token.setDocID(docID);
-        }
-      }
-      quotes.add(quote);
-    }
-    annotation.set(CoreAnnotations.QuotationsAnnotation.class,quotes);
-  }
- else {
-    throw new RuntimeException("unable to find tokens in: " + annotation);
-  }
+  String text=annotation.get(CoreAnnotations.TextAnnotation.class);
+  List<CoreMap> quotes=new ArrayList<CoreMap>();
+  List<CoreLabel> tokens=annotation.get(CoreAnnotations.TokensAnnotation.class);
+  List<Pair<Integer,Integer>> singleQuotesQuotes=extractDirectSingleQuotes(text);
+  List<Pair<Integer,Integer>> doubleQuotesQuotes=extractDirectDoubleQuotes(text);
+  String docID=annotation.get(CoreAnnotations.DocIDAnnotation.class);
+  addCoreMapQuotes(singleQuotesQuotes,quotes,text,docID);
+  addCoreMapQuotes(doubleQuotesQuotes,quotes,text,docID);
+  annotation.set(CoreAnnotations.QuotationsAnnotation.class,quotes);
 }

@@ -1,0 +1,19 @@
+{
+  Pattern p=Pattern.compile(pattern);
+  List<Pair<Integer,Integer>> quotes=new ArrayList<>();
+  Matcher m=p.matcher(text);
+  while (m.find()) {
+    int start=m.start();
+    int end=m.end();
+    if (groupNum >= 0) {
+      String q=m.group(groupNum);
+      String whole=m.group();
+      start=whole.indexOf(q) + m.start();
+      end=start + q.length();
+    }
+    if (start != end) {
+      quotes.add(new Pair(start,end));
+    }
+  }
+  return quotes;
+}
