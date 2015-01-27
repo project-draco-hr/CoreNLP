@@ -1,0 +1,22 @@
+{
+  List<List<String>> threadedSentIds=getThreadBatches(new ArrayList<String>(sents.keySet()),constVars.numThreads);
+  ExecutorService executor=Executors.newFixedThreadPool(constVars.numThreads);
+  List<Future<Map<String,DataInstance>>> list=new ArrayList<Future<Map<String,DataInstance>>>();
+  int i=0;
+  for (  List<String> keys : threadedSentIds) {
+    Callable<Map<String,DataInstance>> task=new LabelWithSeedWords(seedWords,sents,keys,answerclass,label,constVars.minLen4FuzzyForPattern,constVars.backgroundSymbol,constVars.getEnglishWords(),stringTransformationFunction,constVars.writeMatchedTokensIdsForEachPhrase,overwriteExistingLabels,constVars.patternType);
+    Future<Map<String,DataInstance>> submit=executor.submit(task);
+    list.add(submit);
+    i++;
+  }
+  for (  Future<Map<String,DataInstance>> future : list) {
+    try {
+      sents.putAll(future.get());
+    }
+ catch (    Exception e) {
+      executor.shutdownNow();
+      throw new RuntimeException(e);
+    }
+  }
+  executor.shutdown();
+}
