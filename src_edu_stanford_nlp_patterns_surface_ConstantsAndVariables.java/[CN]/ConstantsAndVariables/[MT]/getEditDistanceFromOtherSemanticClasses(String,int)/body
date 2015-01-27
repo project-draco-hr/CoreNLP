@@ -1,0 +1,11 @@
+{
+  if (ph.length() < minLen)   return new Pair<String,Double>(ph,editDistMax);
+  if (editDistanceFromOtherSemanticClasses.containsKey(ph))   return new Pair<String,Double>(editDistanceFromOtherSemanticClassesMatches.get(ph),editDistanceFromOtherSemanticClasses.get(ph));
+  Pair<String,Double> minD=getEditDist(otherSemanticClassesWords,ph);
+  double minDtotal=minD.second();
+  String minPh=minD.first();
+  assert(!minPh.isEmpty());
+  editDistanceFromOtherSemanticClasses.putIfAbsent(ph,minDtotal);
+  editDistanceFromOtherSemanticClassesMatches.putIfAbsent(ph,minPh);
+  return new Pair<String,Double>(minPh,minDtotal);
+}
