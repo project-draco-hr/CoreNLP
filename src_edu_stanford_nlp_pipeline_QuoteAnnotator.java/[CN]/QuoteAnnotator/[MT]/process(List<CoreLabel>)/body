@@ -1,0 +1,45 @@
+{
+  IdentityHashMap<Object,Boolean> isSentenceBoundary=null;
+  List<List<CoreLabel>> quotes=Generics.newArrayList();
+  List<CoreLabel> currentQuote=new ArrayList<>();
+  boolean insideRegion=false;
+  boolean lastTokenWasNewline=false;
+  for (  CoreLabel o : words) {
+    boolean isQuote=isAnyQuote(o);
+    String word=o.word();
+    if (!insideRegion) {
+      if (isQuote) {
+        insideRegion=true;
+        if (DEBUG) {
+          System.err.println("  beginning region");
+        }
+      }
+    }
+    if (DEBUG) {
+      EncodingPrintWriter.err.print(word + " ","UTF-8");
+    }
+    if (insideRegion) {
+      currentQuote.add(o);
+    }
+ else {
+      if (DEBUG) {
+        System.err.println("  outside region; deleted");
+      }
+    }
+    if (insideRegion && isQuote && currentQuote.size() != 1 && !lastTokenWasNewline) {
+      if (DEBUG) {
+        System.err.println("  ending current sentence");
+      }
+      insideRegion=false;
+      quotes.add(currentQuote);
+      currentQuote=new ArrayList<>();
+    }
+    if (insideRegion && isNewline(o)) {
+      lastTokenWasNewline=true;
+    }
+  }
+  if (!currentQuote.isEmpty()) {
+    quotes.add(currentQuote);
+  }
+  return quotes;
+}
