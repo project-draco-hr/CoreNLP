@@ -1,0 +1,21 @@
+{
+  List<String> sents=new ArrayList<>();
+  try {
+    DocumentBuilderFactory dbf=DocumentBuilderFactory.newInstance();
+    DocumentBuilder db=dbf.newDocumentBuilder();
+    Document doc=db.parse(f);
+    doc.getDocumentElement().normalize();
+    NodeList nodeList=doc.getElementsByTagName(tag);
+    for (int i=0; i < nodeList.getLength(); i++) {
+      Element element=(Element)nodeList.item(i);
+      sents.add(StringEscapeUtils.unescapeXml(element.getTextContent()));
+    }
+  }
+ catch (  IOException e) {
+    System.err.println(e);
+  }
+catch (  ParserConfigurationException e) {
+    System.err.println(e);
+  }
+  return sents;
+}
