@@ -1,12 +1,23 @@
 {
-  if (VERBOSE) {
-    System.err.print("Adding Quote annotation...");
-  }
   String text=annotation.get(CoreAnnotations.TextAnnotation.class);
   List<CoreMap> quotes=new ArrayList<CoreMap>();
   List<CoreLabel> tokens=annotation.get(CoreAnnotations.TokensAnnotation.class);
   List<Pair<Integer,Integer>> singleQuotesQuotes=extractDirectSingleQuotes(text);
   List<Pair<Integer,Integer>> doubleQuotesQuotes=extractDirectDoubleQuotes(text);
+  System.out.println(singleQuotesQuotes);
+  System.out.println(doubleQuotesQuotes);
+  for (  Pair<Integer,Integer> sq : singleQuotesQuotes) {
+    for (    Pair<Integer,Integer> dq : doubleQuotesQuotes) {
+      if (sq.first() <= dq.first() && sq.second() >= dq.second()) {
+      }
+ else       if (sq.first() >= dq.first() && sq.second() <= dq.second()) {
+      }
+ else       if (sq.first() <= dq.first() && sq.second() <= dq.second()) {
+      }
+ else       if (sq.first() >= dq.first() && sq.second() >= dq.second()) {
+      }
+    }
+  }
   String docID=annotation.get(CoreAnnotations.DocIDAnnotation.class);
   addCoreMapQuotes(singleQuotesQuotes,quotes,text,docID);
   addCoreMapQuotes(doubleQuotesQuotes,quotes,text,docID);
