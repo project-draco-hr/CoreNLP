@@ -5,11 +5,11 @@
   String quote=null;
   for (int i=0; i < text.length(); i++) {
     String c=text.substring(i,i + 1);
-    if ((start < 0) && !matchesPrevQuote(c,prevQuote) && ((c.equals("'") && isSingleQuoteStart(text,i)) || (c.equals("\"")))) {
+    if ((start < 0) && !matchesPrevQuote(c,prevQuote) && ((c.equals("'") && isSingleQuoteStart(text,i)) || (c.equals("\"") || DIRECTED_QUOTES.containsKey(c)))) {
       start=i;
       quote=text.substring(start,start + 1);
     }
- else     if (start >= 0 && end < 0 && c.equals(quote) && ((c.equals("'") && isSingleQuoteEnd(text,i)) || (c.equals("\"") && isDoubleQuoteEnd(text,i)))) {
+ else     if ((start >= 0 && end < 0) && ((c.equals(quote) && ((c.equals("'") && isSingleQuoteEnd(text,i)) || (c.equals("\"") && isDoubleQuoteEnd(text,i)))) || (DIRECTED_QUOTES.containsKey(quote) && DIRECTED_QUOTES.get(quote).equals(c)))) {
       end=i + 1;
     }
     if (start >= 0 && end > 0) {
