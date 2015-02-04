@@ -38,24 +38,25 @@
     }
     System.err.println("WARNING: unmatched quote of type " + quote + " found at index "+ start+ " in text segment: "+ warning);
   }
-  List<Pair<Integer,Integer>> embedded=new ArrayList<>();
   List<Pair<Integer,Integer>> quotes=new ArrayList<>();
-  if (quotesMap.size() < 1 && start >= 0) {
-    embedded=recursiveQuotes(text.substring(start,text.length()),start + offset,quote);
+  if (quotesMap.isEmpty() && start >= 0) {
+    String toPass=text.substring(start + quote.length(),text.length() - (quote.length() - 1));
+    List<Pair<Integer,Integer>> embedded=recursiveQuotes(toPass,offset,null);
     for (    Pair<Integer,Integer> e : embedded) {
-      quotes.add(new Pair(e.first() + offset,e.second() + offset));
+      quotes.add(new Pair(e.first() + offset + start+ quote.length(),e.second() + offset + start+ 1));
     }
   }
  else {
     for (    String qKind : quotesMap.keySet()) {
       for (      Pair<Integer,Integer> q : quotesMap.get(qKind)) {
-        if (q.first() < q.second() - 2) {
-          embedded=recursiveQuotes(text.substring(q.first() + 1,q.second() - 1),q.first() + 1 + offset,qKind);
+        if (q.first() < q.second() - qKind.length() * 2) {
+          String toPass=text.substring(q.first() + qKind.length(),q.second() - qKind.length());
+          List<Pair<Integer,Integer>> embedded=recursiveQuotes(toPass,q.first() + qKind.length() + offset,qKind);
+          for (          Pair<Integer,Integer> e : embedded) {
+            quotes.add(new Pair(e.first() + offset,e.second() + offset));
+          }
         }
         quotes.add(new Pair(q.first() + offset,q.second() + offset));
-        for (        Pair<Integer,Integer> e : embedded) {
-          quotes.add(new Pair(e.first() + offset,e.second() + offset));
-        }
       }
     }
   }
