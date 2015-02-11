@@ -1,23 +1,24 @@
 {
-  List<String> models=new ArrayList<String>();
-  String prefix=(name != null) ? name + "." : "ner.";
+  String prefix=(name != null) ? name + '.' : "ner.";
   String modelNames=properties.getProperty(prefix + "model");
   if (modelNames == null) {
-    modelNames=DefaultPaths.DEFAULT_NER_THREECLASS_MODEL + "," + DefaultPaths.DEFAULT_NER_MUC_MODEL+ ","+ DefaultPaths.DEFAULT_NER_CONLL_MODEL;
+    modelNames=DefaultPaths.DEFAULT_NER_THREECLASS_MODEL + ',' + DefaultPaths.DEFAULT_NER_MUC_MODEL+ ','+ DefaultPaths.DEFAULT_NER_CONLL_MODEL;
   }
-  if (modelNames.length() > 0) {
-    models.addAll(Arrays.asList(modelNames.split(",")));
+  String[] models;
+  if (!modelNames.isEmpty()) {
+    models=modelNames.split(",");
   }
-  if (models.isEmpty()) {
+ else {
     System.err.println("WARNING: no NER models specified");
+    models=StringUtils.EMPTY_STRING_ARRAY;
   }
   NERClassifierCombiner nerCombiner;
   try {
     boolean applyNumericClassifiers=PropertiesUtils.getBool(properties,prefix + "applyNumericClassifiers",NERClassifierCombiner.APPLY_NUMERIC_CLASSIFIERS_DEFAULT);
     boolean useSUTime=PropertiesUtils.getBool(properties,prefix + "useSUTime",NumberSequenceClassifier.USE_SUTIME_DEFAULT);
-    nerCombiner=new NERClassifierCombiner(applyNumericClassifiers,useSUTime,properties,models.toArray(new String[models.size()]));
+    nerCombiner=new NERClassifierCombiner(applyNumericClassifiers,useSUTime,properties,models);
   }
- catch (  FileNotFoundException e) {
+ catch (  IOException e) {
     throw new RuntimeIOException(e);
   }
   return nerCombiner;
