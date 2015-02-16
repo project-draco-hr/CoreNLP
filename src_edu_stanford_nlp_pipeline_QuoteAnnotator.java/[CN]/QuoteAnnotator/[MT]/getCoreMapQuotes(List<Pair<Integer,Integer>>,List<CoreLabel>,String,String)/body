@@ -16,23 +16,8 @@
         i++;
       }
     }
-    int beginSentence=-1;
-    int endSentence=-1;
-    if (sentences != null) {
-      for (      CoreMap sentence : sentences) {
-        int sentBegin=sentence.get(CoreAnnotations.CharacterOffsetBeginAnnotation.class);
-        int sentEnd=sentence.get(CoreAnnotations.CharacterOffsetEndAnnotation.class);
-        int sentIndex=sentence.get(CoreAnnotations.SentenceIndexAnnotation.class);
-        if (sentBegin <= begin) {
-          beginSentence=sentIndex;
-        }
-        if (sentEnd >= end && endSentence < 0) {
-          endSentence=sentIndex;
-        }
-      }
-    }
     int currQuoteSize=cmQuotes.size();
-    Annotation quote=makeQuote(text,begin,end,quoteTokens,tokenOffset,beginSentence,endSentence,docID);
+    Annotation quote=makeQuote(text,begin,end,quoteTokens,currQuoteSize,tokenOffset,docID);
     tokenOffset+=quoteTokens.size();
     cmQuotes.add(quote);
   }
@@ -56,6 +41,5 @@
   for (  CoreMap r : toRemove) {
     cmQuotes.remove(r);
   }
-  setQuoteIndices(cmQuotes);
   return cmQuotes;
 }

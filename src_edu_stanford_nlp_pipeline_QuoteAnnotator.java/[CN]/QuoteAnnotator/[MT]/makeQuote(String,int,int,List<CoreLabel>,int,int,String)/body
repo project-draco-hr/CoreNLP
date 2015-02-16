@@ -10,12 +10,12 @@
     quote.set(CoreAnnotations.TokenBeginAnnotation.class,tokenOffset);
     quote.set(CoreAnnotations.TokenEndAnnotation.class,tokenOffset + quoteTokens.size());
   }
-  quote.set(CoreAnnotations.SentenceBeginAnnotation.class,sentenceBeginIndex);
-  quote.set(CoreAnnotations.SentenceEndAnnotation.class,sentenceEndIndex);
+  quote.set(CoreAnnotations.SentenceIndexAnnotation.class,currQuoteSize);
   if (quoteTokens != null) {
     int index=1;
     for (    CoreLabel token : quoteTokens) {
       token.setIndex(index++);
+      token.setSentIndex(currQuoteSize);
       if (docID != null) {
         token.setDocID(docID);
       }
