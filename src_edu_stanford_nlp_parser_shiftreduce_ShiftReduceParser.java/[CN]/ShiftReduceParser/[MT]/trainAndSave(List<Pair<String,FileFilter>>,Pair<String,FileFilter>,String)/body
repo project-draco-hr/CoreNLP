@@ -12,12 +12,6 @@
     redoTags(binarizedTrees,tagger,nThreads);
     retagTimer.done("Retagging");
   }
-  knownStates=findKnownStates(binarizedTrees);
-  rootStates=findRootStates(binarizedTrees);
-  rootOnlyStates=findRootOnlyStates(binarizedTrees,rootStates);
-  System.err.println("Known states: " + knownStates);
-  System.err.println("States which occur at the root: " + rootStates);
-  System.err.println("States which only occur at the root: " + rootStates);
   Timing transitionTimer=new Timing();
   List<List<Transition>> transitionLists=createTransitionSequences(binarizedTrees);
   for (  List<Transition> transitions : transitionLists) {
@@ -25,6 +19,8 @@
   }
   transitionTimer.done("Converting trees into transition lists");
   System.err.println("Number of transitions: " + transitionIndex.size());
+  findKnownStates(binarizedTrees,knownStates);
+  System.err.println("Known states: " + knownStates);
   Random random=new Random(op.trainOptions.randomSeed);
   Treebank devTreebank=null;
   if (devTreebankPath != null) {
@@ -42,7 +38,7 @@
   }
   Oracle oracle=null;
   if (op.trainOptions().trainingMethod == ShiftReduceTrainOptions.TrainingMethod.ORACLE) {
-    oracle=new Oracle(binarizedTrees,op.compoundUnaries,rootStates);
+    oracle=new Oracle(binarizedTrees,op.compoundUnaries);
   }
   List<Update> updates=Generics.newArrayList();
   MulticoreWrapper<Integer,Pair<Integer,Integer>> wrapper=null;
