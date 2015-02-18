@@ -1,4 +1,6 @@
 {
+  Timing tim=new Timing();
+  System.err.print("Reading dataset from " + filename + " ... ");
   GeneralDataset<String,String> dataset;
   List<String[]> lineInfos=null;
   if ((inTestPhase && Flags.testFromSVMLight) || (!inTestPhase && Flags.trainFromSVMLight)) {
@@ -34,15 +36,13 @@
           String[] wi=makeSimpleLineInfo(line,lineNo);
           lineInfos.add(wi);
         }
-        Datum<String,String> d=makeDatumFromLine(line,lineNo);
-        if (d != null) {
-          dataset.add(d);
-        }
+        dataset.add(makeDatumFromLine(line,lineNo));
       }
     }
  catch (    Exception e) {
       throw new RuntimeException("Dataset could not be processed",e);
     }
   }
+  System.err.println("done [" + tim.toSecondsString() + "s, "+ dataset.size()+ " items].");
   return new Pair<GeneralDataset<String,String>,List<String[]>>(dataset,lineInfos);
 }
