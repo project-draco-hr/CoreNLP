@@ -1,7 +1,5 @@
 {
   model.vectorToParams(theta);
-  double localValue=0.0;
-  double[] localDerivative=new double[theta.length];
   TwoDimensionalMap<String,String,SimpleMatrix> binaryTD=TwoDimensionalMap.treeMap();
   TwoDimensionalMap<String,String,SimpleTensor> binaryTensorTD=TwoDimensionalMap.treeMap();
   TwoDimensionalMap<String,String,SimpleMatrix> binaryCD=TwoDimensionalMap.treeMap();
@@ -32,11 +30,6 @@
     int numCols=entry.getValue().numCols();
     unaryCD.put(entry.getKey(),new SimpleMatrix(numRows,numCols));
   }
-  for (  Map.Entry<String,SimpleMatrix> entry : model.wordVectors.entrySet()) {
-    int numRows=entry.getValue().numRows();
-    int numCols=entry.getValue().numCols();
-    wordVectorD.put(entry.getKey(),new SimpleMatrix(numRows,numCols));
-  }
   List<Tree> forwardPropTrees=Generics.newArrayList();
   for (  Tree tree : trainingBatch) {
     Tree trainingTree=tree.deepCopy();
@@ -50,10 +43,10 @@
   }
   double scale=(1.0 / trainingBatch.size());
   value=error * scale;
-  value+=scaleAndRegularize(binaryTD,model.binaryTransform,scale,model.op.trainOptions.regTransformMatrix);
-  value+=scaleAndRegularize(binaryCD,model.binaryClassification,scale,model.op.trainOptions.regClassification);
+  value+=scaleAndRegularize(binaryTD,model.binaryTransform,scale,model.op.trainOptions.regTransformMatrix,false);
+  value+=scaleAndRegularize(binaryCD,model.binaryClassification,scale,model.op.trainOptions.regClassification,true);
   value+=scaleAndRegularizeTensor(binaryTensorTD,model.binaryTensors,scale,model.op.trainOptions.regTransformTensor);
-  value+=scaleAndRegularize(unaryCD,model.unaryClassification,scale,model.op.trainOptions.regClassification);
-  value+=scaleAndRegularize(wordVectorD,model.wordVectors,scale,model.op.trainOptions.regWordVector);
+  value+=scaleAndRegularize(unaryCD,model.unaryClassification,scale,model.op.trainOptions.regClassification,false,true);
+  value+=scaleAndRegularize(wordVectorD,model.wordVectors,scale,model.op.trainOptions.regWordVector,true,false);
   derivative=NeuralUtils.paramsToVector(theta.length,binaryTD.valueIterator(),binaryCD.valueIterator(),SimpleTensor.iteratorSimpleMatrix(binaryTensorTD.valueIterator()),unaryCD.values().iterator(),wordVectorD.values().iterator());
 }

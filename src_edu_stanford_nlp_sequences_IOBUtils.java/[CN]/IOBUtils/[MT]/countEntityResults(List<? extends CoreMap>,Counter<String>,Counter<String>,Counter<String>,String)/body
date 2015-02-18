@@ -1,0 +1,96 @@
+{
+  boolean entityCorrect=true;
+  String previousGold=background;
+  String previousGuess=background;
+  String previousGoldEntity="";
+  String previousGuessEntity="";
+  char previousGoldPrefix=' ';
+  char previousGuessPrefix=' ';
+  for (  CoreMap word : doc) {
+    String gold=word.get(CoreAnnotations.GoldAnswerAnnotation.class);
+    String guess=word.get(CoreAnnotations.AnswerAnnotation.class);
+    String goldEntity;
+    String guessEntity;
+    char goldPrefix;
+    char guessPrefix;
+    if (gold == null || gold.isEmpty()) {
+      System.err.println("Missing gold entity");
+      return false;
+    }
+ else     if (gold.length() > 2 && gold.charAt(1) == '-') {
+      goldEntity=gold.substring(2,gold.length());
+      goldPrefix=Character.toUpperCase(gold.charAt(0));
+    }
+ else {
+      goldEntity=gold;
+      goldPrefix=' ';
+    }
+    if (guess == null || guess.isEmpty()) {
+      System.err.println("Missing guess entity");
+      return false;
+    }
+ else     if (guess.length() > 2 && guess.charAt(1) == '-') {
+      guessEntity=guess.substring(2,guess.length());
+      guessPrefix=Character.toUpperCase(guess.charAt(0));
+    }
+ else {
+      guessEntity=guess;
+      guessPrefix=' ';
+    }
+    boolean newGold=!gold.equals(background) && isEntityBoundary(previousGoldEntity,previousGoldPrefix,goldEntity,goldPrefix);
+    boolean newGuess=!guess.equals(background) && isEntityBoundary(previousGuessEntity,previousGuessPrefix,guessEntity,guessPrefix);
+    boolean goldEnded=!previousGold.equals(background) && isEntityBoundary(previousGoldEntity,previousGoldPrefix,goldEntity,goldPrefix);
+    boolean guessEnded=!previousGuess.equals(background) && isEntityBoundary(previousGuessEntity,previousGuessPrefix,guessEntity,guessPrefix);
+    if (goldEnded) {
+      if (guessEnded) {
+        if (entityCorrect) {
+          entityTP.incrementCount(previousGoldEntity);
+        }
+ else {
+          entityFN.incrementCount(previousGoldEntity);
+          entityFP.incrementCount(previousGuessEntity);
+        }
+        entityCorrect=goldEntity.equals(guessEntity);
+      }
+ else {
+        entityFN.incrementCount(previousGoldEntity);
+        entityCorrect=gold.equals(background) && guess.equals(background);
+      }
+    }
+ else     if (guessEnded) {
+      entityCorrect=false;
+      entityFP.incrementCount(previousGuessEntity);
+    }
+    if (newGold) {
+      if (newGuess) {
+        entityCorrect=guessEntity.equals(goldEntity);
+      }
+ else {
+        entityCorrect=false;
+      }
+    }
+ else     if (newGuess) {
+      entityCorrect=false;
+    }
+    previousGold=gold;
+    previousGuess=guess;
+    previousGoldEntity=goldEntity;
+    previousGuessEntity=guessEntity;
+    previousGoldPrefix=goldPrefix;
+    previousGuessPrefix=guessPrefix;
+  }
+  if (!previousGold.equals(background)) {
+    if (entityCorrect) {
+      entityTP.incrementCount(previousGoldEntity);
+    }
+ else {
+      entityFN.incrementCount(previousGoldEntity);
+    }
+  }
+  if (!previousGuess.equals(background)) {
+    if (!entityCorrect) {
+      entityFP.incrementCount(previousGuessEntity);
+    }
+  }
+  return true;
+}

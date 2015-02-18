@@ -1,10 +1,10 @@
 {
-  int dimension=dfunction.domainDimension();
-  double fp=dfunction.valueAt(initial);
+  int dimension=dFunction.domainDimension();
+  double fp=dFunction.valueAt(initial);
   if (verbose) {
     System.err.println("Initial: " + fp);
   }
-  double[] xi=copyArray(dfunction.derivativeAt(initial));
+  double[] xi=copyArray(dFunction.derivativeAt(initial));
   if (verbose) {
     System.err.println("Initial at: " + arrayToString(initial,numToPrint));
     System.err.println("Initial deriv: " + arrayToString(xi,numToPrint));
@@ -21,13 +21,13 @@
   boolean simpleGDStep=false;
   for (int iterations=1; iterations < maxIterations; iterations++) {
     if (!silent) {
-      System.err.print("Iter " + iterations + " ");
+      System.err.print("Iter " + iterations + ' ');
     }
     if (verbose) {
       System.err.println("Minimizing along " + arrayToString(xi,numToPrint));
     }
-    double[] p2=lineMinimize(dfunction,p,xi);
-    double fp2=dfunction.valueAt(p2);
+    double[] p2=lineMinimize(dFunction,p,xi);
+    double fp2=dFunction.valueAt(p2);
     if (verbose) {
       System.err.println("Result is " + fp2 + " after "+ iterations);
       System.err.println("Result at " + arrayToString(p2,numToPrint));
@@ -55,7 +55,7 @@
       p[j]=p2[j];
     }
     fp=fp2;
-    xi=copyArray(dfunction.derivativeAt(p));
+    xi=copyArray(dFunction.derivativeAt(p));
     if (!simpleGDStep && !simpleGD && (iterations % resetFrequency != 0)) {
       double dgg=0.0;
       double gg=0.0;

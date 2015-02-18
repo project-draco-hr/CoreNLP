@@ -1,0 +1,35 @@
+{
+  RNNOptions curOptions=new RNNOptions();
+  String goldPath=null;
+  String predictedPath=null;
+  for (int argIndex=0; argIndex < args.length; ) {
+    if (args[argIndex].equalsIgnoreCase("-gold")) {
+      goldPath=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-predicted")) {
+      predictedPath=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else {
+      int newArgIndex=curOptions.setOption(args,argIndex);
+      if (newArgIndex == argIndex) {
+        throw new IllegalArgumentException("Unknown argument " + args[argIndex]);
+      }
+      argIndex=newArgIndex;
+    }
+  }
+  if (goldPath == null) {
+    System.err.println("goldPath not set. Exit.");
+    System.exit(-1);
+  }
+  if (predictedPath == null) {
+    System.err.println("predictedPath not set. Exit.");
+    System.exit(-1);
+  }
+  List<Tree> goldTrees=SentimentUtils.readTreesWithGoldLabels(goldPath);
+  List<Tree> predictedTrees=SentimentUtils.readTreesWithPredictedLabels(predictedPath);
+  ExternalEvaluate evaluator=new ExternalEvaluate(curOptions,predictedTrees);
+  evaluator.eval(goldTrees);
+  evaluator.printSummary();
+}

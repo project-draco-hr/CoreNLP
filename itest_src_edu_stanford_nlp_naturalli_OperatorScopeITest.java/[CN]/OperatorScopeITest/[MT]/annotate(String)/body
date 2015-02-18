@@ -1,0 +1,13 @@
+{
+  Annotation ann=new Annotation(text);
+  pipeline.annotate(ann);
+  List<CoreLabel> tokens=ann.get(CoreAnnotations.SentencesAnnotation.class).get(0).get(CoreAnnotations.TokensAnnotation.class);
+  Optional<OperatorSpec>[] scopes=new Optional[tokens.size()];
+  Arrays.fill(scopes,Optional.empty());
+  for (int i=0; i < tokens.size(); ++i) {
+    if (tokens.get(i).containsKey(NaturalLogicAnnotations.OperatorAnnotation.class)) {
+      scopes[i]=Optional.of(tokens.get(i).get(NaturalLogicAnnotations.OperatorAnnotation.class));
+    }
+  }
+  return scopes;
+}
