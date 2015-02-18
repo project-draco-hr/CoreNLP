@@ -1,0 +1,17 @@
+{
+  VERBOSE=verbose;
+  this.BUILD_GRAPHS=parser.getTLPParams().supportsBasicDependencies();
+  this.parser=parser;
+  this.maxSentenceLength=maxSent;
+  this.treeMap=treeMap;
+  this.maxParseTime=0;
+  if (this.BUILD_GRAPHS) {
+    TreebankLanguagePack tlp=parser.getTLPParams().treebankLanguagePack();
+    this.gsf=tlp.grammaticalStructureFactory(tlp.punctuationWordRejectFilter(),parser.getTLPParams().typedDependencyHeadFinder());
+  }
+ else {
+    this.gsf=null;
+  }
+  this.nThreads=1;
+  this.saveBinaryTrees=false;
+}

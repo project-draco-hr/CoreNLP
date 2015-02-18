@@ -1,13 +1,6 @@
 {
   List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
-  List<CoreLabel> output;
-  try {
-    output=this.ner.classifySentenceWithGlobalInformation(tokens,annotation,sentence);
-  }
- catch (  RuntimeInterruptedException e) {
-    doOneFailedSentence(annotation,sentence);
-    return;
-  }
+  List<CoreLabel> output=this.ner.classifySentenceWithGlobalInformation(tokens,annotation,sentence);
   if (VERBOSE) {
     boolean first=true;
     System.err.print("NERCombinerAnnotator direct output: [");
@@ -43,4 +36,5 @@
     }
     System.err.println(']');
   }
+  return sentence;
 }

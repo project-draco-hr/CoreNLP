@@ -13,6 +13,7 @@
   Sighan2005DocumentReaderAndWriter sighanRW=new Sighan2005DocumentReaderAndWriter();
   sighanRW.init(flags);
   BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
+  StringReader strR=null;
   PrintWriter stdoutW=new PrintWriter(System.out);
   int lineNb=0;
   for (; ; ) {
@@ -34,7 +35,7 @@
         seg.buildSegmentationLattice(line);
         outputLine=Sentence.listToString(seg.maxMatchSegmentation());
       }
-      StringReader strR=new StringReader(outputLine);
+      strR=new StringReader(outputLine);
       Iterator<List<CoreLabel>> itr=sighanRW.getIterator(strR);
       while (itr.hasNext()) {
         sighanRW.printAnswers(itr.next(),stdoutW);

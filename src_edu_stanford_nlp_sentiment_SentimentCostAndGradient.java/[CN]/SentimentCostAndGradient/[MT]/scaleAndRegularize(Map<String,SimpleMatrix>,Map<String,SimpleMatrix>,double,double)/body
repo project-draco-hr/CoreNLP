@@ -1,0 +1,10 @@
+{
+  double cost=0.0;
+  for (  Map.Entry<String,SimpleMatrix> entry : currentMatrices.entrySet()) {
+    SimpleMatrix D=derivatives.get(entry.getKey());
+    D=D.scale(scale).plus(entry.getValue().scale(regCost));
+    derivatives.put(entry.getKey(),D);
+    cost+=entry.getValue().elementMult(entry.getValue()).elementSum() * regCost / 2.0;
+  }
+  return cost;
+}

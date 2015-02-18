@@ -32,12 +32,6 @@
       featuresC.add("IS_TITLE");
     }
   }
-  if (flags.splitSlashHyphenWords) {
-    String[] bits=splitSlashHyphenWordsPattern.split(cWord);
-    for (    String bit : bits) {
-      featuresC.add(bit + "WFRAG");
-    }
-  }
   if (flags.useInternal && flags.useExternal) {
     if (flags.useWord) {
       featuresC.add(cWord + "-WORD");
@@ -260,28 +254,27 @@
     if (flags.useSymWordPairs) {
       featuresC.add(pWord + '-' + nWord+ "-SWORDS");
     }
-    String pGazAnnotation=(flags.useGazFeatures || flags.useMoreGazFeatures) ? p.get(CoreAnnotations.GazAnnotation.class) : null;
-    String nGazAnnotation=(flags.useGazFeatures || flags.useMoreGazFeatures) ? n.get(CoreAnnotations.GazAnnotation.class) : null;
-    String cGazAnnotation=(flags.useGazFeatures || flags.useMoreGazFeatures) ? c.get(CoreAnnotations.GazAnnotation.class) : null;
+    String pGazAnnotationClass=(flags.useGazFeatures || flags.useMoreGazFeatures) ? p.get(CoreAnnotations.GazAnnotation.class) : null;
+    String nGazAnnotationClass=(flags.useGazFeatures || flags.useMoreGazFeatures) ? n.get(CoreAnnotations.GazAnnotation.class) : null;
     if (flags.useGazFeatures) {
-      if (cGazAnnotation != null && !cGazAnnotation.equals(flags.dropGaz)) {
-        featuresC.add(cGazAnnotation + "-GAZ");
+      if (!c.get(CoreAnnotations.GazAnnotation.class).equals(flags.dropGaz)) {
+        featuresC.add(c.get(CoreAnnotations.GazAnnotation.class) + "-GAZ");
       }
-      if (nGazAnnotation != null && !nGazAnnotation.equals(flags.dropGaz)) {
-        featuresC.add(nGazAnnotation + "-NGAZ");
+      if (nGazAnnotationClass != null && !nGazAnnotationClass.equals(flags.dropGaz)) {
+        featuresC.add(nGazAnnotationClass + "-NGAZ");
       }
-      if (pGazAnnotation != null && !pGazAnnotation.equals(flags.dropGaz)) {
-        featuresC.add(pGazAnnotation + "-PGAZ");
+      if (pGazAnnotationClass != null && !pGazAnnotationClass.equals(flags.dropGaz)) {
+        featuresC.add(pGazAnnotationClass + "-PGAZ");
       }
     }
     if (flags.useMoreGazFeatures) {
-      if (cGazAnnotation != null && !cGazAnnotation.equals(flags.dropGaz)) {
-        featuresC.add(cGazAnnotation + '-' + cWord+ "-CG-CW-GAZ");
-        if (nGazAnnotation != null && !nGazAnnotation.equals(flags.dropGaz)) {
-          featuresC.add(cGazAnnotation + '-' + nGazAnnotation+ "-CNGAZ");
+      if (!c.get(CoreAnnotations.GazAnnotation.class).equals(flags.dropGaz)) {
+        featuresC.add(c.get(CoreAnnotations.GazAnnotation.class) + '-' + cWord+ "-CG-CW-GAZ");
+        if (nGazAnnotationClass != null && !nGazAnnotationClass.equals(flags.dropGaz)) {
+          featuresC.add(c.get(CoreAnnotations.GazAnnotation.class) + '-' + nGazAnnotationClass+ "-CNGAZ");
         }
-        if (pGazAnnotation != null && !pGazAnnotation.equals(flags.dropGaz)) {
-          featuresC.add(pGazAnnotation + '-' + cGazAnnotation+ "-PCGAZ");
+        if (pGazAnnotationClass != null && !pGazAnnotationClass.equals(flags.dropGaz)) {
+          featuresC.add(pGazAnnotationClass + '-' + c.get(CoreAnnotations.GazAnnotation.class)+ "-PCGAZ");
         }
       }
     }
@@ -367,12 +360,12 @@
       featuresC.add(cWord + '-' + n.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ "-W-NT");
     }
     if (flags.useNPHead) {
-      featuresC.add(c.get(CoreAnnotations.HeadWordStringAnnotation.class) + "-HW");
+      featuresC.add(c.get(TreeCoreAnnotations.HeadWordAnnotation.class) + "-HW");
       if (flags.useTags) {
-        featuresC.add(c.get(CoreAnnotations.HeadWordStringAnnotation.class) + "-" + c.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ "-HW-T");
+        featuresC.add(c.get(TreeCoreAnnotations.HeadWordAnnotation.class) + "-" + c.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ "-HW-T");
       }
       if (flags.useDistSim) {
-        featuresC.add(c.get(CoreAnnotations.HeadWordStringAnnotation.class) + "-" + c.get(CoreAnnotations.DistSimAnnotation.class)+ "-HW-DISTSIM");
+        featuresC.add(c.get(TreeCoreAnnotations.HeadWordAnnotation.class) + "-" + c.get(CoreAnnotations.DistSimAnnotation.class)+ "-HW-DISTSIM");
       }
     }
     if (flags.useNPGovernor) {
@@ -385,7 +378,7 @@
       }
     }
     if (flags.useHeadGov) {
-      featuresC.add(c.get(CoreAnnotations.HeadWordStringAnnotation.class) + "-" + c.get(CoreAnnotations.GovernorAnnotation.class)+ "-HW_GW");
+      featuresC.add(c.get(TreeCoreAnnotations.HeadWordAnnotation.class) + "-" + c.get(CoreAnnotations.GovernorAnnotation.class)+ "-HW_GW");
     }
     if (flags.useClassFeature) {
       featuresC.add("###");
@@ -503,14 +496,6 @@
         if (flags.useDisjunctiveShapeInteraction) {
           featuresC.add(getWord(dp) + '-' + cShape+ "-DISJP-CS");
         }
-      }
-    }
-    if (flags.useUndirectedDisjunctive) {
-      for (int i=1; i <= flags.disjunctionWidth; i++) {
-        CoreLabel dn=cInfo.get(loc + i);
-        CoreLabel dp=cInfo.get(loc - i);
-        featuresC.add(getWord(dn) + "-DISJ");
-        featuresC.add(getWord(dp) + "-DISJ");
       }
     }
     if (flags.useWideDisjunctive) {

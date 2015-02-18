@@ -1,0 +1,42 @@
+{
+  byte backp=backMatrix[lg][s];
+  if (alignMatrix[lg][s] == 0) {
+    ++addCount;
+    alignments.add(new Alignment(longForm,shortForm,pointers));
+    return;
+  }
+  if ((backp & SHIFT_LONG) != 0) {
+    backp&=~SHIFT_LONG;
+    int[] ptrcpy=((backp == 0) ? pointers : pointers.clone());
+    if (lg == 0) {
+      ++addCount;
+      alignments.add(new Alignment(longForm,shortForm,ptrcpy));
+    }
+ else {
+      findAlignments(ptrcpy,lg - 1,s);
+    }
+  }
+  if ((backp & SHIFT_SHORT) != 0) {
+    backp&=~SHIFT_SHORT;
+    int[] ptrcpy=((backp == 0) ? pointers : pointers.clone());
+    if (s == 0) {
+      ++addCount;
+      alignments.add(new Alignment(longForm,shortForm,ptrcpy));
+    }
+ else {
+      findAlignments(ptrcpy,lg,s - 1);
+    }
+  }
+  if (lcLongForm[lg] == lcShortForm[s])   assert((backMatrix[lg][s] & SHIFT_BOTH) != 0);
+  if ((backp & SHIFT_BOTH) != 0) {
+    assert(lcLongForm[lg] == lcShortForm[s]);
+    pointers[s]=lg;
+    if (lg == 0 || s == 0) {
+      ++addCount;
+      alignments.add(new Alignment(longForm,shortForm,pointers));
+    }
+ else {
+      findAlignments(pointers,lg - 1,s - 1);
+    }
+  }
+}

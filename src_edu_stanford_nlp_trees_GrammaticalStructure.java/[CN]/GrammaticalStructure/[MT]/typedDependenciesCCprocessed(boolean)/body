@@ -1,3 +1,8 @@
 {
-  return typedDependenciesCCprocessed(includeExtras ? Extras.MAXIMAL : Extras.NONE);
+  List<TypedDependency> tdl=typedDependencies(false);
+  if (includeExtras) {
+    getTreeDeps(root(),tdl,new NoPunctTypedDependencyFilter(puncFilter),extraTreeDepFilter());
+  }
+  collapseDependencies(tdl,true,includeExtras);
+  return tdl;
 }

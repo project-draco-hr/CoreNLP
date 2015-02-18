@@ -13,21 +13,20 @@
     return getRelation(">","-1",basicCatFunction,headFinder);
   }
   Relation r;
-switch (s) {
-case ">>#":
+  if (s.equals(">>#")) {
     r=new Heads(headFinder);
-  break;
-case "<<#":
-r=new HeadedBy(headFinder);
-break;
-case ">#":
-r=new ImmediatelyHeads(headFinder);
-break;
-case "<#":
-r=new ImmediatelyHeadedBy(headFinder);
-break;
-default :
-throw new ParseException("Unrecognized simple relation " + s);
-}
-return Interner.globalIntern(r);
+  }
+ else   if (s.equals("<<#")) {
+    r=new HeadedBy(headFinder);
+  }
+ else   if (s.equals(">#")) {
+    r=new ImmediatelyHeads(headFinder);
+  }
+ else   if (s.equals("<#")) {
+    r=new ImmediatelyHeadedBy(headFinder);
+  }
+ else {
+    throw new ParseException("Unrecognized simple relation " + s);
+  }
+  return Interner.globalIntern(r);
 }

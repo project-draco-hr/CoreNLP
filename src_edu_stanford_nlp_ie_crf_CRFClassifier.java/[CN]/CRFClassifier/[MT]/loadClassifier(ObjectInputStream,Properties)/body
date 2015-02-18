@@ -6,7 +6,9 @@
  else {
     Index<CRFLabel>[] indexArray=(Index<CRFLabel>[])o;
     labelIndices=new ArrayList<Index<CRFLabel>>(indexArray.length);
-    Collections.addAll(labelIndices,indexArray);
+    for (    Index<CRFLabel> index : indexArray) {
+      labelIndices.add(index);
+    }
   }
   classIndex=(Index<String>)ois.readObject();
   featureIndex=(Index<String>)ois.readObject();
@@ -14,25 +16,7 @@
   if (flags.useEmbedding) {
     embeddings=(Map<String,double[]>)ois.readObject();
   }
-  Object featureFactory=ois.readObject();
-  if (featureFactory instanceof List) {
-    featureFactories=ErasureUtils.uncheckedCast(featureFactories);
-  }
- else   if (featureFactory instanceof FeatureFactory) {
-    featureFactories=Generics.newArrayList();
-    featureFactories.add((FeatureFactory)featureFactory);
-  }
- else   if (featureFactory instanceof Integer) {
-    int size=(Integer)featureFactory;
-    featureFactories=Generics.newArrayList(size);
-    for (int i=0; i < size; ++i) {
-      featureFactory=ois.readObject();
-      if (!(featureFactory instanceof FeatureFactory)) {
-        throw new RuntimeIOException("Should have FeatureFactory but got " + featureFactory.getClass());
-      }
-      featureFactories.add((FeatureFactory)featureFactory);
-    }
-  }
+  featureFactory=(edu.stanford.nlp.sequences.FeatureFactory)ois.readObject();
   if (props != null) {
     flags.setProperties(props,false);
   }

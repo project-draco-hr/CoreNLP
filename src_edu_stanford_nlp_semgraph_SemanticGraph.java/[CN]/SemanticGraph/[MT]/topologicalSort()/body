@@ -1,12 +1,27 @@
 {
-  List<IndexedWord> result=Generics.newArrayList();
-  Set<IndexedWord> temporary=wordMapFactory.newSet();
-  Set<IndexedWord> permanent=wordMapFactory.newSet();
-  for (  IndexedWord vertex : vertexSet()) {
-    if (!temporary.contains(vertex)) {
-      topologicalSortHelper(vertex,temporary,permanent,result);
+  LinkedList<IndexedWord> q=new LinkedList<IndexedWord>(getVerticesWithoutParents());
+  Set<SemanticGraphEdge> remainingEdges=getEdgeSet();
+  List<IndexedWord> result=new ArrayList<IndexedWord>();
+  while (!q.isEmpty()) {
+    IndexedWord node=q.removeLast();
+    result.add(node);
+    for (    SemanticGraphEdge e : outgoingEdgeIterable(node)) {
+      IndexedWord target=e.getTarget();
+      remainingEdges.remove(e);
+      boolean hasInbound=false;
+      for (      SemanticGraphEdge other : incomingEdgeIterable(target)) {
+        if (remainingEdges.contains(other)) {
+          hasInbound=true;
+          break;
+        }
+      }
+      if (!hasInbound) {
+        q.addLast(target);
+      }
+ else {
+      }
     }
   }
-  Collections.reverse(result);
+  if (result.size() != vertexSet().size())   throw new IllegalStateException("This graph has cycles. Topological sort not possible: " + result);
   return result;
 }

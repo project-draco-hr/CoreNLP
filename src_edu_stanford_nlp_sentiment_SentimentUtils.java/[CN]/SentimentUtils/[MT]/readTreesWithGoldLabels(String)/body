@@ -1,3 +1,10 @@
 {
-  return readTreesWithLabels(path,RNNCoreAnnotations.GoldClass.class);
+  List<Tree> trees=Generics.newArrayList();
+  MemoryTreebank treebank=new MemoryTreebank();
+  treebank.loadPath(path,null);
+  for (  Tree tree : treebank) {
+    attachGoldLabels(tree);
+    trees.add(tree);
+  }
+  return trees;
 }

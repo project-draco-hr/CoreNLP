@@ -1,11 +1,8 @@
 {
   this.flags=flags;
-  this.featureFactories=Generics.newArrayList();
-  if (flags.featureFactory != null) {
-    FeatureFactory<IN> factory=new MetaClass(flags.featureFactory).createInstance(flags.featureFactoryArgs);
-    featureFactories.add(factory);
-  }
+  this.featureFactory=new MetaClass(flags.featureFactory).createInstance(flags.featureFactoryArgs);
   if (flags.featureFactories != null) {
+    this.featureFactories=new ArrayList<FeatureFactory<IN>>();
     for (int i=0; i < flags.featureFactories.length; i++) {
       FeatureFactory<IN> indFeatureFactory=new MetaClass(flags.featureFactories[i]).createInstance(flags.featureFactoriesArgs.get(i));
       this.featureFactories.add(indFeatureFactory);

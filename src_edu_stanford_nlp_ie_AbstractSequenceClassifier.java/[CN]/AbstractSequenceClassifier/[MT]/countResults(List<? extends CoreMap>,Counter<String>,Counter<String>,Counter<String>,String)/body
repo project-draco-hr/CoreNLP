@@ -1,0 +1,50 @@
+{
+  int index=0;
+  int goldIndex=0, guessIndex=0;
+  String lastGold=background, lastGuess=background;
+  for (  CoreMap line : doc) {
+    String gold=line.get(CoreAnnotations.GoldAnswerAnnotation.class);
+    String guess=line.get(CoreAnnotations.AnswerAnnotation.class);
+    if (gold == null || guess == null)     return false;
+    if (lastGold != null && !lastGold.equals(gold) && !lastGold.equals(background)) {
+      if (lastGuess.equals(lastGold) && !lastGuess.equals(guess) && goldIndex == guessIndex) {
+        entityTP.incrementCount(lastGold,1.0);
+      }
+ else {
+        entityFN.incrementCount(lastGold,1.0);
+      }
+    }
+    if (lastGuess != null && !lastGuess.equals(guess) && !lastGuess.equals(background)) {
+      if (lastGuess.equals(lastGold) && !lastGuess.equals(guess) && goldIndex == guessIndex && !lastGold.equals(gold)) {
+      }
+ else {
+        entityFP.incrementCount(lastGuess,1.0);
+      }
+    }
+    if (lastGold == null || !lastGold.equals(gold)) {
+      lastGold=gold;
+      goldIndex=index;
+    }
+    if (lastGuess == null || !lastGuess.equals(guess)) {
+      lastGuess=guess;
+      guessIndex=index;
+    }
+    ++index;
+  }
+  if (lastGold != null && !lastGold.equals(background)) {
+    if (lastGold.equals(lastGuess) && goldIndex == guessIndex) {
+      entityTP.incrementCount(lastGold,1.0);
+    }
+ else {
+      entityFN.incrementCount(lastGold,1.0);
+    }
+  }
+  if (lastGuess != null && !lastGuess.equals(background)) {
+    if (lastGold.equals(lastGuess) && goldIndex == guessIndex) {
+    }
+ else {
+      entityFP.incrementCount(lastGuess,1.0);
+    }
+  }
+  return true;
+}

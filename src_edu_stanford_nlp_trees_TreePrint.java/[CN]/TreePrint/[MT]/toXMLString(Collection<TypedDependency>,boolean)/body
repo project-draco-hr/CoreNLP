@@ -3,20 +3,20 @@
   for (  TypedDependency td : dependencies) {
     String reln=td.reln().toString();
     String gov=td.gov().value();
-    String govTag=td.gov().tag();
+    String govTag=td.gov().label().tag();
     int govIdx=td.gov().index();
     String dep=td.dep().value();
-    String depTag=td.dep().tag();
+    String depTag=td.dep().label().tag();
     int depIdx=td.dep().index();
     boolean extra=td.extra();
     String govCopy="";
-    int copyGov=td.gov().copyCount();
-    if (copyGov > 0) {
+    Integer copyGov=td.gov().label.get(CoreAnnotations.CopyAnnotation.class);
+    if (copyGov != null) {
       govCopy=" copy=\"" + copyGov + '\"';
     }
     String depCopy="";
-    int copyDep=td.dep().copyCount();
-    if (copyDep > 0) {
+    Integer copyDep=td.dep().label.get(CoreAnnotations.CopyAnnotation.class);
+    if (copyDep != null) {
       depCopy=" copy=\"" + copyDep + '\"';
     }
     String govTagAttribute=(includeTags && govTag != null) ? " tag=\"" + govTag + "\"" : "";

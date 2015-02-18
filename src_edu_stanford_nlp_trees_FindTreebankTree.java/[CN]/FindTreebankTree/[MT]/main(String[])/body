@@ -1,2 +1,64 @@
 {
+  String needle="";
+  String tagSeparator="_";
+  String encoding="utf-8";
+  String fileRegex="";
+  List<String> paths=new ArrayList<String>();
+  for (int i=0; i < args.length; ++i) {
+    if ((args[i].equalsIgnoreCase("-tagSeparator") || args[i].equalsIgnoreCase("--tagSeparator")) && i + 1 < args.length) {
+      tagSeparator=args[i + 1];
+      ++i;
+    }
+ else     if ((args[i].equalsIgnoreCase("-encoding") || args[i].equalsIgnoreCase("--encoding")) && i + 1 < args.length) {
+      encoding=args[i + 1];
+      ++i;
+    }
+ else     if ((args[i].equalsIgnoreCase("-fileRegex") || args[i].equalsIgnoreCase("--fileRegex")) && i + 1 < args.length) {
+      fileRegex=args[i + 1];
+      ++i;
+    }
+ else     if (needle.equals("")) {
+      needle=args[i].trim();
+    }
+ else {
+      paths.add(args[i]);
+    }
+  }
+  TreeReaderFactory trf=new LabeledScoredTreeReaderFactory();
+  FileFilter filter=null;
+  if (!fileRegex.equals("")) {
+    final Pattern filePattern=Pattern.compile(fileRegex);
+    filter=new FileFilter(){
+      public boolean accept(      File pathname){
+        return (pathname.isDirectory() || filePattern.matcher(pathname.getName()).matches());
+      }
+    }
+;
+  }
+  for (  String path : paths) {
+    DiskTreebank treebank=new DiskTreebank(trf,encoding);
+    treebank.loadPath(path,filter);
+    Iterator<Tree> treeIterator=treebank.iterator();
+    int treeCount=0;
+    String currentFile="";
+    while (treeIterator.hasNext()) {
+      if (!currentFile.equals(treebank.getCurrentFilename())) {
+        currentFile=treebank.getCurrentFilename();
+        treeCount=0;
+      }
+      ++treeCount;
+      Tree tree=treeIterator.next();
+      List<TaggedWord> sentence=tree.taggedYield();
+      boolean found=false;
+      String haystack=Sentence.listToString(sentence,true);
+      found=needle.equals(haystack);
+      haystack=haystack.replaceAll(" ","");
+      found=found || needle.equals(haystack);
+      haystack=Sentence.listToString(sentence,false,tagSeparator);
+      found=found || needle.equals(haystack);
+      if (found) {
+        System.out.println("needle found in " + currentFile + " tree "+ treeCount);
+      }
+    }
+  }
 }

@@ -1,2 +1,40 @@
 {
+  if (numThreads == 1) {
+    for (    Annotation ann : annotations) {
+      annotate(ann);
+      callback.apply(ann);
+    }
+  }
+  Iterable<Runnable> threads=new Iterable<Runnable>(){
+    @Override public Iterator<Runnable> iterator(){
+      final Iterator<Annotation> iter=annotations.iterator();
+      return new Iterator<Runnable>(){
+        @Override public boolean hasNext(){
+          return iter.hasNext();
+        }
+        @Override public Runnable next(){
+          if (!iter.hasNext()) {
+            throw new NoSuchElementException();
+          }
+          final Annotation input=iter.next();
+          return new Runnable(){
+            @Override public void run(){
+              String beginningOfDocument=input.toString().substring(0,Math.min(50,input.toString().length()));
+              Redwood.startTrack("Annotating \"" + beginningOfDocument + "...\"");
+              annotate(input);
+              callback.apply(input);
+              Redwood.endTrack("Annotating \"" + beginningOfDocument + "...\"");
+            }
+          }
+;
+        }
+        @Override public void remove(){
+          iter.remove();
+        }
+      }
+;
+    }
+  }
+;
+  Redwood.Util.threadAndRun(this.getClass().getSimpleName(),threads,numThreads);
 }

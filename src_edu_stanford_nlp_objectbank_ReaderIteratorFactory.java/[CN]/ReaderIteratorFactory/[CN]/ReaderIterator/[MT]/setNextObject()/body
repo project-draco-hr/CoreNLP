@@ -17,7 +17,12 @@
         iter=l.iterator();
         file=(File)iter.next();
       }
-      nextObject=IOUtils.readerFromFile(file,enc);
+      if (file.getName().endsWith(".gz")) {
+        nextObject=new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(file)),enc));
+      }
+ else {
+        nextObject=new BufferedReader(new EncodingFileReader(file,enc));
+      }
     }
  else     if (o instanceof String) {
       nextObject=new BufferedReader(new StringReader((String)o));

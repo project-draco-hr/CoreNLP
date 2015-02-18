@@ -4,7 +4,9 @@
     Range r=tod.getRange(flags,granularity);
     if (r != null) {
       CompositePartialTime cpt=new CompositePartialTime(this,poy,dow,null);
-      return getIntersectedRange(cpt,r,d);
+      Time t1=cpt.intersect(r.beginTime());
+      Time t2=cpt.intersect(r.endTime());
+      return new Range(t1,t2,d);
     }
  else {
       return super.getRange(flags,granularity);
@@ -14,7 +16,15 @@
     Range r=dow.getRange(flags,granularity);
     if (r != null) {
       CompositePartialTime cpt=new CompositePartialTime(this,poy,dow,null);
-      return getIntersectedRange(cpt,r,d);
+      Time t1=cpt.intersect(r.beginTime());
+      if (t1 instanceof PartialTime) {
+        ((PartialTime)t1).withStandardFields();
+      }
+      Time t2=cpt.intersect(r.endTime());
+      if (t2 instanceof PartialTime) {
+        ((PartialTime)t2).withStandardFields();
+      }
+      return new Range(t1,t2,d);
     }
  else {
       return super.getRange(flags,granularity);
@@ -24,7 +34,9 @@
     Range r=poy.getRange(flags,granularity);
     if (r != null) {
       CompositePartialTime cpt=new CompositePartialTime(this,poy,null,null);
-      return getIntersectedRange(cpt,r,d);
+      Time t1=cpt.intersect(r.beginTime());
+      Time t2=cpt.intersect(r.endTime());
+      return new Range(t1,t2,d);
     }
  else {
       return super.getRange(flags,granularity);

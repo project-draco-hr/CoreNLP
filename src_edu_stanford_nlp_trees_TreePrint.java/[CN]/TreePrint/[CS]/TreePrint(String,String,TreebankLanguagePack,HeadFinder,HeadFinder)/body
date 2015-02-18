@@ -12,7 +12,7 @@
   this.tlp=tlp;
   boolean includePunctuationDependencies;
   includePunctuationDependencies=propertyToBoolean(this.options,"includePunctuationDependencies");
-  Predicate<String> puncWordFilter;
+  Filter<String> puncWordFilter;
   if (includePunctuationDependencies) {
     dependencyFilter=Filters.acceptFilter();
     dependencyWordFilter=Filters.acceptFilter();
@@ -29,7 +29,7 @@
  else {
     stemmer=null;
   }
-  if (formats.containsKey("typedDependenciesCollapsed") || formats.containsKey("typedDependencies") || (formats.containsKey("conll2007") && tlp.supportsGrammaticalStructures())) {
+  if (formats.containsKey("typedDependenciesCollapsed") || formats.containsKey("typedDependencies")) {
     gsf=tlp.grammaticalStructureFactory(puncWordFilter,typedDependencyHF);
   }
  else {

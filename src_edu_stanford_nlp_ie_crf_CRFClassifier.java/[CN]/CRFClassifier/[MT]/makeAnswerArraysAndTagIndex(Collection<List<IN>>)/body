@@ -42,7 +42,7 @@
       }
     }
     for (int j=0, docSize=doc.size(); j < docSize; j++) {
-      CRFDatum<List<String>,CRFLabel> d=makeDatum(doc,j,featureFactories);
+      CRFDatum<List<String>,CRFLabel> d=makeDatum(doc,j,featureFactory);
       labelIndex.add(d.label());
       List<List<String>> features=d.asFeatures();
       for (int k=0, fSize=features.size(); k < fSize; k++) {
@@ -154,15 +154,17 @@
           groupSuffix=m.group(1);
         }
         groupSuffix+="-c:" + i;
-        int groupIndex=templateGroupIndex.addToIndex(groupSuffix);
+        int groupIndex=templateGroupIndex.indexOf(groupSuffix,true);
         featureIndexToTemplateIndex.put(index,groupIndex);
       }
     }
     if (i == 0) {
       nodeFeatureIndicesMap=featureIndexMap;
+      System.err.println("setting nodeFeatureIndicesMap, size=" + nodeFeatureIndicesMap.size());
     }
  else {
       edgeFeatureIndicesMap=featureIndexMap;
+      System.err.println("setting edgeFeatureIndicesMap, size=" + edgeFeatureIndicesMap.size());
     }
   }
   if (flags.numOfFeatureSlices > 0) {
