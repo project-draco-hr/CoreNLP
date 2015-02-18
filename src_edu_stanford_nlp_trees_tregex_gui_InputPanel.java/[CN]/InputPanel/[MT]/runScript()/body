@@ -4,6 +4,8 @@
   searchThread=new Thread(){
     @Override public void run(){
       try {
+        BufferedReader reader=new BufferedReader(new StringReader(script));
+        TsurgeonPattern operation=Tsurgeon.getTsurgeonOperationsFromReader(reader);
         final String text=tregexPattern.getText().intern();
         SwingUtilities.invokeLater(new Runnable(){
           public void run(){
@@ -18,8 +20,6 @@
           returnToValidState(text,visitor,new ArrayList<TreeFromFile>());
           return;
         }
-        BufferedReader reader=new BufferedReader(new StringReader(script));
-        TsurgeonPattern operation=Tsurgeon.getTsurgeonOperationsFromReader(reader);
         List<TreeFromFile> trees=visitor.getMatches();
         final List<TreeFromFile> modifiedTrees=new ArrayList<TreeFromFile>();
         for (        TreeFromFile tff : trees) {

@@ -2,7 +2,8 @@
   this.op=op;
   this.debinarizer=new Debinarizer(op.forceCNF);
   this.subcategoryStripper=op.tlpParams.subcategoryStripper();
-  this.extraEvals=pqFactory.getExtraEvals();
+  this.evals=Generics.newArrayList();
+  evals.addAll(pqFactory.getExtraEvals());
   this.parserQueryEvals=pqFactory.getParserQueryEvals();
   this.pqFactory=pqFactory;
   this.tagger=tagger;
@@ -78,6 +79,9 @@
   }
   if (Boolean.parseBoolean(op.testOptions.evals.getProperty("factLL"))) {
     factLL=new AbstractEval.ScoreEval("factLL",runningAverages);
+  }
+  if (Boolean.parseBoolean(op.testOptions.evals.getProperty("topMatch"))) {
+    evals.add(new TopMatchEval("topMatch",runningAverages));
   }
   kGoodLB=new Evalb("kGood LP/LR",false);
   if (Boolean.parseBoolean(op.testOptions.evals.getProperty("pcfgTopK"))) {

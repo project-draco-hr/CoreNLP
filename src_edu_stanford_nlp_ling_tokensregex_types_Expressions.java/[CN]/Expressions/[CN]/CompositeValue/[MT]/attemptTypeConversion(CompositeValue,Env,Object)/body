@@ -15,10 +15,14 @@
                 Value v=cv.value.get(s).evaluate(env,args);
                 try {
                   Field f=c.getField(s);
-                  f.set(obj,v.get());
+                  Object objVal=toCompatibleObject(f,v.get());
+                  f.set(obj,objVal);
                 }
  catch (                NoSuchFieldException ex) {
-                  throw new RuntimeException("Unknown field " + s + " for type "+ typeName,ex);
+                  throw new RuntimeException("Unknown field " + s + " for type "+ typeName+ ", trying to set to "+ v,ex);
+                }
+catch (                IllegalArgumentException ex) {
+                  throw new RuntimeException("Incompatible type " + s + " for type "+ typeName+ ", trying to set to "+ v,ex);
                 }
               }
             }

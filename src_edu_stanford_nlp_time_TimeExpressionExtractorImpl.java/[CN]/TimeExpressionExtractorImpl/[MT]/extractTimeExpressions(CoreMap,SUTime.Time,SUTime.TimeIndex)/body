@@ -1,6 +1,8 @@
 {
-  List<CoreMap> mergedNumbers=NumberNormalizer.findAndMergeNumbers(annotation);
-  annotation.set(CoreAnnotations.NumerizedTokensAnnotation.class,mergedNumbers);
+  if (!annotation.containsKey(CoreAnnotations.NumerizedTokensAnnotation.class)) {
+    List<CoreMap> mergedNumbers=NumberNormalizer.findAndMergeNumbers(annotation);
+    annotation.set(CoreAnnotations.NumerizedTokensAnnotation.class,mergedNumbers);
+  }
   List<? extends MatchedExpression> matchedExpressions=expressionExtractor.extractExpressions(annotation);
   List<TimeExpression> timeExpressions=new ArrayList<TimeExpression>(matchedExpressions.size());
   for (  MatchedExpression expr : matchedExpressions) {

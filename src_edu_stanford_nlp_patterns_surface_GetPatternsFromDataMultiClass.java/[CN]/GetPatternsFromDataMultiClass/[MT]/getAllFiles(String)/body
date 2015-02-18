@@ -2,19 +2,17 @@
   List<File> allFiles=new ArrayList<File>();
   for (  String tokfile : file.split("[,;]")) {
     File filef=new File(tokfile);
-    String ext=".*";
-    File dir=null;
     if (filef.isDirectory()) {
-      dir=filef;
+      String path=".*";
+      File dir=filef;
+      for (      File f : IOUtils.iterFilesRecursive(dir,Pattern.compile(path))) {
+        Redwood.log(Redwood.DBG,"Reading file " + f);
+        allFiles.add(f);
+      }
     }
  else {
-      dir=filef.getParentFile();
-      ext=filef.getName();
-    }
-    RegExFileFilter fileFilter=new RegExFileFilter(Pattern.compile(ext));
-    File[] files=dir.listFiles(fileFilter);
-    for (int i=0; i < files.length; i++) {
-      allFiles.add(files[i]);
+      Redwood.log(Redwood.DBG,"Reading file " + filef);
+      allFiles.add(filef);
     }
   }
   return allFiles;

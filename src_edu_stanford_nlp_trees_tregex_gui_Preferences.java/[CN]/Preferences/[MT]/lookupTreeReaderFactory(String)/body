@@ -1,0 +1,39 @@
+{
+  if (trfName.equalsIgnoreCase("ArabicTreeReaderFactory")) {
+    return new ArabicTreeReaderFactory();
+  }
+ else   if (trfName.equalsIgnoreCase("ArabicTreeReaderFactory.ArabicRawTreeReaderFactory")) {
+    return new ArabicTreeReaderFactory.ArabicRawTreeReaderFactory();
+  }
+ else   if (trfName.equalsIgnoreCase("CTBTreeReaderFactory")) {
+    return new CTBTreeReaderFactory();
+  }
+ else   if (trfName.equalsIgnoreCase("NoEmptiesCTBTreeReaderFactory")) {
+    return new NoEmptiesCTBTreeReaderFactory();
+  }
+ else   if (trfName.equalsIgnoreCase("Basic categories only (LabeledScoredTreeReaderFactory)")) {
+    return new LabeledScoredTreeReaderFactory();
+  }
+ else   if (trfName.equalsIgnoreCase("FrenchTreeReaderFactory")) {
+    return new FrenchTreeReaderFactory();
+  }
+ else   if (trfName.equalsIgnoreCase("PennTreeReaderFactory")) {
+    return new PennTreeReaderFactory();
+  }
+ else   if (trfName.equalsIgnoreCase("StringLabeledScoredTreeReaderFactory")) {
+    return new StringLabeledScoredTreeReaderFactory();
+  }
+ else   if (trfName.equalsIgnoreCase("TregexTreeReaderFactory")) {
+    return new TregexPattern.TRegexTreeReaderFactory();
+  }
+ else {
+    try {
+      Class<?> trfClass=Class.forName(trfName);
+      TreeReaderFactory trf=(TreeReaderFactory)trfClass.newInstance();
+      return trf;
+    }
+ catch (    Exception e) {
+      return null;
+    }
+  }
+}
