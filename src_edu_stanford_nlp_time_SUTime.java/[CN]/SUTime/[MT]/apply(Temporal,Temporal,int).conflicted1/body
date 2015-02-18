@@ -1,28 +1,17 @@
 {
   if (arg1 == null) {
-    return new RelativeTime(NEXT_IMMEDIATE,arg2);
+    return arg2;
   }
   if (arg2 == null) {
     return arg1;
   }
-  if (arg1 instanceof Time) {
-    Time t=(Time)arg1;
-    if (arg2 instanceof Duration) {
-      return ((Duration)arg2).toTime(t,flags | RESOLVE_TO_FUTURE);
-    }
- else {
-      Temporal resolvedThis=arg2.resolve(t,RESOLVE_TO_FUTURE);
-      if (resolvedThis != null) {
-        if (resolvedThis instanceof Time) {
-          if (((Time)resolvedThis).compareTo(t) <= 0) {
-            return NEXT.apply(arg1,arg2);
-          }
-        }
-      }
-      return resolvedThis;
-    }
+  if (arg1 instanceof Time && arg2 instanceof Time) {
+    return Time.max((Time)arg1,(Time)arg2);
+  }
+ else   if (arg1 instanceof Duration && arg2 instanceof Duration) {
+    return Duration.max((Duration)arg1,(Duration)arg2);
   }
  else {
-    throw new UnsupportedOperationException("NEXT_IMMEDIATE not implemented for arg1=" + arg1.getClass() + ", arg2="+ arg2.getClass());
+    throw new UnsupportedOperationException("MAX not implemented for arg1=" + arg1.getClass() + ", arg2="+ arg2.getClass());
   }
 }
