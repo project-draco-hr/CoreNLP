@@ -4,7 +4,7 @@
     System.err.println("Parsing: " + words);
   }
   Tree tree=null;
-  if (maxSentenceLength <= 0 || words.size() < maxSentenceLength) {
+  if (maxSentenceLength <= 0 || words.size() <= maxSentenceLength) {
     try {
       final List<ParserConstraint> constraints=sentence.get(ParserAnnotations.ConstraintAnnotation.class);
       tree=doOneSentence(constraints,words);
@@ -18,6 +18,11 @@
   }
   if (tree == null) {
     tree=ParserUtils.xTree(words);
+    for (    CoreLabel word : words) {
+      if (word.tag() == null) {
+        word.setTag("X");
+      }
+    }
   }
   if (treeMap != null) {
     tree=treeMap.apply(tree);

@@ -5,18 +5,7 @@
   if (parent != endChild.parent(t)) {
     throw new TsurgeonRuntimeException("Parents did not match for trees when applied to " + this);
   }
-  Label label;
-  LabelFactory lf=parent.labelFactory();
-  if (lf == null) {
-    lf=t.labelFactory();
-  }
-  if (lf == null) {
-    label=new CoreLabel();
-    label.setValue(newLabel);
-  }
- else {
-    label=lf.newLabel(newLabel);
-  }
+  AuxiliaryTree treeCopy=auxTree.copy(this);
   List<Tree> children=Generics.newArrayList();
   List<Tree> innerChildren=Generics.newArrayList();
   boolean insideSpan=false;
@@ -29,8 +18,8 @@
  else {
         insideSpan=false;
         innerChildren.add(child);
-        Tree newNode=t.treeFactory().newTreeNode(label,innerChildren);
-        children.add(newNode);
+        treeCopy.foot.setChildren(innerChildren);
+        children.add(treeCopy.tree);
       }
     }
  else     if (insideSpan) {
