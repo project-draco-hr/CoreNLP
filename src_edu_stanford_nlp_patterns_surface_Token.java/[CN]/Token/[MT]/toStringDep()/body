@@ -1,0 +1,14 @@
+{
+  String str="";
+  if (classORrestrictions != null && !this.classORrestrictions.isEmpty()) {
+    for (    Map.Entry<Class,String> en : this.classORrestrictions.entrySet()) {
+      String orgVal=en.getValue().toString();
+      String val;
+      if (!alphaNumeric.matcher(orgVal).matches())       val="/" + Pattern.quote(orgVal.replaceAll("/","\\\\/")) + "/";
+ else       val=orgVal;
+      if (str.isEmpty())       str="{" + class2KeyMapping.get(en.getKey()) + ":"+ val+ "}";
+ else       str+=" | " + "{" + class2KeyMapping.get(en.getKey()) + ":"+ val+ "}";
+    }
+  }
+  return str.trim();
+}

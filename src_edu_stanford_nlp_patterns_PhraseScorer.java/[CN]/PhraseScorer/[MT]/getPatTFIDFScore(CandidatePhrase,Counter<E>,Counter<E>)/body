@@ -1,0 +1,24 @@
+{
+  if (Data.processedDataFreq.getCount(word) == 0.0) {
+    Redwood.log(Redwood.WARN,"How come the processed corpus freq has count of " + word + " 0. The count in raw freq is "+ Data.rawFreq.getCount(word)+ " and the Data.rawFreq size is "+ Data.rawFreq.size());
+    return 0;
+  }
+ else {
+    double total=0;
+    Set<E> rem=new HashSet<E>();
+    for (    Entry<E,Double> en2 : patsThatExtractedThis.entrySet()) {
+      double weight=1.0;
+      if (usePatternWeights) {
+        weight=allSelectedPatterns.getCount(en2.getKey());
+        if (weight == 0) {
+          Redwood.log(Redwood.FORCE,"Warning: Weight zero for " + en2.getKey() + ". May be pattern was removed when choosing other patterns (if subsumed by another pattern).");
+          rem.add(en2.getKey());
+        }
+      }
+      total+=weight;
+    }
+    Counters.removeKeys(patsThatExtractedThis,rem);
+    double score=total / Data.processedDataFreq.getCount(word);
+    return score;
+  }
+}

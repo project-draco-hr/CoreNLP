@@ -1,0 +1,12 @@
+{
+  BufferedWriter w=new BufferedWriter(new FileWriter(file));
+  for (  Entry<String,Env> en : env.entrySet()) {
+    for (    Entry<String,Object> en2 : en.getValue().getVariables().entrySet()) {
+      if (en2.getValue() instanceof Class)       w.write(en.getKey() + "###" + en2.getKey()+ "###"+ ((Class)en2.getValue()).getName()+ "\n");
+    }
+  }
+  for (  Entry<String,Object> en2 : globalEnv.getVariables().entrySet()) {
+    if (en2.getValue() instanceof Class)     w.write(en2.getKey() + "###" + ((Class)en2.getValue()).getName()+ "\n");
+  }
+  w.close();
+}

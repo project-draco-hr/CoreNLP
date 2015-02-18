@@ -1,0 +1,14 @@
+{
+  System.out.print("Saving classifier to " + path + "... ");
+  int lastSlash=path.lastIndexOf(File.separator);
+  if (lastSlash > 0) {
+    File dir=new File(path.substring(0,lastSlash));
+    if (!dir.exists())     dir.mkdirs();
+  }
+  ObjectOutputStream out=new ObjectOutputStream(new FileOutputStream(path));
+  out.writeObject(weights);
+  out.writeObject(featureIndex);
+  out.writeObject(labelIndex);
+  out.close();
+  System.out.println("done.");
+}
