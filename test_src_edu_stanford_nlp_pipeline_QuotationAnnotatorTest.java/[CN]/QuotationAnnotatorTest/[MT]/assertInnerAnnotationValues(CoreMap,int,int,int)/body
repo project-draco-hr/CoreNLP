@@ -2,4 +2,10 @@
   assertEquals((int)quote.get(CoreAnnotations.QuotationIndexAnnotation.class),quoteIndex);
   assertEquals((int)quote.get(CoreAnnotations.SentenceBeginAnnotation.class),sentenceBegin);
   assertEquals((int)quote.get(CoreAnnotations.SentenceEndAnnotation.class),sentenceEnd);
+  List<CoreLabel> quoteTokens=quote.get(CoreAnnotations.TokensAnnotation.class);
+  if (quoteTokens != null && quote.get(CoreAnnotations.QuotationsAnnotation.class) == null) {
+    for (    CoreLabel qt : quoteTokens) {
+      assertEquals((int)qt.get(CoreAnnotations.QuotationIndexAnnotation.class),quoteIndex);
+    }
+  }
 }
