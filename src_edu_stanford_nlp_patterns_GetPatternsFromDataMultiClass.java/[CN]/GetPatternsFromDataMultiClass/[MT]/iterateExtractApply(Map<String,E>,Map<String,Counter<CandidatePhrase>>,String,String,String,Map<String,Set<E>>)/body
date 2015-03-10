@@ -83,8 +83,11 @@
     }
   }
   System.out.println("\n\nAll patterns learned:");
-  for (  Entry<String,Counter<E>> en : this.learnedPatterns.entrySet()) {
-    System.out.println(en.getKey() + ":\t\t" + StringUtils.join(en.getValue().keySet(),"\n"));
+  for (  Map.Entry<String,Map<Integer,Counter<E>>> en2 : this.learnedPatternsEachIter.entrySet()) {
+    for (    Map.Entry<Integer,Counter<E>> en : en2.getValue().entrySet()) {
+      System.out.println("\n");
+      System.out.println(en.getKey() + ":\t\t" + StringUtils.join(en.getValue().keySet(),"\n"));
+    }
   }
   System.out.println("\n\nAll words learned:");
   for (  Entry<String,Counter<CandidatePhrase>> en : this.constVars.getLearnedWords().entrySet()) {

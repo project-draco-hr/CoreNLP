@@ -2,6 +2,9 @@
   if (!learnedPatterns.containsKey(label)) {
     learnedPatterns.put(label,new ClassicCounter<E>());
   }
+  if (!learnedPatternsEachIter.containsKey(label)) {
+    learnedPatternsEachIter.put(label,new HashMap<Integer,Counter<E>>());
+  }
   if (!constVars.getLearnedWords().containsKey(label)) {
     constVars.getLearnedWords().put(label,new ClassicCounter<CandidatePhrase>());
   }
@@ -11,6 +14,7 @@
     Counter<E> patternThisIter=getPatterns(label,learnedPatterns.get(label).keySet(),p0,p0Set,ignorePatterns);
     patterns.addAll(patternThisIter);
     learnedPatterns.get(label).addAll(patternThisIter);
+    learnedPatternsEachIter.get(label).put(i,patternThisIter);
     if (sentsOutFile != null)     sentsOutFile=sentsOutFile + "_" + i+ "iter.ser";
     Counter<String> scoreForAllWordsThisIteration=new ClassicCounter<String>();
     identifiedWords.addAll(scorePhrases.learnNewPhrases(label,this.patsForEachToken,patterns,learnedPatterns.get(label),matchedTokensByPat,scoreForAllWordsThisIteration,terms,wordsPatExtracted.get(label),this.patternsandWords.get(label),constVars.identifier,ignoreWords));
