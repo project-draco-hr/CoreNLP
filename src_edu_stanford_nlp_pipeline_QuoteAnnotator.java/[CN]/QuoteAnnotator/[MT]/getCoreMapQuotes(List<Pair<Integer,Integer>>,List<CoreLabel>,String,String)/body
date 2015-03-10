@@ -1,0 +1,45 @@
+{
+  List<CoreMap> cmQuotes=new ArrayList<>();
+  int tokenOffset=0;
+  int currTok=0;
+  for (  Pair<Integer,Integer> p : quotes) {
+    int begin=p.first();
+    int end=p.second();
+    List<CoreLabel> quoteTokens=new ArrayList<>();
+    if (tokens != null) {
+      while (currTok < tokens.size() && tokens.get(currTok).beginPosition() < begin) {
+        currTok++;
+      }
+      int i=currTok;
+      while (i < tokens.size() && tokens.get(i).endPosition() <= end) {
+        quoteTokens.add(tokens.get(i));
+        i++;
+      }
+    }
+    int currQuoteSize=cmQuotes.size();
+    Annotation quote=makeQuote(text,begin,end,quoteTokens,currQuoteSize,tokenOffset,docID);
+    tokenOffset+=quoteTokens.size();
+    cmQuotes.add(quote);
+  }
+  Comparator<CoreMap> quoteComparator=getQuoteComparator();
+  Collections.sort(cmQuotes,quoteComparator);
+  List<CoreMap> toRemove=new ArrayList<>();
+  for (  CoreMap cmQuote : cmQuotes) {
+    int start=cmQuote.get(CoreAnnotations.CharacterOffsetBeginAnnotation.class);
+    int end=cmQuote.get(CoreAnnotations.CharacterOffsetEndAnnotation.class);
+    List<CoreMap> embeddedQuotes=new ArrayList<>();
+    for (    CoreMap cmQuoteComp : cmQuotes) {
+      int startComp=cmQuoteComp.get(CoreAnnotations.CharacterOffsetBeginAnnotation.class);
+      int endComp=cmQuoteComp.get(CoreAnnotations.CharacterOffsetEndAnnotation.class);
+      if (start < startComp && end >= endComp) {
+        embeddedQuotes.add(cmQuoteComp);
+        toRemove.add(cmQuoteComp);
+      }
+    }
+    cmQuote.set(CoreAnnotations.QuotationsAnnotation.class,embeddedQuotes);
+  }
+  for (  CoreMap r : toRemove) {
+    cmQuotes.remove(r);
+  }
+  return cmQuotes;
+}
