@@ -1,0 +1,41 @@
+{
+  if (!learnedPatterns.containsKey(label)) {
+    learnedPatterns.put(label,new ClassicCounter<E>());
+  }
+  if (!learnedPatternsEachIter.containsKey(label)) {
+    learnedPatternsEachIter.put(label,new HashMap<Integer,Counter<E>>());
+  }
+  if (!constVars.getLearnedWords().containsKey(label)) {
+    constVars.getLearnedWords().put(label,new ClassicCounter<CandidatePhrase>());
+  }
+  Counter<CandidatePhrase> identifiedWords=new ClassicCounter<CandidatePhrase>();
+  Counter<E> patterns=new ClassicCounter<E>();
+  Counter<E> patternThisIter=getPatterns(label,learnedPatterns.get(label).keySet(),p0,p0Set,ignorePatterns);
+  patterns.addAll(patternThisIter);
+  learnedPatterns.get(label).addAll(patternThisIter);
+  learnedPatternsEachIter.get(label).put(numIter,patternThisIter);
+  if (sentsOutFile != null)   sentsOutFile=sentsOutFile + "_" + numIter+ "iter.ser";
+  Counter<String> scoreForAllWordsThisIteration=new ClassicCounter<String>();
+  identifiedWords.addAll(scorePhrases.learnNewPhrases(label,this.patsForEachToken,patterns,learnedPatterns.get(label),matchedTokensByPat,scoreForAllWordsThisIteration,terms,wordsPatExtracted.get(label),this.patternsandWords.get(label),constVars.identifier,ignoreWords));
+  if (identifiedWords.size() > 0) {
+    if (constVars.usePatternResultAsLabel) {
+      if (constVars.getLabels().contains(label)) {
+        ConstantsAndVariables.DataSentsIterator sentsIter=new ConstantsAndVariables.DataSentsIterator(constVars.batchProcessSents);
+        while (sentsIter.hasNext()) {
+          Pair<Map<String,DataInstance>,File> sentsf=sentsIter.next();
+          Redwood.log(Redwood.DBG,"labeling sentences from " + sentsf.second());
+          labelWords(label,sentsf.first(),identifiedWords.keySet(),sentsOutFile,matchedTokensByPat);
+          if (sentsf.second().exists())           IOUtils.writeObjectToFile(sentsf.first(),sentsf.second());
+        }
+      }
+ else       throw new RuntimeException("why is the answer label null?");
+      constVars.getLearnedWords().get(label).addAll(identifiedWords);
+    }
+    if (wordsOutput != null) {
+      wordsOutput.write("\n" + Counters.toSortedString(identifiedWords,identifiedWords.size(),"%1$s","\n"));
+      wordsOutput.flush();
+    }
+  }
+  if (patternsOut != null)   this.writePatternsToFile(patterns,patternsOut);
+  return new Pair<Counter<E>,Counter<CandidatePhrase>>(patterns,identifiedWords);
+}

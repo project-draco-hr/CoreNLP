@@ -37,9 +37,9 @@
     for (    String label : constVars.getLabels()) {
       Redwood.log(ConstantsAndVariables.minimaldebug,"\n###Learning for label " + label + " ######");
       String sentout=sentsOutFile == null ? null : sentsOutFile + "_" + label;
-      Pair<Counter<E>,Counter<CandidatePhrase>> learnedPatWords4label=iterateExtractApply4Label(label,p0 != null ? p0.get(label) : null,p0Set != null ? p0Set.get(label) : null,wordsOutput.get(label),sentout,patternsOutput.get(label),ignorePatterns != null ? ignorePatterns.get(label) : null,1,ignoreWordsAll.get(label),matchedTokensByPatAllLabels.get(label),termsAllLabels.get(label));
+      Pair<Counter<E>,Counter<CandidatePhrase>> learnedPatWords4label=iterateExtractApply4Label(label,p0 != null ? p0.get(label) : null,p0Set != null ? p0Set.get(label) : null,wordsOutput.get(label),sentout,patternsOutput.get(label),ignorePatterns != null ? ignorePatterns.get(label) : null,ignoreWordsAll.get(label),matchedTokensByPatAllLabels.get(label),termsAllLabels.get(label),i);
       learnedWordsThisIter.put(label,learnedPatWords4label.second());
-      if (learnedPatWords4label.first().size() > 0) {
+      if (learnedPatWords4label.first().size() > 0 && constVars.getLearnedWords(label).size() < constVars.maxExtractNumWords) {
         keepRunning=true;
       }
     }
