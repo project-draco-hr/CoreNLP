@@ -20,6 +20,17 @@
       }
  else       longestMatchingPhrase=tokenWordOrLemma;
       Set<E> pats=pat4Sent.get(i);
+      Set newpats=new HashSet<E>();
+      if (PatternFactory.numWordsCompoundMapped.get(label) != PatternFactory.numWordsCompoundMax) {
+        for (        E s : pats) {
+          if (s instanceof SurfacePattern) {
+            SurfacePattern snew=((SurfacePattern)s).copyNewToken();
+            snew.setNumWordsCompound(PatternFactory.numWordsCompoundMapped.get(label));
+            newpats.add(snew);
+          }
+        }
+        pats=newpats;
+      }
       if (pats == null) {
         if (!constVars.patternType.equals(PatternFactory.PatternType.DEP))         throw new RuntimeException("Why are patterns null for sentence " + sentId + " and token "+ i+ "("+ tokens.get(i)+ "). pat4Sent has token ids "+ pat4Sent.keySet()+ (constVars.batchProcessSents ? "" : ". The sentence is " + Data.sents.get(sentId))+ ". If you have changed parameters, recompute all patterns.");
         continue;
@@ -44,9 +55,6 @@
       }
       if (token.get(answerClass4Label).equals(label)) {
         for (        E s : pats) {
-          if (s instanceof SurfacePattern) {
-            ((SurfacePattern)s).setNumWordsCompound(PatternFactory.numWordsCompoundMapped.get(label));
-          }
           posWords.add(new Pair<E,CandidatePhrase>(s,longestMatchingPhrase));
         }
       }
@@ -69,9 +77,6 @@
           }
         }
         for (        E sindex : pats) {
-          if (sindex instanceof SurfacePattern) {
-            ((SurfacePattern)sindex).setNumWordsCompound(PatternFactory.numWordsCompoundMapped.get(label));
-          }
           if (negToken) {
             negWords.add(new Pair<E,CandidatePhrase>(sindex,longestMatchingPhrase));
           }
