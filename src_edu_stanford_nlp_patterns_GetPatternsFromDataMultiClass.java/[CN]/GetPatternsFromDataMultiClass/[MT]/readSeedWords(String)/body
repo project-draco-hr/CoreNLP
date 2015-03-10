@@ -10,20 +10,9 @@
     if (t.length == 2) {
       String seedWordsFile=t[1];
       File f=new File(seedWordsFile);
-      if (f.isDirectory()) {
-        for (        File fin : IOUtils.iterFilesRecursive(new File(seedWordsFile))) {
-          Redwood.log(Redwood.DBG,"Reading seed words from " + fin + " for label "+ label);
-          for (          String line : IOUtils.readLines(fin)) {
-            line=line.trim();
-            if (line.isEmpty() || line.startsWith("#")) {
-              continue;
-            }
-            seedWords4Label.add(CandidatePhrase.createOrGet(line));
-          }
-        }
-      }
- else {
-        for (        String line : IOUtils.readLines(seedWordsFile)) {
+      for (      File fin : ConstantsAndVariables.listFileIncludingItself(seedWordsFile)) {
+        Redwood.log(Redwood.DBG,"Reading seed words from " + fin + " for label "+ label);
+        for (        String line : IOUtils.readLines(fin)) {
           line=line.trim();
           if (line.isEmpty() || line.startsWith("#")) {
             continue;

@@ -55,12 +55,22 @@
           break;
         }
         if (!negToken)         if (constVars.getOtherSemanticClassesWords().contains(token.word()) || constVars.getOtherSemanticClassesWords().contains(token.lemma()))         negToken=true;
+        if (!negToken) {
+          for (          String labelA : constVars.getLabels()) {
+            if (!labelA.equals(label)) {
+              if (constVars.getSeedLabelDictionary().get(labelA).contains(longestMatchingPhrase) || constVars.getSeedLabelDictionary().get(labelA).contains(tokenWordOrLemma) || constVars.getLearnedWords(labelA).containsKey(longestMatchingPhrase)|| constVars.getLearnedWords(labelA).containsKey(tokenWordOrLemma)) {
+                negToken=true;
+                break;
+              }
+            }
+          }
+        }
         for (        E sindex : pats) {
           if (negToken) {
-            negWords.add(new Pair<E,CandidatePhrase>(sindex,tokenWordOrLemma));
+            negWords.add(new Pair<E,CandidatePhrase>(sindex,longestMatchingPhrase));
           }
  else {
-            unlabWords.add(new Pair<E,CandidatePhrase>(sindex,tokenWordOrLemma));
+            unlabWords.add(new Pair<E,CandidatePhrase>(sindex,longestMatchingPhrase));
           }
         }
       }

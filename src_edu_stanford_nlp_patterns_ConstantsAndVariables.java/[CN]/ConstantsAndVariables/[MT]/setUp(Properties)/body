@@ -37,9 +37,11 @@
   if (otherSemanticClassesFiles != null) {
     if (otherSemanticClassesWords == null)     otherSemanticClassesWords=Collections.synchronizedSet(new HashSet<CandidatePhrase>());
     for (    String file : otherSemanticClassesFiles.split("[;,]")) {
-      for (      String w : IOUtils.linesFromFile(file)) {
-        String[] t=w.split("\\s+");
-        if (t.length <= PatternFactory.numWordsCompound)         otherSemanticClassesWords.add(CandidatePhrase.createOrGet(w));
+      for (      File f : listFileIncludingItself(file)) {
+        for (        String w : IOUtils.readLines(f)) {
+          String[] t=w.split("\\s+");
+          if (t.length <= PatternFactory.numWordsCompound)           otherSemanticClassesWords.add(CandidatePhrase.createOrGet(w));
+        }
       }
     }
     System.out.println("Size of othersemantic class variables is " + otherSemanticClassesWords.size());
