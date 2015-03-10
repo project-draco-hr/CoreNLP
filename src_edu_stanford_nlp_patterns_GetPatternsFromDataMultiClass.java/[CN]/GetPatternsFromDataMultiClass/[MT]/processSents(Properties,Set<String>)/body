@@ -26,7 +26,7 @@
   if (props.getProperty(Flags.patternType) == null)   throw new RuntimeException("PattenrType not specified. Options are SURFACE and DEP");
   PatternFactory.PatternType patternType=PatternFactory.PatternType.valueOf(props.getProperty(Flags.patternType));
   File saveSentencesSerDir=null;
-  File tempSaveSentencesDir=null;
+  File tempSaveSentencesDir;
   if (file != null) {
     String saveSentencesSerDirstr=props.getProperty("saveSentencesSerDir");
     if (saveSentencesSerDirstr != null) {
@@ -56,6 +56,7 @@
       }
       if (!batchProcessSents) {
         String outfilename=(saveSentencesSerDir == null ? tempSaveSentencesDir : saveSentencesSerDir) + "/sents_" + numFilesTillNow;
+        if (saveSentencesSerDir != null)         Data.inMemorySaveFileLocation=outfilename;
         Redwood.log(Redwood.FORCE,"Saving sentences in " + outfilename);
         IOUtils.writeObjectToFile(sents,outfilename);
       }
