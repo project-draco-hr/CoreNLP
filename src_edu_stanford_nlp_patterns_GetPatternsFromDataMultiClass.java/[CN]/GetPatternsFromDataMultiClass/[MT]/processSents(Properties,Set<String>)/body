@@ -18,7 +18,7 @@
   boolean useTargetNERRestriction=Boolean.parseBoolean(props.getProperty("useTargetNERRestriction"));
   boolean useTargetParserParentRestriction=Boolean.parseBoolean(props.getProperty(Flags.useTargetParserParentRestriction));
   boolean useContextNERRestriction=Boolean.parseBoolean(props.getProperty("useContextNERRestriction"));
-  boolean addEvalSentsToTrain=Boolean.parseBoolean(props.getProperty("addEvalSentsToTrain"));
+  boolean addEvalSentsToTrain=Boolean.parseBoolean(props.getProperty("addEvalSentsToTrain","true"));
   String evalFileWithGoldLabels=props.getProperty("evalFileWithGoldLabels");
   if (file == null && (evalFileWithGoldLabels == null || addEvalSentsToTrain == false)) {
     throw new RuntimeException("No training data! file is " + file + " and evalFileWithGoldLabels is "+ evalFileWithGoldLabels+ " and addEvalSentsToTrain is "+ addEvalSentsToTrain);
@@ -99,12 +99,18 @@
       List<File> allFiles=GetPatternsFromDataMultiClass.getAllFiles(evalFileWithGoldLabels);
       int numFile=0;
       String evalFileFormat=props.getProperty("evalFileFormat");
-      if (evalFileFormat == null || evalFileFormat.equalsIgnoreCase("text") || evalFileFormat.equalsIgnoreCase("txt")) {
+      if (evalFileFormat == null || evalFileFormat.equalsIgnoreCase("text") || evalFileFormat.equalsIgnoreCase("txt") || evalFileFormat.startsWith("text")) {
         for (        File f : allFiles) {
           numFile++;
           Redwood.log(Redwood.DBG,"Annotating text in " + f + ". Num file "+ numFile);
-          List<CoreMap> sentsCMs=AnnotatedTextReader.parseFile(new BufferedReader(new FileReader(f)),labels,setClassForTheseLabels,true,f.getName());
-          evalsents.putAll(runPOSNEROnTokens(sentsCMs,posModelPath,useTargetNERRestriction || useContextNERRestriction,"",useTargetParserParentRestriction,props.getProperty(Flags.numThreads),patternType));
+          if (evalFileFormat.equalsIgnoreCase("textCoNLLStyle")) {
+            Map<String,DataInstance> sentsEval=AnnotatedTextReader.parseColumnFile(new BufferedReader(new FileReader(f)),labels,setClassForTheseLabels,true,f.getName());
+            evalsents.putAll(runPOSNERParseOnTokens(sentsEval,props));
+          }
+ else {
+            List<CoreMap> sentsCMs=AnnotatedTextReader.parseFile(new BufferedReader(new FileReader(f)),labels,setClassForTheseLabels,true,f.getName());
+            evalsents.putAll(runPOSNEROnTokens(sentsCMs,posModelPath,useTargetNERRestriction || useContextNERRestriction,"",useTargetParserParentRestriction,props.getProperty(Flags.numThreads),patternType));
+          }
         }
       }
  else       if (fileFormat.equalsIgnoreCase("ser")) {
@@ -112,7 +118,9 @@
           evalsents.putAll((Map<? extends String,? extends DataInstance>)IOUtils.readObjectFromFile(f));
         }
       }
-      Redwood.log(Redwood.DBG,"Adding " + evalsents.size() + " eval sents to the training set");
+      if (addEvalSentsToTrain) {
+        Redwood.log(Redwood.DBG,"Adding " + evalsents.size() + " eval sents to the training set");
+      }
       IOUtils.writeObjectToFile(evalsents,saveEvalSentencesSerFileFile);
       if (batchProcessSents) {
         Data.sentsFiles.add(saveEvalSentencesSerFileFile);

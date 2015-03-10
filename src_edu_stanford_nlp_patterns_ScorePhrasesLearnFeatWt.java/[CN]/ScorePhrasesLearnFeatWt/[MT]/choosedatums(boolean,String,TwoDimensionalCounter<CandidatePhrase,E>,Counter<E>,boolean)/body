@@ -97,7 +97,7 @@
   }
   System.out.println("all positive phrases of size " + allPositivePhrases.size() + " are  "+ allPositivePhrases);
   for (  CandidatePhrase candidate : allPositivePhrases) {
-    Counter<ScorePhraseMeasures> feat=null;
+    Counter<ScorePhraseMeasures> feat;
     if (forLearningPattern) {
       feat=getPhraseFeaturesForPattern(answerLabel,candidate);
     }
@@ -114,8 +114,7 @@
   Redwood.log(Redwood.DBG,"Number of pure negative phrases is " + allNegativePhrases.size());
   Redwood.log(Redwood.DBG,"Number of unknown phrases is " + allUnknownPhrases.size());
   if (constVars.subsampleUnkAsNegUsingSim) {
-    double subSampleUnkAsNegUsingSimPercentage=1.0;
-    Set<CandidatePhrase> chosenUnknown=chooseUnknownAsNegatives(allUnknownPhrases,answerLabel,subSampleUnkAsNegUsingSimPercentage,allPositivePhrases,allPossibleNegativePhrases,logFile);
+    Set<CandidatePhrase> chosenUnknown=chooseUnknownAsNegatives(allUnknownPhrases,answerLabel,allPositivePhrases,allPossibleNegativePhrases,logFile);
     Redwood.log(Redwood.DBG,"Choosing " + chosenUnknown.size() + " unknowns as negative based to their similarity to the positive phrases");
     allNegativePhrases.addAll(chosenUnknown);
   }
@@ -123,7 +122,7 @@
     allNegativePhrases.addAll(allUnknownPhrases);
   }
   if (allNegativePhrases.size() > numpos) {
-    Redwood.log(Redwood.WARN,"Num of negative (" + allNegativePhrases.size() + ") is higher than number of positive phrases ("+ numpos+ ") = "+ (allNegativePhrases.size() / (double)numpos)+ ". "+ "Capping the number by taking the first numPositives as negative. Consider decreasing perSelectNeg and perSelectRand");
+    Redwood.log(Redwood.WARN,"Num of negative (" + allNegativePhrases.size() + ") is higher than number of positive phrases ("+ numpos+ ") = "+ (allNegativePhrases.size() / (double)numpos)+ ". "+ "Capping the number by taking the first numPositives as negative. Consider decreasing perSelectRand");
     int i=0;
     Set<CandidatePhrase> selectedNegPhrases=new HashSet<CandidatePhrase>();
     for (    CandidatePhrase p : allNegativePhrases) {
