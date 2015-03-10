@@ -16,15 +16,15 @@
   String posModelPath=props.getProperty("posModelPath");
   boolean lowercase=Boolean.parseBoolean(props.getProperty("lowercaseText"));
   boolean useTargetNERRestriction=Boolean.parseBoolean(props.getProperty("useTargetNERRestriction"));
-  boolean useTargetParserParentRestriction=Boolean.parseBoolean(props.getProperty("useTargetParserParentRestriction"));
+  boolean useTargetParserParentRestriction=Boolean.parseBoolean(props.getProperty(Flags.useTargetParserParentRestriction));
   boolean useContextNERRestriction=Boolean.parseBoolean(props.getProperty("useContextNERRestriction"));
   boolean addEvalSentsToTrain=Boolean.parseBoolean(props.getProperty("addEvalSentsToTrain"));
   String evalFileWithGoldLabels=props.getProperty("evalFileWithGoldLabels");
   if (file == null && (evalFileWithGoldLabels == null || addEvalSentsToTrain == false)) {
     throw new RuntimeException("No training data! file is " + file + " and evalFileWithGoldLabels is "+ evalFileWithGoldLabels+ " and addEvalSentsToTrain is "+ addEvalSentsToTrain);
   }
-  if (props.getProperty("patternType") == null)   throw new RuntimeException("PattenrType not specified. Options are SURFACE and DEP");
-  PatternFactory.PatternType patternType=PatternFactory.PatternType.valueOf(props.getProperty("patternType"));
+  if (props.getProperty(Flags.patternType) == null)   throw new RuntimeException("PattenrType not specified. Options are SURFACE and DEP");
+  PatternFactory.PatternType patternType=PatternFactory.PatternType.valueOf(props.getProperty(Flags.patternType));
   File saveSentencesSerDir=null;
   File tempSaveSentencesDir=null;
   if (file != null) {
@@ -48,7 +48,7 @@
         Redwood.log(Redwood.DBG,"Annotating text in " + f);
         Iterator<String> reader=IOUtils.readLines(f).iterator();
         while (reader.hasNext()) {
-          numFilesTillNow=tokenize(reader,posModelPath,lowercase,useTargetNERRestriction || useContextNERRestriction,f.getName() + "-" + numFilesTillNow+ "-",useTargetParserParentRestriction,props.getProperty("numThreads"),batchProcessSents,numMaxSentencesPerBatchFile,saveSentencesSerDir == null ? tempSaveSentencesDir : saveSentencesSerDir,sentsthis,numFilesTillNow,patternType);
+          numFilesTillNow=tokenize(reader,posModelPath,lowercase,useTargetNERRestriction || useContextNERRestriction,f.getName() + "-" + numFilesTillNow+ "-",useTargetParserParentRestriction,props.getProperty(Flags.numThreads),batchProcessSents,numMaxSentencesPerBatchFile,saveSentencesSerDir == null ? tempSaveSentencesDir : saveSentencesSerDir,sentsthis,numFilesTillNow,patternType);
         }
         if (!batchProcessSents) {
           sents.putAll(sentsthis);
@@ -104,7 +104,7 @@
           numFile++;
           Redwood.log(Redwood.DBG,"Annotating text in " + f + ". Num file "+ numFile);
           List<CoreMap> sentsCMs=AnnotatedTextReader.parseFile(new BufferedReader(new FileReader(f)),labels,setClassForTheseLabels,true,f.getName());
-          evalsents.putAll(runPOSNEROnTokens(sentsCMs,posModelPath,useTargetNERRestriction || useContextNERRestriction,"",useTargetParserParentRestriction,props.getProperty("numThreads"),patternType));
+          evalsents.putAll(runPOSNEROnTokens(sentsCMs,posModelPath,useTargetNERRestriction || useContextNERRestriction,"",useTargetParserParentRestriction,props.getProperty(Flags.numThreads),patternType));
         }
       }
  else       if (fileFormat.equalsIgnoreCase("ser")) {
