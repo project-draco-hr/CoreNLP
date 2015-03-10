@@ -55,17 +55,8 @@
         }
       }
       if (!batchProcessSents) {
-        for (        Map.Entry<String,DataInstance> d : sents.entrySet()) {
-          for (          CoreLabel l : d.getValue().getTokens()) {
-            for (            String label : labels) {
-              if (l.containsKey(PatternsAnnotations.LongestMatchedPhraseForEachLabel.class)) {
-                CandidatePhrase p=l.get(PatternsAnnotations.LongestMatchedPhraseForEachLabel.class).get(label);
-              }
-            }
-          }
-        }
         String outfilename=(saveSentencesSerDir == null ? tempSaveSentencesDir : saveSentencesSerDir) + "/sents_" + numFilesTillNow;
-        Redwood.log("Saving sentences in " + outfilename);
+        Redwood.log(Redwood.FORCE,"Saving sentences in " + outfilename);
         IOUtils.writeObjectToFile(sents,outfilename);
       }
     }

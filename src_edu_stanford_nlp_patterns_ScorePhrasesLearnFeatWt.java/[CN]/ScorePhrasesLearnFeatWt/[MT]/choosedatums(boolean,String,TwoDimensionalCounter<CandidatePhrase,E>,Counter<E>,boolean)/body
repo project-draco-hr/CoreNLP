@@ -13,14 +13,18 @@
   if ((expandPos || expandNeg) && !constVars.useWordVectorsToComputeSim) {
     for (    CandidatePhrase s : CollectionUtils.union(constVars.getLearnedWords(answerLabel).keySet(),constVars.getSeedLabelDictionary().get(answerLabel))) {
       String[] toks=s.getPhrase().split("\\s+");
-      if (!constVars.getWordClassClusters().containsKey(s.getPhrase())) {
+      Integer num=constVars.getWordClassClusters().get(s.getPhrase());
+      if (num == null)       num=constVars.getWordClassClusters().get(s.getPhrase().toLowerCase());
+      if (num == null) {
         for (        String tok : toks) {
-          if (constVars.getWordClassClusters().containsKey(tok)) {
-            distSimClustersOfPositive.incrementCount(constVars.getWordClassClusters().get(tok));
+          Integer toknum=constVars.getWordClassClusters().get(tok);
+          if (toknum == null)           toknum=constVars.getWordClassClusters().get(tok.toLowerCase());
+          if (toknum != null) {
+            distSimClustersOfPositive.incrementCount(toknum);
           }
         }
       }
- else       distSimClustersOfPositive.incrementCount(constVars.getWordClassClusters().get(s.getPhrase()));
+ else       distSimClustersOfPositive.incrementCount(num);
     }
   }
   Map<String,Collection<CandidatePhrase>> allPossibleNegativePhrases=getAllPossibleNegativePhrases(answerLabel);
