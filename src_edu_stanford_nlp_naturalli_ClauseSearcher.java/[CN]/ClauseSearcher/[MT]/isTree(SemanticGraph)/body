@@ -1,0 +1,20 @@
+{
+  for (  IndexedWord vertex : tree.vertexSet()) {
+    if (tree.getRoots().contains(vertex)) {
+      if (tree.incomingEdgeIterator(vertex).hasNext()) {
+        return false;
+      }
+    }
+ else {
+      Iterator<SemanticGraphEdge> iter=tree.incomingEdgeIterator(vertex);
+      if (!iter.hasNext()) {
+        return false;
+      }
+      iter.next();
+      if (iter.hasNext()) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
