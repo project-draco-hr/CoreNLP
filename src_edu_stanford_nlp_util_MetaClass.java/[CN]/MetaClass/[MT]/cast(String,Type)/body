@@ -178,6 +178,20 @@
       throw new RuntimeException(e);
     }
   }
+ else   if (PrintStream.class.isAssignableFrom(clazz)) {
+    if (value.equalsIgnoreCase("stdout") || value.equalsIgnoreCase("out")) {
+      return (E)System.out;
+    }
+    if (value.equalsIgnoreCase("stderr") || value.equalsIgnoreCase("err")) {
+      return (E)System.err;
+    }
+    try {
+      return (E)new PrintStream(new FileOutputStream(value));
+    }
+ catch (    IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
  else   if (OutputStream.class.isAssignableFrom(clazz)) {
     if (value.equalsIgnoreCase("stdout") || value.equalsIgnoreCase("out")) {
       return (E)System.out;
@@ -202,20 +216,6 @@
     }
     try {
       return (E)IOUtils.getInputStreamFromURLOrClasspathOrFileSystem(value);
-    }
- catch (    IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
- else   if (PrintStream.class.isAssignableFrom(clazz)) {
-    if (value.equalsIgnoreCase("stdout") || value.equalsIgnoreCase("out")) {
-      return (E)System.out;
-    }
-    if (value.equalsIgnoreCase("stderr") || value.equalsIgnoreCase("err")) {
-      return (E)System.err;
-    }
-    try {
-      return (E)IOUtils.getPrintWriter(value);
     }
  catch (    IOException e) {
       throw new RuntimeException(e);
