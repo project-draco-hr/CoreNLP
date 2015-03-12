@@ -19,4 +19,26 @@
       iter.remove();
     }
   }
+  List<SemanticGraphEdge> extraEdges=new ArrayList<>();
+  for (  SemanticGraphEdge edge : tree.edgeIterable()) {
+    if (edge.isExtra()) {
+      extraEdges.add(edge);
+    }
+  }
+  for (  SemanticGraphEdge edge : extraEdges) {
+    tree.removeEdge(edge);
+  }
+  for (  SemanticGraphEdge extraEdge : new ArrayList<>(extraEdges)) {
+    for (    SemanticGraphEdge candidateAppos : tree.incomingEdgeIterable(extraEdge.getDependent())) {
+      if (candidateAppos.getRelation().toString().equals("appos")) {
+        extraEdges.add(new SemanticGraphEdge(extraEdge.getGovernor(),candidateAppos.getGovernor(),extraEdge.getRelation(),extraEdge.getWeight(),extraEdge.isExtra()));
+      }
+    }
+    for (    SemanticGraphEdge candidateAppos : tree.outgoingEdgeIterable(extraEdge.getDependent())) {
+      if (candidateAppos.getRelation().toString().equals("appos")) {
+        extraEdges.add(new SemanticGraphEdge(extraEdge.getGovernor(),candidateAppos.getDependent(),extraEdge.getRelation(),extraEdge.getWeight(),extraEdge.isExtra()));
+      }
+    }
+  }
+  return extraEdges;
 }
