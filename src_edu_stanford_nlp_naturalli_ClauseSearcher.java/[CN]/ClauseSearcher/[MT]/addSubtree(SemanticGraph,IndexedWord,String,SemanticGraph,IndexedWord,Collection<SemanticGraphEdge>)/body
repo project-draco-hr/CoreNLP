@@ -1,0 +1,29 @@
+{
+  Queue<IndexedWord> fringe=new LinkedList<>();
+  Collection<IndexedWord> wordsToAdd=new ArrayList<>();
+  Collection<SemanticGraphEdge> edgesToAdd=new ArrayList<>();
+  for (  SemanticGraphEdge edge : originalTree.outgoingEdgeIterable(subject)) {
+    if (!ignoredEdges.contains(edge)) {
+      edgesToAdd.add(edge);
+      fringe.add(edge.getDependent());
+    }
+  }
+  while (!fringe.isEmpty()) {
+    IndexedWord node=fringe.poll();
+    wordsToAdd.add(node);
+    for (    SemanticGraphEdge edge : originalTree.outgoingEdgeIterable(node)) {
+      if (!ignoredEdges.contains(edge)) {
+        edgesToAdd.add(edge);
+        fringe.add(edge.getDependent());
+      }
+    }
+  }
+  toModify.addVertex(subject);
+  toModify.addEdge(root,subject,GrammaticalRelation.valueOf(GrammaticalRelation.Language.English,rel),Double.NEGATIVE_INFINITY,false);
+  for (  IndexedWord node : wordsToAdd) {
+    toModify.addVertex(node);
+  }
+  for (  SemanticGraphEdge edge : edgesToAdd) {
+    toModify.addEdge(edge.getGovernor(),edge.getDependent(),edge.getRelation(),edge.getWeight(),edge.isExtra());
+  }
+}

@@ -1,0 +1,22 @@
+{
+  List<IndexedWord> toDelete=new ArrayList<>();
+  for (  IndexedWord vertex : tree.vertexSet()) {
+    char tag=vertex.backingLabel().tag().charAt(0);
+    if (tag == '.' || tag == ',' || tag == '(' || tag == ')' || tag == ':') {
+      toDelete.add(vertex);
+    }
+  }
+  for (  IndexedWord v : toDelete) {
+    tree.removeVertex(v);
+  }
+  Iterator<SemanticGraphEdge> iter=tree.edgeIterable().iterator();
+  while (iter.hasNext()) {
+    SemanticGraphEdge edge=iter.next();
+    if (edge.getDependent().index() == edge.getGovernor().index()) {
+      iter.remove();
+    }
+ else     if (edge.getRelation().toString().equals("punct")) {
+      iter.remove();
+    }
+  }
+}

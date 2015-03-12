@@ -1,0 +1,25 @@
+{
+  Queue<IndexedWord> fringe=new LinkedList<>();
+  List<IndexedWord> nodesToRemove=new ArrayList<>();
+  for (  IndexedWord root : tree.getRoots()) {
+    nodesToRemove.add(root);
+    for (    SemanticGraphEdge out : tree.outgoingEdgeIterable(root)) {
+      if (!out.equals(toKeep)) {
+        fringe.add(out.getDependent());
+      }
+    }
+  }
+  while (!fringe.isEmpty()) {
+    IndexedWord node=fringe.poll();
+    nodesToRemove.add(node);
+    for (    SemanticGraphEdge out : tree.outgoingEdgeIterable(node)) {
+      if (!out.equals(toKeep)) {
+        fringe.add(out.getDependent());
+      }
+    }
+  }
+  for (  IndexedWord node : nodesToRemove) {
+    tree.removeVertex(node);
+  }
+  tree.setRoot(toKeep.getDependent());
+}
