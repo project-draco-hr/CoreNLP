@@ -4,13 +4,13 @@
   String label;
   if (l.get(answerClass).toString().equals(answerLabel))   label=answerLabel;
  else   label="O";
-  CollectionValuedMap<String,CandidatePhrase> matchedPhrases=l.get(PatternsAnnotations.MatchedPhrases.class);
+  CollectionValuedMap<String,String> matchedPhrases=l.get(PatternsAnnotations.MatchedPhrases.class);
   if (matchedPhrases == null) {
-    matchedPhrases=new CollectionValuedMap<String,CandidatePhrase>();
-    matchedPhrases.add(label,CandidatePhrase.createOrGet(l.word()));
+    matchedPhrases=new CollectionValuedMap<String,String>();
+    matchedPhrases.add(label,l.word());
   }
-  for (  CandidatePhrase w : matchedPhrases.allValues()) {
-    Integer num=this.clusterIds.get(w.getPhrase());
+  for (  String w : matchedPhrases.allValues()) {
+    Integer num=this.clusterIds.get(w);
     if (num == null)     num=-1;
     feat.setCount("Cluster-" + num,1.0);
   }

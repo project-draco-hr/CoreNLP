@@ -1,0 +1,17 @@
+{
+  List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
+  if (tokens.size() > 63) {
+    System.err.println("Very long sentence (>63 tokens); " + this.getClass().getSimpleName() + " is not attempting to extract relations.");
+    sentence.set(NaturalLogicAnnotations.RelationTriplesAnnotation.class,Collections.EMPTY_LIST);
+    sentence.set(NaturalLogicAnnotations.EntailedSentencesAnnotation.class,Collections.EMPTY_LIST);
+  }
+ else   if (tokens.size() < 2) {
+    System.err.println("Very short sentence (<2 tokens); " + this.getClass().getSimpleName() + " is skipping it.");
+  }
+ else {
+    List<SentenceFragment> fragments=entailmentsFromClauses(clausesInSentence(sentence));
+    sentence.set(NaturalLogicAnnotations.EntailedSentencesAnnotation.class,fragments);
+    List<RelationTriple> extractions=relationsInFragments(fragments,sentence,canonicalMentionMap);
+    sentence.set(NaturalLogicAnnotations.RelationTriplesAnnotation.class,extractions);
+  }
+}

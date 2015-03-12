@@ -16,6 +16,15 @@
  else {
       tree.addVertex(new IndexedWord(label));
     }
+    if (fields.length > 4) {
+      label.setTag(fields[4]);
+    }
+    if (fields.length > 5) {
+      label.setNER(fields[5]);
+    }
+    if (fields.length > 6) {
+      label.setLemma(fields[6]);
+    }
   }
   int i=0;
   for (  String line : conll.split("\n")) {
@@ -30,5 +39,5 @@
     }
     i+=1;
   }
-  return RelationTriple.segment(tree);
+  return RelationTriple.segment(tree,Optional.empty());
 }

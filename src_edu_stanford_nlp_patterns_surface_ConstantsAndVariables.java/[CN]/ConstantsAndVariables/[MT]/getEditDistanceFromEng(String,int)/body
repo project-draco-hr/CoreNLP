@@ -1,0 +1,17 @@
+{
+  if (ph.length() < minLen)   return editDistMax;
+  if (editDistanceFromEnglishWords.containsKey(ph))   return editDistanceFromEnglishWords.get(ph);
+  Pair<String,Double> d=getEditDist(commonEngWords,ph);
+  double minD=d.second();
+  String minPh=d.first();
+  if (d.second() > 2) {
+    Pair<String,Double> minD2=getEditDist(otherSemanticClassesWords,ph);
+    if (minD2.second < minD) {
+      minD=minD2.second();
+      minPh=minD2.first();
+    }
+  }
+  editDistanceFromEnglishWords.putIfAbsent(ph,minD);
+  editDistanceFromEnglishWordsMatches.putIfAbsent(ph,minPh);
+  return minD;
+}

@@ -1,0 +1,11 @@
+{
+  if (ph.length() < minLen)   return new Pair<String,Double>(ph,editDistMax);
+  if (editDistanceFromThisClass.containsKey(ph))   return new Pair<String,Double>(editDistanceFromThisClassMatches.get(ph),editDistanceFromThisClass.get(ph));
+  Pair<String,Double> minD=getEditDist(labelDictionary.get(label),ph);
+  double minDtotal=minD.second();
+  String minPh=minD.first();
+  assert(!minPh.isEmpty());
+  editDistanceFromThisClass.putIfAbsent(ph,minDtotal);
+  editDistanceFromThisClassMatches.putIfAbsent(ph,minPh);
+  return new Pair<String,Double>(minPh,minDtotal);
+}
