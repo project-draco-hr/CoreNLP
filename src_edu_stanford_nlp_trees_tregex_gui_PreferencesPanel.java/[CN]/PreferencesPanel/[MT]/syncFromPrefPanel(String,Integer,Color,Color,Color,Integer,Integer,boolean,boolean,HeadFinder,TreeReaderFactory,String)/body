@@ -1,20 +1,15 @@
 {
-  InputPanel.getInstance().enableTsurgeon(enableTsurgeon);
-  MatchesPanel.getInstance().setShowOnlyMatchedPortion(matchPortionOnly);
-  MatchesPanel.getInstance().setHighlightColor(highlightColor);
-  if (historySize != null)   InputPanel.getInstance().setNumRecentPatterns(historySize);
-  if (maxMatches != null)   MatchesPanel.getInstance().setMaxMatches(maxMatches);
-  DisplayMatchesPanel.getInstance().setMatchedColor(matchedColor);
-  DisplayMatchesPanel.getInstance().setDefaultColor(treeColor);
-  DisplayMatchesPanel.getInstance().setFontName(font);
-  MatchesPanel.getInstance().setFontName(font);
-  if (fontSize != null)   DisplayMatchesPanel.getInstance().setFontSize(fontSize);
-  InputPanel.getInstance().setHeadFinder(hf);
-  FilePanel.getInstance().setTreeReaderFactory(trf);
-  String hfName=hf.getClass().getSimpleName();
-  String trfName=trf.getClass().getSimpleName();
-  if (encoding != null && !encoding.equals(""))   FileTreeModel.setCurEncoding(encoding);
-  if (isChinese(hfName,trfName))   setChineseFont();
- else   if (isArabic(hfName,trfName))   setArabicFont();
-  checkEncodingAndDisplay(hfName,trfName);
+  Preferences.setFont(font);
+  Preferences.setFontSize(fontSize == null ? 0 : fontSize);
+  Preferences.setTreeColor(treeColor);
+  Preferences.setMatchedColor(matchedColor);
+  Preferences.setHighlightColor(highlightColor);
+  Preferences.setHistorySize(historySize == null ? 0 : historySize);
+  Preferences.setMaxMatches(maxMatches == null ? 0 : maxMatches);
+  Preferences.setEnableTsurgeon(enableTsurgeon);
+  Preferences.setMatchPortionOnly(matchPortionOnly);
+  Preferences.setHeadFinder(hf);
+  Preferences.setTreeReaderFactory(trf);
+  Preferences.setEncoding(encoding);
+  gui.loadPreferences();
 }
