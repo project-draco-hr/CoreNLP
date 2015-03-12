@@ -1,14 +1,17 @@
 {
-  for (  SemgrexPattern pattern : PATTERNS) {
+  PATTERN_LOOP:   for (  SemgrexPattern pattern : PATTERNS) {
     SemgrexMatcher m=pattern.matcher(parse);
     if (m.matches()) {
       PriorityQueue<CoreLabel> verbChunk=new FixedPrioritiesPriorityQueue<>();
       IndexedWord verb=m.getNode("verb");
       IndexedWord prep=m.getNode("prep");
-      List<IndexedWord> adverbs=new ArrayList<IndexedWord>();
+      List<IndexedWord> adverbs=new ArrayList<>();
       for (      SemanticGraphEdge edge : parse.outgoingEdgeIterable(verb)) {
-        if ("advmod".equals(edge.getRelation().getShortName()) || "amod".equals(edge.getRelation().getShortName())) {
-          adverbs.add(edge.getDependent());
+        if ("advmod".equals(edge.getRelation().toString()) || "amod".equals(edge.getRelation().toString())) {
+          String tag=edge.getDependent().backingLabel().tag();
+          if (tag == null || (!tag.startsWith("W") && !edge.getDependent().backingLabel().word().equalsIgnoreCase("then"))) {
+            adverbs.add(edge.getDependent());
+          }
         }
       }
       IndexedWord be=m.getNode("be");
@@ -33,7 +36,7 @@
             }
           }
  else {
-            return Optional.empty();
+            continue PATTERN_LOOP;
           }
           numKnownDependents+=1;
         }
@@ -42,18 +45,10 @@
         }
       }
       if (prepEdge != null) {
-        String prepPart=prepEdge.substring("prep_".length());
-        CoreLabel mockPrep=new CoreLabel(verb.backingLabel());
-        mockPrep.setWord(prepPart);
-        mockPrep.setLemma(prepPart);
-        mockPrep.setValue(prepPart);
-        mockPrep.setNER("O");
-        mockPrep.setTag("PP");
-        mockPrep.setIndex(verb.index() + 1);
-        verbChunk.add(mockPrep,-mockPrep.index());
+        verbChunk.add(mockNode(verb.backingLabel(),1,prepEdge.substring(prepEdge.indexOf("_") + 1),"PP"),-(verb.index() + 10));
       }
       if (parse.outDegree(verb) > numKnownDependents) {
-        return Optional.empty();
+        continue PATTERN_LOOP;
       }
       List<CoreLabel> relation=verbChunk.toSortedList();
       Optional<List<CoreLabel>> subject=getValidEntityChunk(parse,m.getNode("subject"));

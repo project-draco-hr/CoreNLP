@@ -1,25 +1,32 @@
 {
   PriorityQueue<CoreLabel> chunk=new FixedPrioritiesPriorityQueue<>();
   Queue<IndexedWord> fringe=new LinkedList<>();
+  IndexedWord root=originalRoot;
   fringe.add(root);
+  boolean isCopula=false;
+  for (  SemanticGraphEdge edge : parse.outgoingEdgeIterable(originalRoot)) {
+    if (edge.getRelation().getShortName().equals("cop")) {
+      isCopula=true;
+    }
+  }
   while (!fringe.isEmpty()) {
     root=fringe.poll();
     chunk.add(root.backingLabel(),-root.index());
     for (    SemanticGraphEdge edge : parse.incomingEdgeIterable(root)) {
-      if (edge.getRelation().getLongName().startsWith("conj_")) {
-        CoreLabel mockAnd=new CoreLabel(root);
-        String andPart=edge.getRelation().getSpecific();
-        mockAnd.setWord(andPart);
-        mockAnd.setLemma(andPart);
-        mockAnd.setValue(andPart);
-        mockAnd.setNER("O");
-        mockAnd.setTag("PP");
-        mockAnd.setIndex(root.index() - 1);
-        chunk.add(mockAnd,-mockAnd.index());
+      if (edge.getDependent() != originalRoot) {
+        if (edge.getRelation().getShortName().equals("prep") || edge.getRelation().getShortName().equals("prepc")) {
+          chunk.add(mockNode(edge.getGovernor().backingLabel(),1,edge.getRelation().getSpecific(),"PP"),-(((double)edge.getGovernor().index()) + 0.9));
+        }
+        if (edge.getRelation().getShortName().equals("conj")) {
+          chunk.add(mockNode(root.backingLabel(),-1,edge.getRelation().getSpecific(),"CC"),-(((double)root.index()) - 0.9));
+        }
       }
     }
     for (    SemanticGraphEdge edge : parse.getOutEdgesSorted(root)) {
-      if (!validArcs.contains(edge.getRelation().getShortName())) {
+      String shortName=edge.getRelation().getShortName();
+      if (isCopula && (shortName.equals("cop") || shortName.contains("subj"))) {
+      }
+ else       if (!validArcs.contains(edge.getRelation().getShortName())) {
         return Optional.empty();
       }
  else {

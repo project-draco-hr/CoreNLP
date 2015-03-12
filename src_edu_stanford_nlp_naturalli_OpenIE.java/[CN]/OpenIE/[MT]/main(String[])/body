@@ -1,6 +1,5 @@
 {
   Properties props=StringUtils.argsToProperties(args);
-  OpenIE extractor=new OpenIE(props);
   props.setProperty("annotators","tokenize,ssplit,parse,natlog,openie");
   props.setProperty("ssplit.isOneSentence","true");
   StanfordCoreNLP pipeline=new StanfordCoreNLP(props);
@@ -10,6 +9,9 @@
     Annotation ann=new Annotation(line);
     pipeline.annotate(ann);
     Collection<RelationTriple> extractions=ann.get(CoreAnnotations.SentencesAnnotation.class).get(0).get(NaturalLogicAnnotations.RelationTriplesAnnotation.class);
+    if (extractions.isEmpty()) {
+      System.err.println("No extractions for: " + line);
+    }
     for (    RelationTriple extraction : extractions) {
       System.out.println(extraction);
     }
