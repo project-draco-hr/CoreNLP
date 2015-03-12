@@ -1,0 +1,17 @@
+{
+  if (seed == null) {
+    return new Span(0,1);
+  }
+  if (tokens.get(seed.start()).ner() == null) {
+    return seed;
+  }
+  int begin=seed.start();
+  while (begin > 0 && tokens.get(begin - 1).ner().equals(tokens.get(seed.start()).ner())) {
+    begin-=1;
+  }
+  int end=seed.end() - 1;
+  while (end < tokens.size() - 1 && tokens.get(end + 1).ner().equals(tokens.get(seed.end() - 1).ner())) {
+    end+=1;
+  }
+  return Span.fromValues(begin,end + 1);
+}
