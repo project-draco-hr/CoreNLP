@@ -14,13 +14,13 @@
         break;
       }
       line=line.trim();
-      if (line.equals("??? ??? ???") || line.equals("???")) {
+      if (!(line.equals("??? ??? ???") || line.equals("???") || line.equals("<TURN>"))) {
+        InputSource source=new InputSource(new StringReader("<xml>" + line + "</xml>"));
+        source.setEncoding("UTF-8");
+        ColumnHandler handler=getHandler();
+        parser.parse(source,handler);
+        finishXML(handler,filename);
       }
-      InputSource source=new InputSource(new StringReader("<xml>" + line + "</xml>"));
-      source.setEncoding("UTF-8");
-      ColumnHandler handler=getHandler();
-      parser.parse(source,handler);
-      finishXML(handler,filename);
     }
   }
  catch (  IOException e) {
