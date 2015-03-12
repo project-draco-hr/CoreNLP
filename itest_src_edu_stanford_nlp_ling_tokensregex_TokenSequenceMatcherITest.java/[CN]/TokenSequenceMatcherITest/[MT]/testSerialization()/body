@@ -1,0 +1,19 @@
+{
+  TokenSequencePattern p=TokenSequencePattern.compile("(?: (/[A-Za-z]+/{2,2}) /of/ (/[A-Za-z]+/{1,3}?) ) & (?: (/.*/*) /Bishop/ /.*/*? )");
+  TokenSequencePattern p2=TokenSequencePattern.compile("(?: (/[A-Za-z]+/{2,2}) /of/ (/[A-Za-z]+/{1,3}?) ) & (?: (/.*/*) /Bishop/ /.*/*? )");
+  List<TokenSequencePattern> pats=Arrays.asList(p,p2);
+  try {
+    System.out.println("p is " + p);
+    File f=File.createTempFile("/tmp","temp");
+    f.deleteOnExit();
+    IOUtils.writeObjectToFile(pats,f);
+    List<TokenSequencePattern> readpats=IOUtils.readObjectFromFile(f);
+    assertEquals(readpats.size(),2);
+  }
+ catch (  IOException e) {
+    e.printStackTrace();
+  }
+catch (  ClassNotFoundException e) {
+    e.printStackTrace();
+  }
+}
