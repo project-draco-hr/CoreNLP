@@ -1,0 +1,31 @@
+{
+  Counter<CandidatePhrase> sims=new ClassicCounter<CandidatePhrase>(candidatePhrases.size());
+  for (  CandidatePhrase p : candidatePhrases) {
+    Counter<Integer> feat=wordClassClustersForPhrase.get(p);
+    if (feat == null) {
+      feat=wordClass(p.getPhrase(),p.getPhraseLemma());
+      wordClassClustersForPhrase.put(p,feat);
+    }
+    double avgSim=0;
+    if (feat.size() > 0) {
+      for (      CandidatePhrase pos : positivePhrases) {
+        if (p.equals(pos))         continue;
+        Counter<Integer> posfeat=wordClassClustersForPhrase.get(pos);
+        if (posfeat == null) {
+          posfeat=wordClass(pos.getPhrase(),pos.getPhraseLemma());
+          wordClassClustersForPhrase.put(pos,feat);
+        }
+        if (posfeat.size() > 0) {
+          Double j=Counters.jaccardCoefficient(posfeat,feat);
+          if (!j.isInfinite() && !j.isNaN()) {
+            avgSim+=j;
+          }
+        }
+      }
+      avgSim/=positivePhrases.size();
+    }
+    sims.setCount(p,avgSim);
+    if (allMaxSim.get() < avgSim)     allMaxSim.set(avgSim);
+  }
+  return new Pair(sims,null);
+}

@@ -1,5 +1,6 @@
 {
-  Dataset ret=new Dataset(config.numTokens,system.transitions.size());
+  int numTrans=system.numTransitions();
+  Dataset ret=new Dataset(config.numTokens,numTrans);
   Counter<Integer> tokPosCount=new IntCounter<>();
   System.err.println(Config.SEPARATOR);
   System.err.println("Generate training examples...");
@@ -14,7 +15,7 @@
         String oracle=system.getOracle(c,trees.get(i));
         List<Integer> feature=getFeatures(c);
         List<Integer> label=new ArrayList<>();
-        for (int j=0; j < system.transitions.size(); ++j) {
+        for (int j=0; j < numTrans; ++j) {
           String str=system.transitions.get(j);
           if (str.equals(oracle))           label.add(1);
  else           if (system.canApply(c,str))           label.add(0);
@@ -27,7 +28,6 @@
     }
   }
   System.err.println("#Train Examples: " + ret.n);
-  preComputed=new ArrayList<>(config.numPreComputed);
   List<Integer> sortedTokens=Counters.toSortedList(tokPosCount,false);
   preComputed=new ArrayList<>(sortedTokens.subList(0,Math.min(config.numPreComputed,sortedTokens.size())));
   return ret;

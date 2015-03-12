@@ -4,16 +4,13 @@
     is=IOUtils.class.getClassLoader().getResourceAsStream(name.replaceAll("\\\\","/"));
   }
   if (is == null) {
-    if (name.endsWith(".gz")) {
-      try {
-        is=new GZIPInputStream(new FileInputStream(name));
-      }
- catch (      IOException e) {
-        is=new FileInputStream(name);
-      }
+    is=new FileInputStream(name);
+  }
+  if (name.endsWith(".gz")) {
+    try {
+      is=new GZIPInputStream(is);
     }
- else {
-      is=new FileInputStream(name);
+ catch (    IOException e) {
     }
   }
   return is;
