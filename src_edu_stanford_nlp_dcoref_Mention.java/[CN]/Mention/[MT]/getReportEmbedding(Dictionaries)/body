@@ -1,6 +1,7 @@
 {
   if (headIndexedWord == null)   return 0;
-  for (  IndexedWord sibling : dependency.getSiblings(headIndexedWord)) {
+  Collection<IndexedWord> siblings=dependency.getSiblings(headIndexedWord);
+  for (  IndexedWord sibling : siblings) {
     if (dict.reportVerb.contains(sibling.lemma()) && dependency.hasParentWithReln(sibling,EnglishGrammaticalRelations.ADV_CLAUSE_MODIFIER)) {
       IndexedWord marker=dependency.getChildWithReln(sibling,EnglishGrammaticalRelations.MARKER);
       if (marker != null && marker.lemma().equals("as")) {

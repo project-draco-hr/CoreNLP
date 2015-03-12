@@ -1,3 +1,17 @@
 {
-  return startLPServer(port,daemon,lexparser);
+  final LexicalizedParserServer server=new LexicalizedParserServer(port,model,parser);
+  Thread thread=new Thread(){
+    public void run(){
+      try {
+        server.listen();
+      }
+ catch (      IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
+  }
+;
+  thread.setDaemon(daemon);
+  thread.start();
+  return thread;
 }

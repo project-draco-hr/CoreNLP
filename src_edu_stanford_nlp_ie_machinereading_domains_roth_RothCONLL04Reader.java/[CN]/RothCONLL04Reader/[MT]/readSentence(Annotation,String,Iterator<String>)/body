@@ -34,7 +34,7 @@ case 9:
 List<String> words=StringUtils.split(pieces.get(5),"/");
 String text=StringUtils.join(words," ");
 identifier="entity" + pieces.get(0) + "-"+ pieces.get(2);
-String nerTag=getNormalizedNERTag(pieces.get(1));
+String nerTag=pieces.get(1);
 if (sentenceID == null) sentenceID=pieces.get(0);
 if (!nerTag.equals("O")) {
 Span extentSpan=new Span(tokenCount,tokenCount + words.size());
@@ -47,7 +47,6 @@ for (String word : words) {
 CoreLabel label=new CoreLabel();
 label.setWord(word);
 label.set(CoreAnnotations.TextAnnotation.class,word);
-label.set(CoreAnnotations.ValueAnnotation.class,word);
 tokens.add(label);
 }
 textContent.append(text);
@@ -57,7 +56,6 @@ break;
 }
 }
 sentence.set(CoreAnnotations.TextAnnotation.class,textContent.toString());
-sentence.set(CoreAnnotations.ValueAnnotation.class,textContent.toString());
 sentence.set(CoreAnnotations.TokensAnnotation.class,tokens);
 sentence.set(CoreAnnotations.SentenceIDAnnotation.class,sentenceID);
 return sentence;

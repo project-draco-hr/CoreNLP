@@ -26,7 +26,11 @@
     System.err.println("Time to export class index : " + Timing.toSecondsString(elapsedMs) + " seconds");
   }
   if (flags.exportFeatures != null) {
-    dumpFeatures(docs);
+    timer.start();
+    CRFFeatureExporter<IN> featureExporter=new CRFFeatureExporter<IN>(this);
+    featureExporter.printFeatures(flags.exportFeatures,docs);
+    elapsedMs=timer.stop();
+    System.err.println("Time to export features: " + Timing.toSecondsString(elapsedMs) + " seconds");
   }
   for (int i=0; i <= flags.numTimesPruneFeatures; i++) {
     timer.start();
@@ -81,6 +85,7 @@
       docs=null;
     }
     File featIndexFile=null;
+    int numFeatures=featureIndex.size();
     if (flags.saveFeatureIndexToDisk) {
       try {
         System.err.println("Writing feature index to temporary file.");

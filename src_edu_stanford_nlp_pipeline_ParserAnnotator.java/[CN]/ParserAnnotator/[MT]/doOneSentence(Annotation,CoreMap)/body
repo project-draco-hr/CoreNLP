@@ -4,7 +4,7 @@
     System.err.println("Parsing: " + words);
   }
   Tree tree=null;
-  if (maxSentenceLength <= 0 || words.size() <= maxSentenceLength) {
+  if (maxSentenceLength <= 0 || words.size() < maxSentenceLength) {
     try {
       final List<ParserConstraint> constraints=sentence.get(ParserAnnotations.ConstraintAnnotation.class);
       tree=doOneSentence(constraints,words);
@@ -17,9 +17,16 @@
     }
   }
   if (tree == null) {
-    doOneFailedSentence(annotation,sentence);
+    tree=ParserUtils.xTree(words);
   }
- else {
-    finishSentence(sentence,tree);
+  if (treeMap != null) {
+    tree=treeMap.apply(tree);
+  }
+  ParserAnnotatorUtils.fillInParseAnnotations(VERBOSE,BUILD_GRAPHS,gsf,sentence,tree);
+  if (saveBinaryTrees) {
+    TreeBinarizer binarizer=new TreeBinarizer(parser.getTLPParams().headFinder(),parser.treebankLanguagePack(),false,false,0,false,false,0.0,false,true,true);
+    Tree binarized=binarizer.transformTree(tree);
+    Trees.convertToCoreLabels(binarized);
+    sentence.set(TreeCoreAnnotations.BinarizedTreeAnnotation.class,binarized);
   }
 }

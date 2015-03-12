@@ -27,39 +27,23 @@
   out.println("The top level annotation");
   out.println(annotation.toShorterString());
   List<CoreMap> sentences=annotation.get(CoreAnnotations.SentencesAnnotation.class);
-  if (sentences != null && !sentences.isEmpty()) {
-    CoreMap sentence=sentences.get(0);
-    out.println();
+  if (sentences != null && sentences.size() > 0) {
+    ArrayCoreMap sentence=(ArrayCoreMap)sentences.get(0);
     out.println("The first sentence is:");
     out.println(sentence.toShorterString());
+    Tree tree=sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
     out.println();
     out.println("The first sentence tokens are:");
     for (    CoreMap token : sentence.get(CoreAnnotations.TokensAnnotation.class)) {
-      out.println(token.toShorterString());
+      ArrayCoreMap aToken=(ArrayCoreMap)token;
+      out.println(aToken.toShorterString());
     }
-    Tree tree=sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
-    out.println();
     out.println("The first sentence parse tree is:");
     tree.pennPrint(out);
-    out.println();
     out.println("The first sentence basic dependencies are:");
-    out.println(sentence.get(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class).toString(SemanticGraph.OutputFormat.LIST));
+    System.out.println(sentence.get(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class).toString("plain"));
     out.println("The first sentence collapsed, CC-processed dependencies are:");
     SemanticGraph graph=sentence.get(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class);
-    out.println(graph.toString(SemanticGraph.OutputFormat.LIST));
-    out.println("Coreference information");
-    Map<Integer,CorefChain> corefChains=annotation.get(CorefCoreAnnotations.CorefChainAnnotation.class);
-    if (corefChains == null) {
-      return;
-    }
-    for (    Map.Entry<Integer,CorefChain> entry : corefChains.entrySet()) {
-      out.println("Chain " + entry.getKey() + " ");
-      for (      CorefChain.CorefMention m : entry.getValue().getMentionsInTextualOrder()) {
-        List<CoreLabel> tokens=sentences.get(m.sentNum - 1).get(CoreAnnotations.TokensAnnotation.class);
-        out.println("  " + m + ", i.e., 0-based character offsets ["+ tokens.get(m.startIndex - 1).beginPosition()+ ", "+ tokens.get(m.endIndex - 2).endPosition()+ ")");
-      }
-    }
+    System.out.println(graph.toString("plain"));
   }
-  IOUtils.closeIgnoringExceptions(out);
-  IOUtils.closeIgnoringExceptions(xmlOut);
 }

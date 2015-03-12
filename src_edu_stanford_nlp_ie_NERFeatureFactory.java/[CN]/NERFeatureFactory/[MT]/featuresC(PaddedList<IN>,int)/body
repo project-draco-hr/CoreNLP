@@ -32,17 +32,6 @@
       featuresC.add("IS_TITLE");
     }
   }
-  if (flags.slashHyphenTreatment != SeqClassifierFlags.SlashHyphenEnum.NONE) {
-    if (flags.useWord) {
-      generateSlashHyphenFeatures(cWord,featuresC,"-WFRAG","-WORD");
-    }
-    if (flags.useNext) {
-      generateSlashHyphenFeatures(nWord,featuresC,"-NWFRAG","-NW");
-    }
-    if (flags.usePrev) {
-      generateSlashHyphenFeatures(nWord,featuresC,"-PWFRAG","-PW");
-    }
-  }
   if (flags.useInternal && flags.useExternal) {
     if (flags.useWord) {
       featuresC.add(cWord + "-WORD");
@@ -372,12 +361,12 @@
       featuresC.add(cWord + '-' + n.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ "-W-NT");
     }
     if (flags.useNPHead) {
-      featuresC.add(c.get(CoreAnnotations.HeadWordStringAnnotation.class) + "-HW");
+      featuresC.add(c.get(TreeCoreAnnotations.HeadWordAnnotation.class) + "-HW");
       if (flags.useTags) {
-        featuresC.add(c.get(CoreAnnotations.HeadWordStringAnnotation.class) + "-" + c.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ "-HW-T");
+        featuresC.add(c.get(TreeCoreAnnotations.HeadWordAnnotation.class) + "-" + c.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ "-HW-T");
       }
       if (flags.useDistSim) {
-        featuresC.add(c.get(CoreAnnotations.HeadWordStringAnnotation.class) + "-" + c.get(CoreAnnotations.DistSimAnnotation.class)+ "-HW-DISTSIM");
+        featuresC.add(c.get(TreeCoreAnnotations.HeadWordAnnotation.class) + "-" + c.get(CoreAnnotations.DistSimAnnotation.class)+ "-HW-DISTSIM");
       }
     }
     if (flags.useNPGovernor) {
@@ -390,7 +379,7 @@
       }
     }
     if (flags.useHeadGov) {
-      featuresC.add(c.get(CoreAnnotations.HeadWordStringAnnotation.class) + "-" + c.get(CoreAnnotations.GovernorAnnotation.class)+ "-HW_GW");
+      featuresC.add(c.get(TreeCoreAnnotations.HeadWordAnnotation.class) + "-" + c.get(CoreAnnotations.GovernorAnnotation.class)+ "-HW_GW");
     }
     if (flags.useClassFeature) {
       featuresC.add("###");
@@ -508,14 +497,6 @@
         if (flags.useDisjunctiveShapeInteraction) {
           featuresC.add(getWord(dp) + '-' + cShape+ "-DISJP-CS");
         }
-      }
-    }
-    if (flags.useUndirectedDisjunctive) {
-      for (int i=1; i <= flags.disjunctionWidth; i++) {
-        CoreLabel dn=cInfo.get(loc + i);
-        CoreLabel dp=cInfo.get(loc - i);
-        featuresC.add(getWord(dn) + "-DISJ");
-        featuresC.add(getWord(dp) + "-DISJ");
       }
     }
     if (flags.useWideDisjunctive) {

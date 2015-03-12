@@ -1,4 +1,6 @@
 {
+  int[] oldFeatures=null;
+  int oldFeatureIndex=-1;
   ArrayList<Integer> newFeatureList=new ArrayList<Integer>(1000);
   Set<Integer> featureIndicesSet=featureIndicesSetArray.get(lopIter);
   int[][][][] newData=new int[data.length][][][];
@@ -7,9 +9,10 @@
     for (int j=0; j < data[i].length; j++) {
       newData[i][j]=new int[data[i][j].length][];
       for (int k=0; k < data[i][j].length; k++) {
-        int[] oldFeatures=data[i][j][k];
+        oldFeatures=data[i][j][k];
         newFeatureList.clear();
-        for (        int oldFeatureIndex : oldFeatures) {
+        for (int l=0; l < oldFeatures.length; l++) {
+          oldFeatureIndex=oldFeatures[l];
           if (featureIndicesSet.contains(oldFeatureIndex)) {
             newFeatureList.add(oldFeatureIndex);
           }

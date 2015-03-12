@@ -1,0 +1,19 @@
+{
+  List<File> allFiles=new ArrayList<File>();
+  for (  String tokfile : file.split("[,;]")) {
+    File filef=new File(tokfile);
+    if (filef.isDirectory()) {
+      String path=".*";
+      File dir=filef;
+      for (      File f : IOUtils.iterFilesRecursive(dir,Pattern.compile(path))) {
+        Redwood.log(Redwood.DBG,"Reading file " + f);
+        allFiles.add(f);
+      }
+    }
+ else {
+      Redwood.log(Redwood.DBG,"Reading file " + filef);
+      allFiles.add(filef);
+    }
+  }
+  return allFiles;
+}

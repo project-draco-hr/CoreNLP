@@ -4,7 +4,8 @@
   for (  IndexedWord child : children) {
     if (dict.negations.contains(child.lemma()))     return 1;
   }
-  for (  IndexedWord sibling : dependency.getSiblings(headIndexedWord)) {
+  Collection<IndexedWord> siblings=dependency.getSiblings(headIndexedWord);
+  for (  IndexedWord sibling : siblings) {
     if (dict.negations.contains(sibling.lemma()) && !dependency.hasParentWithReln(headIndexedWord,EnglishGrammaticalRelations.NOMINAL_SUBJECT))     return 1;
   }
   List<Pair<GrammaticalRelation,IndexedWord>> parentPairs=dependency.parentPairs(headIndexedWord);

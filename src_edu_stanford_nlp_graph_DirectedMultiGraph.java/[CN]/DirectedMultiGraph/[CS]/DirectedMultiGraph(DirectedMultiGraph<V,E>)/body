@@ -1,14 +1,15 @@
 {
-  this(graph.outerMapFactory,graph.innerMapFactory);
+  outgoingEdges=Generics.newHashMap();
+  incomingEdges=Generics.newHashMap();
   for (  Map.Entry<V,Map<V,List<E>>> map : graph.outgoingEdges.entrySet()) {
-    Map<V,List<E>> edgesCopy=innerMapFactory.newMap();
+    Map<V,List<E>> edgesCopy=Generics.newHashMap();
     for (    Map.Entry<V,List<E>> entry : map.getValue().entrySet()) {
       edgesCopy.put(entry.getKey(),Generics.newArrayList(entry.getValue()));
     }
     this.outgoingEdges.put(map.getKey(),edgesCopy);
   }
   for (  Map.Entry<V,Map<V,List<E>>> map : graph.incomingEdges.entrySet()) {
-    Map<V,List<E>> edgesCopy=innerMapFactory.newMap();
+    Map<V,List<E>> edgesCopy=Generics.newHashMap();
     for (    Map.Entry<V,List<E>> entry : map.getValue().entrySet()) {
       edgesCopy.put(entry.getKey(),Generics.newArrayList(entry.getValue()));
     }

@@ -27,7 +27,7 @@
       MemoryTreebank treebank=new MemoryTreebank(new TreeNormalizer());
       treebank.loadPath(treeFile);
       for (      Tree tree : treebank) {
-        SemanticGraph graph=SemanticGraphFactory.makeFromTree(tree,mode,useExtras ? GrammaticalStructure.Extras.MAXIMAL : GrammaticalStructure.Extras.NONE,true,null);
+        SemanticGraph graph=SemanticGraphFactory.makeFromTree(tree,mode,useExtras,true,null);
         graphs.add(graph);
       }
     }
@@ -38,7 +38,7 @@
       continue;
     }
     System.err.println("Matched graph:");
-    System.err.println(graph.toString(SemanticGraph.OutputFormat.LIST));
+    System.err.println(graph.toString("plain"));
     boolean found=true;
     while (found) {
       System.err.println("Matches at: " + matcher.getMatch().value() + "-"+ matcher.getMatch().index());

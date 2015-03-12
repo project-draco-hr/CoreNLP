@@ -2,15 +2,15 @@
   used.add(vertex);
   List<IndexedWord> parents=getParentList(vertex);
   parents.removeAll(used);
-  if (roots.contains(vertex) || (parents.isEmpty())) {
+  if (roots.contains(vertex) || (parents.size() == 0)) {
     used.remove(used.size() - 1);
-    if (roots.contains(vertex))     return Generics.newArrayList();
+    if (roots.contains(vertex))     return new Vector<IndexedWord>();
  else     return null;
   }
   for (  IndexedWord parent : parents) {
     List<IndexedWord> path=getPathToRoot(parent,used);
     if (path != null) {
-      path.add(parent);
+      path.add(0,parent);
       used.remove(used.size() - 1);
       return path;
     }
