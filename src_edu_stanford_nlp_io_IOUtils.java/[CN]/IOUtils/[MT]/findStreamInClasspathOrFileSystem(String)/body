@@ -2,17 +2,18 @@
   InputStream is=IOUtils.class.getClassLoader().getResourceAsStream(name);
   if (is == null) {
     is=IOUtils.class.getClassLoader().getResourceAsStream(name.replaceAll("\\\\","/"));
-    if (is == null) {
-      is=IOUtils.class.getClassLoader().getResourceAsStream(name.replaceAll("\\\\","/").replaceAll("/+","/"));
-    }
   }
-  if (is == null)   is=new FileInputStream(name);
-  if (name.endsWith(".gz")) {
-    try {
-      return new GZIPInputStream(is);
+  if (is == null) {
+    if (name.endsWith(".gz")) {
+      try {
+        is=new GZIPInputStream(new FileInputStream(name));
+      }
+ catch (      IOException e) {
+        is=new FileInputStream(name);
+      }
     }
- catch (    IOException e) {
-      System.err.println("Resource or file looks like a gzip file, but is not: " + name);
+ else {
+      is=new FileInputStream(name);
     }
   }
   return is;
