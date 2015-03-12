@@ -85,6 +85,30 @@
       return null;
     }
   }
+ else   if (FileWriter.class.isAssignableFrom(clazz)) {
+    try {
+      return (E)new FileWriter(new File(value));
+    }
+ catch (    IOException e) {
+      throw new RuntimeIOException(e);
+    }
+  }
+ else   if (BufferedReader.class.isAssignableFrom(clazz)) {
+    try {
+      return (E)IOUtils.getBufferedReaderFromClasspathOrFileSystem(value);
+    }
+ catch (    IOException e) {
+      throw new RuntimeIOException(e);
+    }
+  }
+ else   if (FileReader.class.isAssignableFrom(clazz)) {
+    try {
+      return (E)new FileReader(new File(value));
+    }
+ catch (    IOException e) {
+      throw new RuntimeIOException(e);
+    }
+  }
  else   if (File.class.isAssignableFrom(clazz)) {
     return (E)new File(value);
   }
