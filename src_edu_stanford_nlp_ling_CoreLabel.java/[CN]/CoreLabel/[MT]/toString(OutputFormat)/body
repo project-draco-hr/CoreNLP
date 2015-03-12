@@ -1,0 +1,97 @@
+{
+  StringBuilder buf=new StringBuilder();
+switch (format) {
+case VALUE:
+    buf.append(value());
+  break;
+case MAP:
+{
+  Map map2=new TreeMap();
+  for (  Class key : this.keySet()) {
+    map2.put(key.getName(),get(key));
+  }
+  buf.append(map2);
+  break;
+}
+case VALUE_MAP:
+{
+buf.append(value());
+Map map2=new TreeMap(asClassComparator);
+for (Class key : this.keySet()) {
+  map2.put(key,get(key));
+}
+map2.remove(CoreAnnotations.ValueAnnotation.class);
+buf.append(map2);
+break;
+}
+case VALUE_INDEX:
+{
+buf.append(value());
+Integer index=this.get(CoreAnnotations.IndexAnnotation.class);
+if (index != null) {
+buf.append('-').append((index).intValue());
+}
+break;
+}
+case VALUE_TAG:
+{
+buf.append(value());
+String tag=tag();
+if (tag != null) {
+buf.append(TAG_SEPARATOR).append(tag);
+}
+break;
+}
+case VALUE_TAG_INDEX:
+{
+buf.append(value());
+String tag=tag();
+if (tag != null) {
+buf.append(TAG_SEPARATOR).append(tag);
+}
+Integer index=this.get(CoreAnnotations.IndexAnnotation.class);
+if (index != null) {
+buf.append('-').append((index).intValue());
+}
+break;
+}
+case VALUE_INDEX_MAP:
+{
+buf.append(value());
+Integer index=this.get(CoreAnnotations.IndexAnnotation.class);
+if (index != null) {
+buf.append('-').append((index).intValue());
+}
+Map<String,Object> map2=new TreeMap<String,Object>();
+for (Class key : this.keySet()) {
+String cls=key.getName();
+int idx=cls.indexOf('$');
+if (idx >= 0) {
+cls=cls.substring(idx + 1);
+}
+map2.put(cls,this.get(key));
+}
+map2.remove("IndexAnnotation");
+map2.remove("ValueAnnotation");
+if (!map2.isEmpty()) {
+buf.append(map2);
+}
+break;
+}
+case WORD:
+buf.append(word());
+break;
+case WORD_INDEX:
+{
+buf.append(this.get(CoreAnnotations.TextAnnotation.class));
+Integer index=this.get(CoreAnnotations.IndexAnnotation.class);
+if (index != null) {
+buf.append('-').append((index).intValue());
+}
+break;
+}
+default :
+throw new IllegalArgumentException("Unknown format " + format);
+}
+return buf.toString();
+}

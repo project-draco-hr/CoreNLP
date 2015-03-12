@@ -1,9 +1,9 @@
 {
-  if (vertex.equals(IndexedWord.NO_WORD))   return new ArrayList<IndexedWord>();
-  if (!vertexSet().contains(vertex)) {
+  if (vertex.equals(IndexedWord.NO_WORD))   return Collections.emptySet();
+  if (!containsVertex(vertex)) {
     throw new IllegalArgumentException();
   }
-  List<IndexedWord> childList=new ArrayList<IndexedWord>();
+  Set<IndexedWord> childList=wordMapFactory.newSet();
   for (  SemanticGraphEdge edge : outgoingEdgeIterable(vertex)) {
     if (relns.contains(edge.getRelation())) {
       childList.add(edge.getTarget());

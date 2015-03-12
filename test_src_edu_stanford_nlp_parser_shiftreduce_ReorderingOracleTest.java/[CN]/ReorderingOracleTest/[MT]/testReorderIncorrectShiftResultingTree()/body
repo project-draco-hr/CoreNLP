@@ -1,0 +1,21 @@
+{
+  for (int testcase=0; testcase < correctTrees.length; ++testcase) {
+    State state=ShiftReduceParser.initialStateFromGoldTagTree(correctTrees[testcase]);
+    List<Transition> gold=CreateTransitionSequence.createTransitionSequence(binarizedTrees.get(testcase));
+    int tnum=0;
+    for (; tnum < gold.size(); ++tnum) {
+      if (gold.get(tnum) instanceof BinaryTransition) {
+        break;
+      }
+      state=gold.get(tnum).apply(state);
+    }
+    state=shift.apply(state);
+    List<Transition> reordered=Generics.newLinkedList(gold.subList(tnum,gold.size()));
+    assertTrue(ReorderingOracle.reorderIncorrectShiftTransition(reordered));
+    for (    Transition transition : reordered) {
+      state=transition.apply(state);
+    }
+    Tree debinarized=debinarizer.transformTree(state.stack.peek());
+    assertEquals(incorrectShiftTrees[testcase].toString(),debinarized.toString());
+  }
+}

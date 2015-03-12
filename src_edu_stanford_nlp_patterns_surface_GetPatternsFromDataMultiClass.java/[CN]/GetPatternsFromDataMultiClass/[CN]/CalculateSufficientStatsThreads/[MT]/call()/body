@@ -1,0 +1,66 @@
+{
+  List<Pair<E,String>> posWords=new ArrayList<Pair<E,String>>();
+  List<Pair<E,String>> negWords=new ArrayList<Pair<E,String>>();
+  List<Pair<E,String>> unlabWords=new ArrayList<Pair<E,String>>();
+  for (  String sentId : sentIds) {
+    Map<Integer,Set<E>> pat4Sent=patternsForEachToken.getPatternsForAllTokens(sentId);
+    if (pat4Sent == null) {
+      throw new RuntimeException("How come there are no patterns for " + sentId);
+    }
+    List<CoreLabel> sent=sents.get(sentId);
+    for (int i=0; i < sent.size(); i++) {
+      CoreLabel token=sent.get(i);
+      String tokenWordOrLemma=token.word();
+      String longestMatchingPhrase=null;
+      if (constVars.useMatchingPhrase) {
+        Map<String,String> longestMatchingPhrases=token.get(PatternsAnnotations.LongestMatchedPhraseForEachLabel.class);
+        longestMatchingPhrase=longestMatchingPhrases.get(label);
+        longestMatchingPhrase=(longestMatchingPhrase != null && (longestMatchingPhrase.length() > tokenWordOrLemma.length())) ? longestMatchingPhrase : tokenWordOrLemma;
+      }
+ else       longestMatchingPhrase=tokenWordOrLemma;
+      Set<E> pats=pat4Sent.get(i);
+      if (pats == null)       throw new RuntimeException("Why are patterns null for sentence " + sentId + " and token "+ i+ ". pat4Sent has token ids "+ pat4Sent.keySet()+ (constVars.batchProcessSents ? "" : ". The sentence is " + Data.sents.get(sentId))+ ". If you have switched batchProcessSents, recompute the patterns.");
+      if (PatternFactory.ignoreWordRegex.matcher(token.word()).matches())       continue;
+      String tag=token.tag();
+      if (constVars.allowedTagsInitials != null && constVars.allowedTagsInitials.containsKey(label)) {
+        boolean use=false;
+        for (        String allowed : constVars.allowedTagsInitials.get(label)) {
+          if (tag.startsWith(allowed)) {
+            use=true;
+            break;
+          }
+        }
+        if (!use)         continue;
+      }
+      String nertag=token.ner();
+      if (constVars.allowedNERsforLabels != null && constVars.allowedNERsforLabels.containsKey(label)) {
+        if (!constVars.allowedNERsforLabels.get(label).contains(nertag)) {
+          continue;
+        }
+      }
+      if (token.get(answerClass4Label).equals(label)) {
+        for (        E s : pats) {
+          posWords.add(new Pair<E,String>(s,longestMatchingPhrase));
+        }
+      }
+ else {
+        boolean negToken=false;
+        Map<Class,Object> ignore=constVars.getIgnoreWordswithClassesDuringSelection().get(label);
+        for (        Class igCl : ignore.keySet())         if ((Boolean)token.get(igCl)) {
+          negToken=true;
+          break;
+        }
+        if (!negToken)         if (constVars.getOtherSemanticClassesWords().contains(token.word()) || constVars.getOtherSemanticClassesWords().contains(token.lemma()))         negToken=true;
+        for (        E sindex : pats) {
+          if (negToken) {
+            negWords.add(new Pair<E,String>(sindex,tokenWordOrLemma));
+          }
+ else {
+            unlabWords.add(new Pair<E,String>(sindex,tokenWordOrLemma));
+          }
+        }
+      }
+    }
+  }
+  return new Triple(posWords,negWords,unlabWords);
+}

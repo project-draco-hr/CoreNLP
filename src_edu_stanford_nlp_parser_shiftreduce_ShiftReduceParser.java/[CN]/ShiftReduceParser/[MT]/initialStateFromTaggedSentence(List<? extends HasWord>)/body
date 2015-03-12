@@ -2,18 +2,30 @@
   List<Tree> preterminals=Generics.newArrayList();
   for (int index=0; index < words.size(); ++index) {
     HasWord hw=words.get(index);
-    CoreLabel wordLabel=new CoreLabel();
-    wordLabel.setIndex(index + 1);
-    wordLabel.setValue(hw.word());
-    if (!(hw instanceof HasTag)) {
-      throw new RuntimeException("Expected tagged words");
+    CoreLabel wordLabel;
+    String tag;
+    if (hw instanceof CoreLabel) {
+      wordLabel=(CoreLabel)hw;
+      tag=wordLabel.tag();
+      CoreLabel cl=(CoreLabel)hw;
     }
-    String tag=((HasTag)hw).tag();
+ else {
+      wordLabel=new CoreLabel();
+      wordLabel.setValue(hw.word());
+      wordLabel.setWord(hw.word());
+      if (!(hw instanceof HasTag)) {
+        throw new IllegalArgumentException("Expected tagged words");
+      }
+      tag=((HasTag)hw).tag();
+      wordLabel.setTag(tag);
+    }
     if (tag == null) {
-      throw new RuntimeException("Word is not tagged");
+      throw new IllegalArgumentException("Input word not tagged");
     }
     CoreLabel tagLabel=new CoreLabel();
-    tagLabel.setValue(((HasTag)hw).tag());
+    tagLabel.setValue(tag);
+    wordLabel.setIndex(index + 1);
+    tagLabel.setIndex(index + 1);
     LabeledScoredTreeNode wordNode=new LabeledScoredTreeNode(wordLabel);
     LabeledScoredTreeNode tagNode=new LabeledScoredTreeNode(tagLabel);
     tagNode.addChild(wordNode);

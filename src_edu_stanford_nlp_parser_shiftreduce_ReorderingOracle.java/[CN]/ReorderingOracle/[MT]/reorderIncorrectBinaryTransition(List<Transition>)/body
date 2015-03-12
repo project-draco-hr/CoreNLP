@@ -1,0 +1,32 @@
+{
+  int shiftCount=0;
+  ListIterator<Transition> cursor=transitions.listIterator();
+  do {
+    if (!cursor.hasNext()) {
+      return false;
+    }
+    Transition next=cursor.next();
+    if (next instanceof ShiftTransition) {
+      ++shiftCount;
+    }
+ else     if (next instanceof BinaryTransition) {
+      --shiftCount;
+      if (shiftCount <= 0) {
+        cursor.remove();
+      }
+    }
+  }
+ while (shiftCount > 0);
+  if (!cursor.hasNext()) {
+    return false;
+  }
+  Transition next=cursor.next();
+  while ((next instanceof UnaryTransition) || (next instanceof CompoundUnaryTransition)) {
+    cursor.remove();
+    if (!cursor.hasNext()) {
+      return false;
+    }
+    next=cursor.next();
+  }
+  return true;
+}

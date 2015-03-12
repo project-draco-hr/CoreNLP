@@ -1,0 +1,16 @@
+{
+  List<IndexedWord> list_auxpass=new ArrayList<IndexedWord>();
+  for (  TypedDependency td : list) {
+    if (td.reln() == AUX_PASSIVE_MODIFIER) {
+      list_auxpass.add(td.gov());
+    }
+  }
+  for (  TypedDependency td : list) {
+    if (td.reln() == NOMINAL_SUBJECT && list_auxpass.contains(td.gov())) {
+      td.setReln(NOMINAL_PASSIVE_SUBJECT);
+    }
+    if (td.reln() == CLAUSAL_SUBJECT && list_auxpass.contains(td.gov())) {
+      td.setReln(CLAUSAL_PASSIVE_SUBJECT);
+    }
+  }
+}

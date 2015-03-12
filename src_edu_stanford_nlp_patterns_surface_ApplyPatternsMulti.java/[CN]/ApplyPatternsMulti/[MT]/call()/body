@@ -1,35 +1,51 @@
 {
-  CollectionValuedMap<SurfacePattern,Triple<String,Integer,Integer>> matchedTokensByPat=new CollectionValuedMap<SurfacePattern,Triple<String,Integer,Integer>>();
-  TwoDimensionalCounter<Pair<String,String>,SurfacePattern> allFreq=new TwoDimensionalCounter<Pair<String,String>,SurfacePattern>();
+  CollectionValuedMap<E,Triple<String,Integer,Integer>> matchedTokensByPat=new CollectionValuedMap<E,Triple<String,Integer,Integer>>();
+  TwoDimensionalCounter<Pair<String,String>,E> allFreq=new TwoDimensionalCounter<Pair<String,String>,E>();
   for (  String sentid : sentids) {
     List<CoreLabel> sent=sents.get(sentid);
-    Iterable<SequenceMatchResult<CoreMap>> matched=multiPatternMatcher.findAllNonOverlappingMatchesPerPattern(sent);
+    Iterable<SequenceMatchResult<CoreMap>> matched=multiPatternMatcher.find(sent,SequenceMatcher.FindType.FIND_ALL);
     for (    SequenceMatchResult<CoreMap> m : matched) {
       int s=m.start("$term");
       int e=m.end("$term");
-      SurfacePattern matchedPat=patterns.get(m.pattern());
+      E matchedPat=patterns.get(m.pattern());
       matchedTokensByPat.add(matchedPat,new Triple<String,Integer,Integer>(sentid,s,e));
       String phrase="";
       String phraseLemma="";
       boolean useWordNotLabeled=false;
       boolean doNotUse=false;
+      if (constVars.clubNeighboringLabeledWords) {
+        for (int i=s - 1; i >= 0; i--) {
+          if (!sent.get(i).get(constVars.getAnswerClass().get(label)).equals(label)) {
+            s=i + 1;
+            break;
+          }
+        }
+        for (int i=e; i < sent.size(); i++) {
+          if (!sent.get(i).get(constVars.getAnswerClass().get(label)).equals(label)) {
+            e=i;
+            break;
+          }
+        }
+      }
       boolean[] addedindices=new boolean[e - s];
       Arrays.fill(addedindices,false);
       for (int i=s; i < e; i++) {
         CoreLabel l=sent.get(i);
         l.set(PatternsAnnotations.MatchedPattern.class,true);
-        for (        Entry<Class,Object> ig : constVars.ignoreWordswithClassesDuringSelection.get(label).entrySet()) {
+        if (!l.containsKey(PatternsAnnotations.MatchedPatterns.class))         l.set(PatternsAnnotations.MatchedPatterns.class,new HashSet<Pattern>());
+        l.get(PatternsAnnotations.MatchedPatterns.class).add(matchedPat);
+        for (        Entry<Class,Object> ig : constVars.getIgnoreWordswithClassesDuringSelection().get(label).entrySet()) {
           if (l.containsKey(ig.getKey()) && l.get(ig.getKey()).equals(ig.getValue())) {
             doNotUse=true;
           }
         }
-        boolean containsStop=containsStopWord(l,constVars.getCommonEngWords(),constVars.ignoreWordRegex);
+        boolean containsStop=containsStopWord(l,constVars.getCommonEngWords(),PatternFactory.ignoreWordRegex);
         if (removePhrasesWithStopWords && containsStop) {
           doNotUse=true;
         }
  else {
           if (!containsStop || !removeStopWordsFromSelectedPhrases) {
-            if (label == null || l.get(constVars.answerClass.get(label)) == null || !l.get(constVars.answerClass.get(label)).equals(label.toString())) {
+            if (label == null || l.get(constVars.getAnswerClass().get(label)) == null || !l.get(constVars.getAnswerClass().get(label)).equals(label.toString())) {
               useWordNotLabeled=true;
             }
             phrase+=" " + l.word();
@@ -51,5 +67,5 @@
       }
     }
   }
-  return new Pair<TwoDimensionalCounter<Pair<String,String>,SurfacePattern>,CollectionValuedMap<SurfacePattern,Triple<String,Integer,Integer>>>(allFreq,matchedTokensByPat);
+  return new Pair<TwoDimensionalCounter<Pair<String,String>,E>,CollectionValuedMap<E,Triple<String,Integer,Integer>>>(allFreq,matchedTokensByPat);
 }

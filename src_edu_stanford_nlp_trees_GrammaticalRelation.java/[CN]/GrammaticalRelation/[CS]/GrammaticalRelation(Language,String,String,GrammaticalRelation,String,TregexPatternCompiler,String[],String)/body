@@ -1,0 +1,43 @@
+{
+  this.language=language;
+  this.shortName=shortName;
+  this.longName=longName;
+  this.parent=parent;
+  this.specific=specificString;
+  if (parent != null) {
+    parent.addChild(this);
+  }
+  if (sourcePattern != null) {
+    try {
+      this.sourcePattern=Pattern.compile(sourcePattern);
+    }
+ catch (    java.util.regex.PatternSyntaxException e) {
+      throw new RuntimeException("Bad pattern: " + sourcePattern);
+    }
+  }
+ else {
+    this.sourcePattern=null;
+  }
+  for (  String pattern : targetPatterns) {
+    try {
+      TregexPattern p=tregexCompiler.compile(pattern);
+      this.targetPatterns.add(p);
+    }
+ catch (    edu.stanford.nlp.trees.tregex.TregexParseException pe) {
+      throw new RuntimeException("Bad pattern: " + pattern,pe);
+    }
+  }
+  Map<String,GrammaticalRelation> sToR=stringsToRelations.get(language);
+  if (sToR == null) {
+    sToR=Generics.newHashMap();
+    stringsToRelations.put(language,sToR);
+  }
+  GrammaticalRelation previous=sToR.put(toString(),this);
+  if (previous != null) {
+    if (!previous.isFromString() && !isFromString()) {
+      throw new IllegalArgumentException("There is already a relation named " + toString() + '!');
+    }
+ else {
+    }
+  }
+}

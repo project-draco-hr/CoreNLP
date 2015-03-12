@@ -1,0 +1,18 @@
+{
+  if (gsf != null) {
+    GrammaticalStructure gs=gsf.newGrammaticalStructure(tree);
+    Collection<TypedDependency> deps=gs.typedDependencies(false);
+    List<Dependency<Label,Label,Object>> sortedDeps=new ArrayList<Dependency<Label,Label,Object>>();
+    for (    TypedDependency dep : deps) {
+      sortedDeps.add(new NamedDependency(dep.gov(),dep.dep(),dep.reln().toString()));
+    }
+    Collections.sort(sortedDeps,Dependencies.dependencyIndexComparator());
+    return sortedDeps;
+  }
+ else {
+    Set<Dependency<Label,Label,Object>> depsSet=tree.mapDependencies(filter,hf,"root");
+    List<Dependency<Label,Label,Object>> sortedDeps=new ArrayList<Dependency<Label,Label,Object>>(depsSet);
+    Collections.sort(sortedDeps,Dependencies.dependencyIndexComparator());
+    return sortedDeps;
+  }
+}

@@ -1,0 +1,12 @@
+{
+  if (treeMap != null) {
+    tree=treeMap.apply(tree);
+  }
+  ParserAnnotatorUtils.fillInParseAnnotations(VERBOSE,BUILD_GRAPHS,gsf,sentence,tree);
+  if (saveBinaryTrees) {
+    TreeBinarizer binarizer=TreeBinarizer.simpleTreeBinarizer(parser.getTLPParams().headFinder(),parser.treebankLanguagePack());
+    Tree binarized=binarizer.transformTree(tree);
+    Trees.convertToCoreLabels(binarized);
+    sentence.set(TreeCoreAnnotations.BinarizedTreeAnnotation.class,binarized);
+  }
+}

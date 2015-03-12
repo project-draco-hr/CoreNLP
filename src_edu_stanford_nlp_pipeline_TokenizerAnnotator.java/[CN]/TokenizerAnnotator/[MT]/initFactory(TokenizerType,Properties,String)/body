@@ -1,0 +1,39 @@
+{
+  TokenizerFactory<CoreLabel> factory;
+  String options=props.getProperty("tokenize.options",null);
+  if (options == null) {
+    options=type.getDefaultOptions();
+  }
+  if (extraOptions != null) {
+    if (extraOptions.endsWith(",")) {
+      options=extraOptions + options;
+    }
+ else {
+      options=extraOptions + "," + options;
+    }
+  }
+switch (type) {
+case Spanish:
+    factory=SpanishTokenizer.factory(new CoreLabelTokenFactory(),options);
+  break;
+case French:
+factory=FrenchTokenizer.factory(new CoreLabelTokenFactory(),options);
+break;
+case Whitespace:
+boolean eolIsSignificant=Boolean.valueOf(props.getProperty(EOL_PROPERTY,"false"));
+eolIsSignificant=eolIsSignificant || Boolean.valueOf(props.getProperty(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY,"false"));
+factory=new WhitespaceTokenizer.WhitespaceTokenizerFactory<CoreLabel>(new CoreLabelTokenFactory(),eolIsSignificant);
+break;
+case English:
+case German:
+factory=PTBTokenizer.factory(new CoreLabelTokenFactory(),options);
+break;
+case Unspecified:
+System.err.println("TokenizerAnnotator: No tokenizer type provided. Defaulting to PTBTokenizer.");
+factory=PTBTokenizer.factory(new CoreLabelTokenFactory(),options);
+break;
+default :
+throw new IllegalArgumentException("No valid tokenizer type provided.\n" + "Use -tokenize.language, -tokenize.class, or -tokenize.whitespace \n" + "to specify a tokenizer.");
+}
+return factory;
+}

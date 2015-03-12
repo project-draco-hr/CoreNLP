@@ -1,0 +1,19 @@
+{
+  try {
+    PreparedStatement pstmt=null;
+    Connection conn=null;
+    conn=SQLConnection.getConnection();
+    pstmt=getPreparedStmt(conn);
+    addPattern(id,p,pstmt);
+    pstmt.execute();
+    conn.commit();
+    pstmt.close();
+    conn.close();
+  }
+ catch (  SQLException e) {
+    throw new RuntimeException(e);
+  }
+catch (  IOException e) {
+    throw new RuntimeException(e);
+  }
+}
