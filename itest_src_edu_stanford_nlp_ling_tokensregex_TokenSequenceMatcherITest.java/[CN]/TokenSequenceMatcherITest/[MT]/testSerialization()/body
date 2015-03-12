@@ -7,11 +7,8 @@
     File f=File.createTempFile("/tmp","temp");
     f.deleteOnExit();
     IOUtils.writeObjectToFile(pats,f);
-    System.out.println("done writig");
     List<TokenSequencePattern> readpats=IOUtils.readObjectFromFile(f);
-    System.out.println("read pats: " + readpats);
-    TokenSequencePattern pnew=TokenSequencePattern.compile(getSequencePatternExpr("Archbishop","of","Canterbury"));
-    System.out.println("new string is " + pnew.toString());
+    assertEquals(readpats.size(),2);
   }
  catch (  IOException e) {
     e.printStackTrace();
