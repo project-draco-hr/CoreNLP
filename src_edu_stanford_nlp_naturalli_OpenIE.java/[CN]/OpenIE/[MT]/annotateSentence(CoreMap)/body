@@ -1,0 +1,36 @@
+{
+  SemanticGraph fullTree=new SemanticGraph(sentence.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class));
+  List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
+  if (tokens.size() > 63) {
+    System.err.println("Very long sentence (>63 tokens); " + this.getClass().getSimpleName() + " is not attempting to extract relations.");
+    sentence.set(NaturalLogicAnnotations.RelationTriplesAnnotation.class,Collections.EMPTY_LIST);
+    sentence.set(NaturalLogicAnnotations.EntailedSentencesAnnotation.class,Collections.EMPTY_LIST);
+  }
+ else {
+    List<SemanticGraph> clauses=coarseClauseSplitting(fullTree);
+    Collection<SentenceFragment> fragments=new ArrayList<>();
+    Collection<RelationTriple> extractions=new ArrayList<>();
+    if (clauses.size() > 1) {
+      for (      SemanticGraph tree : clauses) {
+        fragments.add(new SentenceFragment(tree,false));
+        Optional<RelationTriple> extraction=RelationTriple.segment(tree);
+        if (extraction.isPresent()) {
+          extractions.add(extraction.get());
+        }
+      }
+    }
+    for (    SemanticGraph tree : clauses) {
+      List<SearchResult> results=search(tokens,tree);
+      for (      SearchResult result : results) {
+        SentenceFragment fragment=new SentenceFragment(result.tree,false);
+        fragments.add(fragment);
+        Optional<RelationTriple> extraction=RelationTriple.segment(result.tree);
+        if (extraction.isPresent()) {
+          extractions.add(extraction.get());
+        }
+      }
+    }
+    sentence.set(NaturalLogicAnnotations.EntailedSentencesAnnotation.class,fragments);
+    sentence.set(NaturalLogicAnnotations.RelationTriplesAnnotation.class,extractions);
+  }
+}

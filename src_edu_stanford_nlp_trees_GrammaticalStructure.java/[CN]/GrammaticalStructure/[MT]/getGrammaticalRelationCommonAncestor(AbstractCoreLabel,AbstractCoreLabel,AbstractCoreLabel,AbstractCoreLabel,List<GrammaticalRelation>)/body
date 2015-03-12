@@ -1,0 +1,29 @@
+{
+  GrammaticalRelation reln=GrammaticalRelation.DEPENDENT;
+  List<GrammaticalRelation> sortedLabels;
+  if (labels.size() <= 1) {
+    sortedLabels=labels;
+  }
+ else {
+    sortedLabels=new ArrayList<GrammaticalRelation>(labels);
+    Collections.sort(sortedLabels,new NameComparator<GrammaticalRelation>());
+  }
+  for (  GrammaticalRelation reln2 : sortedLabels) {
+    if (reln.isAncestor(reln2)) {
+      reln=reln2;
+    }
+ else     if (PRINT_DEBUGGING && !reln2.isAncestor(reln)) {
+      System.err.println("@@@\t" + reln + "\t"+ reln2+ "\t"+ govH.get(CoreAnnotations.ValueAnnotation.class)+ "\t"+ depH.get(CoreAnnotations.ValueAnnotation.class));
+    }
+  }
+  if (PRINT_DEBUGGING && reln.equals(GrammaticalRelation.DEPENDENT)) {
+    String topCat=govH.get(CoreAnnotations.ValueAnnotation.class);
+    String topTag=gov.tag();
+    String topWord=gov.value();
+    String botCat=depH.get(CoreAnnotations.ValueAnnotation.class);
+    String botTag=dep.tag();
+    String botWord=dep.value();
+    System.err.println("### dep\t" + topCat + "\t"+ topTag+ "\t"+ topWord+ "\t"+ botCat+ "\t"+ botTag+ "\t"+ botWord+ "\t");
+  }
+  return reln;
+}
