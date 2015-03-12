@@ -8,21 +8,7 @@
     NodeList nodeList=doc.getElementsByTagName(tag);
     for (int i=0; i < nodeList.getLength(); i++) {
       Element element=(Element)nodeList.item(i);
-      String raw=element.getTextContent();
-      String builtUp="";
-      boolean inTag=false;
-      for (int j=0; j < raw.length(); j++) {
-        if (raw.charAt(j) == '<') {
-          inTag=true;
-        }
-        if (!inTag) {
-          builtUp+=raw.charAt(j);
-        }
-        if (raw.charAt(j) == '>') {
-          inTag=false;
-        }
-      }
-      sents.add(builtUp);
+      sents.add(StringEscapeUtils.unescapeXml(element.getTextContent()));
     }
   }
  catch (  IOException e) {

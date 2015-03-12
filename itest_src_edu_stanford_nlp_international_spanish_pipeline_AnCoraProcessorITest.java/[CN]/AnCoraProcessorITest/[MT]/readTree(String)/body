@@ -1,3 +1,9 @@
 {
-  return Tree.valueOf(treeString,treeReaderFactory);
+  try {
+    PennTreeReader ptr=new PennTreeReader(new StringReader(treeString),treeFactory,treeNormalizer);
+    return ptr.readTree();
+  }
+ catch (  IOException e) {
+    throw new RuntimeException(e);
+  }
 }
