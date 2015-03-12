@@ -28,9 +28,6 @@
     if (td1.reln() != PREPOSITIONAL_MODIFIER) {
       continue;
     }
-    if (td1.reln() == KILL) {
-      continue;
-    }
     IndexedWord td1Dep=td1.dep();
     SortedSet<TypedDependency> possibles=map.get(td1Dep);
     if (possibles == null) {
@@ -96,16 +93,14 @@
       continue;
     }
     if (DEBUG) {
-      if (ccDep != null) {
-        System.err.println("!! Conj and prep case:");
-        System.err.println("  td1 (prep): " + td1);
-        System.err.println("  Kids of td1 are: " + possibles);
-        System.err.println("  prepDep: " + prepDep);
-        System.err.println("  ccDep: " + ccDep);
-        System.err.println("  conjs: " + conjs);
-        System.err.println("  samePrepositionInEachConjunct: " + samePrepositionInEachConjunct);
-        System.err.println("  otherDtrs: " + otherDtrs);
-      }
+      System.err.println("!! Conj and prep case:");
+      System.err.println("  td1 (prep): " + td1);
+      System.err.println("  Kids of td1 are: " + possibles);
+      System.err.println("  prepDep: " + prepDep);
+      System.err.println("  ccDep: " + ccDep);
+      System.err.println("  conjs: " + conjs);
+      System.err.println("  samePrepositionInEachConjunct: " + samePrepositionInEachConjunct);
+      System.err.println("  otherDtrs: " + otherDtrs);
     }
     if (samePrepositionInEachConjunct) {
       GrammaticalRelation reln=determinePrepRelation(map,vmod,td1,td1,prepDep.second());
@@ -165,6 +160,12 @@
       if (trip.first() != null && trip.second() == null) {
         trip.setSecond(new TypedDependency(prepDep.first().reln(),trip.first().dep(),prepDep.first().dep()));
         trip.setThird(prepDep.second());
+      }
+    }
+    IndexedWord conjHead=td1.gov();
+    for (    TypedDependency td3 : list) {
+      if (td3.dep().equals(td1.gov()) && td3.reln().equals(CONJUNCT)) {
+        conjHead=td3.gov();
       }
     }
     GrammaticalRelation reln=determinePrepRelation(map,vmod,td1,td1,prepDep.second());

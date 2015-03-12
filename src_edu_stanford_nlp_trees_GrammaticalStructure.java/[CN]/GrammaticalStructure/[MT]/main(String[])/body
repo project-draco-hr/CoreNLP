@@ -121,21 +121,43 @@
       System.out.println();
       System.out.println("------------- GrammaticalStructure -------------");
       System.out.println(gs);
+      boolean allConnected=true;
+      boolean connected;
+      Collection<TypedDependency> bungRoots=null;
       System.out.println("------------- basic dependencies ---------------");
-      System.out.println(StringUtils.join(gs.typedDependencies(Extras.NONE),"\n"));
+      List<TypedDependency> gsb=gs.typedDependencies(Extras.NONE);
+      System.out.println(StringUtils.join(gsb,"\n"));
+      connected=GrammaticalStructure.isConnected(gsb);
+      if (!connected && bungRoots == null) {
+        bungRoots=GrammaticalStructure.getRoots(gsb);
+      }
+      allConnected=connected && allConnected;
       System.out.println("------------- non-collapsed dependencies (basic + extra) ---------------");
-      System.out.println(StringUtils.join(gs.typedDependencies(Extras.MAXIMAL),"\n"));
+      List<TypedDependency> gse=gs.typedDependencies(Extras.MAXIMAL);
+      System.out.println(StringUtils.join(gse,"\n"));
+      connected=GrammaticalStructure.isConnected(gse);
+      if (!connected && bungRoots == null) {
+        bungRoots=GrammaticalStructure.getRoots(gse);
+      }
+      allConnected=connected && allConnected;
       System.out.println("------------- collapsed dependencies -----------");
       System.out.println(StringUtils.join(gs.typedDependenciesCollapsed(Extras.MAXIMAL),"\n"));
       System.out.println("------------- collapsed dependencies tree -----------");
       System.out.println(StringUtils.join(gs.typedDependenciesCollapsedTree(),"\n"));
       System.out.println("------------- CCprocessed dependencies --------");
-      System.out.println(StringUtils.join(gs.typedDependenciesCCprocessed(Extras.MAXIMAL),"\n"));
+      List<TypedDependency> gscc=gs.typedDependenciesCollapsed(Extras.MAXIMAL);
+      System.out.println(StringUtils.join(gscc,"\n"));
       System.out.println("-----------------------------------------------");
-      boolean connected=GrammaticalStructure.isConnected(gs.typedDependenciesCollapsed(Extras.MAXIMAL));
-      System.out.println("collapsed dependencies form a connected graph: " + connected);
-      if (!connected) {
-        System.out.println("possible offending nodes: " + GrammaticalStructure.getRoots(gs.typedDependenciesCollapsed(Extras.MAXIMAL)));
+      connected=GrammaticalStructure.isConnected(gscc);
+      if (!connected && bungRoots == null) {
+        bungRoots=GrammaticalStructure.getRoots(gscc);
+      }
+      allConnected=connected && allConnected;
+      if (allConnected) {
+        System.out.println("dependencies form connected graphs.");
+      }
+ else {
+        System.out.println("dependency graph NOT connected! possible offending nodes: " + bungRoots);
       }
       if (m != null) {
         try {
