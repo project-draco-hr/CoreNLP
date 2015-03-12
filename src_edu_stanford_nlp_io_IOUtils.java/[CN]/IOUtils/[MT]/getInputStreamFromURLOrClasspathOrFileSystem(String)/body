@@ -4,6 +4,13 @@
     URL u=new URL(textFileOrUrl);
     URLConnection uc=u.openConnection();
     in=uc.getInputStream();
+    if (textFileOrUrl.endsWith(".gz")) {
+      try {
+        in=new GZIPInputStream(in);
+      }
+ catch (      IOException e) {
+      }
+    }
   }
  else {
     try {
