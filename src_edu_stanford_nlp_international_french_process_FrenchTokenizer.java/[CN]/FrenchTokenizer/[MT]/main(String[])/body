@@ -5,9 +5,9 @@
     return;
   }
   final TokenizerFactory<CoreLabel> tf=options.containsKey("ftb") ? FrenchTokenizer.ftbFactory() : FrenchTokenizer.factory();
-  String orthoOptions=options.getProperty("orthoOpts","");
+  String orthoOptions=options.getProperty("options","");
+  orthoOptions=orthoOptions.length() == 0 ? "tokenizeNLs" : orthoOptions + ",tokenizeNLs";
   tf.setOptions(orthoOptions);
-  tf.setOptions("tokenizeNLs");
   final String encoding=options.getProperty("encoding","UTF-8");
   final boolean toLower=PropertiesUtils.getBool(options,"lowerCase",false);
   int nLines=0;

@@ -1,0 +1,32 @@
+{
+  for (  String line : IOUtils.readLines(PP_AFFINITY,"utf8")) {
+    String[] fields=line.split("\t");
+    if (fields.length != 3) {
+      throw new IllegalArgumentException("Invalid format for the pp_affinity data");
+    }
+    ppAffinity.setCount(fields[0],fields[1],Double.parseDouble(fields[2]));
+  }
+  for (  String verb : ppAffinity.firstKeySet()) {
+    Counter<String> preps=ppAffinity.getCounter(verb);
+    Counters.multiplyInPlace(preps,-1.0);
+    Counters.addInPlace(preps,1.0);
+    double min=Counters.min(preps);
+    double max=Counters.max(preps);
+    Counters.addInPlace(preps,-min);
+    if (max == min) {
+      Counters.addInPlace(preps,0.5);
+    }
+ else {
+      Counters.divideInPlace(preps,max - min);
+    }
+    Counters.multiplyInPlace(preps,-1.0);
+    Counters.addInPlace(preps,1.0);
+  }
+  for (  String line : IOUtils.readLines(DOBJ_AFFINITY,"utf8")) {
+    String[] fields=line.split("\t");
+    if (fields.length != 2) {
+      throw new IllegalArgumentException("Invalid format for the dobj_affinity data");
+    }
+    dobjAffinity.setCount(fields[0],Double.parseDouble(fields[1]));
+  }
+}
