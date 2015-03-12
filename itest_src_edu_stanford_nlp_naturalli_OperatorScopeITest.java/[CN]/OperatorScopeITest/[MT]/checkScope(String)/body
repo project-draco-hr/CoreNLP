@@ -1,0 +1,49 @@
+{
+  String[] terms=spec.split("\\s+");
+  int quantEnd=-1;
+  int subjBegin=-1;
+  int subjEnd=-1;
+  int objBegin=-1;
+  int objEnd=-1;
+  boolean seenSubj=false;
+  int tokenIndex=0;
+  List<String> cleanSentence=new ArrayList<>();
+  for (  String term : terms) {
+switch (term) {
+case "{":
+      break;
+case "}":
+    quantEnd=tokenIndex;
+  break;
+case "[":
+if (!seenSubj) {
+  subjBegin=tokenIndex;
+}
+ else {
+  objBegin=tokenIndex;
+}
+break;
+case "]":
+if (!seenSubj) {
+subjEnd=tokenIndex;
+seenSubj=true;
+}
+ else {
+objEnd=tokenIndex;
+}
+break;
+default :
+cleanSentence.add(term);
+tokenIndex+=1;
+break;
+}
+}
+Optional<OperatorSpec>[] scopes=annotate(StringUtils.join(cleanSentence," "));
+System.err.println("Checking [@ " + (quantEnd - 1) + "]:  "+ spec);
+if (objBegin >= 0 && objEnd >= 0) {
+checkScope(subjBegin,subjEnd,objBegin,objEnd,scopes[quantEnd - 1]);
+}
+ else {
+checkScope(subjBegin,subjEnd,scopes[quantEnd - 1]);
+}
+}

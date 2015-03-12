@@ -1,0 +1,79 @@
+{
+  originalTree=new SemanticGraph(originalTree);
+  for (  IndexedWord vertex : originalTree.getLeafVertices()) {
+    if (vertex.word().equalsIgnoreCase("the") || vertex.word().equalsIgnoreCase("a") || vertex.word().equalsIgnoreCase("an")) {
+      originalTree.removeVertex(vertex);
+    }
+  }
+  Set<SemanticGraphEdge> andsToAdd=new HashSet<>();
+  for (  IndexedWord vertex : originalTree.vertexSet()) {
+    if (originalTree.inDegree(vertex) > 1) {
+      SemanticGraphEdge conjAnd=null;
+      for (      SemanticGraphEdge edge : originalTree.incomingEdgeIterable(vertex)) {
+        if (edge.getRelation().toString().equals("conj_and")) {
+          conjAnd=edge;
+        }
+      }
+      if (conjAnd != null) {
+        originalTree.removeEdge(conjAnd);
+        andsToAdd.add(conjAnd);
+      }
+    }
+  }
+  List<SearchResult> results=new ArrayList<>();
+  List<IndexedWord> topologicalVertices=originalTree.topologicalSort();
+  Stack<SearchState> fringe=new Stack<>();
+  fringe.push(new SearchState(0l,0,originalTree,null,null));
+  while (!fringe.isEmpty()) {
+    SearchState state=fringe.pop();
+    IndexedWord currentWord=topologicalVertices.get(state.currentIndex);
+    int nextIndex=state.currentIndex + 1;
+    while (nextIndex < topologicalVertices.size()) {
+      IndexedWord nextWord=topologicalVertices.get(nextIndex);
+      if (((state.deletionMask >>> (nextWord.index() - 1)) & 0x1) == 0) {
+        fringe.push(new SearchState(state.deletionMask,nextIndex,state.tree,null,state));
+        break;
+      }
+ else {
+        nextIndex+=1;
+      }
+    }
+    boolean canDelete=state.tree.getFirstRoot() != currentWord;
+    for (    SemanticGraphEdge edge : state.tree.incomingEdgeIterable(currentWord)) {
+      CoreLabel token=sentence.get(edge.getDependent().index() - 1);
+      Polarity tokenPolarity=token.get(NaturalLogicAnnotations.PolarityAnnotation.class);
+      NaturalLogicRelation lexicalRelation=NaturalLogicRelation.forDependencyDeletion(edge.getRelation().toString());
+      NaturalLogicRelation projectedRelation=tokenPolarity.projectLexicalRelation(lexicalRelation);
+      if (!projectedRelation.isEntailed) {
+        canDelete=false;
+      }
+    }
+    if (canDelete) {
+      long newMask=state.deletionMask;
+      SemanticGraph treeWithDeletions=new SemanticGraph(state.tree);
+      for (      IndexedWord vertex : state.tree.descendants(currentWord)) {
+        treeWithDeletions.removeVertex(vertex);
+        newMask|=(0x1 << (vertex.index() - 1));
+      }
+      SemanticGraph resultTree=new SemanticGraph(treeWithDeletions);
+      for (      SemanticGraphEdge edge : andsToAdd) {
+        if (resultTree.containsVertex(edge.getGovernor()) && resultTree.containsVertex(edge.getDependent())) {
+          resultTree.addEdge(edge.getGovernor(),edge.getDependent(),edge.getRelation(),Double.NEGATIVE_INFINITY,false);
+        }
+      }
+      results.add(new SearchResult(resultTree,aggregateDeletedEdges(state,state.tree.incomingEdgeIterable(currentWord))));
+      nextIndex=state.currentIndex + 1;
+      while (nextIndex < topologicalVertices.size()) {
+        IndexedWord nextWord=topologicalVertices.get(nextIndex);
+        if (((newMask >>> (nextWord.index() - 1)) & 0x1) == 0) {
+          fringe.push(new SearchState(newMask,nextIndex,treeWithDeletions,null,state));
+          break;
+        }
+ else {
+          nextIndex+=1;
+        }
+      }
+    }
+  }
+  return results;
+}

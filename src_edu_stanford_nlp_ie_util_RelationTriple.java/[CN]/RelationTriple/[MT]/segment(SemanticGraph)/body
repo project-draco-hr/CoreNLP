@@ -1,0 +1,67 @@
+{
+  for (  SemgrexPattern pattern : PATTERNS) {
+    SemgrexMatcher m=pattern.matcher(parse);
+    if (m.matches()) {
+      PriorityQueue<CoreLabel> verbChunk=new FixedPrioritiesPriorityQueue<>();
+      IndexedWord verb=m.getNode("verb");
+      IndexedWord prep=m.getNode("prep");
+      List<IndexedWord> adverbs=new ArrayList<IndexedWord>();
+      for (      SemanticGraphEdge edge : parse.outgoingEdgeIterable(verb)) {
+        if ("advmod".equals(edge.getRelation().getShortName()) || "amod".equals(edge.getRelation().getShortName())) {
+          adverbs.add(edge.getDependent());
+        }
+      }
+      IndexedWord be=m.getNode("be");
+      String prepEdge=m.getRelnString("prepEdge");
+      verbChunk.add(verb.backingLabel(),-verb.index());
+      int numKnownDependents=2;
+      if (prep != null) {
+        verbChunk.add(prep.backingLabel(),-prep.index());
+        numKnownDependents+=1;
+      }
+      if (be != null) {
+        verbChunk.add(be.backingLabel(),-be.index());
+        numKnownDependents+=1;
+      }
+      if (!adverbs.isEmpty()) {
+        Set<CoreLabel> adverbialModifiers=new HashSet<>();
+        for (        IndexedWord adv : adverbs) {
+          Optional<List<CoreLabel>> adverbChunk=getValidAdverbChunk(parse,adv);
+          if (adverbChunk.isPresent()) {
+            for (            CoreLabel token : adverbChunk.get()) {
+              adverbialModifiers.add(token);
+            }
+          }
+ else {
+            return Optional.empty();
+          }
+          numKnownDependents+=1;
+        }
+        for (        CoreLabel adverbToken : adverbialModifiers) {
+          verbChunk.add(adverbToken,-adverbToken.index());
+        }
+      }
+      if (prepEdge != null) {
+        String prepPart=prepEdge.substring("prep_".length());
+        CoreLabel mockPrep=new CoreLabel(verb.backingLabel());
+        mockPrep.setWord(prepPart);
+        mockPrep.setLemma(prepPart);
+        mockPrep.setValue(prepPart);
+        mockPrep.setNER("O");
+        mockPrep.setTag("PP");
+        mockPrep.setIndex(verb.index() + 1);
+        verbChunk.add(mockPrep,-mockPrep.index());
+      }
+      if (parse.outDegree(verb) > numKnownDependents) {
+        return Optional.empty();
+      }
+      List<CoreLabel> relation=verbChunk.toSortedList();
+      Optional<List<CoreLabel>> subject=getValidEntityChunk(parse,m.getNode("subject"));
+      Optional<List<CoreLabel>> object=getValidEntityChunk(parse,m.getNode("object"));
+      if (subject.isPresent() && object.isPresent()) {
+        return Optional.of(new WithTree(subject.get(),relation,object.get(),parse));
+      }
+    }
+  }
+  return Optional.empty();
+}
