@@ -1,8 +1,15 @@
 {
-  if (recentTregexPatterns.getItemCount() >= numRecentPatterns) {
-    recentTregexPatterns.removeItemAt(numRecentPatterns - 1);
+  int existingIndex=recentTregexPatternsModel.getIndexOf(pattern);
+  if (existingIndex != -1) {
+    recentTregexPatternsModel.removeElementAt(existingIndex);
+    recentTregexPatternsModel.insertElementAt(pattern,0);
+    recentTregexPatterns.setSelectedIndex(0);
+    return;
   }
-  recentTregexPatterns.insertItemAt(pattern,0);
+  if (recentTregexPatternsModel.getSize() >= numRecentPatterns) {
+    recentTregexPatternsModel.removeElementAt(numRecentPatterns - 1);
+  }
+  recentTregexPatternsModel.insertElementAt(pattern,0);
   recentTregexPatterns.setSelectedIndex(0);
   recentTregexPatterns.revalidate();
 }
