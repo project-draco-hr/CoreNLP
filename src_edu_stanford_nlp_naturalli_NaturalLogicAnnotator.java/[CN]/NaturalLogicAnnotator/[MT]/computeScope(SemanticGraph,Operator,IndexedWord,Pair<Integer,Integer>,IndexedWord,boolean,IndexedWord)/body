@@ -10,7 +10,13 @@
     objSpan=Pair.makePair(subjSpan.second,subjSpan.second);
   }
  else {
-    Pair<Integer,Integer> subjectSubtree=getSubtreeSpan(tree,subject);
+    Pair<Integer,Integer> subjectSubtree;
+    if (isProperNounSubject) {
+      subjectSubtree=getProperNounSubtreeSpan(tree,subject);
+    }
+ else {
+      subjectSubtree=getSubtreeSpan(tree,subject);
+    }
     subjSpan=excludeFromSpan(subjectSubtree,quantifierSpan);
     objSpan=excludeFromSpan(includeInSpan(getSubtreeSpan(tree,object),getModifierSubtreeSpan(tree,pivot)),subjectSubtree);
   }
