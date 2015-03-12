@@ -7,8 +7,8 @@
     return;
   }
   if (isPreTerminal()) {
-    nodeLabel.set(TreeCoreAnnotations.HeadWordLabelAnnotation.class,(CoreLabel)children()[0].label());
-    nodeLabel.set(TreeCoreAnnotations.HeadTagLabelAnnotation.class,nodeLabel);
+    nodeLabel.set(TreeCoreAnnotations.HeadWordAnnotation.class,children()[0]);
+    nodeLabel.set(TreeCoreAnnotations.HeadTagAnnotation.class,this);
     return;
   }
   for (  Tree kid : children()) {
@@ -19,19 +19,19 @@
     throw new NullPointerException("HeadFinder " + hf + " returned null for "+ this);
   }
  else   if (head.isLeaf()) {
-    nodeLabel.set(TreeCoreAnnotations.HeadWordLabelAnnotation.class,(CoreLabel)head.label());
-    nodeLabel.set(TreeCoreAnnotations.HeadTagLabelAnnotation.class,(CoreLabel)head.parent(this).label());
+    nodeLabel.set(TreeCoreAnnotations.HeadWordAnnotation.class,head);
+    nodeLabel.set(TreeCoreAnnotations.HeadTagAnnotation.class,head.parent(this));
   }
  else   if (head.isPreTerminal()) {
-    nodeLabel.set(TreeCoreAnnotations.HeadWordLabelAnnotation.class,(CoreLabel)head.children()[0].label());
-    nodeLabel.set(TreeCoreAnnotations.HeadTagLabelAnnotation.class,(CoreLabel)head.label());
+    nodeLabel.set(TreeCoreAnnotations.HeadWordAnnotation.class,head.children()[0]);
+    nodeLabel.set(TreeCoreAnnotations.HeadTagAnnotation.class,head);
   }
  else {
     if (!(head.label() instanceof CoreLabel)) {
       throw new AssertionError("Horrible bug");
     }
     CoreLabel headLabel=(CoreLabel)head.label();
-    nodeLabel.set(TreeCoreAnnotations.HeadWordLabelAnnotation.class,headLabel.get(TreeCoreAnnotations.HeadWordLabelAnnotation.class));
-    nodeLabel.set(TreeCoreAnnotations.HeadTagLabelAnnotation.class,headLabel.get(TreeCoreAnnotations.HeadTagLabelAnnotation.class));
+    nodeLabel.set(TreeCoreAnnotations.HeadWordAnnotation.class,headLabel.get(TreeCoreAnnotations.HeadWordAnnotation.class));
+    nodeLabel.set(TreeCoreAnnotations.HeadTagAnnotation.class,headLabel.get(TreeCoreAnnotations.HeadTagAnnotation.class));
   }
 }

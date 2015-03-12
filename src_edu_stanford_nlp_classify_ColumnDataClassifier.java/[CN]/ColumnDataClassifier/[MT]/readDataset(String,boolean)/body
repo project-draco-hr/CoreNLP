@@ -47,9 +47,6 @@
         if (inTestPhase) {
           lineInfos.add(strings);
         }
-        if (strings.length < flags.length) {
-          throw new RuntimeException("Error: Line has too few tab-separated columns (" + maxColumns + ") for "+ flags.length+ " columns required by specified properties: "+ line);
-        }
         dataset.add(makeDatumFromStrings(strings));
       }
       if (lineNo > 0 && minColumns != maxColumns) {
@@ -58,7 +55,7 @@
       }
     }
  catch (    Exception e) {
-      throw new RuntimeException("Dataset could not be loaded",e);
+      throw new RuntimeException("Dataset could not be processed",e);
     }
   }
   System.err.println("done [" + tim.toSecondsString() + "s, "+ dataset.size()+ " items].");
