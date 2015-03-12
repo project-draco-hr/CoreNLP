@@ -85,9 +85,10 @@
   Distribution<Symbol> prior=Distribution.goodTuringSmoothedCounter(charCounter,numberOfKeys);
   charDistributions.put(Collections.EMPTY_LIST,prior);
   for (int i=0; i <= CONTEXT_LENGTH; i++) {
-    Set<Map.Entry<List<Serializable>,ClassicCounter<Symbol>>> counterEntries=POSspecificCharNGrams[i].lowestLevelCounterEntrySet();
+    Set counterEntries=POSspecificCharNGrams[i].lowestLevelCounterEntrySet();
     Timing.tick("Creating " + counterEntries.size() + " character "+ (i + 1)+ "-gram distributions...");
-    for (    Map.Entry<List<Serializable>,ClassicCounter<Symbol>> entry : counterEntries) {
+    for (Iterator it=counterEntries.iterator(); it.hasNext(); ) {
+      Map.Entry<List,ClassicCounter> entry=(Map.Entry<List,ClassicCounter>)it.next();
       context=entry.getKey();
       ClassicCounter<Symbol> c=entry.getValue();
       Distribution<Symbol> thisPrior=charDistributions.get(context.subList(0,context.size() - 1));
