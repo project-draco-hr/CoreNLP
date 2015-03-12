@@ -16,6 +16,10 @@
   SemgrexMatcher matcher=UNARY_PATTERN.matcher(tree);
   while (matcher.find()) {
     IndexedWord quantifier=matcher.getNode("quantifier");
+    String word=quantifier.word().toLowerCase();
+    if (word.equals("a") || word.equals("an") || word.equals("the")|| "CD".equals(quantifier.tag())) {
+      continue;
+    }
     IndexedWord subject=matcher.getNode("subject");
     if (!isOperator[quantifier.index() - 1]) {
       Optional<Triple<Operator,Integer,Integer>> quantifierInfo=validateQuantiferByHead(sentence,quantifier);

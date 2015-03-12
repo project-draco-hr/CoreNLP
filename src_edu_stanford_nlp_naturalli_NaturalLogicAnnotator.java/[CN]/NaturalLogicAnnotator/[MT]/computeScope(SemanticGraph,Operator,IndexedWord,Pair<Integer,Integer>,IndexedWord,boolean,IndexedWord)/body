@@ -3,7 +3,15 @@
   Pair<Integer,Integer> objSpan;
   if (subject == null && object == null) {
     subjSpan=getSubtreeSpan(tree,pivot);
-    subjSpan=excludeFromSpan(subjSpan,quantifierSpan);
+    if (Span.fromPair(subjSpan).contains(Span.fromPair(quantifierSpan))) {
+      subjSpan=Pair.makePair(Math.max(subjSpan.first,quantifierSpan.second),subjSpan.second);
+      if (subjSpan.second <= subjSpan.first) {
+        subjSpan=Pair.makePair(subjSpan.first,subjSpan.first + 1);
+      }
+    }
+ else {
+      subjSpan=excludeFromSpan(subjSpan,quantifierSpan);
+    }
     objSpan=Pair.makePair(subjSpan.second,subjSpan.second);
   }
  else   if (subject == null) {
