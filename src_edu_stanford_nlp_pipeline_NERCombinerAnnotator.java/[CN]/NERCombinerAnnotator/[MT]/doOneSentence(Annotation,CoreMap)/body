@@ -1,46 +1,50 @@
 {
   List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
   List<CoreLabel> output=null;
-  try {
-    output=this.ner.classifySentenceWithGlobalInformation(tokens,annotation,sentence);
-  }
- catch (  RuntimeInterruptedException e) {
-    doOneFailedSentence(annotation,sentence);
-    return;
-  }
-  if (VERBOSE) {
-    boolean first=true;
-    System.err.print("NERCombinerAnnotator direct output: [");
-    for (    CoreLabel w : output) {
-      if (first) {
-        first=false;
-      }
- else {
-        System.err.print(", ");
-      }
-      System.err.print(w.toString());
+  if (tokens.size() <= maxSentenceLength) {
+    try {
+      output=this.ner.classifySentenceWithGlobalInformation(tokens,annotation,sentence);
     }
-    System.err.println(']');
-  }
-  for (int i=0; i < tokens.size(); ++i) {
-    String neTag=output.get(i).get(CoreAnnotations.NamedEntityTagAnnotation.class);
-    String normNeTag=output.get(i).get(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class);
-    tokens.get(i).setNER(neTag);
-    if (normNeTag != null)     tokens.get(i).set(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class,normNeTag);
-    NumberSequenceClassifier.transferAnnotations(output.get(i),tokens.get(i));
-  }
-  if (VERBOSE) {
-    boolean first=true;
-    System.err.print("NERCombinerAnnotator output: [");
-    for (    CoreLabel w : tokens) {
-      if (first) {
-        first=false;
-      }
- else {
-        System.err.print(", ");
-      }
-      System.err.print(w.toShorterString("Word","NamedEntityTag","NormalizedNamedEntityTag"));
+ catch (    RuntimeInterruptedException e) {
+      doOneFailedSentence(annotation,sentence);
+      return;
     }
-    System.err.println(']');
+  }
+  if (output != null) {
+    if (VERBOSE) {
+      boolean first=true;
+      System.err.print("NERCombinerAnnotator direct output: [");
+      for (      CoreLabel w : output) {
+        if (first) {
+          first=false;
+        }
+ else {
+          System.err.print(", ");
+        }
+        System.err.print(w.toString());
+      }
+      System.err.println(']');
+    }
+    for (int i=0; i < tokens.size(); ++i) {
+      String neTag=output.get(i).get(CoreAnnotations.NamedEntityTagAnnotation.class);
+      String normNeTag=output.get(i).get(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class);
+      tokens.get(i).setNER(neTag);
+      if (normNeTag != null)       tokens.get(i).set(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class,normNeTag);
+      NumberSequenceClassifier.transferAnnotations(output.get(i),tokens.get(i));
+    }
+    if (VERBOSE) {
+      boolean first=true;
+      System.err.print("NERCombinerAnnotator output: [");
+      for (      CoreLabel w : tokens) {
+        if (first) {
+          first=false;
+        }
+ else {
+          System.err.print(", ");
+        }
+        System.err.print(w.toShorterString("Word","NamedEntityTag","NormalizedNamedEntityTag"));
+      }
+      System.err.println(']');
+    }
   }
 }
