@@ -14,8 +14,9 @@
     PrintWriter pw=new PrintWriter(new FileWriter(dataFile));
     dataset.printSVMLightFormat(pw);
     pw.close();
-    String cmd=(multiclass ? svmStructLearn : svmLightLearn) + " -v " + svmLightVerbosity+ " -m 400 ";
+    String cmd=(multiclass ? svmStructLearn : (useSVMPerf ? svmPerfLearn : svmLightLearn)) + " -v " + svmLightVerbosity+ " -m 400 ";
     if (C > 0.0)     cmd=cmd + " -c " + C+ " ";
+ else     if (useSVMPerf)     cmd=cmd + " -c " + 0.01+ " ";
     if (useAlphaFile) {
       File newAlphaFile=File.createTempFile("svm-",".alphas");
       if (deleteTempFilesOnExit) {
@@ -35,7 +36,7 @@
       if (deleteTempFilesOnExit) {
         predictFile.deleteOnExit();
       }
-      String evalCmd=(multiclass ? svmStructClassify : svmLightClassify) + " " + dataFile.getAbsolutePath()+ " "+ modelFile.getAbsolutePath()+ " "+ predictFile.getAbsolutePath();
+      String evalCmd=(multiclass ? svmStructClassify : (useSVMPerf ? svmPerfClassify : svmLightClassify)) + " " + dataFile.getAbsolutePath()+ " "+ modelFile.getAbsolutePath()+ " "+ predictFile.getAbsolutePath();
       if (verbose)       System.err.println("<< " + evalCmd + " >>");
       SystemUtils.run(new ProcessBuilder(whitespacePattern.split(evalCmd)),new PrintWriter(System.err),new PrintWriter(System.err));
     }

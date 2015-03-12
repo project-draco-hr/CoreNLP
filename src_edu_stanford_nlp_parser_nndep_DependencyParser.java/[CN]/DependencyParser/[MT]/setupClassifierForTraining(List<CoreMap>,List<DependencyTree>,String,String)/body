@@ -1,0 +1,105 @@
+{
+  double[][] E=new double[knownWords.size() + knownPos.size() + knownLabels.size()][config.embeddingSize];
+  double[][] W1=new double[config.hiddenSize][config.embeddingSize * config.numTokens];
+  double[] b1=new double[config.hiddenSize];
+  double[][] W2=new double[system.numTransitions()][config.hiddenSize];
+  Random random=Util.getRandom();
+  for (int i=0; i < W1.length; ++i)   for (int j=0; j < W1[i].length; ++j)   W1[i][j]=random.nextDouble() * 2 * config.initRange - config.initRange;
+  for (int i=0; i < b1.length; ++i)   b1[i]=random.nextDouble() * 2 * config.initRange - config.initRange;
+  for (int i=0; i < W2.length; ++i)   for (int j=0; j < W2[i].length; ++j)   W2[i][j]=random.nextDouble() * 2 * config.initRange - config.initRange;
+  Map<String,Integer> embedID=new HashMap<String,Integer>();
+  double[][] embeddings=readEmbedFile(embedFile,embedID);
+  int foundEmbed=0;
+  for (int i=0; i < E.length; ++i) {
+    int index=-1;
+    if (i < knownWords.size()) {
+      String str=knownWords.get(i);
+      if (embedID.containsKey(str))       index=embedID.get(str);
+ else       if (embedID.containsKey(str.toLowerCase()))       index=embedID.get(str.toLowerCase());
+    }
+    if (index >= 0) {
+      ++foundEmbed;
+      for (int j=0; j < E[i].length; ++j)       E[i][j]=embeddings[index][j];
+    }
+ else {
+      for (int j=0; j < E[i].length; ++j)       E[i][j]=random.nextDouble() * 0.02 - 0.01;
+    }
+  }
+  System.err.println("Found embeddings: " + foundEmbed + " / "+ knownWords.size());
+  if (preModel != null) {
+    try {
+      System.err.println("Loading pre-trained model file: " + preModel + " ... ");
+      String s;
+      BufferedReader input=IOUtils.readerFromString(preModel);
+      s=input.readLine();
+      int nDict=Integer.parseInt(s.substring(s.indexOf('=') + 1));
+      s=input.readLine();
+      int nPOS=Integer.parseInt(s.substring(s.indexOf('=') + 1));
+      s=input.readLine();
+      int nLabel=Integer.parseInt(s.substring(s.indexOf('=') + 1));
+      s=input.readLine();
+      int eSize=Integer.parseInt(s.substring(s.indexOf('=') + 1));
+      s=input.readLine();
+      int hSize=Integer.parseInt(s.substring(s.indexOf('=') + 1));
+      s=input.readLine();
+      int nTokens=Integer.parseInt(s.substring(s.indexOf('=') + 1));
+      s=input.readLine();
+      String[] splits;
+      for (int k=0; k < nDict; ++k) {
+        s=input.readLine();
+        splits=s.split(" ");
+        if (wordIDs.containsKey(splits[0]) && eSize == config.embeddingSize) {
+          int index=getWordID(splits[0]);
+          for (int i=0; i < eSize; ++i)           E[index][i]=Double.parseDouble(splits[i + 1]);
+        }
+      }
+      for (int k=0; k < nPOS; ++k) {
+        s=input.readLine();
+        splits=s.split(" ");
+        if (posIDs.containsKey(splits[0]) && eSize == config.embeddingSize) {
+          int index=getPosID(splits[0]);
+          for (int i=0; i < eSize; ++i)           E[index][i]=Double.parseDouble(splits[i + 1]);
+        }
+      }
+      for (int k=0; k < nLabel; ++k) {
+        s=input.readLine();
+        splits=s.split(" ");
+        if (labelIDs.containsKey(splits[0]) && eSize == config.embeddingSize) {
+          int index=getLabelID(splits[0]);
+          for (int i=0; i < eSize; ++i)           E[index][i]=Double.parseDouble(splits[i + 1]);
+        }
+      }
+      boolean copyLayer1=hSize == config.hiddenSize && config.embeddingSize == eSize && config.numTokens == nTokens;
+      if (copyLayer1) {
+        System.err.println("Copying parameters W1 && b1...");
+      }
+      for (int j=0; j < eSize * nTokens; ++j) {
+        s=input.readLine();
+        if (copyLayer1) {
+          splits=s.split(" ");
+          for (int i=0; i < hSize; ++i)           W1[i][j]=Double.parseDouble(splits[i]);
+        }
+      }
+      s=input.readLine();
+      if (copyLayer1) {
+        splits=s.split(" ");
+        for (int i=0; i < hSize; ++i)         b1[i]=Double.parseDouble(splits[i]);
+      }
+      boolean copyLayer2=(nLabel * 2 - 1 == system.numTransitions()) && hSize == config.hiddenSize;
+      if (copyLayer2)       System.err.println("Copying parameters W2...");
+      for (int j=0; j < hSize; ++j) {
+        s=input.readLine();
+        if (copyLayer2) {
+          splits=s.split(" ");
+          for (int i=0; i < nLabel * 2 - 1; ++i)           W2[i][j]=Double.parseDouble(splits[i]);
+        }
+      }
+      input.close();
+    }
+ catch (    IOException e) {
+      throw new RuntimeIOException(e);
+    }
+  }
+  Dataset trainSet=genTrainExamples(trainSents,trainTrees);
+  classifier=new Classifier(config,trainSet,E,W1,b1,W2,preComputed);
+}

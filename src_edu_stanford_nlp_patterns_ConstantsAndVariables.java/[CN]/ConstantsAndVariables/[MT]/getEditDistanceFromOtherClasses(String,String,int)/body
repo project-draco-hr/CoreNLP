@@ -1,0 +1,16 @@
+{
+  if (ph.length() < minLen)   return new Pair<String,Double>(ph,editDistMax);
+  Pair<String,Double> minD=getEditDist(otherSemanticClassesWords,ph);
+  String minPh=minD.first();
+  double minDfinal=minD.second();
+  for (  String l : labels) {
+    if (l.equals(label))     continue;
+    Pair<String,Double> editMatch=getEditDistanceFromThisClass(l,ph,minLen);
+    if (editMatch.second() < minDfinal) {
+      minDfinal=editMatch.second();
+      minPh=editMatch.first();
+    }
+  }
+  assert(!minPh.isEmpty());
+  return new Pair<String,Double>(minPh,minDfinal);
+}
