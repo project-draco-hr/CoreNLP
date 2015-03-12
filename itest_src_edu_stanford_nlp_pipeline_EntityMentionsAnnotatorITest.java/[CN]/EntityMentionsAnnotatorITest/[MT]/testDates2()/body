@@ -1,0 +1,8 @@
+{
+  Annotation doc=createDocument("July 3rd July 3rd are two mentions of the same date");
+  EntityMentionsAnnotator annotator=getMentionsAnnotator();
+  annotator.annotate(doc);
+  List<CoreMap> mentions=doc.get(CoreAnnotations.MentionsAnnotation.class);
+  String[] expectedMentions={"[Text=July 3rd July 3rd CharacterOffsetBegin=0 CharacterOffsetEnd=17 Tokens=[July-1, 3rd-2, July-3, 3rd-4] TokenBegin=0 TokenEnd=4 NamedEntityTag=DATE NormalizedNamedEntityTag=XXXX-07-03 EntityType=DATE Timex=<TIMEX3 tid=\"t1\" type=\"DATE\" value=\"XXXX-07-03\">July 3rd July 3rd</TIMEX3>]","[Text=two CharacterOffsetBegin=22 CharacterOffsetEnd=25 Tokens=[two-6] TokenBegin=5 TokenEnd=6 NamedEntityTag=NUMBER NormalizedNamedEntityTag=2.0 EntityType=NUMBER]"};
+  compareMentions("testDates2",expectedMentions,mentions);
+}
