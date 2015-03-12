@@ -1,0 +1,25 @@
+{
+  for (  SemgrexPattern pattern : PATTERNS) {
+    SemgrexMatcher m=pattern.matcher(parse);
+    if (m.matches()) {
+      PriorityQueue<CoreLabel> verbChunk=new FixedPrioritiesPriorityQueue<>();
+      IndexedWord verb=m.getNode("verb");
+      IndexedWord prep=m.getNode("prep");
+      IndexedWord adv=m.getNode("adv");
+      verbChunk.add(verb.backingLabel(),-verb.index());
+      if (prep != null) {
+        verbChunk.add(prep.backingLabel(),-prep.index());
+      }
+      if (adv != null) {
+        verbChunk.add(adv.backingLabel(),-adv.index());
+      }
+      List<CoreLabel> relation=verbChunk.toSortedList();
+      Optional<List<CoreLabel>> subject=getValidEntityChunk(parse,m.getNode("subject"));
+      Optional<List<CoreLabel>> object=getValidEntityChunk(parse,m.getNode("object"));
+      if (subject.isPresent() && object.isPresent()) {
+        return Optional.of(new WithTree(subject.get(),relation,object.get(),parse));
+      }
+    }
+  }
+  return Optional.empty();
+}

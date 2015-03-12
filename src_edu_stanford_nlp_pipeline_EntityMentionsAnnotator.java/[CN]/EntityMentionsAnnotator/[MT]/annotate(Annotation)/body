@@ -1,0 +1,37 @@
+{
+  List<CoreMap> allMentions=new ArrayList<>();
+  List<CoreMap> sentences=annotation.get(CoreAnnotations.SentencesAnnotation.class);
+  int sentenceIndex=0;
+  for (  CoreMap sentence : sentences) {
+    List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
+    Integer annoTokenBegin=sentence.get(CoreAnnotations.TokenBeginAnnotation.class);
+    if (annoTokenBegin == null) {
+      annoTokenBegin=0;
+    }
+    List<CoreMap> chunks=chunkIdentifier.getAnnotatedChunks(tokens,annoTokenBegin,CoreAnnotations.TextAnnotation.class,CoreAnnotations.NamedEntityTagAnnotation.class,IS_TOKENS_COMPATIBLE);
+    sentence.set(CoreAnnotations.MentionsAnnotation.class,chunks);
+    List<CoreMap> mentions=sentence.get(CoreAnnotations.MentionsAnnotation.class);
+    if (mentions != null) {
+      for (      CoreMap mention : mentions) {
+        List<CoreLabel> mentionTokens=mention.get(CoreAnnotations.TokensAnnotation.class);
+        String name=(String)CoreMapAttributeAggregator.FIRST_NON_NIL.aggregate(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class,mentionTokens);
+        if (name == null) {
+          name=mention.get(CoreAnnotations.TextAnnotation.class);
+        }
+ else {
+          mention.set(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class,name);
+        }
+        String type=mention.get(CoreAnnotations.NamedEntityTagAnnotation.class);
+        mention.set(CoreAnnotations.EntityTypeAnnotation.class,type);
+        mention.set(CoreAnnotations.SentenceIndexAnnotation.class,sentenceIndex);
+        Timex timex=(Timex)CoreMapAttributeAggregator.FIRST_NON_NIL.aggregate(TimeAnnotations.TimexAnnotation.class,mentionTokens);
+        if (timex != null) {
+          mention.set(TimeAnnotations.TimexAnnotation.class,timex);
+        }
+      }
+    }
+    allMentions.addAll(mentions);
+    sentenceIndex++;
+  }
+  annotation.set(CoreAnnotations.MentionsAnnotation.class,allMentions);
+}
