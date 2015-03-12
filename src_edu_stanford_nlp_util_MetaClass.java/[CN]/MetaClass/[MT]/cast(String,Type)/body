@@ -88,6 +88,30 @@
       return null;
     }
   }
+ else   if (FileWriter.class.isAssignableFrom(clazz)) {
+    try {
+      return (E)new FileWriter(new File(value));
+    }
+ catch (    IOException e) {
+      throw new RuntimeIOException(e);
+    }
+  }
+ else   if (BufferedReader.class.isAssignableFrom(clazz)) {
+    try {
+      return (E)IOUtils.getBufferedReaderFromClasspathOrFileSystem(value);
+    }
+ catch (    IOException e) {
+      throw new RuntimeIOException(e);
+    }
+  }
+ else   if (FileReader.class.isAssignableFrom(clazz)) {
+    try {
+      return (E)new FileReader(new File(value));
+    }
+ catch (    IOException e) {
+      throw new RuntimeIOException(e);
+    }
+  }
  else   if (File.class.isAssignableFrom(clazz)) {
     return (E)new File(value);
   }
@@ -176,12 +200,8 @@
     if (value.equalsIgnoreCase("stdin") || value.equalsIgnoreCase("in")) {
       return (E)System.in;
     }
-    File toReadFrom=cast(value,File.class);
     try {
-      if (!toReadFrom.exists() || !toReadFrom.canRead()) {
-        throw new IllegalStateException("Could not create input stream (cannot read file): " + value);
-      }
-      return (E)new FileInputStream((File)cast(value,File.class));
+      return (E)IOUtils.getInputStreamFromURLOrClasspathOrFileSystem(value);
     }
  catch (    IOException e) {
       throw new RuntimeException(e);

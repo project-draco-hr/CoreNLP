@@ -1,0 +1,42 @@
+{
+  Optional<String> subj=Optional.empty();
+  Optional<String> obj=Optional.empty();
+  Optional<String> pp=Optional.empty();
+  for (  SemanticGraphEdge neighbor : neighbors) {
+    if (neighbor != edge) {
+      String neighborRel=neighbor.getRelation().toString();
+      if (neighborRel.contains("subj")) {
+        subj=Optional.of(neighbor.getDependent().originalText().toLowerCase());
+      }
+      if (neighborRel.contains("obj")) {
+        obj=Optional.of(neighbor.getDependent().originalText().toLowerCase());
+      }
+      if (neighborRel.contains("prep")) {
+        pp=Optional.of(neighborRel);
+      }
+    }
+  }
+  String prep=edge.getRelation().toString();
+  String verb=edge.getGovernor().originalText().toLowerCase();
+  Double rawScore=null;
+  if (subj.isPresent()) {
+    if (obj.isPresent()) {
+      rawScore=verbSubjObjPPAffinity.get(Quadruple.makeQuadruple(verb,subj.get(),obj.get(),prep));
+    }
+    if (rawScore == null && pp.isPresent()) {
+      rawScore=verbSubjPPPPAffinity.get(Quadruple.makeQuadruple(verb,subj.get(),pp.get(),prep));
+    }
+    if (rawScore == null) {
+      rawScore=verbSubjPPAffinity.get(Triple.makeTriple(verb,subj.get(),prep));
+    }
+  }
+  if (rawScore == null) {
+    rawScore=verbPPAffinity.get(Pair.makePair(verb,prep));
+  }
+  if (rawScore == null) {
+    return deletionProbability(prep);
+  }
+ else {
+    return 1.0 - Math.min(1.0,rawScore / upperProbabilityCap);
+  }
+}
