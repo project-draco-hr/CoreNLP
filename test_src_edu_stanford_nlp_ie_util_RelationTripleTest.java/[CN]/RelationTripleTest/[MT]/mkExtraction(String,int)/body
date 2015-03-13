@@ -40,12 +40,12 @@
     i+=1;
   }
   Optional<RelationTriple> segmented=RelationTriple.segment(tree,Optional.empty());
-  if (segmented.isPresent()) {
+  if (segmented.isPresent() && listIndex == 0) {
     return segmented;
   }
   List<RelationTriple> extracted=RelationTriple.extract(tree,sentence);
   if (extracted.size() > listIndex) {
-    return Optional.of(extracted.get(listIndex));
+    return Optional.of(extracted.get(listIndex - (segmented.isPresent() ? 1 : 0)));
   }
   return Optional.empty();
 }
