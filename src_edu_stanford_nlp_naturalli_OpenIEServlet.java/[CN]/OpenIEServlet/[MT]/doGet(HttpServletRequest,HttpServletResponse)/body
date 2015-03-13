@@ -1,0 +1,32 @@
+{
+  if (request.getCharacterEncoding() == null) {
+    request.setCharacterEncoding("utf-8");
+  }
+  response.setContentType("text/json; charset=UTF-8");
+  PrintWriter out=response.getWriter();
+  String raw=request.getParameter("q");
+  if (raw == null || "".equals(raw)) {
+    out.println("{ok:false, entailments:[], triples=[], msg=\"\"}");
+  }
+ else {
+    Annotation ann=new Annotation(raw);
+    try {
+      pipeline.annotate(ann);
+      List<String> entailments=new ArrayList<>();
+      List<String> triples=new ArrayList<>();
+      for (      CoreMap sentence : ann.get(CoreAnnotations.SentencesAnnotation.class)) {
+        for (        SentenceFragment fragment : sentence.get(NaturalLogicAnnotations.EntailedSentencesAnnotation.class)) {
+          entailments.add(quote(fragment.toString()));
+        }
+        for (        RelationTriple fragment : sentence.get(NaturalLogicAnnotations.RelationTriplesAnnotation.class)) {
+          triples.add("[ " + quote(fragment.subjectLemmaGloss()) + ", "+ quote(fragment.relationLemmaGloss())+ ", "+ quote(fragment.objectLemmaGloss())+ " ]");
+        }
+      }
+      out.println("{ " + "ok:true, " + "entailments: [" + StringUtils.join(entailments,",") + "], "+ "triples: ["+ StringUtils.join(triples,",")+ "], "+ "msg: \"\""+ " }");
+    }
+ catch (    Throwable t) {
+      out.println("{ok:false, entailments:[], triples:[], msg:" + quote(t.getMessage()) + "}");
+    }
+  }
+  out.close();
+}

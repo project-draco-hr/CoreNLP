@@ -1,0 +1,23 @@
+{
+  String dataDir=getServletContext().getRealPath("/WEB-INF/data");
+  System.setProperty("de.jollyday.config",getServletContext().getRealPath("/WEB-INF/classes/holidays/jollyday.properties"));
+  if (this.pipeline == null) {
+    this.pipeline=new StanfordCoreNLP(new Properties(){
+{
+        setProperty("annotators","tokenize,ssplit,pos,lemma,depparse,ner,natlog,openie");
+        setProperty("pos.model",dataDir + "/english-left3words-distsim.tagger");
+        setProperty("ner.model",dataDir + "/english.all.3class.distsim.crf.ser.gz," + dataDir+ "/english.conll.4class.distsim.crf.ser.gz,"+ dataDir+ "/english.muc.7class.distsim.crf.ser.gz");
+        setProperty("depparse.model",dataDir + "/english_SD.gz");
+        setProperty("sutime.rules",dataDir + "/defs.sutime.txt," + dataDir+ "/english.sutime.txt,"+ dataDir+ "/english.hollidays.sutime.txt");
+        setProperty("openie.splitter.model",dataDir + "/clauseSplitterModel.ser.gz");
+        setProperty("openie.affinity_models",dataDir);
+        setProperty("openie.splitter.threshold","0.10");
+        setProperty("openie.optimze_for","GENERAL");
+        setProperty("openie.ignoreaffinity","false");
+        setProperty("openie.max_entailments_per_clause","1000");
+        setProperty("openie.triple.strict","true");
+      }
+    }
+);
+  }
+}

@@ -1,0 +1,31 @@
+{
+  CORSFilter.CORSRequestType requestType=checkRequestType(request);
+  if (!(requestType == CORSFilter.CORSRequestType.SIMPLE || requestType == CORSFilter.CORSRequestType.ACTUAL)) {
+    String message="Expects a HttpServletRequest object of type " + CORSFilter.CORSRequestType.SIMPLE + " or "+ CORSFilter.CORSRequestType.ACTUAL;
+    throw new IllegalArgumentException(message);
+  }
+  final String origin=request.getHeader(CORSFilter.REQUEST_HEADER_ORIGIN);
+  final String method=request.getMethod();
+  if (!isOriginAllowed(origin)) {
+    handleInvalidCORS(request,response,filterChain);
+    return;
+  }
+  if (!allowedHttpMethods.contains(method)) {
+    handleInvalidCORS(request,response,filterChain);
+    return;
+  }
+  if (anyOriginAllowed && !supportsCredentials) {
+    response.addHeader(CORSFilter.RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN,"*");
+  }
+ else {
+    response.addHeader(CORSFilter.RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN,origin);
+  }
+  if (supportsCredentials) {
+    response.addHeader(CORSFilter.RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_CREDENTIALS,"true");
+  }
+  if ((exposedHeaders != null) && (exposedHeaders.size() > 0)) {
+    String exposedHeadersString=join(exposedHeaders,",");
+    response.addHeader(CORSFilter.RESPONSE_HEADER_ACCESS_CONTROL_EXPOSE_HEADERS,exposedHeadersString);
+  }
+  filterChain.doFilter(request,response);
+}
