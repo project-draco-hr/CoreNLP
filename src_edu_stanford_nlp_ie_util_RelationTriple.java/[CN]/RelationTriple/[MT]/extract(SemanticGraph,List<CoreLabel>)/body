@@ -1,0 +1,126 @@
+{
+  List<RelationTriple> extractions=new ArrayList<>();
+  for (  TokenSequencePattern tokenPattern : NOUN_TOKEN_PATTERNS) {
+    TokenSequenceMatcher tokenMatcher=tokenPattern.matcher(tokens);
+    while (tokenMatcher.find()) {
+      List<? extends CoreMap> subject=tokenMatcher.groupNodes("$subject");
+      Span subjectSpan=Util.extractNER(tokens,Span.fromValues(((CoreLabel)subject.get(0)).index() - 1,((CoreLabel)subject.get(subject.size() - 1)).index()));
+      List<CoreLabel> subjectTokens=new ArrayList<>();
+      for (      int i : subjectSpan) {
+        subjectTokens.add(tokens.get(i));
+      }
+      List<? extends CoreMap> object=tokenMatcher.groupNodes("$object");
+      Span objectSpan=Util.extractNER(tokens,Span.fromValues(((CoreLabel)object.get(0)).index() - 1,((CoreLabel)object.get(object.size() - 1)).index()));
+      if (Span.overlaps(subjectSpan,objectSpan)) {
+        continue;
+      }
+      List<CoreLabel> objectTokens=new ArrayList<>();
+      for (      int i : objectSpan) {
+        objectTokens.add(tokens.get(i));
+      }
+      if (subjectTokens.size() > 0 && objectTokens.size() > 0) {
+        List<CoreLabel> relationTokens=new ArrayList<>();
+        relationTokens.add(new CoreLabel(){
+{
+            setWord("is");
+            setLemma("be");
+            setTag("VBZ");
+            setNER("O");
+            setBeginPosition(subjectTokens.get(subjectTokens.size() - 1).endPosition());
+            setEndPosition(subjectTokens.get(subjectTokens.size() - 1).endPosition());
+            setSentIndex(subjectTokens.get(subjectTokens.size() - 1).sentIndex());
+            setIndex(-1);
+          }
+        }
+);
+        List<? extends CoreMap> beofComp=tokenMatcher.groupNodes("$beof_comp");
+        if (beofComp != null) {
+          for (          CoreMap token : beofComp) {
+            if (token instanceof CoreLabel) {
+              relationTokens.add((CoreLabel)token);
+            }
+ else {
+              relationTokens.add(new CoreLabel(token));
+            }
+          }
+          relationTokens.add(new CoreLabel(){
+{
+              setWord("of");
+              setLemma("of");
+              setTag("IN");
+              setNER("O");
+              setBeginPosition(objectTokens.get(0).beginPosition());
+              setEndPosition(objectTokens.get(0).beginPosition());
+              setSentIndex(objectTokens.get(0).sentIndex());
+              setIndex(-1);
+            }
+          }
+);
+        }
+        extractions.add(new RelationTriple(subjectTokens,relationTokens,objectTokens));
+      }
+    }
+    for (    SemgrexPattern semgrex : NOUN_DEPENDENCY_PATTERNS) {
+      SemgrexMatcher matcher=semgrex.matcher(parse);
+      while (matcher.find()) {
+        IndexedWord subject=matcher.getNode("subject");
+        Span subjectSpan=Util.extractNER(tokens,Span.fromValues(subject.index() - 1,subject.index()));
+        List<CoreLabel> subjectTokens=new ArrayList<>();
+        for (        int i : subjectSpan) {
+          subjectTokens.add(tokens.get(i));
+        }
+        IndexedWord object=matcher.getNode("object");
+        Span objectSpan=Util.extractNER(tokens,Span.fromValues(object.index() - 1,object.index()));
+        if (Span.overlaps(subjectSpan,objectSpan)) {
+          continue;
+        }
+        List<CoreLabel> objectTokens=new ArrayList<>();
+        for (        int i : objectSpan) {
+          objectTokens.add(tokens.get(i));
+        }
+        if (subjectTokens.size() > 0 && objectTokens.size() > 0) {
+          List<CoreLabel> relationTokens=new ArrayList<>();
+          relationTokens.add(new CoreLabel(){
+{
+              setWord("is");
+              setLemma("be");
+              setTag("VBZ");
+              setNER("O");
+              setBeginPosition(subjectTokens.get(subjectTokens.size() - 1).endPosition());
+              setEndPosition(subjectTokens.get(subjectTokens.size() - 1).endPosition());
+              setSentIndex(subjectTokens.get(subjectTokens.size() - 1).sentIndex());
+              setIndex(-1);
+            }
+          }
+);
+          String rel=matcher.getRelnString("relation");
+          String prep=null;
+          if (rel != null && rel.startsWith("prep_")) {
+            prep=rel.substring("prep_".length());
+          }
+ else           if (rel != null && rel.startsWith("prepc_")) {
+            prep=rel.substring("prepc_".length());
+          }
+          if (prep != null) {
+            final String p=prep;
+            relationTokens.add(new CoreLabel(){
+{
+                setWord(p);
+                setLemma(p);
+                setTag("PP");
+                setNER("O");
+                setBeginPosition(subjectTokens.get(subjectTokens.size() - 1).endPosition());
+                setEndPosition(subjectTokens.get(subjectTokens.size() - 1).endPosition());
+                setSentIndex(subjectTokens.get(subjectTokens.size() - 1).sentIndex());
+                setIndex(-1);
+              }
+            }
+);
+          }
+          extractions.add(new RelationTriple(subjectTokens,relationTokens,objectTokens));
+        }
+      }
+    }
+  }
+  return extractions;
+}
