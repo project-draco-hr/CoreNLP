@@ -122,5 +122,18 @@
       }
     }
   }
+  Iterator<RelationTriple> iter=extractions.iterator();
+  while (iter.hasNext()) {
+    RelationTriple term=iter.next();
+    boolean shouldRemove=false;
+    for (    CoreLabel token : term) {
+      if (token.get(NaturalLogicAnnotations.PolarityAnnotation.class) != null && token.get(NaturalLogicAnnotations.PolarityAnnotation.class).isDownwards()) {
+        shouldRemove=true;
+      }
+    }
+    if (shouldRemove) {
+      iter.remove();
+    }
+  }
   return extractions;
 }
