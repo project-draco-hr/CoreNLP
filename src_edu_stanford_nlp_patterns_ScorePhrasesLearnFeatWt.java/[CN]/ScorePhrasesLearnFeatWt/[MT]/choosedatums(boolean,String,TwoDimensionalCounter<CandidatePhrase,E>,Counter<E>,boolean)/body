@@ -13,14 +13,18 @@
   if ((expandPos || expandNeg) && !constVars.useWordVectorsToComputeSim) {
     for (    CandidatePhrase s : CollectionUtils.union(constVars.getLearnedWords(answerLabel).keySet(),constVars.getSeedLabelDictionary().get(answerLabel))) {
       String[] toks=s.getPhrase().split("\\s+");
-      if (!constVars.getWordClassClusters().containsKey(s.getPhrase())) {
+      Integer num=constVars.getWordClassClusters().get(s.getPhrase());
+      if (num == null)       num=constVars.getWordClassClusters().get(s.getPhrase().toLowerCase());
+      if (num == null) {
         for (        String tok : toks) {
-          if (constVars.getWordClassClusters().containsKey(tok)) {
-            distSimClustersOfPositive.incrementCount(constVars.getWordClassClusters().get(tok));
+          Integer toknum=constVars.getWordClassClusters().get(tok);
+          if (toknum == null)           toknum=constVars.getWordClassClusters().get(tok.toLowerCase());
+          if (toknum != null) {
+            distSimClustersOfPositive.incrementCount(toknum);
           }
         }
       }
- else       distSimClustersOfPositive.incrementCount(constVars.getWordClassClusters().get(s.getPhrase()));
+ else       distSimClustersOfPositive.incrementCount(num);
     }
   }
   Map<String,Collection<CandidatePhrase>> allPossibleNegativePhrases=getAllPossibleNegativePhrases(answerLabel);
@@ -34,12 +38,12 @@
     Pair<Map<String,DataInstance>,File> sentsf=sentsIter.next();
     Map<String,DataInstance> sents=sentsf.first();
     Redwood.log(Redwood.DBG,"Sampling datums from " + sentsf.second());
-    if (computeRawFreq)     Data.computeRawFreqIfNull(sents,PatternFactory.numWordsCompound);
+    if (computeRawFreq)     Data.computeRawFreqIfNull(sents,PatternFactory.numWordsCompoundMax);
     List<List<String>> threadedSentIds=GetPatternsFromDataMultiClass.getThreadBatches(new ArrayList<String>(sents.keySet()),constVars.numThreads);
     ExecutorService executor=Executors.newFixedThreadPool(constVars.numThreads);
     List<Future<Quintuple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>,Counter<CandidatePhrase>>>> list=new ArrayList<Future<Quintuple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>,Counter<CandidatePhrase>>>>();
     for (    List<String> keys : threadedSentIds) {
-      Callable<Quintuple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>,Counter<CandidatePhrase>>> task=new ChooseDatumsThread(answerLabel,sents,keys,forLearningPattern,wordsPatExtracted,allSelectedPatterns,distSimClustersOfPositive,allPossibleNegativePhrases,expandPos,expandNeg);
+      Callable<Quintuple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>,Counter<CandidatePhrase>>> task=new ChooseDatumsThread(answerLabel,sents,keys,wordsPatExtracted,allSelectedPatterns,distSimClustersOfPositive,allPossibleNegativePhrases,expandPos,expandNeg);
       Future<Quintuple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>,Counter<CandidatePhrase>>> submit=executor.submit(task);
       list.add(submit);
     }
@@ -97,7 +101,7 @@
   }
   System.out.println("all positive phrases of size " + allPositivePhrases.size() + " are  "+ allPositivePhrases);
   for (  CandidatePhrase candidate : allPositivePhrases) {
-    Counter<ScorePhraseMeasures> feat=null;
+    Counter<ScorePhraseMeasures> feat;
     if (forLearningPattern) {
       feat=getPhraseFeaturesForPattern(answerLabel,candidate);
     }
@@ -114,8 +118,7 @@
   Redwood.log(Redwood.DBG,"Number of pure negative phrases is " + allNegativePhrases.size());
   Redwood.log(Redwood.DBG,"Number of unknown phrases is " + allUnknownPhrases.size());
   if (constVars.subsampleUnkAsNegUsingSim) {
-    double subSampleUnkAsNegUsingSimPercentage=1.0;
-    Set<CandidatePhrase> chosenUnknown=chooseUnknownAsNegatives(allUnknownPhrases,answerLabel,subSampleUnkAsNegUsingSimPercentage,allPositivePhrases,allPossibleNegativePhrases,logFile);
+    Set<CandidatePhrase> chosenUnknown=chooseUnknownAsNegatives(allUnknownPhrases,answerLabel,allPositivePhrases,allPossibleNegativePhrases,logFile);
     Redwood.log(Redwood.DBG,"Choosing " + chosenUnknown.size() + " unknowns as negative based to their similarity to the positive phrases");
     allNegativePhrases.addAll(chosenUnknown);
   }
@@ -123,7 +126,7 @@
     allNegativePhrases.addAll(allUnknownPhrases);
   }
   if (allNegativePhrases.size() > numpos) {
-    Redwood.log(Redwood.WARN,"Num of negative (" + allNegativePhrases.size() + ") is higher than number of positive phrases ("+ numpos+ ") = "+ (allNegativePhrases.size() / (double)numpos)+ ". "+ "Capping the number by taking the first numPositives as negative. Consider decreasing perSelectNeg and perSelectRand");
+    Redwood.log(Redwood.WARN,"Num of negative (" + allNegativePhrases.size() + ") is higher than number of positive phrases ("+ numpos+ ") = "+ (allNegativePhrases.size() / (double)numpos)+ ". "+ "Capping the number by taking the first numPositives as negative. Consider decreasing perSelectRand");
     int i=0;
     Set<CandidatePhrase> selectedNegPhrases=new HashSet<CandidatePhrase>();
     for (    CandidatePhrase p : allNegativePhrases) {

@@ -1,5 +1,10 @@
 {
-  TokenSequenceParser p=new TokenSequenceParser(r);
-  List<SequenceMatchRules.Rule> rules=p.RuleList(env);
-  return new CoreMapExpressionExtractor(env,rules);
+  try {
+    TokenSequenceParser p=new TokenSequenceParser(r);
+    List<SequenceMatchRules.Rule> rules=p.RuleList(env);
+    return new CoreMapExpressionExtractor(env,rules);
+  }
+ catch (  TokenMgrError error) {
+    throw new TokenSequenceParseException("Parsing failed. Error: " + error);
+  }
 }
