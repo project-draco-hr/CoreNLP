@@ -1,6 +1,6 @@
 {
   try {
-    boolean label=document.isCoref(m,candidate);
+    boolean label=(document.goldMentions == null) ? false : document.isCoref(m,candidate);
     Counter<String> features=new ClassicCounter<String>();
     CorefCluster mC=document.corefClusters.get(m.corefClusterID);
     CorefCluster aC=document.corefClusters.get(candidate.corefClusterID);
@@ -41,7 +41,9 @@
       if (m.headWord.get(SpeakerAnnotation.class).equalsIgnoreCase("PER0")) {
         features.incrementCount("B-SPEAKER-PER0");
       }
-      if (document.docInfo.containsKey("DOC_ID"))       features.incrementCount("B-DOCSOURCE-" + document.docInfo.get("DOC_ID").split("/")[1]);
+      if (document.docInfo != null && document.docInfo.containsKey("DOC_ID")) {
+        features.incrementCount("B-DOCSOURCE-" + document.docInfo.get("DOC_ID").split("/")[1]);
+      }
       features.incrementCount("M-LENGTH",m.originalSpan.size());
       features.incrementCount("A-LENGTH",candidate.originalSpan.size());
       if (m.originalSpan.size() < candidate.originalSpan.size())       features.incrementCount("B-A-ISLONGER");
@@ -500,8 +502,6 @@
   }
  catch (  Exception e) {
     System.err.println("Datum Extraction failed in Sieve.java while processing document: " + document.docInfo.get("DOC_ID") + " part: "+ document.docInfo.get("DOC_PART"));
-    e.printStackTrace();
-    System.exit(1);
-    return null;
+    throw new RuntimeException(e);
   }
 }

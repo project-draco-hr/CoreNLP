@@ -36,7 +36,9 @@
         continue;
       }
       if (this.coreferent(document,c1,c2,m,ant,dict,roleSet)) {
-        if (!PropertiesUtils.getBool(props,"useRawText"))         sbLog.append(CorefPrinter.printErrorLogDcoref(m,ant,document,dict,mIdx,this.getClass().getName()));
+        if (CorefProperties.debug(props)) {
+          sbLog.append(CorefPrinter.printErrorLogDcoref(m,ant,document,dict,mIdx,this.getClass().getName()));
+        }
         int removeID=c1.clusterID;
         CorefCluster.mergeClusters(c2,c1);
         document.mergeIncompatibles(c2,c1);
