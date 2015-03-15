@@ -3,7 +3,7 @@
     return;
   }
   if (tree.isPreTerminal()) {
-    if (DVModel.TRAIN_WORD_VECTORS) {
+    if (op.trainOptions.trainWordVectors) {
       String word=tree.children()[0].label().value();
       word=dvModel.getVocabWord(word);
       SimpleMatrix derivative=deltaUp;
@@ -12,7 +12,7 @@
     return;
   }
   SimpleMatrix currentVector=nodeVectors.get(tree);
-  SimpleMatrix currentVectorDerivative=RNNUtils.elementwiseApplyTanhDerivative(currentVector);
+  SimpleMatrix currentVectorDerivative=NeuralUtils.elementwiseApplyTanhDerivative(currentVector);
   SimpleMatrix scoreW=dvModel.getScoreWForNode(tree);
   currentVectorDerivative=currentVectorDerivative.elementMult(scoreW.transpose());
   SimpleMatrix deltaCurrent=deltaUp.plus(currentVectorDerivative);
@@ -24,14 +24,14 @@
     binaryScoreDerivatives.put(leftLabel,rightLabel,binaryScoreDerivatives.get(leftLabel,rightLabel).plus(currentVector.transpose()));
     SimpleMatrix leftVector=nodeVectors.get(tree.children()[0]);
     SimpleMatrix rightVector=nodeVectors.get(tree.children()[1]);
-    SimpleMatrix childrenVector=RNNUtils.concatenateWithBias(leftVector,rightVector);
+    SimpleMatrix childrenVector=NeuralUtils.concatenateWithBias(leftVector,rightVector);
     if (op.trainOptions.useContextWords) {
       childrenVector=concatenateContextWords(childrenVector,tree.getSpan(),words);
     }
     SimpleMatrix W_df=deltaCurrent.mult(childrenVector.transpose());
     binaryW_dfs.put(leftLabel,rightLabel,binaryW_dfs.get(leftLabel,rightLabel).plus(W_df));
-    SimpleMatrix leftDerivative=RNNUtils.elementwiseApplyTanhDerivative(leftVector);
-    SimpleMatrix rightDerivative=RNNUtils.elementwiseApplyTanhDerivative(rightVector);
+    SimpleMatrix leftDerivative=NeuralUtils.elementwiseApplyTanhDerivative(leftVector);
+    SimpleMatrix rightDerivative=NeuralUtils.elementwiseApplyTanhDerivative(rightVector);
     SimpleMatrix leftWTDelta=WTdelta.extractMatrix(0,deltaCurrent.numRows(),0,1);
     SimpleMatrix rightWTDelta=WTdelta.extractMatrix(deltaCurrent.numRows(),deltaCurrent.numRows() * 2,0,1);
     backpropDerivative(tree.children()[0],words,nodeVectors,binaryW_dfs,unaryW_dfs,binaryScoreDerivatives,unaryScoreDerivatives,wordVectorDerivatives,leftDerivative.elementMult(leftWTDelta));
@@ -41,13 +41,13 @@
     String childLabel=dvModel.basicCategory(tree.children()[0].label().value());
     unaryScoreDerivatives.put(childLabel,unaryScoreDerivatives.get(childLabel).plus(currentVector.transpose()));
     SimpleMatrix childVector=nodeVectors.get(tree.children()[0]);
-    SimpleMatrix childVectorWithBias=RNNUtils.concatenateWithBias(childVector);
+    SimpleMatrix childVectorWithBias=NeuralUtils.concatenateWithBias(childVector);
     if (op.trainOptions.useContextWords) {
       childVectorWithBias=concatenateContextWords(childVectorWithBias,tree.getSpan(),words);
     }
     SimpleMatrix W_df=deltaCurrent.mult(childVectorWithBias.transpose());
     unaryW_dfs.put(childLabel,unaryW_dfs.get(childLabel).plus(W_df));
-    SimpleMatrix childDerivative=RNNUtils.elementwiseApplyTanhDerivative(childVector);
+    SimpleMatrix childDerivative=NeuralUtils.elementwiseApplyTanhDerivative(childVector);
     SimpleMatrix childWTDelta=WTdelta.extractMatrix(0,deltaCurrent.numRows(),0,1);
     backpropDerivative(tree.children()[0],words,nodeVectors,binaryW_dfs,unaryW_dfs,binaryScoreDerivatives,unaryScoreDerivatives,wordVectorDerivatives,childDerivative.elementMult(childWTDelta));
   }
