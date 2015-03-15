@@ -1,3 +1,81 @@
 {
-  return parseDateTime(dateStr,false);
+  if (dateStr == null)   return null;
+  Pattern p=Pattern.compile("(\\d\\d\\d\\d)-?(\\d\\d?)-?(\\d\\d?)(-?(?:T(\\d\\d):?(\\d\\d)?:?(\\d\\d)?(?:[.,](\\d{1,3}))?([+-]\\d\\d:?\\d\\d)?))?");
+  Matcher m=p.matcher(dateStr);
+  if (m.matches()) {
+    String time=m.group(4);
+    SUTime.IsoDate isoDate=new SUTime.IsoDate(m.group(1),m.group(2),m.group(3));
+    if (time != null) {
+      SUTime.IsoTime isoTime=new SUTime.IsoTime(m.group(5),m.group(6),m.group(7),m.group(8));
+      return new SUTime.IsoDateTime(isoDate,isoTime);
+    }
+ else {
+      return isoDate;
+    }
+  }
+  p=Pattern.compile("(\\d\\d\\d\\d)(\\d\\d)(\\d\\d):(\\d\\d)(\\d\\d)");
+  m=p.matcher(dateStr);
+  if (m.matches()) {
+    SUTime.IsoDate date=new SUTime.IsoDate(m.group(1),m.group(2),m.group(3));
+    SUTime.IsoTime time=new SUTime.IsoTime(m.group(4),m.group(5),null);
+    return new SUTime.IsoDateTime(date,time);
+  }
+  p=Pattern.compile("T(\\d\\d):?(\\d\\d)?:?(\\d\\d)?(?:[.,](\\d{1,3}))?([+-]\\d\\d:?\\d\\d)?");
+  m=p.matcher(dateStr);
+  if (m.matches()) {
+    return new SUTime.IsoTime(m.group(1),m.group(2),m.group(3),m.group(4));
+  }
+  SUTime.IsoDate isoDate=null;
+  if (isoDate == null) {
+    p=Pattern.compile(".*(\\d\\d\\d\\d)\\/(\\d\\d?)\\/(\\d\\d?).*");
+    m=p.matcher(dateStr);
+    if (m.matches()) {
+      isoDate=new SUTime.IsoDate(m.group(1),m.group(2),m.group(3));
+    }
+  }
+  if (isoDate == null) {
+    p=Pattern.compile(".*(\\d\\d\\d\\d)\\-(\\d\\d?)\\-(\\d\\d?).*");
+    m=p.matcher(dateStr);
+    if (m.matches()) {
+      isoDate=new SUTime.IsoDate(m.group(1),m.group(2),m.group(3));
+    }
+  }
+  if (isoDate == null) {
+    p=Pattern.compile(".*(\\d\\d?)\\/(\\d\\d?)\\/(\\d\\d(\\d\\d)?).*");
+    m=p.matcher(dateStr);
+    if (m.matches()) {
+      isoDate=new SUTime.IsoDate(m.group(3),m.group(1),m.group(2));
+    }
+  }
+  if (isoDate == null) {
+    p=Pattern.compile(".*(\\d\\d?)\\-(\\d\\d?)\\-(\\d\\d(\\d\\d)?).*");
+    m=p.matcher(dateStr);
+    if (m.matches()) {
+      isoDate=new SUTime.IsoDate(m.group(3),m.group(1),m.group(2));
+    }
+  }
+  if (isoDate == null) {
+    p=Pattern.compile(".*(\\d\\d?)\\.(\\d\\d?)\\.(\\d\\d(\\d\\d)?).*");
+    m=p.matcher(dateStr);
+    if (m.matches()) {
+      isoDate=new SUTime.IsoDate(m.group(3),m.group(2),m.group(1));
+    }
+  }
+  SUTime.IsoTime isoTime=null;
+  if (isoTime == null) {
+    p=Pattern.compile(".*(\\d?\\d):(\\d\\d)(:(\\d\\d)(\\.\\d+)?)?(\\s*([AP])\\.?M\\.?)?(\\s+([+\\-]\\d+|[A-Z][SD]T|GMT([+\\-]\\d+)?))?.*");
+    m=p.matcher(dateStr);
+    if (m.matches()) {
+      isoTime=new SUTime.IsoTime(m.group(1),m.group(2),m.group(4));
+    }
+  }
+  if (isoDate != null && isoTime != null) {
+    return new SUTime.IsoDateTime(isoDate,isoTime);
+  }
+ else   if (isoDate != null) {
+    return isoDate;
+  }
+ else {
+    return isoTime;
+  }
 }

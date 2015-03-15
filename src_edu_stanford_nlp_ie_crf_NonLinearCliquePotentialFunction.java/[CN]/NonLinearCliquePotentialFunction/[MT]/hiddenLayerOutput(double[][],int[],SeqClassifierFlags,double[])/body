@@ -1,25 +1,30 @@
 {
   int layerOneSize=inputLayerWeights.length;
-  if (layerOneCache == null || layerOneSize != layerOneCache.length)   layerOneCache=new double[layerOneSize];
+  double[] layerOne=new double[layerOneSize];
   for (int i=0; i < layerOneSize; i++) {
     double[] ws=inputLayerWeights[i];
     double lOneW=0;
+    double dotProd=0;
     for (int m=0; m < nodeCliqueFeatures.length; m++) {
-      double dotProd=ws[nodeCliqueFeatures[m]];
+      dotProd=ws[nodeCliqueFeatures[m]];
       if (featureVal != null)       dotProd*=featureVal[m];
       lOneW+=dotProd;
     }
-    layerOneCache[i]=lOneW;
+    layerOne[i]=lOneW;
   }
-  if (!aFlag.useHiddenLayer)   return layerOneCache;
-  if (hiddenLayerCache == null || layerOneSize != hiddenLayerCache.length)   hiddenLayerCache=new double[layerOneSize];
+  double[] hiddenLayer=new double[layerOneSize];
   for (int i=0; i < layerOneSize; i++) {
-    if (aFlag.useSigmoid) {
-      hiddenLayerCache[i]=sigmoid(layerOneCache[i]);
+    if (aFlag.useHiddenLayer) {
+      if (aFlag.useSigmoid) {
+        hiddenLayer[i]=sigmoid(layerOne[i]);
+      }
+ else {
+        hiddenLayer[i]=Math.tanh(layerOne[i]);
+      }
     }
  else {
-      hiddenLayerCache[i]=Math.tanh(layerOneCache[i]);
+      hiddenLayer[i]=layerOne[i];
     }
   }
-  return hiddenLayerCache;
+  return hiddenLayer;
 }

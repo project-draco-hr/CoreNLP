@@ -4,13 +4,13 @@
     InputStream is=IOUtils.getInputStreamFromURLOrClasspathOrFileSystem(filename);
     BufferedReader DetectorReader=new BufferedReader(new InputStreamReader(is,"UTF-8"));
     String DetectorLine;
-    char_dict=Generics.newHashMap();
+    char_dict=new HashMap<String,Set<String>>();
     while ((DetectorLine=DetectorReader.readLine()) != null) {
       String[] fields=DetectorLine.split("	");
       String tag=fields[0];
       Set<String> chars=char_dict.get(tag);
       if (chars == null) {
-        chars=Generics.newHashSet();
+        chars=new HashSet<String>();
         char_dict.put(tag,chars);
       }
       chars.add(fields[1]);

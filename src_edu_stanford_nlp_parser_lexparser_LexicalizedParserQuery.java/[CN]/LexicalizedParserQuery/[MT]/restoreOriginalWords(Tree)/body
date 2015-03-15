@@ -3,16 +3,11 @@
     return;
   }
   List<Tree> leaves=tree.getLeaves();
-  int expectedSize=addedPunct ? originalSentence.size() + 1 : originalSentence.size();
-  if (leaves.size() != expectedSize) {
-    throw new IllegalStateException("originalWords and sentence of different sizes: " + expectedSize + " vs. "+ leaves.size()+ "\n Orig: "+ Sentence.listToString(originalSentence)+ "\n Pars: "+ Sentence.listToString(leaves));
+  if (leaves.size() != originalSentence.size()) {
+    throw new IllegalStateException("originalWords and sentence of different sizes: " + originalSentence.size() + " vs. "+ leaves.size()+ "\n Orig: "+ Sentence.listToString(originalSentence)+ "\n Pars: "+ Sentence.listToString(leaves));
   }
-  Iterator<Tree> leafIterator=leaves.iterator();
-  for (  HasWord word : originalSentence) {
-    Tree leaf=leafIterator.next();
-    if (!(word instanceof Label)) {
-      continue;
-    }
-    leaf.setLabel((Label)word);
+  Iterator<? extends Label> wordsIterator=(Iterator<? extends Label>)originalSentence.iterator();
+  for (  Tree leaf : leaves) {
+    leaf.setLabel(wordsIterator.next());
   }
 }

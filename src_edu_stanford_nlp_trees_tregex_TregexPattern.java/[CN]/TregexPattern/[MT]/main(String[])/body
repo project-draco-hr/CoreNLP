@@ -9,8 +9,6 @@
   String headFinderOption="-hf";
   String headFinderArgOption="-hfArg";
   String trfOption="-trf";
-  String extensionOption="-e";
-  String extension=null;
   String headFinderClassName=null;
   String[] headFinderArgs=StringUtils.EMPTY_STRING_ARRAY;
   String treeReaderFactoryClassName=null;
@@ -20,16 +18,7 @@
   String encoding="UTF-8";
   String macroOption="-macros";
   String macroFilename="";
-  String yieldOnly="-t";
-  String printAllTrees="-T";
-  String quietMode="-C";
-  String wholeTreeMode="-w";
-  String filenameOption="-f";
-  String oneMatchPerRootNodeMode="-o";
-  String reportTreeNumbers="-n";
-  String rootLabelOnly="-u";
-  String oneLine="-s";
-  Map<String,Integer> flagMap=Generics.newHashMap();
+  Map<String,Integer> flagMap=new HashMap<String,Integer>();
   flagMap.put(extractSubtreesOption,2);
   flagMap.put(extractSubtreesFileOption,2);
   flagMap.put(subtreeCodeOption,0);
@@ -41,17 +30,7 @@
   flagMap.put(headFinderOption,1);
   flagMap.put(headFinderArgOption,1);
   flagMap.put(trfOption,1);
-  flagMap.put(extensionOption,1);
   flagMap.put(macroOption,1);
-  flagMap.put(yieldOnly,0);
-  flagMap.put(quietMode,0);
-  flagMap.put(wholeTreeMode,0);
-  flagMap.put(printAllTrees,0);
-  flagMap.put(filenameOption,0);
-  flagMap.put(oneMatchPerRootNodeMode,0);
-  flagMap.put(reportTreeNumbers,0);
-  flagMap.put(rootLabelOnly,0);
-  flagMap.put(oneLine,0);
   Map<String,String[]> argsMap=StringUtils.argsToMap(args,flagMap);
   args=argsMap.get(null);
   if (argsMap.containsKey(encodingOption)) {
@@ -70,7 +49,7 @@
     return;
   }
   if (args.length < 1) {
-    errPW.println("Usage: java edu.stanford.nlp.trees.tregex.TregexPattern [-T] [-C] [-w] [-f] [-o] [-n] [-s] [-filter]  [-hf class] [-trf class] [-h handle]* [-e ext] pattern [filepath]");
+    errPW.println("Usage: java edu.stanford.nlp.trees.tregex.TregexPattern [-T] [-C] [-w] [-f] [-o] [-n] [-s] [-filter]  [-hf class] [-trf class] [-h handle]* pattern [filepath]");
     return;
   }
   String matchString=args[0];
@@ -88,10 +67,7 @@
     treeReaderFactoryClassName=argsMap.get(trfOption)[0];
     errPW.println("Using tree reader factory " + treeReaderFactoryClassName + "...");
   }
-  if (argsMap.containsKey(extensionOption)) {
-    extension=argsMap.get(extensionOption)[0];
-  }
-  if (argsMap.containsKey(printAllTrees)) {
+  if (argsMap.containsKey("-T")) {
     TRegexTreeVisitor.printTree=true;
   }
   if (argsMap.containsKey(inputFileOption)) {
@@ -101,32 +77,32 @@
     System.arraycopy(args,0,newArgs,1,args.length);
     args=newArgs;
   }
-  if (argsMap.containsKey(quietMode)) {
+  if (argsMap.containsKey("-C")) {
     TRegexTreeVisitor.printMatches=false;
     TRegexTreeVisitor.printNumMatchesToStdOut=true;
   }
-  if (argsMap.containsKey(printNonMatchingTreesOption)) {
+  if (argsMap.containsKey("-v")) {
     TRegexTreeVisitor.printNonMatchingTrees=true;
   }
-  if (argsMap.containsKey(subtreeCodeOption)) {
+  if (argsMap.containsKey("-x")) {
     TRegexTreeVisitor.printSubtreeCode=true;
     TRegexTreeVisitor.printMatches=false;
   }
-  if (argsMap.containsKey(wholeTreeMode)) {
+  if (argsMap.containsKey("-w")) {
     TRegexTreeVisitor.printWholeTree=true;
   }
-  if (argsMap.containsKey(filenameOption)) {
+  if (argsMap.containsKey("-f")) {
     TRegexTreeVisitor.printFilename=true;
   }
-  if (argsMap.containsKey(oneMatchPerRootNodeMode))   TRegexTreeVisitor.oneMatchPerRootNode=true;
-  if (argsMap.containsKey(reportTreeNumbers))   TRegexTreeVisitor.reportTreeNumbers=true;
-  if (argsMap.containsKey(rootLabelOnly)) {
+  if (argsMap.containsKey("-o"))   TRegexTreeVisitor.oneMatchPerRootNode=true;
+  if (argsMap.containsKey("-n"))   TRegexTreeVisitor.reportTreeNumbers=true;
+  if (argsMap.containsKey("-u")) {
     treePrintFormats.append(TreePrint.rootLabelOnlyFormat).append(',');
   }
- else   if (argsMap.containsKey(oneLine)) {
+ else   if (argsMap.containsKey("-s")) {
     treePrintFormats.append("oneline,");
   }
- else   if (argsMap.containsKey(yieldOnly)) {
+ else   if (argsMap.containsKey("-t")) {
     treePrintFormats.append("words,");
   }
  else {
@@ -171,7 +147,7 @@
       errPW.println("Reading trees from file(s) " + args[last]);
       TreeReaderFactory trf=getTreeReaderFactory(treeReaderFactoryClassName);
       treebank=new DiskTreebank(trf,encoding);
-      treebank.loadPath(args[last],extension,true);
+      treebank.loadPath(args[last],null,true);
     }
     TRegexTreeVisitor vis=new TRegexTreeVisitor(p,handles,encoding);
     treebank.apply(vis);

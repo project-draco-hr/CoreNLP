@@ -1,0 +1,13 @@
+{
+  int tagsToAdd=length;
+  if (loc + 1 < cInfo.size()) {
+    features.add(cInfo.get(loc + 1).getString(CoreAnnotations.PartOfSpeechAnnotation.class) + "-nTAG");
+    --tagsToAdd;
+  }
+  String prefix="";
+  for (int offset=0; (loc - offset) >= 0 && tagsToAdd > 0; offset++) {
+    features.add(cInfo.get(loc - offset).getString(CoreAnnotations.PartOfSpeechAnnotation.class) + "-" + prefix+ "TAG");
+    --tagsToAdd;
+    prefix+="p";
+  }
+}

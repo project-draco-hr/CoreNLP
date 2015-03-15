@@ -1,0 +1,21 @@
+{
+  if (isLeaf()) {
+    int oldIndex=index();
+    if (oldIndex >= 0) {
+      startIndex=oldIndex;
+    }
+ else {
+      setIndex(startIndex);
+    }
+    if (tg != null) {
+      tg.addNodeToIndexMap(startIndex,this);
+    }
+    startIndex++;
+  }
+ else {
+    for (int i=0; i < children.length; i++) {
+      startIndex=children[i].indexLeaves(startIndex);
+    }
+  }
+  return startIndex;
+}

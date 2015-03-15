@@ -2,16 +2,7 @@
   if (thisBatch == null || thisBatch.length != batchSize) {
     thisBatch=new int[batchSize];
   }
-  if (sampleMethod == SamplingMethod.Shuffled) {
-    if (shuffledArray == null) {
-      shuffledArray=ArrayMath.range(0,this.dataDimension());
-    }
-    for (int i=0; i < batchSize; i++) {
-      thisBatch[i]=shuffledArray[(curElement + i) % this.dataDimension()];
-    }
-    curElement=(curElement + batchSize) % this.dataDimension();
-  }
- else   if (sampleMethod == SamplingMethod.RandomWithReplacement) {
+  if (sampleMethod == SamplingMethod.RandomWithReplacement) {
     for (int i=0; i < batchSize; i++) {
       thisBatch[i]=randGenerator.nextInt(this.dataDimension());
     }

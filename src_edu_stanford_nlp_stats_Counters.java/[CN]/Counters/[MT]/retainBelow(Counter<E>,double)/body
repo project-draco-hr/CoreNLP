@@ -1,13 +1,12 @@
 {
-  Counter<E> removed=new ClassicCounter<E>();
+  Set<E> removed=new HashSet<E>();
   for (  E key : counter.keySet()) {
-    double count=counter.getCount(key);
     if (counter.getCount(key) > countMaxThreshold) {
-      removed.setCount(key,count);
+      removed.add(key);
     }
   }
-  for (  Entry<E,Double> key : removed.entrySet()) {
-    counter.remove(key.getKey());
+  for (  E key : removed) {
+    counter.remove(key);
   }
   return removed;
 }

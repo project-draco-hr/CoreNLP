@@ -1,41 +1,109 @@
 {
-  RedwoodConfiguration config=new RedwoodConfiguration().clear();
-  Set<String> used=Generics.newHashSet();
+  Set<String> used=new HashSet<String>();
+  Redwood.ConsoleHandler console=get(props,"log.toStderr","false",used).equalsIgnoreCase("true") ? Redwood.ConsoleHandler.err() : Redwood.ConsoleHandler.out();
+  VisibilityHandler visibility=new VisibilityHandler();
+  RepeatedRecordHandler repeat=null;
+  RedwoodConfiguration config=new RedwoodConfiguration().clear().rootHandler(visibility);
+  String collapseSetting=get(props,"log.collapse","none",used);
+  if (collapseSetting.equalsIgnoreCase("exact")) {
+    repeat=new RepeatedRecordHandler(RepeatedRecordHandler.EXACT);
+    config=config.handler(visibility,repeat);
+  }
+ else   if (collapseSetting.equalsIgnoreCase("approximate")) {
+    repeat=new RepeatedRecordHandler(RepeatedRecordHandler.APPROXIMATE);
+    config=config.handler(visibility,repeat);
+  }
+ else   if (collapseSetting.equalsIgnoreCase("none")) {
+  }
+ else {
+    throw new IllegalArgumentException("Unknown collapse type: " + collapseSetting);
+  }
+  console.trackColor=Color.valueOf(get(props,"log.console.trackColor","NONE",used).toUpperCase());
+  console.trackStyle=Style.valueOf(get(props,"log.console.trackStyle","NONE",used).toUpperCase());
+  for (  Object propAsObj : props.keySet()) {
+    String prop=propAsObj.toString();
+    Matcher m=consoleColor.matcher(prop);
+    if (m.find()) {
+      String channel=m.group(1);
+      console.colorChannel(channel,Color.valueOf(get(props,prop,"NONE",used)));
+    }
+    m=consoleStyle.matcher(prop);
+    if (m.find()) {
+      String channel=m.group(1);
+      console.styleChannel(channel,Style.valueOf(get(props,prop,"NONE",used)));
+    }
+  }
+  console.setColorChannels(Boolean.parseBoolean(get(props,"log.console.colorChannels","false",used)));
+  String logFilename=get(props,"log.file",null,used);
+  if (logFilename != null) {
+    Redwood.FileHandler file=new Redwood.FileHandler(logFilename);
+    config.handler(repeat == null ? visibility : repeat,file);
+    file.trackColor=Color.valueOf(get(props,"log.file.trackColor","NONE",used).toUpperCase());
+    file.trackStyle=Style.valueOf(get(props,"log.file.trackStyle","NONE",used).toUpperCase());
+    for (    Object propAsObj : props.keySet()) {
+      String prop=propAsObj.toString();
+      Matcher m=fileColor.matcher(prop);
+      if (m.find()) {
+        String channel=m.group(1);
+        file.colorChannel(channel,Color.valueOf(get(props,prop,"NONE",used)));
+      }
+      m=fileStyle.matcher(prop);
+      if (m.find()) {
+        String channel=m.group(1);
+        file.styleChannel(channel,Style.valueOf(get(props,prop,"NONE",used)));
+      }
+    }
+    file.setColorChannels(Boolean.parseBoolean(get(props,"log.file.colorChannels","false",used)));
+  }
+  String method=get(props,"log.method","default",used).toLowerCase();
+  if (method.equalsIgnoreCase("redwood")) {
+    edu.stanford.nlp.util.logging.JavaUtilLoggingAdaptor.adapt();
+    config=config.handler(repeat == null ? visibility : repeat,console);
+  }
+ else   if (method.equalsIgnoreCase("java.util.logging")) {
+    edu.stanford.nlp.util.logging.JavaUtilLoggingAdaptor.adapt();
+    String loggerName=get(props,"log.method.name","``error``",used);
+    if (loggerName.equals("``error``")) {
+      throw new IllegalArgumentException("Logger name (log.method.name) required to adapt with java.util.logging");
+    }
+    RedirectOutputHandler<Logger,Level> adapter=RedirectOutputHandler.fromJavaUtilLogging(Logger.getLogger(loggerName));
+    config=config.handler(repeat == null ? visibility : repeat,adapter);
+  }
+ else   if (method.equalsIgnoreCase("default")) {
+    config=config.handler(repeat == null ? visibility : repeat,console);
+  }
+ else {
+    throw new IllegalArgumentException("Unknown value for log.method");
+  }
   if (get(props,"log.captureStreams","false",used).equalsIgnoreCase("true")) {
-    config=config.capture(System.out).capture(System.err);
+    config=config.captureStreams();
   }
   if (get(props,"log.captureStdout","false",used).equalsIgnoreCase("true")) {
-    config=config.capture(System.out);
+    config=config.captureStdout();
   }
   if (get(props,"log.captureStderr","false",used).equalsIgnoreCase("true")) {
-    config=config.capture(System.err);
+    config=config.captureStderr();
   }
-  String collapse=get(props,"log.collapse","none",used);
-  List<LogRecordHandler> chain=new LinkedList<LogRecordHandler>();
-  if (collapse.equalsIgnoreCase("exact")) {
-    chain.add(new RepeatedRecordHandler(RepeatedRecordHandler.EXACT));
-  }
- else   if (collapse.equalsIgnoreCase("approximate")) {
-    chain.add(new RepeatedRecordHandler(RepeatedRecordHandler.APPROXIMATE));
-  }
- else   if (!collapse.equalsIgnoreCase("none")) {
-    throw new IllegalArgumentException("Unknown collapse mode (Redwood): " + collapse);
-  }
-  boolean debug=Boolean.parseBoolean(get(props,"log.channels.debug","true",used));
-  if (!debug) {
-    chain.add(Handlers.hideDebug);
-  }
-  config.channelWidth(Integer.parseInt(get(props,"log.channels.width","0",used)));
   if (get(props,"log.neatExit","false",used).equalsIgnoreCase("true")) {
     config=config.neatExit();
   }
-  String outputFile=get(props,"log.file",null,used);
-  if (outputFile != null) {
-    config.defaultFile=new File(outputFile);
-    config=config.handlers(Handlers.defaultFile);
+  String channelsToShow=get(props,"log.channels.show",null,used);
+  String channelsToHide=get(props,"log.channels.hide",null,used);
+  int channelWidth=Integer.parseInt(get(props,"log.channels.width","10",used));
+  if (channelsToShow != null && channelsToHide != null) {
+    throw new IllegalArgumentException("Can't specify both log.channels.show and log.channels.hide");
   }
-  config=config.output(get(props,"log.output","stdout",used));
-  config=config.handlers(Handlers.chain(chain.toArray(new LogRecordHandler[chain.size()]),Handlers.output));
+  if (channelsToShow != null) {
+    if (channelsToShow.equalsIgnoreCase("true")) {
+      config=config.printChannels(channelWidth);
+    }
+ else {
+      config=config.printChannels(channelWidth).showOnlyChannels(channelsToShow.split(","));
+    }
+  }
+ else   if (channelsToHide != null) {
+    config=config.printChannels(channelWidth).hideChannels(channelsToHide.split(","));
+  }
   for (  Object propAsObj : props.keySet()) {
     String prop=propAsObj.toString();
     if (prop.startsWith("log.") && !used.contains(prop)) {

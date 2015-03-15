@@ -16,17 +16,9 @@
     }
     pw.print("\t");
     pw.print(node.index());
-    if (node.copyCount() > 0) {
+    if (node.containsKey(CoreAnnotations.CopyAnnotation.class)) {
       pw.print("-");
-      pw.print(node.copyCount());
-    }
-    if (graph.getRoots().contains(node)) {
-      if (node.copyCount() > 0) {
-        pw.print("-R");
-      }
- else {
-        pw.print("-0-R");
-      }
+      pw.print(node.get(CoreAnnotations.CopyAnnotation.class));
     }
   }
   pw.println();
@@ -40,13 +32,9 @@
     pw.print(edge.getSource().index());
     pw.print(" ");
     pw.print(edge.getTarget().index());
-    if (edge.isExtra() || edge.getSource().copyCount() > 0 || edge.getTarget().copyCount() > 0) {
+    if (edge.isExtra()) {
       pw.print(" ");
       pw.print(edge.isExtra());
-      pw.print(" ");
-      pw.print(edge.getSource().copyCount());
-      pw.print(" ");
-      pw.print(edge.getTarget().copyCount());
     }
     first=false;
   }

@@ -1,16 +1,16 @@
 {
   Collection<TypedDependency> newTypedDeps=new ArrayList<TypedDependency>();
-  Map<IndexedWord,Set<TypedDependency>> map=Generics.newHashMap();
+  Map<TreeGraphNode,Set<TypedDependency>> map=new HashMap<TreeGraphNode,Set<TypedDependency>>();
   for (  TypedDependency typedDep : list) {
     if (!map.containsKey(typedDep.gov())) {
-      map.put(typedDep.gov(),Generics.<TypedDependency>newHashSet());
+      map.put(typedDep.gov(),new HashSet<TypedDependency>());
     }
     map.get(typedDep.gov()).add(typedDep);
   }
   for (  TypedDependency td1 : list) {
     if (td1.reln() != GrammaticalRelation.KILL) {
-      IndexedWord td1Dep=td1.dep();
-      String td1DepPOS=td1Dep.tag();
+      TreeGraphNode td1Dep=td1.dep();
+      String td1DepPOS=td1Dep.parent().value();
       Set<TypedDependency> possibles=map.get(td1Dep);
       if (possibles != null) {
         for (        TypedDependency td2 : possibles) {

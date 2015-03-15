@@ -1,11 +1,11 @@
 {
   boolean matched=true;
-  for (  Pair<Class,NodePattern> entry : annotationPatterns) {
-    NodePattern annoPattern=entry.second;
-    Object anno=token.get(entry.first);
+  for (  Map.Entry<Class,NodePattern> entry : annotationPatterns.entrySet()) {
+    NodePattern annoPattern=entry.getValue();
+    Object anno=token.get(entry.getKey());
     Object matchResult=annoPattern.matchWithResult(anno);
     if (matchResult != null) {
-      matchResults.put(entry.first,matchResult);
+      matchResults.put(entry.getKey(),matchResult);
     }
  else {
       matched=false;

@@ -1,12 +1,11 @@
 {
   BufferedReader reader=null;
   try {
-    reader=IOUtils.readerFromString(statesFile);
-    for (String line; (line=reader.readLine()) != null; ) {
-      String[] tokens=line.split("\t");
-      for (      String token : tokens) {
-        statesAbbreviation.put(token,tokens[0]);
-      }
+    reader=new BufferedReader(new InputStreamReader(IOUtils.getInputStreamFromURLOrClasspathOrFileSystem(statesFile)));
+    while (reader.ready()) {
+      String[] tokens=reader.readLine().split("\t");
+      statesAbbreviation.put(tokens[1],tokens[0]);
+      statesAbbreviation.put(tokens[2],tokens[0]);
     }
   }
  catch (  IOException e) {

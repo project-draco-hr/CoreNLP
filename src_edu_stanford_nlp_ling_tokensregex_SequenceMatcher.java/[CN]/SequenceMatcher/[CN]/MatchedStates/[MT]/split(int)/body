@@ -1,2 +1,30 @@
 {
+  Set<Integer> curBidSet=new HashSet<Integer>();
+  for (  State state : states) {
+    curBidSet.add(state.bid);
+  }
+  List<Integer> bids=new ArrayList<Integer>(curBidSet);
+  Collections.sort(bids,new Comparator<Integer>(){
+    public int compare(    Integer o1,    Integer o2){
+      int res=compareMatches(o1,o2);
+      return res;
+    }
+  }
+);
+  MatchedStates<T> newStates=new MatchedStates<T>(matcher,branchStates);
+  int v=Math.min(branchLimit,(bids.size() + 1) / 2);
+  Set<Integer> keepBidSet=new HashSet<Integer>();
+  keepBidSet.addAll(bids.subList(0,v));
+  swapAndClear();
+  for (  State s : oldStates) {
+    if (keepBidSet.contains(s.bid)) {
+      states.add(s);
+    }
+ else {
+      newStates.states.add(s);
+    }
+  }
+  newStates.curPosition=curPosition;
+  branchStates.condense();
+  return newStates;
 }

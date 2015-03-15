@@ -4,9 +4,6 @@
   finished=true;
   Matcher m=null;
   String value=null;
-  if (treeNodeMatchCandidateIterator == null) {
-    treeNodeMatchCandidateIterator=myNode.rel.searchNodeIterator(tree,this);
-  }
   while (treeNodeMatchCandidateIterator.hasNext()) {
     nextTreeNodeMatchCandidate=treeNodeMatchCandidateIterator.next();
     if (myNode.descriptionMode == null) {
@@ -48,7 +45,7 @@ case ANYTHING:
 found=true;
 break;
 case STRINGS:
-found=myNode.stringFilter.test(value);
+found=myNode.stringFilter.accept(value);
 break;
 default :
 throw new IllegalArgumentException("Unexpected match mode");

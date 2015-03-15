@@ -1,0 +1,64 @@
+{
+  List<CoreMap> mergedNumbers=NumberNormalizer.findAndMergeNumbers(annotation);
+  annotation.set(CoreAnnotations.NumerizedTokensAnnotation.class,mergedNumbers);
+  SUTime.Time docDate=SUTime.parseDateTime(docDateStr);
+  List<? extends MatchedExpression> matchedExpressions=expressionExtractor.extractExpressions(annotation);
+  List<TimeExpression> timeExpressions=new ArrayList<TimeExpression>(matchedExpressions.size());
+  for (  MatchedExpression expr : matchedExpressions) {
+    if (expr instanceof TimeExpression) {
+      timeExpressions.add((TimeExpression)expr);
+    }
+ else {
+      timeExpressions.add(new TimeExpression(expr));
+    }
+  }
+  if (timeExpressions != null) {
+    resolveTimeExpressions(annotation,timeExpressions,docDate);
+  }
+  if (options.restrictToTimex3) {
+    List<TimeExpression> kept=new ArrayList<TimeExpression>(timeExpressions.size());
+    for (    TimeExpression te : timeExpressions) {
+      if (te.getTemporal() != null && te.getTemporal().getTimexValue() != null) {
+        kept.add(te);
+      }
+ else {
+        List<? extends CoreMap> children=te.getAnnotation().get(TimeExpression.ChildrenAnnotation.class);
+        if (children != null) {
+          for (          CoreMap child : children) {
+            TimeExpression childTe=child.get(TimeExpression.Annotation.class);
+            if (childTe != null) {
+              resolveTimeExpression(annotation,childTe,docDate);
+              if (childTe.getTemporal() != null && childTe.getTemporal().getTimexValue() != null) {
+                kept.add(childTe);
+              }
+            }
+          }
+        }
+      }
+    }
+    timeExpressions=kept;
+  }
+  if (options.includeNested) {
+    List<TimeExpression> nestedTimeExpressions=new ArrayList<TimeExpression>();
+    for (    TimeExpression te : timeExpressions) {
+      if (te.isIncludeNested()) {
+        List<? extends CoreMap> children=te.getAnnotation().get(TimeExpression.ChildrenAnnotation.class);
+        if (children != null) {
+          for (          CoreMap child : children) {
+            TimeExpression childTe=child.get(TimeExpression.Annotation.class);
+            if (childTe != null) {
+              nestedTimeExpressions.add(childTe);
+            }
+          }
+        }
+      }
+    }
+    resolveTimeExpressions(annotation,nestedTimeExpressions,docDate);
+    timeExpressions.addAll(nestedTimeExpressions);
+  }
+  Collections.sort(timeExpressions,MatchedExpression.EXPR_TOKEN_OFFSETS_NESTED_FIRST_COMPARATOR);
+  if (timeExpressions != null) {
+    resolveTimeExpressions(annotation,timeExpressions,docDate);
+  }
+  return timeExpressions;
+}

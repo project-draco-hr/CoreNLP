@@ -13,12 +13,9 @@
     }
  else {
       Tree tree=sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
-      if (LEMMATIZE) {
-        treeLemmatizer.transformTree(tree);
-      }
       try {
-        SemanticGraph deps=SemanticGraphFactory.makeFromTree(tree,SemanticGraphFactory.Mode.COLLAPSED,includeExtras ? GrammaticalStructure.Extras.MAXIMAL : GrammaticalStructure.Extras.NONE,threadSafe);
-        SemanticGraph basicDeps=SemanticGraphFactory.makeFromTree(tree,SemanticGraphFactory.Mode.BASIC,includeExtras ? GrammaticalStructure.Extras.MAXIMAL : GrammaticalStructure.Extras.NONE,threadSafe);
+        SemanticGraph deps=SemanticGraphFactory.makeFromTree(tree,collapse,ccProcess,includeExtras,lemmatize,threadSafe);
+        SemanticGraph basicDeps=SemanticGraphFactory.makeFromTree(tree,!collapse,ccProcess,includeExtras,lemmatize,threadSafe);
         sentence.set(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class,basicDeps);
         sentence.set(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class,deps);
       }
@@ -28,12 +25,13 @@
     }
   }
   String preSpeaker=null;
+  String curSpeaker=null;
   int utterance=-1;
   for (  CoreLabel token : anno.get(CoreAnnotations.TokensAnnotation.class)) {
     if (!token.containsKey(CoreAnnotations.SpeakerAnnotation.class)) {
       token.set(CoreAnnotations.SpeakerAnnotation.class,"");
     }
-    String curSpeaker=token.get(CoreAnnotations.SpeakerAnnotation.class);
+    curSpeaker=token.get(CoreAnnotations.SpeakerAnnotation.class);
     if (!curSpeaker.equals(preSpeaker)) {
       utterance++;
       preSpeaker=curSpeaker;

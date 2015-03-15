@@ -8,7 +8,7 @@
   List<CoreLabel> tokens=sent.get(CoreAnnotations.TokensAnnotation.class);
   if (VERBOSE) {
     for (    CoreLabel token : tokens) {
-      System.out.println('\t' + token.word() + ' '+ token.tag()+ ' '+ token.ner()+ ' '+ (token.containsKey(CoreAnnotations.NumericCompositeTypeAnnotation.class) ? token.get(CoreAnnotations.NumericCompositeValueAnnotation.class) + " " : "")+ (token.containsKey(TimeAnnotations.TimexAnnotation.class) ? token.get(TimeAnnotations.TimexAnnotation.class) + " " : ""));
+      System.out.println("\t" + token.word() + " "+ token.tag()+ " "+ token.ner()+ " "+ (token.containsKey(CoreAnnotations.NumericCompositeTypeAnnotation.class) ? token.get(CoreAnnotations.NumericCompositeValueAnnotation.class) + " " : "")+ (token.containsKey(TimeAnnotations.TimexAnnotation.class) ? token.get(TimeAnnotations.TimexAnnotation.class) + " " : ""));
     }
   }
   assertTrue(tokens.size() == labels.length);
@@ -20,8 +20,8 @@
       Pattern p=Pattern.compile(labels[i]);
       System.err.println("COMPARING NER " + labels[i] + " with "+ tokens.get(i).ner());
       System.err.flush();
-      assertTrue("NER should not be null for token " + tokens.get(i) + " in sentence "+ tokens,tokens.get(i).ner() != null);
-      assertTrue(tokens.get(i).ner() + " does not match " + p+ " for token "+ tokens.get(i)+ " in sentence "+ tokens,p.matcher(tokens.get(i).ner()).matches());
+      assertTrue(tokens.get(i).ner() != null);
+      assertTrue(p.matcher(tokens.get(i).ner()).matches());
     }
   }
   if (normed != null) {
@@ -33,9 +33,10 @@
  else {
         Pattern p=Pattern.compile(normed[i]);
         String n=tokens.get(i).get(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class);
-        String message="COMPARING NORMED \"" + normed[i] + "\" with \""+ n+ "\"";
-        assertTrue(message + "; latter should not be null",n != null);
-        assertTrue(message + "; latter should match",p.matcher(n).matches());
+        System.err.println("COMPARING NORMED \"" + normed[i] + "\" with \""+ n+ "\"");
+        System.err.flush();
+        assertTrue(n != null);
+        assertTrue(p.matcher(n).matches());
       }
     }
   }

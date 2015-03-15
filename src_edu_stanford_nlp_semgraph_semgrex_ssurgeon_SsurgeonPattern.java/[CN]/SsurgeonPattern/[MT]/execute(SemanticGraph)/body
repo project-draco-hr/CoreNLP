@@ -3,7 +3,7 @@
   SemgrexMatcher matcher=semgrexPattern.matcher(sg);
   nextMatch:   while (matcher.find()) {
     Set<String> nodeNames=matcher.getNodeNames();
-    Set<IndexedWord> seen=Generics.newHashSet();
+    Set<IndexedWord> seen=new HashSet<IndexedWord>();
     for (    String name : nodeNames) {
       IndexedWord curr=matcher.getNode(name);
       if (seen.contains(curr))       break nextMatch;
@@ -13,7 +13,7 @@
       if (!predicateTest.test(matcher))       continue;
     }
     SemanticGraph tgt=SemanticGraphFactory.duplicateKeepNodes(sg);
-    nodeMap=Generics.newHashMap();
+    nodeMap=new HashMap<String,IndexedWord>();
     for (    SsurgeonEdit edit : editScript) {
       edit.evaluate(tgt,matcher);
     }

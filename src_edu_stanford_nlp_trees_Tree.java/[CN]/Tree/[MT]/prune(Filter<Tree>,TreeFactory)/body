@@ -1,0 +1,20 @@
+{
+  if (!filter.accept(this)) {
+    return null;
+  }
+  List<Tree> l=new ArrayList<Tree>();
+  Tree[] kids=children();
+  for (int i=0; i < kids.length; i++) {
+    Tree prunedChild=kids[i].prune(filter,tf);
+    if (prunedChild != null) {
+      l.add(prunedChild);
+    }
+  }
+  if (l.isEmpty() && !(kids.length == 0)) {
+    return null;
+  }
+  if (isLeaf()) {
+    return tf.newLeaf(label());
+  }
+  return tf.newTreeNode(label(),l);
+}

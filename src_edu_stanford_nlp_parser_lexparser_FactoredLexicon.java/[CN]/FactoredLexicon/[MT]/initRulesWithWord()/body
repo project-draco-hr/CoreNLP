@@ -1,13 +1,13 @@
 {
-  int unkWord=wordIndex.addToIndex(UNKNOWN_WORD);
-  int boundaryWordId=wordIndex.addToIndex(BOUNDARY);
-  int boundaryTagId=tagIndex.addToIndex(BOUNDARY_TAG);
+  int unkWord=wordIndex.indexOf(UNKNOWN_WORD,true);
+  int boundaryWordId=wordIndex.indexOf(BOUNDARY,true);
+  int boundaryTagId=tagIndex.indexOf(BOUNDARY_TAG,true);
   final int numWords=wordIndex.size();
   rulesWithWord=new List[numWords];
   for (int w=0; w < numWords; w++) {
     rulesWithWord[w]=new ArrayList<IntTaggedWord>(1);
   }
-  Set<IntTaggedWord> lexRules=Generics.newHashSet(40000);
+  Set<IntTaggedWord> lexRules=new HashSet<IntTaggedWord>(40000);
   for (  int wordId : wordTag.firstKeySet()) {
     for (    int tagId : wordTag.getCounter(wordId).keySet()) {
       lexRules.add(new IntTaggedWord(wordId,tagId));

@@ -18,7 +18,7 @@
   String trfOption="-trf";
   String macroOption="-macros";
   String macroFilename="";
-  Map<String,Integer> flagMap=Generics.newHashMap();
+  Map<String,Integer> flagMap=new HashMap<String,Integer>();
   flagMap.put(patternOperationOption,2);
   flagMap.put(treeFileOption,1);
   flagMap.put(trfOption,1);
@@ -49,9 +49,7 @@
   if (argsMap.containsKey(treeFileOption)) {
     trees.loadPath(argsMap.get(treeFileOption)[0]);
   }
-  if (trees.isEmpty()) {
-    System.err.println("Warning: No trees specified to operate on.  Use -treeFile path option.");
-  }
+  List<Pair<TregexPattern,TsurgeonPattern>> ops=new ArrayList<Pair<TregexPattern,TsurgeonPattern>>();
   TregexPatternCompiler compiler;
   if (headFinderClassName == null) {
     compiler=new TregexPatternCompiler();
@@ -67,11 +65,10 @@
     compiler=new TregexPatternCompiler(hf);
   }
   Macros.addAllMacros(compiler,macroFilename,encoding);
-  List<Pair<TregexPattern,TsurgeonPattern>> ops=new ArrayList<>();
   if (argsMap.containsKey(patternOperationOption)) {
     TregexPattern matchPattern=compiler.compile(argsMap.get(patternOperationOption)[0]);
     TsurgeonPattern p=parseOperation(argsMap.get(patternOperationOption)[1]);
-    ops.add(new Pair<>(matchPattern,p));
+    ops.add(new Pair<TregexPattern,TsurgeonPattern>(matchPattern,p));
   }
  else {
     for (    String arg : args) {

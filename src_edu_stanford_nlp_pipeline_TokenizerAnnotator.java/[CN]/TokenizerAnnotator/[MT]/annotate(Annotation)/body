@@ -1,6 +1,9 @@
 {
+  Timing timer=null;
   if (VERBOSE) {
-    System.err.print("Tokenizing ... ");
+    timer=new Timing();
+    timer.start();
+    System.err.print("PTB tokenizing ... ");
   }
   if (annotation.has(CoreAnnotations.TextAnnotation.class)) {
     String text=annotation.get(CoreAnnotations.TextAnnotation.class);
@@ -8,11 +11,11 @@
     List<CoreLabel> tokens=getTokenizer(r).tokenize();
     annotation.set(CoreAnnotations.TokensAnnotation.class,tokens);
     if (VERBOSE) {
-      System.err.println("done.");
-      System.err.println("Tokens: " + annotation.get(CoreAnnotations.TokensAnnotation.class));
+      timer.stop("done.");
+      System.err.println("output: " + annotation.get(CoreAnnotations.TokensAnnotation.class) + "\n");
     }
   }
  else {
-    throw new RuntimeException("Tokenizer unable to find text in annotation: " + annotation);
+    throw new RuntimeException("unable to find text in annotation: " + annotation);
   }
 }

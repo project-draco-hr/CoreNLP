@@ -1,5 +1,4 @@
 {
-  String goldAnswer=globalFlags.goldAnswerColumn < strs.length ? strs[globalFlags.goldAnswerColumn] : "";
   ClassicCounter<String> theFeatures=new ClassicCounter<String>();
   ClassicCounter<String> globalFeatures=new ClassicCounter<String>();
   if (globalFlags.useClassFeature) {
@@ -8,11 +7,11 @@
   addAllInterningAndPrefixingRVF(theFeatures,globalFeatures,"");
   for (int i=0; i < flags.length; i++) {
     ClassicCounter<String> featuresC=new ClassicCounter<String>();
-    makeDatum(strs[i],flags[i],featuresC,goldAnswer);
+    makeDatum(strs[i],flags[i],featuresC,strs[globalFlags.goldAnswerColumn]);
     addAllInterningAndPrefixingRVF(theFeatures,featuresC,i + "-");
   }
   if (globalFlags.printFeatures != null) {
     printFeatures(strs,theFeatures);
   }
-  return new RVFDatum<String,String>(theFeatures,goldAnswer);
+  return new RVFDatum<String,String>(theFeatures,strs[globalFlags.goldAnswerColumn]);
 }

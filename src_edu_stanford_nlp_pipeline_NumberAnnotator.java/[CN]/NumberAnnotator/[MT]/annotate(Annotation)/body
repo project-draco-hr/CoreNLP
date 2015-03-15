@@ -1,6 +1,7 @@
 {
   if (VERBOSE) {
-    System.err.print("Adding number annotation ... ");
+    timer.start();
+    System.err.print("Adding number annotation...");
   }
   if (annotation.containsKey(CoreAnnotations.SentencesAnnotation.class)) {
     for (    CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
@@ -8,7 +9,8 @@
       doOneSentenceNew(tokens,annotation,sentence);
     }
     if (VERBOSE) {
-      System.err.println("done. Output: " + annotation.get(CoreAnnotations.SentencesAnnotation.class));
+      millisecondsAnnotating+=timer.stop("done.");
+      System.err.println("output: " + annotation.get(CoreAnnotations.SentencesAnnotation.class) + "\n");
     }
   }
  else   if (annotation.containsKey(CoreAnnotations.TokensAnnotation.class)) {

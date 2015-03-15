@@ -1,0 +1,108 @@
+{
+  this.op=op;
+  this.debinarizer=new Debinarizer(op.forceCNF);
+  this.subcategoryStripper=op.tlpParams.subcategoryStripper();
+  this.pqFactory=pqFactory;
+  if (op.testOptions.preTag) {
+    try {
+      Class[] argsClass={String.class};
+      Object[] arguments={op.testOptions.taggerSerializedFile};
+      System.err.printf("Loading tagger from serialized file %s ...\n",op.testOptions.taggerSerializedFile);
+      tagger=(Function<List<? extends HasWord>,ArrayList<TaggedWord>>)Class.forName("edu.stanford.nlp.tagger.maxent.MaxentTagger").getConstructor(argsClass).newInstance(arguments);
+    }
+ catch (    RuntimeException e) {
+      throw e;
+    }
+catch (    Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+  tc=op.tlpParams.collinizer();
+  br=new BoundaryRemover();
+  runningAverages=Boolean.parseBoolean(op.testOptions.evals.getProperty("runningAverages"));
+  summary=Boolean.parseBoolean(op.testOptions.evals.getProperty("summary"));
+  tsv=Boolean.parseBoolean(op.testOptions.evals.getProperty("tsv"));
+  if (!op.trainOptions.leftToRight) {
+    binarizerOnly=new TreeAnnotatorAndBinarizer(op.tlpParams,op.forceCNF,false,false,op);
+  }
+ else {
+    binarizerOnly=new TreeAnnotatorAndBinarizer(op.tlpParams.headFinder(),new LeftHeadFinder(),op.tlpParams,op.forceCNF,false,false,op);
+  }
+  if (Boolean.parseBoolean(op.testOptions.evals.getProperty("pcfgLB"))) {
+    pcfgLB=new Evalb("pcfg LP/LR",runningAverages);
+  }
+  if (op.testOptions.evals.getProperty("pcfgChildSpecific") != null) {
+    String filter=op.testOptions.evals.getProperty("pcfgChildSpecific");
+    pcfgChildSpecific=FilteredEval.childFilteredEval("pcfg children matching " + filter + " LP/LR",runningAverages,op.langpack(),filter);
+  }
+  if (Boolean.parseBoolean(op.testOptions.evals.getProperty("pcfgLA"))) {
+    pcfgLA=new LeafAncestorEval("pcfg LeafAncestor");
+  }
+  if (Boolean.parseBoolean(op.testOptions.evals.getProperty("pcfgCB"))) {
+    pcfgCB=new Evalb.CBEval("pcfg CB",runningAverages);
+  }
+  if (Boolean.parseBoolean(op.testOptions.evals.getProperty("pcfgDA"))) {
+    pcfgDA=new UnlabeledAttachmentEval("pcfg DA",runningAverages,op.langpack().headFinder());
+  }
+  if (Boolean.parseBoolean(op.testOptions.evals.getProperty("pcfgTA"))) {
+    pcfgTA=new TaggingEval("pcfg Tag",runningAverages,lex);
+  }
+  if (Boolean.parseBoolean(op.testOptions.evals.getProperty("depDA"))) {
+    depDA=new UnlabeledAttachmentEval("dep DA",runningAverages,null,op.langpack().punctuationWordRejectFilter());
+  }
+  if (Boolean.parseBoolean(op.testOptions.evals.getProperty("depTA"))) {
+    depTA=new TaggingEval("dep Tag",runningAverages,lex);
+  }
+  if (Boolean.parseBoolean(op.testOptions.evals.getProperty("factLB"))) {
+    factLB=new Evalb("factor LP/LR",runningAverages);
+  }
+  if (op.testOptions.evals.getProperty("factChildSpecific") != null) {
+    String filter=op.testOptions.evals.getProperty("factChildSpecific");
+    factChildSpecific=FilteredEval.childFilteredEval("fact children matching " + filter + " LP/LR",runningAverages,op.langpack(),filter);
+  }
+  if (Boolean.parseBoolean(op.testOptions.evals.getProperty("factLA"))) {
+    factLA=new LeafAncestorEval("factor LeafAncestor");
+  }
+  if (Boolean.parseBoolean(op.testOptions.evals.getProperty("factCB"))) {
+    factCB=new Evalb.CBEval("fact CB",runningAverages);
+  }
+  if (Boolean.parseBoolean(op.testOptions.evals.getProperty("factDA"))) {
+    factDA=new UnlabeledAttachmentEval("factor DA",runningAverages,null);
+  }
+  if (Boolean.parseBoolean(op.testOptions.evals.getProperty("factTA"))) {
+    if (op.doPCFG) {
+      factTA=new TaggingEval("factor Tag",runningAverages,lex);
+    }
+ else {
+      factTA=new TaggingEval("factor Tag",runningAverages,lex);
+    }
+  }
+  if (Boolean.parseBoolean(op.testOptions.evals.getProperty("pcfgRUO"))) {
+    pcfgRUO=new AbstractEval.RuleErrorEval("pcfg Rule under/over");
+  }
+  if (Boolean.parseBoolean(op.testOptions.evals.getProperty("pcfgCUO"))) {
+    pcfgCUO=new AbstractEval.CatErrorEval("pcfg Category under/over");
+  }
+  if (Boolean.parseBoolean(op.testOptions.evals.getProperty("pcfgCatE"))) {
+    pcfgCatE=new EvalbByCat("pcfg Category Eval",runningAverages);
+  }
+  if (Boolean.parseBoolean(op.testOptions.evals.getProperty("pcfgLL"))) {
+    pcfgLL=new AbstractEval.ScoreEval("pcfgLL",runningAverages);
+  }
+  if (Boolean.parseBoolean(op.testOptions.evals.getProperty("depLL"))) {
+    depLL=new AbstractEval.ScoreEval("depLL",runningAverages);
+  }
+  if (Boolean.parseBoolean(op.testOptions.evals.getProperty("factLL"))) {
+    factLL=new AbstractEval.ScoreEval("factLL",runningAverages);
+  }
+  kGoodLB=new Evalb("kGood LP/LR",false);
+  if (Boolean.parseBoolean(op.testOptions.evals.getProperty("pcfgTopK"))) {
+    topKEvals.add(new BestOfTopKEval(new Evalb("pcfg top k comparisons",false),new Evalb("pcfg top k LP/LR",runningAverages)));
+  }
+  if (topKEvals.size() > 0) {
+    kbestPCFG=op.testOptions.evalPCFGkBest;
+  }
+  if (op.testOptions.printPCFGkBest > 0) {
+    kbestPCFG=Math.max(kbestPCFG,op.testOptions.printPCFGkBest);
+  }
+}

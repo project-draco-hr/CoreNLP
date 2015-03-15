@@ -1,5 +1,4 @@
 {
-  if (encoded.length() == 0)   return new String[]{};
   char[] chars=encoded.trim().toCharArray();
   char quoteCloseChar=(char)0;
   List<StringBuilder> terms=new LinkedList<StringBuilder>();
@@ -16,16 +15,8 @@
     end-=1;
     if (chars[end] != ']')     throw new IllegalArgumentException("Unclosed bracket in encoded array: " + encoded);
   }
-  if (chars[0] == '{') {
-    start+=1;
-    end-=1;
-    if (chars[end] != '}')     throw new IllegalArgumentException("Unclosed bracket in encoded array: " + encoded);
-  }
   for (int i=start; i < end; i++) {
-    if (chars[i] == '\r') {
-      continue;
-    }
- else     if (chars[i] == '\\') {
+    if (chars[i] == '\\') {
       if (i == chars.length - 1)       throw new IllegalArgumentException("Last character of encoded pair is escape character: " + encoded);
       current.append(chars[i + 1]);
       i+=1;
@@ -45,10 +36,8 @@
  else       if (chars[i] == '\'') {
         quoteCloseChar='\'';
       }
- else       if (chars[i] == ',' || chars[i] == ';' || chars[i] == ' ' || chars[i] == '\t' || chars[i] == '\n') {
-        if (current.length() > 0) {
-          terms.add(current);
-        }
+ else       if (chars[i] == ',') {
+        terms.add(current);
         current=new StringBuilder();
       }
  else {

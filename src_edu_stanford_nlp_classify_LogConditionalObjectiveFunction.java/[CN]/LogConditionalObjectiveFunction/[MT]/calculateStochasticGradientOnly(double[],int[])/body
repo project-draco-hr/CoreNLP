@@ -1,0 +1,46 @@
+{
+  if (values != null) {
+    rvfcalculate(x);
+    return;
+  }
+  value=0.0;
+  int batchSize=batch.length;
+  if (priorDerivative == null) {
+    priorDerivative=new double[x.length];
+  }
+  double priorFactor=batchSize / (data.length * prior.getSigma() * prior.getSigma());
+  derivative=ArrayMath.multiply(x,priorFactor);
+  double[] sums=new double[numClasses];
+  double[] probs=new double[numClasses];
+  for (int d=0; d < batchSize; d++) {
+    int m=batch[d];
+    int[] features=data[m];
+    Arrays.fill(sums,0.0);
+    for (int c=0; c < numClasses; c++) {
+      for (int f=0; f < features.length; f++) {
+        int i=indexOf(features[f],c);
+        sums[c]+=x[i];
+      }
+    }
+    double total=ArrayMath.logSum(sums);
+    for (int c=0; c < numClasses; c++) {
+      probs[c]=Math.exp(sums[c] - total);
+      if (dataweights != null) {
+        probs[c]*=dataweights[m];
+      }
+      for (int f=0; f < features.length; f++) {
+        int i=indexOf(features[f],c);
+        derivative[i]+=probs[c];
+        if (c == labels[m]) {
+          derivative[i]-=1;
+        }
+      }
+    }
+    double dV=sums[labels[m]] - total;
+    if (dataweights != null) {
+      dV*=dataweights[m];
+    }
+    value-=dV;
+  }
+  value+=((double)batchSize) / ((double)data.length) * prior.compute(x,priorDerivative);
+}

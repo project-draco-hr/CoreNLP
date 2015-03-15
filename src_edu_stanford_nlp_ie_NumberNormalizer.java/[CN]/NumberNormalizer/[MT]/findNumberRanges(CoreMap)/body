@@ -23,9 +23,10 @@
     }
   }
   List<CoreMap> numberRanges=new ArrayList<CoreMap>();
-  TokenSequenceMatcher matcher=rangePattern.getMatcher(numerizedTokens);
+  TokenSequencePattern pattern=TokenSequencePattern.compile(env,"(?:$NUMCOMPTERM /-|to/ $NUMCOMPTERM) | $NUMRANGE");
+  TokenSequenceMatcher matcher=pattern.getMatcher(numerizedTokens);
   while (matcher.find()) {
-    List<CoreMap> matched=matcher.groupNodes();
+    List<? extends CoreMap> matched=matcher.groupNodes();
     if (matched.size() == 1) {
       numberRanges.add(matched.get(0));
     }

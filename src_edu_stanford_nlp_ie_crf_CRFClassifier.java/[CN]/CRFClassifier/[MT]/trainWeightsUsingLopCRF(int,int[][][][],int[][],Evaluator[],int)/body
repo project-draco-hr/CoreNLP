@@ -1,0 +1,88 @@
+{
+  int numLopExpert=flags.numLopExpert;
+  double[][] lopExpertWeights=new double[numLopExpert][];
+  getFeatureBoundaryIndices(numFeatures,numLopExpert);
+  if (flags.initialLopWeights != null) {
+    try {
+      System.err.println("Reading initial LOP weights from file " + flags.initialLopWeights + " ...");
+      BufferedReader br=new BufferedReader(new InputStreamReader(new FileInputStream(new File(flags.initialLopWeights))));
+      String line=null;
+      List<double[]> listOfWeights=new ArrayList<double[]>(numLopExpert);
+      while ((line=br.readLine()) != null) {
+        line=line.trim();
+        String[] parts=line.split("\t");
+        double[] wArr=new double[parts.length];
+        for (int i=0; i < parts.length; i++) {
+          wArr[i]=Double.parseDouble(parts[i]);
+        }
+        listOfWeights.add(wArr);
+      }
+      assert(listOfWeights.size() == numLopExpert);
+      System.err.println("Done!");
+      for (int i=0; i < numLopExpert; i++)       lopExpertWeights[i]=listOfWeights.get(i);
+    }
+ catch (    IOException e) {
+      throw new RuntimeException("Could not read from double initial LOP weights file " + flags.initialLopWeights);
+    }
+  }
+ else {
+    for (int lopIter=0; lopIter < numLopExpert; lopIter++) {
+      int[][][][] partialData=createPartialDataForLOP(lopIter,data);
+      if (flags.randomLopWeights) {
+        lopExpertWeights[lopIter]=initWeightsUsingDoubleCRF(partialData,labels,evaluators,pruneFeatureItr);
+      }
+ else {
+        lopExpertWeights[lopIter]=trainWeightsUsingDoubleCRF(partialData,labels,evaluators,pruneFeatureItr,null);
+      }
+    }
+    if (flags.includeFullCRFInLOP) {
+      double[][] newLopExpertWeights=new double[numLopExpert + 1][];
+      System.arraycopy(lopExpertWeights,0,newLopExpertWeights,0,lopExpertWeights.length);
+      if (flags.randomLopWeights) {
+        newLopExpertWeights[numLopExpert]=initWeightsUsingDoubleCRF(data,labels,evaluators,pruneFeatureItr);
+      }
+ else {
+        newLopExpertWeights[numLopExpert]=trainWeightsUsingDoubleCRF(data,labels,evaluators,pruneFeatureItr,null);
+      }
+      Set<Integer> newSet=new HashSet<Integer>(numFeatures);
+      List<Integer> newList=new ArrayList<Integer>(numFeatures);
+      for (int fIndex=0; fIndex < numFeatures; fIndex++) {
+        newSet.add(fIndex);
+        newList.add(fIndex);
+      }
+      featureIndicesSetArray.add(newSet);
+      featureIndicesListArray.add(newList);
+      numLopExpert+=1;
+      lopExpertWeights=newLopExpertWeights;
+    }
+  }
+  CRFLogConditionalObjectiveFunctionForLOP func=new CRFLogConditionalObjectiveFunctionForLOP(data,labels,lopExpertWeights,windowSize,classIndex,labelIndices,map,flags.backgroundSymbol,numLopExpert,featureIndicesSetArray,featureIndicesListArray,flags.backpropLopTraining);
+  cliquePotentialFunctionHelper=func;
+  Minimizer minimizer=getMinimizer(0,evaluators);
+  double[] initialScales;
+  if (flags.initialLopScales == null) {
+    initialScales=func.initial();
+  }
+ else {
+    try {
+      System.err.println("Reading initial LOP scales from file " + flags.initialLopScales);
+      DataInputStream dis=new DataInputStream(new BufferedInputStream(new GZIPInputStream(new FileInputStream(flags.initialLopScales))));
+      initialScales=ConvertByteArray.readDoubleArr(dis);
+    }
+ catch (    IOException e) {
+      throw new RuntimeException("Could not read from double initial LOP scales file " + flags.initialLopScales);
+    }
+  }
+  double[] learnedParams=minimizer.minimize(func,flags.tolerance,initialScales);
+  double[] rawScales=func.separateLopScales(learnedParams);
+  double[] lopScales=ArrayMath.softmax(rawScales);
+  System.err.println("After SoftMax Transformation, learned scales are:");
+  for (int lopIter=0; lopIter < numLopExpert; lopIter++) {
+    System.err.println("lopScales[" + lopIter + "] = "+ lopScales[lopIter]);
+  }
+  double[][] learnedLopExpertWeights=lopExpertWeights;
+  if (flags.backpropLopTraining) {
+    learnedLopExpertWeights=func.separateLopExpertWeights(learnedParams);
+  }
+  return CRFLogConditionalObjectiveFunctionForLOP.combineAndScaleLopWeights(numLopExpert,learnedLopExpertWeights,lopScales);
+}

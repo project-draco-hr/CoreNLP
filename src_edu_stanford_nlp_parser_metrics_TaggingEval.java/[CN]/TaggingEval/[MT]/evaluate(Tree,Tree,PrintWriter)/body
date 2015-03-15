@@ -7,14 +7,14 @@
   if (doCatLevelEval) {
     final Map<String,Set<Label>> guessCats=makeObjectsByCat(guess);
     final Map<String,Set<Label>> goldCats=makeObjectsByCat(gold);
-    final Set<String> allCats=Generics.newHashSet();
+    final Set<String> allCats=new HashSet<String>();
     allCats.addAll(guessCats.keySet());
     allCats.addAll(goldCats.keySet());
     for (    final String cat : allCats) {
       Set<Label> thisGuessCats=guessCats.get(cat);
       Set<Label> thisGoldCats=goldCats.get(cat);
-      if (thisGuessCats == null)       thisGuessCats=Generics.newHashSet();
-      if (thisGoldCats == null)       thisGoldCats=Generics.newHashSet();
+      if (thisGuessCats == null)       thisGuessCats=new HashSet<Label>();
+      if (thisGoldCats == null)       thisGoldCats=new HashSet<Label>();
       double currentPrecision=precision(thisGuessCats,thisGoldCats);
       double currentRecall=precision(thisGoldCats,thisGuessCats);
       double currentF1=(currentPrecision > 0.0 && currentRecall > 0.0 ? 2.0 / (1.0 / currentPrecision + 1.0 / currentRecall) : 0.0);

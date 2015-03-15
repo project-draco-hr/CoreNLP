@@ -1,7 +1,7 @@
 {
   String model=props.getProperty(annotatorName + ".model",LexicalizedParser.DEFAULT_PARSER_LOC);
   if (model == null) {
-    throw new IllegalArgumentException("No model specified for Parser annotator " + annotatorName);
+    throw new IllegalArgumentException("No model specified for " + "Parser annotator " + annotatorName);
   }
   this.VERBOSE=PropertiesUtils.getBool(props,annotatorName + ".debug",false);
   String[] flags=convertFlagsToArray(props.getProperty(annotatorName + ".flags"));
@@ -14,7 +14,7 @@
  else {
     this.treeMap=ReflectionLoading.loadByReflection(treeMapClass,props);
   }
-  this.maxParseTime=PropertiesUtils.getLong(props,annotatorName + ".maxtime",-1);
+  this.maxParseTime=PropertiesUtils.getLong(props,annotatorName + ".maxtime",0);
   String buildGraphsProperty=annotatorName + ".buildgraphs";
   if (!this.parser.getTLPParams().supportsBasicDependencies()) {
     if (props.getProperty(buildGraphsProperty) != null && PropertiesUtils.getBool(props,buildGraphsProperty)) {
@@ -27,14 +27,10 @@
   }
   if (this.BUILD_GRAPHS) {
     TreebankLanguagePack tlp=parser.getTLPParams().treebankLanguagePack();
-    this.gsf=tlp.grammaticalStructureFactory(tlp.punctuationWordRejectFilter(),parser.getTLPParams().typedDependencyHeadFinder());
+    this.gsf=tlp.grammaticalStructureFactory(tlp.punctuationWordRejectFilter(),tlp.typedDependencyHeadFinder());
   }
  else {
     this.gsf=null;
   }
   this.nThreads=PropertiesUtils.getInt(props,annotatorName + ".nthreads",PropertiesUtils.getInt(props,"nthreads",1));
-  boolean usesBinary=StanfordCoreNLP.usesBinaryTrees(props);
-  this.saveBinaryTrees=PropertiesUtils.getBool(props,annotatorName + ".binaryTrees",usesBinary);
-  this.noSquash=PropertiesUtils.getBool(props,annotatorName + ".nosquash",false);
-  this.extraDependencies=MetaClass.cast(props.getProperty(annotatorName + ".extradependencies","NONE"),GrammaticalStructure.Extras.class);
 }

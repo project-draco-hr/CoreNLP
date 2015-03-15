@@ -1,0 +1,51 @@
+{
+  this.language=language;
+  this.shortName=shortName;
+  this.longName=longName;
+  this.parent=parent;
+  this.specific=specificString;
+  if (parent != null) {
+    parent.addChild(this);
+  }
+  if (annotation != null) {
+    if (GrammaticalRelation.annotationsToRelations.put(annotation,this) != null) {
+      throw new IllegalArgumentException("Annotation cannot be associated with more than one relation!");
+    }
+    if (GrammaticalRelation.relationsToAnnotations.put(this,annotation) != null) {
+      throw new IllegalArgumentException("There should only ever be one instance of each relation!");
+    }
+  }
+  if (sourcePattern != null) {
+    try {
+      this.sourcePattern=Pattern.compile(sourcePattern);
+    }
+ catch (    java.util.regex.PatternSyntaxException e) {
+      throw new RuntimeException("Bad pattern: " + sourcePattern);
+    }
+  }
+ else {
+    this.sourcePattern=null;
+  }
+  for (  String pattern : targetPatterns) {
+    try {
+      TregexPattern p=tregexCompiler.compile(pattern);
+      this.targetPatterns.add(p);
+    }
+ catch (    edu.stanford.nlp.trees.tregex.TregexParseException pe) {
+      throw new RuntimeException("Bad pattern: " + pattern,pe);
+    }
+  }
+  Map<String,GrammaticalRelation> sToR=stringsToRelations.get(language);
+  if (sToR == null) {
+    sToR=new HashMap<String,GrammaticalRelation>();
+    stringsToRelations.put(language,sToR);
+  }
+  GrammaticalRelation previous=sToR.put(toString(),this);
+  if (previous != null) {
+    if (!previous.isFromString() && !isFromString()) {
+      throw new IllegalArgumentException("There is already a relation named " + toString() + '!');
+    }
+ else {
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  Collection<String> features=new ArrayList<String>();
+  CoreLabel c=cInfo.get(loc);
+  CoreLabel n=cInfo.get(loc + 1);
+  CoreLabel n2=cInfo.get(loc + 2);
+  CoreLabel p=cInfo.get(loc - 1);
+  CoreLabel p2=cInfo.get(loc - 2);
+  String charc=c.get(CoreAnnotations.CharAnnotation.class);
+  String charn=n.get(CoreAnnotations.CharAnnotation.class);
+  String charn2=n2.get(CoreAnnotations.CharAnnotation.class);
+  String charp=p.get(CoreAnnotations.CharAnnotation.class);
+  String charp2=p2.get(CoreAnnotations.CharAnnotation.class);
+  features.add(charc + "-c");
+  features.add(charn + "-n1");
+  features.add(charn2 + "-n2");
+  features.add(charp + "-p");
+  features.add(charp2 + "-p2");
+  if (isPunc.matcher(charc).find()) {
+    features.add("haspunc");
+  }
+  if (isDigit.matcher(charc).find()) {
+    features.add("hasdigit");
+  }
+  if (charc.length() > 1) {
+    features.add("length");
+  }
+  for (int i=0; i < charc.length(); ++i) {
+    String cuBlock=Characters.unicodeBlockStringOf(charc.charAt(i));
+    features.add(cuBlock + "-uBlock");
+    String cuType=String.valueOf(Character.getType(charc.charAt(i)));
+    features.add(cuType + "-uType");
+  }
+  features.add("cliqueC");
+  return features;
+}

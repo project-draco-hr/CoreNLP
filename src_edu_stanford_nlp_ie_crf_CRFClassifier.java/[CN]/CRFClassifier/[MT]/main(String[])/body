@@ -1,47 +1,33 @@
 {
   StringUtils.printErrInvocationString("CRFClassifier",args);
   Properties props=StringUtils.argsToProperties(args);
-  SeqClassifierFlags flags=new SeqClassifierFlags(props);
-  CRFClassifier<CoreLabel> crf=chooseCRFClassifier(flags);
-  String testFile=flags.testFile;
-  String testFiles=flags.testFiles;
-  String textFile=flags.textFile;
-  String textFiles=flags.textFiles;
-  String loadPath=flags.loadClassifier;
-  String loadTextPath=flags.loadTextClassifier;
-  String serializeTo=flags.serializeTo;
-  String serializeToText=flags.serializeToText;
+  CRFClassifier<CoreLabel> crf=new CRFClassifier<CoreLabel>(props);
+  String testFile=crf.flags.testFile;
+  String testFiles=crf.flags.testFiles;
+  String textFile=crf.flags.textFile;
+  String textFiles=crf.flags.textFiles;
+  String loadPath=crf.flags.loadClassifier;
+  String loadTextPath=crf.flags.loadTextClassifier;
+  String serializeTo=crf.flags.serializeTo;
+  String serializeToText=crf.flags.serializeToText;
   if (crf.flags.useEmbedding && crf.flags.embeddingWords != null && crf.flags.embeddingVectors != null) {
     System.err.println("Reading Embedding Files");
-    BufferedReader br=IOUtils.readerFromString(crf.flags.embeddingWords);
+    BufferedReader br=new BufferedReader(new InputStreamReader(new FileInputStream(new File(crf.flags.embeddingWords))));
+    String line=null;
     List<String> wordList=new ArrayList<String>();
-    for (String line; (line=br.readLine()) != null; ) {
+    while ((line=br.readLine()) != null) {
       wordList.add(line.trim());
     }
     System.err.println("Found a dictionary of size " + wordList.size());
-    br.close();
-    crf.embeddings=Generics.newHashMap();
+    br=new BufferedReader(new InputStreamReader(new FileInputStream(new File(crf.flags.embeddingVectors))));
+    crf.embeddings=new HashMap<String,double[]>();
+    double[] vector=null;
     int count=0;
-    int vectorSize=-1;
-    boolean warned=false;
-    br=IOUtils.readerFromString(crf.flags.embeddingVectors);
-    for (String line; (line=br.readLine()) != null; ) {
-      double[] vector=ArrayUtils.toDoubleArray(line.trim().split(" "));
-      if (vectorSize < 0) {
-        vectorSize=vector.length;
-      }
- else {
-        if (vectorSize != vector.length && !warned) {
-          System.err.println("Inconsistent vector lengths: " + vectorSize + " vs. "+ vector.length);
-          warned=true;
-        }
-      }
+    while ((line=br.readLine()) != null) {
+      vector=ArrayUtils.toDoubleArray(line.trim().split(" "));
       crf.embeddings.put(wordList.get(count++),vector);
     }
-    System.err.println("Found " + count + " matching embeddings of dimension "+ vectorSize);
-  }
-  if (crf.flags.loadClassIndexFrom != null) {
-    crf.classIndex=loadClassIndexFromFile(crf.flags.loadClassIndexFrom);
+    System.err.println("Found " + count + " matching embeddings of dimension "+ vector.length);
   }
   if (loadPath != null) {
     crf.loadClassifierNoExceptions(loadPath,props);
@@ -60,9 +46,7 @@
     crf.loadJarClassifier(crf.flags.loadJarClassifier,props);
   }
  else   if (crf.flags.trainFile != null || crf.flags.trainFileList != null) {
-    Timing timing=new Timing();
     crf.train();
-    timing.done("CRFClassifier training");
   }
  else {
     crf.loadDefaultClassifier();
@@ -70,12 +54,6 @@
   crf.loadTagIndex();
   if (serializeTo != null) {
     crf.serializeClassifier(serializeTo);
-  }
-  if (crf.flags.serializeWeightsTo != null) {
-    crf.serializeWeights(crf.flags.serializeWeightsTo);
-  }
-  if (crf.flags.serializeFeatureIndexTo != null) {
-    crf.serializeFeatureIndex(crf.flags.serializeFeatureIndexTo);
   }
   if (serializeToText != null) {
     crf.serializeTextClassifier(serializeToText);
@@ -88,9 +66,6 @@
  else     if (crf.flags.printFirstOrderProbs) {
       crf.printFirstOrderProbs(testFile,readerAndWriter);
     }
- else     if (crf.flags.printFactorTable) {
-      crf.printFactorTable(testFile,readerAndWriter);
-    }
  else     if (crf.flags.printProbs) {
       crf.printProbs(testFile,readerAndWriter);
     }
@@ -102,7 +77,7 @@
       crf.printLabelInformation(testFile,readerAndWriter);
     }
  else {
-      crf.classifyAndWriteAnswers(testFile,readerAndWriter,true);
+      crf.classifyAndWriteAnswers(testFile,readerAndWriter);
     }
   }
   if (testFiles != null) {
@@ -110,7 +85,7 @@
     for (    String filename : testFiles.split(",")) {
       files.add(new File(filename));
     }
-    crf.classifyFilesAndWriteAnswers(files,crf.defaultReaderAndWriter(),true);
+    crf.classifyAndWriteAnswers(files,crf.defaultReaderAndWriter());
   }
   if (textFile != null) {
     crf.classifyAndWriteAnswers(textFile);
@@ -120,7 +95,7 @@
     for (    String filename : textFiles.split(",")) {
       files.add(new File(filename));
     }
-    crf.classifyFilesAndWriteAnswers(files);
+    crf.classifyAndWriteAnswers(files);
   }
   if (crf.flags.readStdin) {
     crf.classifyStdin();

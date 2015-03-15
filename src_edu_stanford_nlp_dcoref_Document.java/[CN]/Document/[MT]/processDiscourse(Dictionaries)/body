@@ -4,40 +4,18 @@
   findSpeakers(dict);
   for (  Mention m : allPredictedMentions.values()) {
     int utter=m.headWord.get(CoreAnnotations.UtteranceAnnotation.class);
-    String speaker=m.headWord.get(CoreAnnotations.SpeakerAnnotation.class);
-    if (speaker != null) {
-      SpeakerInfo speakerInfo=speakerInfoMap.get(speaker);
-      if (speakerInfo == null) {
-        speakerInfoMap.put(speaker,speakerInfo=new SpeakerInfo(speaker));
-        if (Rules.mentionMatchesSpeaker(m,speakerInfo,true)) {
-          m.speakerInfo=speakerInfo;
-        }
+    int speakerMentionID;
+    try {
+      speakerMentionID=Integer.parseInt(m.headWord.get(CoreAnnotations.SpeakerAnnotation.class));
+      if (utter != 0) {
+        speakerPairs.add(new Pair<Integer,Integer>(m.mentionID,speakerMentionID));
+        speakerPairs.add(new Pair<Integer,Integer>(speakerMentionID,m.mentionID));
       }
-      if (NumberMatchingRegex.isDecimalInteger(speaker)) {
-        try {
-          int speakerMentionID=Integer.parseInt(speaker);
-          if (utter != 0) {
-            speakerPairs.add(new Pair<Integer,Integer>(m.mentionID,speakerMentionID));
-          }
-        }
- catch (        Exception e) {
-        }
-      }
+    }
+ catch (    Exception e) {
     }
     if (docType != DocType.ARTICLE && m.person == Person.YOU && m.endIndex < m.sentenceWords.size() - 1 && m.sentenceWords.get(m.endIndex).get(CoreAnnotations.TextAnnotation.class).equalsIgnoreCase("know")) {
       m.generic=true;
-    }
-  }
-  for (  Mention m : allPredictedMentions.values()) {
-    if (m.speakerInfo == null) {
-      for (      SpeakerInfo speakerInfo : speakerInfoMap.values()) {
-        if (speakerInfo.hasRealSpeakerName()) {
-          if (Rules.mentionMatchesSpeaker(m,speakerInfo,false)) {
-            m.speakerInfo=speakerInfo;
-            break;
-          }
-        }
-      }
     }
   }
 }

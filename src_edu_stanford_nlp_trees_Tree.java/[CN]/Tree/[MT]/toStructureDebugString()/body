@@ -1,0 +1,73 @@
+{
+  String leafLabels=null;
+  String tagLabels=null;
+  String phraseLabels=null;
+  String leaves=null;
+  String nodes=null;
+  for (  Tree st : this) {
+    if (st.isPhrasal()) {
+      if (nodes == null) {
+        nodes=StringUtils.getShortClassName(st);
+      }
+ else       if (!nodes.equals(StringUtils.getShortClassName(st))) {
+        nodes="mixed";
+      }
+      Label lab=st.label();
+      if (phraseLabels == null) {
+        if (lab == null) {
+          phraseLabels="null";
+        }
+ else {
+          phraseLabels=StringUtils.getShortClassName(lab);
+        }
+      }
+ else       if (!phraseLabels.equals(StringUtils.getShortClassName(lab))) {
+        phraseLabels="mixed";
+      }
+    }
+ else     if (st.isPreTerminal()) {
+      if (nodes == null) {
+        nodes=StringUtils.getShortClassName(st);
+      }
+ else       if (!nodes.equals(StringUtils.getShortClassName(st))) {
+        nodes="mixed";
+      }
+      Label lab=st.label();
+      if (tagLabels == null) {
+        if (lab == null) {
+          tagLabels="null";
+        }
+ else {
+          tagLabels=StringUtils.getShortClassName(lab);
+        }
+      }
+ else       if (!tagLabels.equals(StringUtils.getShortClassName(lab))) {
+        tagLabels="mixed";
+      }
+    }
+ else     if (st.isLeaf()) {
+      if (leaves == null) {
+        leaves=StringUtils.getShortClassName(st);
+      }
+ else       if (!leaves.equals(StringUtils.getShortClassName(st))) {
+        leaves="mixed";
+      }
+      Label lab=st.label();
+      if (leafLabels == null) {
+        if (lab == null) {
+          leafLabels="null";
+        }
+ else {
+          leafLabels=StringUtils.getShortClassName(lab);
+        }
+      }
+ else       if (!leafLabels.equals(StringUtils.getShortClassName(lab))) {
+        leafLabels="mixed";
+      }
+    }
+ else {
+      throw new IllegalStateException("Bad tree: " + this);
+    }
+  }
+  return "Tree with " + nodes + " interior nodes and "+ leaves+ " leaves, and "+ phraseLabels+ " phrase labels, "+ tagLabels+ " tag labels, and "+ leafLabels+ " leaf labels.";
+}

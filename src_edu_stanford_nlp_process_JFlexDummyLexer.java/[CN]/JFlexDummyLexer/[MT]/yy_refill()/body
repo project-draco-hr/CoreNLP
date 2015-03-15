@@ -1,0 +1,23 @@
+{
+  if (yy_startRead > 0) {
+    System.arraycopy(yy_buffer,yy_startRead,yy_buffer,0,yy_endRead - yy_startRead);
+    yy_endRead-=yy_startRead;
+    yy_currentPos-=yy_startRead;
+    yy_markedPos-=yy_startRead;
+    yy_pushbackPos-=yy_startRead;
+    yy_startRead=0;
+  }
+  if (yy_currentPos >= yy_buffer.length) {
+    char newBuffer[]=new char[yy_currentPos * 2];
+    System.arraycopy(yy_buffer,0,newBuffer,0,yy_buffer.length);
+    yy_buffer=newBuffer;
+  }
+  int numRead=yy_reader.read(yy_buffer,yy_endRead,yy_buffer.length - yy_endRead);
+  if (numRead < 0) {
+    return true;
+  }
+ else {
+    yy_endRead+=numRead;
+    return false;
+  }
+}

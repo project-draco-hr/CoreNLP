@@ -1,10 +1,14 @@
 {
   super(crf.flags);
   this.windowSize=crf.windowSize;
-  this.featureFactories=crf.featureFactories;
+  this.featureFactory=crf.featureFactory;
   this.pad=crf.pad;
-  this.knownLCWords=(crf.knownLCWords != null) ? Generics.<String>newHashSet(crf.knownLCWords) : null;
+  this.knownLCWords=(crf.knownLCWords != null) ? new HashSet<String>(crf.knownLCWords) : null;
   this.featureIndex=(crf.featureIndex != null) ? new HashIndex<String>(crf.featureIndex.objectsList()) : null;
+  if (crf.flags.nonLinearCRF) {
+    this.nodeFeatureIndicesMap=(crf.nodeFeatureIndicesMap != null) ? new HashIndex<Integer>(crf.nodeFeatureIndicesMap.objectsList()) : null;
+    this.edgeFeatureIndicesMap=(crf.edgeFeatureIndicesMap != null) ? new HashIndex<Integer>(crf.edgeFeatureIndicesMap.objectsList()) : null;
+  }
   this.classIndex=(crf.classIndex != null) ? new HashIndex<String>(crf.classIndex.objectsList()) : null;
   if (crf.labelIndices != null) {
     this.labelIndices=new ArrayList<Index<CRFLabel>>(crf.labelIndices.size());
@@ -15,5 +19,6 @@
  else {
     this.labelIndices=null;
   }
+  int numFeatures=featureIndex != null ? featureIndex.size() : 0;
   this.cliquePotentialFunction=crf.cliquePotentialFunction;
 }

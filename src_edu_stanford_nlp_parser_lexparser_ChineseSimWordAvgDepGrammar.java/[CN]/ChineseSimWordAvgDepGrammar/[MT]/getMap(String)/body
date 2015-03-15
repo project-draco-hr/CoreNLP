@@ -1,5 +1,5 @@
 {
-  Map<Pair<Integer,String>,List<Triple<Integer,String,Double>>> hashMap=Generics.newHashMap();
+  Map<Pair<Integer,String>,List<Triple<Integer,String,Double>>> hashMap=new HashMap<Pair<Integer,String>,List<Triple<Integer,String,Double>>>();
   try {
     BufferedReader wordMapBReader=new BufferedReader(new InputStreamReader(new FileInputStream(filename),"UTF-8"));
     String wordMapLine;
@@ -10,14 +10,14 @@
         System.err.println("Ill-formed line in similar word map file: " + wordMapLine);
         continue;
       }
-      Pair<Integer,String> iTW=new Pair<Integer,String>(wordIndex.addToIndex(m.group(1)),m.group(2));
+      Pair<Integer,String> iTW=new Pair<Integer,String>(wordIndex.indexOf(m.group(1),true),m.group(2));
       double score=Double.parseDouble(m.group(5));
       List<Triple<Integer,String,Double>> tripleList=hashMap.get(iTW);
       if (tripleList == null) {
         tripleList=new ArrayList<Triple<Integer,String,Double>>();
         hashMap.put(iTW,tripleList);
       }
-      tripleList.add(new Triple<Integer,String,Double>(wordIndex.addToIndex(m.group(3)),m.group(4),score));
+      tripleList.add(new Triple<Integer,String,Double>(wordIndex.indexOf(m.group(3),true),m.group(4),score));
     }
   }
  catch (  IOException e) {

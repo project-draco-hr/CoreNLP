@@ -4,7 +4,18 @@
     timer=new Timing();
     timer.doing("Loading POS Model [" + loc + ']');
   }
-  MaxentTagger tagger=new MaxentTagger(loc);
+  MaxentTagger tagger;
+  try {
+    tagger=new MaxentTagger(loc);
+  }
+ catch (  IOException e) {
+    RuntimeException runtimeException=new RuntimeException(e);
+    throw runtimeException;
+  }
+catch (  ClassNotFoundException e) {
+    RuntimeException runtimeException=new RuntimeException(e);
+    throw runtimeException;
+  }
   if (verbose) {
     timer.done();
   }

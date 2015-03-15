@@ -1,10 +1,9 @@
 {
   Collection<TypedDependency> newTypedDeps=new ArrayList<TypedDependency>();
   for (  String[] mwp : MULTIWORD_PREPS) {
-    newTypedDeps.clear();
-    IndexedWord mwp0=null;
-    IndexedWord mwp1=null;
-    IndexedWord governor=null;
+    TreeGraphNode mwp0=null;
+    TreeGraphNode mwp1=null;
+    TreeGraphNode governor=null;
     TypedDependency prep=null;
     TypedDependency dep=null;
     TypedDependency pobj=null;
@@ -16,48 +15,45 @@
         dep=td;
       }
     }
-    if (mwp0 == null || governor == null) {
-      continue;
-    }
     for (    TypedDependency td1 : list) {
-      if (td1.reln() == PREPOSITIONAL_MODIFIER && td1.dep().value().equalsIgnoreCase(mwp[1]) && Math.abs(td1.dep().index() - mwp0.index()) == 1 && td1.gov().equals(governor)) {
+      if (mwp0 != null && td1.dep().value().equalsIgnoreCase(mwp[1]) && td1.gov() == governor && td1.reln() == PREPOSITIONAL_MODIFIER && Math.abs(td1.dep().index() - mwp0.index()) == 1) {
         mwp1=td1.dep();
         prep=td1;
       }
     }
-    if (mwp1 == null) {
-      continue;
-    }
     for (    TypedDependency td2 : list) {
-      if (td2.reln() == PREPOSITIONAL_OBJECT && td2.gov().equals(mwp1)) {
+      if (td2.gov() == mwp1 && td2.reln() == PREPOSITIONAL_OBJECT) {
         pobj=td2;
         GrammaticalRelation gr=EnglishGrammaticalRelations.getPrep(mwp[0] + '_' + mwp[1]);
-        newtd=new TypedDependency(gr,governor,pobj.dep());
+        if (governor != null) {
+          newtd=new TypedDependency(gr,governor,pobj.dep());
+        }
       }
-      if (td2.reln() == PREPOSITIONAL_COMPLEMENT && td2.gov().equals(mwp1)) {
+      if (td2.gov() == mwp1 && td2.reln() == PREPOSITIONAL_COMPLEMENT) {
         pobj=td2;
         GrammaticalRelation gr=EnglishGrammaticalRelations.getPrepC(mwp[0] + '_' + mwp[1]);
-        newtd=new TypedDependency(gr,governor,pobj.dep());
-      }
-    }
-    if (pobj == null) {
-      return;
-    }
-    prep.setReln(KILL);
-    dep.setReln(KILL);
-    pobj.setReln(KILL);
-    newTypedDeps.add(newtd);
-    for (    TypedDependency td1 : list) {
-      if (td1.reln() != KILL) {
-        if (td1.gov().equals(mwp0) || td1.gov().equals(mwp1)) {
-          td1.setGov(governor);
-        }
-        if (!newTypedDeps.contains(td1)) {
-          newTypedDeps.add(td1);
+        if (governor != null) {
+          newtd=new TypedDependency(gr,governor,pobj.dep());
         }
       }
     }
-    list.clear();
-    list.addAll(newTypedDeps);
+    if (prep != null && pobj != null && newtd != null) {
+      prep.setReln(KILL);
+      dep.setReln(KILL);
+      pobj.setReln(KILL);
+      newTypedDeps.add(newtd);
+      for (      TypedDependency td1 : list) {
+        if (td1.reln() != KILL) {
+          if (td1.gov() == mwp0 || td1.gov() == mwp1) {
+            td1.setGov(governor);
+          }
+          if (!newTypedDeps.contains(td1)) {
+            newTypedDeps.add(td1);
+          }
+        }
+      }
+      list.clear();
+      list.addAll(newTypedDeps);
+    }
   }
 }

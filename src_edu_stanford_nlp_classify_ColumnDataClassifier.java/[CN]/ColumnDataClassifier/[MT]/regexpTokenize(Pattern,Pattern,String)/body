@@ -1,7 +1,7 @@
 {
   List<String> al=new ArrayList<String>();
   String word=inWord;
-  while (!word.isEmpty()) {
+  while (word.length() > 0) {
     Matcher mig=null;
     if (ignoreRegexp != null) {
       mig=ignoreRegexp.matcher(word);
@@ -10,13 +10,13 @@
       word=word.substring(mig.end());
     }
  else {
-      Matcher m=tokenizerRegexp.matcher(word);
+      Matcher m=splitRegexp.matcher(word);
       if (m.lookingAt()) {
         al.add(word.substring(0,m.end()));
         word=word.substring(m.end());
       }
  else {
-        System.err.println("Warning: regexpTokenize pattern " + tokenizerRegexp + " didn't match on |"+ word.substring(0,1)+ "| of |"+ word+ '|');
+        System.err.println("Warning: regexpTokenize pattern " + splitRegexp + " didn't match on "+ word);
         al.add(word.substring(0,1));
         word=word.substring(1);
       }

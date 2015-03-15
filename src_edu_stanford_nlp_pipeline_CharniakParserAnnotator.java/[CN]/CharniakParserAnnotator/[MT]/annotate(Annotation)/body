@@ -1,19 +1,19 @@
 {
   if (annotation.containsKey(CoreAnnotations.SentencesAnnotation.class)) {
     for (    CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
+      Tree tree=null;
       List<CoreLabel> words=sentence.get(CoreAnnotations.TokensAnnotation.class);
       if (VERBOSE) {
         System.err.println("Parsing: " + words);
       }
       int maxSentenceLength=parser.getMaxSentenceLength();
-      Tree tree;
       if (maxSentenceLength <= 0 || words.size() < maxSentenceLength) {
         tree=parser.getBestParse(words);
       }
  else {
-        tree=ParserUtils.xTree(words);
+        tree=ParserAnnotatorUtils.xTree(words);
       }
-      ParserAnnotatorUtils.fillInParseAnnotations(VERBOSE,BUILD_GRAPHS,gsf,sentence,tree,GrammaticalStructure.Extras.NONE);
+      ParserAnnotatorUtils.fillInParseAnnotations(VERBOSE,BUILD_GRAPHS,gsf,sentence,tree);
     }
   }
  else {

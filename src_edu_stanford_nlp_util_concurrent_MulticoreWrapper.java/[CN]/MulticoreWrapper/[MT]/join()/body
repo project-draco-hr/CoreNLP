@@ -1,3 +1,8 @@
 {
-  join(true);
+  if (!threadPool.isShutdown()) {
+    while (idleProcessors.size() != nThreads) {
+      blockingGetResult();
+    }
+    threadPool.shutdown();
+  }
 }

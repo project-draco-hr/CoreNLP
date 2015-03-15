@@ -1,12 +1,4 @@
 {
-  if (numThreads <= 1 || isThreaded || (runnables instanceof Collection && ((Collection<Runnable>)runnables).size() <= 1)) {
-    startTrack("Threads (" + title + ")");
-    for (    Runnable toRun : runnables) {
-      toRun.run();
-    }
-    endTrack("Threads (" + title + ")");
-    return;
-  }
   ExecutorService exec=Executors.newFixedThreadPool(numThreads);
   for (  Runnable toRun : thread(title,runnables)) {
     exec.submit(toRun);
@@ -16,5 +8,6 @@
     exec.awaitTermination(Long.MAX_VALUE,TimeUnit.SECONDS);
   }
  catch (  InterruptedException e) {
+    throw new RuntimeException(e);
   }
 }

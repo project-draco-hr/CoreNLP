@@ -9,7 +9,6 @@
   }
   doScore=Boolean.parseBoolean(props.getProperty(Constants.SCORE_PROP,"false"));
   doPostProcessing=Boolean.parseBoolean(props.getProperty(Constants.POSTPROCESSING_PROP,"false"));
-  useSingletonPredictor=Boolean.parseBoolean(props.getProperty(Constants.SINGLETON_PROP,"true"));
   maxSentDist=Integer.parseInt(props.getProperty(Constants.MAXDIST_PROP,"-1"));
   useSemantics=sievePasses.contains("AliasMatch") || sievePasses.contains("LexicalChainMatch");
   replicateCoNLL=Boolean.parseBoolean(props.getProperty(Constants.REPLICATECONLL_PROP,"false"));
@@ -18,13 +17,12 @@
   optimizeScoreType=props.getProperty(Constants.OPTIMIZE_SIEVES_SCORE_PROP,"pairwise.Precision");
   String[] validMetricTypes={"muc","pairwise","bcub","ceafe","ceafm","combined"};
   String[] parts=optimizeScoreType.split("\\.");
-  optimizeConllScore=parts.length > 2 && "conll".equalsIgnoreCase(parts[2]);
+  optimizeConllScore=(parts.length > 2 && "conll".equalsIgnoreCase(parts[2])) ? true : false;
   optimizeMetricType=parts[0];
   boolean optimizeMetricTypeOk=false;
-  for (  String validMetricType : validMetricTypes) {
-    if (validMetricType.equalsIgnoreCase(optimizeMetricType)) {
+  for (int i=0; i < validMetricTypes.length; i++) {
+    if (validMetricTypes[i].equalsIgnoreCase(optimizeMetricType)) {
       optimizeMetricTypeOk=true;
-      break;
     }
   }
   if (!optimizeMetricTypeOk) {
@@ -64,7 +62,4 @@
   }
   dictionaries=new Dictionaries(props);
   semantics=(useSemantics) ? new Semantics(dictionaries) : null;
-  if (useSingletonPredictor) {
-    singletonPredictor=getSingletonPredictorFromSerializedFile(props.getProperty(Constants.SINGLETON_MODEL_PROP,DefaultPaths.DEFAULT_DCOREF_SINGLETON_MODEL));
-  }
 }
