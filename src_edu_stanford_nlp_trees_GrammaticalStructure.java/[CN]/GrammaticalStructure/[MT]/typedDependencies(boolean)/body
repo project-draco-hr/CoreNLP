@@ -1,5 +1,17 @@
 {
-  List<TypedDependency> deps=new ArrayList<TypedDependency>(includeExtras ? allTypedDependencies : typedDependencies);
+  List<TypedDependency> deps;
+  if (includeExtras) {
+    deps=new ArrayList<TypedDependency>(allTypedDependencies.size());
+    for (    TypedDependency dep : allTypedDependencies) {
+      deps.add(new TypedDependency(dep));
+    }
+  }
+ else {
+    deps=new ArrayList<TypedDependency>(typedDependencies.size());
+    for (    TypedDependency dep : typedDependencies) {
+      deps.add(new TypedDependency(dep));
+    }
+  }
   correctDependencies(deps);
   return deps;
 }

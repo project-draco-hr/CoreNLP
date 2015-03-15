@@ -1,0 +1,13 @@
+{
+  Element eRoot=(Element)root;
+  String label=eRoot.getNodeName().trim();
+  if (detailedAnnotations) {
+    if (eRoot.getAttribute(ATTR_COORDINATING).equals("yes")) {
+      label+="-coord";
+    }
+ else     if (eRoot.hasAttribute(ATTR_CLAUSE_TYPE)) {
+      label+='-' + eRoot.getAttribute(ATTR_CLAUSE_TYPE);
+    }
+  }
+  return treeFactory.newTreeNode(treeNormalizer.normalizeNonterminal(label),children);
+}

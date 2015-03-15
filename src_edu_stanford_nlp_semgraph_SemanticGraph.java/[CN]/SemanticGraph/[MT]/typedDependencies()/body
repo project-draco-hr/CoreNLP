@@ -1,19 +1,16 @@
 {
   Collection<TypedDependency> dependencies=new ArrayList<TypedDependency>();
-  TreeGraphNode root=null;
+  IndexedWord root=null;
   for (  IndexedWord node : roots) {
     if (root == null) {
-      IndexedWord rootLabel=new IndexedWord(node.docID(),node.sentIndex(),0);
-      rootLabel.setValue("ROOT");
-      root=new TreeGraphNode(rootLabel);
+      root=new IndexedWord(node.docID(),node.sentIndex(),0);
+      root.setValue("ROOT");
     }
-    TypedDependency dependency=new TypedDependency(ROOT,root,new TreeGraphNode(node));
+    TypedDependency dependency=new TypedDependency(ROOT,root,node);
     dependencies.add(dependency);
   }
   for (  SemanticGraphEdge e : this.edgeIterable()) {
-    TreeGraphNode gov=new TreeGraphNode(e.getGovernor());
-    TreeGraphNode dep=new TreeGraphNode(e.getDependent());
-    TypedDependency dependency=new TypedDependency(e.getRelation(),gov,dep);
+    TypedDependency dependency=new TypedDependency(e.getRelation(),e.getGovernor(),e.getDependent());
     dependencies.add(dependency);
   }
   return dependencies;

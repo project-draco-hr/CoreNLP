@@ -1,0 +1,17 @@
+{
+  if ("NUMBER".equals(tag) || "ORDINAL".equals(tag)) {
+    Number n1=cur.get(CoreAnnotations.NumericCompositeValueAnnotation.class);
+    Number n2=prev.get(CoreAnnotations.NumericCompositeValueAnnotation.class);
+    boolean compatible=checkNumbers(n1,n2);
+    if (!compatible)     return compatible;
+  }
+  if ("TIME".equals(tag) || "SET".equals(tag) || "DATE".equals(tag)|| "DURATION".equals(tag)) {
+    Timex timex1=cur.get(TimeAnnotations.TimexAnnotation.class);
+    Timex timex2=prev.get(TimeAnnotations.TimexAnnotation.class);
+    String tid1=(timex1 != null) ? timex1.tid() : null;
+    String tid2=(timex2 != null) ? timex2.tid() : null;
+    boolean compatible=checkStrings(tid1,tid2);
+    if (!compatible)     return compatible;
+  }
+  return true;
+}

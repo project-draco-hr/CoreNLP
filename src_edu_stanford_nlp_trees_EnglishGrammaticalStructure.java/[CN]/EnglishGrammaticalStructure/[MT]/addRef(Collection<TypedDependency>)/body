@@ -4,21 +4,21 @@
     if (rcmod.reln() != RELATIVE_CLAUSE_MODIFIER) {
       continue;
     }
-    TreeGraphNode head=rcmod.gov();
-    TreeGraphNode modifier=rcmod.dep();
+    IndexedWord head=rcmod.gov();
+    IndexedWord modifier=rcmod.dep();
     TypedDependency leftChild=null;
     for (    TypedDependency child : list) {
-      if (child.gov() == modifier && RELATIVIZING_WORD_PATTERN.matcher(child.dep().label().value()).matches() && (leftChild == null || child.dep().index() < leftChild.dep().index())) {
+      if (child.gov().equals(modifier) && RELATIVIZING_WORD_PATTERN.matcher(child.dep().value()).matches() && (leftChild == null || child.dep().index() < leftChild.dep().index())) {
         leftChild=child;
       }
     }
     TypedDependency leftGrandchild=null;
     for (    TypedDependency child : list) {
-      if (child.gov() != modifier) {
+      if (!child.gov().equals(modifier)) {
         continue;
       }
       for (      TypedDependency grandchild : list) {
-        if (grandchild.gov() == child.dep() && RELATIVIZING_WORD_PATTERN.matcher(grandchild.dep().label().value()).matches() && (leftGrandchild == null || grandchild.dep().index() < leftGrandchild.dep().index())) {
+        if (grandchild.gov().equals(child.dep()) && RELATIVIZING_WORD_PATTERN.matcher(grandchild.dep().value()).matches() && (leftGrandchild == null || grandchild.dep().index() < leftGrandchild.dep().index())) {
           leftGrandchild=grandchild;
         }
       }

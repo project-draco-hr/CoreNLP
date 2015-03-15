@@ -1,7 +1,6 @@
 {
   SemanticGraph nsg=new SemanticGraph();
   List<IndexedWord> vertices=sg.vertexListSorted();
-  List<SemanticGraphEdge> edges=sg.edgeListSorted();
   int index=1;
   Map<IndexedWord,IndexedWord> oldToNewVertices=Generics.newHashMap();
   List<IndexedWord> newVertices=new ArrayList<IndexedWord>();
@@ -19,7 +18,7 @@
     newRoots.add(oldToNewVertices.get(or));
   }
   nsg.setRoots(newRoots);
-  for (  SemanticGraphEdge edge : edges) {
+  for (  SemanticGraphEdge edge : sg.edgeIterable()) {
     IndexedWord newGov=oldToNewVertices.get(edge.getGovernor());
     IndexedWord newDep=oldToNewVertices.get(edge.getDependent());
     nsg.addEdge(newGov,newDep,edge.getRelation(),edge.getWeight(),edge.isExtra());

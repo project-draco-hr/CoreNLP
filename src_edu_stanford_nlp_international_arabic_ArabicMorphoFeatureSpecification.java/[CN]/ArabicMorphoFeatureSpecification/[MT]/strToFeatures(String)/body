@@ -64,19 +64,27 @@
       Matcher moodMatcher=pMood.matcher(spec);
       if (moodMatcher.find()) {
         String moodStr=moodMatcher.group(1);
-        if (moodStr.equals("I"))         features.addFeature(MorphoFeatureType.MOOD,moodVals[0]);
- else         if (moodStr.equals("S"))         features.addFeature(MorphoFeatureType.MOOD,moodVals[1]);
- else         if (moodStr.equals("J"))         features.addFeature(MorphoFeatureType.MOOD,moodVals[2]);
-      }
-    }
-    if (isActive(MorphoFeatureType.VOICE)) {
-      if (spec.contains("PASS")) {
-        features.addFeature(MorphoFeatureType.VOICE,voiceVals[1]);
-      }
+switch (moodStr) {
+case "I":
+          features.addFeature(MorphoFeatureType.MOOD,moodVals[0]);
+        break;
+case "S":
+      features.addFeature(MorphoFeatureType.MOOD,moodVals[1]);
+    break;
+case "J":
+  features.addFeature(MorphoFeatureType.MOOD,moodVals[2]);
+break;
+}
+}
+}
+if (isActive(MorphoFeatureType.VOICE)) {
+if (spec.contains("PASS")) {
+features.addFeature(MorphoFeatureType.VOICE,voiceVals[1]);
+}
  else {
-        features.addFeature(MorphoFeatureType.VOICE,voiceVals[0]);
-      }
-    }
-  }
-  return features;
+features.addFeature(MorphoFeatureType.VOICE,voiceVals[0]);
+}
+}
+}
+return features;
 }
