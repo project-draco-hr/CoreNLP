@@ -1,0 +1,15 @@
+{
+  if (batchProcessSents) {
+    try {
+      File f=sentfilesIter.next();
+      return new Pair<Map<String,DataInstance>,File>(IOUtils.readObjectFromFile(f),f);
+    }
+ catch (    IOException|ClassNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+  }
+ else {
+    readInMemory=true;
+    return new Pair<>(Data.sents,new File(""));
+  }
+}

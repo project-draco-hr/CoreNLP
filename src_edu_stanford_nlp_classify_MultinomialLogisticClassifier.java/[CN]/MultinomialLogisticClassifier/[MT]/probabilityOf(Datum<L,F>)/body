@@ -1,0 +1,20 @@
+{
+  int[] featureIndices=LogisticUtils.indicesOf(example.asFeatures(),featureIndex);
+  double[] featureValues;
+  if (example instanceof RVFDatum<?,?>) {
+    Collection<Double> featureValuesCollection=((RVFDatum<?,?>)example).asFeaturesCounter().values();
+    featureValues=LogisticUtils.convertToArray(featureValuesCollection);
+  }
+ else {
+    featureValues=new double[example.asFeatures().size()];
+    Arrays.fill(featureValues,1.0);
+  }
+  Counter<L> result=new ClassicCounter<L>();
+  int numClasses=labelIndex.size();
+  double[] sigmoids=LogisticUtils.calculateSigmoids(weights,featureIndices,featureValues);
+  for (int c=0; c < numClasses; c++) {
+    L label=labelIndex.get(c);
+    result.incrementCount(label,sigmoids[c]);
+  }
+  return result;
+}

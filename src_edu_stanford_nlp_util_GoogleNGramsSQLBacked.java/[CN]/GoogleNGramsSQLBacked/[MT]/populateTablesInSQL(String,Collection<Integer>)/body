@@ -1,0 +1,13 @@
+{
+  connect();
+  Statement stmt=connection.createStatement();
+  for (  Integer n : typesOfPhrases) {
+    String table=tablenamePrefix + n;
+    if (!existsTable(table))     throw new RuntimeException("Table " + table + " does not exist in the database! Run the following commands in the psql prompt:"+ "create table GoogleNgrams_<NGRAM> (phrase text primary key not null, count bigint not null); create index phrase_<NGRAM> on GoogleNgrams_<NGRAM>(phrase);");
+    for (    String line : IOUtils.readLines(new File(dir + "/" + n+ "gms/vocab_cs.gz"),GZIPInputStream.class)) {
+      String[] tok=line.split("\t");
+      String q="INSERT INTO " + table + " (phrase, count) VALUES ("+ escapeString(tok[0])+ " , "+ tok[1]+ ");";
+      stmt.execute(q);
+    }
+  }
+}
