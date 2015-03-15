@@ -11,13 +11,13 @@
       int endOffset=word.get(CoreAnnotations.CharacterOffsetEndAnnotation.class);
       String answer=word.get(CoreAnnotations.AnswerAnnotation.class);
       if (beginOffset > lastEndOffset) {
-        result.append(StringEscapeUtils.escapeHtml(input.substring(lastEndOffset,beginOffset)));
+        result.append(StringEscapeUtils.escapeHtml4(input.substring(lastEndOffset,beginOffset)));
       }
       if (!background.equals(answer)) {
         Color color=tagToColorMap.get(answer);
         result.append("<span style=\"color:#ffffff;background:" + NERGUI.colorToHTML(color) + "\">");
       }
-      result.append(StringEscapeUtils.escapeHtml(input.substring(beginOffset,endOffset)));
+      result.append(StringEscapeUtils.escapeHtml4(input.substring(beginOffset,endOffset)));
       if (!background.equals(answer)) {
         result.append("</span>");
       }
@@ -25,7 +25,7 @@
     }
   }
   if (lastEndOffset < input.length()) {
-    result.append(StringEscapeUtils.escapeHtml(input.substring(lastEndOffset)));
+    result.append(StringEscapeUtils.escapeHtml4(input.substring(lastEndOffset)));
   }
   result.append("<br><br>");
   result.append("Potential tags:");
@@ -33,7 +33,7 @@
     result.append("<br>&nbsp;&nbsp;");
     Color color=tagToColorMap.get(label);
     result.append("<span style=\"color:#ffffff;background:" + NERGUI.colorToHTML(color) + "\">");
-    result.append(StringEscapeUtils.escapeHtml(label));
+    result.append(StringEscapeUtils.escapeHtml4(label));
     result.append("</span>");
   }
   out.print(result.toString());

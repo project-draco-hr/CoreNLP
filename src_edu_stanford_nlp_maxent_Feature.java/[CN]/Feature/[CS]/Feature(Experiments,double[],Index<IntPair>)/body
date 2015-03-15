@@ -4,22 +4,17 @@
   for (int i=0; i < vals.length; i++) {
     if (vals[i] != 0.0) {
       Integer in=Integer.valueOf(indexOf(e.get(i)[0],e.get(i)[1]));
-      Object val=setNonZeros.get(in);
-      if (val == null) {
-        setNonZeros.put(in,new Double(vals[i]));
-      }
- else       if (((Double)val).doubleValue() != vals[i]) {
-        System.out.println(" Incorrect function specification");
-        System.out.println(" Has two values for one point ");
-        System.exit(1);
+      Double oldVal=setNonZeros.put(in,Double.valueOf(vals[i]));
+      if (oldVal != null && oldVal.doubleValue() != vals[i]) {
+        throw new IllegalStateException("Incorrect function specification: Feature has two values at one point: " + oldVal + " and "+ vals[i]);
       }
     }
   }
-  Object[] keys=setNonZeros.keySet().toArray();
+  Integer[] keys=setNonZeros.keySet().toArray(new Integer[setNonZeros.keySet().size()]);
   indexedValues=new int[keys.length];
   valuesI=new double[keys.length];
   for (int j=0; j < keys.length; j++) {
-    indexedValues[j]=((Integer)keys[j]).intValue();
+    indexedValues[j]=keys[j].intValue();
     valuesI[j]=setNonZeros.get(keys[j]).doubleValue();
   }
   domain=e;

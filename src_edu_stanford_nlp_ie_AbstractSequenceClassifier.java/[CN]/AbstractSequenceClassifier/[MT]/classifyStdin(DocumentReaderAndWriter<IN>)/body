@@ -1,7 +1,10 @@
 {
   BufferedReader is=new BufferedReader(new InputStreamReader(System.in,flags.inputEncoding));
   for (String line; (line=is.readLine()) != null; ) {
-    ObjectBank<List<IN>> documents=makeObjectBankFromString(line,readerWriter);
+    Collection<List<IN>> documents=makeObjectBankFromString(line,readerWriter);
+    if (flags.keepEmptySentences && documents.size() == 0) {
+      documents=Collections.<List<IN>>singletonList(Collections.<IN>emptyList());
+    }
     classifyAndWriteAnswers(documents,readerWriter);
   }
 }

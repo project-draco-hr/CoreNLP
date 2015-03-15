@@ -1,0 +1,17 @@
+{
+  String[] words;
+  if (tokenizer != null) {
+    Annotation annotation=new Annotation(phraseText);
+    tokenizer.annotate(annotation);
+    List<CoreLabel> tokens=annotation.get(CoreAnnotations.TokensAnnotation.class);
+    words=new String[tokens.size()];
+    for (int i=0; i < tokens.size(); i++) {
+      words[i]=tokens.get(i).word();
+    }
+  }
+ else {
+    phraseText=possPattern.matcher(phraseText).replaceAll(" 's$1");
+    words=delimPattern.split(phraseText);
+  }
+  return words;
+}
