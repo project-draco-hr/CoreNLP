@@ -29,12 +29,21 @@
   if (props.containsKey("file")) {
     String fileName=props.getProperty("file");
     Collection<File> files=new FileSequentialCollection(new File(fileName),props.getProperty("extension"),true);
-    pipeline.processFiles(files,numThreads);
+    pipeline.processFiles(fileName,files,numThreads);
   }
  else   if (props.containsKey("filelist")) {
     String fileName=props.getProperty("filelist");
-    Collection<File> files=readFileList(fileName);
-    pipeline.processFiles(files,numThreads);
+    Collection<File> inputfiles=readFileList(fileName);
+    Collection<File> files=new ArrayList<File>(inputfiles.size());
+    for (    File file : inputfiles) {
+      if (file.isDirectory()) {
+        files.addAll(new FileSequentialCollection(new File(fileName),props.getProperty("extension"),true));
+      }
+ else {
+        files.add(file);
+      }
+    }
+    pipeline.processFiles(null,files,numThreads);
   }
  else {
     shell(pipeline);

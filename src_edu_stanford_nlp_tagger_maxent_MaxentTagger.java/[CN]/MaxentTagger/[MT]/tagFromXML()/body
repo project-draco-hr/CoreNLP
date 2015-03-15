@@ -1,17 +1,17 @@
 {
-  InputStream is=null;
+  Reader reader=null;
   Writer w=null;
   try {
-    is=new BufferedInputStream(new FileInputStream(config.getFile()));
+    reader=new BufferedReader(new InputStreamReader(new FileInputStream(config.getFile()),config.getEncoding()));
     String outFile=config.getOutputFile();
     if (outFile.length() > 0) {
       w=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile),config.getEncoding()));
     }
  else {
-      w=new PrintWriter(System.out);
+      w=new BufferedWriter(new OutputStreamWriter(System.out,config.getEncoding()));
     }
     w.write("<?xml version=\"1.0\" encoding=\"" + config.getEncoding() + "\"?>\n");
-    tagFromXML(is,w,config.getXMLInput());
+    tagFromXML(reader,w,config.getXMLInput());
   }
  catch (  FileNotFoundException e) {
     System.err.println("Input file not found: " + config.getFile());
@@ -22,7 +22,7 @@ catch (  IOException ioe) {
     ioe.printStackTrace();
   }
  finally {
-    IOUtils.closeIgnoringExceptions(is);
+    IOUtils.closeIgnoringExceptions(reader);
     IOUtils.closeIgnoringExceptions(w);
   }
 }

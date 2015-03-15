@@ -1,0 +1,22 @@
+{
+  TrieMap<K,V> parent=null;
+  TrieMap<K,V> curTrie=this;
+  Object lastKey=null;
+  for (  Object element : key) {
+    if (curTrie.children == null)     return null;
+    lastKey=element;
+    parent=curTrie;
+    curTrie=curTrie.children.get(element);
+    if (curTrie == null) {
+      return null;
+    }
+  }
+  V v=curTrie.value;
+  if (parent != null) {
+    parent.children.remove(lastKey);
+  }
+ else {
+    value=null;
+  }
+  return v;
+}

@@ -1,0 +1,56 @@
+{
+  boolean hasExtraAnt=false;
+  boolean hasExtraThis=false;
+  if (!mentionCluster.numbers.contains(Number.UNKNOWN)) {
+    for (    Number n : potentialAntecedent.numbers) {
+      if (n != Number.UNKNOWN && !mentionCluster.numbers.contains(n))       hasExtraAnt=true;
+    }
+  }
+  if (!potentialAntecedent.numbers.contains(Number.UNKNOWN)) {
+    for (    Number n : mentionCluster.numbers) {
+      if (n != Number.UNKNOWN && !potentialAntecedent.numbers.contains(n))       hasExtraThis=true;
+    }
+  }
+  if (hasExtraAnt && hasExtraThis)   return false;
+  hasExtraAnt=false;
+  hasExtraThis=false;
+  if (!ignoreGender) {
+    if (!mentionCluster.genders.contains(Gender.UNKNOWN)) {
+      for (      Gender g : potentialAntecedent.genders) {
+        if (g != Gender.UNKNOWN && !mentionCluster.genders.contains(g))         hasExtraAnt=true;
+      }
+    }
+    if (!potentialAntecedent.genders.contains(Gender.UNKNOWN)) {
+      for (      Gender g : mentionCluster.genders) {
+        if (g != Gender.UNKNOWN && !potentialAntecedent.genders.contains(g))         hasExtraThis=true;
+      }
+    }
+  }
+  if (hasExtraAnt && hasExtraThis)   return false;
+  hasExtraAnt=false;
+  hasExtraThis=false;
+  if (!mentionCluster.animacies.contains(Animacy.UNKNOWN)) {
+    for (    Animacy a : potentialAntecedent.animacies) {
+      if (a != Animacy.UNKNOWN && !mentionCluster.animacies.contains(a))       hasExtraAnt=true;
+    }
+  }
+  if (!potentialAntecedent.animacies.contains(Animacy.UNKNOWN)) {
+    for (    Animacy a : mentionCluster.animacies) {
+      if (a != Animacy.UNKNOWN && !potentialAntecedent.animacies.contains(a))       hasExtraThis=true;
+    }
+  }
+  if (hasExtraAnt && hasExtraThis)   return false;
+  hasExtraAnt=false;
+  hasExtraThis=false;
+  if (!mentionCluster.nerStrings.contains("O") && !mentionCluster.nerStrings.contains("MISC")) {
+    for (    String ne : potentialAntecedent.nerStrings) {
+      if (!ne.equals("O") && !ne.equals("MISC") && !mentionCluster.nerStrings.contains(ne))       hasExtraAnt=true;
+    }
+  }
+  if (!potentialAntecedent.nerStrings.contains("O") && !potentialAntecedent.nerStrings.contains("MISC")) {
+    for (    String ne : mentionCluster.nerStrings) {
+      if (!ne.equals("O") && !ne.equals("MISC") && !potentialAntecedent.nerStrings.contains(ne))       hasExtraThis=true;
+    }
+  }
+  return !(hasExtraAnt && hasExtraThis);
+}

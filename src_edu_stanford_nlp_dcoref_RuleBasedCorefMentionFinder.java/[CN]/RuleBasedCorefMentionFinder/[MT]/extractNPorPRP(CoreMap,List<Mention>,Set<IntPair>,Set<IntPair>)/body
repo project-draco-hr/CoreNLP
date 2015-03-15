@@ -3,14 +3,16 @@
   Tree tree=s.get(TreeCoreAnnotations.TreeAnnotation.class);
   tree.indexLeaves();
   SemanticGraph dependency=s.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class);
-  final String mentionPattern="/^(?:NP|PRP)/";
-  TregexPattern tgrepPattern=TregexPattern.compile(mentionPattern);
+  TregexPattern tgrepPattern=npOrPrpMentionPattern;
   TregexMatcher matcher=tgrepPattern.matcher(tree);
   while (matcher.find()) {
     Tree t=matcher.getMatch();
     List<Tree> mLeaves=t.getLeaves();
     int beginIdx=((CoreLabel)mLeaves.get(0).label()).get(CoreAnnotations.IndexAnnotation.class) - 1;
     int endIdx=((CoreLabel)mLeaves.get(mLeaves.size() - 1).label()).get(CoreAnnotations.IndexAnnotation.class);
+    if (",".equals(sent.get(endIdx - 1).word())) {
+      endIdx--;
+    }
     IntPair mSpan=new IntPair(beginIdx,endIdx);
     if (!mentionSpanSet.contains(mSpan) && !insideNE(mSpan,namedEntitySpanSet)) {
       int mentionID=assignIds ? ++maxID : -1;

@@ -1,24 +1,24 @@
 {
   double prob=0.0;
-  double[][] weights=to2D(x);
-  double[][] E=empty2D();
-  for (int m=0; m < data.length; m++) {
-    prob+=expectedCountsAndValueForADoc(weights,E,m);
-  }
+  to2D(x,weights);
+  setWeights(weights);
+  clear2D(E);
+  prob+=regularGradientAndValue();
   if (Double.isNaN(prob)) {
     throw new RuntimeException("Got NaN for prob in CRFLogConditionalObjectiveFunction.calculate()" + " - this may well indicate numeric underflow due to overly long documents.");
   }
   value=-prob;
   if (VERBOSE) {
-    System.err.println("value is " + value);
+    System.err.println("value is " + Math.exp(-value));
   }
   int index=0;
   for (int i=0; i < E.length; i++) {
     for (int j=0; j < E[i].length; j++) {
-      derivative[index++]=(E[i][j] - Ehat[i][j]);
+      derivative[index]=(E[i][j] - Ehat[i][j]);
       if (VERBOSE) {
-        System.err.println("deriv(" + i + ","+ j+ ") = "+ E[i][j]+ " - "+ Ehat[i][j]+ " = "+ derivative[index - 1]);
+        System.err.println("deriv(" + i + ","+ j+ ") = "+ E[i][j]+ " - "+ Ehat[i][j]+ " = "+ derivative[index]);
       }
+      index++;
     }
   }
   applyPrior(x,1.0);

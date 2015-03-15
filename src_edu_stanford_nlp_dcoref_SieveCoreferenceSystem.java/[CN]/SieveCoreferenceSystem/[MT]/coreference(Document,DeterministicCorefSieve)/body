@@ -1,4 +1,5 @@
 {
+  logger.finer("Coreference: sieve " + sieve.getClass().getSimpleName());
   List<List<Mention>> orderedMentionsBySentence=document.getOrderedMentions();
   Map<Integer,CorefCluster> corefClusters=document.corefClusters;
   Set<Mention> roleSet=document.roleSet;
@@ -52,6 +53,7 @@
             }
             int removeID=c1.clusterID;
             CorefCluster.mergeClusters(c2,c1);
+            document.mergeIncompatibles(c2,c1);
             corefClusters.remove(removeID);
             break LOOP;
           }

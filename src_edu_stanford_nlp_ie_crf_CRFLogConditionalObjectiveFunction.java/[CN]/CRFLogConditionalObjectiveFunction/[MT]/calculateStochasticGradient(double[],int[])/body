@@ -2,7 +2,8 @@
   if (derivative == null) {
     derivative=new double[domainDimension()];
   }
-  double[][] weights=to2D(x,1.0);
+  to2D(x,weights);
+  setWeights(weights);
   if (eHat4Update == null) {
     eHat4Update=empty2D();
     e4Update=new double[eHat4Update.length][];
@@ -13,7 +14,7 @@
   }
   for (  int ind : batch) {
     empiricalCountsForADoc(eHat4Update,ind);
-    expectedCountsForADoc(weights,e4Update,ind);
+    expectedCountsForADoc(e4Update,ind);
   }
   int index=0;
   for (int i=0; i < e4Update.length; i++) {

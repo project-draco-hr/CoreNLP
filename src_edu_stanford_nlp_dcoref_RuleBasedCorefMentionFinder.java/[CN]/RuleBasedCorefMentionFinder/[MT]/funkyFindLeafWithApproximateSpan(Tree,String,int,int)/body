@@ -2,11 +2,19 @@
   List<Tree> leaves=root.getLeaves();
   for (  Tree leaf : leaves) {
     CoreLabel label=CoreLabel.class.cast(leaf.label());
-    int ind=label.get(CoreAnnotations.IndexAnnotation.class) - 1;
+    Integer indexInteger=label.get(CoreAnnotations.IndexAnnotation.class);
+    if (indexInteger == null)     continue;
+    int ind=indexInteger - 1;
     if (token.equals(leaf.value()) && ind >= index && ind <= index + approximateness) {
       return leaf;
     }
   }
-  System.err.println("RuleBasedCorefMentionFinder: ERROR: Failed to find head token");
-  return leaves.get(leaves.size() - 1);
+  SieveCoreferenceSystem.logger.warning("RuleBasedCorefMentionFinder: Failed to find head token:\n" + "Tree is: " + root + "\n"+ "token = |"+ token+ "|"+ index+ "|, approx="+ approximateness);
+  for (  Tree leaf : leaves) {
+    if (token.equals(leaf.value())) {
+      return leaf;
+    }
+  }
+  SieveCoreferenceSystem.logger.warning("RuleBasedCorefMentionFinder: Last resort: returning as head: " + leaves.get(leaves.size() - 2));
+  return leaves.get(leaves.size() - 2);
 }

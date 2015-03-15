@@ -1,0 +1,20 @@
+{
+  if (labelIndices.size() < 2)   return;
+  edgeLabelIndex=labelIndices.get(1);
+  edgeLabelIndexSize=edgeLabelIndex.size();
+  nodeLabelIndex=labelIndices.get(0);
+  nodeLabelIndexSize=nodeLabelIndex.size();
+  currPrevLabelsMap=new HashMap<Integer,List<Integer>>();
+  currNextLabelsMap=new HashMap<Integer,List<Integer>>();
+  edgeLabels=new int[edgeLabelIndexSize][];
+  for (int k=0; k < edgeLabelIndexSize; k++) {
+    int[] labelPair=edgeLabelIndex.get(k).getLabel();
+    edgeLabels[k]=labelPair;
+    int curr=labelPair[1];
+    int prev=labelPair[0];
+    if (!currPrevLabelsMap.containsKey(curr))     currPrevLabelsMap.put(curr,new ArrayList<Integer>(numClasses));
+    currPrevLabelsMap.get(curr).add(prev);
+    if (!currNextLabelsMap.containsKey(prev))     currNextLabelsMap.put(prev,new ArrayList<Integer>(numClasses));
+    currNextLabelsMap.get(prev).add(curr);
+  }
+}

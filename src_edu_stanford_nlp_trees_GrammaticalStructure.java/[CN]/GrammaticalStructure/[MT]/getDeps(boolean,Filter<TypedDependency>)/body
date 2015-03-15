@@ -29,14 +29,14 @@
   }
   if (rootDep != null) {
     TypedDependency rootTypedDep=new TypedDependency(ROOT,dependencyRoot,rootDep);
-    if (f.accept(rootTypedDep)) {
+    if (puncTypedDepFilter.accept(rootTypedDep)) {
       basicDep.add(rootTypedDep);
     }
   }
   postProcessDependencies(basicDep);
   if (getExtra) {
     getExtras(basicDep);
-    getTreeDeps(root(),basicDep,f);
+    getTreeDeps(root(),basicDep,puncTypedDepFilter,extraTreeDepFilter());
   }
   Collections.sort(basicDep);
   return basicDep;

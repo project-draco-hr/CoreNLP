@@ -18,14 +18,11 @@
     int mUtter=m.headWord.get(CoreAnnotations.UtteranceAnnotation.class);
     if (document.speakers.containsKey(mUtter - 1)) {
       String previousSpeaker=document.speakers.get(mUtter - 1);
-      int previousSpeakerID;
-      try {
-        previousSpeakerID=Integer.parseInt(previousSpeaker);
-      }
- catch (      Exception e) {
+      int previousSpeakerCorefClusterID=getSpeakerClusterId(document,previousSpeaker);
+      if (previousSpeakerCorefClusterID < 0) {
         return true;
       }
-      if (ant.corefClusterID != document.allPredictedMentions.get(previousSpeakerID).corefClusterID && ant.person != Person.I) {
+      if (ant.corefClusterID != previousSpeakerCorefClusterID && ant.person != Person.I) {
         return true;
       }
     }
@@ -37,14 +34,11 @@
     int aUtter=ant.headWord.get(CoreAnnotations.UtteranceAnnotation.class);
     if (document.speakers.containsKey(aUtter - 1)) {
       String previousSpeaker=document.speakers.get(aUtter - 1);
-      int previousSpeakerID;
-      try {
-        previousSpeakerID=Integer.parseInt(previousSpeaker);
-      }
- catch (      Exception e) {
+      int previousSpeakerCorefClusterID=getSpeakerClusterId(document,previousSpeaker);
+      if (previousSpeakerCorefClusterID < 0) {
         return true;
       }
-      if (m.corefClusterID != document.allPredictedMentions.get(previousSpeakerID).corefClusterID && m.person != Person.I) {
+      if (m.corefClusterID != previousSpeakerCorefClusterID && m.person != Person.I) {
         return true;
       }
     }

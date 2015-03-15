@@ -1,0 +1,25 @@
+{
+  String backgroundSymbol=properties.getProperty(name + ".backgroundSymbol",SeqClassifierFlags.DEFAULT_BACKGROUND_SYMBOL + ",MISC");
+  String[] backgroundSymbols=backgroundSymbol.split("\\s*,\\s*");
+  String[] mappings=PropertiesUtils.getStringArray(properties,name + ".mapping",new String[]{DefaultPaths.DEFAULT_REGEXNER_RULES});
+  String validPosRegex=properties.getProperty(name + ".validpospattern");
+  this.posMatchType=PosMatchType.valueOf(properties.getProperty(name + ".posmatchtype",DEFAULT_POS_MATCH_TYPE.name()));
+  boolean overwriteMyLabels=true;
+  this.noDefaultOverwriteLabels=CollectionUtils.asSet(PropertiesUtils.getStringArray(properties,name + ".noDefaultOverwriteLabels"));
+  this.ignoreCase=PropertiesUtils.getBool(properties,name + ".ignorecase",false);
+  this.verbose=PropertiesUtils.getBool(properties,name + ".verbose",false);
+  if (validPosRegex != null && !validPosRegex.equals("")) {
+    validPosPattern=Pattern.compile(validPosRegex);
+  }
+ else {
+    validPosPattern=null;
+  }
+  entries=readEntries(name,noDefaultOverwriteLabels,ignoreCase,verbose,mappings);
+  multiPatternMatcher=createPatternMatcher();
+  myLabels=Generics.newHashSet();
+  for (  String s : backgroundSymbols)   myLabels.add(s);
+  myLabels.add(null);
+  if (overwriteMyLabels) {
+    for (    Entry entry : entries)     myLabels.add(entry.type);
+  }
+}

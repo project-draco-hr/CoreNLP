@@ -2,9 +2,17 @@
   double[][] newWeights=new double[map.length][];
   int index=0;
   for (int i=0; i < map.length; i++) {
-    newWeights[i]=new double[labelIndices.get(map[i]).size()];
-    System.arraycopy(weights,index,newWeights[i],0,labelIndices.get(map[i]).size());
-    index+=labelIndices.get(map[i]).size();
+    int labelSize=labelIndices.get(map[i]).size();
+    newWeights[i]=new double[labelSize];
+    try {
+      System.arraycopy(weights,index,newWeights[i],0,labelSize);
+    }
+ catch (    Exception ex) {
+      System.err.println("weights: " + weights);
+      System.err.println("newWeights[" + i + "]: "+ newWeights[i]);
+      throw new RuntimeException(ex);
+    }
+    index+=labelSize;
   }
   return newWeights;
 }

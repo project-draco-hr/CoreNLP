@@ -8,6 +8,18 @@
     int nTokens=(tokens != null) ? tokens.size() : 0;
     os.printf("Document: ID=%s (%d sentences, %d tokens)\n",docId,nSentences,nTokens);
   }
+  String docDate=annotation.get(CoreAnnotations.DocDateAnnotation.class);
+  if (docDate != null) {
+    os.printf("Document Date: %s\n",docDate);
+  }
+  String docType=annotation.get(CoreAnnotations.DocTypeAnnotation.class);
+  if (docType != null) {
+    os.printf("Document Type: %s\n",docType);
+  }
+  String docSourceType=annotation.get(CoreAnnotations.DocSourceTypeAnnotation.class);
+  if (docSourceType != null) {
+    os.printf("Document Source Type: %s\n",docSourceType);
+  }
   if (sentences != null) {
     for (int i=0, sz=sentences.size(); i < sz; i++) {
       CoreMap sentence=sentences.get(i);
@@ -62,7 +74,7 @@
           outputHeading=true;
           os.println("Coreference set:");
         }
-        os.println("\t(" + mention.sentNum + ","+ mention.headIndex+ ",["+ mention.startIndex+ ","+ mention.endIndex+ ")) -> ("+ representative.sentNum+ ","+ representative.headIndex+ ",["+ representative.startIndex+ ","+ representative.endIndex+ ")), that is: \""+ mention.mentionSpan+ "\" -> \""+ representative.mentionSpan+ "\"");
+        os.println("\t(" + mention.sentNum + ","+ mention.headIndex+ ",["+ mention.startIndex+ ","+ mention.endIndex+ "]) -> ("+ representative.sentNum+ ","+ representative.headIndex+ ",["+ representative.startIndex+ ","+ representative.endIndex+ "]), that is: \""+ mention.mentionSpan+ "\" -> \""+ representative.mentionSpan+ "\"");
       }
     }
   }
