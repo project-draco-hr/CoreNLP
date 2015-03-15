@@ -32,7 +32,7 @@
     unaryScoreDerivativesG.put(entry.getKey(),new SimpleMatrix(1,numRows));
     unaryScoreDerivativesB.put(entry.getKey(),new SimpleMatrix(1,numRows));
   }
-  if (op.trainOptions.trainWordVectors) {
+  if (DVModel.TRAIN_WORD_VECTORS) {
     for (    Map.Entry<String,SimpleMatrix> entry : dvModel.wordVectors.entrySet()) {
       int numRows=entry.getValue().numRows();
       int numCols=entry.getValue().numCols();
@@ -70,13 +70,13 @@
   }
   double[] localDerivativeGood;
   double[] localDerivativeB;
-  if (op.trainOptions.trainWordVectors) {
-    localDerivativeGood=NeuralUtils.paramsToVector(theta.length,binaryW_dfsG.valueIterator(),unaryW_dfsG.values().iterator(),binaryScoreDerivativesG.valueIterator(),unaryScoreDerivativesG.values().iterator(),wordVectorDerivativesG.values().iterator());
-    localDerivativeB=NeuralUtils.paramsToVector(theta.length,binaryW_dfsB.valueIterator(),unaryW_dfsB.values().iterator(),binaryScoreDerivativesB.valueIterator(),unaryScoreDerivativesB.values().iterator(),wordVectorDerivativesB.values().iterator());
+  if (DVModel.TRAIN_WORD_VECTORS) {
+    localDerivativeGood=RNNUtils.paramsToVector(theta.length,binaryW_dfsG.valueIterator(),unaryW_dfsG.values().iterator(),binaryScoreDerivativesG.valueIterator(),unaryScoreDerivativesG.values().iterator(),wordVectorDerivativesG.values().iterator());
+    localDerivativeB=RNNUtils.paramsToVector(theta.length,binaryW_dfsB.valueIterator(),unaryW_dfsB.values().iterator(),binaryScoreDerivativesB.valueIterator(),unaryScoreDerivativesB.values().iterator(),wordVectorDerivativesB.values().iterator());
   }
  else {
-    localDerivativeGood=NeuralUtils.paramsToVector(theta.length,binaryW_dfsG.valueIterator(),unaryW_dfsG.values().iterator(),binaryScoreDerivativesG.valueIterator(),unaryScoreDerivativesG.values().iterator());
-    localDerivativeB=NeuralUtils.paramsToVector(theta.length,binaryW_dfsB.valueIterator(),unaryW_dfsB.values().iterator(),binaryScoreDerivativesB.valueIterator(),unaryScoreDerivativesB.values().iterator());
+    localDerivativeGood=RNNUtils.paramsToVector(theta.length,binaryW_dfsG.valueIterator(),unaryW_dfsG.values().iterator(),binaryScoreDerivativesG.valueIterator(),unaryScoreDerivativesG.values().iterator());
+    localDerivativeB=RNNUtils.paramsToVector(theta.length,binaryW_dfsB.valueIterator(),unaryW_dfsB.values().iterator(),binaryScoreDerivativesB.valueIterator(),unaryScoreDerivativesB.values().iterator());
   }
   for (int i=0; i < localDerivativeGood.length; i++) {
     localDerivative[i]=localDerivativeB[i] - localDerivativeGood[i];
