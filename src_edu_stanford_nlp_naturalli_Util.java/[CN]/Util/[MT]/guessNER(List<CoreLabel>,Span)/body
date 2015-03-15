@@ -1,0 +1,14 @@
+{
+  Counter<String> nerGuesses=new ClassicCounter<>();
+  for (  int i : span) {
+    nerGuesses.incrementCount(tokens.get(i).ner());
+  }
+  nerGuesses.remove("O");
+  nerGuesses.remove(null);
+  if (nerGuesses.size() > 0 && Counters.max(nerGuesses) >= span.size() / 2) {
+    return Counters.argmax(nerGuesses);
+  }
+ else {
+    return "O";
+  }
+}

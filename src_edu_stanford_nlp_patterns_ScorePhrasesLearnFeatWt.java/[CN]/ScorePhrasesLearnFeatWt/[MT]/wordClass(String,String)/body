@@ -6,6 +6,10 @@
   for (  String w : phrase.split("\\s+")) {
     Integer cluster=constVars.getWordClassClusters().get(w);
     if (cluster == null && phl != null)     cluster=constVars.getWordClassClusters().get(phl[i]);
+    if (cluster == null) {
+      cluster=constVars.getWordClassClusters().get(w.toLowerCase());
+      if (cluster == null && phl != null)       cluster=constVars.getWordClassClusters().get(phl[i].toLowerCase());
+    }
     if (cluster != null)     cl.incrementCount(cluster);
     i++;
   }

@@ -1,0 +1,11 @@
+{
+  if (!isClauseClassifier.isPresent()) {
+    search(candidateFragments,new LinearClassifier<>(new ClassicCounter<>()),HARD_SPLITS,this.featurizer.isPresent() ? this.featurizer.get() : DEFAULT_FEATURIZER,10000);
+  }
+ else {
+    if (!(isClauseClassifier.get() instanceof LinearClassifier)) {
+      throw new IllegalArgumentException("For now, only linear classifiers are supported");
+    }
+    search(candidateFragments,isClauseClassifier.get(),HARD_SPLITS,this.featurizer.get(),10000);
+  }
+}
