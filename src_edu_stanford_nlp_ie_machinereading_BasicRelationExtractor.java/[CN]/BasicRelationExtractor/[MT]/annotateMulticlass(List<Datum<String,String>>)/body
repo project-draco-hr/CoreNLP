@@ -1,0 +1,22 @@
+{
+  List<String> predictedLabels=new ArrayList<String>();
+  for (  Datum<String,String> testDatum : testDatums) {
+    String label=classOf(testDatum,null);
+    Counter<String> probs=probabilityOf(testDatum);
+    double prob=probs.getCount(label);
+    StringWriter sw=new StringWriter();
+    PrintWriter pw=new PrintWriter(sw);
+    if (logger.isLoggable(Level.FINE)) {
+      justificationOf(testDatum,pw,label);
+    }
+    logger.fine("JUSTIFICATION for label GOLD:" + testDatum.label() + " SYS:"+ label+ " (prob:"+ prob+ "):\n"+ sw.toString()+ "\nJustification done.");
+    predictedLabels.add(label);
+    if (!testDatum.label().equals(label)) {
+      logger.info("Classification: found different type " + label + " for relation: "+ testDatum);
+    }
+ else {
+      logger.info("Classification: found similar type " + label + " for relation: "+ testDatum);
+    }
+  }
+  return predictedLabels;
+}

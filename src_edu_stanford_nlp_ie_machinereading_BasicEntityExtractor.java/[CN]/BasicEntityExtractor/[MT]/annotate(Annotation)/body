@@ -1,0 +1,20 @@
+{
+  if (SAVE_CONLL_2003) {
+    try {
+      PrintStream os=new PrintStream(new FileOutputStream("test.conll"));
+      List<List<CoreLabel>> labels=AnnotationUtils.entityMentionsToCoreLabels(doc,annotationsToSkip,useSubTypes,useBIO);
+      BasicEntityExtractor.saveCoNLL(os,labels,true);
+      os.close();
+    }
+ catch (    IOException e) {
+      e.printStackTrace();
+      System.exit(1);
+    }
+  }
+  List<CoreMap> sents=doc.get(CoreAnnotations.SentencesAnnotation.class);
+  int sentCount=1;
+  for (  CoreMap sentence : sents) {
+    extractEntities(sentence,sentCount);
+    sentCount++;
+  }
+}

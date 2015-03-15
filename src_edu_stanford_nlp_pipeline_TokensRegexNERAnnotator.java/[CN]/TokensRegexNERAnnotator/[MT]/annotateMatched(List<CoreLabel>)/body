@@ -2,8 +2,9 @@
   List<SequenceMatchResult<CoreMap>> matched=multiPatternMatcher.findNonOverlapping(tokens);
   for (  SequenceMatchResult<CoreMap> m : matched) {
     Entry entry=patternToEntry.get(m.pattern());
-    int start=m.start();
-    int end=m.end();
+    int g=entry.annotateGroup;
+    int start=m.start(g);
+    int end=m.end(g);
     boolean overwriteOriginalNer=checkPosTags(entry,tokens,start,end);
     if (overwriteOriginalNer) {
       overwriteOriginalNer=checkOrigNerTags(entry,tokens,start,end);
@@ -15,7 +16,7 @@
     }
  else {
       if (verbose) {
-        System.err.println("Not annotating  '" + m.group() + "': "+ StringUtils.joinFields(m.groupNodes(),CoreAnnotations.NamedEntityTagAnnotation.class)+ " with "+ entry.type+ ", sentence is '"+ StringUtils.joinWords(tokens," ")+ "'");
+        System.err.println("Not annotating  '" + m.group(g) + "': "+ StringUtils.joinFields(m.groupNodes(g),CoreAnnotations.NamedEntityTagAnnotation.class)+ " with "+ entry.type+ ", sentence is '"+ StringUtils.joinWords(tokens," ")+ "'");
       }
     }
   }

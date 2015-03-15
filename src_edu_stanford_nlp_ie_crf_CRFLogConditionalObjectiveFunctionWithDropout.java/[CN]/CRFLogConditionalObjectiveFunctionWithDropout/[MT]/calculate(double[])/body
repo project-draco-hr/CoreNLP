@@ -3,6 +3,7 @@
   to2D(x,weights);
   setWeights(weights);
   clear2D(E);
+  clear2D(dropoutPriorGradTotal);
   MulticoreWrapper<Pair<Integer,Boolean>,Quadruple<Integer,Double,Map<Integer,double[]>,Map<Integer,double[]>>> wrapper=new MulticoreWrapper<Pair<Integer,Boolean>,Quadruple<Integer,Double,Map<Integer,double[]>,Map<Integer,double[]>>>(multiThreadGrad,dropoutPriorThreadProcessor);
   for (int m=0; m < totalData.length; m++) {
     boolean submitIsUnsup=(m >= unsupDropoutStartIndex);
@@ -20,10 +21,10 @@
       Map<Integer,double[]> partialDropout=result.fourth();
       if (partialDropout != null) {
         if (isUnsup) {
-          combine2DArr(dropoutPriorGrad,partialDropout,unsupDropoutScale);
+          combine2DArr(dropoutPriorGradTotal,partialDropout,unsupDropoutScale);
         }
  else {
-          combine2DArr(dropoutPriorGrad,partialDropout);
+          combine2DArr(dropoutPriorGradTotal,partialDropout);
         }
       }
       if (!isUnsup) {
@@ -46,10 +47,10 @@
     Map<Integer,double[]> partialDropout=result.fourth();
     if (partialDropout != null) {
       if (isUnsup) {
-        combine2DArr(dropoutPriorGrad,partialDropout,unsupDropoutScale);
+        combine2DArr(dropoutPriorGradTotal,partialDropout,unsupDropoutScale);
       }
  else {
-        combine2DArr(dropoutPriorGrad,partialDropout);
+        combine2DArr(dropoutPriorGradTotal,partialDropout);
       }
     }
     if (!isUnsup) {
@@ -68,7 +69,7 @@
   for (int i=0; i < E.length; i++) {
     for (int j=0; j < E[i].length; j++) {
       derivative[index]=(E[i][j] - Ehat[i][j]);
-      derivative[index]+=dropoutScale * dropoutPriorGrad[i][j];
+      derivative[index]+=dropoutScale * dropoutPriorGradTotal[i][j];
       if (VERBOSE) {
         System.err.println("deriv(" + i + ","+ j+ ") = "+ E[i][j]+ " - "+ Ehat[i][j]+ " = "+ derivative[index]);
       }

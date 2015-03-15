@@ -15,23 +15,7 @@
     int cutOff=(int)(docsToShuffle.size() / (flags.totalDataSlice + 0.0) * flags.numOfSlices);
     docs=docsToShuffle.subList(0,cutOff);
   }
-  List<List<IN>> unsupDocs=null;
-  if (flags.unsupDropoutFile != null) {
-    System.err.println("Reading unsupervised dropout data from file: " + flags.unsupDropoutFile);
-    timer.start();
-    unsupDocs=new ArrayList<List<IN>>();
-    ObjectBank<List<IN>> unsupObjBank=makeObjectBankFromFile(flags.unsupDropoutFile,readerAndWriter);
-    for (    List<IN> doc : unsupObjBank) {
-      for (      IN tok : doc) {
-        tok.set(CoreAnnotations.AnswerAnnotation.class,flags.backgroundSymbol);
-        tok.set(CoreAnnotations.GoldAnswerAnnotation.class,flags.backgroundSymbol);
-      }
-      unsupDocs.add(doc);
-    }
-  }
-  List<List<IN>> totalDocs=new ArrayList<List<IN>>();
-  totalDocs.addAll(docs);
-  if (flags.doFeatureDiscovery && unsupDocs != null)   totalDocs.addAll(unsupDocs);
+  Collection<List<IN>> totalDocs=loadAuxiliaryData(docs,readerAndWriter);
   makeAnswerArraysAndTagIndex(totalDocs);
   long elapsedMs=timer.stop();
   System.err.println("Time to convert docs to feature indices: " + Timing.toSecondsString(elapsedMs) + " seconds");
@@ -129,91 +113,8 @@
         featureVals=allFeatureVals;
       }
     }
-    int[][][][] unsupDropoutData=null;
-    if (flags.unsupDropoutFile != null) {
-      List<Triple<int[][][],int[],double[][][]>> unsupDataAndLabels=documentsToDataAndLabelsList(unsupDocs);
-      unsupDropoutData=new int[unsupDataAndLabels.size()][][][];
-      for (int q=0; q < unsupDropoutData.length; q++)       unsupDropoutData[q]=unsupDataAndLabels.get(q).first();
-      elapsedMs=timer.stop();
-      System.err.println("Time to read unsupervised dropout data: " + Timing.toSecondsString(elapsedMs) + " seconds, read "+ unsupDropoutData.length+ " files");
-    }
-    if (flags.nonLinearCRF) {
-      if (flags.secondOrderNonLinear) {
-        CRFNonLinearSecondOrderLogConditionalObjectiveFunction func=new CRFNonLinearSecondOrderLogConditionalObjectiveFunction(data,labels,windowSize,classIndex,labelIndices,map,flags,nodeFeatureIndicesMap.size(),edgeFeatureIndicesMap.size());
-        cliquePotentialFunctionHelper=func;
-        double[] allWeights=trainWeightsUsingNonLinearCRF(func,evaluators);
-        Quadruple<double[][],double[][],double[][],double[][]> params=func.separateWeights(allWeights);
-        this.inputLayerWeights4Edge=params.first();
-        this.outputLayerWeights4Edge=params.second();
-        this.inputLayerWeights=params.third();
-        this.outputLayerWeights=params.fourth();
-        System.err.println("Edge Output Layer Weights:");
-        for (int ii=0; ii < outputLayerWeights4Edge.length; ii++) {
-          System.err.print("[ ");
-          for (int jj=0; jj < outputLayerWeights4Edge[ii].length; jj++) {
-            System.err.print(outputLayerWeights4Edge[ii][jj] + " ");
-          }
-          System.err.println("]");
-        }
-        System.err.println("Node Output Layer Weights:");
-        for (int ii=0; ii < outputLayerWeights.length; ii++) {
-          System.err.print("[ ");
-          for (int jj=0; jj < outputLayerWeights[ii].length; jj++) {
-            System.err.print(outputLayerWeights[ii][jj] + " ");
-          }
-          System.err.println("]");
-        }
-      }
- else {
-        CRFNonLinearLogConditionalObjectiveFunction func=new CRFNonLinearLogConditionalObjectiveFunction(data,labels,windowSize,classIndex,labelIndices,map,flags,nodeFeatureIndicesMap.size(),edgeFeatureIndicesMap.size(),featureVals);
-        if (flags.useAdaGradFOBOS) {
-          func.gradientsOnly=true;
-        }
-        cliquePotentialFunctionHelper=func;
-        double[] allWeights=trainWeightsUsingNonLinearCRF(func,evaluators);
-        Triple<double[][],double[][],double[][]> params=func.separateWeights(allWeights);
-        this.linearWeights=params.first();
-        this.inputLayerWeights=params.second();
-        this.outputLayerWeights=params.third();
-        if (flags.printWeights) {
-          System.err.println("Linear Layer Weights:");
-          for (int ii=0; ii < linearWeights.length; ii++) {
-            System.err.print("[ ");
-            for (int jj=0; jj < linearWeights[ii].length; jj++) {
-              System.err.print(linearWeights[ii][jj] + " ");
-            }
-            System.err.println("]");
-          }
-          System.err.println("Input Layer Weights:");
-          for (int ii=0; ii < inputLayerWeights.length; ii++) {
-            System.err.print("[ ");
-            for (int jj=0; jj < inputLayerWeights[ii].length; jj++) {
-              System.err.print(inputLayerWeights[ii][jj] + " ");
-            }
-            System.err.println("]");
-          }
-          System.err.println("Output Layer Weights:");
-          for (int ii=0; ii < outputLayerWeights.length; ii++) {
-            System.err.print("[ ");
-            for (int jj=0; jj < outputLayerWeights[ii].length; jj++) {
-              System.err.print(outputLayerWeights[ii][jj] + " ");
-            }
-            System.err.println("]");
-          }
-        }
-      }
-    }
- else {
-      double[] oneDimWeights=null;
-      if (flags.useFloat) {
-        oneDimWeights=trainWeightsUsingFloatCRF(data,labels,i);
-      }
- else       if (flags.numLopExpert > 1) {
-        oneDimWeights=trainWeightsUsingLopCRF(numFeatures,data,labels,evaluators,i);
-      }
- else {
-        oneDimWeights=trainWeightsUsingDoubleCRF(data,labels,evaluators,i,featureVals,unsupDropoutData);
-      }
+    double[] oneDimWeights=trainWeights(data,labels,evaluators,i,featureVals);
+    if (oneDimWeights != null) {
       this.weights=to2D(oneDimWeights,labelIndices,map);
     }
     if (flags.saveFeatureIndexToDisk) {

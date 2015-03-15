@@ -1,0 +1,19 @@
+{
+  this.speakerId=speakerName;
+  this.originalMention=originalMention;
+  int commaPos=speakerName.indexOf(',');
+  if (commaPos > 0) {
+    this.speakerName=speakerName.substring(0,commaPos);
+    if (commaPos < speakerName.length()) {
+      speakerDesc=speakerName.substring(commaPos + 1);
+      speakerDesc=speakerDesc.trim();
+      if (speakerDesc.isEmpty())       speakerDesc=null;
+    }
+  }
+ else {
+    this.speakerName=speakerName;
+  }
+  this.speakerNameStrings=WHITESPACE_PATTERN.split(this.speakerName);
+  speakerIdIsNumber=NumberMatchingRegex.isDecimalInteger(speakerId);
+  speakerIdIsAutoDetermined=DEFAULT_SPEAKER_PATTERN.matcher(speakerId).matches();
+}

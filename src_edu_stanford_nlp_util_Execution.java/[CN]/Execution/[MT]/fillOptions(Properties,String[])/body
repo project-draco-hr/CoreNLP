@@ -1,0 +1,10 @@
+{
+  Properties options=StringUtils.argsToProperties(args);
+  for (  String key : props.stringPropertyNames()) {
+    options.put(key,props.getProperty(key));
+  }
+  fillOptionsImpl(BOOTSTRAP_CLASSES,options,false);
+  Class<?>[] visibleClasses=optionClasses;
+  if (visibleClasses == null)   visibleClasses=getVisibleClasses();
+  Map<String,Field> optionFields=fillOptionsImpl(visibleClasses,options);
+}

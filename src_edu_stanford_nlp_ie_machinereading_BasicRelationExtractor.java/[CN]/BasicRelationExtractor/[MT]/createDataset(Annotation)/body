@@ -1,0 +1,10 @@
+{
+  GeneralDataset<String,String> dataset=new RVFDataset<String,String>();
+  for (  CoreMap sentence : corpus.get(CoreAnnotations.SentencesAnnotation.class)) {
+    for (    RelationMention rel : AnnotationUtils.getAllRelations(relationMentionFactory,sentence,createUnrelatedRelations)) {
+      dataset.add(createDatum(rel));
+    }
+  }
+  dataset.applyFeatureCountThreshold(RelationExtractorProps.featureCountThreshold);
+  return dataset;
+}

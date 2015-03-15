@@ -13,15 +13,15 @@
     taggedContents=labeledText;
     Set<String> tags=classifier.labels();
     String background=classifier.backgroundSymbol();
-    String tagPattern="";
+    StringBuilder tagPattern=new StringBuilder();
     for (    String tag : tags) {
       if (background.equals(tag)) {
         continue;
       }
       if (tagPattern.length() > 0) {
-        tagPattern+="|";
+        tagPattern.append('|');
       }
-      tagPattern+=tag;
+      tagPattern.append(tag);
     }
     Pattern startPattern=Pattern.compile("<(" + tagPattern + ")>");
     Pattern endPattern=Pattern.compile("</(" + tagPattern + ")>");
@@ -47,6 +47,7 @@
         System.err.println(tag + ": " + finalText.substring(start,end));
       }
  else {
+        System.err.println("Couldn't find end pattern!");
       }
       m=startPattern.matcher(finalText);
     }
@@ -61,15 +62,15 @@
     taggedContents=classifier.classifyWithInlineXML(untaggedContents);
     Set<String> tags=classifier.labels();
     String background=classifier.backgroundSymbol();
-    String tagPattern="";
+    StringBuilder tagPattern=new StringBuilder();
     for (    String tag : tags) {
       if (background.equals(tag)) {
         continue;
       }
       if (tagPattern.length() > 0) {
-        tagPattern+="|";
+        tagPattern.append('|');
       }
-      tagPattern+=tag;
+      tagPattern.append(tag);
     }
     Pattern startPattern=Pattern.compile("<(" + tagPattern + ")>");
     Pattern endPattern=Pattern.compile("</(" + tagPattern + ")>");
