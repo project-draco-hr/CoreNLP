@@ -9,13 +9,13 @@
     }
     rDen+=g.corefMentions.size() - 1;
     rNum+=g.corefMentions.size();
-    Set<Integer> partitions=Generics.newHashSet();
+    Set<CorefCluster> partitions=Generics.newHashSet();
     for (    Mention goldMention : g.corefMentions) {
       if (!predictedMentions.containsKey(goldMention.mentionID)) {
         rNum--;
       }
  else {
-        partitions.add(predictedMentions.get(goldMention.mentionID).corefClusterID);
+        partitions.add(doc.corefClusters.get(predictedMentions.get(goldMention.mentionID).corefClusterID));
       }
     }
     rNum-=partitions.size();
