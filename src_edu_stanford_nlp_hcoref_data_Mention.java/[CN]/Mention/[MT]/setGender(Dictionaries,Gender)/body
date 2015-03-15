@@ -1,0 +1,43 @@
+{
+  gender=Gender.UNKNOWN;
+  if (genderNumberResult != null && this.number != Number.PLURAL) {
+    gender=genderNumberResult;
+  }
+  if (mentionType == MentionType.PRONOMINAL) {
+    if (dict.malePronouns.contains(headString)) {
+      gender=Gender.MALE;
+    }
+ else     if (dict.femalePronouns.contains(headString)) {
+      gender=Gender.FEMALE;
+    }
+  }
+ else {
+    if (gender == Gender.UNKNOWN) {
+      if ("PERSON".equals(nerString) || "PER".equals(nerString)) {
+        List<CoreLabel> nerToks=nerTokens();
+        for (        CoreLabel t : nerToks) {
+          String name=t.word().toLowerCase();
+          if (dict.maleWords.contains(name)) {
+            gender=Gender.MALE;
+            break;
+          }
+ else           if (dict.femaleWords.contains(name)) {
+            gender=Gender.FEMALE;
+            break;
+          }
+        }
+      }
+ else {
+        if (dict.maleWords.contains(headString)) {
+          gender=Gender.MALE;
+        }
+ else         if (dict.femaleWords.contains(headString)) {
+          gender=Gender.FEMALE;
+        }
+ else         if (dict.neutralWords.contains(headString)) {
+          gender=Gender.NEUTRAL;
+        }
+      }
+    }
+  }
+}

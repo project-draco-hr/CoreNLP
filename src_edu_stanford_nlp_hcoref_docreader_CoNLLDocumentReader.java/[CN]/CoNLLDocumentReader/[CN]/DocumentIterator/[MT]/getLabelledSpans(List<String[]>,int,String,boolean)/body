@@ -1,0 +1,67 @@
+{
+  List<Triple<Integer,Integer,String>> spans=new ArrayList<Triple<Integer,Integer,String>>();
+  Stack<Triple<Integer,Integer,String>> openSpans=new Stack<Triple<Integer,Integer,String>>();
+  boolean removeStar=(ASTERISK.equals(defaultMarker));
+  for (int wordPos=0; wordPos < sentWords.size(); wordPos++) {
+    String[] fields=sentWords.get(wordPos);
+    String val=getField(fields,fieldIndex);
+    if (!defaultMarker.equals(val)) {
+      int openParenIndex=-1;
+      int lastDelimiterIndex=-1;
+      for (int j=0; j < val.length(); j++) {
+        char c=val.charAt(j);
+        boolean isDelimiter=false;
+        if (c == '(' || c == ')' || c == '|') {
+          if (openParenIndex >= 0) {
+            String s=val.substring(openParenIndex + 1,j);
+            if (removeStar) {
+              s=starPattern.matcher(s).replaceAll("");
+            }
+            openSpans.push(new Triple<Integer,Integer,String>(wordPos,-1,s));
+            openParenIndex=-1;
+          }
+          isDelimiter=true;
+        }
+        if (c == '(') {
+          openParenIndex=j;
+        }
+ else         if (c == ')') {
+          Triple<Integer,Integer,String> t=openSpans.pop();
+          if (checkEndLabel) {
+            String s=val.substring(lastDelimiterIndex + 1,j);
+            if (!s.equals(t.third())) {
+              Stack<Triple<Integer,Integer,String>> saved=new Stack<Triple<Integer,Integer,String>>();
+              while (!s.equals(t.third())) {
+                saved.push(t);
+                if (openSpans.isEmpty()) {
+                  throw new RuntimeException("Cannot find matching labelled span for " + s);
+                }
+                t=openSpans.pop();
+              }
+              while (!saved.isEmpty()) {
+                openSpans.push(saved.pop());
+              }
+              assert(s.equals(t.third()));
+            }
+          }
+          t.setSecond(wordPos);
+          spans.add(t);
+        }
+        if (isDelimiter) {
+          lastDelimiterIndex=j;
+        }
+      }
+      if (openParenIndex >= 0) {
+        String s=val.substring(openParenIndex + 1,val.length());
+        if (removeStar) {
+          s=starPattern.matcher(s).replaceAll("");
+        }
+        openSpans.push(new Triple<Integer,Integer,String>(wordPos,-1,s));
+      }
+    }
+  }
+  if (openSpans.size() != 0) {
+    throw new RuntimeException("Error extracting labelled spans for column " + fieldIndex + ": "+ concatField(sentWords,fieldIndex));
+  }
+  return spans;
+}

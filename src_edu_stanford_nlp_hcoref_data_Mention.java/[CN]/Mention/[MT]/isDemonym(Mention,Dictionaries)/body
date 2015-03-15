@@ -1,0 +1,23 @@
+{
+  String thisCasedString=this.spanToString();
+  String antCasedString=m.spanToString();
+  String thisNormed=dict.lookupCanonicalAmericanStateName(thisCasedString);
+  String antNormed=dict.lookupCanonicalAmericanStateName(antCasedString);
+  if (thisNormed != null && thisNormed.equals(antNormed)) {
+    return true;
+  }
+  String thisString=thisCasedString.toLowerCase(Locale.ENGLISH);
+  String antString=antCasedString.toLowerCase(Locale.ENGLISH);
+  if (thisString.startsWith("the ")) {
+    thisString=thisString.substring(4);
+  }
+  if (antString.startsWith("the ")) {
+    antString=antString.substring(4);
+  }
+  Set<String> thisDemonyms=dict.getDemonyms(thisString);
+  Set<String> antDemonyms=dict.getDemonyms(antString);
+  if (thisDemonyms.contains(antString) || antDemonyms.contains(thisString)) {
+    return true;
+  }
+  return false;
+}

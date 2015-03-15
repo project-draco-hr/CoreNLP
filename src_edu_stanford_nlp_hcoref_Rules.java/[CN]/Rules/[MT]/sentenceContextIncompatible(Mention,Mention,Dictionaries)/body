@@ -1,0 +1,27 @@
+{
+  if ((ant.mentionType != MentionType.PROPER) && (ant.sentNum != men.sentNum) && (men.mentionType != MentionType.PROPER)&& !isContextOverlapping(ant,men)) {
+    List<String> context1=!ant.getPremodifierContext().isEmpty() ? ant.getPremodifierContext() : ant.getContext();
+    List<String> context2=!men.getPremodifierContext().isEmpty() ? men.getPremodifierContext() : men.getContext();
+    if (!context1.isEmpty() && !context2.isEmpty()) {
+      int highestRank=100000;
+      for (      String w1 : context1) {
+        for (        String w2 : context2) {
+          if (dict.NE_signatures.containsKey(w1)) {
+            IntCounter<String> ranks=Counters.toRankCounter(dict.NE_signatures.get(w1));
+            if (ranks.containsKey(w2) && ranks.getIntCount(w2) < highestRank) {
+              highestRank=ranks.getIntCount(w2);
+            }
+          }
+          if (dict.NE_signatures.containsKey(w2)) {
+            IntCounter<String> reverseRanks=Counters.toRankCounter(dict.NE_signatures.get(w2));
+            if (reverseRanks.containsKey(w1) && reverseRanks.getIntCount(w1) < highestRank) {
+              highestRank=reverseRanks.getIntCount(w1);
+            }
+          }
+        }
+      }
+      if (highestRank > 10)       return true;
+    }
+  }
+  return false;
+}

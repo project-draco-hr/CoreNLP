@@ -1,0 +1,14 @@
+{
+  boolean useConstituency=CorefProperties.useConstituencyTree(props);
+  final boolean LEMMATIZE=true;
+  List<CoreMap> sentences=anno.get(CoreAnnotations.SentencesAnnotation.class);
+  for (  CoreMap sentence : sentences) {
+    boolean hasTree=sentence.containsKey(TreeCoreAnnotations.TreeAnnotation.class);
+    Tree tree=sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+    if (!useConstituency) {
+      sentence.remove(TreeCoreAnnotations.TreeAnnotation.class);
+    }
+    if (LEMMATIZE && hasTree && useConstituency)     treeLemmatizer.transformTree(tree);
+  }
+  corenlp.annotate(anno);
+}
