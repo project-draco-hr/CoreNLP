@@ -28,7 +28,8 @@
   for (int m=0; m < data.length; m++) {
     int[][][] docData=data[m];
     int[] docLabels=labels[m];
-    CRFCliqueTree cliqueTree=CRFCliqueTree.getCalibratedCliqueTree(docData,labelIndices,numClasses,classIndex,backgroundSymbol,new NonLinearSecondOrderCliquePotentialFunction(W4Edge,U4Edge,W,U,flags),null);
+    NonLinearSecondOrderCliquePotentialFunction cliquePotentialFunction=new NonLinearSecondOrderCliquePotentialFunction(W4Edge,U4Edge,W,U,flags);
+    CRFCliqueTree cliqueTree=CRFCliqueTree.getCalibratedCliqueTree(docData,labelIndices,numClasses,classIndex,backgroundSymbol,cliquePotentialFunction,null);
     int[] given=new int[window - 1];
     Arrays.fill(given,classIndex.indexOf(backgroundSymbol));
     int[] windowLabels=new int[window];
@@ -64,12 +65,12 @@
         if (j == 0) {
           inputSize=inputLayerSize;
           outputSize=outputLayerSize;
-          As=NonLinearCliquePotentialFunction.hiddenLayerOutput(W,cliqueFeatures,flags,null);
+          As=cliquePotentialFunction.hiddenLayerOutput(W,cliqueFeatures,flags,null,j + 1);
         }
  else {
           inputSize=inputLayerSize4Edge;
           outputSize=outputLayerSize4Edge;
-          As=NonLinearCliquePotentialFunction.hiddenLayerOutput(W4Edge,cliqueFeatures,flags,null);
+          As=cliquePotentialFunction.hiddenLayerOutput(W4Edge,cliqueFeatures,flags,null,j + 1);
         }
         fDeriv=new double[inputSize];
         double fD=0;

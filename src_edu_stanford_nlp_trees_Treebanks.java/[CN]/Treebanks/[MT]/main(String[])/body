@@ -149,7 +149,7 @@
   Treebank treebank;
   if (trf == null) {
     trf=new TreeReaderFactory(){
-      public TreeReader newTreeReader(      Reader in){
+      @Override public TreeReader newTreeReader(      Reader in){
         return new PennTreeReader(in,new LabeledScoredTreeFactory());
       }
     }
@@ -192,7 +192,7 @@
   }
   if (pennPrintTrees) {
     treebank.apply(new TreeVisitor(){
-      public void visitTree(      Tree tree){
+      @Override public void visitTree(      Tree tree){
         int length=tree.yield().size();
         if (length >= minLength && length <= maxLength) {
           tree.pennPrint(pw);
@@ -204,7 +204,7 @@
   }
   if (oneLinePrint) {
     treebank.apply(new TreeVisitor(){
-      public void visitTree(      Tree tree){
+      @Override public void visitTree(      Tree tree){
         int length=tree.yield().size();
         if (length >= minLength && length <= maxLength) {
           pw.println(tree);
@@ -216,7 +216,7 @@
   if (printWords) {
     final TreeNormalizer tn=new BobChrisTreeNormalizer();
     treebank.apply(new TreeVisitor(){
-      public void visitTree(      Tree tree){
+      @Override public void visitTree(      Tree tree){
         Tree tPrime=tn.normalizeWholeTree(tree,tree.treeFactory());
         int length=tPrime.yield().size();
         if (length >= minLength && length <= maxLength) {
@@ -229,7 +229,7 @@
   if (printTaggedWords) {
     final TreeNormalizer tn=new BobChrisTreeNormalizer();
     treebank.apply(new TreeVisitor(){
-      public void visitTree(      Tree tree){
+      @Override public void visitTree(      Tree tree){
         Tree tPrime=tn.normalizeWholeTree(tree,tree.treeFactory());
         pw.println(Sentence.listToString(tPrime.taggedYield(),false,"_"));
       }
@@ -241,7 +241,7 @@
   }
   if (yield) {
     treebank.apply(new TreeVisitor(){
-      public void visitTree(      Tree tree){
+      @Override public void visitTree(      Tree tree){
         int length=tree.yield().size();
         if (length >= minLength && length <= maxLength) {
           pw.println(Sentence.listToString(tree.yield()));

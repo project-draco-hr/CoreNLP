@@ -1,0 +1,60 @@
+{
+  removeAllMatches();
+  final DefaultListModel newModel=new DefaultListModel();
+  newModel.ensureCapacity(matches.size());
+  if (TregexGUI.getInstance().isTdiffEnabled()) {
+    FileTreeNode refTreebank=FilePanel.getInstance().getActiveTreebanks().get(0);
+    String refFileName=refTreebank.getFilename();
+    List<Tree> treeList=null;
+    Map<TreeFromFile,List<Tree>> filteredMatchedParts=Generics.newHashMap();
+    for (    TreeFromFile t2 : matches) {
+      if (t2.getFilename() == null || t2.getSentenceId() < 0) {
+        newModel.addElement(t2);
+        filteredMatchedParts.put(t2,matchedParts.get(t2));
+      }
+ else       if (!t2.getFilename().equals(refFileName)) {
+        if (treeList == null)         treeList=getTreebankAsList(refTreebank.getTreebank());
+        int treeId=t2.getSentenceId() - 1;
+        if (treeId >= treeList.size())         continue;
+        Tree t1=treeList.get(treeId);
+        Tree treeT2=t2.getTree();
+        Set<Constituent> inT1notT2=Tdiff.markDiff(t1,treeT2);
+        t2.setDiffConstituents(inT1notT2);
+        t2.setDiffDecoratedTree(treeT2);
+        newModel.addElement(t2);
+        if (matchedParts != null && matchedParts.containsKey(t2))         filteredMatchedParts.put(t2,matchedParts.get(t2));
+      }
+      if (newModel.size() >= maxMatches)       break;
+    }
+    matchedParts=filteredMatchedParts;
+  }
+ else   if (!showOnlyMatchedPortion || matchedParts == null) {
+    int i=0;
+    for (    TreeFromFile t : matches) {
+      newModel.addElement(t);
+      i++;
+      if (i >= maxMatches)       break;
+    }
+  }
+ else {
+    int i=0;
+    for (    TreeFromFile t : matchedParts.keySet()) {
+      List<Tree> curMatches=matchedParts.get(t);
+      for (      Tree match : curMatches) {
+        newModel.addElement(new TreeFromFile(match,t.getFilename()));
+        i++;
+        if (i >= maxMatches)         break;
+      }
+    }
+  }
+  if (!newModel.isEmpty())   SwingUtilities.invokeLater(new Runnable(){
+    public void run(){
+      list.setModel(newModel);
+      list.setSelectedIndex(0);
+      sendToListeners();
+    }
+  }
+);
+  setMatchedParts(matchedParts);
+  this.setPreferredSize(this.getSize());
+}

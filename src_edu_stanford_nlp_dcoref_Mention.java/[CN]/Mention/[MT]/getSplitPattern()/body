@@ -1,0 +1,30 @@
+{
+  ArrayList<ArrayList<IndexedWord>> premodifiers=getPremodifiers();
+  String[] components=new String[4];
+  components[0]=headWord.lemma();
+  if (premodifiers.size() == 0) {
+    components[1]=headWord.lemma();
+    components[2]=headWord.lemma();
+  }
+ else   if (premodifiers.size() == 1) {
+    ArrayList<CoreLabel> premod=new ArrayList<CoreLabel>();
+    premod.addAll(premodifiers.get(premodifiers.size() - 1));
+    premod.add(headWord);
+    components[1]=getPattern(premod);
+    components[2]=getPattern(premod);
+  }
+ else {
+    ArrayList<CoreLabel> premod1=new ArrayList<CoreLabel>();
+    premod1.addAll(premodifiers.get(premodifiers.size() - 1));
+    premod1.add(headWord);
+    components[1]=getPattern(premod1);
+    ArrayList<CoreLabel> premod2=new ArrayList<CoreLabel>();
+    for (    ArrayList<IndexedWord> premodifier : premodifiers) {
+      premod2.addAll(premodifier);
+    }
+    premod2.add(headWord);
+    components[2]=getPattern(premod2);
+  }
+  components[3]=getPattern();
+  return components;
+}

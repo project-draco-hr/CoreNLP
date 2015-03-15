@@ -2,8 +2,8 @@
   for (int sentNum=0; sentNum < goldOrderedMentionsBySentence.size(); sentNum++) {
     List<Mention> golds=goldOrderedMentionsBySentence.get(sentNum);
     List<Mention> predicts=predictedOrderedMentionsBySentence.get(sentNum);
-    Map<IntPair,Mention> goldMentionPositions=new HashMap<IntPair,Mention>();
-    Map<Integer,LinkedList<Mention>> goldMentionHeadPositions=new HashMap<Integer,LinkedList<Mention>>();
+    Map<IntPair,Mention> goldMentionPositions=Generics.newHashMap();
+    Map<Integer,LinkedList<Mention>> goldMentionHeadPositions=Generics.newHashMap();
     for (    Mention g : golds) {
       goldMentionPositions.put(new IntPair(g.startIndex,g.endIndex),g);
       if (!goldMentionHeadPositions.containsKey(g.headIndex)) {
@@ -20,7 +20,7 @@
         p.twinless=false;
         g.twinless=false;
         goldMentionHeadPositions.get(g.headIndex).remove(g);
-        if (goldMentionHeadPositions.get(g.headIndex).size() == 0) {
+        if (goldMentionHeadPositions.get(g.headIndex).isEmpty()) {
           goldMentionHeadPositions.remove(g.headIndex);
         }
       }
@@ -32,7 +32,7 @@
         r.mentionID=g.mentionID;
         r.twinless=false;
         g.twinless=false;
-        if (goldMentionHeadPositions.get(g.headIndex).size() == 0) {
+        if (goldMentionHeadPositions.get(g.headIndex).isEmpty()) {
           goldMentionHeadPositions.remove(g.headIndex);
         }
       }

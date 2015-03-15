@@ -23,11 +23,11 @@
     previousOffset=t.get(t.size() - 1).get(CoreAnnotations.CharacterOffsetEndAnnotation.class);
     Counter<Integer> startCounts=new ClassicCounter<Integer>();
     Counter<Integer> endCounts=new ClassicCounter<Integer>();
-    HashMap<Integer,Set<Mention>> endMentions=new HashMap<Integer,Set<Mention>>();
+    Map<Integer,Set<Mention>> endMentions=Generics.newHashMap();
     for (    Mention m : mentions) {
       startCounts.incrementCount(m.startIndex);
       endCounts.incrementCount(m.endIndex);
-      if (!endMentions.containsKey(m.endIndex))       endMentions.put(m.endIndex,new HashSet<Mention>());
+      if (!endMentions.containsKey(m.endIndex))       endMentions.put(m.endIndex,Generics.<Mention>newHashSet());
       endMentions.get(m.endIndex).add(m);
     }
     for (int j=0; j < tokens.length; j++) {

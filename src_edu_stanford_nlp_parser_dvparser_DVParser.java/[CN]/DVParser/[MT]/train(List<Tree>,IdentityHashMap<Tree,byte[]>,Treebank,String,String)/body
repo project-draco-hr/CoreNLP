@@ -1,0 +1,75 @@
+{
+  Timing timing=new Timing();
+  long maxTrainTimeMillis=op.trainOptions.maxTrainTimeSeconds * 1000;
+  long nextDebugCycle=op.trainOptions.debugOutputSeconds * 1000;
+  int debugCycle=0;
+  double bestLabelF1=0.0;
+  if (op.trainOptions.useContextWords) {
+    for (    Tree tree : sentences) {
+      Trees.convertToCoreLabels(tree);
+      tree.setSpans();
+    }
+  }
+  double[] sumGradSquare=new double[dvModel.totalParamSize()];
+  Arrays.fill(sumGradSquare,1.0);
+  int numBatches=sentences.size() / op.trainOptions.dvBatchSize + 1;
+  System.err.println("Training on " + sentences.size() + " trees in "+ numBatches+ " batches");
+  System.err.println("Times through each training batch: " + op.trainOptions.dvIterations);
+  System.err.println("QN iterations per batch: " + op.trainOptions.qnIterationsPerBatch);
+  for (int iter=0; iter < op.trainOptions.dvIterations; ++iter) {
+    List<Tree> shuffledSentences=new ArrayList<Tree>(sentences);
+    Collections.shuffle(shuffledSentences,dvModel.rand);
+    for (int batch=0; batch < numBatches; ++batch) {
+      System.err.println("======================================");
+      System.err.println("Iteration " + iter + " batch "+ batch);
+      int startTree=batch * op.trainOptions.dvBatchSize;
+      int endTree=(batch + 1) * op.trainOptions.dvBatchSize;
+      if (endTree + op.trainOptions.dvBatchSize > shuffledSentences.size()) {
+        endTree=shuffledSentences.size();
+      }
+      executeOneTrainingBatch(shuffledSentences.subList(startTree,endTree),compressedParses,sumGradSquare);
+      long totalElapsed=timing.report();
+      System.err.println("Finished iteration " + iter + " batch "+ batch+ "; total training time "+ totalElapsed+ " ms");
+      if (maxTrainTimeMillis > 0 && totalElapsed > maxTrainTimeMillis) {
+        break;
+      }
+      if (nextDebugCycle > 0 && totalElapsed > nextDebugCycle) {
+        double tagF1=0.0;
+        double labelF1=0.0;
+        if (testTreebank != null) {
+          EvaluateTreebank evaluator=new EvaluateTreebank(attachModelToLexicalizedParser());
+          evaluator.testOnTreebank(testTreebank);
+          labelF1=evaluator.getLBScore();
+          tagF1=evaluator.getTagScore();
+          if (labelF1 > bestLabelF1) {
+            bestLabelF1=labelF1;
+          }
+          System.err.println("Best label f1 on dev set so far: " + NF.format(bestLabelF1));
+        }
+        String tempName=null;
+        if (modelPath != null) {
+          tempName=modelPath;
+          if (modelPath.endsWith(".ser.gz")) {
+            tempName=modelPath.substring(0,modelPath.length() - 7) + "-" + FILENAME.format(debugCycle)+ "-"+ NF.format(labelF1)+ ".ser.gz";
+          }
+          saveModel(tempName);
+        }
+        String statusLine=("CHECKPOINT:" + " iteration " + iter + " batch "+ batch+ " labelF1 "+ NF.format(labelF1)+ " tagF1 "+ NF.format(tagF1)+ " bestLabelF1 "+ NF.format(bestLabelF1)+ " model "+ tempName+ op.trainOptions+ " word vectors: "+ op.lexOptions.wordVectorFile+ " numHid: "+ op.lexOptions.numHid);
+        System.err.println(statusLine);
+        if (resultsRecordPath != null) {
+          FileWriter fout=new FileWriter(resultsRecordPath,true);
+          fout.write(statusLine);
+          fout.write("\n");
+          fout.close();
+        }
+        ++debugCycle;
+        nextDebugCycle=timing.report() + op.trainOptions.debugOutputSeconds * 1000;
+      }
+    }
+    long totalElapsed=timing.report();
+    if (maxTrainTimeMillis > 0 && totalElapsed > maxTrainTimeMillis) {
+      System.err.println("Max training time exceeded, exiting");
+      break;
+    }
+  }
+}

@@ -2,13 +2,12 @@
   HeadFinder headFinder=new ModCollinsHeadFinder();
   List<CoreLabel> sentenceAnno=sentence.get(CoreAnnotations.TokensAnnotation.class);
   Tree sentenceTree=sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
-  HashMap<Pair<Integer,Integer>,String> sentenceInfo=new HashMap<Pair<Integer,Integer>,String>();
+  Map<Pair<Integer,Integer>,String> sentenceInfo=Generics.newHashMap();
   Set<Tree> sentenceSubTrees=sentenceTree.subTrees();
   sentenceTree.setSpans();
-  HashMap<Pair<Integer,Integer>,Tree> treeSpanMap=new HashMap<Pair<Integer,Integer>,Tree>();
-  HashMap<Pair<Integer,Integer>,List<Tree>> wordSpanMap=new HashMap<Pair<Integer,Integer>,List<Tree>>();
-  for (Iterator<Tree> iter3=sentenceSubTrees.iterator(); iter3.hasNext(); ) {
-    Tree ctree=iter3.next();
+  Map<Pair<Integer,Integer>,Tree> treeSpanMap=Generics.newHashMap();
+  Map<Pair<Integer,Integer>,List<Tree>> wordSpanMap=Generics.newHashMap();
+  for (  Tree ctree : sentenceSubTrees) {
     IntPair span=ctree.getSpan();
     if (span != null) {
       treeSpanMap.put(Pair.makePair(span.getSource(),span.getTarget()),ctree);
@@ -17,11 +16,10 @@
   }
   String[][] finalSentence;
   finalSentence=new String[sentenceAnno.size()][];
-  HashMap<Pair<Integer,Integer>,String> allHeads=new HashMap<Pair<Integer,Integer>,String>();
+  Map<Pair<Integer,Integer>,String> allHeads=Generics.newHashMap();
   int index=-1;
-  for (Iterator<CoreLabel> iter=sentenceAnno.iterator(); iter.hasNext(); ) {
+  for (  CoreLabel newAnno : sentenceAnno) {
     index+=1;
-    CoreLabel newAnno=iter.next();
     String word=newAnno.word();
     String tag=newAnno.tag();
     String cat=newAnno.ner();
@@ -37,17 +35,16 @@
     }
  else {
       String[] allC=coref.split("\\|");
-      for (int i=0; i < allC.length; i++) {
-        String corefG=allC[i];
+      for (      String corefG : allC) {
         Pair<Integer,Integer> mention=getMention(index,corefG,sentenceAnno);
-        String head=null;
-        if (include(pw,sentenceInfo,mention,corefG) == false) {
+        if (!include(sentenceInfo,mention,corefG)) {
           sentenceInfo.put(mention,corefG);
           Tree mentionTree=treeSpanMap.get(mention);
+          String head=null;
           if (mentionTree != null) {
             head=mentionTree.headTerminal(headFinder).nodeString();
           }
- else           if (mention.first == mention.second) {
+ else           if (mention.first.equals(mention.second)) {
             head=word;
           }
           allHeads.put(mention,head);

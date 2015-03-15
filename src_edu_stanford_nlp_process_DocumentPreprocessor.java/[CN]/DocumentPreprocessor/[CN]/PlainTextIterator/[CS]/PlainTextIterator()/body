@@ -1,21 +1,22 @@
 {
   boolean eolIsSignificant=false;
-  sentDelims=new HashSet<String>();
+  sentDelims=Generics.newHashSet();
   if (sentenceDelimiter == null) {
     if (sentenceFinalPuncWords != null) {
       sentDelims.addAll(Arrays.asList(sentenceFinalPuncWords));
     }
-    delimFollowers=new HashSet<String>(Arrays.asList(sentenceFinalFollowers));
+    delimFollowers=Generics.newHashSet(Arrays.asList(sentenceFinalFollowers));
   }
  else {
     sentDelims.add(sentenceDelimiter);
-    delimFollowers=new HashSet<String>();
+    delimFollowers=Generics.newHashSet();
     eolIsSignificant=wsPattern.matcher(sentenceDelimiter).matches();
     if (eolIsSignificant) {
       sentDelims.add(PTBLexer.NEWLINE_TOKEN);
     }
   }
   if (tokenizerFactory == null) {
+    eolIsSignificant=sentDelims.contains(WhitespaceLexer.NEWLINE);
     tokenizer=WhitespaceTokenizer.newWordWhitespaceTokenizer(inputReader,eolIsSignificant);
   }
  else {

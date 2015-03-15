@@ -9,7 +9,7 @@
   int numStates=states.size();
   int id=0;
   DFSAState<T,S>[] state=ErasureUtils.<DFSAState<T,S>[]>uncheckedCast(new DFSAState[numStates]);
-  Map<DFSAState<T,S>,Integer> stateToID=new HashMap<DFSAState<T,S>,Integer>();
+  Map<DFSAState<T,S>,Integer> stateToID=Generics.newHashMap();
   for (  DFSAState<T,S> state1 : states) {
     state[id]=state1;
     stateToID.put(state1,Integer.valueOf(id));
@@ -32,11 +32,11 @@
         DFSAState<T,S> state1=state[i];
         DFSAState<T,S> state2=state[j];
         IntPair ip=new IntPair(i,j);
-        Set<T> inputs=new HashSet<T>();
+        Set<T> inputs=Generics.newHashSet();
         inputs.addAll(state1.continuingInputs());
         inputs.addAll(state2.continuingInputs());
         boolean distinguishable=false;
-        Set<IntPair> pendingIPairs=new HashSet<IntPair>();
+        Set<IntPair> pendingIPairs=Generics.newHashSet();
         Iterator<T> inputI=inputs.iterator();
         while (inputI.hasNext() && !distinguishable) {
           T input=inputI.next();
@@ -101,7 +101,7 @@
       }
     }
   }
-  Map<DFSAState<T,S>,DFSAState<T,S>> stateToRep=new HashMap<DFSAState<T,S>,DFSAState<T,S>>();
+  Map<DFSAState<T,S>,DFSAState<T,S>> stateToRep=Generics.newHashMap();
   for (  DFSAState<T,S> state1 : states) {
     DFSAState<T,S> rep=stateClasses.find(state1);
     stateToRep.put(state1,rep);

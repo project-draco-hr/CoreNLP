@@ -28,13 +28,13 @@ catch (  IOException e) {
   SieveCoreferenceSystem corefSystem=new SieveCoreferenceSystem(props);
   MentionExtractor mentionExtractor=null;
   if (props.containsKey(Constants.MUC_PROP)) {
-    mentionExtractor=new MUCMentionExtractor(corefSystem.dictionaries,props,corefSystem.semantics);
+    mentionExtractor=new MUCMentionExtractor(corefSystem.dictionaries,props,corefSystem.semantics,corefSystem.singletonPredictor);
   }
  else   if (props.containsKey(Constants.ACE2004_PROP) || props.containsKey(Constants.ACE2005_PROP)) {
-    mentionExtractor=new ACEMentionExtractor(corefSystem.dictionaries,props,corefSystem.semantics);
+    mentionExtractor=new ACEMentionExtractor(corefSystem.dictionaries,props,corefSystem.semantics,corefSystem.singletonPredictor);
   }
  else   if (props.containsKey(Constants.CONLL2011_PROP)) {
-    mentionExtractor=new CoNLLMentionExtractor(corefSystem.dictionaries,props,corefSystem.semantics);
+    mentionExtractor=new CoNLLMentionExtractor(corefSystem.dictionaries,props,corefSystem.semantics,corefSystem.singletonPredictor);
   }
   if (mentionExtractor == null) {
     throw new RuntimeException("No input file specified!");

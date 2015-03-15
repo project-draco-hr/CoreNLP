@@ -1,6 +1,6 @@
 {
   Collection<TypedDependency> newTypedDeps=new ArrayList<TypedDependency>();
-  HashMap<TreeGraphNode,SortedSet<TypedDependency>> map=new HashMap<TreeGraphNode,SortedSet<TypedDependency>>();
+  Map<TreeGraphNode,SortedSet<TypedDependency>> map=Generics.newHashMap();
   List<TreeGraphNode> partmod=new ArrayList<TreeGraphNode>();
   for (  TypedDependency typedDep : list) {
     if (!map.containsKey(typedDep.gov())) {
@@ -12,7 +12,7 @@
     }
   }
   for (  TypedDependency td1 : list) {
-    if (td1.reln() != PREPOSITIONAL_MODIFIER && td1.reln() != RELATIVE) {
+    if (td1.reln() != PREPOSITIONAL_MODIFIER) {
       continue;
     }
     if (td1.reln() == KILL) {
@@ -209,7 +209,7 @@
     TreeGraphNode td1Dep=td1.dep();
     String td1DepPOS=td1Dep.parent().value();
     Set<TypedDependency> possibles=map.get(td1Dep);
-    if (possibles != null && (td1.reln() == PREPOSITIONAL_MODIFIER || td1.reln() == RELATIVE || td1.reln() == POSSESSION_MODIFIER || td1.reln() == CONJUNCT)) {
+    if (possibles != null && (td1.reln() == PREPOSITIONAL_MODIFIER || td1.reln() == POSSESSION_MODIFIER || td1.reln() == CONJUNCT)) {
       boolean pobj=true;
       for (      TypedDependency td2 : possibles) {
         if (td2.reln() != COORDINATION && td2.reln() != CONJUNCT) {

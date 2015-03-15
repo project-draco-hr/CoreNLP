@@ -2,8 +2,6 @@
   LikelihoodFunction df=new LikelihoodFunction(prob,tol,useGaussianPrior,priorSigmaS,sigmaSquareds);
   MonitorFunction monitor=new MonitorFunction(prob,df,filename);
   Minimizer<DiffFunction> cgm=new QNMinimizer(monitor,10);
-  double[] result=cgm.minimize(df,tol,new double[df.domainDimension()]);
-  prob.lambda=result;
-  monitor.reportMonitoring(df.valueAt(result));
-  System.err.println("after optimization value is " + df.valueAt(result));
+  prob.lambda=cgm.minimize(df,tol,new double[df.domainDimension()]);
+  printOptimizationResults(df,monitor);
 }

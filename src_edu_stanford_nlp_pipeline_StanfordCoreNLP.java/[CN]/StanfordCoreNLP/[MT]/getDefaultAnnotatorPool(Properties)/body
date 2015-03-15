@@ -66,6 +66,7 @@
  else {
           wts=WordsToSentencesAnnotator.newlineSplitter(false,PTBTokenizer.getNewlineToken());
         }
+        wts.setCountLineNumbers(true);
         return wts;
       }
  else {
@@ -80,12 +81,12 @@
         String bounds=properties.getProperty("ssplit.boundariesToDiscard");
         if (bounds != null) {
           String[] toks=bounds.split(",");
-          wts.setSentenceBoundaryToDiscard(new HashSet<String>(Arrays.asList(toks)));
+          wts.setSentenceBoundaryToDiscard(Generics.newHashSet(Arrays.asList(toks)));
         }
         bounds=properties.getProperty("ssplit.htmlBoundariesToDiscard");
         if (bounds != null) {
           String[] toks=bounds.split(",");
-          wts.addHtmlSentenceBoundaryToDiscard(new HashSet<String>(Arrays.asList(toks)));
+          wts.addHtmlSentenceBoundaryToDiscard(Generics.newHashSet(Arrays.asList(toks)));
         }
         String isOneSentence=properties.getProperty("ssplit.isOneSentence");
         if (isOneSentence != null) {

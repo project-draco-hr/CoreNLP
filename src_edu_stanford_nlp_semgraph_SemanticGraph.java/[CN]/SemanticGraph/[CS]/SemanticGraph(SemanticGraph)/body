@@ -2,13 +2,13 @@
   graph=new DirectedMultiGraph<IndexedWord,SemanticGraphEdge>();
   Collection<IndexedWord> oldRoots=new ArrayList<IndexedWord>(g.getRoots());
   Set<IndexedWord> vertexes=g.vertexSet();
-  HashMap<IndexedWord,IndexedWord> prevToNewMap=new HashMap<IndexedWord,IndexedWord>();
+  Map<IndexedWord,IndexedWord> prevToNewMap=Generics.newHashMap();
   for (  IndexedWord vertex : vertexes) {
     IndexedWord newVertex=new IndexedWord(vertex);
     addVertex(newVertex);
     prevToNewMap.put(vertex,newVertex);
   }
-  roots=new HashSet<IndexedWord>();
+  roots=Generics.newHashSet();
   for (  IndexedWord oldRoot : oldRoots) {
     roots.add(prevToNewMap.get(oldRoot));
   }

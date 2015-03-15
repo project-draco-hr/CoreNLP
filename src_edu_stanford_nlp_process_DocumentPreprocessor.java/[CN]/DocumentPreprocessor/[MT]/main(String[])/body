@@ -12,6 +12,7 @@
   String sentenceDelimiter=null;
   String tagDelimiter=null;
   boolean printOriginalText=false;
+  String[] sentenceDelims=null;
   int i=0;
   for (; i < args.length; i++) {
     if (args[i].length() == 0 || !args[i].startsWith("-")) {
@@ -40,6 +41,12 @@
       tf=null;
       sentenceDelimiter=System.getProperty("line.separator");
     }
+ else     if (args[i].equals("-whitespaceTokenization")) {
+      tf=null;
+      List<String> whitespaceDelims=new ArrayList<String>(Arrays.asList(DocumentPreprocessor.DEFAULT_SENTENCE_DELIMS));
+      whitespaceDelims.add(WhitespaceLexer.NEWLINE);
+      sentenceDelims=whitespaceDelims.toArray(new String[whitespaceDelims.size()]);
+    }
  else     if (args[i].equals("-tag")) {
       i++;
       tagDelimiter=args[i];
@@ -65,6 +72,9 @@
     }
     if (tagDelimiter != null) {
       docPreprocessor.setTagDelimiter(args[++i]);
+    }
+    if (sentenceDelims != null) {
+      docPreprocessor.setSentenceFinalPuncWords(sentenceDelims);
     }
     for (    List<HasWord> sentence : docPreprocessor) {
       numSents++;

@@ -1,13 +1,6 @@
 {
+  Set<Integer> paramRange=initializeParamRange(func,x);
   double[] newGrad=new double[grad.length];
-  Set<Integer> paramRange=null;
-  if (func instanceof HasL1ParamRange) {
-    paramRange=((HasL1ParamRange)func).getL1ParamRange(x);
-  }
- else {
-    paramRange=new HashSet<Integer>(x.length);
-    for (int i=0; i < x.length; i++)     paramRange.add(i);
-  }
   for (int i=0; i < x.length; i++) {
     if (paramRange.contains(i)) {
       if (x[i] < 0.0) {

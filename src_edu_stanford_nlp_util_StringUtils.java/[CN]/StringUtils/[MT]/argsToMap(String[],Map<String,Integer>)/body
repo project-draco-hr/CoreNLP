@@ -1,13 +1,14 @@
 {
-  Map<String,String[]> result=new HashMap<String,String[]>();
+  Map<String,String[]> result=Generics.newHashMap();
   List<String> remainingArgs=new ArrayList<String>();
   for (int i=0; i < args.length; i++) {
     String key=args[i];
     if (key.charAt(0) == '-') {
-      Integer maxFlagArgs=flagsToNumArgs.get(key);
-      int max=maxFlagArgs == null ? 0 : maxFlagArgs.intValue();
+      Integer numFlagArgs=flagsToNumArgs.get(key);
+      int max=numFlagArgs == null ? 1 : numFlagArgs.intValue();
+      int min=numFlagArgs == null ? 0 : numFlagArgs.intValue();
       List<String> flagArgs=new ArrayList<String>();
-      for (int j=0; j < max && i + 1 < args.length && args[i + 1].charAt(0) != '-'; i++, j++) {
+      for (int j=0; j < max && i + 1 < args.length && (j < min || args[i + 1].length() == 0 || args[i + 1].charAt(0) != '-'); i++, j++) {
         flagArgs.add(args[i + 1]);
       }
       if (result.containsKey(key)) {

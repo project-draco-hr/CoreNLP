@@ -1,13 +1,13 @@
 {
-  Map<Split,File> splitMap=new HashMap<Split,File>();
+  Map<Split,File> splitMap=Generics.newHashMap();
   splitMap.put(Split.Train,new File(prefix + ".train"));
   splitMap.put(Split.Test,new File(prefix + ".test"));
   splitMap.put(Split.Dev,new File(prefix + ".dev"));
-  splitFileLists=new HashMap<Split,Set<String>>();
+  splitFileLists=Generics.newHashMap();
   for (  Map.Entry<Split,File> entry : splitMap.entrySet()) {
     File f=entry.getValue();
     if (!f.exists())     return false;
-    Set<String> files=new HashSet<String>();
+    Set<String> files=Generics.newHashSet();
     for (    String fileName : IOUtils.readLines(f))     files.add(fileName);
     splitFileLists.put(entry.getKey(),files);
   }

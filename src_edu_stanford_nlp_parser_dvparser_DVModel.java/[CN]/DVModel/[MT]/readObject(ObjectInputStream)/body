@@ -1,0 +1,19 @@
+{
+  in.defaultReadObject();
+  TwoDimensionalMap<String,String,DenseMatrix64F> binaryT=ErasureUtils.uncheckedCast(in.readObject());
+  binaryTransform=TwoDimensionalMap.treeMap();
+  binaryTransform.addAll(binaryT,convertDenseMatrix);
+  Map<String,DenseMatrix64F> unaryT=ErasureUtils.uncheckedCast(in.readObject());
+  unaryTransform=Generics.newTreeMap();
+  Maps.addAll(unaryTransform,unaryT,convertDenseMatrix);
+  TwoDimensionalMap<String,String,DenseMatrix64F> binaryS=ErasureUtils.uncheckedCast(in.readObject());
+  binaryScore=TwoDimensionalMap.treeMap();
+  binaryScore.addAll(binaryS,convertDenseMatrix);
+  Map<String,DenseMatrix64F> unaryS=ErasureUtils.uncheckedCast(in.readObject());
+  unaryScore=Generics.newTreeMap();
+  Maps.addAll(unaryScore,unaryS,convertDenseMatrix);
+  Map<String,DenseMatrix64F> wordV=ErasureUtils.uncheckedCast(in.readObject());
+  wordVectors=Generics.newTreeMap();
+  Maps.addAll(wordVectors,wordV,convertDenseMatrix);
+  identity=SimpleMatrix.identity(numRows);
+}

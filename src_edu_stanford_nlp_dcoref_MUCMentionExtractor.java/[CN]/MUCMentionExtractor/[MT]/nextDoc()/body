@@ -74,8 +74,8 @@
  else       if (w.startsWith("<COREF")) {
         Mention mention=new Mention();
         mention.startIndex=sentence.size();
-        Pattern idPattern=Pattern.compile("ID=\\\"(.*?)\\\"");
-        Pattern refPattern=Pattern.compile("REF=\\\"(.*?)\\\"");
+        Pattern idPattern=Pattern.compile("ID=\"(.*?)\"");
+        Pattern refPattern=Pattern.compile("REF=\"(.*?)\"");
         Matcher m=idPattern.matcher(w);
         m.find();
         mention.mentionID=Integer.valueOf(m.group(1));
@@ -115,23 +115,20 @@
     allSentences.add(sentCoreMap);
     sentCoreMap.set(CoreAnnotations.TokensAnnotation.class,sentence);
   }
-  HashMap<Integer,Mention> idMention=new HashMap<Integer,Mention>();
-  for (int i=0; i < allGoldMentions.size(); i++) {
-    for (int j=0; j < allGoldMentions.get(i).size(); j++) {
-      Mention m=allGoldMentions.get(i).get(j);
+  Map<Integer,Mention> idMention=Generics.newHashMap();
+  for (  List<Mention> goldMentions : allGoldMentions) {
+    for (    Mention m : goldMentions) {
       idMention.put(m.mentionID,m);
     }
   }
-  for (int i=0; i < allGoldMentions.size(); i++) {
-    for (int j=0; j < allGoldMentions.get(i).size(); j++) {
-      Mention m=allGoldMentions.get(i).get(j);
+  for (  List<Mention> goldMentions : allGoldMentions) {
+    for (    Mention m : goldMentions) {
       if (m.goldCorefClusterID == -1) {
         if (m.originalRef == -1)         m.goldCorefClusterID=m.mentionID;
  else {
-          Mention m2;
           int ref=m.originalRef;
           while (true) {
-            m2=idMention.get(ref);
+            Mention m2=idMention.get(ref);
             if (m2.goldCorefClusterID != -1) {
               m.goldCorefClusterID=m2.goldCorefClusterID;
               break;

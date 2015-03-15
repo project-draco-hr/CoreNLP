@@ -1,4 +1,12 @@
 {
+  if (numThreads == 1) {
+    startTrack("Threads (" + title + ")");
+    for (    Runnable toRun : runnables) {
+      toRun.run();
+    }
+    endTrack("Threads (" + title + ")");
+    return;
+  }
   ExecutorService exec=Executors.newFixedThreadPool(numThreads);
   for (  Runnable toRun : thread(title,runnables)) {
     exec.submit(toRun);

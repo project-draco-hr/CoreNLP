@@ -1,7 +1,7 @@
 {
-  HashSet<String>[] featureIndices=new HashSet[windowSize];
+  Set<String>[] featureIndices=new HashSet[windowSize];
   for (int i=0; i < windowSize; i++) {
-    featureIndices[i]=new HashSet<String>();
+    featureIndices[i]=Generics.newHashSet();
   }
   labelIndices=new ArrayList<Index<CRFLabel>>(windowSize);
   for (int i=0; i < windowSize; i++) {
@@ -10,9 +10,9 @@
   Index<CRFLabel> labelIndex=labelIndices.get(windowSize - 1);
   classIndex=new HashIndex<String>();
   classIndex.add(flags.backgroundSymbol);
-  HashSet<String>[] seenBackgroundFeatures=new HashSet[2];
-  seenBackgroundFeatures[0]=new HashSet<String>();
-  seenBackgroundFeatures[1]=new HashSet<String>();
+  Set<String>[] seenBackgroundFeatures=new HashSet[2];
+  seenBackgroundFeatures[0]=Generics.newHashSet();
+  seenBackgroundFeatures[1]=Generics.newHashSet();
   int wordCount=0;
   for (  List<IN> doc : ob) {
     if (flags.useReverse) {
@@ -73,6 +73,12 @@
   }
   featureIndex=new HashIndex<String>();
   map=new int[numFeatures];
+  if (flags.groupByFeatureTemplate) {
+    templateGroupIndex=new HashIndex<String>();
+    featureIndexToTemplateIndex=new HashMap<Integer,Integer>();
+  }
+  Matcher m=null;
+  String groupSuffix=null;
   for (int i=0; i < windowSize; i++) {
     Index<Integer> featureIndexMap=new HashIndex<Integer>();
     featureIndex.addAll(featureIndices[i]);
@@ -80,6 +86,16 @@
       int index=featureIndex.indexOf(str);
       map[index]=i;
       featureIndexMap.add(index);
+      if (flags.groupByFeatureTemplate) {
+        m=suffixPatt.matcher(str);
+        groupSuffix="NoTemplate";
+        if (m.matches()) {
+          groupSuffix=m.group(1);
+        }
+        groupSuffix+="-c:" + i;
+        int groupIndex=templateGroupIndex.indexOf(groupSuffix,true);
+        featureIndexToTemplateIndex.put(index,groupIndex);
+      }
     }
     if (i == 0) {
       nodeFeatureIndicesMap=featureIndexMap;

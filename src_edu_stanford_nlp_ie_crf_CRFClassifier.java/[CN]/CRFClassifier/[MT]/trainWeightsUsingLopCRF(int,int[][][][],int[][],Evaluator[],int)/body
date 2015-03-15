@@ -5,10 +5,9 @@
   if (flags.initialLopWeights != null) {
     try {
       System.err.println("Reading initial LOP weights from file " + flags.initialLopWeights + " ...");
-      BufferedReader br=new BufferedReader(new InputStreamReader(new FileInputStream(new File(flags.initialLopWeights))));
-      String line=null;
+      BufferedReader br=IOUtils.readerFromString(flags.initialLopWeights);
       List<double[]> listOfWeights=new ArrayList<double[]>(numLopExpert);
-      while ((line=br.readLine()) != null) {
+      for (String line; (line=br.readLine()) != null; ) {
         line=line.trim();
         String[] parts=line.split("\t");
         double[] wArr=new double[parts.length];
@@ -44,7 +43,7 @@
  else {
         newLopExpertWeights[numLopExpert]=trainWeightsUsingDoubleCRF(data,labels,evaluators,pruneFeatureItr,null);
       }
-      Set<Integer> newSet=new HashSet<Integer>(numFeatures);
+      Set<Integer> newSet=Generics.newHashSet(numFeatures);
       List<Integer> newList=new ArrayList<Integer>(numFeatures);
       for (int fIndex=0; fIndex < numFeatures; fIndex++) {
         newSet.add(fIndex);

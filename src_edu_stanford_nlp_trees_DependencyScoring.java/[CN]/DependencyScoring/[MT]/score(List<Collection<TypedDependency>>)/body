@@ -1,6 +1,8 @@
 {
   int parserCnt=0;
   int goldCnt=0;
+  int parserUnlabeledCnt=0;
+  int goldUnlabeledCnt=0;
   int correctAttachment=0;
   int correctUnlabeledAttachment=0;
   int labelCnt=0;
@@ -15,6 +17,8 @@
     }
     parserCnt+=l.get(0).size();
     goldCnt+=goldDeps.get(i).size();
+    parserUnlabeledCnt+=l.get(1).size();
+    goldUnlabeledCnt+=goldDepsUnlabeled.get(i).size();
     l.get(0).retainAll(goldDeps.get(i));
     l.get(1).retainAll(goldDepsUnlabeled.get(i));
     correctAttachment+=l.get(0).size();
@@ -24,8 +28,8 @@
     List<Set<TypedDependency>> errl=toSets(system.get(i));
     errl.get(0).removeAll(goldDeps.get(i));
     errl.get(1).removeAll(goldDepsUnlabeled.get(i));
-    Map<String,String> childCorrectWithLabel=new HashMap<String,String>();
-    Map<String,String> childCorrectWithOutLabel=new HashMap<String,String>();
+    Map<String,String> childCorrectWithLabel=Generics.newHashMap();
+    Map<String,String> childCorrectWithOutLabel=Generics.newHashMap();
     for (    TypedDependency goldDep : goldDeps.get(i)) {
       String sChild=goldDep.dep().label().toString().replaceFirst("-[^-]*$","");
       String prefixLabeled="";
@@ -48,5 +52,5 @@
       unlabeledErrorCounts.incrementCount("dep(" + sGov + ", "+ sChild+ ") <= "+ childCorrectWithOutLabel.get(sChild));
     }
   }
-  return new Score(parserCnt,goldCnt,correctAttachment,correctUnlabeledAttachment,labelCnt,labelCorrect,labeledErrorCounts,unlabeledErrorCounts);
+  return new Score(parserCnt,goldCnt,parserUnlabeledCnt,goldUnlabeledCnt,correctAttachment,correctUnlabeledAttachment,labelCnt,labelCorrect,labeledErrorCounts,unlabeledErrorCounts);
 }

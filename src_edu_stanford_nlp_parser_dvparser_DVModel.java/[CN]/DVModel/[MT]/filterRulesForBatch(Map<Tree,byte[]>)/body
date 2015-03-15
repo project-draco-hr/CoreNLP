@@ -1,0 +1,12 @@
+{
+  TwoDimensionalSet<String,String> binaryRules=TwoDimensionalSet.treeSet();
+  Set<String> unaryRules=new HashSet<String>();
+  Set<String> words=new HashSet<String>();
+  for (  Map.Entry<Tree,byte[]> entry : compressedTrees.entrySet()) {
+    searchRulesForBatch(binaryRules,unaryRules,words,entry.getKey());
+    for (    Tree hypothesis : CacheParseHypotheses.convertToTrees(entry.getValue())) {
+      searchRulesForBatch(binaryRules,unaryRules,words,hypothesis);
+    }
+  }
+  filterRulesForBatch(binaryRules,unaryRules,words);
+}

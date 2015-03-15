@@ -16,7 +16,7 @@
   int shortestSentence=Integer.MAX_VALUE;
   int longestSentence=0;
   int numNullLabel=0;
-  Set<String> words=new HashSet<String>();
+  Set<String> words=Generics.newHashSet();
   ClassicCounter<String> tags=new ClassicCounter<String>();
   ClassicCounter<String> cats=new ClassicCounter<String>();
   Tree leafEg=null;
@@ -151,7 +151,7 @@
     pw.println("  Sentences range from " + shortestSentence + " to "+ longestSentence+ " words, with an average length of "+ (((numWords * 100) / numTrees) / 100.0)+ " words.");
     pw.println("  " + cats.size() + " phrasal category types, "+ tags.size()+ " tag types, and "+ words.size()+ " word types");
     String[] empties={"*","0","*T*","*RNR*","*U*","*?*","*EXP*","*ICH*","*NOT*","*PPA*","*OP*","*pro*","*PRO*"};
-    Set<String> knownEmpties=new HashSet<String>(Arrays.asList(empties));
+    Set<String> knownEmpties=Generics.newHashSet(Arrays.asList(empties));
     Set<String> emptiesIntersection=Sets.intersection(words,knownEmpties);
     if (!emptiesIntersection.isEmpty()) {
       pw.println("  Caution! " + emptiesIntersection.size() + " word types are known empty elements: "+ emptiesIntersection);

@@ -6,16 +6,19 @@
   double averageImprovement=(previousVal - newestVal) / size;
   int evalsSize=evals.size();
   if (useEvalImprovement && evalsSize > terminateOnEvalImprovementNumOfEpoch) {
-    int begin=evalsSize - terminateOnEvalImprovementNumOfEpoch;
-    double baseline=evals.get(begin);
-    boolean improved=false;
-    for (int i=begin; i < evalsSize; i++) {
-      if (evals.get(i) > baseline) {
-        improved=true;
-        break;
+    int bestInd=-1;
+    double bestScore=Double.NEGATIVE_INFINITY;
+    for (int i=0; i < evalsSize; i++) {
+      if (evals.get(i) >= bestScore) {
+        bestScore=evals.get(i);
+        bestInd=i;
       }
     }
-    if (!improved)     return eState.TERMINATE_EVALIMPROVE;
+    if (bestInd == evalsSize - 1) {
+      if (xBest == null)       xBest=Arrays.copyOf(xLast,xLast.length);
+ else       System.arraycopy(xLast,0,xBest,0,xLast.length);
+    }
+    if ((evalsSize - bestInd) >= terminateOnEvalImprovementNumOfEpoch)     return eState.TERMINATE_EVALIMPROVE;
   }
   if (useAveImprovement && (size > 5 && Math.abs(averageImprovement / newestVal) < TOL)) {
     return eState.TERMINATE_AVERAGEIMPROVE;

@@ -1,0 +1,22 @@
+{
+  Pair<String,String> mention_pair=new Pair<String,String>(men.getSplitPattern()[dictVersion - 1].toLowerCase(),ant.getSplitPattern()[dictVersion - 1].toLowerCase());
+  int high_freq=-1;
+  if (dictVersion == 1) {
+    high_freq=75;
+  }
+ else   if (dictVersion == 2) {
+    high_freq=16;
+  }
+ else   if (dictVersion == 3) {
+    high_freq=16;
+  }
+ else   if (dictVersion == 4) {
+    high_freq=16;
+  }
+  if (dict.corefDict.get(dictVersion - 1).getCount(mention_pair) > high_freq)   return true;
+  if (dict.corefDict.get(dictVersion - 1).getCount(mention_pair) > freq) {
+    if (dict.corefDictPMI.getCount(mention_pair) > 0.18)     return true;
+    if (!dict.corefDictPMI.containsKey(mention_pair))     return true;
+  }
+  return false;
+}
