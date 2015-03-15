@@ -1,0 +1,22 @@
+{
+  try {
+    Properties props=StringUtils.argsToProperties(args);
+    props.setProperty("annotators","tokenize,ssplit,lemma,pos,parse,ner");
+    StanfordCoreNLP pipeline=new StanfordCoreNLP();
+    String sentence="Barack Obama lives in America. Obama works for the Federal Goverment.";
+    Annotation doc=new Annotation(sentence);
+    pipeline.annotate(doc);
+    RelationExtractorAnnotator r=new RelationExtractorAnnotator(props);
+    r.annotate(doc);
+    for (    CoreMap s : doc.get(CoreAnnotations.SentencesAnnotation.class)) {
+      System.out.println("For sentence " + s.get(CoreAnnotations.TextAnnotation.class));
+      List<RelationMention> rls=s.get(RelationMentionsAnnotation.class);
+      for (      RelationMention rl : rls) {
+        System.out.println(rl.toString());
+      }
+    }
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+  }
+}
