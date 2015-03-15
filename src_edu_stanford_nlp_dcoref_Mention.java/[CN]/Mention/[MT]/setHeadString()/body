@@ -1,6 +1,7 @@
 {
   this.headString=headWord.get(CoreAnnotations.TextAnnotation.class).toLowerCase();
-  if (headWord.has(CoreAnnotations.NamedEntityTagAnnotation.class) && !headWord.ner().equals("O")) {
+  String ner=headWord.get(CoreAnnotations.NamedEntityTagAnnotation.class);
+  if (ner != null && !ner.equals("O")) {
     int start=headIndex - startIndex;
     if (originalSpan.size() > 0 && start >= originalSpan.size()) {
       throw new RuntimeException("Invalid start index " + start + "="+ headIndex+ "-"+ startIndex+ ": originalSpan=["+ StringUtils.joinWords(originalSpan," ")+ "], head="+ headWord);
@@ -13,6 +14,7 @@
  else {
         this.headString=head;
         this.headWord=originalSpan.get(start);
+        this.headIndex=startIndex + start;
         break;
       }
     }

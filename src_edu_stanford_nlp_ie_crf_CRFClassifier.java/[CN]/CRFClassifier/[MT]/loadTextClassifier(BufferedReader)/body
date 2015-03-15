@@ -109,11 +109,15 @@
   }
   line=br.readLine();
   String[] featureFactoryName=line.split(" ");
-  if (!featureFactoryName[0].equals("<featureFactory>") || !featureFactoryName[2].equals("</featureFactory>")) {
-    throw new RuntimeException("format error");
+  if (featureFactoryName.length < 2 || !featureFactoryName[0].equals("<featureFactory>") || !featureFactoryName[featureFactoryName.length - 1].equals("</featureFactory>")) {
+    throw new RuntimeException("format error unexpected featureFactory line: " + line);
   }
-  featureFactory=(edu.stanford.nlp.sequences.FeatureFactory<IN>)Class.forName(featureFactoryName[1]).newInstance();
-  featureFactory.init(flags);
+  featureFactories=Generics.newArrayList();
+  for (int ff=1; ff < featureFactoryName.length - 1; ++ff) {
+    FeatureFactory featureFactory=(edu.stanford.nlp.sequences.FeatureFactory<IN>)Class.forName(featureFactoryName[1]).newInstance();
+    featureFactory.init(flags);
+    featureFactories.add(featureFactory);
+  }
   reinit();
   line=br.readLine();
   String[] windowSizeName=line.split(" ");

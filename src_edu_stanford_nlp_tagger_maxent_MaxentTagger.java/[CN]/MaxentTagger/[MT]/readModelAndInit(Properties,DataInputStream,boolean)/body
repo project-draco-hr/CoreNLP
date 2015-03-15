@@ -18,7 +18,6 @@
     init(taggerConfig);
     xSize=rf.readInt();
     ySize=rf.readInt();
-    dict=new Dictionary();
     dict.read(rf);
     if (VERBOSE) {
       System.err.println(" dictionary read ");
@@ -28,7 +27,7 @@
     dict.setAmbClasses(ambClasses,veryCommonWordThresh,tags);
     int[] numFA=new int[extractors.size() + extractorsRare.size()];
     int sizeAssoc=rf.readInt();
-    fAssociations=new ArrayList<Map<String,int[]>>();
+    fAssociations=Generics.newArrayList();
     for (int i=0; i < extractors.size() + extractorsRare.size(); ++i) {
       fAssociations.add(Generics.<String,int[]>newHashMap());
     }

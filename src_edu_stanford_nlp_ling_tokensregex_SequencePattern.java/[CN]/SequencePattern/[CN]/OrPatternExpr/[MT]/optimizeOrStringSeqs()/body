@@ -1,0 +1,96 @@
+{
+  List<PatternExpr> opts=new ArrayList<PatternExpr>(patterns.size());
+  Map<Pair<Class,Boolean>,Pair<Collection<PatternExpr>,Set<String>>> stringPatterns=new HashMap<Pair<Class,Boolean>,Pair<Collection<PatternExpr>,Set<String>>>();
+  Map<Pair<Class,Boolean>,Pair<Collection<PatternExpr>,Set<List<String>>>> stringSeqPatterns=new HashMap<Pair<Class,Boolean>,Pair<Collection<PatternExpr>,Set<List<String>>>>();
+  for (  PatternExpr p : patterns) {
+    PatternExpr opt=p.optimize();
+    opts.add(opt);
+    if (opt instanceof NodePatternExpr) {
+      Pair<Class,CoreMapNodePattern.StringAnnotationPattern> pair=_getStringAnnotation_(opt);
+      if (pair != null) {
+        Boolean ignoreCase=pair.second.ignoreCase();
+        String target=pair.second.target;
+        Pair<Class,Boolean> key=Pair.makePair(pair.first,ignoreCase);
+        Pair<Collection<PatternExpr>,Set<String>> saved=stringPatterns.get(key);
+        if (saved == null) {
+          saved=new Pair<Collection<PatternExpr>,Set<String>>(new ArrayList<PatternExpr>(),new HashSet<String>());
+          stringPatterns.put(key,saved);
+        }
+        saved.first.add(opt);
+        saved.second.add(target);
+      }
+    }
+ else     if (opt instanceof SequencePatternExpr) {
+      SequencePatternExpr seq=(SequencePatternExpr)opt;
+      if (seq.patterns.size() > 0) {
+        boolean isStringSeq=true;
+        Pair<Class,Boolean> key=null;
+        List<String> strings=null;
+        for (        PatternExpr sp : seq.patterns) {
+          Pair<Class,CoreMapNodePattern.StringAnnotationPattern> pair=_getStringAnnotation_(sp);
+          if (pair != null) {
+            if (key != null) {
+              if (key.first.equals(pair.first) && key.second.equals(pair.second.ignoreCase())) {
+              }
+ else {
+                isStringSeq=false;
+                break;
+              }
+            }
+ else {
+              key=Pair.makePair(pair.first,pair.second.ignoreCase());
+              strings=new ArrayList<String>();
+            }
+            strings.add(pair.second.target);
+          }
+ else {
+            isStringSeq=false;
+            break;
+          }
+        }
+        if (isStringSeq) {
+          Pair<Collection<PatternExpr>,Set<List<String>>> saved=stringSeqPatterns.get(key);
+          if (saved == null) {
+            saved=new Pair<Collection<PatternExpr>,Set<List<String>>>(new ArrayList<PatternExpr>(),new HashSet<List<String>>());
+            stringSeqPatterns.put(key,saved);
+          }
+          saved.first.add(opt);
+          saved.second.add(strings);
+        }
+      }
+    }
+  }
+  Map<PatternExpr,Boolean> alreadyOptimized=new IdentityHashMap<PatternExpr,Boolean>();
+  List<PatternExpr> finalOptimizedPatterns=new ArrayList<PatternExpr>(patterns.size());
+  for (  Map.Entry<Pair<Class,Boolean>,Pair<Collection<PatternExpr>,Set<String>>> entry : stringPatterns.entrySet()) {
+    Pair<Collection<PatternExpr>,Set<String>> saved=entry.getValue();
+    Set<String> set=saved.second;
+    int flags=(entry.getKey().second) ? NodePattern.CASE_INSENSITIVE : 0;
+    if (set.size() > OPTIMIZE_MIN_SIZE) {
+      PatternExpr optimized=new NodePatternExpr(new CoreMapNodePattern(entry.getKey().first,new CoreMapNodePattern.StringInSetAnnotationPattern(set,flags)));
+      finalOptimizedPatterns.add(optimized);
+      for (      PatternExpr p : saved.first) {
+        alreadyOptimized.put(p,true);
+      }
+    }
+  }
+  for (  Map.Entry<Pair<Class,Boolean>,Pair<Collection<PatternExpr>,Set<List<String>>>> entry : stringSeqPatterns.entrySet()) {
+    Pair<Collection<PatternExpr>,Set<List<String>>> saved=entry.getValue();
+    Set<List<String>> set=saved.second;
+    if (set.size() > OPTIMIZE_MIN_SIZE) {
+      Pair<Class,Boolean> key=entry.getKey();
+      PatternExpr optimized=new MultiNodePatternExpr(new MultiCoreMapNodePattern.StringSequenceAnnotationPattern(key.first(),set,key.second()));
+      finalOptimizedPatterns.add(optimized);
+      for (      PatternExpr p : saved.first) {
+        alreadyOptimized.put(p,true);
+      }
+    }
+  }
+  for (  PatternExpr p : opts) {
+    Boolean included=alreadyOptimized.get(p);
+    if (included == null || !included) {
+      finalOptimizedPatterns.add(p);
+    }
+  }
+  return new OrPatternExpr(finalOptimizedPatterns);
+}

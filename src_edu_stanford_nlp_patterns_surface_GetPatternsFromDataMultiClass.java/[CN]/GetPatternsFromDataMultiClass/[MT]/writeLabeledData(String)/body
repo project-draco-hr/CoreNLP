@@ -1,0 +1,13 @@
+{
+  BufferedWriter writer=new BufferedWriter(new FileWriter(outFile));
+  if (!constVars.batchProcessSents) {
+    this.writeLabelDataSents(Data.sents,writer);
+  }
+ else {
+    for (    File f : Data.sentsFiles) {
+      Map<String,List<CoreLabel>> sents=IOUtils.readObjectFromFile(f);
+      this.writeLabelDataSents(sents,writer);
+    }
+  }
+  writer.close();
+}
