@@ -59,9 +59,6 @@
             continue;
           }
           if (sieve.coreferent(document,c1,c2,m1,m2,dictionaries,roleSet,semantics)) {
-            if (doScore()) {
-              printLogs(c1,c2,m1,m2,document,currentSieve);
-            }
             int removeID=c1.clusterID;
             CorefCluster.mergeClusters(c2,c1);
             document.mergeIncompatibles(c2,c1);
@@ -72,26 +69,5 @@
         }
       }
     }
-  }
-  if (doScore()) {
-    scoreMUC.get(currentSieve).calculateScore(document);
-    scoreBcubed.get(currentSieve).calculateScore(document);
-    scorePairwise.get(currentSieve).calculateScore(document);
-    if (currentSieve == 0) {
-      scoreSingleDoc=new ArrayList<CorefScorer>();
-      scoreSingleDoc.add(new ScorerPairwise());
-      scoreSingleDoc.get(currentSieve).calculateScore(document);
-      additionalCorrectLinksCount=(int)scoreSingleDoc.get(currentSieve).precisionNumSum;
-      additionalLinksCount=(int)scoreSingleDoc.get(currentSieve).precisionDenSum;
-    }
- else {
-      scoreSingleDoc.add(new ScorerPairwise());
-      scoreSingleDoc.get(currentSieve).calculateScore(document);
-      additionalCorrectLinksCount=(int)(scoreSingleDoc.get(currentSieve).precisionNumSum - scoreSingleDoc.get(currentSieve - 1).precisionNumSum);
-      additionalLinksCount=(int)(scoreSingleDoc.get(currentSieve).precisionDenSum - scoreSingleDoc.get(currentSieve - 1).precisionDenSum);
-    }
-    linksCountInPass.get(currentSieve).setFirst(linksCountInPass.get(currentSieve).first() + additionalCorrectLinksCount);
-    linksCountInPass.get(currentSieve).setSecond(linksCountInPass.get(currentSieve).second() + additionalLinksCount);
-    printSieveScore(document,sieve);
   }
 }
