@@ -3,12 +3,7 @@
   Writer out=new OutputStreamWriter(socket.getOutputStream(),"utf-8");
   out.write("parse" + (binarized ? ":binarized " : " ") + query+ "\n");
   out.flush();
-  BufferedReader reader=new BufferedReader(new InputStreamReader(socket.getInputStream(),"utf-8"));
-  StringBuilder result=new StringBuilder();
-  String line;
-  while ((line=reader.readLine()) != null) {
-    result.append(line);
-  }
+  String result=readResult(socket);
   socket.close();
-  return result.toString();
+  return result;
 }

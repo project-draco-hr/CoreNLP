@@ -34,18 +34,18 @@
     List<String> leftAunts=listBasicCategories(SisterAnnotationStats.leftSisterLabels(parent,grandParent));
     List<String> rightAunts=listBasicCategories(SisterAnnotationStats.rightSisterLabels(parent,grandParent));
     if (chineseSplitPunct && baseTag.equals("PU")) {
-      if (ChineseTreebankLanguagePack.chineseDouHaoAcceptFilter().accept(word)) {
+      if (ChineseTreebankLanguagePack.chineseDouHaoAcceptFilter().test(word)) {
         tag=tag + "-DOU";
       }
- else       if (ChineseTreebankLanguagePack.chineseCommaAcceptFilter().accept(word)) {
+ else       if (ChineseTreebankLanguagePack.chineseCommaAcceptFilter().test(word)) {
         tag=tag + "-COMMA";
       }
- else       if (ChineseTreebankLanguagePack.chineseColonAcceptFilter().accept(word)) {
+ else       if (ChineseTreebankLanguagePack.chineseColonAcceptFilter().test(word)) {
         tag=tag + "-COLON";
       }
- else       if (ChineseTreebankLanguagePack.chineseQuoteMarkAcceptFilter().accept(word)) {
+ else       if (ChineseTreebankLanguagePack.chineseQuoteMarkAcceptFilter().test(word)) {
         if (chineseSplitPunctLR) {
-          if (ChineseTreebankLanguagePack.chineseLeftQuoteMarkAcceptFilter().accept(word)) {
+          if (ChineseTreebankLanguagePack.chineseLeftQuoteMarkAcceptFilter().test(word)) {
             tag+="-LQUOTE";
           }
  else {
@@ -56,12 +56,12 @@
           tag=tag + "-QUOTE";
         }
       }
- else       if (ChineseTreebankLanguagePack.chineseEndSentenceAcceptFilter().accept(word)) {
+ else       if (ChineseTreebankLanguagePack.chineseEndSentenceAcceptFilter().test(word)) {
         tag=tag + "-ENDSENT";
       }
- else       if (ChineseTreebankLanguagePack.chineseParenthesisAcceptFilter().accept(word)) {
+ else       if (ChineseTreebankLanguagePack.chineseParenthesisAcceptFilter().test(word)) {
         if (chineseSplitPunctLR) {
-          if (ChineseTreebankLanguagePack.chineseLeftParenthesisAcceptFilter().accept(word)) {
+          if (ChineseTreebankLanguagePack.chineseLeftParenthesisAcceptFilter().test(word)) {
             tag+="-LPAREN";
           }
  else {
@@ -72,10 +72,10 @@
           tag+="-PAREN";
         }
       }
- else       if (ChineseTreebankLanguagePack.chineseDashAcceptFilter().accept(word)) {
+ else       if (ChineseTreebankLanguagePack.chineseDashAcceptFilter().test(word)) {
         tag=tag + "-DASH";
       }
- else       if (ChineseTreebankLanguagePack.chineseOtherAcceptFilter().accept(word)) {
+ else       if (ChineseTreebankLanguagePack.chineseOtherAcceptFilter().test(word)) {
         tag=tag + "-OTHER";
       }
  else {
@@ -83,7 +83,7 @@
       }
     }
  else     if (chineseSplitDouHao) {
-      if (ChineseTreebankLanguagePack.chineseDouHaoAcceptFilter().accept(word) && baseTag.equals("PU")) {
+      if (ChineseTreebankLanguagePack.chineseDouHaoAcceptFilter().test(word) && baseTag.equals("PU")) {
         tag=tag + "-DOU";
       }
     }
@@ -255,7 +255,7 @@
       boolean hasCommaSis=false;
       boolean hasIPSis=false;
       for (      Tree sister : sisters) {
-        if (ctlp.basicCategory(sister.label().value()).equals("PU") && ChineseTreebankLanguagePack.chineseCommaAcceptFilter().accept(sister.children()[0].label().toString())) {
+        if (ctlp.basicCategory(sister.label().value()).equals("PU") && ChineseTreebankLanguagePack.chineseCommaAcceptFilter().test(sister.children()[0].label().toString())) {
           hasCommaSis=true;
         }
         if (ctlp.basicCategory(sister.label().value()).equals("IP") && sister != t) {

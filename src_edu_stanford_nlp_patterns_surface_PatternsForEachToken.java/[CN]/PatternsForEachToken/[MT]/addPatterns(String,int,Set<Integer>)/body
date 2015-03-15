@@ -1,0 +1,15 @@
+{
+  PreparedStatement pstmt=null;
+  Connection conn=null;
+  if (useDBForTokenPatterns) {
+    conn=SQLConnection.getConnection();
+    pstmt=getPreparedStmt(conn);
+  }
+  addPattern(sentId,tokenId,patterns,pstmt);
+  if (useDBForTokenPatterns) {
+    pstmt.execute();
+    conn.commit();
+    pstmt.close();
+    conn.close();
+  }
+}

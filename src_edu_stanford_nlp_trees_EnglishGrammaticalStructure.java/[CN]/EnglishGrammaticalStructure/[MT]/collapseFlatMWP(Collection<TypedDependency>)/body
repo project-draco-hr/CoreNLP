@@ -37,22 +37,23 @@
         newTypedDeps.add(new TypedDependency(gr,governor,pobj.dep()));
       }
     }
-    if (prep != null && dep != null && pobj != null) {
-      prep.setReln(KILL);
-      dep.setReln(KILL);
-      pobj.setReln(KILL);
-      for (      TypedDependency td1 : list) {
-        if (td1.reln() != KILL) {
-          if (td1.gov().equals(mwp1)) {
-            td1.setGov(governor);
-          }
-          if (!newTypedDeps.contains(td1)) {
-            newTypedDeps.add(td1);
-          }
+    if (pobj == null) {
+      return;
+    }
+    prep.setReln(KILL);
+    dep.setReln(KILL);
+    pobj.setReln(KILL);
+    for (    TypedDependency td1 : list) {
+      if (td1.reln() != KILL) {
+        if (td1.gov().equals(mwp1)) {
+          td1.setGov(governor);
+        }
+        if (!newTypedDeps.contains(td1)) {
+          newTypedDeps.add(td1);
         }
       }
-      list.clear();
-      list.addAll(newTypedDeps);
     }
+    list.clear();
+    list.addAll(newTypedDeps);
   }
 }
