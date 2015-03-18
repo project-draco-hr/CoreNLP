@@ -1,0 +1,33 @@
+{
+  if (!doc.speakers.containsKey(paragraphUtterIndex)) {
+    if (!nextParagraphSpeaker.equals("")) {
+      doc.speakers.put(paragraphUtterIndex,nextParagraphSpeaker);
+    }
+ else {
+      CoreMap lastSent=paragraph.get(paragraph.size() - 1);
+      String speaker="";
+      boolean hasVerb=false;
+      for (int i=0; i < lastSent.get(CoreAnnotations.TokensAnnotation.class).size(); i++) {
+        CoreLabel w=lastSent.get(CoreAnnotations.TokensAnnotation.class).get(i);
+        String pos=w.get(CoreAnnotations.PartOfSpeechAnnotation.class);
+        String ner=w.get(CoreAnnotations.NamedEntityTagAnnotation.class);
+        if (pos.startsWith("V")) {
+          hasVerb=true;
+          break;
+        }
+        if (ner.startsWith("PER")) {
+          IntTuple headPosition=new IntTuple(2);
+          headPosition.set(0,paragraph.size() - 1 + paragraphOffset);
+          headPosition.set(1,i);
+          if (doc.mentionheadPositions.containsKey(headPosition)) {
+            speaker=Integer.toString(doc.mentionheadPositions.get(headPosition).mentionID);
+          }
+        }
+      }
+      if (!hasVerb && !speaker.equals("")) {
+        doc.speakers.put(paragraphUtterIndex,speaker);
+      }
+    }
+  }
+  return findNextParagraphSpeaker(doc,paragraph,paragraphOffset,dict);
+}

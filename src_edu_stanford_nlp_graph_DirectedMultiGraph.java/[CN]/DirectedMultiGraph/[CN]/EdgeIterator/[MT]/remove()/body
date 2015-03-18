@@ -1,3 +1,15 @@
 {
-  edgeIterator.remove();
+  if (incomingEdges == null) {
+    throw new UnsupportedOperationException("remove() is only valid if iterating over entire graph (Gabor was too lazy to implement the general case...sorry!)");
+  }
+  if (lastRemoved != null) {
+    if (lastRemoved instanceof SemanticGraphEdge) {
+      SemanticGraphEdge edge=(SemanticGraphEdge)lastRemoved;
+      incomingEdges.get((V)edge.getDependent()).get((V)edge.getGovernor()).remove((E)edge);
+      edgeIterator.remove();
+    }
+ else {
+      edgeIterator.remove();
+    }
+  }
 }

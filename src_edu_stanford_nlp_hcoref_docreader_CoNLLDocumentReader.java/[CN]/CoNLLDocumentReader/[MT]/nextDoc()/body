@@ -1,0 +1,9 @@
+{
+  CoNLLDocument conllDoc=getNextDocument();
+  if (conllDoc == null)   return null;
+  Annotation anno=conllDoc.getAnnotation();
+  setDependencyTree(anno);
+  List<List<Mention>> allGoldMentions=extractGoldMentions(conllDoc);
+  Map<String,String> docInfo=makeDocInfo(conllDoc);
+  return new InputDoc(anno,docInfo,allGoldMentions,conllDoc);
+}

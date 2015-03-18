@@ -1,0 +1,38 @@
+{
+  Set<String> neStrings=Generics.newHashSet();
+  for (int i=0; i < predictedMentions.size(); i++) {
+    for (    Mention m : predictedMentions.get(i)) {
+      String ne=m.headWord.ner();
+      if (ne.equals("O"))       continue;
+      for (      CoreLabel cl : m.originalSpan) {
+        if (!cl.ner().equals(ne))         continue;
+      }
+      neStrings.add(m.lowercaseNormalizedSpanString());
+    }
+  }
+  for (int i=0; i < predictedMentions.size(); i++) {
+    List<Mention> predicts=predictedMentions.get(i);
+    Map<Integer,Set<Mention>> headPositions=Generics.newHashMap();
+    for (    Mention p : predicts) {
+      if (!headPositions.containsKey(p.headIndex))       headPositions.put(p.headIndex,Generics.newHashSet());
+      headPositions.get(p.headIndex).add(p);
+    }
+    Set<Mention> remove=Generics.newHashSet();
+    for (    int hPos : headPositions.keySet()) {
+      Set<Mention> shares=headPositions.get(hPos);
+      if (shares.size() > 1) {
+        Counter<Mention> probs=new ClassicCounter<Mention>();
+        for (        Mention p : shares) {
+          double trueProb=probabilityOf(p,shares,neStrings,dict,props);
+          probs.incrementCount(p,trueProb);
+        }
+        Mention keep=Counters.argmax(probs);
+        probs.remove(keep);
+        remove.addAll(probs.keySet());
+      }
+    }
+    for (    Mention r : remove) {
+      predicts.remove(r);
+    }
+  }
+}

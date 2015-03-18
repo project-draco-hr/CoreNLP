@@ -20,27 +20,47 @@
       }
       System.err.print(w.toString());
     }
-    System.err.println(']');
   }
-  for (int i=0; i < tokens.size(); ++i) {
-    String neTag=output.get(i).get(CoreAnnotations.NamedEntityTagAnnotation.class);
-    String normNeTag=output.get(i).get(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class);
-    tokens.get(i).setNER(neTag);
-    if (normNeTag != null)     tokens.get(i).set(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class,normNeTag);
-    NumberSequenceClassifier.transferAnnotations(output.get(i),tokens.get(i));
-  }
-  if (VERBOSE) {
-    boolean first=true;
-    System.err.print("NERCombinerAnnotator output: [");
-    for (    CoreLabel w : tokens) {
-      if (first) {
-        first=false;
-      }
+  if (output != null) {
+    if (VERBOSE) {
+      boolean first=true;
+      System.err.print("NERCombinerAnnotator direct output: [");
+      for (      CoreLabel w : output) {
+        if (first) {
+          first=false;
+        }
  else {
-        System.err.print(", ");
+          System.err.print(", ");
+        }
+        System.err.print(w.toString());
       }
-      System.err.print(w.toShorterString("Word","NamedEntityTag","NormalizedNamedEntityTag"));
+      System.err.println(']');
     }
-    System.err.println(']');
+    for (int i=0; i < tokens.size(); ++i) {
+      String neTag=output.get(i).get(CoreAnnotations.NamedEntityTagAnnotation.class);
+      String normNeTag=output.get(i).get(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class);
+      tokens.get(i).setNER(neTag);
+      if (normNeTag != null)       tokens.get(i).set(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class,normNeTag);
+      NumberSequenceClassifier.transferAnnotations(output.get(i),tokens.get(i));
+    }
+    if (VERBOSE) {
+      boolean first=true;
+      System.err.print("NERCombinerAnnotator output: [");
+      for (      CoreLabel w : tokens) {
+        if (first) {
+          first=false;
+        }
+ else {
+          System.err.print(", ");
+        }
+        System.err.print(w.toShorterString("Word","NamedEntityTag","NormalizedNamedEntityTag"));
+      }
+      System.err.println(']');
+    }
+  }
+ else {
+    for (int i=0; i < tokens.size(); ++i) {
+      tokens.get(i).setNER("O");
+    }
   }
 }
