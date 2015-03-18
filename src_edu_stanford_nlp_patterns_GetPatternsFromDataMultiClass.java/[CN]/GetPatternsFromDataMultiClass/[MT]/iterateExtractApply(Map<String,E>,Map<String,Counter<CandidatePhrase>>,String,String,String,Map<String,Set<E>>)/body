@@ -1,11 +1,11 @@
 {
   Map<String,CollectionValuedMap<E,Triple<String,Integer,Integer>>> matchedTokensByPatAllLabels=new HashMap<String,CollectionValuedMap<E,Triple<String,Integer,Integer>>>();
   Map<String,Collection<Triple<String,Integer,Integer>>> matchedTokensForPhrases=new HashMap<>();
-  Map<String,TwoDimensionalCounter<String,E>> termsAllLabels=new HashMap<String,TwoDimensionalCounter<String,E>>();
+  Map<String,TwoDimensionalCounter<CandidatePhrase,E>> termsAllLabels=new HashMap<String,TwoDimensionalCounter<CandidatePhrase,E>>();
   Map<String,Set<CandidatePhrase>> ignoreWordsAll=new HashMap<String,Set<CandidatePhrase>>();
   for (  String label : constVars.getSeedLabelDictionary().keySet()) {
     matchedTokensByPatAllLabels.put(label,new CollectionValuedMap<E,Triple<String,Integer,Integer>>());
-    termsAllLabels.put(label,new TwoDimensionalCounter<String,E>());
+    termsAllLabels.put(label,new TwoDimensionalCounter<CandidatePhrase,E>());
     if (constVars.useOtherLabelsWordsasNegative) {
       Set<CandidatePhrase> w=new HashSet<CandidatePhrase>();
       for (      Entry<String,Set<CandidatePhrase>> en : constVars.getSeedLabelDictionary().entrySet()) {
@@ -37,9 +37,9 @@
     for (    String label : constVars.getLabels()) {
       Redwood.log(ConstantsAndVariables.minimaldebug,"\n###Learning for label " + label + " ######");
       String sentout=sentsOutFile == null ? null : sentsOutFile + "_" + label;
-      Pair<Counter<E>,Counter<CandidatePhrase>> learnedPatWords4label=iterateExtractApply4Label(label,p0 != null ? p0.get(label) : null,p0Set != null ? p0Set.get(label) : null,wordsOutput.get(label),sentout,patternsOutput.get(label),ignorePatterns != null ? ignorePatterns.get(label) : null,1,ignoreWordsAll.get(label),matchedTokensByPatAllLabels.get(label),termsAllLabels.get(label));
+      Pair<Counter<E>,Counter<CandidatePhrase>> learnedPatWords4label=iterateExtractApply4Label(label,p0 != null ? p0.get(label) : null,p0Set != null ? p0Set.get(label) : null,wordsOutput.get(label),sentout,patternsOutput.get(label),ignorePatterns != null ? ignorePatterns.get(label) : null,ignoreWordsAll.get(label),matchedTokensByPatAllLabels.get(label),termsAllLabels.get(label),i);
       learnedWordsThisIter.put(label,learnedPatWords4label.second());
-      if (learnedPatWords4label.first().size() > 0) {
+      if (learnedPatWords4label.first().size() > 0 && constVars.getLearnedWords(label).size() < constVars.maxExtractNumWords) {
         keepRunning=true;
       }
     }
@@ -83,8 +83,12 @@
     }
   }
   System.out.println("\n\nAll patterns learned:");
-  for (  Entry<String,Counter<E>> en : this.learnedPatterns.entrySet()) {
-    System.out.println(en.getKey() + ":\t\t" + StringUtils.join(en.getValue().keySet(),"\n"));
+  for (  Map.Entry<String,Map<Integer,Counter<E>>> en2 : this.learnedPatternsEachIter.entrySet()) {
+    System.out.println(en2.getKey() + ":");
+    for (    Map.Entry<Integer,Counter<E>> en : en2.getValue().entrySet()) {
+      System.out.println("Iteration " + en.getKey());
+      System.out.println(StringUtils.join(en.getValue().keySet(),"\n"));
+    }
   }
   System.out.println("\n\nAll words learned:");
   for (  Entry<String,Counter<CandidatePhrase>> en : this.constVars.getLearnedWords().entrySet()) {

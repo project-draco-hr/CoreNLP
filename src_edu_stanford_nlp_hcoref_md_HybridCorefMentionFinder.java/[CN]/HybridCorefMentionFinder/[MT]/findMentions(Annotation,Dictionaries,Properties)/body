@@ -1,0 +1,25 @@
+{
+  List<List<Mention>> predictedMentions=new ArrayList<List<Mention>>();
+  Set<String> neStrings=Generics.newHashSet();
+  List<Set<IntPair>> mentionSpanSetList=Generics.newArrayList();
+  List<CoreMap> sentences=doc.get(CoreAnnotations.SentencesAnnotation.class);
+  for (  CoreMap s : sentences) {
+    List<Mention> mentions=new ArrayList<Mention>();
+    predictedMentions.add(mentions);
+    Set<IntPair> mentionSpanSet=Generics.newHashSet();
+    Set<IntPair> namedEntitySpanSet=Generics.newHashSet();
+    extractPremarkedEntityMentions(s,mentions,mentionSpanSet,namedEntitySpanSet);
+    extractNamedEntityMentions(s,mentions,mentionSpanSet,namedEntitySpanSet);
+    extractNPorPRP(s,mentions,mentionSpanSet,namedEntitySpanSet);
+    extractEnumerations(s,mentions,mentionSpanSet,namedEntitySpanSet);
+    addNamedEntityStrings(s,neStrings,namedEntitySpanSet);
+    mentionSpanSetList.add(mentionSpanSet);
+  }
+  extractNamedEntityModifiers(sentences,mentionSpanSetList,predictedMentions,neStrings);
+  for (int i=0; i < sentences.size(); i++) {
+    findHead(sentences.get(i),predictedMentions.get(i));
+  }
+  removeSpuriousMentions(doc,predictedMentions,dict,Boolean.parseBoolean(props.getProperty("removeNested","true")),lang);
+  if (!PropertiesUtils.getBool(props,CorefProperties.MD_TRAIN_PROP,false))   mdClassifier.classifyMentions(predictedMentions,dict,props);
+  return predictedMentions;
+}

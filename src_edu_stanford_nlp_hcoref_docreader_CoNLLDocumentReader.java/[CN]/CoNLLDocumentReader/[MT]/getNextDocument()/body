@@ -1,0 +1,25 @@
+{
+  try {
+    if (curFileIndex >= fileList.size())     return null;
+    File curFile=fileList.get(curFileIndex);
+    if (docIterator == null) {
+      docIterator=new DocumentIterator(curFile.getAbsolutePath(),options);
+    }
+    while (!docIterator.hasNext()) {
+      Redwood.log("debug-docreader","Processed " + docIterator.docCnt + " documents in "+ curFile.getAbsolutePath());
+      docIterator.close();
+      curFileIndex++;
+      if (curFileIndex >= fileList.size()) {
+        return null;
+      }
+      curFile=fileList.get(curFileIndex);
+      docIterator=new DocumentIterator(curFile.getAbsolutePath(),options);
+    }
+    CoNLLDocument next=docIterator.next();
+    Redwood.log("Reading document: " + next.getDocumentID() + " part: "+ next.getPartNo());
+    return next;
+  }
+ catch (  IOException ex) {
+    throw new RuntimeIOException(ex);
+  }
+}

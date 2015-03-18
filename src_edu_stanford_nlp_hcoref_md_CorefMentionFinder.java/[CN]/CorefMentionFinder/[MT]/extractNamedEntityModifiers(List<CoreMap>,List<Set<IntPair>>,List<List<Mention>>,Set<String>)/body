@@ -1,0 +1,50 @@
+{
+  for (int i=0; i < sentences.size(); i++) {
+    List<Mention> mentions=predictedMentions.get(i);
+    CoreMap sent=sentences.get(i);
+    List<CoreLabel> tokens=sent.get(TokensAnnotation.class);
+    Set<IntPair> mentionSpanSet=mentionSpanSetList.get(i);
+    for (int j=0; j < tokens.size(); j++) {
+      for (      String ne : neStrings) {
+        int len=ne.split(" ").length;
+        if (j + len > tokens.size())         continue;
+        StringBuilder sb=new StringBuilder();
+        for (int k=0; k < len; k++) {
+          sb.append(tokens.get(k + j).word()).append(" ");
+        }
+        String phrase=sb.toString().trim();
+        int beginIndex=j;
+        int endIndex=j + len;
+        if (endIndex < tokens.size() && tokens.get(endIndex).word().equals("'s") && tokens.get(endIndex).tag().equals("POS")) {
+          Tree tree=sent.get(TreeAnnotation.class);
+          Tree sToken=tree.getLeaves().get(beginIndex);
+          Tree eToken=tree.getLeaves().get(endIndex);
+          Tree join=tree.joinNode(sToken,eToken);
+          Tree sJoin=join.getLeaves().get(0);
+          Tree eJoin=join.getLeaves().get(join.getLeaves().size() - 1);
+          if (sToken == sJoin && eToken == eJoin) {
+            endIndex++;
+          }
+        }
+        if (beginIndex > 0 && tokens.get(beginIndex - 1).tag().equals("DT")) {
+          Tree tree=sent.get(TreeAnnotation.class);
+          Tree sToken=tree.getLeaves().get(beginIndex - 1);
+          Tree eToken=tree.getLeaves().get(endIndex - 1);
+          Tree join=tree.joinNode(sToken,eToken);
+          Tree sJoin=join.getLeaves().get(0);
+          Tree eJoin=join.getLeaves().get(join.getLeaves().size() - 1);
+          if (sToken == sJoin && eToken == eJoin) {
+            beginIndex--;
+          }
+        }
+        IntPair span=new IntPair(beginIndex,endIndex);
+        if (phrase.equalsIgnoreCase(ne) && !mentionSpanSet.contains(span)) {
+          int dummyMentionId=-1;
+          Mention m=new Mention(dummyMentionId,beginIndex,endIndex,tokens,sent.get(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class),sent.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class),new ArrayList<CoreLabel>(tokens.subList(beginIndex,endIndex)));
+          mentions.add(m);
+          mentionSpanSet.add(span);
+        }
+      }
+    }
+  }
+}

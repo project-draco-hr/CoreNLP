@@ -1,0 +1,16 @@
+{
+  Boolean useMarkedDiscourseBoolean=doc.annotation.get(CoreAnnotations.UseMarkedDiscourseAnnotation.class);
+  boolean useMarkedDiscourse=(useMarkedDiscourseBoolean != null) ? useMarkedDiscourseBoolean : false;
+  if (!useMarkedDiscourse) {
+    if (doc.docType == DocType.CONVERSATION)     findSpeakersInConversation(doc,dict);
+ else     if (doc.docType == DocType.ARTICLE)     findSpeakersInArticle(doc,dict);
+  }
+  for (  CoreMap sent : doc.annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
+    for (    CoreLabel w : sent.get(CoreAnnotations.TokensAnnotation.class)) {
+      int utterIndex=w.get(CoreAnnotations.UtteranceAnnotation.class);
+      if (!doc.speakers.containsKey(utterIndex)) {
+        doc.speakers.put(utterIndex,w.get(CoreAnnotations.SpeakerAnnotation.class));
+      }
+    }
+  }
+}

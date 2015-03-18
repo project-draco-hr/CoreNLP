@@ -1,0 +1,203 @@
+{
+  boolean ret=false;
+  Mention mention=mentionCluster.getRepresentativeMention();
+  if (flags.USE_INCOMPATIBLES) {
+    if (document.isIncompatible(mentionCluster,potentialAntecedent)) {
+      return false;
+    }
+  }
+  if (flags.DO_PRONOUN && Math.abs(mention2.sentNum - ant.sentNum) > 3 && mention2.person != Person.I && mention2.person != Person.YOU) {
+    return false;
+  }
+  if (mention2.lowercaseNormalizedSpanString().equals("this") && Math.abs(mention2.sentNum - ant.sentNum) > 3) {
+    return false;
+  }
+  if (mention2.person == Person.YOU && document.docType == DocType.ARTICLE && mention2.headWord.get(CoreAnnotations.SpeakerAnnotation.class).equals("PER0")) {
+    return false;
+  }
+  if (document.conllDoc != null) {
+    if (ant.generic && ant.person == Person.YOU)     return false;
+    if (mention2.generic)     return false;
+  }
+  if (lang != Locale.CHINESE || !document.docInfo.get("DOC_ID").contains("nw")) {
+    if (mention2.insideIn(ant) || ant.insideIn(mention2))     return false;
+  }
+  if (flags.USE_SPEAKERMATCH) {
+    String mSpeaker=mention2.headWord.get(SpeakerAnnotation.class);
+    String aSpeaker=ant.headWord.get(SpeakerAnnotation.class);
+    if (mention2.person == Person.I && ant.person == Person.I)     return (mSpeaker.equals(aSpeaker));
+    if ((mention2.person == Person.I && mSpeaker.equals(Integer.toString(ant.mentionID))) || (ant.person == Person.I && aSpeaker.equals(Integer.toString(mention2.mentionID))))     return true;
+  }
+  if (flags.USE_DISCOURSEMATCH) {
+    String mString=mention.lowercaseNormalizedSpanString();
+    String antString=ant.lowercaseNormalizedSpanString();
+    if (mention.speakerInfo != null && mention.speakerInfo == ant.speakerInfo) {
+      return true;
+    }
+    if (mention.number == Number.SINGULAR && dict.firstPersonPronouns.contains(mString) && ant.number == Number.SINGULAR && dict.firstPersonPronouns.contains(antString) && Rules.entitySameSpeaker(document,mention,ant)) {
+      return true;
+    }
+    if ((mention.number == Number.SINGULAR && dict.firstPersonPronouns.contains(mString)) && Rules.antecedentIsMentionSpeaker(document,mention,ant,dict)) {
+      if (mention.speakerInfo == null && ant.speakerInfo != null) {
+        mention.speakerInfo=ant.speakerInfo;
+      }
+      return true;
+    }
+    if ((ant.number == Number.SINGULAR && dict.firstPersonPronouns.contains(antString)) && Rules.antecedentIsMentionSpeaker(document,ant,mention,dict)) {
+      if (ant.speakerInfo == null && mention.speakerInfo != null) {
+        ant.speakerInfo=mention.speakerInfo;
+      }
+      return true;
+    }
+    if (dict.secondPersonPronouns.contains(mString) && dict.secondPersonPronouns.contains(antString) && Rules.entitySameSpeaker(document,mention,ant)) {
+      return true;
+    }
+    if (((mention.person == Person.I && ant.person == Person.YOU || (mention.person == Person.YOU && ant.person == Person.I)) && (mention.headWord.get(CoreAnnotations.UtteranceAnnotation.class) - ant.headWord.get(CoreAnnotations.UtteranceAnnotation.class) == 1) && document.docType == DocType.CONVERSATION)) {
+      return true;
+    }
+    if (dict.reflexivePronouns.contains(mention.headString) && Rules.entitySubjectObject(mention,ant)) {
+      return true;
+    }
+  }
+  if (!flags.USE_EXACTSTRINGMATCH && !flags.USE_RELAXED_EXACTSTRINGMATCH && !flags.USE_APPOSITION&& !flags.USE_WORDS_INCLUSION) {
+    for (    Mention m : mentionCluster.getCorefMentions()) {
+      for (      Mention a : potentialAntecedent.getCorefMentions()) {
+        if (m.person != Person.I && a.person != Person.I && (Rules.antecedentIsMentionSpeaker(document,m,a,dict) || Rules.antecedentIsMentionSpeaker(document,a,m,dict))) {
+          document.addIncompatible(m,a);
+          return false;
+        }
+        int dist=Math.abs(m.headWord.get(CoreAnnotations.UtteranceAnnotation.class) - a.headWord.get(CoreAnnotations.UtteranceAnnotation.class));
+        if (document.docType != DocType.ARTICLE && dist == 1 && !Rules.entitySameSpeaker(document,m,a)) {
+          String mSpeaker=document.speakers.get(m.headWord.get(CoreAnnotations.UtteranceAnnotation.class));
+          String aSpeaker=document.speakers.get(a.headWord.get(CoreAnnotations.UtteranceAnnotation.class));
+          if (m.person == Person.I && a.person == Person.I) {
+            document.addIncompatible(m,a);
+            return false;
+          }
+          if (m.person == Person.YOU && a.person == Person.YOU) {
+            document.addIncompatible(m,a);
+            return false;
+          }
+          if (m.person == Person.WE && a.person == Person.WE) {
+            document.addIncompatible(m,a);
+            return false;
+          }
+        }
+      }
+    }
+    if (document.docType == DocType.ARTICLE) {
+      for (      Mention m : mentionCluster.getCorefMentions()) {
+        for (        Mention a : potentialAntecedent.getCorefMentions()) {
+          if (Rules.entitySubjectObject(m,a)) {
+            document.addIncompatible(m,a);
+            return false;
+          }
+        }
+      }
+    }
+  }
+  if (flags.USE_iwithini && Rules.entityIWithinI(mention,ant,dict)) {
+    document.addIncompatible(mention,ant);
+    return false;
+  }
+  if (flags.USE_EXACTSTRINGMATCH && Rules.entityExactStringMatch(mention,ant,dict,roleSet)) {
+    return true;
+  }
+  if (flags.USE_NAME_MATCH && checkEntityMatch(document,mentionCluster,potentialAntecedent,dict,roleSet)) {
+    ret=true;
+  }
+  if (flags.USE_RELAXED_EXACTSTRINGMATCH && Rules.entityRelaxedExactStringMatch(mentionCluster,potentialAntecedent,mention,ant,dict,roleSet)) {
+    return true;
+  }
+  if (flags.USE_APPOSITION && Rules.entityIsApposition(mentionCluster,potentialAntecedent,mention,ant)) {
+    return true;
+  }
+  if (flags.USE_PREDICATENOMINATIVES && Rules.entityIsPredicateNominatives(mentionCluster,potentialAntecedent,mention,ant)) {
+    return true;
+  }
+  if (flags.USE_ACRONYM && Rules.entityIsAcronym(document,mentionCluster,potentialAntecedent)) {
+    return true;
+  }
+  if (flags.USE_RELATIVEPRONOUN && Rules.entityIsRelativePronoun(mention,ant)) {
+    return true;
+  }
+  if (flags.USE_DEMONYM && mention.isDemonym(ant,dict)) {
+    return true;
+  }
+  if (flags.USE_ROLEAPPOSITION && lang != Locale.CHINESE && Rules.entityIsRoleAppositive(mentionCluster,potentialAntecedent,mention,ant,dict)) {
+    ret=true;
+  }
+  if (flags.USE_INCLUSION_HEADMATCH && Rules.entityHeadsAgree(mentionCluster,potentialAntecedent,mention,ant,dict)) {
+    ret=true;
+  }
+  if (flags.USE_RELAXED_HEADMATCH && Rules.entityRelaxedHeadsAgreeBetweenMentions(mentionCluster,potentialAntecedent,mention,ant)) {
+    ret=true;
+  }
+  if (flags.USE_WORDS_INCLUSION && ret && !Rules.entityWordsIncluded(mentionCluster,potentialAntecedent,mention,ant)) {
+    return false;
+  }
+  if (flags.USE_INCOMPATIBLE_MODIFIER && ret && Rules.entityHaveIncompatibleModifier(mentionCluster,potentialAntecedent)) {
+    return false;
+  }
+  if (flags.USE_PROPERHEAD_AT_LAST && ret && !Rules.entitySameProperHeadLastWord(mentionCluster,potentialAntecedent,mention,ant)) {
+    return false;
+  }
+  if (flags.USE_ATTRIBUTES_AGREE && !Rules.entityAttributesAgree(mentionCluster,potentialAntecedent)) {
+    return false;
+  }
+  if (flags.USE_DIFFERENT_LOCATION && Rules.entityHaveDifferentLocation(mention,ant,dict)) {
+    if (flags.USE_PROPERHEAD_AT_LAST && ret && mention.goldCorefClusterID != ant.goldCorefClusterID) {
+    }
+    return false;
+  }
+  if (flags.USE_NUMBER_IN_MENTION && Rules.entityNumberInLaterMention(mention,ant)) {
+    if (flags.USE_PROPERHEAD_AT_LAST && ret && mention.goldCorefClusterID != ant.goldCorefClusterID) {
+    }
+    return false;
+  }
+  if (flags.USE_DISTANCE && Rules.entityTokenDistance(mention2,ant)) {
+    return false;
+  }
+  if (flags.USE_COREF_DICT) {
+    if (ant.headWord.lemma().equals(mention2.headWord.lemma()))     return false;
+    if (ant.mentionType != MentionType.PROPER && (mention2.headWord.get(CoreAnnotations.PartOfSpeechAnnotation.class).startsWith("NNP") || !mention2.headWord.word().substring(1).equals(mention2.headWord.word().substring(1).toLowerCase())))     return false;
+    if (ant.headWord.get(CoreAnnotations.PartOfSpeechAnnotation.class).equals("NNS") && mention2.headWord.get(CoreAnnotations.PartOfSpeechAnnotation.class).equals("NNS"))     return false;
+    if (dict.indefinitePronouns.contains(ant.originalSpan.get(0).lemma()) || dict.indefinitePronouns.contains(mention2.originalSpan.get(0).lemma()))     return false;
+    if (ant.isCoordinated() || mention2.isCoordinated())     return false;
+    if (Rules.contextIncompatible(mention2,ant,dict))     return false;
+    if (Rules.sentenceContextIncompatible(mention2,ant,dict))     return false;
+    if (Rules.entityClusterAllCorefDictionary(mentionCluster,potentialAntecedent,dict,1,8))     return true;
+    if (Rules.entityCorefDictionary(mention,ant,dict,2,2))     return true;
+    if (Rules.entityCorefDictionary(mention,ant,dict,3,2))     return true;
+    if (Rules.entityCorefDictionary(mention,ant,dict,4,2))     return true;
+  }
+  if (flags.DO_PRONOUN) {
+    Mention m;
+    if (mention.predicateNominatives != null && mention.predicateNominatives.contains(mention2)) {
+      m=mention2;
+    }
+ else {
+      m=mention;
+    }
+    if ((m.isPronominal() || dict.allPronouns.contains(m.toString())) && Rules.entityAttributesAgree(mentionCluster,potentialAntecedent)) {
+      if (dict.demonymSet.contains(ant.lowercaseNormalizedSpanString()) && dict.notOrganizationPRP.contains(m.headString)) {
+        document.addIncompatible(m,ant);
+        return false;
+      }
+      if (Rules.entityPersonDisagree(document,mentionCluster,potentialAntecedent,dict)) {
+        document.addIncompatible(m,ant);
+        return false;
+      }
+      return true;
+    }
+  }
+  if (flags.USE_CHINESE_HEAD_MATCH) {
+    if (mention2.headWord == ant.headWord && mention2.insideIn(ant)) {
+      if (!document.isCoref(mention2,ant)) {
+        System.err.println("error in chinese head match: " + mention2.spanToString() + "\t"+ ant.spanToString());
+      }
+      return true;
+    }
+  }
+  return ret;
+}

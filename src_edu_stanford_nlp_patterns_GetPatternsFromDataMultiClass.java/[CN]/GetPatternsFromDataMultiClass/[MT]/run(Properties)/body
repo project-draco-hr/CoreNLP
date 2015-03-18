@@ -25,8 +25,9 @@
   boolean loadSavedPatternsWordsDir=Boolean.parseBoolean(props.getProperty("loadSavedPatternsWordsDir"));
   boolean labelSentsUsingModel=Boolean.parseBoolean(props.getProperty("labelSentsUsingModel","true"));
   boolean applyPatsUsingModel=Boolean.parseBoolean(props.getProperty("applyPatsUsingModel","true"));
+  int numIterationsOfSavedPatternsToLoad=Integer.parseInt(props.getProperty(Flags.numIterationsOfSavedPatternsToLoad,String.valueOf(Integer.MAX_VALUE)));
   if (loadSavedPatternsWordsDir) {
-    loadFromSavedPatternsWordsDir(model,props,labelSentsUsingModel,applyPatsUsingModel);
+    loadFromSavedPatternsWordsDir(model,props,labelSentsUsingModel,applyPatsUsingModel,numIterationsOfSavedPatternsToLoad);
   }
   if (learn)   model.iterateExtractApply(p0,p0Set,wordsOutputFile,sentsOutFile,patternOutFile,ignorePatterns);
   if (model.constVars.markedOutputTextFile != null) {
@@ -39,8 +40,8 @@
     Redwood.log(Redwood.FORCE,"Saving output in " + patternsWordsDir);
     for (    String label : model.constVars.getLabels()) {
       IOUtils.ensureDir(new File(patternsWordsDir + "/" + label));
-      Counter<E> pats=model.getLearnedPatterns(label);
-      IOUtils.writeObjectToFile(pats,patternsWordsDir + "/" + label+ "/patterns.ser");
+      Map<Integer,Counter<E>> pats=model.getLearnedPatternsEachIter(label);
+      IOUtils.writeObjectToFile(pats,patternsWordsDir + "/" + label+ "/patternsEachIter.ser");
       BufferedWriter w=new BufferedWriter(new FileWriter(patternsWordsDir + "/" + label+ "/phrases.txt"));
       model.writeWordsToFile(model.constVars.getLearnedWords(label),w);
       writeClassesInEnv(model.constVars.env,ConstantsAndVariables.globalEnv,patternsWordsDir + "/env.txt");
