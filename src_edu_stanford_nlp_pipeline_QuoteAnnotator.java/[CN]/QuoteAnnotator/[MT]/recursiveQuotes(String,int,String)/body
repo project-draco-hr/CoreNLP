@@ -26,7 +26,7 @@
     if (DIRECTED_QUOTES.containsKey(quote) && DIRECTED_QUOTES.get(quote).equals(c)) {
       directed--;
     }
-    if ((start < 0) && !matchesPrevQuote(c,prevQuote) && (((isSingleQuoteWithUse(c) || c.equals("`")) && isSingleQuoteStart(text,i)) || (c.equals("\"") || DIRECTED_QUOTES.containsKey(c)))) {
+    if ((start < 0) && !matchesPrevQuote(c,prevQuote) && (((c.equals("'") || c.equals("`")) && isSingleQuoteStart(text,i)) || (c.equals("\"") || DIRECTED_QUOTES.containsKey(c)))) {
       start=i;
       quote=c;
     }
@@ -48,14 +48,8 @@
     if (c.length() > 1) {
       i+=c.length() - 1;
     }
-    if (MAX_LENGTH > 0 && start >= 0 && i - start > MAX_LENGTH) {
-      i=start + quote.length();
-      start=-1;
-      end=-1;
-      quote=null;
-    }
   }
-  if (start >= 0 && start < text.length() - 3) {
+  if (start >= 0) {
     String warning=text;
     if (text.length() > 150) {
       warning=text.substring(0,150) + "...";
@@ -63,11 +57,11 @@
     System.err.println("WARNING: unmatched quote of type " + quote + " found at index "+ start+ " in text segment: "+ warning);
   }
   List<Pair<Integer,Integer>> quotes=Generics.newArrayList();
-  if (quotesMap.isEmpty() && start >= 0 && start < text.length() - 3) {
+  if (quotesMap.isEmpty() && start >= 0) {
     String toPass=text.substring(start + quote.length(),text.length());
     List<Pair<Integer,Integer>> embedded=recursiveQuotes(toPass,offset,null);
     for (    Pair<Integer,Integer> e : embedded) {
-      quotes.add(new Pair(e.first() + start + quote.length(),e.second() + start + 1));
+      quotes.add(new Pair(e.first() + offset + start+ quote.length(),e.second() + offset + start+ 1));
     }
   }
  else {
