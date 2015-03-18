@@ -27,15 +27,12 @@
       throw new RuntimeException("Bad pattern: " + pattern,pe);
     }
   }
-  GrammaticalRelation previous;
-synchronized (stringsToRelations) {
-    Map<String,GrammaticalRelation> sToR=stringsToRelations.get(language);
-    if (sToR == null) {
-      sToR=Generics.newHashMap();
-      stringsToRelations.put(language,sToR);
-    }
-    previous=sToR.put(toString(),this);
+  Map<String,GrammaticalRelation> sToR=stringsToRelations.get(language);
+  if (sToR == null) {
+    sToR=Generics.newHashMap();
+    stringsToRelations.put(language,sToR);
   }
+  GrammaticalRelation previous=sToR.put(toString(),this);
   if (previous != null) {
     if (!previous.isFromString() && !isFromString()) {
       throw new IllegalArgumentException("There is already a relation named " + toString() + '!');
