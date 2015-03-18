@@ -157,8 +157,10 @@
     if (CorefProperties.useMentionDetectionFeatures(props,sievename)) {
       if (m.originalSpan.size() == 1 && m.headWord.tag().equals("NNS"))       features.incrementCount("B-M-BAREPLURAL");
       if (candidate.originalSpan.size() == 1 && candidate.headWord.tag().equals("NNS"))       features.incrementCount("B-A-BAREPLURAL");
-      if (RuleBasedCorefMentionFinder.isPleonastic(m,m.contextParseTree) || RuleBasedCorefMentionFinder.isPleonastic(candidate,candidate.contextParseTree)) {
-        features.incrementCount("B-PLEONASTICIT");
+      if (CorefProperties.useConstituencyTree(props)) {
+        if (RuleBasedCorefMentionFinder.isPleonastic(m,m.contextParseTree) || RuleBasedCorefMentionFinder.isPleonastic(candidate,candidate.contextParseTree)) {
+          features.incrementCount("B-PLEONASTICIT");
+        }
       }
       if (dict.quantifiers.contains(mFirst.word().toLowerCase(Locale.ENGLISH)))       features.incrementCount("B-M-QUANTIFIER");
       if (dict.quantifiers.contains(aFirst.word().toLowerCase(Locale.ENGLISH)))       features.incrementCount("B-A-QUANTIFIER");

@@ -3,10 +3,15 @@
   List<CoreLabel> sent=s.get(CoreAnnotations.TokensAnnotation.class);
   tree.indexSpans(0);
   for (  Mention m : mentions) {
-    Tree head=findSyntacticHead(m,tree,sent);
-    m.headIndex=((CoreLabel)head.label()).get(CoreAnnotations.IndexAnnotation.class) - 1;
-    m.headWord=sent.get(m.headIndex);
-    m.headString=m.headWord.get(CoreAnnotations.TextAnnotation.class).toLowerCase(Locale.ENGLISH);
+    if (lang == Locale.CHINESE) {
+      findHeadChinese(sent,m);
+    }
+ else {
+      CoreLabel head=(CoreLabel)findSyntacticHead(m,tree,sent).label();
+      m.headIndex=head.get(CoreAnnotations.IndexAnnotation.class) - 1;
+      m.headWord=sent.get(m.headIndex);
+      m.headString=m.headWord.get(CoreAnnotations.TextAnnotation.class).toLowerCase(Locale.ENGLISH);
+    }
     int start=m.headIndex - m.startIndex;
     if (start < 0 || start >= m.originalSpan.size()) {
       Redwood.log("Invalid index for head " + start + "="+ m.headIndex+ "-"+ m.startIndex+ ": originalSpan=["+ StringUtils.joinWords(m.originalSpan," ")+ "], head="+ m.headWord);
