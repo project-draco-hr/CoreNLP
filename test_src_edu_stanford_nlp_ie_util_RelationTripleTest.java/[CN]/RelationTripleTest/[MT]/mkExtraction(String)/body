@@ -1,3 +1,34 @@
 {
-  return mkExtraction(conll,0);
+  List<CoreLabel> sentence=new ArrayList<>();
+  SemanticGraph tree=new SemanticGraph();
+  for (  String line : conll.split("\n")) {
+    if (line.trim().equals("")) {
+      continue;
+    }
+    String[] fields=line.trim().split("\\s+");
+    int index=Integer.parseInt(fields[0]);
+    String word=fields[1];
+    CoreLabel label=mkWord(word,index);
+    sentence.add(label);
+    if (fields[2].equals("0")) {
+      tree.addRoot(new IndexedWord(label));
+    }
+ else {
+      tree.addVertex(new IndexedWord(label));
+    }
+  }
+  int i=0;
+  for (  String line : conll.split("\n")) {
+    if (line.trim().equals("")) {
+      continue;
+    }
+    String[] fields=line.trim().split("\\s+");
+    int parent=Integer.parseInt(fields[2]);
+    String reln=fields[3];
+    if (parent > 0) {
+      tree.addEdge(new IndexedWord(sentence.get(parent - 1)),new IndexedWord(sentence.get(i)),new GrammaticalRelation(GrammaticalRelation.Language.English,reln,null,null),1.0,false);
+    }
+    i+=1;
+  }
+  return RelationTriple.segment(tree);
 }
