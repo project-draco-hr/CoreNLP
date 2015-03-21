@@ -1,0 +1,26 @@
+{
+  IndexedWord caseGov=sg.getParent(gov);
+  IndexedWord caseGovGov=sg.getParent(caseGov);
+  IndexedWord conjGov=caseGovGov.getOriginal() != null ? caseGovGov.getOriginal() : caseGovGov;
+  GrammaticalRelation rel=sg.reln(caseGovGov,caseGov);
+  List<IndexedWord> newConjDeps=Generics.newLinkedList();
+  for (  IndexedWord conjDep : conjDeps) {
+    IndexedWord caseGovCopy=caseGov.makeSoftCopy();
+    IndexedWord caseGovGovCopy=caseGovGov.makeSoftCopy();
+    SemanticGraphEdge edge=sg.getEdge(gov,conjDep);
+    sg.removeEdge(edge);
+    sg.addEdge(caseGovCopy,conjDep,CASE_MARKER,Double.NEGATIVE_INFINITY,false);
+    sg.addEdge(caseGovGovCopy,caseGovCopy,rel,Double.NEGATIVE_INFINITY,false);
+    sg.addEdge(conjGov,caseGovGovCopy,CONJUNCT,Double.NEGATIVE_INFINITY,false);
+    newConjDeps.add(caseGovGovCopy);
+    for (    SemanticGraphEdge e : sg.outgoingEdgeList(caseGov)) {
+      if (e.getRelation() != CASE_MARKER && !e.getDependent().equals(ccDep)) {
+        sg.addEdge(caseGovCopy,e.getDependent(),e.getRelation(),Double.NEGATIVE_INFINITY,false);
+      }
+    }
+  }
+  SemanticGraphEdge edge=sg.getEdge(gov,ccDep);
+  sg.removeEdge(edge);
+  sg.addEdge(conjGov,ccDep,COORDINATION,Double.NEGATIVE_INFINITY,false);
+  addConjToReln(sg,conjGov,newConjDeps,ccDep);
+}
