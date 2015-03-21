@@ -1,0 +1,17 @@
+{
+  IndexedWord caseGov=sg.getParent(gov);
+  IndexedWord caseGovGov=sg.getParent(caseGov);
+  IndexedWord conjGov=caseGovGov.getOriginal() != null ? caseGovGov.getOriginal() : caseGovGov;
+  GrammaticalRelation rel=sg.reln(caseGovGov,caseGov);
+  List<IndexedWord> newConjDeps=Generics.newLinkedList();
+  for (  IndexedWord conjDep : conjDeps) {
+    IndexedWord caseGovGovCopy=caseGovGov.makeSoftCopy();
+    sg.addEdge(conjGov,caseGovGovCopy,CONJUNCT,Double.NEGATIVE_INFINITY,false);
+    newConjDeps.add(caseGovGovCopy);
+    sg.addEdge(caseGovGovCopy,caseGov,rel,Double.NEGATIVE_INFINITY,true);
+    List<IndexedWord> caseMarkers=Generics.newArrayList();
+    caseMarkers.add(conjDep);
+    addCaseMarkersToReln(sg,caseGovGovCopy,caseGov,caseMarkers);
+  }
+  addConjToReln(sg,conjGov,newConjDeps,ccDep);
+}
