@@ -1,0 +1,20 @@
+{
+  for (int i=0; i < 4; i++) {
+    dict.add(new ClassicCounter<Pair<String,String>>());
+    BufferedReader reader=null;
+    try {
+      reader=IOUtils.readerFromString(file[i]);
+      reader.readLine();
+      while (reader.ready()) {
+        String[] split=reader.readLine().split("\t");
+        dict.get(i).setCount(new Pair<String,String>(split[0],split[1]),Double.parseDouble(split[2]));
+      }
+    }
+ catch (    IOException e) {
+      throw new RuntimeException(e);
+    }
+ finally {
+      IOUtils.closeIgnoringExceptions(reader);
+    }
+  }
+}

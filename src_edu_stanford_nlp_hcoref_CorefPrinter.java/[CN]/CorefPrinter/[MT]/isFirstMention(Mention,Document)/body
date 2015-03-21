@@ -1,0 +1,9 @@
+{
+  if (!m.hasTwin)   return true;
+  Mention twinGold=document.goldMentionsByID.get(m.mentionID);
+  for (  Mention coref : document.goldCorefClusters.get(twinGold.goldCorefClusterID).getCorefMentions()) {
+    if (coref == twinGold)     continue;
+    if (coref.appearEarlierThan(twinGold))     return false;
+  }
+  return true;
+}
