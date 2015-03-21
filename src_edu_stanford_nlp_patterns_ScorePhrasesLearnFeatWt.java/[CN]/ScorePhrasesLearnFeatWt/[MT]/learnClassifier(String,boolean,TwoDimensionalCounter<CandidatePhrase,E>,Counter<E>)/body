@@ -1,0 +1,62 @@
+{
+  phraseScoresRaw.clear();
+  learnedScores.clear();
+  if (Data.domainNGramsFile != null)   Data.loadDomainNGrams();
+  boolean computeRawFreq=false;
+  if (Data.rawFreq == null) {
+    Data.rawFreq=new ClassicCounter<CandidatePhrase>();
+    computeRawFreq=true;
+  }
+  GeneralDataset<String,ScorePhraseMeasures> dataset=choosedatums(forLearningPatterns,label,wordsPatExtracted,allSelectedPatterns,computeRawFreq);
+  edu.stanford.nlp.classify.Classifier classifier;
+  if (scoreClassifierType.equals(ClassifierType.LR)) {
+    LogisticClassifierFactory<String,ScorePhraseMeasures> logfactory=new LogisticClassifierFactory<String,ScorePhraseMeasures>();
+    LogPrior lprior=new LogPrior();
+    lprior.setSigma(constVars.LRSigma);
+    classifier=logfactory.trainClassifier(dataset,lprior,false);
+    LogisticClassifier logcl=((LogisticClassifier)classifier);
+    String l=(String)logcl.getLabelForInternalPositiveClass();
+    Counter<String> weights=logcl.weightsAsGenericCounter();
+    if (l.equals(Boolean.FALSE.toString())) {
+      Counters.multiplyInPlace(weights,-1);
+    }
+    List<Pair<String,Double>> wtd=Counters.toDescendingMagnitudeSortedListWithCounts(weights);
+    Redwood.log(ConstantsAndVariables.minimaldebug,"The weights are " + StringUtils.join(wtd.subList(0,Math.min(wtd.size(),600)),"\n"));
+  }
+ else   if (scoreClassifierType.equals(ClassifierType.SVM)) {
+    SVMLightClassifierFactory<String,ScorePhraseMeasures> svmcf=new SVMLightClassifierFactory<String,ScorePhraseMeasures>(true);
+    classifier=svmcf.trainClassifier(dataset);
+    Set<String> labels=Generics.newHashSet(Arrays.asList("true"));
+    List<Triple<ScorePhraseMeasures,String,Double>> topfeatures=((SVMLightClassifier<String,ScorePhraseMeasures>)classifier).getTopFeatures(labels,0,true,600,true);
+    Redwood.log(ConstantsAndVariables.minimaldebug,"The weights are " + StringUtils.join(topfeatures,"\n"));
+  }
+ else   if (scoreClassifierType.equals(ClassifierType.SHIFTLR)) {
+    GeneralDataset<String,ScorePhraseMeasures> newdataset=new Dataset<String,ScorePhraseMeasures>();
+    Iterator<RVFDatum<String,ScorePhraseMeasures>> iter=dataset.iterator();
+    while (iter.hasNext()) {
+      RVFDatum<String,ScorePhraseMeasures> inst=iter.next();
+      newdataset.add(new BasicDatum<String,ScorePhraseMeasures>(inst.asFeatures(),inst.label()));
+    }
+    ShiftParamsLogisticClassifierFactory<String,ScorePhraseMeasures> factory=new ShiftParamsLogisticClassifierFactory<String,ScorePhraseMeasures>();
+    classifier=factory.trainClassifier(newdataset);
+    MultinomialLogisticClassifier<String,ScorePhraseMeasures> logcl=((MultinomialLogisticClassifier)classifier);
+    Counter<ScorePhraseMeasures> weights=logcl.weightsAsGenericCounter().get("true");
+    List<Pair<ScorePhraseMeasures,Double>> wtd=Counters.toDescendingMagnitudeSortedListWithCounts(weights);
+    Redwood.log(ConstantsAndVariables.minimaldebug,"The weights are " + StringUtils.join(wtd.subList(0,Math.min(wtd.size(),600)),"\n"));
+  }
+ else   if (scoreClassifierType.equals(ClassifierType.LINEAR)) {
+    LinearClassifierFactory<String,ScorePhraseMeasures> lcf=new LinearClassifierFactory<String,ScorePhraseMeasures>();
+    classifier=lcf.trainClassifier(dataset);
+    Set<String> labels=Generics.newHashSet(Arrays.asList("true"));
+    List<Triple<ScorePhraseMeasures,String,Double>> topfeatures=((LinearClassifier<String,ScorePhraseMeasures>)classifier).getTopFeatures(labels,0,true,600,true);
+    Redwood.log(ConstantsAndVariables.minimaldebug,"The weights are " + StringUtils.join(topfeatures,"\n"));
+  }
+ else   throw new RuntimeException("cannot identify classifier " + scoreClassifierType);
+  BufferedWriter w=new BufferedWriter(new FileWriter("tempscorestrainer.txt"));
+  System.out.println("size of learned scores is " + phraseScoresRaw.size());
+  for (  CandidatePhrase s : phraseScoresRaw.firstKeySet()) {
+    w.write(s + "\t" + phraseScoresRaw.getCounter(s)+ "\n");
+  }
+  w.close();
+  return classifier;
+}

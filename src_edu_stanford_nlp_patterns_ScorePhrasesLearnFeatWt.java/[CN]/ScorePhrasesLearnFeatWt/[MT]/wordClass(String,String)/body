@@ -1,0 +1,17 @@
+{
+  Counter<Integer> cl=new ClassicCounter<Integer>();
+  String[] phl=null;
+  if (phraseLemma != null)   phl=phraseLemma.split("\\s+");
+  int i=0;
+  for (  String w : phrase.split("\\s+")) {
+    Integer cluster=constVars.getWordClassClusters().get(w);
+    if (cluster == null && phl != null)     cluster=constVars.getWordClassClusters().get(phl[i]);
+    if (cluster == null) {
+      cluster=constVars.getWordClassClusters().get(w.toLowerCase());
+      if (cluster == null && phl != null)       cluster=constVars.getWordClassClusters().get(phl[i].toLowerCase());
+    }
+    if (cluster != null)     cl.incrementCount(cluster);
+    i++;
+  }
+  return cl;
+}

@@ -1,0 +1,68 @@
+{
+  String[] example=lineInfos.get(i);
+  Datum<String,String> d;
+  if (globalFlags.usesRealValues) {
+    d=test.getRVFDatum(i);
+  }
+ else {
+    d=test.getDatum(i);
+  }
+  if (globalFlags.justify) {
+    System.err.println("### Test item " + i);
+    for (    String field : example) {
+      System.err.print(field);
+      System.err.print('\t');
+    }
+    System.err.println();
+    if (cl instanceof LinearClassifier) {
+      ((LinearClassifier<String,String>)cl).justificationOf(d);
+    }
+    System.err.println();
+  }
+  Counter<String> logScores;
+  if (globalFlags.usesRealValues) {
+    logScores=ErasureUtils.<RVFClassifier<String,String>>uncheckedCast(cl).scoresOf((RVFDatum<String,String>)d);
+  }
+ else {
+    logScores=cl.scoresOf(d);
+  }
+  Distribution<String> dist=Distribution.distributionFromLogisticCounter(logScores);
+  String answer=null;
+  if (globalFlags.biasedHyperplane != null) {
+    List<String> biggestKeys=new ArrayList<String>(logScores.keySet());
+    Collections.sort(biggestKeys,Counters.toComparatorDescending(logScores));
+    for (    String key : biggestKeys) {
+      double prob=dist.probabilityOf(key);
+      double threshold=globalFlags.biasedHyperplane.getCount(key);
+      if (prob > threshold) {
+        answer=key;
+        break;
+      }
+    }
+  }
+  if (answer == null) {
+    if (globalFlags.usesRealValues) {
+      answer=ErasureUtils.<RVFClassifier<String,String>>uncheckedCast(cl).classOf((RVFDatum<String,String>)d);
+    }
+ else {
+      answer=cl.classOf(d);
+    }
+  }
+  double sim=0.0;
+  if (globalFlags.rankingScoreColumn >= 0) {
+    try {
+      sim=Double.parseDouble(example[globalFlags.rankingScoreColumn]);
+    }
+ catch (    NumberFormatException nfe) {
+    }
+  }
+  if (!(globalFlags.crossValidationFolds > 0 && !globalFlags.printCrossValidationDecisions)) {
+    if (globalFlags.csvOutput != null) {
+      System.out.print(formatCsv(globalFlags.csvOutput,example,answer));
+    }
+ else {
+      writeAnswer(example,answer,dist,contingency,cl,sim);
+    }
+  }
+  updatePerformanceStatistics(example,answer,dist,contingency,cl,sim);
+}

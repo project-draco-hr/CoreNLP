@@ -1,0 +1,12 @@
+{
+  Dataset<String,String> trainData=new Dataset<String,String>();
+  Datum<String,String> d1=newDatum("alpha",new String[]{"f1","f2"},new Double[]{d1f1,d1f2});
+  Datum<String,String> d2=newDatum("beta",new String[]{"f1","f2"},new Double[]{d2f1,d2f2});
+  trainData.add(d1);
+  trainData.add(d2);
+  LogPrior prior=new LogPrior(LogPrior.LogPriorType.QUADRATIC,1.0,0.1);
+  ShiftParamsLogisticClassifierFactory<String,String> lfc=new ShiftParamsLogisticClassifierFactory<String,String>(prior,0.01);
+  MultinomialLogisticClassifier<String,String> lc=lfc.trainClassifier(trainData);
+  Assert.assertEquals(d1.label(),lc.classOf(d1));
+  Assert.assertEquals(d2.label(),lc.classOf(d2));
+}

@@ -1,0 +1,13 @@
+{
+  int numClasses=weights.length + 1;
+  double[] result=new double[numClasses];
+  result[0]=0.0;
+  for (int c=1; c < numClasses; c++) {
+    result[c]=-dotProduct(weights[c - 1],featureIndices,featureValues) - intercepts[c - 1];
+  }
+  double total=ArrayMath.logSum(result);
+  for (int c=0; c < numClasses; c++) {
+    result[c]-=total;
+  }
+  return result;
+}

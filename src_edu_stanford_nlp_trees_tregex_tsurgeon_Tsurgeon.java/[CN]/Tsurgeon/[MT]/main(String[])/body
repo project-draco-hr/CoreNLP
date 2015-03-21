@@ -49,7 +49,9 @@
   if (argsMap.containsKey(treeFileOption)) {
     trees.loadPath(argsMap.get(treeFileOption)[0]);
   }
-  List<Pair<TregexPattern,TsurgeonPattern>> ops=new ArrayList<Pair<TregexPattern,TsurgeonPattern>>();
+  if (trees.isEmpty()) {
+    System.err.println("Warning: No trees specified to operate on.  Use -treeFile path option.");
+  }
   TregexPatternCompiler compiler;
   if (headFinderClassName == null) {
     compiler=new TregexPatternCompiler();
@@ -65,10 +67,11 @@
     compiler=new TregexPatternCompiler(hf);
   }
   Macros.addAllMacros(compiler,macroFilename,encoding);
+  List<Pair<TregexPattern,TsurgeonPattern>> ops=new ArrayList<>();
   if (argsMap.containsKey(patternOperationOption)) {
     TregexPattern matchPattern=compiler.compile(argsMap.get(patternOperationOption)[0]);
     TsurgeonPattern p=parseOperation(argsMap.get(patternOperationOption)[1]);
-    ops.add(new Pair<TregexPattern,TsurgeonPattern>(matchPattern,p));
+    ops.add(new Pair<>(matchPattern,p));
   }
  else {
     for (    String arg : args) {

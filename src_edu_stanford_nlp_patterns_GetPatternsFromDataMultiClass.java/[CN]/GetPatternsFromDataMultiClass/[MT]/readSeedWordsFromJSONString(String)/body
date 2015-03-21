@@ -1,0 +1,12 @@
+{
+  Map<String,Set<CandidatePhrase>> seedWords=new HashMap<String,Set<CandidatePhrase>>();
+  JsonReader jsonReader=Json.createReader(new StringReader(str));
+  JsonObject obj=jsonReader.readObject();
+  jsonReader.close();
+  for (  String o : obj.keySet()) {
+    seedWords.put(o,new HashSet<CandidatePhrase>());
+    JsonArray arr=obj.getJsonArray(o);
+    for (    JsonValue v : arr)     seedWords.get(o).add(CandidatePhrase.createOrGet(v.toString()));
+  }
+  return seedWords;
+}

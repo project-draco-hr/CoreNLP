@@ -1,0 +1,91 @@
+{
+  List<Pair<E,CandidatePhrase>> posWords=new ArrayList<Pair<E,CandidatePhrase>>();
+  List<Pair<E,CandidatePhrase>> negWords=new ArrayList<Pair<E,CandidatePhrase>>();
+  List<Pair<E,CandidatePhrase>> unlabWords=new ArrayList<Pair<E,CandidatePhrase>>();
+  for (  String sentId : sentIds) {
+    Map<Integer,Set<E>> pat4Sent=patternsForEachToken.getPatternsForAllTokens(sentId);
+    if (pat4Sent == null) {
+      throw new RuntimeException("How come there are no patterns for " + sentId);
+    }
+    DataInstance sent=sents.get(sentId);
+    List<CoreLabel> tokens=sent.getTokens();
+    for (int i=0; i < tokens.size(); i++) {
+      CoreLabel token=tokens.get(i);
+      CandidatePhrase tokenWordOrLemma=CandidatePhrase.createOrGet(token.word());
+      CandidatePhrase longestMatchingPhrase;
+      if (constVars.useMatchingPhrase) {
+        Map<String,CandidatePhrase> longestMatchingPhrases=token.get(PatternsAnnotations.LongestMatchedPhraseForEachLabel.class);
+        longestMatchingPhrase=longestMatchingPhrases.get(label);
+        longestMatchingPhrase=(longestMatchingPhrase != null && (longestMatchingPhrase.getPhrase().length() > tokenWordOrLemma.getPhrase().length())) ? longestMatchingPhrase : tokenWordOrLemma;
+      }
+ else       longestMatchingPhrase=tokenWordOrLemma;
+      Set<E> pats=pat4Sent.get(i);
+      Set newpats=new HashSet<E>();
+      boolean changedpats=false;
+      for (      E s : pats) {
+        if (s instanceof SurfacePattern) {
+          changedpats=true;
+          SurfacePattern snew=((SurfacePattern)s).copyNewToken();
+          snew.setNumWordsCompound(PatternFactory.numWordsCompoundMapped.get(label));
+          newpats.add(snew);
+        }
+      }
+      if (changedpats)       pats=newpats;
+      if (pats == null) {
+        if (!constVars.patternType.equals(PatternFactory.PatternType.DEP))         throw new RuntimeException("Why are patterns null for sentence " + sentId + " and token "+ i+ "("+ tokens.get(i)+ "). pat4Sent has token ids "+ pat4Sent.keySet()+ (constVars.batchProcessSents ? "" : ". The sentence is " + Data.sents.get(sentId))+ ". If you have changed parameters, recompute all patterns.");
+        continue;
+      }
+      if (PatternFactory.ignoreWordRegex.matcher(token.word()).matches())       continue;
+      String tag=token.tag();
+      if (constVars.allowedTagsInitials != null && constVars.allowedTagsInitials.containsKey(label)) {
+        boolean use=false;
+        for (        String allowed : constVars.allowedTagsInitials.get(label)) {
+          if (tag.startsWith(allowed)) {
+            use=true;
+            break;
+          }
+        }
+        if (!use)         continue;
+      }
+      String nertag=token.ner();
+      if (constVars.allowedNERsforLabels != null && constVars.allowedNERsforLabels.containsKey(label)) {
+        if (!constVars.allowedNERsforLabels.get(label).contains(nertag)) {
+          continue;
+        }
+      }
+      if (token.get(answerClass4Label).equals(label)) {
+        for (        E s : pats) {
+          posWords.add(new Pair<E,CandidatePhrase>(s,longestMatchingPhrase));
+        }
+      }
+ else {
+        boolean negToken=false;
+        Map<Class,Object> ignore=constVars.getIgnoreWordswithClassesDuringSelection().get(label);
+        for (        Class igCl : ignore.keySet())         if ((Boolean)token.get(igCl)) {
+          negToken=true;
+          break;
+        }
+        if (!negToken)         if (constVars.getOtherSemanticClassesWords().contains(token.word()) || constVars.getOtherSemanticClassesWords().contains(token.lemma()))         negToken=true;
+        if (!negToken) {
+          for (          String labelA : constVars.getLabels()) {
+            if (!labelA.equals(label)) {
+              if (constVars.getSeedLabelDictionary().get(labelA).contains(longestMatchingPhrase) || constVars.getSeedLabelDictionary().get(labelA).contains(tokenWordOrLemma) || constVars.getLearnedWords(labelA).containsKey(longestMatchingPhrase)|| constVars.getLearnedWords(labelA).containsKey(tokenWordOrLemma)) {
+                negToken=true;
+                break;
+              }
+            }
+          }
+        }
+        for (        E sindex : pats) {
+          if (negToken) {
+            negWords.add(new Pair<E,CandidatePhrase>(sindex,longestMatchingPhrase));
+          }
+ else {
+            unlabWords.add(new Pair<E,CandidatePhrase>(sindex,longestMatchingPhrase));
+          }
+        }
+      }
+    }
+  }
+  return new Triple(posWords,negWords,unlabWords);
+}
