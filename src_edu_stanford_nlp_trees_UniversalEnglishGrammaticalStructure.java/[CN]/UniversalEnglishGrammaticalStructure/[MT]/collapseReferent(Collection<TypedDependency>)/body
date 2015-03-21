@@ -1,0 +1,26 @@
+{
+  List<TypedDependency> refs=new ArrayList<TypedDependency>();
+  for (Iterator<TypedDependency> iter=list.iterator(); iter.hasNext(); ) {
+    TypedDependency td=iter.next();
+    if (td.reln() == REFERENT) {
+      refs.add(td);
+      iter.remove();
+    }
+  }
+  for (  TypedDependency ref : refs) {
+    IndexedWord dep=ref.dep();
+    IndexedWord ant=ref.gov();
+    for (    TypedDependency td : list) {
+      if (td.dep().equals(dep) && td.reln() != REFERENT && !td.gov().equals(ant)) {
+        if (DEBUG) {
+          System.err.print("referent: changing " + td);
+        }
+        td.setDep(ant);
+        td.setExtra();
+        if (DEBUG) {
+          System.err.println(" to " + td);
+        }
+      }
+    }
+  }
+}

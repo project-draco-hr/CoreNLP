@@ -1,0 +1,24 @@
+{
+  Set<GrammaticalRelation> prepRels=Generics.newHashSet(UniversalEnglishGrammaticalRelations.getPreps());
+  prepRels.addAll(UniversalEnglishGrammaticalRelations.getPrepsC());
+  for (  TypedDependency td1 : list) {
+    if (prepRels.contains(td1.reln())) {
+      IndexedWord gov=td1.gov();
+      IndexedWord dep=td1.dep();
+      for (      TypedDependency td2 : list) {
+        if (td2.reln() == DEPENDENT && td2.gov().equals(gov) && td2.dep().equals(dep)) {
+          td2.setReln(KILL);
+        }
+      }
+    }
+  }
+  for (Iterator<TypedDependency> iter=list.iterator(); iter.hasNext(); ) {
+    TypedDependency td=iter.next();
+    if (td.reln() == KILL) {
+      if (DEBUG) {
+        System.err.println("Removing duplicate relation: " + td);
+      }
+      iter.remove();
+    }
+  }
+}

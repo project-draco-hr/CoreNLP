@@ -1,0 +1,14 @@
+{
+  GrammaticalRelation result=conjs.get(conjunctionString);
+  if (result == null) {
+synchronized (conjs) {
+      result=conjs.get(conjunctionString);
+      if (result == null) {
+        result=new GrammaticalRelation(Language.English,"conj","conj_collapsed",CONJUNCT,conjunctionString);
+        conjs.put(conjunctionString,result);
+        threadSafeAddRelation(result);
+      }
+    }
+  }
+  return result;
+}

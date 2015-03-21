@@ -4,13 +4,6 @@
     URL u=new URL(textFileOrUrl);
     URLConnection uc=u.openConnection();
     in=uc.getInputStream();
-    if (textFileOrUrl.endsWith(".gz")) {
-      try {
-        in=new GZIPInputStream(in);
-      }
- catch (      IOException e) {
-      }
-    }
   }
  else {
     try {
@@ -26,6 +19,9 @@
         throw new IOException("Unable to resolve \"" + textFileOrUrl + "\" as either "+ "class path, filename or URL");
       }
     }
+  }
+  if (textFileOrUrl.endsWith(".gz")) {
+    in=new GZIPInputStream(in,GZIP_FILE_BUFFER_SIZE);
   }
   in=new BufferedInputStream(in);
   return in;

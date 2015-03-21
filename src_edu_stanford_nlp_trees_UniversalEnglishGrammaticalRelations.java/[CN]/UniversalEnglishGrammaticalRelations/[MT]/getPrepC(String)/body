@@ -1,0 +1,14 @@
+{
+  GrammaticalRelation result=prepsC.get(prepositionString);
+  if (result == null) {
+synchronized (prepsC) {
+      result=prepsC.get(prepositionString);
+      if (result == null) {
+        result=new GrammaticalRelation(Language.English,"prepc","prepc_collapsed",DEPENDENT,prepositionString);
+        prepsC.put(prepositionString,result);
+        threadSafeAddRelation(result);
+      }
+    }
+  }
+  return result;
+}

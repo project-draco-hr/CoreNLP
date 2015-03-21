@@ -1,0 +1,274 @@
+{
+  Collection<TypedDependency> newTypedDeps=new ArrayList<TypedDependency>();
+  Map<IndexedWord,SortedSet<TypedDependency>> map=Generics.newHashMap();
+  List<IndexedWord> vmod=Generics.newArrayList();
+  for (  TypedDependency typedDep : list) {
+    if (!map.containsKey(typedDep.gov())) {
+      map.put(typedDep.gov(),new TreeSet<TypedDependency>());
+    }
+    map.get(typedDep.gov()).add(typedDep);
+    if (typedDep.reln() == VERBAL_MODIFIER) {
+      boolean foundAux=false;
+      for (      TypedDependency auxDep : list) {
+        if (auxDep.reln() != AUX_MODIFIER) {
+          continue;
+        }
+        if (!auxDep.gov().equals(typedDep.dep()) || !auxDep.dep().value().equalsIgnoreCase("to")) {
+          continue;
+        }
+        foundAux=true;
+        break;
+      }
+      if (!foundAux) {
+        vmod.add(typedDep.dep());
+      }
+    }
+  }
+  for (  TypedDependency td1 : list) {
+    if (td1.reln() != PREPOSITIONAL_MODIFIER) {
+      continue;
+    }
+    if (td1.reln() == KILL) {
+      continue;
+    }
+    IndexedWord td1Dep=td1.dep();
+    SortedSet<TypedDependency> possibles=map.get(td1Dep);
+    if (possibles == null) {
+      continue;
+    }
+    Pair<TypedDependency,Boolean> prepDep=null;
+    TypedDependency ccDep=null;
+    List<Triple<TypedDependency,TypedDependency,Boolean>> conjs=new ArrayList<Triple<TypedDependency,TypedDependency,Boolean>>();
+    Set<TypedDependency> otherDtrs=new TreeSet<TypedDependency>();
+    boolean samePrepositionInEachConjunct=true;
+    int conjIndex=-1;
+    for (    TypedDependency td2 : possibles) {
+      if (td2.reln() == CONJUNCT) {
+        IndexedWord td2Dep=td2.dep();
+        String td2DepPOS=td2Dep.tag();
+        if (td2DepPOS.equals("IN") || td2DepPOS.equals("TO")) {
+          samePrepositionInEachConjunct=samePrepositionInEachConjunct && td2Dep.value().equals(td1Dep.value());
+          Set<TypedDependency> possibles2=map.get(td2Dep);
+          boolean pobj=true;
+          TypedDependency prepOtherDep=null;
+          if (possibles2 != null) {
+            for (            TypedDependency td3 : possibles2) {
+              IndexedWord td3Dep=td3.dep();
+              String td3DepPOS=td3Dep.tag();
+              if ((td3.reln() == PREPOSITIONAL_OBJECT || td3.reln() == PREPOSITIONAL_COMPLEMENT) && (!(td3DepPOS.equals("IN") || td3DepPOS.equals("TO"))) && prepOtherDep == null) {
+                prepOtherDep=td3;
+                if (td3.reln() == PREPOSITIONAL_COMPLEMENT) {
+                  pobj=false;
+                }
+              }
+ else {
+                otherDtrs.add(td3);
+              }
+            }
+          }
+          if (conjIndex < td2Dep.index()) {
+            conjIndex=td2Dep.index();
+          }
+          conjs.add(new Triple<TypedDependency,TypedDependency,Boolean>(td2,prepOtherDep,pobj));
+        }
+      }
+    }
+    if (conjs.isEmpty()) {
+      continue;
+    }
+    String td1DepPOS=td1Dep.tag();
+    for (    TypedDependency td2 : possibles) {
+      if (td2.reln() == COORDINATION && td2.dep().index() < conjIndex) {
+        ccDep=td2;
+      }
+ else {
+        IndexedWord td2Dep=td2.dep();
+        String td2DepPOS=td2Dep.tag();
+        if ((td2.reln() == DEPENDENT || td2.reln() == PREPOSITIONAL_OBJECT || td2.reln() == PREPOSITIONAL_COMPLEMENT) && (td1DepPOS.equals("IN") || td1DepPOS.equals("TO") || td1DepPOS.equals("VBG")) && prepDep == null && (!(td2DepPOS.equals("RB") || td2DepPOS.equals("IN") || td2DepPOS.equals("TO")))) {
+          prepDep=new Pair<TypedDependency,Boolean>(td2,td2.reln() != PREPOSITIONAL_COMPLEMENT);
+        }
+ else         if (!inConjDeps(td2,conjs)) {
+          otherDtrs.add(td2);
+        }
+      }
+    }
+    if (prepDep == null || ccDep == null) {
+      continue;
+    }
+    if (DEBUG) {
+      System.err.println("!! Conj and prep case:");
+      System.err.println("  td1 (prep): " + td1);
+      System.err.println("  Kids of td1 are: " + possibles);
+      System.err.println("  prepDep: " + prepDep);
+      System.err.println("  ccDep: " + ccDep);
+      System.err.println("  conjs: " + conjs);
+      System.err.println("  samePrepositionInEachConjunct: " + samePrepositionInEachConjunct);
+      System.err.println("  otherDtrs: " + otherDtrs);
+    }
+    if (samePrepositionInEachConjunct) {
+      GrammaticalRelation reln=determinePrepRelation(map,vmod,td1,td1,prepDep.second());
+      TypedDependency tdNew=new TypedDependency(reln,td1.gov(),prepDep.first().dep());
+      newTypedDeps.add(tdNew);
+      if (DEBUG) {
+        System.err.println("PrepPoss Conj branch (two parallel PPs) adding: " + tdNew);
+        System.err.println("  removing: " + td1 + "  "+ prepDep+ "  "+ ccDep);
+      }
+      td1.setReln(KILL);
+      prepDep.first().setReln(KILL);
+      ccDep.setReln(KILL);
+      for (      Triple<TypedDependency,TypedDependency,Boolean> trip : conjs) {
+        TypedDependency conjDep=trip.first();
+        TypedDependency prepOtherDep=trip.second();
+        if (prepOtherDep == null) {
+          if (DEBUG) {
+            System.err.println("  apparent misparse: same P twice with only one NP object (prepOtherDep is null)");
+            System.err.println("  removing: " + conjDep);
+          }
+          ccDep.setReln(KILL);
+        }
+ else {
+          TypedDependency tdNew2=new TypedDependency(conjValue(ccDep.dep().value()),prepDep.first().dep(),prepOtherDep.dep());
+          newTypedDeps.add(tdNew2);
+          if (DEBUG) {
+            System.err.println("  adding: " + tdNew2);
+            System.err.println("  removing: " + conjDep + "  "+ prepOtherDep);
+          }
+          prepOtherDep.setReln(KILL);
+        }
+        conjDep.setReln(KILL);
+      }
+      for (      TypedDependency otd : otherDtrs) {
+        if (DEBUG) {
+          System.err.print("Changed " + otd);
+        }
+        otd.setGov(td1.gov());
+        if (DEBUG) {
+          System.err.println(" to " + otd);
+        }
+      }
+      if (DEBUG) {
+        System.err.println("td1: " + td1 + "; possibles: "+ possibles);
+      }
+      for (      TypedDependency td2 : possibles) {
+        if (td2.reln() != KILL && td2.gov().equals(td1.dep())) {
+          if (DEBUG) {
+            System.err.println("Changing " + td2 + " to have governor of "+ td1+ " [a]");
+          }
+          td2.setGov(td1.gov());
+        }
+      }
+      continue;
+    }
+    for (    Triple<TypedDependency,TypedDependency,Boolean> trip : conjs) {
+      if (trip.first() != null && trip.second() == null) {
+        trip.setSecond(new TypedDependency(prepDep.first().reln(),trip.first().dep(),prepDep.first().dep()));
+        trip.setThird(prepDep.second());
+      }
+    }
+    GrammaticalRelation reln=determinePrepRelation(map,vmod,td1,td1,prepDep.second());
+    TypedDependency tdNew=new TypedDependency(reln,td1.gov(),prepDep.first().dep());
+    newTypedDeps.add(tdNew);
+    if (DEBUG) {
+      System.err.println("ConjPP (different preps) adding: " + tdNew);
+      System.err.println("  deleting: " + td1 + "  "+ prepDep.first()+ "  "+ ccDep);
+    }
+    td1.setReln(KILL);
+    prepDep.first().setReln(KILL);
+    ccDep.setReln(KILL);
+    int copyNumber=1;
+    for (    Triple<TypedDependency,TypedDependency,Boolean> trip : conjs) {
+      TypedDependency conjDep=trip.first();
+      TypedDependency prepOtherDep=trip.second();
+      boolean pobj=trip.third();
+      IndexedWord label=td1.gov().makeSoftCopy(copyNumber);
+      copyNumber++;
+      TypedDependency tdNew2=new TypedDependency(conjValue(ccDep.dep().value()),td1.gov(),label);
+      newTypedDeps.add(tdNew2);
+      TypedDependency tdNew3;
+      GrammaticalRelation reln2=determinePrepRelation(map,vmod,conjDep,td1,pobj);
+      tdNew3=new TypedDependency(reln2,label,prepOtherDep.dep());
+      newTypedDeps.add(tdNew3);
+      if (DEBUG) {
+        System.err.println("  adding: " + tdNew2 + "  "+ tdNew3);
+        System.err.println("  deleting: " + conjDep + "  "+ prepOtherDep);
+      }
+      conjDep.setReln(KILL);
+      prepOtherDep.setReln(KILL);
+      for (      TypedDependency otd : otherDtrs) {
+        if (otd.dep().tag().equals("IN")) {
+          otd.setReln(PREPOSITIONAL_MODIFIER);
+        }
+        otd.setGov(td1.gov());
+      }
+    }
+    for (    TypedDependency td2 : possibles) {
+      if (td2.reln() != KILL) {
+        if (DEBUG) {
+          System.err.println("Changing " + td2 + " to have governor of "+ td1+ " [b]");
+        }
+        td2.setGov(td1.gov());
+      }
+    }
+  }
+  for (  TypedDependency td1 : list) {
+    if (td1.reln() == KILL) {
+      continue;
+    }
+    IndexedWord td1Dep=td1.dep();
+    String td1DepPOS=td1Dep.tag();
+    Set<TypedDependency> possibles=map.get(td1Dep);
+    if (possibles != null && (td1.reln() == PREPOSITIONAL_MODIFIER || td1.reln() == POSSESSION_MODIFIER || td1.reln() == CONJUNCT)) {
+      boolean pobj=true;
+      for (      TypedDependency td2 : possibles) {
+        if (td2.reln() != COORDINATION && td2.reln() != CONJUNCT) {
+          IndexedWord td2Dep=td2.dep();
+          String td2DepPOS=td2Dep.tag();
+          if ((td1.reln() == POSSESSION_MODIFIER || td1.reln() == CONJUNCT)) {
+            if (td2.reln() == POSSESSIVE_MODIFIER) {
+              if (!map.containsKey(td2Dep)) {
+                td2.setReln(KILL);
+              }
+            }
+          }
+ else           if ((td2.reln() == PREPOSITIONAL_OBJECT || td2.reln() == PREPOSITIONAL_COMPLEMENT) && (td1DepPOS.equals("IN") || td1DepPOS.equals("TO") || td1DepPOS.equals("VBG")) && (!(td2DepPOS.equals("RB") || td2DepPOS.equals("IN") || td2DepPOS.equals("TO")))&& !isConjWithNoPrep(td2.gov(),possibles)) {
+            if (DEBUG) {
+              System.err.println("(Single prep/poss base case collapsing " + td1 + " and "+ td2);
+            }
+            if (td2.reln() == PREPOSITIONAL_COMPLEMENT) {
+              pobj=false;
+            }
+            GrammaticalRelation reln=determinePrepRelation(map,vmod,td1,td1,pobj);
+            TypedDependency td3=new TypedDependency(reln,td1.gov(),td2.dep());
+            if (DEBUG) {
+              System.err.println("PP adding: " + td3 + " deleting: "+ td1+ ' '+ td2);
+            }
+            map.get(td3.gov()).add(td3);
+            newTypedDeps.add(td3);
+            td1.setReln(KILL);
+            td2.setReln(KILL);
+          }
+        }
+      }
+    }
+    if (possibles != null && td1.reln() == KILL) {
+      for (      TypedDependency td2 : possibles) {
+        if (td2.reln() != KILL) {
+          if (DEBUG) {
+            System.err.println("Changing " + td2 + " to have governor of "+ td1+ " [c]");
+          }
+          td2.setGov(td1.gov());
+        }
+      }
+    }
+  }
+  for (Iterator<TypedDependency> iter=list.iterator(); iter.hasNext(); ) {
+    TypedDependency td=iter.next();
+    if (td.reln() == KILL) {
+      if (DEBUG) {
+        System.err.println("Removing dep killed in poss/prep (conj) collapse: " + td);
+      }
+      iter.remove();
+    }
+  }
+  list.addAll(newTypedDeps);
+}

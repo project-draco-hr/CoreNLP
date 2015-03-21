@@ -1,0 +1,43 @@
+{
+  List<TypedDependency> newDeps=new ArrayList<TypedDependency>();
+  for (  TypedDependency rel : list) {
+    if (rel.reln() != RELATIVE) {
+      continue;
+    }
+    boolean foundPrep=false;
+    for (    TypedDependency prep : list) {
+      if (prep.reln() != PREPOSITIONAL_MODIFIER) {
+        continue;
+      }
+      if (!prep.gov().equals(rel.gov())) {
+        continue;
+      }
+      boolean foundPobj=false;
+      for (      TypedDependency pobj : list) {
+        if (pobj.reln() != PREPOSITIONAL_OBJECT && pobj.reln() != PREPOSITIONAL_COMPLEMENT) {
+          continue;
+        }
+        if (!pobj.gov().equals(prep.dep())) {
+          continue;
+        }
+        foundPobj=true;
+        break;
+      }
+      if (!foundPobj) {
+        foundPrep=true;
+        TypedDependency newDep=new TypedDependency(PREPOSITIONAL_OBJECT,prep.dep(),rel.dep());
+        newDeps.add(newDep);
+        rel.setReln(KILL);
+      }
+    }
+    if (!foundPrep) {
+      rel.setReln(DIRECT_OBJECT);
+    }
+  }
+  filterKill(list);
+  for (  TypedDependency dep : newDeps) {
+    if (!list.contains(dep)) {
+      list.add(dep);
+    }
+  }
+}
