@@ -1,6 +1,7 @@
 {
   SemanticGraph sg=new SemanticGraph(list);
-  SemgrexMatcher matcher=PP_CONJP_PATTERN.matcher(sg);
+  SemanticGraph sgCopy=new SemanticGraph(sg);
+  SemgrexMatcher matcher=PP_CONJP_PATTERN.matcher(sgCopy);
   IndexedWord oldGov=null;
   IndexedWord oldCcDep=null;
   List<IndexedWord> conjDeps=Generics.newLinkedList();
@@ -19,4 +20,6 @@
   if (oldGov != null) {
     expandPPConjunction(list,oldGov,conjDeps,oldCcDep,sg);
   }
+  list.clear();
+  list.addAll(sg.toArrayList());
 }

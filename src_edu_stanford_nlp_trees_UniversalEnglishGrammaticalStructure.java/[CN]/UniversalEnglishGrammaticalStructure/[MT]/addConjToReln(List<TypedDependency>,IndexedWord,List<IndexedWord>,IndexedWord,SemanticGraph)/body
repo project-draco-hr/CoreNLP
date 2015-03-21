@@ -1,13 +1,9 @@
 {
   for (  IndexedWord conjDep : conjDeps) {
-    for (    TypedDependency td : list) {
-      if (!td.gov().equals(gov) || !td.dep().equals(conjDep)) {
-        continue;
-      }
-      if (td.reln() == CONJUNCT || conjDep.index() > ccDep.index()) {
-        td.setReln(conjValue(ccDep,sg));
-      }
-      break;
+    SemanticGraphEdge edge=sg.getEdge(gov,conjDep);
+    if (edge.getRelation() == CONJUNCT || conjDep.index() > ccDep.index()) {
+      sg.removeEdge(edge);
+      sg.addEdge(gov,conjDep,conjValue(ccDep,sg),Double.NEGATIVE_INFINITY,false);
     }
   }
 }

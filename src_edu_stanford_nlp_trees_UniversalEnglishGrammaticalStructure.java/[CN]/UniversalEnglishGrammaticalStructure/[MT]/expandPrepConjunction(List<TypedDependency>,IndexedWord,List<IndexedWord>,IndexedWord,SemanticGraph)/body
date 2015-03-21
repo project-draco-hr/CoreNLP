@@ -6,31 +6,20 @@
   for (  IndexedWord conjDep : conjDeps) {
     IndexedWord caseGovCopy=caseGov.makeSoftCopy();
     IndexedWord caseGovGovCopy=caseGovGov.makeSoftCopy();
-    for (    TypedDependency td : list) {
-      if (!td.dep().equals(conjDep) || !td.gov().equals(gov)) {
-        continue;
-      }
-      td.setGov(caseGovCopy);
-      td.setReln(CASE_MARKER);
-      break;
-    }
-    list.add(new TypedDependency(rel,caseGovGovCopy,caseGovCopy));
-    list.add(new TypedDependency(CONJUNCT,caseGovGov,caseGovGovCopy));
+    SemanticGraphEdge edge=sg.getEdge(gov,conjDep);
+    sg.removeEdge(edge);
+    sg.addEdge(caseGovCopy,conjDep,CASE_MARKER,Double.NEGATIVE_INFINITY,false);
+    sg.addEdge(caseGovGovCopy,caseGovCopy,rel,Double.NEGATIVE_INFINITY,false);
+    sg.addEdge(caseGovGov,caseGovGovCopy,CONJUNCT,Double.NEGATIVE_INFINITY,false);
     newConjDeps.add(caseGovGovCopy);
-    List<TypedDependency> newDeps=Generics.newLinkedList();
-    for (    TypedDependency td : list) {
-      if (!td.gov().equals(caseGov) || td.reln() == CASE_MARKER) {
-        continue;
+    for (    SemanticGraphEdge e : sg.outgoingEdgeList(caseGov)) {
+      if (e.getRelation() != CASE_MARKER) {
+        sg.addEdge(caseGovCopy,e.getDependent(),e.getRelation(),Double.NEGATIVE_INFINITY,false);
       }
-      newDeps.add(new TypedDependency(td.reln(),caseGovCopy,td.dep()));
     }
-    list.addAll(newDeps);
   }
-  for (  TypedDependency td : list) {
-    if (!td.dep().equals(ccDep) || !td.gov().equals(gov)) {
-      continue;
-    }
-    td.setGov(caseGovGov);
-  }
+  SemanticGraphEdge edge=sg.getEdge(gov,ccDep);
+  sg.removeEdge(edge);
+  sg.addEdge(caseGovGov,ccDep,COORDINATION,Double.NEGATIVE_INFINITY,false);
   addConjToReln(list,caseGovGov,newConjDeps,ccDep,sg);
 }

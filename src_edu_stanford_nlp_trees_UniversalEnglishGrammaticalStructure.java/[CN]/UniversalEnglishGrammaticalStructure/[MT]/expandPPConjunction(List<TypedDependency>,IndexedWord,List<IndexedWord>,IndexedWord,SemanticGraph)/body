@@ -5,22 +5,14 @@
   List<IndexedWord> newConjDeps=Generics.newLinkedList();
   for (  IndexedWord conjDep : conjDeps) {
     IndexedWord nmodGovCopy=nmodGov.makeSoftCopy(copyCount++);
-    for (    TypedDependency td : list) {
-      if (!td.dep().equals(conjDep) || !td.gov().equals(gov)) {
-        continue;
-      }
-      td.setGov(nmodGovCopy);
-      td.setReln(rel);
-      break;
-    }
-    list.add(new TypedDependency(CONJUNCT,nmodGov,nmodGovCopy));
+    SemanticGraphEdge edge=sg.getEdge(gov,conjDep);
+    sg.removeEdge(edge);
+    sg.addEdge(nmodGovCopy,conjDep,rel,Double.NEGATIVE_INFINITY,false);
+    sg.addEdge(nmodGov,nmodGovCopy,CONJUNCT,Double.NEGATIVE_INFINITY,false);
     newConjDeps.add(nmodGovCopy);
   }
-  for (  TypedDependency td : list) {
-    if (!td.dep().equals(ccDep) || !td.gov().equals(gov)) {
-      continue;
-    }
-    td.setGov(nmodGov);
-  }
+  SemanticGraphEdge edge=sg.getEdge(gov,ccDep);
+  sg.removeEdge(edge);
+  sg.addEdge(nmodGov,ccDep,COORDINATION,Double.NEGATIVE_INFINITY,false);
   addConjToReln(list,nmodGov,newConjDeps,ccDep,sg);
 }

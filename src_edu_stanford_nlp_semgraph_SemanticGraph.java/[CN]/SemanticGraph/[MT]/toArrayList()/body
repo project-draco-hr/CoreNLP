@@ -1,0 +1,16 @@
+{
+  ArrayList<TypedDependency> list=Generics.newArrayList(this.size());
+  CoreLabel rootLabel=new CoreLabel();
+  rootLabel.setValue("ROOT");
+  IndexedWord root=new IndexedWord(rootLabel);
+  root.setIndex(0);
+  list.add(new TypedDependency(ROOT,root,getFirstRoot()));
+  for (  SemanticGraphEdge edge : this.edgeIterable()) {
+    TypedDependency td=new TypedDependency(edge.getRelation(),edge.getGovernor(),edge.getDependent());
+    if (edge.isExtra()) {
+      td.setExtra();
+    }
+    list.add(td);
+  }
+  return list;
+}
