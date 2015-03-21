@@ -1,13 +1,29 @@
 {
   List<TypedDependency> newDeps=new ArrayList<TypedDependency>();
+  for (  TypedDependency prep : list) {
+    if (prep.reln() != PREPOSITION) {
+      continue;
+    }
+    for (    TypedDependency nmod : list) {
+      if (nmod.reln() != NOMINAL_MODIFIER && nmod.reln() != RELATIVE) {
+        continue;
+      }
+      if (!nmod.gov().equals(prep.gov()) || prep.dep().index() < nmod.dep().index()) {
+        continue;
+      }
+      prep.setReln(CASE_MARKER);
+      prep.setGov(nmod.dep());
+      if (nmod.reln() == RELATIVE) {
+        nmod.setReln(NOMINAL_MODIFIER);
+      }
+      break;
+    }
+  }
   for (  TypedDependency rel : list) {
     if (rel.reln() != RELATIVE) {
       continue;
     }
-    boolean foundPrep=false;
-    if (!foundPrep) {
-      rel.setReln(DIRECT_OBJECT);
-    }
+    rel.setReln(DIRECT_OBJECT);
   }
   filterKill(list);
   for (  TypedDependency dep : newDeps) {
