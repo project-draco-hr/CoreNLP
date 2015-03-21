@@ -1,17 +1,17 @@
 {
   int pos=cc.index();
-  String newConj=cc.word().toLowerCase();
+  String newConj=cc.value().toLowerCase();
   if (newConj.equals("not")) {
     IndexedWord prevWord=sg.getNodeByIndexSafe(pos - 1);
-    if (prevWord != null && prevWord.word().toLowerCase().equals("but")) {
+    if (prevWord != null && prevWord.value().toLowerCase().equals("but")) {
       return UniversalEnglishGrammaticalRelations.getConj("negcc");
     }
   }
   IndexedWord secondIWord=sg.getNodeByIndexSafe(pos + 1);
   if (secondIWord == null) {
-    return UniversalEnglishGrammaticalRelations.getConj(cc.word());
+    return UniversalEnglishGrammaticalRelations.getConj(cc.value());
   }
-  String secondWord=secondIWord.word().toLowerCase();
+  String secondWord=secondIWord.value().toLowerCase();
   if (newConj.equals("but")) {
     if (secondWord.equals("rather")) {
       newConj="negcc";
@@ -34,7 +34,7 @@
   }
  else   if (newConj.equals("not") && secondWord.equals("to")) {
     IndexedWord thirdIWord=sg.getNodeByIndexSafe(pos + 2);
-    String thirdWord=thirdIWord != null ? thirdIWord.word().toLowerCase() : null;
+    String thirdWord=thirdIWord != null ? thirdIWord.value().toLowerCase() : null;
     if (thirdWord != null && thirdWord.equals("mention")) {
       newConj="and";
     }

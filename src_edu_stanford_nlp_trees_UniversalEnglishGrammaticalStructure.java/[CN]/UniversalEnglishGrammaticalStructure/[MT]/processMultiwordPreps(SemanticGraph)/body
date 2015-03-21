@@ -4,17 +4,17 @@
   List<IndexedWord> vertexList=sg.vertexListSorted();
   int numWords=vertexList.size();
   for (int i=1; i < numWords; i++) {
-    String bigram=vertexList.get(i - 1).word().toLowerCase() + "_" + vertexList.get(i).word().toLowerCase();
+    String bigram=vertexList.get(i - 1).value().toLowerCase() + "_" + vertexList.get(i).value().toLowerCase();
     if (bigrams.get(bigram) == null) {
       bigrams.put(bigram,new HashSet<Integer>());
     }
-    bigrams.get(bigram).add(i);
+    bigrams.get(bigram).add(vertexList.get(i - 1).index());
     if (i > 1) {
-      String trigram=vertexList.get(i - 2).word().toLowerCase() + "_" + bigram;
+      String trigram=vertexList.get(i - 2).value().toLowerCase() + "_" + bigram;
       if (trigrams.get(trigram) == null) {
         trigrams.put(trigram,new HashSet<Integer>());
       }
-      trigrams.get(trigram).add(i - 1);
+      trigrams.get(trigram).add(vertexList.get(i - 2).index());
     }
   }
   for (  String bigram : MULTIWORD_PREPS) {
@@ -26,6 +26,9 @@
       IndexedWord w2=sg.getNodeByIndex(i + 1);
       IndexedWord gov1=sg.getParent(w1);
       IndexedWord gov2=sg.getParent(w2);
+      if (gov1 == null || gov2 == null) {
+        continue;
+      }
       SemanticGraphEdge edge1=sg.getEdge(gov1,w1);
       SemanticGraphEdge edge2=sg.getEdge(gov2,w2);
       GrammaticalRelation reln1=edge1.getRelation();
@@ -51,6 +54,9 @@
       IndexedWord gov1=sg.getParent(w1);
       IndexedWord gov2=sg.getParent(w2);
       IndexedWord gov3=sg.getParent(w3);
+      if (gov1 == null || gov2 == null || gov3 == null) {
+        continue;
+      }
       SemanticGraphEdge edge1=sg.getEdge(gov1,w1);
       SemanticGraphEdge edge2=sg.getEdge(gov2,w2);
       SemanticGraphEdge edge3=sg.getEdge(gov3,w3);
