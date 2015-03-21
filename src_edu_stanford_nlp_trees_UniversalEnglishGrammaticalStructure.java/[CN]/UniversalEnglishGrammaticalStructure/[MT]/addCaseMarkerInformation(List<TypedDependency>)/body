@@ -1,6 +1,6 @@
 {
   SemanticGraph sg=new SemanticGraph(list);
-  SemanticGraph sgCopy=new SemanticGraph(sg);
+  SemanticGraph sgCopy=sg.makeSoftCopy();
   SemgrexMatcher matcher=PASSIVE_AGENT_PATTERN.matcher(sgCopy);
   while (matcher.find()) {
     IndexedWord caseMarker=matcher.getNode("c1");
@@ -9,7 +9,7 @@
     addPassiveAgentToReln(sg,gov,mod,caseMarker);
   }
   List<IndexedWord> oldCaseMarkers=Generics.newArrayList();
-  sgCopy=new SemanticGraph(sg);
+  sgCopy=sg.makeSoftCopy();
   matcher=PREP_MW3_PATTERN.matcher(sgCopy);
   while (matcher.find()) {
     List<IndexedWord> caseMarkers=Generics.newArrayList(3);
@@ -23,7 +23,7 @@
     addCaseMarkersToReln(sg,gov,mod,caseMarkers);
     oldCaseMarkers=caseMarkers;
   }
-  sgCopy=new SemanticGraph(sg);
+  sgCopy=sg.makeSoftCopy();
   matcher=PREP_MW2_PATTERN.matcher(sgCopy);
   while (matcher.find()) {
     List<IndexedWord> caseMarkers=Generics.newArrayList(2);
@@ -36,7 +36,7 @@
     addCaseMarkersToReln(sg,gov,mod,caseMarkers);
     oldCaseMarkers=caseMarkers;
   }
-  sgCopy=new SemanticGraph(sg);
+  sgCopy=sg.makeSoftCopy();
   matcher=PREP_PATTERN.matcher(sgCopy);
   while (matcher.find()) {
     List<IndexedWord> caseMarkers=Generics.newArrayList(1);

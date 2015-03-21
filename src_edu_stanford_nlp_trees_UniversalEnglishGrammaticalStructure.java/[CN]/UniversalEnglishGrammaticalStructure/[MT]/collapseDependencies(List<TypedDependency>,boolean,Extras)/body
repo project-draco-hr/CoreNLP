@@ -23,12 +23,18 @@
     printListSorted("After addConjInformation:",list);
   }
   if (includeExtras.doRef) {
-    addRef(list);
+    SemanticGraph sg=new SemanticGraph(list);
+    addRef(sg);
+    list.clear();
+    list.addAll(sg.toArrayList());
     if (DEBUG) {
       printListSorted("After adding ref:",list);
     }
     if (includeExtras.collapseRef) {
-      collapseReferent(list);
+      sg=new SemanticGraph(list);
+      collapseReferent(sg);
+      list.clear();
+      list.addAll(sg.toArrayList());
       if (DEBUG) {
         printListSorted("After collapse referent:",list);
       }
@@ -41,11 +47,14 @@
     }
   }
   if (includeExtras.doSubj) {
-    addExtraNSubj(list);
+    SemanticGraph sg=new SemanticGraph(list);
+    addExtraNSubj(sg);
     if (DEBUG) {
       printListSorted("After adding extra nsubj:",list);
     }
-    correctSubjPass(list);
+    correctSubjPass(sg);
+    list.clear();
+    list.addAll(sg.toArrayList());
     if (DEBUG) {
       printListSorted("After correctSubjPass:",list);
     }
