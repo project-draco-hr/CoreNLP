@@ -15,9 +15,8 @@
     chunk.add(root.backingLabel(),-root.index());
     for (    SemanticGraphEdge edge : parse.incomingEdgeIterable(root)) {
       if (edge.getDependent() != originalRoot) {
-        String relStr=edge.getRelation().toString();
-        if ((relStr.startsWith("nmod:") && !"nmod:poss".equals(relStr)) || relStr.startsWith("acl:") || relStr.startsWith("advcl:")) {
-          chunk.add(mockNode(edge.getGovernor().backingLabel(),1,edge.getRelation().toString().substring(edge.getRelation().toString().indexOf(":") + 1),"PP"),-(((double)edge.getGovernor().index()) + 0.9));
+        if (edge.getRelation().toString().startsWith("prep_") || edge.getRelation().toString().startsWith("prepc_")) {
+          chunk.add(mockNode(edge.getGovernor().backingLabel(),1,edge.getRelation().toString().substring(edge.getRelation().toString().indexOf("_") + 1),"PP"),-(((double)edge.getGovernor().index()) + 0.9));
         }
         if (edge.getRelation().getShortName().equals("conj")) {
           chunk.add(mockNode(root.backingLabel(),-1,edge.getRelation().getSpecific(),"CC"),-(((double)root.index()) - 0.9));
@@ -31,7 +30,7 @@
       }
  else       if (ignoredArc.isPresent() && ignoredArc.get().equals(name)) {
       }
- else       if (!validArcs.contains(edge.getRelation().getShortName().replaceAll(":.*",":*"))) {
+ else       if (!validArcs.contains(edge.getRelation().getShortName().replaceAll("_.*","_*"))) {
         return Optional.empty();
       }
  else {
