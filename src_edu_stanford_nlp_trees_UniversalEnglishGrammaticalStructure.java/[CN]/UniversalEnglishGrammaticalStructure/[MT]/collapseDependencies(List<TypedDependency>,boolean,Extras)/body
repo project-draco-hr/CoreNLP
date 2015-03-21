@@ -1,2 +1,54 @@
 {
+  if (DEBUG) {
+    printListSorted("collapseDependencies: CCproc: " + CCprocess + " includeExtras: "+ includeExtras,list);
+  }
+  correctDependencies(list);
+  if (DEBUG) {
+    printListSorted("After correctDependencies:",list);
+  }
+  addCaseMarkerInformation(list);
+  if (DEBUG) {
+    System.err.println(list);
+    printListSorted("After addCaseMarkerInformation:",list);
+  }
+  addConjInformation(list);
+  if (DEBUG) {
+    printListSorted("After conj:",list);
+  }
+  if (includeExtras.doRef) {
+    addRef(list);
+    if (DEBUG) {
+      printListSorted("After adding ref:",list);
+    }
+    if (includeExtras.collapseRef) {
+      collapseReferent(list);
+      if (DEBUG) {
+        printListSorted("After collapse referent:",list);
+      }
+    }
+  }
+  if (CCprocess) {
+    treatCC(list);
+    if (DEBUG) {
+      printListSorted("After treatCC:",list);
+    }
+  }
+  if (includeExtras.doSubj) {
+    addExtraNSubj(list);
+    if (DEBUG) {
+      printListSorted("After adding extra nsubj:",list);
+    }
+    correctSubjPass(list);
+    if (DEBUG) {
+      printListSorted("After correctSubjPass:",list);
+    }
+  }
+  removeDep(list);
+  if (DEBUG) {
+    printListSorted("After remove dep:",list);
+  }
+  Collections.sort(list);
+  if (DEBUG) {
+    printListSorted("After all collapse:",list);
+  }
 }

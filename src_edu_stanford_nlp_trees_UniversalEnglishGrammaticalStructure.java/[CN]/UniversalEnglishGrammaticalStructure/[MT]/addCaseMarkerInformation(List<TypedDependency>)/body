@@ -1,0 +1,49 @@
+{
+  SemanticGraph sg=new SemanticGraph(list);
+  SemgrexMatcher matcher=PASSIVE_AGENT_PATTERN.matcher(sg);
+  while (matcher.find()) {
+    IndexedWord caseMarker=matcher.getNode("c1");
+    IndexedWord gov=matcher.getNode("gov");
+    IndexedWord mod=matcher.getNode("mod");
+    addPassiveAgentToReln(list,gov,mod,caseMarker);
+  }
+  List<IndexedWord> oldCaseMarkers=Generics.newArrayList();
+  sg=new SemanticGraph(list);
+  matcher=PREP_MW3_PATTERN.matcher(sg);
+  while (matcher.find()) {
+    List<IndexedWord> caseMarkers=Generics.newArrayList(3);
+    caseMarkers.add(matcher.getNode("c1"));
+    caseMarkers.add(matcher.getNode("c2"));
+    caseMarkers.add(matcher.getNode("c3"));
+    Collections.sort(caseMarkers);
+    if (caseMarkers.equals(oldCaseMarkers))     continue;
+    IndexedWord gov=matcher.getNode("gov");
+    IndexedWord mod=matcher.getNode("mod");
+    addCaseMarkersToReln(list,gov,mod,caseMarkers);
+    oldCaseMarkers=caseMarkers;
+  }
+  sg=new SemanticGraph(list);
+  matcher=PREP_MW2_PATTERN.matcher(sg);
+  while (matcher.find()) {
+    List<IndexedWord> caseMarkers=Generics.newArrayList(2);
+    caseMarkers.add(matcher.getNode("c1"));
+    caseMarkers.add(matcher.getNode("c2"));
+    Collections.sort(caseMarkers);
+    if (caseMarkers.equals(oldCaseMarkers))     continue;
+    IndexedWord gov=matcher.getNode("gov");
+    IndexedWord mod=matcher.getNode("mod");
+    addCaseMarkersToReln(list,gov,mod,caseMarkers);
+    oldCaseMarkers=caseMarkers;
+  }
+  sg=new SemanticGraph(list);
+  matcher=PREP_PATTERN.matcher(sg);
+  while (matcher.find()) {
+    List<IndexedWord> caseMarkers=Generics.newArrayList(1);
+    caseMarkers.add(matcher.getNode("c1"));
+    if (caseMarkers.equals(oldCaseMarkers))     continue;
+    IndexedWord gov=matcher.getNode("gov");
+    IndexedWord mod=matcher.getNode("mod");
+    addCaseMarkersToReln(list,gov,mod,caseMarkers);
+    oldCaseMarkers=caseMarkers;
+  }
+}

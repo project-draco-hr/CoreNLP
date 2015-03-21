@@ -1,0 +1,33 @@
+{
+  List<TypedDependency> newDeps=Generics.newLinkedList();
+  for (  TypedDependency td : list) {
+    if (!td.gov().equals(gov) || !td.dep().equals(mod)) {
+      continue;
+    }
+    int lastCaseMarkerIndex=0;
+    StringBuilder sb=new StringBuilder();
+    boolean firstWord=true;
+    for (    IndexedWord cm : caseMarkers) {
+      if (lastCaseMarkerIndex == 0 || cm.index() == (lastCaseMarkerIndex + 1)) {
+        if (!firstWord) {
+          sb.append("_");
+        }
+        sb.append(cm.word());
+        firstWord=false;
+      }
+ else {
+        GrammaticalRelation reln=getCaseMarkedRelation(td,sb.toString().toLowerCase());
+        newDeps.add(new TypedDependency(reln,gov,mod));
+        sb=new StringBuilder(cm.word());
+        firstWord=true;
+      }
+      lastCaseMarkerIndex=cm.index();
+    }
+    GrammaticalRelation reln=getCaseMarkedRelation(td,sb.toString().toLowerCase());
+    td.setReln(reln);
+    break;
+  }
+  for (  TypedDependency td : newDeps) {
+    list.add(td);
+  }
+}

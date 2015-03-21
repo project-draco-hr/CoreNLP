@@ -20,10 +20,12 @@
     }
   }
   for (  TypedDependency rel : list) {
-    if (rel.reln() != RELATIVE) {
-      continue;
+    if (rel.reln() == RELATIVE) {
+      rel.setReln(DIRECT_OBJECT);
     }
-    rel.setReln(DIRECT_OBJECT);
+ else     if (rel.reln() == PREPOSITION) {
+      rel.setReln(CASE_MARKER);
+    }
   }
   filterKill(list);
   for (  TypedDependency dep : newDeps) {

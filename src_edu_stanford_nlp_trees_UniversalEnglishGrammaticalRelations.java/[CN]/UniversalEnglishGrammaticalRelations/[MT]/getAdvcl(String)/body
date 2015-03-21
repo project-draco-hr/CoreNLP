@@ -1,0 +1,14 @@
+{
+  GrammaticalRelation result=advcls.get(advclString);
+  if (result == null) {
+synchronized (advcls) {
+      result=advcls.get(advclString);
+      if (result == null) {
+        result=new GrammaticalRelation(Language.UniversalEnglish,"advcl","advcl_preposition",DEPENDENT,advclString);
+        advcls.put(advclString,result);
+        threadSafeAddRelation(result);
+      }
+    }
+  }
+  return result;
+}
