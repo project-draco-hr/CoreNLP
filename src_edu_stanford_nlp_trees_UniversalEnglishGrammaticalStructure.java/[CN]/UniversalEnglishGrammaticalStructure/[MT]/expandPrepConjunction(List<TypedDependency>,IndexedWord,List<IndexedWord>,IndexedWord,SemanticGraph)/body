@@ -1,0 +1,36 @@
+{
+  IndexedWord caseGov=sg.getParent(gov);
+  IndexedWord caseGovGov=sg.getParent(caseGov);
+  GrammaticalRelation rel=sg.reln(caseGovGov,caseGov);
+  List<IndexedWord> newConjDeps=Generics.newLinkedList();
+  for (  IndexedWord conjDep : conjDeps) {
+    IndexedWord caseGovCopy=caseGov.makeSoftCopy();
+    IndexedWord caseGovGovCopy=caseGovGov.makeSoftCopy();
+    for (    TypedDependency td : list) {
+      if (!td.dep().equals(conjDep) || !td.gov().equals(gov)) {
+        continue;
+      }
+      td.setGov(caseGovCopy);
+      td.setReln(CASE_MARKER);
+      break;
+    }
+    list.add(new TypedDependency(rel,caseGovGovCopy,caseGovCopy));
+    list.add(new TypedDependency(CONJUNCT,caseGovGov,caseGovGovCopy));
+    newConjDeps.add(caseGovGovCopy);
+    List<TypedDependency> newDeps=Generics.newLinkedList();
+    for (    TypedDependency td : list) {
+      if (!td.gov().equals(caseGov) || td.reln() == CASE_MARKER) {
+        continue;
+      }
+      newDeps.add(new TypedDependency(td.reln(),caseGovCopy,td.dep()));
+    }
+    list.addAll(newDeps);
+  }
+  for (  TypedDependency td : list) {
+    if (!td.dep().equals(ccDep) || !td.gov().equals(gov)) {
+      continue;
+    }
+    td.setGov(caseGovGov);
+  }
+  addConjToReln(list,caseGovGov,newConjDeps,ccDep,sg);
+}

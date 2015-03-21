@@ -1,22 +1,22 @@
 {
   SemanticGraph sg=new SemanticGraph(list);
-  SemgrexMatcher matcher=CONJUNCTION_PATTERN.matcher(sg);
+  SemgrexMatcher matcher=PREP_CONJP_PATTERN.matcher(sg);
   IndexedWord oldGov=null;
   IndexedWord oldCcDep=null;
   List<IndexedWord> conjDeps=Generics.newLinkedList();
   while (matcher.find()) {
+    IndexedWord ccDep=matcher.getNode("cc");
     IndexedWord conjDep=matcher.getNode("conj");
     IndexedWord gov=matcher.getNode("gov");
-    IndexedWord ccDep=matcher.getNode("cc");
     if (oldGov != null && (!gov.equals(oldGov) || !ccDep.equals(oldCcDep))) {
-      addConjToReln(list,oldGov,conjDeps,oldCcDep,sg);
+      expandPrepConjunction(list,oldGov,conjDeps,oldCcDep,sg);
       conjDeps=Generics.newLinkedList();
     }
     oldCcDep=ccDep;
-    conjDeps.add(conjDep);
     oldGov=gov;
+    conjDeps.add(conjDep);
   }
   if (oldGov != null) {
-    addConjToReln(list,oldGov,conjDeps,oldCcDep,sg);
+    expandPrepConjunction(list,oldGov,conjDeps,oldCcDep,sg);
   }
 }

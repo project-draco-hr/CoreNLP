@@ -1,0 +1,26 @@
+{
+  IndexedWord nmodGov=sg.getParent(gov);
+  GrammaticalRelation rel=sg.reln(nmodGov,gov);
+  int copyCount=1;
+  List<IndexedWord> newConjDeps=Generics.newLinkedList();
+  for (  IndexedWord conjDep : conjDeps) {
+    IndexedWord nmodGovCopy=nmodGov.makeSoftCopy(copyCount++);
+    for (    TypedDependency td : list) {
+      if (!td.dep().equals(conjDep) || !td.gov().equals(gov)) {
+        continue;
+      }
+      td.setGov(nmodGovCopy);
+      td.setReln(rel);
+      break;
+    }
+    list.add(new TypedDependency(CONJUNCT,nmodGov,nmodGovCopy));
+    newConjDeps.add(nmodGovCopy);
+  }
+  for (  TypedDependency td : list) {
+    if (!td.dep().equals(ccDep) || !td.gov().equals(gov)) {
+      continue;
+    }
+    td.setGov(nmodGov);
+  }
+  addConjToReln(list,nmodGov,newConjDeps,ccDep,sg);
+}
