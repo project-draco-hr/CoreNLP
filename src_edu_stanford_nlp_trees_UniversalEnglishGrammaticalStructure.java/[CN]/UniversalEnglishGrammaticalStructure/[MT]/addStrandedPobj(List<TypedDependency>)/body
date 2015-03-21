@@ -1,0 +1,25 @@
+{
+  List<IndexedWord> depNodes=null;
+  List<TypedDependency> newDeps=null;
+  for (  TypedDependency rcmod : list) {
+    if (rcmod.reln() != RELATIVE_CLAUSE_MODIFIER) {
+      continue;
+    }
+    IndexedWord head=rcmod.gov();
+    if (depNodes == null) {
+      depNodes=Generics.newArrayList();
+    }
+ else {
+      depNodes.clear();
+    }
+    depNodes.add(rcmod.dep());
+    for (    TypedDependency connected : list) {
+      if (connected.gov().equals(rcmod.dep()) && (connected.reln() == XCLAUSAL_COMPLEMENT || connected.reln() == CONJUNCT)) {
+        depNodes.add(connected.dep());
+      }
+    }
+  }
+  if (newDeps != null) {
+    list.addAll(newDeps);
+  }
+}
