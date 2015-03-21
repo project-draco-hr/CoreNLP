@@ -1,0 +1,71 @@
+{
+  HashMap<String,HashSet<Integer>> bigrams=new HashMap<String,HashSet<Integer>>();
+  HashMap<String,HashSet<Integer>> trigrams=new HashMap<String,HashSet<Integer>>();
+  List<IndexedWord> vertexList=sg.vertexListSorted();
+  int numWords=vertexList.size();
+  for (int i=1; i < numWords; i++) {
+    String bigram=vertexList.get(i - 1).word().toLowerCase() + "_" + vertexList.get(i).word().toLowerCase();
+    if (bigrams.get(bigram) == null) {
+      bigrams.put(bigram,new HashSet<Integer>());
+    }
+    bigrams.get(bigram).add(i);
+    if (i > 1) {
+      String trigram=vertexList.get(i - 2).word().toLowerCase() + "_" + bigram;
+      if (trigrams.get(trigram) == null) {
+        trigrams.put(trigram,new HashSet<Integer>());
+      }
+      trigrams.get(trigram).add(i - 1);
+    }
+  }
+  for (  String bigram : MULTIWORD_PREPS) {
+    if (bigrams.get(bigram) == null) {
+      continue;
+    }
+    for (    Integer i : bigrams.get(bigram)) {
+      IndexedWord w1=sg.getNodeByIndex(i);
+      IndexedWord w2=sg.getNodeByIndex(i + 1);
+      IndexedWord gov1=sg.getParent(w1);
+      IndexedWord gov2=sg.getParent(w2);
+      SemanticGraphEdge edge1=sg.getEdge(gov1,w1);
+      SemanticGraphEdge edge2=sg.getEdge(gov2,w2);
+      GrammaticalRelation reln1=edge1.getRelation();
+      GrammaticalRelation reln2=edge2.getRelation();
+      if (reln1 != CASE_MARKER && reln2 != CASE_MARKER) {
+        continue;
+      }
+      IndexedWord caseGov=reln1 == CASE_MARKER ? gov1 : gov2;
+      sg.removeEdge(edge1);
+      sg.removeEdge(edge2);
+      sg.addEdge(caseGov,w1,CASE_MARKER,Double.NEGATIVE_INFINITY,false);
+      sg.addEdge(w1,w2,MULTI_WORD_EXPRESSION,Double.NEGATIVE_INFINITY,false);
+    }
+  }
+  for (  String trigram : THREEWORD_PREPS) {
+    if (trigrams.get(trigram) == null) {
+      continue;
+    }
+    for (    Integer i : trigrams.get(trigram)) {
+      IndexedWord w1=sg.getNodeByIndex(i);
+      IndexedWord w2=sg.getNodeByIndex(i + 1);
+      IndexedWord w3=sg.getNodeByIndex(i + 2);
+      IndexedWord gov1=sg.getParent(w1);
+      IndexedWord gov2=sg.getParent(w2);
+      IndexedWord gov3=sg.getParent(w3);
+      SemanticGraphEdge edge1=sg.getEdge(gov1,w1);
+      SemanticGraphEdge edge2=sg.getEdge(gov2,w2);
+      SemanticGraphEdge edge3=sg.getEdge(gov3,w3);
+      GrammaticalRelation reln1=edge1.getRelation();
+      GrammaticalRelation reln3=edge3.getRelation();
+      if (reln1 != CASE_MARKER && reln3 != CASE_MARKER) {
+        continue;
+      }
+      IndexedWord caseGov=reln3 == CASE_MARKER ? gov3 : gov1;
+      sg.removeEdge(edge1);
+      sg.removeEdge(edge2);
+      sg.removeEdge(edge3);
+      sg.addEdge(caseGov,w1,CASE_MARKER,Double.NEGATIVE_INFINITY,false);
+      sg.addEdge(w1,w2,MULTI_WORD_EXPRESSION,Double.NEGATIVE_INFINITY,false);
+      sg.addEdge(w1,w3,MULTI_WORD_EXPRESSION,Double.NEGATIVE_INFINITY,false);
+    }
+  }
+}
