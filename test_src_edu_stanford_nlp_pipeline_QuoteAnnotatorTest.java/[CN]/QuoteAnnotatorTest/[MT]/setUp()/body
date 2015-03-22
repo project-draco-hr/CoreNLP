@@ -20,5 +20,12 @@ synchronized (QuoteAnnotatorTest.class) {
       props.setProperty("maxLength","5");
       pipelineMaxFive=new StanfordCoreNLP(props);
     }
+    if (pipelineAsciiQuotes == null) {
+      Properties props=new Properties();
+      props.setProperty("annotators","tokenize, ssplit, quote4");
+      props.setProperty("customAnnotatorClass.quote4","edu.stanford.nlp.pipeline.QuoteAnnotator");
+      props.setProperty("asciiQuotes","true");
+      pipelineAsciiQuotes=new StanfordCoreNLP(props);
+    }
   }
 }

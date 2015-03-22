@@ -1,17 +1,6 @@
 {
-  Counter<Integer> calibration=new ClassicCounter<>();
-  TwoDimensionalCounter<Integer,String> calibratedTokens=new TwoDimensionalCounter<>();
   for (  List<IN> doc : documents) {
-    Pair<Counter<Integer>,TwoDimensionalCounter<Integer,String>> pair=printProbsDocument(doc);
-    if (pair != null) {
-      Counters.addInPlace(calibration,pair.first());
-      calibratedTokens.addAll(pair.second());
-    }
+    printProbsDocument(doc);
     System.out.println();
-  }
-  if (calibration.size() > 0) {
-    PrintWriter pw=new PrintWriter(System.err);
-    outputCalibrationInfo(pw,calibration,calibratedTokens);
-    pw.flush();
   }
 }
