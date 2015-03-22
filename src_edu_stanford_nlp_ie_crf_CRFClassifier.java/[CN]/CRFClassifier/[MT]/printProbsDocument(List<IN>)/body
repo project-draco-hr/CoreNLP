@@ -4,6 +4,7 @@
   Triple<int[][][],int[],double[][][]> p=documentToDataAndLabels(document);
   CRFCliqueTree<String> cliqueTree=getCliqueTree(p);
   Counter<Integer> calibration=new ClassicCounter<>();
+  Counter<Integer> correctByBin=new ClassicCounter<>();
   TwoDimensionalCounter<Integer,String> calibratedTokens=new TwoDimensionalCounter<>();
   for (int i=0; i < cliqueTree.length(); i++) {
     IN wi=document.get(i);
@@ -12,9 +13,14 @@
     System.out.print(token);
     System.out.print('\t');
     System.out.print(goldAnswer);
+    double maxProb=Double.NEGATIVE_INFINITY;
+    String bestClass="";
     for (    String label : classIndex) {
       int index=classIndex.indexOf(label);
       double prob=cliqueTree.prob(i,index);
+      if (prob > maxProb) {
+        bestClass=label;
+      }
       System.out.print('\t');
       System.out.print(label);
       System.out.print('=');
@@ -25,15 +31,20 @@
           binnedProb=numBins - 1;
         }
         calibration.incrementCount(binnedProb);
-        if (label.equals(goldAnswer) && !label.equals(flags.backgroundSymbol)) {
-          calibratedTokens.incrementCount(binnedProb,token);
+        if (label.equals(goldAnswer)) {
+          if (bestClass.equals(goldAnswer)) {
+            correctByBin.incrementCount(binnedProb);
+          }
+          if (!label.equals(flags.backgroundSymbol)) {
+            calibratedTokens.incrementCount(binnedProb,token);
+          }
         }
       }
     }
     System.out.println();
   }
   if (verbose) {
-    return new Pair<>(calibration,calibratedTokens);
+    return new Triple<>(calibration,correctByBin,calibratedTokens);
   }
  else {
     return null;
