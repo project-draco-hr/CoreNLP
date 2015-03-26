@@ -124,8 +124,9 @@
   if (flags.USE_DEMONYM && mention.isDemonym(ant,dict)) {
     return true;
   }
-  if (flags.USE_ROLEAPPOSITION && Rules.entityIsRoleAppositive(mentionCluster,potentialAntecedent,mention,ant,dict)) {
-    ret=true;
+  if (flags.USE_ROLEAPPOSITION) {
+    if (lang == Locale.CHINESE)     ret=false;
+ else     if (Rules.entityIsRoleAppositive(mentionCluster,potentialAntecedent,mention,ant,dict))     ret=true;
   }
   if (flags.USE_INCLUSION_HEADMATCH && Rules.entityHeadsAgree(mentionCluster,potentialAntecedent,mention,ant,dict)) {
     ret=true;
@@ -179,7 +180,8 @@
  else {
       m=mention;
     }
-    if ((m.isPronominal() || dict.allPronouns.contains(m.toString())) && Rules.entityAttributesAgree(mentionCluster,potentialAntecedent)) {
+    boolean mIsPronoun=(m.isPronominal() || dict.allPronouns.contains(m.toString()));
+    if (mIsPronoun && Rules.entityAttributesAgree(mentionCluster,potentialAntecedent,lang)) {
       if (dict.demonymSet.contains(ant.lowercaseNormalizedSpanString()) && dict.notOrganizationPRP.contains(m.headString)) {
         document.addIncompatible(m,ant);
         return false;
