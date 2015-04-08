@@ -1,0 +1,25 @@
+{
+  StringBuilder bf=new StringBuilder();
+  HashMap<Integer,TypedDependency> indexedDeps=new HashMap<Integer,TypedDependency>(deps.size());
+  for (  TypedDependency dep : deps) {
+    indexedDeps.put(dep.dep().index(),dep);
+  }
+  List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
+  if (tokens == null) {
+    throw new RuntimeException("dependenciesToCoNLLXString: CoreMap does not have required TokensAnnotation.");
+  }
+  int idx=1;
+  for (  CoreLabel token : tokens) {
+    String word=token.value();
+    String pos=token.tag();
+    String cPos=(token.get(CoreAnnotations.CoarseTagAnnotation.class) != null) ? token.get(CoreAnnotations.CoarseTagAnnotation.class) : pos;
+    String lemma=token.lemma() != null ? token.lemma() : "_";
+    Integer gov=indexedDeps.containsKey(idx) ? indexedDeps.get(idx).gov().index() : 0;
+    String reln=indexedDeps.containsKey(idx) ? indexedDeps.get(idx).reln().toString() : "erased";
+    String out=String.format("%d\t%s\t%s\t%s\t%s\t_\t%d\t%s\t_\t_\n",idx,word,lemma,cPos,pos,gov,reln);
+    bf.append(out);
+    idx++;
+  }
+  bf.append("\n");
+  return bf.toString();
+}
