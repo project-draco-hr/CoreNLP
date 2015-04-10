@@ -2,9 +2,8 @@
   if (input == null)   return null;
   Annotation anno=input.annotation;
   addMissingAnnotation(anno);
-  if (CorefProperties.getLanguage(props) == Locale.CHINESE) {
-    props.setProperty("removeNested",String.valueOf(!input.conllDoc.documentID.contains("nw")));
-  }
+  boolean isChineseConllNonNW=input.conllDoc != null && CorefProperties.getLanguage(props) == Locale.CHINESE && !input.conllDoc.documentID.contains("nw");
+  if (isChineseConllNonNW)   props.setProperty("removeNested","true");
   List<List<Mention>> mentions=md.findMentions(anno,dict,props);
   Document doc=new Document(input,mentions);
   if (input.goldMentions != null)   findGoldMentionHeads(doc);
