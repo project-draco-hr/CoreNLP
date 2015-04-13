@@ -2,14 +2,11 @@
   ParserGrammar parser;
   try {
     Timing timing=new Timing();
-    System.err.print("Loading parser from serialized file " + path + " ...");
+    System.err.print("Loading parser from serialized file " + path + " ... ");
     parser=IOUtils.readObjectFromURLOrClasspathOrFileSystem(path);
     timing.done();
   }
- catch (  IOException e) {
-    throw new RuntimeIOException(e);
-  }
-catch (  ClassNotFoundException e) {
+ catch (  IOException|ClassNotFoundException e) {
     throw new RuntimeIOException(e);
   }
   if (extraFlags.length > 0) {
