@@ -16,7 +16,13 @@
   try {
     boolean applyNumericClassifiers=PropertiesUtils.getBool(properties,prefix + APPLY_NUMERIC_CLASSIFIERS_PROPERTY_BASE,APPLY_NUMERIC_CLASSIFIERS_DEFAULT);
     boolean useSUTime=PropertiesUtils.getBool(properties,prefix + NumberSequenceClassifier.USE_SUTIME_PROPERTY_BASE,NumberSequenceClassifier.USE_SUTIME_DEFAULT);
-    Properties combinerProperties=PropertiesUtils.extractSelectedProperties(properties,passDownProperties);
+    Properties combinerProperties;
+    if (passDownProperties != null) {
+      combinerProperties=PropertiesUtils.extractSelectedProperties(properties,passDownProperties);
+    }
+ else {
+      combinerProperties=properties;
+    }
     nerCombiner=new NERClassifierCombiner(applyNumericClassifiers,useSUTime,combinerProperties,models);
   }
  catch (  IOException e) {

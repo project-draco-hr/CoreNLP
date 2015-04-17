@@ -1,0 +1,18 @@
+{
+  super(ois,props);
+  Boolean diskUseSUTime=ois.readBoolean();
+  if (props.getProperty("ner.useSUTime") != null) {
+    this.useSUTime=Boolean.parseBoolean(props.getProperty("ner.useSUTime"));
+  }
+ else {
+    this.useSUTime=diskUseSUTime;
+  }
+  Boolean diskApplyNumericClassifiers=ois.readBoolean();
+  if (props.getProperty("ner.applyNumericClassifiers") != null) {
+    this.applyNumericClassifiers=Boolean.parseBoolean(props.getProperty("ner.applyNumericClassifiers"));
+  }
+ else {
+    this.applyNumericClassifiers=diskApplyNumericClassifiers;
+  }
+  this.nsc=new NumberSequenceClassifier(new Properties(),useSUTime,props);
+}
