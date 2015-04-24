@@ -1,0 +1,20 @@
+{
+synchronized (this.impl) {
+    if (impl.getCorefChainCount() == 0) {
+      this.runNER(props).runParse(props);
+      Annotator coref=props == EMPTY_PROPS ? defaultCoref.get() : AnnotatorFactories.coref(props,backend).create();
+      Annotation ann=asAnnotation();
+      coref.annotate(ann);
+synchronized (serializer) {
+        for (        CorefChain chain : ann.get(CorefCoreAnnotations.CorefChainAnnotation.class).values()) {
+          impl.addCorefChain(serializer.toProto(chain));
+        }
+      }
+    }
+    Map<Integer,CorefChain> corefs=Generics.newHashMap();
+    for (    CoreNLPProtos.CorefChain chain : impl.getCorefChainList()) {
+      corefs.put(chain.getChainID(),fromProto(chain));
+    }
+    return corefs;
+  }
+}

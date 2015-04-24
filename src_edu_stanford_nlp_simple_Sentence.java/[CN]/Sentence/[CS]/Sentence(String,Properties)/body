@@ -1,0 +1,14 @@
+{
+  this.document=new Document(text);
+  if (props.containsKey("ssplit.isOneSentence")) {
+    this.impl=this.document.sentence(0,props).impl;
+  }
+ else {
+    Properties modProps=new Properties(props);
+    modProps.setProperty("ssplit.isOneSentence","true");
+    this.impl=this.document.sentence(0,modProps).impl;
+  }
+  this.tokensBuilders=document.sentence(0).tokensBuilders;
+  assert(this.document.sentence(0).impl == this.impl);
+  assert(this.document.sentence(0).tokensBuilders == this.tokensBuilders);
+}
