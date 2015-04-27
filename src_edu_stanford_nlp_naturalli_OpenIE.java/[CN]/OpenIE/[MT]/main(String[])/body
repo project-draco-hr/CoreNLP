@@ -1,2 +1,39 @@
 {
+  Properties props=StringUtils.argsToProperties(args);
+  String[] filesToProcess=props.getProperty("","").split("\\s+");
+  if ("".equals(filesToProcess[0].trim())) {
+    filesToProcess=new String[0];
+  }
+  if ("".equals(props.getProperty("annotators",""))) {
+    props.setProperty("annotators","tokenize,ssplit,pos,depparse,natlog,openie");
+  }
+  if ("".equals(props.getProperty("depparse.extradependencies",""))) {
+    props.setProperty("depparse.extradependencies","ref_only_uncollapsed");
+  }
+  if ("".equals(props.getProperty("parse.extradependencies",""))) {
+    props.setProperty("parse.extradependencies","ref_only_uncollapsed");
+  }
+  if (filesToProcess.length == 0 && "".equals(props.getProperty("ssplit.isOneSentence",""))) {
+    props.setProperty("ssplit.isOneSentence","ref_only_uncollapsed");
+  }
+  StanfordCoreNLP pipeline=new StanfordCoreNLP(props);
+  if (filesToProcess.length == 0) {
+    System.err.println("Processing from stdin. Enter one sentence per line.");
+    Scanner scanner=new Scanner(System.in);
+    String line;
+    while ((line=scanner.nextLine()) != null) {
+      processDocument(pipeline,"stdin",line);
+    }
+  }
+ else {
+    for (    String file : filesToProcess) {
+      if (!new File(file).exists() || !new File(file).canRead()) {
+        System.err.println("ERROR: Cannot read file (or file does not exist: '" + file + "'");
+      }
+    }
+    for (    String file : filesToProcess) {
+      System.err.println("Processing file: " + file);
+      processDocument(pipeline,file,IOUtils.slurpFile(new File(file)));
+    }
+  }
 }
