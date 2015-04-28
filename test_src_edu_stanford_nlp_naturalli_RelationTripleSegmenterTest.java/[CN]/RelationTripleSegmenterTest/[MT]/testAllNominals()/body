@@ -1,0 +1,10 @@
+{
+  String conll="1\tfierce\t2\tamod\n" + "2\tlions\t0\troot\n" + "3\tof\t4\tcase\n"+ "4\tNarnia\t2\tnmod:of\n";
+  Optional<RelationTriple> extraction=mkExtraction(conll,0,true);
+  assertTrue("No extraction for sentence!",extraction.isPresent());
+  assertEquals("1.0\tlions\tis\tfierce",extraction.get().toString());
+  extraction=mkExtraction(conll,1,true);
+  assertTrue("No extraction for sentence!",extraction.isPresent());
+  assertEquals("1.0\tlions\tis of\tNarnia",extraction.get().toString());
+  assertFalse(mkExtraction(conll,false).isPresent());
+}
