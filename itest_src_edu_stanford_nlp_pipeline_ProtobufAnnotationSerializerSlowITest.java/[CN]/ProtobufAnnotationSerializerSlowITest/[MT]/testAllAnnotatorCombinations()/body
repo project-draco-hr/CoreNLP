@@ -1,6 +1,5 @@
 {
   String[] possibleAnnotators=possibleAnnotators();
-  Properties props=new Properties();
   for (int i=1; i < (0x1 << (possibleAnnotators.length)); ++i) {
     Set<String> annotatorsToConsider=new LinkedHashSet<>();
     for (int k=0; k < possibleAnnotators.length; ++k) {
@@ -26,7 +25,7 @@
             }
           }
         }
- catch (        NullPointerException e) {
+ catch (        NullPointerException ignored) {
         }
         if (valid) {
           annotators.add(annotator);
@@ -39,7 +38,7 @@
     if (!annotatorsToConsider.isEmpty()) {
       continue;
     }
-    if (!annotators.contains("depparse") && !annotators.contains("hcoref") && !annotators.contains("entitymentions")) {
+    if (!annotators.contains("openie") && !annotators.contains("hcoref") && !annotators.contains("entitymentions")) {
       System.err.println(">>TESTING " + StringUtils.join(annotators,","));
       testAnnotators(StringUtils.join(annotators,","));
     }
