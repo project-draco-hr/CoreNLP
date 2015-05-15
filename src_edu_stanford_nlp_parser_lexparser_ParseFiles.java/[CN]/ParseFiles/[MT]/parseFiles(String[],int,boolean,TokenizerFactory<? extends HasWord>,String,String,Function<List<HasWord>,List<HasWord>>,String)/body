@@ -10,7 +10,7 @@
     final DocumentPreprocessor documentPreprocessor;
     if (filename.equals("-")) {
       try {
-        documentPreprocessor=new DocumentPreprocessor(IOUtils.readerFromStdin(op.tlpParams.getInputEncoding()),docType);
+        documentPreprocessor=new DocumentPreprocessor(new BufferedReader(new InputStreamReader(System.in,op.tlpParams.getInputEncoding())),docType);
       }
  catch (      IOException e) {
         throw new RuntimeIOException(e);
@@ -30,7 +30,7 @@
     if (op.testOptions.writeOutputFiles) {
       String normalizedName=filename;
       try {
-        new URL(normalizedName);
+        URL url=new URL(normalizedName);
         normalizedName=normalizedName.replaceAll("/","_");
       }
  catch (      MalformedURLException e) {
@@ -39,7 +39,7 @@
       String fname=normalizedName + '.' + ext;
       if (op.testOptions.outputFilesDirectory != null && !op.testOptions.outputFilesDirectory.equals("")) {
         String fseparator=System.getProperty("file.separator");
-        if (fseparator == null || fseparator.isEmpty()) {
+        if (fseparator == null || "".equals(fseparator)) {
           fseparator="/";
         }
         File fnameFile=new File(fname);

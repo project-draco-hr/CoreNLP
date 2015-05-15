@@ -6,65 +6,58 @@
     List<CoreLabel> tokens=annotation.get(CoreAnnotations.TokensAnnotation.class);
     int nSentences=(sentences != null) ? sentences.size() : 0;
     int nTokens=(tokens != null) ? tokens.size() : 0;
-    pw.printf("Document: ID=%s (%d sentences, %d tokens)%n",docId,nSentences,nTokens);
+    os.printf("Document: ID=%s (%d sentences, %d tokens)%n",docId,nSentences,nTokens);
   }
   String docTitle=annotation.get(CoreAnnotations.DocTitleAnnotation.class);
   if (docTitle != null) {
-    pw.printf("Document Title: %s%n",docTitle);
+    os.printf("Document Title: %s%n",docTitle);
   }
   String docDate=annotation.get(CoreAnnotations.DocDateAnnotation.class);
   if (docDate != null) {
-    pw.printf("Document Date: %s%n",docDate);
+    os.printf("Document Date: %s%n",docDate);
   }
   String docType=annotation.get(CoreAnnotations.DocTypeAnnotation.class);
   if (docType != null) {
-    pw.printf("Document Type: %s%n",docType);
+    os.printf("Document Type: %s%n",docType);
   }
   String docSourceType=annotation.get(CoreAnnotations.DocSourceTypeAnnotation.class);
   if (docSourceType != null) {
-    pw.printf("Document Source Type: %s%n",docSourceType);
+    os.printf("Document Source Type: %s%n",docSourceType);
   }
   if (sentences != null) {
     for (int i=0, sz=sentences.size(); i < sz; i++) {
       CoreMap sentence=sentences.get(i);
       List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
-      String sentiment=sentence.get(SentimentCoreAnnotations.SentimentClass.class);
-      if (sentiment == null) {
-        sentiment="";
-      }
- else {
-        sentiment=", sentiment: " + sentiment;
-      }
-      pw.printf("Sentence #%d (%d tokens%s):%n",(i + 1),tokens.size(),sentiment);
+      os.printf("Sentence #%d (%d tokens):%n",(i + 1),tokens.size());
       String text=sentence.get(CoreAnnotations.TextAnnotation.class);
-      pw.println(text);
-      String[] tokenAnnotations={"Text","PartOfSpeech","Lemma","Answer","NamedEntityTag","CharacterOffsetBegin","CharacterOffsetEnd","NormalizedNamedEntityTag","Timex","TrueCase","TrueCaseText","SentimentClass"};
+      os.println(text);
+      String[] tokenAnnotations={"Text","PartOfSpeech","Lemma","Answer","NamedEntityTag","CharacterOffsetBegin","CharacterOffsetEnd","NormalizedNamedEntityTag","Timex","TrueCase","TrueCaseText"};
       for (      CoreLabel token : tokens) {
-        pw.print(token.toShorterString(tokenAnnotations));
-        pw.println();
+        os.print(token.toShorterString(tokenAnnotations));
+        os.print(' ');
       }
+      os.println();
       Tree tree=sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
       if (tree != null) {
-        options.constituentTreePrinter.printTree(tree,pw);
+        options.constituentTreePrinter.printTree(tree,os);
       }
       if (sentence.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class) != null) {
-        pw.print(sentence.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class).toList());
-        pw.println();
+        os.print(sentence.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class).toList());
+        os.printf("%n");
       }
       List<EntityMention> entities=sentence.get(MachineReadingAnnotations.EntityMentionsAnnotation.class);
       if (entities != null) {
-        pw.println("Extracted the following MachineReading entity mentions:");
+        os.println("Extracted the following MachineReading entity mentions:");
         for (        EntityMention e : entities) {
-          pw.print('\t');
-          pw.println(e);
+          os.println("\t" + e);
         }
       }
       List<RelationMention> relations=sentence.get(MachineReadingAnnotations.RelationMentionsAnnotation.class);
       if (relations != null) {
-        pw.println("Extracted the following MachineReading relation mentions:");
+        os.println("Extracted the following MachineReading relation mentions:");
         for (        RelationMention r : relations) {
           if (r.printableObject(beam)) {
-            pw.println(r);
+            os.println(r);
           }
         }
       }
@@ -79,11 +72,11 @@
         if (mention == representative)         continue;
         if (!outputHeading) {
           outputHeading=true;
-          pw.println("Coreference set:");
+          os.println("Coreference set:");
         }
-        pw.printf("\t(%d,%d,[%d,%d]) -> (%d,%d,[%d,%d]), that is: \"%s\" -> \"%s\"%n",mention.sentNum,mention.headIndex,mention.startIndex,mention.endIndex,representative.sentNum,representative.headIndex,representative.startIndex,representative.endIndex,mention.mentionSpan,representative.mentionSpan);
+        os.println("\t(" + mention.sentNum + ","+ mention.headIndex+ ",["+ mention.startIndex+ ","+ mention.endIndex+ "]) -> ("+ representative.sentNum+ ","+ representative.headIndex+ ",["+ representative.startIndex+ ","+ representative.endIndex+ "]), that is: \""+ mention.mentionSpan+ "\" -> \""+ representative.mentionSpan+ "\"");
       }
     }
   }
-  pw.flush();
+  os.flush();
 }
