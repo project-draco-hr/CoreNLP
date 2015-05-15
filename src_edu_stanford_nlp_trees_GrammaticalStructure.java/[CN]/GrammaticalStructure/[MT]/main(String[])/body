@@ -1,5 +1,5 @@
 {
-  MemoryTreebank tb=new MemoryTreebank(new NPTmpRetainingTreeNormalizer(0,false,1,false));
+  MemoryTreebank tb=new MemoryTreebank(new TreeNormalizer());
   Iterable<Tree> trees=tb;
   Iterable<GrammaticalStructure> gsBank=null;
   Properties props=StringUtils.argsToProperties(args);
@@ -18,12 +18,8 @@
   String altDepReaderFilename=props.getProperty("altreaderfile");
   String filter=props.getProperty("filter");
   boolean makeCopulaHead=props.getProperty("makeCopulaHead") != null;
-  boolean generateOriginalDependencies=props.getProperty("originalDependencies") != null;
   String tLPP=props.getProperty("tLPP","edu.stanford.nlp.parser.lexparser.EnglishTreebankParserParams");
   TreebankLangParserParams params=ReflectionLoading.loadByReflection(tLPP);
-  if (generateOriginalDependencies) {
-    params.setGenerateOriginalDependencies(true);
-  }
   if (makeCopulaHead) {
     String[] options={"-makeCopulaHead"};
     params.setOptionFlag(options,0);
@@ -31,7 +27,7 @@
   if (sentFileName == null && (altDepReaderName == null || altDepReaderFilename == null) && treeFileName == null && conllXFileName == null && filter == null) {
     try {
       System.err.println("Usage: java GrammaticalStructure [options]* [-sentFile|-treeFile|-conllxFile file] [-testGraph]");
-      System.err.println("  options: -basic, -collapsed, -CCprocessed [the default], -collapsedTree, -parseTree, -test, -parserFile file, -conllx, -keepPunct, -altprinter -altreader -altreaderfile -originalDependencies");
+      System.err.println("  options: -basic, -collapsed, -CCprocessed [the default], -collapsedTree, -parseTree, -test, -parserFile file, -conllx, -keepPunct, -altprinter -altreader -altreaderfile");
       TreeReader tr=new PennTreeReader(new StringReader("((S (NP (NNP Sam)) (VP (VBD died) (NP-TMP (NN today)))))"));
       tb.add(tr.readTree());
     }
