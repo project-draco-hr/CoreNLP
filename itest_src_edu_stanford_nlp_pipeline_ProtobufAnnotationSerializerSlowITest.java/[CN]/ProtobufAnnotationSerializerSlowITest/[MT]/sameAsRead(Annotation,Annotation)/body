@@ -9,6 +9,18 @@
       }
     }
   }
+  if (doc.containsKey(CoreAnnotations.QuotationsAnnotation.class)) {
+    if (doc.get(CoreAnnotations.QuotationsAnnotation.class).isEmpty()) {
+      doc.remove(CoreAnnotations.QuotationsAnnotation.class);
+    }
+ else {
+      for (      CoreMap quote : doc.get(CoreAnnotations.QuotationsAnnotation.class)) {
+        quote.remove(CoreAnnotations.TokensAnnotation.class);
+        quote.remove(CoreAnnotations.QuotationsAnnotation.class);
+        quote.remove(CoreAnnotations.QuotationsAnnotation.class);
+      }
+    }
+  }
   if (doc.containsKey(CoreAnnotations.SentencesAnnotation.class)) {
     for (int i=0; i < doc.get(CoreAnnotations.SentencesAnnotation.class).size(); ++i) {
       CoreMap sentence=doc.get(CoreAnnotations.SentencesAnnotation.class).get(i);
@@ -84,6 +96,8 @@
             System.err.println("Graph B:");
             System.err.println("========");
             System.err.println(sentB.get(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class));
+            System.err.println("========");
+            System.err.println(sentA.get(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class).equals(sentB.get(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class)));
             assertTrue("Basic graph for sentence " + i + " doesn't match",false);
           }
  else           if (sentA.containsKey(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class) && !sentA.get(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class).equals(sentB.get(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class))) {
@@ -91,6 +105,9 @@
           }
  else           if (sentA.containsKey(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class) && !sentA.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class).equals(sentB.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class))) {
             assertTrue("Collapsed graph for sentence " + i + " doesn't match",false);
+          }
+ else           if (sentA.containsKey(SemanticGraphCoreAnnotations.AlternativeDependenciesAnnotation.class) && !sentA.get(SemanticGraphCoreAnnotations.AlternativeDependenciesAnnotation.class).equals(sentB.get(SemanticGraphCoreAnnotations.AlternativeDependenciesAnnotation.class))) {
+            assertTrue("Alternate graph for sentence " + i + " doesn't match",false);
           }
  else {
             for (            Class x : sentA.keySet()) {

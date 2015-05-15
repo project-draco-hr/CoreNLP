@@ -1,0 +1,23 @@
+{
+  if (impl.getSentenceCount() > 0 && impl.getSentence(0).hasParseTree()) {
+    return this;
+  }
+  Annotator parse=props == EMPTY_PROPS ? defaultParse.get() : getOrCreate(AnnotatorFactories.parse(props,backend));
+  if (parse.requires().contains(Annotator.POS_REQUIREMENT)) {
+    runPOS(props);
+  }
+ else {
+    sentences();
+  }
+  Annotation ann=asAnnotation();
+  parse.annotate(ann);
+synchronized (serializer) {
+    for (int i=0; i < sentences.size(); ++i) {
+      CoreMap sentence=ann.get(CoreAnnotations.SentencesAnnotation.class).get(i);
+      Tree tree=sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+      sentences.get(i).updateParse(serializer.toProto(tree));
+      sentences.get(i).updateDependencies(serializer.toProto(sentence.get(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class)),serializer.toProto(sentence.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class)),serializer.toProto(sentence.get(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class)));
+    }
+  }
+  return this;
+}
