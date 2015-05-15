@@ -3,18 +3,15 @@
   CRFCliqueTree<String> cliqueTree=getCliqueTree(p);
   for (int i=0; i < cliqueTree.length(); i++) {
     IN wi=document.get(i);
-    System.out.print(wi.get(CoreAnnotations.TextAnnotation.class) + '\t');
-    for (Iterator<String> iter=classIndex.iterator(); iter.hasNext(); ) {
-      String label=iter.next();
+    System.out.print(wi.get(CoreAnnotations.TextAnnotation.class));
+    for (    String label : classIndex) {
       int index=classIndex.indexOf(label);
       double prob=cliqueTree.prob(i,index);
-      System.out.print(label + '=' + prob);
-      if (iter.hasNext()) {
-        System.out.print("\t");
-      }
- else {
-        System.out.print("\n");
-      }
+      System.out.print('\t');
+      System.out.print(label);
+      System.out.print('=');
+      System.out.print(prob);
     }
+    System.out.println();
   }
 }
