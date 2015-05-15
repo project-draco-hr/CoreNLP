@@ -1,49 +1,23 @@
 {
   List<CoreLabel> body=(List<CoreLabel>)matcher.groupNodes("$statement_body");
-  List<CoreLabel> be=(List<CoreLabel>)matcher.groupNodes("$be");
+  body.addAll((List<CoreLabel>)matcher.groupNodes("$be"));
   List<CoreLabel> suffix=(List<CoreLabel>)matcher.groupNodes("$suffix");
-  boolean addedBe=false;
-  boolean addedSuffix=false;
-  for (int i=1; i < body.size(); ++i) {
-    CoreLabel tokI=body.get(i);
-    if (tokI.tag() != null && (tokI.tag().startsWith("V") || (tokI.tag().startsWith("J") && suffix != null) || (tokI.tag().startsWith("D") && suffix != null)|| (tokI.tag().startsWith("R") && suffix != null))) {
-      body.add(i,be.get(0));
-      i+=1;
-      if (suffix != null) {
-        while (i < body.size() && body.get(i).tag() != null && (body.get(i).tag().startsWith("J") || body.get(i).tag().startsWith("V") || body.get(i).tag().startsWith("R")|| body.get(i).tag().startsWith("N")|| body.get(i).tag().startsWith("D")) && !body.get(i).tag().equals("VBG")) {
-          i+=1;
-        }
-        body.add(i,suffix.get(0));
-        addedSuffix=true;
-      }
-      addedBe=true;
-      break;
+  if (suffix != null) {
+    List<CoreLabel> suffixSpecifier=(List<CoreLabel>)matcher.groupNodes("$suffix_specifier");
+    if (suffixSpecifier != null) {
+      body.addAll(suffixSpecifier);
     }
-  }
-  List<CoreLabel> prepNum=(List<CoreLabel>)matcher.groupNodes("$prep_num");
-  if (prepNum != null) {
-    body.add(prepNum.get(0));
-    body.add(WORD_IN);
-    body.add(prepNum.get(1));
-  }
-  if (!addedBe) {
-    body.addAll(be);
-  }
-  if (!addedSuffix && suffix != null) {
-    body.addAll(suffix);
-  }
-  List<CoreLabel> objType=(List<CoreLabel>)matcher.groupNodes("$answer_type");
-  int i=body.size() - 1;
-  while (i >= 1 && body.get(i).tag() != null && (body.get(i).tag().startsWith("N") || body.get(i).tag().startsWith("J"))) {
-    i-=1;
-  }
-  if (objType == null || objType.isEmpty() || (objType.size() == 1 && objType.get(0).word().equals("name"))) {
-    if (i < body.size() - 1 && body.get(i).tag() != null && body.get(i).tag().startsWith("IN")) {
-      body.add(i,WORD_MISSING);
+    if (suffix.size() > 1 && suffix.get(0).lemma().equals("do")) {
+      body.addAll(suffix.subList(1,suffix.size()));
+      body.add(suffix.get(0));
     }
  else {
-      body.add(WORD_MISSING);
+      body.addAll(suffix);
     }
+  }
+  List<CoreLabel> objType=(List<CoreLabel>)matcher.groupNodes("$answer_type");
+  if (objType == null || objType.isEmpty() || (objType.size() == 1 && objType.get(0).word().equals("name"))) {
+    body.add(WORD_MISSING);
   }
  else {
     for (    CoreLabel obj : objType) {
