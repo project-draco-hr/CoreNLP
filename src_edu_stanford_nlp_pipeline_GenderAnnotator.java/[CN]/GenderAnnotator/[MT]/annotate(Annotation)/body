@@ -1,6 +1,5 @@
 {
   if (verbose) {
-    timer.start();
     System.err.print("Adding gender annotation...");
   }
   if (!annotation.containsKey(CoreAnnotations.SentencesAnnotation.class))   throw new RuntimeException("Unable to find sentences in " + annotation);
@@ -8,7 +7,8 @@
   for (  CoreMap sentence : sentences) {
     List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
     classifier.classify(tokens);
-    for (    CoreLabel token : tokens)     token.set(MachineReadingAnnotations.GenderAnnotation.class,token.get(CoreAnnotations.AnswerAnnotation.class));
+    for (    CoreLabel token : tokens) {
+      token.set(MachineReadingAnnotations.GenderAnnotation.class,token.get(CoreAnnotations.AnswerAnnotation.class));
+    }
   }
-  if (verbose)   timer.stop("done.");
 }

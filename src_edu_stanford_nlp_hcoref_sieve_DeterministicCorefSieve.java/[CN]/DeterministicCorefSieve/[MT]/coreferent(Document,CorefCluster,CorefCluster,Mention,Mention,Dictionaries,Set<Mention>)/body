@@ -19,7 +19,7 @@
     if (ant.generic && ant.person == Person.YOU)     return false;
     if (mention2.generic)     return false;
   }
-  if (lang != Locale.CHINESE || !document.docInfo.get("DOC_ID").contains("nw")) {
+  if (lang != Locale.CHINESE || document.docInfo == null || !document.docInfo.getOrDefault("DOC_ID","").contains("nw")) {
     if (mention2.insideIn(ant) || ant.insideIn(mention2))     return false;
   }
   if (flags.USE_SPEAKERMATCH) {
@@ -124,8 +124,9 @@
   if (flags.USE_DEMONYM && mention.isDemonym(ant,dict)) {
     return true;
   }
-  if (flags.USE_ROLEAPPOSITION && lang != Locale.CHINESE && Rules.entityIsRoleAppositive(mentionCluster,potentialAntecedent,mention,ant,dict)) {
-    ret=true;
+  if (flags.USE_ROLEAPPOSITION) {
+    if (lang == Locale.CHINESE)     ret=false;
+ else     if (Rules.entityIsRoleAppositive(mentionCluster,potentialAntecedent,mention,ant,dict))     ret=true;
   }
   if (flags.USE_INCLUSION_HEADMATCH && Rules.entityHeadsAgree(mentionCluster,potentialAntecedent,mention,ant,dict)) {
     ret=true;
@@ -179,7 +180,8 @@
  else {
       m=mention;
     }
-    if ((m.isPronominal() || dict.allPronouns.contains(m.toString())) && Rules.entityAttributesAgree(mentionCluster,potentialAntecedent)) {
+    boolean mIsPronoun=(m.isPronominal() || dict.allPronouns.contains(m.toString()));
+    if (mIsPronoun && Rules.entityAttributesAgree(mentionCluster,potentialAntecedent,lang)) {
       if (dict.demonymSet.contains(ant.lowercaseNormalizedSpanString()) && dict.notOrganizationPRP.contains(m.headString)) {
         document.addIncompatible(m,ant);
         return false;

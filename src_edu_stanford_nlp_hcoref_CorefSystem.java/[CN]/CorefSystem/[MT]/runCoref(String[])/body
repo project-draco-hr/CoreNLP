@@ -5,6 +5,11 @@
   String timeStamp=Calendar.getInstance().getTime().toString().replaceAll("\\s","-").replaceAll(":","-");
   props.put(CorefProperties.PATH_INPUT_PROP,CorefProperties.getPathEvalData(props));
   Logger logger=Logger.getLogger(CorefSystem.class.getName());
+  if (props.containsKey(CorefProperties.LOG_PROP)) {
+    File logFile=new File(props.getProperty(CorefProperties.LOG_PROP));
+    RedwoodConfiguration.current().handlers(RedwoodConfiguration.Handlers.file(logFile)).apply();
+    Redwood.log("Starting coref log");
+  }
   System.err.println(props.toString());
   if (CorefProperties.checkMemory(props))   checkMemoryUsage();
   CorefSystem cs=new CorefSystem(props);

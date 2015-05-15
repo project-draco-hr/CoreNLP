@@ -4,6 +4,7 @@ switch (CorefProperties.getClassifierType(props,sievename)) {
 case RULE:
     DeterministicCorefSieve sieve=(DeterministicCorefSieve)Class.forName("edu.stanford.nlp.hcoref.sieve." + sievename).getConstructor().newInstance();
   sieve.props=props;
+sieve.lang=CorefProperties.getLanguage(props);
 return sieve;
 case RF:
 RFSieve rfsieve=IOUtils.readObjectFromFile(CorefProperties.getPathModel(props,sievename));

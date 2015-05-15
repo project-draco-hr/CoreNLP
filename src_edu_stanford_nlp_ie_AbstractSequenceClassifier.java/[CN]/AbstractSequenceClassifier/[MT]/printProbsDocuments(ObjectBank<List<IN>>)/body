@@ -1,17 +1,19 @@
 {
   Counter<Integer> calibration=new ClassicCounter<>();
+  Counter<Integer> correctByBin=new ClassicCounter<>();
   TwoDimensionalCounter<Integer,String> calibratedTokens=new TwoDimensionalCounter<>();
   for (  List<IN> doc : documents) {
-    Pair<Counter<Integer>,TwoDimensionalCounter<Integer,String>> pair=printProbsDocument(doc);
-    if (pair != null) {
-      Counters.addInPlace(calibration,pair.first());
-      calibratedTokens.addAll(pair.second());
+    Triple<Counter<Integer>,Counter<Integer>,TwoDimensionalCounter<Integer,String>> triple=printProbsDocument(doc);
+    if (triple != null) {
+      Counters.addInPlace(calibration,triple.first());
+      Counters.addInPlace(correctByBin,triple.second());
+      calibratedTokens.addAll(triple.third());
     }
     System.out.println();
   }
   if (calibration.size() > 0) {
     PrintWriter pw=new PrintWriter(System.err);
-    outputCalibrationInfo(pw,calibration,calibratedTokens);
+    outputCalibrationInfo(pw,calibration,correctByBin,calibratedTokens);
     pw.flush();
   }
 }
