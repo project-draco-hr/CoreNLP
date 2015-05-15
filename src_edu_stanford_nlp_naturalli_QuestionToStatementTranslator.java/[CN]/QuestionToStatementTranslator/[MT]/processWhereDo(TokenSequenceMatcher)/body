@@ -1,0 +1,31 @@
+{
+  List<CoreLabel> specloc=(List<CoreLabel>)matcher.groupNodes("$loc");
+  CoreLabel wordAt=WORD_AT;
+  CoreLabel missing=WORD_MISSING_LOCATION;
+  if (specloc != null && fromNotAtDict.contains(specloc.get(0).word())) {
+    wordAt=WORD_FROM;
+    missing=WORD_MISSING;
+  }
+  List<CoreLabel> sentence=(List<CoreLabel>)matcher.groupNodes("$statement_body");
+  for (  CoreLabel lbl : sentence) {
+    if ("name".equals(lbl.word())) {
+      missing=WORD_MISSING;
+    }
+  }
+  List<CoreLabel> at=(List<CoreLabel>)matcher.groupNodes("$at");
+  if (at != null && at.size() > 0) {
+    sentence.addAll(at);
+  }
+ else {
+    if (specloc != null) {
+      sentence.addAll(specloc);
+    }
+    sentence.add(wordAt);
+  }
+  sentence.add(missing);
+  if (specloc != null && at != null) {
+    sentence.add(WORD_COMMA);
+    sentence.addAll(specloc);
+  }
+  return sentence;
+}
