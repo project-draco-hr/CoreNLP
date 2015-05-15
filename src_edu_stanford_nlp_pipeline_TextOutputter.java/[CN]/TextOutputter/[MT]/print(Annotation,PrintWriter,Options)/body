@@ -34,16 +34,15 @@
       String[] tokenAnnotations={"Text","PartOfSpeech","Lemma","Answer","NamedEntityTag","CharacterOffsetBegin","CharacterOffsetEnd","NormalizedNamedEntityTag","Timex","TrueCase","TrueCaseText"};
       for (      CoreLabel token : tokens) {
         os.print(token.toShorterString(tokenAnnotations));
-        os.print(' ');
+        os.println();
       }
-      os.println();
       Tree tree=sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
       if (tree != null) {
         options.constituentTreePrinter.printTree(tree,os);
       }
       if (sentence.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class) != null) {
         os.print(sentence.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class).toList());
-        os.printf("%n");
+        os.println();
       }
       List<EntityMention> entities=sentence.get(MachineReadingAnnotations.EntityMentionsAnnotation.class);
       if (entities != null) {
@@ -74,7 +73,7 @@
           outputHeading=true;
           os.println("Coreference set:");
         }
-        os.println("\t(" + mention.sentNum + ","+ mention.headIndex+ ",["+ mention.startIndex+ ","+ mention.endIndex+ "]) -> ("+ representative.sentNum+ ","+ representative.headIndex+ ",["+ representative.startIndex+ ","+ representative.endIndex+ "]), that is: \""+ mention.mentionSpan+ "\" -> \""+ representative.mentionSpan+ "\"");
+        os.printf("\t(%d,%d,[%d,%d]) -> (%d,%d,[%d,%d]), that is: \"%s\" -> \"%s\"%n",mention.sentNum,mention.headIndex,mention.startIndex,mention.endIndex,representative.sentNum,representative.headIndex,representative.startIndex,representative.endIndex,mention.mentionSpan,representative.mentionSpan);
       }
     }
   }
