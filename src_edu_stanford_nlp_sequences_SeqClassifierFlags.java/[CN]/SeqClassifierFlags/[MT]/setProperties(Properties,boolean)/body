@@ -4,7 +4,7 @@
   for (Enumeration e=props.propertyNames(); e.hasMoreElements(); ) {
     String key=(String)e.nextElement();
     String val=props.getProperty(key);
-    if (!(key.length() == 0 && val.length() == 0)) {
+    if (!(key.isEmpty() && val.isEmpty())) {
       if (printProps) {
         System.err.println(key + '=' + val);
       }
@@ -386,7 +386,12 @@
       useUndirectedDisjunctive=Boolean.parseBoolean(val);
     }
  else     if (key.equalsIgnoreCase("splitSlashHyphenWords")) {
-      splitSlashHyphenWords=Boolean.parseBoolean(val);
+      try {
+        slashHyphenTreatment=SlashHyphenEnum.valueOf(val.trim().toUpperCase());
+      }
+ catch (      IllegalArgumentException|NullPointerException iae) {
+        slashHyphenTreatment=SlashHyphenEnum.NONE;
+      }
     }
  else     if (key.equalsIgnoreCase("disjunctionWidth")) {
       disjunctionWidth=Integer.parseInt(val);
