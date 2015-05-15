@@ -12,7 +12,9 @@
     Set<String> entailments=new HashSet<>();
     Set<String> triples=new LinkedHashSet<>();
     runWithPipeline(pipeline,ann,triples,entailments);
-    runWithPipeline(backoff,ann,triples,entailments);
+    if (triples.size() == 0) {
+      runWithPipeline(backoff,ann,triples,entailments);
+    }
     out.println("{ " + "\"ok\":true, " + "\"entailments\": [" + StringUtils.join(entailments,",") + "], "+ "\"triples\": ["+ StringUtils.join(triples,",")+ "], "+ "\"msg\": \"\""+ " }");
   }
  catch (  Throwable t) {
