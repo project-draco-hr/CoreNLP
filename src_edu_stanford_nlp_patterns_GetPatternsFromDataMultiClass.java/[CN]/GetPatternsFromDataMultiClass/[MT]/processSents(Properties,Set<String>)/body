@@ -31,8 +31,8 @@
     String saveSentencesSerDirstr=props.getProperty("saveSentencesSerDir");
     if (saveSentencesSerDirstr != null) {
       saveSentencesSerDir=new File(saveSentencesSerDirstr);
+      if (saveSentencesSerDir.exists() && !fileFormat.equalsIgnoreCase("ser"))       IOUtils.deleteDirRecursively(saveSentencesSerDir);
       IOUtils.ensureDir(saveSentencesSerDir);
-      if (!batchProcessSents)       IOUtils.writeObjectToFile(sents,saveSentencesSerDirstr + "/sents_all.ser");
     }
     String systemdir=System.getProperty("java.io.tmpdir");
     tempSaveSentencesDir=File.createTempFile("sents",".tmp",new File(systemdir));
@@ -55,7 +55,18 @@
         }
       }
       if (!batchProcessSents) {
-        IOUtils.writeObjectToFile(sents,(saveSentencesSerDir == null ? tempSaveSentencesDir : saveSentencesSerDir) + "/sents_" + numFilesTillNow);
+        for (        Map.Entry<String,DataInstance> d : sents.entrySet()) {
+          for (          CoreLabel l : d.getValue().getTokens()) {
+            for (            String label : labels) {
+              if (l.containsKey(PatternsAnnotations.LongestMatchedPhraseForEachLabel.class)) {
+                CandidatePhrase p=l.get(PatternsAnnotations.LongestMatchedPhraseForEachLabel.class).get(label);
+              }
+            }
+          }
+        }
+        String outfilename=(saveSentencesSerDir == null ? tempSaveSentencesDir : saveSentencesSerDir) + "/sents_" + numFilesTillNow;
+        Redwood.log("Saving sentences in " + outfilename);
+        IOUtils.writeObjectToFile(sents,outfilename);
       }
     }
  else     if (fileFormat.equalsIgnoreCase("ser")) {
