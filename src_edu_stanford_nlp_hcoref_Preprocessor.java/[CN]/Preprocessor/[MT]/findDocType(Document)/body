@@ -1,0 +1,13 @@
+{
+  boolean speakerChange=false;
+  for (  CoreMap sent : doc.annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
+    for (    CoreLabel w : sent.get(CoreAnnotations.TokensAnnotation.class)) {
+      int utterIndex=w.get(CoreAnnotations.UtteranceAnnotation.class);
+      if (utterIndex != 0)       speakerChange=true;
+      if (speakerChange && utterIndex == 0)       return DocType.ARTICLE;
+      if (doc.maxUtter < utterIndex)       doc.maxUtter=utterIndex;
+    }
+  }
+  if (!speakerChange)   return DocType.ARTICLE;
+  return DocType.CONVERSATION;
+}

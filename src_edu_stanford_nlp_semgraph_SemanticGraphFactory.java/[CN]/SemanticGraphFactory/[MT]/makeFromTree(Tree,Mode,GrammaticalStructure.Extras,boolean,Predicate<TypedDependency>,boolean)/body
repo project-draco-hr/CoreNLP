@@ -1,0 +1,24 @@
+{
+  GrammaticalStructure gs;
+  if (originalDependencies) {
+    Predicate<String> wordFilt;
+    if (INCLUDE_PUNCTUATION_DEPENDENCIES) {
+      wordFilt=Filters.acceptFilter();
+    }
+ else {
+      wordFilt=new PennTreebankLanguagePack().punctuationWordRejectFilter();
+    }
+    gs=new EnglishGrammaticalStructure(tree,wordFilt,new SemanticHeadFinder(true),threadSafe);
+  }
+ else {
+    Predicate<String> tagFilt;
+    if (INCLUDE_PUNCTUATION_DEPENDENCIES) {
+      tagFilt=Filters.acceptFilter();
+    }
+ else {
+      tagFilt=new PennTreebankLanguagePack().punctuationTagRejectFilter();
+    }
+    gs=new UniversalEnglishGrammaticalStructure(tree,tagFilt,new UniversalSemanticHeadFinder(true),threadSafe);
+  }
+  return makeFromTree(gs,mode,includeExtras,threadSafe,filter);
+}

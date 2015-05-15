@@ -1,0 +1,14 @@
+{
+  GrammaticalRelation result=acls.get(aclString);
+  if (result == null) {
+synchronized (acls) {
+      result=acls.get(aclString);
+      if (result == null) {
+        result=new GrammaticalRelation(Language.UniversalEnglish,"acl","acl_preposition",CLAUSAL_MODIFIER,aclString);
+        acls.put(aclString,result);
+        threadSafeAddRelation(result);
+      }
+    }
+  }
+  return result;
+}

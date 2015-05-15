@@ -1,0 +1,16 @@
+{
+  IndexedWord cop=dep.getChildWithReln(headword,EnglishGrammaticalRelations.COPULA);
+  Pair<IndexedWord,IndexedWord> leftRight=SemanticGraphUtils.leftRightMostChildVertices(headword,dep);
+  int beginIdx=Math.min(headword.index() - 1,leftRight.first.index() - 1);
+  int endIdx=Math.max(headword.index() - 1,leftRight.second.index() - 1);
+  if (cop == null)   return new IntPair(beginIdx,endIdx);
+  List<IndexedWord> children=dep.getChildList(headword);
+  int copIdx=children.indexOf(cop);
+  if (copIdx + 1 < children.size()) {
+    beginIdx=Math.min(headword.index() - 1,SemanticGraphUtils.leftMostChildVertice(children.get(copIdx + 1),dep).index() - 1);
+  }
+ else {
+    beginIdx=headword.index() - 1;
+  }
+  return new IntPair(beginIdx,endIdx);
+}
