@@ -1,0 +1,29 @@
+{
+  List<CoreLabel> body=(List<CoreLabel>)matcher.groupNodes("$statement_body");
+  body.addAll((List<CoreLabel>)matcher.groupNodes("$be"));
+  List<CoreLabel> suffix=(List<CoreLabel>)matcher.groupNodes("$suffix");
+  if (suffix != null) {
+    List<CoreLabel> suffixSpecifier=(List<CoreLabel>)matcher.groupNodes("$suffix_specifier");
+    if (suffixSpecifier != null) {
+      body.addAll(suffixSpecifier);
+    }
+    if (suffix.size() > 1 && suffix.get(0).lemma().equals("do")) {
+      body.addAll(suffix.subList(1,suffix.size()));
+      body.add(suffix.get(0));
+    }
+ else {
+      body.addAll(suffix);
+    }
+  }
+  List<CoreLabel> objType=(List<CoreLabel>)matcher.groupNodes("$answer_type");
+  if (objType == null || objType.isEmpty() || (objType.size() == 1 && objType.get(0).word().equals("name"))) {
+    body.add(WORD_MISSING);
+  }
+ else {
+    for (    CoreLabel obj : objType) {
+      obj.set(UnknownTokenMarker.class,true);
+    }
+    body.addAll(objType);
+  }
+  return body;
+}
