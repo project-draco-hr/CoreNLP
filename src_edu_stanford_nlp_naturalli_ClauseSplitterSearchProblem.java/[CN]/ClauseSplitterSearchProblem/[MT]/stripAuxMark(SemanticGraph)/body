@@ -1,0 +1,13 @@
+{
+  List<SemanticGraphEdge> toClean=new ArrayList<>();
+  for (  SemanticGraphEdge edge : toModify.outgoingEdgeIterable(toModify.getFirstRoot())) {
+    String rel=edge.getRelation().toString();
+    if ("aux".equals(rel) || "mark".equals(rel) && !toModify.outgoingEdgeIterator(edge.getDependent()).hasNext()) {
+      toClean.add(edge);
+    }
+  }
+  for (  SemanticGraphEdge edge : toClean) {
+    toModify.removeEdge(edge);
+    toModify.removeVertex(edge.getDependent());
+  }
+}

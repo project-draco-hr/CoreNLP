@@ -1,0 +1,28 @@
+{
+  q=q.trim();
+  if (q.length() == 0) {
+    return;
+  }
+  char lastChar=q.charAt(q.length() - 1);
+  if (lastChar != '.' && lastChar != '!' && lastChar != '?') {
+    q=q + ".";
+  }
+  Annotation ann=new Annotation(q);
+  try {
+    annotate(ann);
+    List<String> entailments=new ArrayList<>();
+    Set<String> triples=new LinkedHashSet<>();
+    for (    CoreMap sentence : ann.get(CoreAnnotations.SentencesAnnotation.class)) {
+      for (      SentenceFragment fragment : sentence.get(NaturalLogicAnnotations.EntailedSentencesAnnotation.class)) {
+        entailments.add(quote(fragment.toString()));
+      }
+      for (      RelationTriple fragment : sentence.get(NaturalLogicAnnotations.RelationTriplesAnnotation.class)) {
+        triples.add("[ " + quote(fragment.subjectLemmaGloss()) + ", "+ quote(fragment.relationLemmaGloss())+ ", "+ quote(fragment.objectLemmaGloss())+ " ]");
+      }
+    }
+    out.println("{ " + "\"ok\":true, " + "\"entailments\": [" + StringUtils.join(entailments,",") + "], "+ "\"triples\": ["+ StringUtils.join(triples,",")+ "], "+ "\"msg\": \"\""+ " }");
+  }
+ catch (  Throwable t) {
+    out.println("{ok:false, entailments:[], triples:[], msg:" + quote(t.getMessage()) + "}");
+  }
+}

@@ -1,0 +1,34 @@
+{
+  Set<String> mProper=Generics.newHashSet();
+  Set<String> aProper=Generics.newHashSet();
+  String mString=m.spanToString();
+  String aString=a.spanToString();
+  for (  CoreLabel w : m.originalSpan) {
+    if (w.get(CoreAnnotations.PartOfSpeechAnnotation.class).startsWith("NNP")) {
+      mProper.add(w.get(CoreAnnotations.TextAnnotation.class));
+    }
+  }
+  for (  CoreLabel w : a.originalSpan) {
+    if (w.get(CoreAnnotations.PartOfSpeechAnnotation.class).startsWith("NNP")) {
+      aProper.add(w.get(CoreAnnotations.TextAnnotation.class));
+    }
+  }
+  boolean mHasExtra=false;
+  boolean aHasExtra=false;
+  for (  String s : mProper) {
+    if (!aString.contains(s) && !exceptWords.contains(s.toLowerCase())) {
+      mHasExtra=true;
+      break;
+    }
+  }
+  for (  String s : aProper) {
+    if (!mString.contains(s) && !exceptWords.contains(s.toLowerCase())) {
+      aHasExtra=true;
+      break;
+    }
+  }
+  if (mHasExtra && aHasExtra) {
+    return true;
+  }
+  return false;
+}
