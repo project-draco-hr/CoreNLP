@@ -21,6 +21,7 @@
     tokenOffset+=quoteTokens.size();
     cmQuotes.add(quote);
   }
+  List<CoreMap> toRemove=new ArrayList<>();
   for (  CoreMap cmQuote : cmQuotes) {
     int start=cmQuote.get(CoreAnnotations.CharacterOffsetBeginAnnotation.class);
     int end=cmQuote.get(CoreAnnotations.CharacterOffsetEndAnnotation.class);
@@ -30,9 +31,13 @@
       int endComp=cmQuoteComp.get(CoreAnnotations.CharacterOffsetEndAnnotation.class);
       if (start < startComp && end >= endComp) {
         embeddedQuotes.add(cmQuoteComp);
+        toRemove.add(cmQuoteComp);
       }
     }
     cmQuote.set(CoreAnnotations.QuotationsAnnotation.class,embeddedQuotes);
+  }
+  for (  CoreMap r : toRemove) {
+    cmQuotes.remove(r);
   }
   return cmQuotes;
 }
