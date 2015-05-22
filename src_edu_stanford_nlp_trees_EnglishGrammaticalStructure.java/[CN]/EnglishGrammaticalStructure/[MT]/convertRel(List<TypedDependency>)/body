@@ -10,7 +10,16 @@
         continue;
       }
       if (!prep.gov().equals(rel.gov())) {
-        continue;
+        boolean hasCompParent=false;
+        for (        TypedDependency prep2 : list) {
+          if (prep2.reln() == XCLAUSAL_COMPLEMENT || prep2.reln() == ADJECTIVAL_COMPLEMENT || prep2.reln() == CLAUSAL_COMPLEMENT || prep2.reln() == ROOT) {
+            if (prep.gov().equals(prep2.dep()) && prep2.gov().equals(rel.gov())) {
+              hasCompParent=true;
+              break;
+            }
+          }
+        }
+        if (!hasCompParent)         continue;
       }
       boolean foundPobj=false;
       for (      TypedDependency pobj : list) {

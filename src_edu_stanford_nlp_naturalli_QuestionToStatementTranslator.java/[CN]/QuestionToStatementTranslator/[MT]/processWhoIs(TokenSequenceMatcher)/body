@@ -1,0 +1,51 @@
+{
+  List<CoreLabel> sentence=new ArrayList<>();
+  List<CoreLabel> prep=(List<CoreLabel>)matcher.groupNodes("$prep");
+  boolean addedBe=false;
+  if (prep != null && !prep.isEmpty()) {
+    sentence.add(WORD_MISSING_PERSON);
+    List<CoreLabel> be=(List<CoreLabel>)matcher.groupNodes("$be");
+    sentence.addAll(be);
+    addedBe=true;
+    sentence.addAll(prep);
+    sentence.addAll((List<CoreLabel>)matcher.groupNodes("$statement_body"));
+  }
+ else {
+    sentence.addAll((List<CoreLabel>)matcher.groupNodes("$statement_body"));
+    List<CoreLabel> prepNum=(List<CoreLabel>)matcher.groupNodes("$prep_num");
+    if (prepNum != null) {
+      sentence.add(prepNum.get(0));
+      sentence.add(WORD_IN);
+      sentence.add(prepNum.get(1));
+    }
+    List<CoreLabel> be=(List<CoreLabel>)matcher.groupNodes("$be");
+    if (sentence.size() > 1 && !sentence.get(sentence.size() - 1).word().equals("be")) {
+      sentence.addAll(be);
+      addedBe=true;
+    }
+    List<CoreLabel> verb=(List<CoreLabel>)matcher.groupNodes("$final_verb");
+    if (verb != null) {
+      if (verb.size() > 1 && verb.get(verb.size() - 1).word().equals("too")) {
+        verb.get(verb.size() - 1).setWord("to");
+        verb.get(verb.size() - 1).setValue("to");
+        verb.get(verb.size() - 1).setLemma("to");
+        verb.get(verb.size() - 1).setTag("IN");
+      }
+      sentence.addAll(verb);
+    }
+    sentence.add(WORD_MISSING_PERSON);
+  }
+  List<CoreLabel> now=(List<CoreLabel>)matcher.groupNodes("$now");
+  if (now != null) {
+    sentence.addAll(now);
+  }
+  if (!addedBe) {
+    for (int i=0; i < sentence.size(); ++i) {
+      if (sentence.get(i).tag() != null && sentence.get(i).tag().startsWith("V")) {
+        sentence.add(i,(CoreLabel)matcher.groupNodes("$be").get(0));
+        break;
+      }
+    }
+  }
+  return sentence;
+}

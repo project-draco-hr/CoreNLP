@@ -1,0 +1,31 @@
+{
+  if (document.trim().equals("")) {
+    return;
+  }
+  Annotation ann=new Annotation(document);
+  pipeline.annotate(ann);
+  boolean empty=true;
+synchronized (System.out) {
+    for (    CoreMap sentence : ann.get(CoreAnnotations.SentencesAnnotation.class)) {
+      for (      RelationTriple extraction : sentence.get(NaturalLogicAnnotations.RelationTriplesAnnotation.class)) {
+switch (FORMAT) {
+case REVERB:
+          System.out.println(extraction.toString());
+        break;
+case OLLIE:
+      System.out.println(extraction.confidenceGloss() + ": (" + extraction.subjectGloss()+ "; "+ extraction.relationGloss()+ "; "+ extraction.objectGloss()+ ")");
+    break;
+case DEFAULT:
+  System.out.println(extraction.toString());
+break;
+default :
+throw new IllegalStateException("Format is not implemented: " + FORMAT);
+}
+empty=false;
+}
+}
+}
+if (empty) {
+System.err.println("No extractions in: " + ("stdin".equals(docid) ? document : docid));
+}
+}

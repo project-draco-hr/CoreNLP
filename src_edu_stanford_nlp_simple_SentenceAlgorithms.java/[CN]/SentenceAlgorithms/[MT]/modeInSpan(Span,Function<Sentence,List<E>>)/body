@@ -1,0 +1,11 @@
+{
+  if (!Span.fromValues(0,sentence.length()).contains(span)) {
+    throw new IllegalArgumentException("Span must be entirely contained in the sentence: " + span + " (sentence length="+ sentence.length()+ ")");
+  }
+  Counter<E> candidates=new ClassicCounter<>();
+  for (  int i : span) {
+    candidates.incrementCount(selector.apply(sentence).get(i));
+  }
+  candidates.remove(null);
+  return Counters.argmax(candidates);
+}
