@@ -1,21 +1,2 @@
 {
-  splitToChildOfEdge(tree,toKeep);
-  Map<IndexedWord,IndexedWord> refReplaceMap=new HashMap<>();
-  for (  IndexedWord vertex : tree.vertexSet()) {
-    for (    SemanticGraphEdge edge : extraEdgesByDependent.get(vertex)) {
-      if ("ref".equals(edge.getRelation().toString()) && !tree.containsVertex(edge.getGovernor())) {
-        refReplaceMap.put(vertex,edge.getGovernor());
-      }
-    }
-  }
-  for (  Map.Entry<IndexedWord,IndexedWord> entry : refReplaceMap.entrySet()) {
-    Iterator<SemanticGraphEdge> iter=tree.incomingEdgeIterator(entry.getKey());
-    if (!iter.hasNext()) {
-      continue;
-    }
-    SemanticGraphEdge incomingEdge=iter.next();
-    IndexedWord governor=incomingEdge.getGovernor();
-    tree.removeVertex(entry.getKey());
-    addSubtree(tree,governor,incomingEdge.getRelation().toString(),this.tree,entry.getValue(),this.tree.incomingEdgeList(tree.getFirstRoot()));
-  }
 }
