@@ -1,0 +1,15 @@
+{
+  StanfordCoreNLP pipeline=new StanfordCoreNLP(new Properties(){
+{
+      setProperty("annotators","tokenize,ssplit");
+    }
+  }
+);
+  Annotation ann=new Annotation("This is a sentence.");
+  pipeline.annotate(ann);
+  CoreMap map=ann.get(CoreAnnotations.SentencesAnnotation.class).get(0);
+  Sentence s=new Sentence(map);
+  assertEquals(ann.get(CoreAnnotations.TextAnnotation.class),s.text());
+  assertEquals("This",s.word(0));
+  assertEquals(5,s.length());
+}
