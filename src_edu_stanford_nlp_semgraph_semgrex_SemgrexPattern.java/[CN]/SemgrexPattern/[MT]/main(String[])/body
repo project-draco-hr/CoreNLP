@@ -32,6 +32,17 @@
       }
     }
   }
+  if (argsMap.containsKey(CONLLU_FILE) && argsMap.get(CONLLU_FILE).length > 0) {
+    CoNLLUDocumentReader reader=new CoNLLUDocumentReader();
+    for (    String conlluFile : argsMap.get(CONLLU_FILE)) {
+      System.err.println("Loading file " + conlluFile);
+      Iterator<SemanticGraph> it=reader.getIterator(IOUtils.readerFromString(conlluFile));
+      while (it.hasNext()) {
+        SemanticGraph graph=it.next();
+        graphs.add(graph);
+      }
+    }
+  }
   for (  SemanticGraph graph : graphs) {
     SemgrexMatcher matcher=semgrex.matcher(graph);
     if (!(matcher.find())) {
