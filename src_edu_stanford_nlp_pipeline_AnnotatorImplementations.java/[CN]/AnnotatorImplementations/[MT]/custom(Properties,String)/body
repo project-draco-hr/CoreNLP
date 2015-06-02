@@ -1,20 +1,5 @@
 {
   String customName=property.substring(StanfordCoreNLP.CUSTOM_ANNOTATOR_PREFIX.length());
   String customClassName=properties.getProperty(property);
-  try {
-    return new MetaClass(customClassName).createInstance(customName,properties);
-  }
- catch (  MetaClass.ConstructorNotFoundException e) {
-    try {
-      return new MetaClass(customClassName).createInstance(properties);
-    }
- catch (    MetaClass.ConstructorNotFoundException e2) {
-      try {
-        return new MetaClass(customClassName).createInstance(properties);
-      }
- catch (      MetaClass.ConstructorNotFoundException e3) {
-        return new MetaClass(customClassName).createInstance();
-      }
-    }
-  }
+  return ReflectionLoading.loadByReflection(customClassName,customName,properties);
 }
