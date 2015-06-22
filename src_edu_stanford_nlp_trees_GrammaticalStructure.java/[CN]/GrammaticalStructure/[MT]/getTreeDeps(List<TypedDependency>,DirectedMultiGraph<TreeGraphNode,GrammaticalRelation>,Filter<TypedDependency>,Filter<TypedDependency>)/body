@@ -1,0 +1,13 @@
+{
+  for (  TreeGraphNode gov : completeGraph.getAllVertices()) {
+    for (    TreeGraphNode dep : completeGraph.getChildren(gov)) {
+      for (      GrammaticalRelation rel : removeGrammaticalRelationAncestors(completeGraph.getEdges(gov,dep))) {
+        TypedDependency newDep=new TypedDependency(rel,gov.headWordNode(),dep.headWordNode());
+        if (!deps.contains(newDep) && puncTypedDepFilter.accept(newDep) && extraTreeDepFilter.accept(newDep)) {
+          newDep.setExtra();
+          deps.add(newDep);
+        }
+      }
+    }
+  }
+}

@@ -9,6 +9,7 @@
     boolean hasSubjectDaughter=false;
     boolean hasAux=false;
     List<TreeGraphNode> subjects=new ArrayList<TreeGraphNode>();
+    List<TreeGraphNode> objects=new ArrayList<TreeGraphNode>();
     for (    TypedDependency dep : list) {
       if ((dep.reln() == NOMINAL_SUBJECT || dep.reln() == NOMINAL_PASSIVE_SUBJECT) && dep.gov() == modifier) {
         hasSubjectDaughter=true;
@@ -20,6 +21,9 @@
       if ((dep.reln() == NOMINAL_SUBJECT || dep.reln() == NOMINAL_PASSIVE_SUBJECT) && dep.gov() == head) {
         subjects.add(dep.dep());
       }
+      if (dep.reln() == DIRECT_OBJECT && dep.gov() == head) {
+        objects.add(dep.dep());
+      }
     }
     if (hasSubjectDaughter) {
       continue;
@@ -27,9 +31,17 @@
     if ((modifier.label().value().equalsIgnoreCase("to") && hasAux) || (!modifier.label().value().equalsIgnoreCase("to") && !hasAux)) {
       continue;
     }
-    for (    TreeGraphNode subject : subjects) {
-      TypedDependency newDep=new TypedDependency(CONTROLLING_SUBJECT,modifier,subject);
-      newDeps.add(newDep);
+    if (objects.size() > 0) {
+      for (      TreeGraphNode object : objects) {
+        TypedDependency newDep=new TypedDependency(CONTROLLING_SUBJECT,modifier,object);
+        newDeps.add(newDep);
+      }
+    }
+ else {
+      for (      TreeGraphNode subject : subjects) {
+        TypedDependency newDep=new TypedDependency(CONTROLLING_SUBJECT,modifier,subject);
+        newDeps.add(newDep);
+      }
     }
   }
   for (  TypedDependency newDep : newDeps) {
