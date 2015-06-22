@@ -20,6 +20,14 @@
       pw.print("-");
       pw.print(node.get(CoreAnnotations.CopyAnnotation.class));
     }
+    if (graph.getRoots().contains(node)) {
+      if (node.containsKey(CoreAnnotations.CopyAnnotation.class)) {
+        pw.print("-R");
+      }
+ else {
+        pw.print("-0-R");
+      }
+    }
   }
   pw.println();
   boolean first=true;
@@ -32,9 +40,13 @@
     pw.print(edge.getSource().index());
     pw.print(" ");
     pw.print(edge.getTarget().index());
-    if (edge.isExtra()) {
+    if (edge.isExtra() || edge.getSource().copyCount() > 0 || edge.getTarget().copyCount() > 0) {
       pw.print(" ");
       pw.print(edge.isExtra());
+      pw.print(" ");
+      pw.print(edge.getSource().copyCount());
+      pw.print(" ");
+      pw.print(edge.getTarget().copyCount());
     }
     first=false;
   }

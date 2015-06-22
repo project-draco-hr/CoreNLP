@@ -1,0 +1,39 @@
+{
+  Properties options=StringUtils.argsToProperties(args,argOptionDefs);
+  if (!options.containsKey("") || options.containsKey("help")) {
+    System.err.println(usage());
+    return;
+  }
+  boolean retainNER=PropertiesUtils.getBool(options,"ner",false);
+  boolean normalize=PropertiesUtils.getBool(options,"normalize",true);
+  final File treeFile=new File(options.getProperty(""));
+  TwoDimensionalCounter<String,String> labelTerm=new TwoDimensionalCounter<String,String>();
+  TwoDimensionalCounter<String,String> termLabel=new TwoDimensionalCounter<String,String>();
+  TwoDimensionalCounter<String,String> labelPreterm=new TwoDimensionalCounter<String,String>();
+  TwoDimensionalCounter<String,String> pretermLabel=new TwoDimensionalCounter<String,String>();
+  TwoDimensionalCounter<String,String> unigramTagger=new TwoDimensionalCounter<String,String>();
+  try {
+    BufferedReader br=new BufferedReader(new InputStreamReader(new FileInputStream(treeFile),"UTF-8"));
+    TreeReaderFactory trf=new SpanishTreeReaderFactory();
+    TreeReader tr=trf.newTreeReader(br);
+    for (Tree t; (t=tr.readTree()) != null; ) {
+      updateTagger(unigramTagger,t);
+    }
+    tr.close();
+    System.out.println("Resolving DUMMY tags");
+    resolveDummyTags(treeFile,unigramTagger,retainNER,normalize ? new SpanishTreeNormalizer(true,false,false) : null);
+    System.out.println("#Unknown Word Types: " + ManualUWModel.nUnknownWordTypes);
+    System.out.println(String.format("#Missing POS: %d (fixed: %d, %.2f%%)",nMissingPOS,nFixedPOS,(double)nFixedPOS / nMissingPOS * 100));
+    System.out.println(String.format("#Missing Phrasal: %d (fixed: %d, %.2f%%)",nMissingPhrasal,nFixedPhrasal,(double)nFixedPhrasal / nMissingPhrasal * 100));
+    System.out.println("Done!");
+  }
+ catch (  UnsupportedEncodingException e) {
+    e.printStackTrace();
+  }
+catch (  FileNotFoundException e) {
+    e.printStackTrace();
+  }
+catch (  IOException e) {
+    e.printStackTrace();
+  }
+}

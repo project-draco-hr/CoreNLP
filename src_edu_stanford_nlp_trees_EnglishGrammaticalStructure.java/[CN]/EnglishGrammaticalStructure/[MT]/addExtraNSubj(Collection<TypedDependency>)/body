@@ -1,0 +1,53 @@
+{
+  List<TypedDependency> newDeps=new ArrayList<TypedDependency>();
+  for (  TypedDependency xcomp : list) {
+    if (xcomp.reln() != XCLAUSAL_COMPLEMENT) {
+      continue;
+    }
+    TreeGraphNode modifier=xcomp.dep();
+    TreeGraphNode head=xcomp.gov();
+    boolean hasSubjectDaughter=false;
+    boolean hasAux=false;
+    List<TreeGraphNode> subjects=new ArrayList<TreeGraphNode>();
+    List<TreeGraphNode> objects=new ArrayList<TreeGraphNode>();
+    for (    TypedDependency dep : list) {
+      if ((dep.reln() == NOMINAL_SUBJECT || dep.reln() == NOMINAL_PASSIVE_SUBJECT) && dep.gov() == modifier) {
+        hasSubjectDaughter=true;
+        break;
+      }
+      if (dep.reln() == AUX_MODIFIER && dep.gov() == modifier) {
+        hasAux=true;
+      }
+      if ((dep.reln() == NOMINAL_SUBJECT || dep.reln() == NOMINAL_PASSIVE_SUBJECT) && dep.gov() == head) {
+        subjects.add(dep.dep());
+      }
+      if (dep.reln() == DIRECT_OBJECT && dep.gov() == head) {
+        objects.add(dep.dep());
+      }
+    }
+    if (hasSubjectDaughter) {
+      continue;
+    }
+    if ((modifier.label().value().equalsIgnoreCase("to") && hasAux) || (!modifier.label().value().equalsIgnoreCase("to") && !hasAux)) {
+      continue;
+    }
+    if (objects.size() > 0) {
+      for (      TreeGraphNode object : objects) {
+        TypedDependency newDep=new TypedDependency(NOMINAL_SUBJECT,modifier,object);
+        newDeps.add(newDep);
+      }
+    }
+ else {
+      for (      TreeGraphNode subject : subjects) {
+        TypedDependency newDep=new TypedDependency(NOMINAL_SUBJECT,modifier,subject);
+        newDeps.add(newDep);
+      }
+    }
+  }
+  for (  TypedDependency newDep : newDeps) {
+    if (!list.contains(newDep)) {
+      newDep.setExtra();
+      list.add(newDep);
+    }
+  }
+}

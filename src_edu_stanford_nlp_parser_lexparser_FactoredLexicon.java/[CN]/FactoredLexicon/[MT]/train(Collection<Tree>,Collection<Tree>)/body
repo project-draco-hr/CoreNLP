@@ -12,17 +12,17 @@
     int yieldLen=yield.size();
     for (int i=0; i < yieldLen; ++i) {
       String word=yield.get(i).value();
-      int wordId=wordIndex.indexOf(word,true);
+      int wordId=wordIndex.addToIndex(word);
       String tag=pretermYield.get(i).value();
-      int tagId=tagIndex.indexOf(tag,true);
+      int tagId=tagIndex.addToIndex(tag);
       String featureStr=((CoreLabel)yield.get(i)).originalText();
       Pair<String,String> lemmaMorph=MorphoFeatureSpecification.splitMorphString(word,featureStr);
       String lemma=lemmaMorph.first();
-      int lemmaId=wordIndex.indexOf(lemma,true);
+      int lemmaId=wordIndex.addToIndex(lemma);
       String richMorphTag=lemmaMorph.second();
       String reducedMorphTag=morphoSpec.strToFeatures(richMorphTag).toString().trim();
-      reducedMorphTag=reducedMorphTag.length() == 0 ? NO_MORPH_ANALYSIS : reducedMorphTag;
-      int morphId=morphIndex.indexOf(reducedMorphTag,true);
+      reducedMorphTag=reducedMorphTag.isEmpty() ? NO_MORPH_ANALYSIS : reducedMorphTag;
+      int morphId=morphIndex.addToIndex(reducedMorphTag);
       wordTag.incrementCount(wordId,tagId);
       lemmaTag.incrementCount(lemmaId,tagId);
       morphTag.incrementCount(morphId,tagId);
