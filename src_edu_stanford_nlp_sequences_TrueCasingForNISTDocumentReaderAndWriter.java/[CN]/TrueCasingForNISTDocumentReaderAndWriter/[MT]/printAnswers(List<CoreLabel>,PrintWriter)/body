@@ -1,0 +1,33 @@
+{
+  List<String> sentence=new ArrayList<>();
+  int wrong=0;
+  for (  CoreLabel wi : doc) {
+    StringBuilder sb=new StringBuilder();
+    if (!wi.get(CoreAnnotations.AnswerAnnotation.class).equals(wi.get(CoreAnnotations.GoldAnswerAnnotation.class))) {
+      wrong++;
+    }
+    if (!THREE_CLASSES && wi.get(CoreAnnotations.AnswerAnnotation.class).equals("UPPER")) {
+      sb.append(wi.word().toUpperCase());
+    }
+ else     if (wi.get(CoreAnnotations.AnswerAnnotation.class).equals("LOWER")) {
+      sb.append(wi.word().toLowerCase());
+    }
+ else     if (wi.get(CoreAnnotations.AnswerAnnotation.class).equals("INIT_UPPER")) {
+      sb.append(wi.word().substring(0,1).toUpperCase()).append(wi.word().substring(1));
+    }
+ else     if (wi.get(CoreAnnotations.AnswerAnnotation.class).equals("O")) {
+      sb.append(wi.word());
+      Matcher alphaMatcher=alphabet.matcher(wi.word());
+      if (alphaMatcher.matches()) {
+        sb.append("/MIX");
+      }
+    }
+    if (verboseForTrueCasing) {
+      sb.append("/GOLD-").append(wi.get(CoreAnnotations.GoldAnswerAnnotation.class)).append("/GUESS-").append(wi.get(CoreAnnotations.AnswerAnnotation.class));
+    }
+    sentence.add(sb.toString());
+  }
+  out.print(StringUtils.join(sentence," "));
+  System.err.printf("> wrong = %d ; total = %d%n",wrong,doc.size());
+  out.println();
+}

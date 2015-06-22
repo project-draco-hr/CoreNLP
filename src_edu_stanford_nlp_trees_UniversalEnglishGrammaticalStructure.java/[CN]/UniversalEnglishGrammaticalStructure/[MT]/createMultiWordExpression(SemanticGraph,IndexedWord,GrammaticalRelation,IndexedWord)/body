@@ -1,0 +1,24 @@
+{
+  if (sg.getRoots().isEmpty() || gov == null || words.length < 1) {
+    return;
+  }
+  boolean first=true;
+  IndexedWord mweHead=null;
+  for (  IndexedWord word : words) {
+    IndexedWord wordGov=sg.getParent(word);
+    if (wordGov != null) {
+      SemanticGraphEdge edge=sg.getEdge(wordGov,word);
+      if (edge != null) {
+        sg.removeEdge(edge);
+      }
+    }
+    if (first) {
+      sg.addEdge(gov,word,reln,Double.NEGATIVE_INFINITY,false);
+      mweHead=word;
+      first=false;
+    }
+ else {
+      sg.addEdge(mweHead,word,MULTI_WORD_EXPRESSION,Double.NEGATIVE_INFINITY,false);
+    }
+  }
+}

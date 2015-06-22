@@ -1,4 +1,9 @@
 {
-  TokenSequenceParser p=new TokenSequenceParser(new StringReader(s));
-  return p.SeqRegexWithAction(env);
+  try {
+    TokenSequenceParser p=new TokenSequenceParser(new StringReader(s));
+    return p.SeqRegexWithAction(env);
+  }
+ catch (  TokenMgrError error) {
+    throw new TokenSequenceParseException("Parsing failed. Error: " + error);
+  }
 }

@@ -1,8 +1,13 @@
 {
   String text=annotation.get(CoreAnnotations.TextAnnotation.class);
   List<CoreLabel> tokens=annotation.get(CoreAnnotations.TokensAnnotation.class);
-  List<Pair<Integer,Integer>> overall=getQuotes(text);
+  List<CoreMap> sentences=annotation.get(CoreAnnotations.SentencesAnnotation.class);
+  String quotesFrom=text;
+  if (ASCII_QUOTES) {
+    quotesFrom=replaceUnicode(text);
+  }
+  List<Pair<Integer,Integer>> overall=getQuotes(quotesFrom);
   String docID=annotation.get(CoreAnnotations.DocIDAnnotation.class);
-  List<CoreMap> cmQuotes=getCoreMapQuotes(overall,tokens,text,docID);
+  List<CoreMap> cmQuotes=getCoreMapQuotes(overall,tokens,sentences,text,docID);
   annotation.set(CoreAnnotations.QuotationsAnnotation.class,cmQuotes);
 }

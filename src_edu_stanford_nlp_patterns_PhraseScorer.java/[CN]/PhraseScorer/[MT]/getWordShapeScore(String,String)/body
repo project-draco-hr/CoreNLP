@@ -1,9 +1,5 @@
 {
-  String wordShape=constVars.getWordShapeCache().get(word);
-  if (wordShape == null) {
-    wordShape=WordShapeClassifier.wordShape(word,constVars.wordShaper);
-    constVars.getWordShapeCache().put(word,wordShape);
-  }
+  String wordShape=wordShape(word);
   double thislabel=0, alllabels=0;
   for (  Entry<String,Counter<String>> en : constVars.getWordShapesForLabels().entrySet()) {
     if (en.getKey().equals(label))     thislabel=en.getValue().getCount(wordShape);

@@ -1,0 +1,14 @@
+{
+  document.runDepparse(props);
+  List<Optional<String>> labels=new ArrayList<>(this.length());
+  for (int i=0; i < this.length(); ++i) {
+    labels.add(Optional.empty());
+  }
+  for (  CoreNLPProtos.DependencyGraph.Edge edge : dependencies(mode).getEdgeList()) {
+    labels.set(edge.getTarget() - 1,Optional.of(edge.getDep()));
+  }
+  for (  int root : impl.getBasicDependencies().getRootList()) {
+    labels.set(root - 1,Optional.of("root"));
+  }
+  return labels;
+}

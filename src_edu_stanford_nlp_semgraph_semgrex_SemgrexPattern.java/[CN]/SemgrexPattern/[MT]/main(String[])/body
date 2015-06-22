@@ -27,7 +27,18 @@
       MemoryTreebank treebank=new MemoryTreebank(new TreeNormalizer());
       treebank.loadPath(treeFile);
       for (      Tree tree : treebank) {
-        SemanticGraph graph=SemanticGraphFactory.makeFromTree(tree,mode,useExtras ? GrammaticalStructure.Extras.MAXIMAL : GrammaticalStructure.Extras.NONE,true,null);
+        SemanticGraph graph=SemanticGraphFactory.makeFromTree(tree,mode,useExtras ? GrammaticalStructure.Extras.MAXIMAL : GrammaticalStructure.Extras.NONE,true);
+        graphs.add(graph);
+      }
+    }
+  }
+  if (argsMap.containsKey(CONLLU_FILE) && argsMap.get(CONLLU_FILE).length > 0) {
+    CoNLLUDocumentReader reader=new CoNLLUDocumentReader();
+    for (    String conlluFile : argsMap.get(CONLLU_FILE)) {
+      System.err.println("Loading file " + conlluFile);
+      Iterator<SemanticGraph> it=reader.getIterator(IOUtils.readerFromString(conlluFile));
+      while (it.hasNext()) {
+        SemanticGraph graph=it.next();
         graphs.add(graph);
       }
     }

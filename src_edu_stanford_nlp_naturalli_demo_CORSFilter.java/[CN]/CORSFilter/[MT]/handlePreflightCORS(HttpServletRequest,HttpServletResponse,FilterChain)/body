@@ -1,0 +1,58 @@
+{
+  CORSRequestType requestType=checkRequestType(request);
+  if (requestType != CORSRequestType.PRE_FLIGHT) {
+    throw new IllegalArgumentException("Expects a HttpServletRequest object of type " + CORSRequestType.PRE_FLIGHT.name().toLowerCase());
+  }
+  final String origin=request.getHeader(CORSFilter.REQUEST_HEADER_ORIGIN);
+  if (!isOriginAllowed(origin)) {
+    handleInvalidCORS(request,response,filterChain);
+    return;
+  }
+  String accessControlRequestMethod=request.getHeader(CORSFilter.REQUEST_HEADER_ACCESS_CONTROL_REQUEST_METHOD);
+  if (accessControlRequestMethod == null || (!HTTP_METHODS.contains(accessControlRequestMethod.trim()))) {
+    handleInvalidCORS(request,response,filterChain);
+    return;
+  }
+ else {
+    accessControlRequestMethod=accessControlRequestMethod.trim();
+  }
+  String accessControlRequestHeadersHeader=request.getHeader(CORSFilter.REQUEST_HEADER_ACCESS_CONTROL_REQUEST_HEADERS);
+  List<String> accessControlRequestHeaders=new LinkedList<String>();
+  if (accessControlRequestHeadersHeader != null && !accessControlRequestHeadersHeader.trim().isEmpty()) {
+    String[] headers=accessControlRequestHeadersHeader.trim().split(",");
+    for (    String header : headers) {
+      accessControlRequestHeaders.add(header.trim().toLowerCase());
+    }
+  }
+  if (!allowedHttpMethods.contains(accessControlRequestMethod)) {
+    handleInvalidCORS(request,response,filterChain);
+    return;
+  }
+  if (!accessControlRequestHeaders.isEmpty()) {
+    for (    String header : accessControlRequestHeaders) {
+      if (!allowedHttpHeaders.contains(header)) {
+        handleInvalidCORS(request,response,filterChain);
+        return;
+      }
+    }
+  }
+  if (supportsCredentials) {
+    response.addHeader(CORSFilter.RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN,origin);
+    response.addHeader(CORSFilter.RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_CREDENTIALS,"true");
+  }
+ else {
+    if (anyOriginAllowed) {
+      response.addHeader(CORSFilter.RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN,"*");
+    }
+ else {
+      response.addHeader(CORSFilter.RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN,origin);
+    }
+  }
+  if (preflightMaxAge > 0) {
+    response.addHeader(CORSFilter.RESPONSE_HEADER_ACCESS_CONTROL_MAX_AGE,String.valueOf(preflightMaxAge));
+  }
+  response.addHeader(CORSFilter.RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_METHODS,accessControlRequestMethod);
+  if ((allowedHttpHeaders != null) && (!allowedHttpHeaders.isEmpty())) {
+    response.addHeader(CORSFilter.RESPONSE_HEADER_ACCESS_CONTROL_ALLOW_HEADERS,join(allowedHttpHeaders,","));
+  }
+}

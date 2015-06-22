@@ -1,0 +1,10 @@
+{
+  preprocessedTerms=this.preprocessSearchTerm();
+  if (dict.statesAbbreviation.containsKey(this.spanToString())) {
+    preprocessedTerms=new ArrayList<String>();
+    preprocessedTerms.add(dict.statesAbbreviation.get(this.spanToString()));
+  }
+  Method meth=semantics.wordnet.getClass().getDeclaredMethod("findSynset",List.class);
+  synsets=meth.invoke(semantics.wordnet,new Object[]{preprocessedTerms});
+  if (this.isPronominal())   return;
+}

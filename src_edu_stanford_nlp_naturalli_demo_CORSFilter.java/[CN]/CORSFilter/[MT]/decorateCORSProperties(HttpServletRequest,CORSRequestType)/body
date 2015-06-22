@@ -1,0 +1,35 @@
+{
+  if (request == null) {
+    throw new IllegalArgumentException("HttpServletRequest object is null");
+  }
+  if (corsRequestType == null) {
+    throw new IllegalArgumentException("CORSRequestType object is null");
+  }
+switch (corsRequestType) {
+case SIMPLE:
+    request.setAttribute(CORSFilter.HTTP_REQUEST_ATTRIBUTE_IS_CORS_REQUEST,true);
+  request.setAttribute(CORSFilter.HTTP_REQUEST_ATTRIBUTE_ORIGIN,request.getHeader(CORSFilter.REQUEST_HEADER_ORIGIN));
+request.setAttribute(CORSFilter.HTTP_REQUEST_ATTRIBUTE_REQUEST_TYPE,corsRequestType.name().toLowerCase());
+break;
+case ACTUAL:
+request.setAttribute(CORSFilter.HTTP_REQUEST_ATTRIBUTE_IS_CORS_REQUEST,true);
+request.setAttribute(CORSFilter.HTTP_REQUEST_ATTRIBUTE_ORIGIN,request.getHeader(CORSFilter.REQUEST_HEADER_ORIGIN));
+request.setAttribute(CORSFilter.HTTP_REQUEST_ATTRIBUTE_REQUEST_TYPE,corsRequestType.name().toLowerCase());
+break;
+case PRE_FLIGHT:
+request.setAttribute(CORSFilter.HTTP_REQUEST_ATTRIBUTE_IS_CORS_REQUEST,true);
+request.setAttribute(CORSFilter.HTTP_REQUEST_ATTRIBUTE_ORIGIN,request.getHeader(CORSFilter.REQUEST_HEADER_ORIGIN));
+request.setAttribute(CORSFilter.HTTP_REQUEST_ATTRIBUTE_REQUEST_TYPE,corsRequestType.name().toLowerCase());
+String headers=request.getHeader(REQUEST_HEADER_ACCESS_CONTROL_REQUEST_HEADERS);
+if (headers == null) {
+headers="";
+}
+request.setAttribute(CORSFilter.HTTP_REQUEST_ATTRIBUTE_REQUEST_HEADERS,headers);
+break;
+case NOT_CORS:
+request.setAttribute(CORSFilter.HTTP_REQUEST_ATTRIBUTE_IS_CORS_REQUEST,false);
+break;
+default :
+break;
+}
+}

@@ -1,0 +1,8 @@
+{
+  CoreNLPProtos.OpenIETriple.Builder builder=CoreNLPProtos.OpenIETriple.newBuilder().setSubject(triple.subjectGloss()).setRelation(triple.relationGloss()).setObject(triple.objectGloss()).setConfidence(triple.confidence).setSubjectSpan(CoreNLPProtos.Span.newBuilder().setBegin(triple.subjectTokenSpan().first).setEnd(triple.subjectTokenSpan().second).build()).setRelationSpan(CoreNLPProtos.Span.newBuilder().setBegin(triple.relationTokenSpan().first).setEnd(triple.relationTokenSpan().second).build()).setObjectSpan(CoreNLPProtos.Span.newBuilder().setBegin(triple.objectTokenSpan().first).setEnd(triple.objectTokenSpan().second).build());
+  Optional<SemanticGraph> treeOptional=triple.asDependencyTree();
+  if (treeOptional.isPresent()) {
+    builder.setTree(toProto(treeOptional.get()));
+  }
+  return builder.build();
+}

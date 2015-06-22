@@ -1,0 +1,14 @@
+{
+  document.runDepparse(props);
+  for (  CoreNLPProtos.DependencyGraph.Edge edge : dependencies(mode).getEdgeList()) {
+    if (edge.getTarget() - 1 == index) {
+      return Optional.of(edge.getDep());
+    }
+  }
+  for (  int root : impl.getBasicDependencies().getRootList()) {
+    if (index == root - 1) {
+      return Optional.of("root");
+    }
+  }
+  return Optional.empty();
+}

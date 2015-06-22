@@ -1,0 +1,42 @@
+{
+  List<CoreLabel> sentence=new ArrayList<>();
+  sentence.addAll((Collection<CoreLabel>)matcher.groupNodes("$pre_verb"));
+  List<CoreLabel> have=(List<CoreLabel>)matcher.groupNodes("$have");
+  if (have != null && have.size() > 0 && have.get(0).lemma() != null && have.get(0).lemma().equals("have")) {
+    sentence.addAll((Collection<CoreLabel>)matcher.groupNodes("$have"));
+  }
+  List<CoreLabel> answer=(List<CoreLabel>)matcher.groupNodes("$answer_type");
+  if (answer != null) {
+    for (    CoreLabel lbl : answer) {
+      lbl.set(UnknownTokenMarker.class,true);
+    }
+  }
+  List<CoreLabel> verb=(List<CoreLabel>)matcher.groupNodes("$verb");
+  List<CoreLabel> post=(List<CoreLabel>)matcher.groupNodes("$post_verb");
+  if (verb.size() < 2 || post == null || post.size() == 0 || post.get(0).tag() == null || post.get(0).tag().equals("CD")) {
+    sentence.addAll(verb);
+    if (answer == null) {
+      sentence.add(WORD_MISSING);
+    }
+ else {
+      sentence.addAll(answer);
+    }
+  }
+ else {
+    sentence.add(verb.get(0));
+    if (answer == null) {
+      sentence.add(WORD_MISSING);
+    }
+ else {
+      sentence.addAll(answer);
+    }
+    sentence.addAll(verb.subList(1,verb.size()));
+  }
+  if (post != null) {
+    if (post.size() == 1 && post.get(0).tag() != null && post.get(0).tag().equals("CD")) {
+      sentence.add(WORD_IN);
+    }
+    sentence.addAll(post);
+  }
+  return sentence;
+}

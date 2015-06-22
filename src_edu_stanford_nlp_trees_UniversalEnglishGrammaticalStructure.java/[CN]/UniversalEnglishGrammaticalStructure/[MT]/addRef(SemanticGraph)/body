@@ -1,0 +1,30 @@
+{
+  for (  SemanticGraphEdge edge : sg.findAllRelns(RELATIVE_CLAUSE_MODIFIER)) {
+    IndexedWord head=edge.getGovernor();
+    IndexedWord modifier=edge.getDependent();
+    SemanticGraphEdge leftChildEdge=null;
+    for (    SemanticGraphEdge childEdge : sg.outgoingEdgeIterable(modifier)) {
+      if (EnglishPatterns.RELATIVIZING_WORD_PATTERN.matcher(childEdge.getDependent().value()).matches() && (leftChildEdge == null || childEdge.getDependent().index() < leftChildEdge.getDependent().index())) {
+        leftChildEdge=childEdge;
+      }
+    }
+    SemanticGraphEdge leftGrandchildEdge=null;
+    for (    SemanticGraphEdge childEdge : sg.outgoingEdgeIterable(modifier)) {
+      for (      SemanticGraphEdge grandchildEdge : sg.outgoingEdgeIterable(childEdge.getDependent())) {
+        if (EnglishPatterns.RELATIVIZING_WORD_PATTERN.matcher(grandchildEdge.getDependent().value()).matches() && (leftGrandchildEdge == null || grandchildEdge.getDependent().index() < leftGrandchildEdge.getDependent().index())) {
+          leftGrandchildEdge=grandchildEdge;
+        }
+      }
+    }
+    IndexedWord newDep=null;
+    if (leftGrandchildEdge != null && (leftChildEdge == null || leftGrandchildEdge.getDependent().index() < leftChildEdge.getDependent().index())) {
+      newDep=leftGrandchildEdge.getDependent();
+    }
+ else     if (leftChildEdge != null) {
+      newDep=leftChildEdge.getDependent();
+    }
+    if (newDep != null && !sg.containsEdge(head,newDep)) {
+      sg.addEdge(head,newDep,REFERENT,Double.NEGATIVE_INFINITY,true);
+    }
+  }
+}
