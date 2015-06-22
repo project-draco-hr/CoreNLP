@@ -1,5 +1,6 @@
 {
   System.err.println("# Loading embedding ...\n  word file = " + wordFile + "\n  vector file = "+ vectorFile);
+  int dimOfWords=0;
   boolean warned=false;
   int numWords=0;
   Iterator<String> wordIterator=IOUtils.readLines(wordFile,"utf-8").iterator();
@@ -13,9 +14,9 @@
       word=START_WORD;
     }
     if (word.equals("</s>")) {
-      word=END_WORD;
+      word=START_WORD;
     }
-    int dimOfWords=lineSplit.length;
+    dimOfWords=lineSplit.length;
     if (embeddingSize <= 0) {
       embeddingSize=dimOfWords;
       System.err.println("  detected embedding size = " + dimOfWords);
@@ -30,7 +31,7 @@
  else     if (dimOfWords < embeddingSize) {
       throw new RuntimeException("Word vectors file has dimension too small for requested numHid of " + embeddingSize);
     }
-    double[][] vec=new double[dimOfWords][1];
+    double vec[][]=new double[dimOfWords][1];
     for (int i=0; i < dimOfWords; i++) {
       vec[i][0]=Double.parseDouble(lineSplit[i]);
     }

@@ -10,7 +10,7 @@
       int max=maxFlagArgs == null ? 1 : maxFlagArgs;
       int min=maxFlagArgs == null ? 0 : maxFlagArgs;
       List<String> flagArgs=new ArrayList<String>();
-      for (int j=0; j < max && i + 1 < args.length && (j < min || args[i + 1].isEmpty() || args[i + 1].charAt(0) != '-'); i++, j++) {
+      for (int j=0; j < max && i + 1 < args.length && (j < min || args[i + 1].length() == 0 || args[i + 1].charAt(0) != '-'); i++, j++) {
         flagArgs.add(args[i + 1]);
       }
       if (flagArgs.isEmpty()) {
@@ -20,19 +20,20 @@
         result.setProperty(key,join(flagArgs," "));
         if (key.equalsIgnoreCase(PROP) || key.equalsIgnoreCase(PROPS) || key.equalsIgnoreCase(PROPERTIES)|| key.equalsIgnoreCase(ARGUMENTS)|| key.equalsIgnoreCase(ARGS)) {
           try {
-            BufferedReader reader=IOUtils.readerFromString(result.getProperty(key));
+            InputStream is=IOUtils.getInputStreamFromURLOrClasspathOrFileSystem(result.getProperty(key));
+            InputStreamReader reader=new InputStreamReader(is,"utf-8");
             result.remove(key);
             result.load(reader);
-            for (            String propKey : result.stringPropertyNames()) {
-              String newVal=result.getProperty(propKey);
-              result.setProperty(propKey,newVal.trim());
+            for (            Object propKey : result.keySet()) {
+              String newVal=result.getProperty((String)propKey);
+              result.setProperty((String)propKey,newVal.trim());
             }
-            reader.close();
+            is.close();
           }
  catch (          IOException e) {
-            String msg="argsToProperties could not read properties file: " + result.getProperty(key);
             result.remove(key);
-            throw new RuntimeIOException(msg,e);
+            System.err.println("argsToProperties could not read properties file: " + result.getProperty(key));
+            throw new RuntimeIOException(e);
           }
         }
       }
@@ -47,8 +48,9 @@
   if (result.containsKey(PROP)) {
     String file=result.getProperty(PROP);
     result.remove(PROP);
-    Properties toAdd=argsToProperties("-prop",file);
-    for (    String key : toAdd.stringPropertyNames()) {
+    Properties toAdd=argsToProperties(new String[]{"-prop",file});
+    for (Enumeration<?> e=toAdd.propertyNames(); e.hasMoreElements(); ) {
+      String key=(String)e.nextElement();
       String val=toAdd.getProperty(key);
       if (!result.containsKey(key)) {
         result.setProperty(key,val);

@@ -9,7 +9,7 @@
       int target=root.index();
       String sourceWord="ROOT";
       String targetWord=tokens.get(target - 1).word();
-      final boolean isExtra=false;
+      boolean isExtra=false;
       addDependencyInfo(depInfo,rel,isExtra,source,sourceWord,null,target,targetWord,null,curNS);
     }
     for (    SemanticGraphEdge edge : graph.edgeListSorted()) {
@@ -19,8 +19,8 @@
       int target=edge.getTarget().index();
       String sourceWord=tokens.get(source - 1).word();
       String targetWord=tokens.get(target - 1).word();
-      Integer sourceCopy=edge.getSource().copyCount();
-      Integer targetCopy=edge.getTarget().copyCount();
+      Integer sourceCopy=edge.getSource().get(CoreAnnotations.CopyAnnotation.class);
+      Integer targetCopy=edge.getTarget().get(CoreAnnotations.CopyAnnotation.class);
       boolean isExtra=edge.isExtra();
       addDependencyInfo(depInfo,rel,isExtra,source,sourceWord,sourceCopy,target,targetWord,targetCopy,curNS);
     }

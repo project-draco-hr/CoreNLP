@@ -1,21 +1,18 @@
 {
   CoreNLPProtos.DependencyGraph.Builder builder=CoreNLPProtos.DependencyGraph.newBuilder();
-  Set<Integer> rootSet=new IdentityHashSet<>();
-  for (  IndexedWord root : graph.getRoots()) {
-    rootSet.add(root.index());
-  }
+  Set<IndexedWord> rootSet=new IdentityHashSet<IndexedWord>(graph.getRoots());
   for (  IndexedWord node : graph.vertexSet()) {
     CoreNLPProtos.DependencyGraph.Node.Builder nodeBuilder=CoreNLPProtos.DependencyGraph.Node.newBuilder().setSentenceIndex(node.get(SentenceIndexAnnotation.class)).setIndex(node.index());
-    if (node.copyCount() > 0) {
-      nodeBuilder.setCopyAnnotation(node.copyCount());
+    if (node.containsKey(CopyAnnotation.class)) {
+      nodeBuilder.setCopyAnnotation(node.get(CopyAnnotation.class));
     }
     builder.addNode(nodeBuilder.build());
-    if (rootSet.contains(node.index())) {
+    if (rootSet.contains(node)) {
       builder.addRoot(node.index());
     }
   }
   for (  SemanticGraphEdge edge : graph.edgeIterable()) {
-    builder.addEdge(CoreNLPProtos.DependencyGraph.Edge.newBuilder().setSource(edge.getSource().index()).setTarget(edge.getTarget().index()).setDep(edge.getRelation().toString()).setIsExtra(edge.isExtra()).setSourceCopy(edge.getSource().copyCount()).setTargetCopy(edge.getTarget().copyCount()).setLanguage(toProto(edge.getRelation().getLanguage())));
+    builder.addEdge(CoreNLPProtos.DependencyGraph.Edge.newBuilder().setSource(edge.getSource().index()).setTarget(edge.getTarget().index()).setDep(edge.getRelation().toString()).setIsExtra(edge.isExtra()));
   }
   return builder.build();
 }

@@ -25,13 +25,7 @@
     SimpleMatrix deltaFromClass=model.getUnaryClassification(category).transpose().mult(deltaClass);
     deltaFromClass=deltaFromClass.extractMatrix(0,model.op.numHid,0,1).elementMult(currentVectorDerivative);
     SimpleMatrix deltaFull=deltaFromClass.plus(deltaUp);
-    SimpleMatrix oldWordVectorD=wordVectorD.get(word);
-    if (oldWordVectorD == null) {
-      wordVectorD.put(word,deltaFull);
-    }
- else {
-      wordVectorD.put(word,oldWordVectorD.plus(deltaFull));
-    }
+    wordVectorD.put(word,wordVectorD.get(word).plus(deltaFull));
   }
  else {
     String leftCategory=model.basicCategory(tree.children()[0].label().value());

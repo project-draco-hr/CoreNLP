@@ -1,21 +1,18 @@
 {
-  Map<String,Map<Integer,Set<E>>> tempPatternsForTokens=new HashMap<String,Map<Integer,Set<E>>>();
-  int numSentencesInOneCommit=0;
+  Map<String,Map<Integer,Triple<Set<SurfacePattern>,Set<SurfacePattern>,Set<SurfacePattern>>>> patternsForTokens=new HashMap<String,Map<Integer,Triple<Set<SurfacePattern>,Set<SurfacePattern>,Set<SurfacePattern>>>>();
   for (  String id : sentIds) {
-    DataInstance sent=sents.get(id);
-    if (!constVars.storePatsForEachToken.equals(ConstantsAndVariables.PatternForEachTokenWay.MEMORY))     tempPatternsForTokens.put(id,new HashMap<Integer,Set<E>>());
-    Map<Integer,Set<E>> p=(Map)PatternFactory.getPatternsAroundTokens(constVars.patternType,sent,constVars.getStopWords());
-    if (!constVars.storePatsForEachToken.equals(ConstantsAndVariables.PatternForEachTokenWay.MEMORY)) {
-      tempPatternsForTokens.put(id,p);
-      numSentencesInOneCommit++;
-      if (numSentencesInOneCommit % 1000 == 0) {
-        patsForEach.addPatterns(tempPatternsForTokens);
-        tempPatternsForTokens.clear();
-        numSentencesInOneCommit=0;
+    List<CoreLabel> sent=sents.get(id);
+    Map<Integer,Triple<Set<SurfacePattern>,Set<SurfacePattern>,Set<SurfacePattern>>> p=new HashMap<Integer,Triple<Set<SurfacePattern>,Set<SurfacePattern>,Set<SurfacePattern>>>();
+    for (int i=0; i < sent.size(); i++) {
+      p.put(i,new Triple<Set<SurfacePattern>,Set<SurfacePattern>,Set<SurfacePattern>>(new HashSet<SurfacePattern>(),new HashSet<SurfacePattern>(),new HashSet<SurfacePattern>()));
+      CoreLabel token=sent.get(i);
+      if (doNotUse(token.word(),constVars.getStopWords())) {
+        continue;
       }
+      Triple<Set<SurfacePattern>,Set<SurfacePattern>,Set<SurfacePattern>> pat=getContext(sent,i);
+      p.put(i,pat);
     }
- else     patsForEach.addPatterns(id,p);
+    patternsForTokens.put(id,p);
   }
-  if (!constVars.storePatsForEachToken.equals(ConstantsAndVariables.PatternForEachTokenWay.MEMORY))   patsForEach.addPatterns(tempPatternsForTokens);
-  return true;
+  return patternsForTokens;
 }

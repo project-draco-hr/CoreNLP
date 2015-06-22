@@ -25,15 +25,6 @@
   if (sentence.containsKey(TreeAnnotation.class)) {
     builder.setParseTree(toProto(getAndRegister(sentence,keysToSerialize,TreeAnnotation.class)));
   }
-  if (sentence.containsKey(BinarizedTreeAnnotation.class)) {
-    builder.setBinarizedParseTree(toProto(getAndRegister(sentence,keysToSerialize,BinarizedTreeAnnotation.class)));
-  }
-  if (sentence.containsKey(SentimentCoreAnnotations.SentimentAnnotatedTree.class)) {
-    builder.setAnnotatedParseTree(toProto(getAndRegister(sentence,keysToSerialize,SentimentCoreAnnotations.SentimentAnnotatedTree.class)));
-  }
-  if (sentence.containsKey(SentimentCoreAnnotations.SentimentClass.class)) {
-    builder.setSentiment(getAndRegister(sentence,keysToSerialize,SentimentCoreAnnotations.SentimentClass.class));
-  }
   if (sentence.containsKey(BasicDependenciesAnnotation.class)) {
     builder.setBasicDependencies(toProto(getAndRegister(sentence,keysToSerialize,BasicDependenciesAnnotation.class)));
   }
@@ -43,9 +34,6 @@
   if (sentence.containsKey(CollapsedCCProcessedDependenciesAnnotation.class)) {
     builder.setCollapsedCCProcessedDependencies(toProto(getAndRegister(sentence,keysToSerialize,CollapsedCCProcessedDependenciesAnnotation.class)));
   }
-  if (sentence.containsKey(AlternativeDependenciesAnnotation.class)) {
-    builder.setAlternativeDependencies(toProto(getAndRegister(sentence,keysToSerialize,AlternativeDependenciesAnnotation.class)));
-  }
   if (sentence.containsKey(TokensAnnotation.class) && getAndRegister(sentence,keysToSerialize,TokensAnnotation.class).size() > 0 && getAndRegister(sentence,keysToSerialize,TokensAnnotation.class).get(0).containsKey(ParagraphAnnotation.class)) {
     builder.setParagraph(getAndRegister(sentence,keysToSerialize,TokensAnnotation.class).get(0).get(ParagraphAnnotation.class));
   }
@@ -54,11 +42,6 @@
   }
  else {
     builder.setHasNumerizedTokensAnnotation(false);
-  }
-  if (sentence.containsKey(NaturalLogicAnnotations.RelationTriplesAnnotation.class)) {
-    for (    RelationTriple triple : getAndRegister(sentence,keysToSerialize,NaturalLogicAnnotations.RelationTriplesAnnotation.class)) {
-      builder.addOpenieTriple(toProto(triple));
-    }
   }
   if (sentence.containsKey(EntityMentionsAnnotation.class)) {
     builder.setHasRelationAnnotations(true);

@@ -25,7 +25,7 @@
           matched=true;
           String[] tokens=line.split(DELIM);
           if (tokens.length != 2) {
-            System.err.printf("%s: Skipping malformed parameter in %s (line %d)%n",this.getClass().getName(),configFile,reader.getLineNumber());
+            System.err.printf("%s: Skipping malformed parameter in %s (line %d)\n",this.getClass().getName(),configFile,reader.getLineNumber());
             break;
           }
           String actualParam=tokens[0].trim();
@@ -36,7 +36,7 @@
               paramsForDataset.setProperty(actualParam,paramValue);
             }
  else {
-              System.err.printf("%s: Skipping illegal parameter value in %s (line %d)%n",this.getClass().getName(),configFile,reader.getLineNumber());
+              System.err.printf("%s: Skipping illegal parameter value in %s (line %d)\n",this.getClass().getName(),configFile,reader.getLineNumber());
               break;
             }
           }
@@ -46,7 +46,7 @@
         }
       }
       if (!matched) {
-        String error=this.getClass().getName() + ": Unknown token in " + configFile+ " (line "+ reader.getLineNumber()+ ")%n";
+        String error=(this.getClass().getName() + ": Unknown token in " + configFile+ " (line "+ reader.getLineNumber()+ ")\n");
         System.err.printf(error);
         throw new IllegalArgumentException(error);
       }
@@ -55,9 +55,9 @@
     reader.close();
   }
  catch (  FileNotFoundException e) {
-    System.err.printf("%s: Cannot open file %s%n",this.getClass().getName(),configFile);
+    System.err.printf("%s: Cannot open file %s\n",this.getClass().getName(),configFile);
   }
 catch (  IOException e) {
-    System.err.printf("%s: Error reading %s (line %d)%n",this.getClass().getName(),configFile,lineNum);
+    System.err.printf("%s: Error reading %s (line %d)\n",this.getClass().getName(),configFile,lineNum);
   }
 }

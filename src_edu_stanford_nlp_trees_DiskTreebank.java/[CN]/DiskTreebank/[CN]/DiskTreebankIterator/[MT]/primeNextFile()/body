@@ -4,10 +4,13 @@
       currentFile=curPathIter.next();
       currentFilename=currentFile.getAbsolutePath();
       if (PRINT_FILENAMES)       System.err.println(currentFile);
-      if (tr != null) {
-        tr.close();
+      if (tr != null)       tr.close();
+      if (currentFile.getPath().endsWith(".gz")) {
+        tr=treeReaderFactory().newTreeReader(new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(currentFile)),encoding())));
       }
-      tr=treeReaderFactory().newTreeReader(IOUtils.readerFromFile(currentFile,encoding()));
+ else {
+        tr=treeReaderFactory().newTreeReader(new BufferedReader(new InputStreamReader(new FileInputStream(currentFile),encoding())));
+      }
       curLineId=1;
       return true;
     }

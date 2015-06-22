@@ -1,0 +1,62 @@
+{
+  boolean entityCorrect=true;
+  String previousGold=background;
+  String previousGuess=background;
+  String previousGoldEntity="";
+  String previousGuessEntity="";
+  for (  CoreMap word : doc) {
+    String gold=word.get(CoreAnnotations.GoldAnswerAnnotation.class);
+    String guess=word.get(CoreAnnotations.AnswerAnnotation.class);
+    String goldEntity=(!gold.equals(background)) ? gold.substring(2) : "";
+    String guessEntity=(!guess.equals(background)) ? guess.substring(2) : "";
+    boolean newGold=(!gold.equals(background) && (!goldEntity.equals(previousGoldEntity)) || gold.startsWith("B-"));
+    boolean newGuess=(!guess.equals(background) && (!guessEntity.equals(previousGuessEntity)) || guess.startsWith("B-"));
+    boolean goldEnded=(!previousGold.equals(background) && (gold.startsWith("B-") || !goldEntity.equals(previousGoldEntity)));
+    boolean guessEnded=(!previousGuess.equals(background) && (guess.startsWith("B-") || !guessEntity.equals(previousGuessEntity)));
+    if (goldEnded && !guessEnded) {
+      entityFN.incrementCount(previousGoldEntity,1.0);
+      entityCorrect=gold.equals(background) && guess.equals(background);
+    }
+    if (goldEnded && guessEnded) {
+      if (entityCorrect) {
+        entityTP.incrementCount(previousGoldEntity,1.0);
+      }
+ else {
+        entityFN.incrementCount(previousGoldEntity,1.0);
+        entityFP.incrementCount(previousGuessEntity,1.0);
+      }
+      entityCorrect=gold.equals(guess);
+    }
+    if (!goldEnded && guessEnded) {
+      entityCorrect=false;
+      entityFP.incrementCount(previousGuessEntity,1.0);
+    }
+    if (newGold && !newGuess) {
+      entityCorrect=false;
+    }
+    if (newGold && newGuess) {
+      entityCorrect=guessEntity.equals(goldEntity);
+    }
+    if (!newGold && newGuess) {
+      entityCorrect=false;
+    }
+    previousGold=gold;
+    previousGuess=guess;
+    previousGoldEntity=goldEntity;
+    previousGuessEntity=guessEntity;
+  }
+  if (!previousGold.equals(background)) {
+    if (entityCorrect) {
+      entityTP.incrementCount(previousGoldEntity,1.0);
+    }
+ else {
+      entityFN.incrementCount(previousGoldEntity,1.0);
+    }
+  }
+  if (!previousGuess.equals(background)) {
+    if (!entityCorrect) {
+      entityFP.incrementCount(previousGuessEntity,1.0);
+    }
+  }
+  return true;
+}

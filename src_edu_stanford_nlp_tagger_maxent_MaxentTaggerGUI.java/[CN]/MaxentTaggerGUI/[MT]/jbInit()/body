@@ -1,2 +1,44 @@
 {
+  this.addWindowListener(new WindowAdapter(){
+    @Override public void windowClosing(    WindowEvent e){
+      System.exit(0);
+    }
+  }
+);
+  inputBox.setLineWrap(true);
+  inputBox.setWrapStyleWord(true);
+  outputBox.setLineWrap(true);
+  outputBox.setWrapStyleWord(true);
+  outputBox.setEditable(false);
+  JScrollPane scroll1=new JScrollPane(inputBox);
+  JScrollPane scroll2=new JScrollPane(outputBox);
+  scroll1.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),"Type a sentence to tag: "));
+  scroll2.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),"Tagged sentence: "));
+  JPanel buttonPanel=new JPanel();
+  buttonPanel.setBackground(Color.WHITE);
+  buttonPanel.applyComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
+  FlowLayout fl=new FlowLayout();
+  fl.setAlignment(FlowLayout.RIGHT);
+  buttonPanel.setLayout(fl);
+  tagButton.setText("Tag sentence!");
+  tagButton.setBackground(Color.WHITE);
+  buttonPanel.add(tagButton);
+  tagButton.addActionListener(new ActionListener(){
+    public void actionPerformed(    ActionEvent e){
+      performTagAction(e);
+    }
+  }
+);
+  this.setLayout(new GridBagLayout());
+  GridBagConstraints c=new GridBagConstraints();
+  c.fill=GridBagConstraints.BOTH;
+  c.gridwidth=GridBagConstraints.REMAINDER;
+  c.weightx=4.0;
+  c.weighty=4.0;
+  this.add(scroll1,c);
+  c.weighty=1.0;
+  this.add(buttonPanel,c);
+  c.weighty=4.0;
+  c.gridheight=GridBagConstraints.REMAINDER;
+  this.add(scroll2,c);
 }

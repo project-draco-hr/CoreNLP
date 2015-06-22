@@ -39,7 +39,10 @@ catch (    IllegalAccessException e) {
     try {
       altDepReader=altDepReaderClass.getConstructor(String[].class).newInstance((Object)depReaderArgs);
     }
- catch (    IllegalArgumentException|SecurityException|InvocationTargetException e) {
+ catch (    IllegalArgumentException e) {
+      throw new RuntimeException(e);
+    }
+catch (    SecurityException e) {
       throw new RuntimeException(e);
     }
 catch (    InstantiationException e) {
@@ -49,6 +52,9 @@ catch (    InstantiationException e) {
 catch (    IllegalAccessException e) {
       System.err.println(depReaderArgs.length + " argument constructor to " + altDepReaderName+ " is not public.");
       return null;
+    }
+catch (    InvocationTargetException e) {
+      throw new RuntimeException(e);
     }
 catch (    NoSuchMethodException e) {
       System.err.println("String arguments constructor to " + altDepReaderName + " does not exist.");

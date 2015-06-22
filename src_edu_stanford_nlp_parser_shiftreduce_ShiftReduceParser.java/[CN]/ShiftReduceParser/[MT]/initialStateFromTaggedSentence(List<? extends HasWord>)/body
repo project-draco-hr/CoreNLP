@@ -2,36 +2,25 @@
   List<Tree> preterminals=Generics.newArrayList();
   for (int index=0; index < words.size(); ++index) {
     HasWord hw=words.get(index);
-    CoreLabel wordLabel;
-    String tag;
-    if (hw instanceof CoreLabel) {
-      wordLabel=(CoreLabel)hw;
-      tag=wordLabel.tag();
+    CoreLabel wordLabel=new CoreLabel();
+    wordLabel.setIndex(index + 1);
+    wordLabel.setValue(hw.word());
+    if (!(hw instanceof HasTag)) {
+      throw new RuntimeException("Expected tagged words");
     }
- else {
-      wordLabel=new CoreLabel();
-      wordLabel.setValue(hw.word());
-      wordLabel.setWord(hw.word());
-      if (!(hw instanceof HasTag)) {
-        throw new IllegalArgumentException("Expected tagged words");
-      }
-      tag=((HasTag)hw).tag();
-      wordLabel.setTag(tag);
-    }
+    String tag=((HasTag)hw).tag();
     if (tag == null) {
-      throw new IllegalArgumentException("Input word not tagged");
+      throw new RuntimeException("Word is not tagged");
     }
     CoreLabel tagLabel=new CoreLabel();
-    tagLabel.setValue(tag);
-    wordLabel.setIndex(index + 1);
-    tagLabel.setIndex(index + 1);
+    tagLabel.setValue(((HasTag)hw).tag());
     LabeledScoredTreeNode wordNode=new LabeledScoredTreeNode(wordLabel);
     LabeledScoredTreeNode tagNode=new LabeledScoredTreeNode(tagLabel);
     tagNode.addChild(wordNode);
-    wordLabel.set(TreeCoreAnnotations.HeadWordLabelAnnotation.class,wordLabel);
-    wordLabel.set(TreeCoreAnnotations.HeadTagLabelAnnotation.class,tagLabel);
-    tagLabel.set(TreeCoreAnnotations.HeadWordLabelAnnotation.class,wordLabel);
-    tagLabel.set(TreeCoreAnnotations.HeadTagLabelAnnotation.class,tagLabel);
+    wordLabel.set(TreeCoreAnnotations.HeadWordAnnotation.class,wordNode);
+    wordLabel.set(TreeCoreAnnotations.HeadTagAnnotation.class,tagNode);
+    tagLabel.set(TreeCoreAnnotations.HeadWordAnnotation.class,wordNode);
+    tagLabel.set(TreeCoreAnnotations.HeadTagAnnotation.class,tagNode);
     preterminals.add(tagNode);
   }
   return new State(preterminals);

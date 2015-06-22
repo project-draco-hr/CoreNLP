@@ -155,7 +155,9 @@ catch (      IllegalAccessException e) {
  else {
       int oldIndex=argIndex;
       argIndex=op.setOptionOrWarn(args,argIndex);
-      optionArgs.addAll(Arrays.asList(args).subList(oldIndex,argIndex));
+      for (int i=oldIndex; i < argIndex; i++) {
+        optionArgs.add(args[i]);
+      }
     }
   }
   if (tuneFilter != null || tunePath != null) {
@@ -240,7 +242,19 @@ catch (      IllegalAccessException e) {
         tokenizerFactory.setOptions(tokenizerOptions);
       }
     }
- catch (    IllegalAccessException|InvocationTargetException|ClassNotFoundException|NoSuchMethodException e) {
+ catch (    IllegalAccessException e) {
+      System.err.println("Couldn't instantiate TokenizerFactory " + tokenizerFactoryClass + " with options "+ tokenizerOptions);
+      throw new RuntimeException(e);
+    }
+catch (    NoSuchMethodException e) {
+      System.err.println("Couldn't instantiate TokenizerFactory " + tokenizerFactoryClass + " with options "+ tokenizerOptions);
+      throw new RuntimeException(e);
+    }
+catch (    ClassNotFoundException e) {
+      System.err.println("Couldn't instantiate TokenizerFactory " + tokenizerFactoryClass + " with options "+ tokenizerOptions);
+      throw new RuntimeException(e);
+    }
+catch (    InvocationTargetException e) {
       System.err.println("Couldn't instantiate TokenizerFactory " + tokenizerFactoryClass + " with options "+ tokenizerOptions);
       throw new RuntimeException(e);
     }

@@ -1,0 +1,18 @@
+{
+  TreeGraphNode govH=gov.highestNodeWithSameHead();
+  TreeGraphNode depH=dep.highestNodeWithSameHead();
+  List<GrammaticalRelation> labels=Generics.newArrayList();
+  for (  Class<? extends GrammaticalRelationAnnotation> arcLabel : govH.arcLabelsToNode(depH)) {
+    if (arcLabel == null) {
+      continue;
+    }
+    try {
+      GrammaticalRelation reln=GrammaticalRelation.getRelation(arcLabel);
+      labels.add(reln);
+    }
+ catch (    Exception e) {
+      continue;
+    }
+  }
+  return getGrammaticalRelation(govH,depH,labels);
+}
