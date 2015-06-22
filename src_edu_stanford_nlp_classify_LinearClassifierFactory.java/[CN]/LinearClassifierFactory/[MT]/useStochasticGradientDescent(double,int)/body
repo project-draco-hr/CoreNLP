@@ -2,7 +2,11 @@
   this.minimizerCreator=new Factory<Minimizer<DiffFunction>>(){
     private static final long serialVersionUID=2564615420955196299L;
     @Override public Minimizer<DiffFunction> create(){
-      return new InefficientSGDMinimizer<DiffFunction>(gainSGD,stochasticBatchSize);
+      InefficientSGDMinimizer<DiffFunction> sgdMinimizer=new InefficientSGDMinimizer<DiffFunction>(gainSGD,stochasticBatchSize);
+      if (!verbose) {
+        sgdMinimizer.shutUp();
+      }
+      return sgdMinimizer;
     }
   }
 ;

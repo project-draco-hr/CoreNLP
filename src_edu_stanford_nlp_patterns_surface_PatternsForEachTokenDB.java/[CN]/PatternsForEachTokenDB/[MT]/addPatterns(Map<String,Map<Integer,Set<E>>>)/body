@@ -1,0 +1,22 @@
+{
+  try {
+    Connection conn=null;
+    PreparedStatement pstmt=null;
+    conn=SQLConnection.getConnection();
+    pstmt=getPreparedStmt(conn);
+    for (    Map.Entry<String,Map<Integer,Set<E>>> en : pats.entrySet()) {
+      addPattern(en.getKey(),en.getValue(),pstmt);
+      pstmt.addBatch();
+    }
+    pstmt.executeBatch();
+    conn.commit();
+    pstmt.close();
+    conn.close();
+  }
+ catch (  SQLException e) {
+    throw new RuntimeException(e);
+  }
+catch (  IOException e) {
+    throw new RuntimeException(e);
+  }
+}

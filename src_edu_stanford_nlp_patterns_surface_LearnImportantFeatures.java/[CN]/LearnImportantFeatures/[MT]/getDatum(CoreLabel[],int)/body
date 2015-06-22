@@ -1,13 +1,16 @@
 {
   Counter<String> feat=new ClassicCounter<String>();
   CoreLabel l=sent[i];
-  Set<String> matchedPhrases=l.get(PatternsAnnotations.MatchedPhrases.class);
+  String label;
+  if (l.get(answerClass).toString().equals(answerLabel))   label=answerLabel;
+ else   label="O";
+  CollectionValuedMap<String,CandidatePhrase> matchedPhrases=l.get(PatternsAnnotations.MatchedPhrases.class);
   if (matchedPhrases == null) {
-    matchedPhrases=new HashSet<String>();
-    matchedPhrases.add(l.word());
+    matchedPhrases=new CollectionValuedMap<String,CandidatePhrase>();
+    matchedPhrases.add(label,CandidatePhrase.createOrGet(l.word()));
   }
-  for (  String w : matchedPhrases) {
-    Integer num=this.clusterIds.get(w);
+  for (  CandidatePhrase w : matchedPhrases.allValues()) {
+    Integer num=this.clusterIds.get(w.getPhrase());
     if (num == null)     num=-1;
     feat.setCount("Cluster-" + num,1.0);
   }
@@ -24,8 +27,5 @@
     feat.incrementCount("NEXT-" + "LEMMA-" + lj.lemma());
     feat.incrementCount("NEXT-" + "TAG-" + lj.tag());
   }
-  String label;
-  if (l.get(answerClass).toString().equals(answerLabel))   label=answerLabel;
- else   label="O";
   return new RVFDatum<String,String>(feat,label);
 }

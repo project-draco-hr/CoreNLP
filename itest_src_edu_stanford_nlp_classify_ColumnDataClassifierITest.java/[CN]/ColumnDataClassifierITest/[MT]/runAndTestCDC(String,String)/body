@@ -10,10 +10,9 @@
   ColumnDataClassifier.main(args);
   System.setOut(oldOut);
   System.setErr(oldErr);
-  BufferedReader goldFile=new BufferedReader(new FileReader(goldfile));
-  List<String> lines=new ArrayList<String>();
-  String line;
-  while ((line=goldFile.readLine()) != null) {
+  BufferedReader goldFile=IOUtils.readerFromString(goldFileName);
+  List<String> lines=new ArrayList<>();
+  for (String line; (line=goldFile.readLine()) != null; ) {
     lines.add(line.trim().replaceAll("\\s+"," "));
   }
   String[] result=outStream.toString().trim().split("\n");

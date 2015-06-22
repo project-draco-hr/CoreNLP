@@ -1,19 +1,19 @@
 {
-  String goldAnswer=strs[globalFlags.goldAnswerColumn];
+  String goldAnswer=globalFlags.goldAnswerColumn < strs.length ? strs[globalFlags.goldAnswerColumn] : "";
   String printedText="";
   if (globalFlags.displayedColumn >= 0) {
     printedText=strs[globalFlags.displayedColumn];
   }
   String results;
   if (globalFlags.displayAllAnswers) {
-    TreeSet<Pair<Double,String>> sortedLabels=new TreeSet<Pair<Double,String>>();
+    TreeSet<Pair<Double,String>> sortedLabels=new TreeSet<>();
     for (    String key : cntr.keySet()) {
-      sortedLabels.add(new Pair<Double,String>(cntr.probabilityOf(key),key));
+      sortedLabels.add(new Pair<>(cntr.probabilityOf(key),key));
     }
     StringBuilder builder=new StringBuilder();
     for (    Pair<Double,String> pair : sortedLabels.descendingSet()) {
       if (builder.length() > 0) {
-        builder.append("\t");
+        builder.append('\t');
       }
       builder.append(pair.first().toString()).append('\t').append(pair.second());
     }
@@ -30,47 +30,4 @@
     line=printedText + '\t' + goldAnswer+ '\t'+ results;
   }
   System.out.println(line);
-  for (  String next : c.labels()) {
-    if (next.equals(goldAnswer)) {
-      if (next.equals(clAnswer)) {
-        contingency.incrementCount(next + "|TP");
-      }
- else {
-        contingency.incrementCount(next + "|FN");
-      }
-    }
- else {
-      if (next.equals(clAnswer)) {
-        contingency.incrementCount(next + "|FP");
-      }
- else {
-        contingency.incrementCount(next + "|TN");
-      }
-    }
-  }
-  if (globalFlags.groupingColumn >= 0 && globalFlags.rankingAccuracyClass != null) {
-    String group=strs[globalFlags.groupingColumn];
-    if (group.equals(lastGroup)) {
-      numInGroup++;
-      double prob=cntr.probabilityOf(globalFlags.rankingAccuracyClass);
-      if (prob > bestProb) {
-        bestProb=prob;
-        bestSim=sim;
-        currentHighestProbCorrect=goldAnswer.equals(globalFlags.rankingAccuracyClass);
-      }
-      if (globalFlags.rankingAccuracyClass.equals(goldAnswer)) {
-        foundAnswerInGroup=true;
-      }
-    }
- else {
-      finishRanking(contingency,bestSim);
-      numGroups++;
-      lastGroup=group;
-      bestProb=cntr.probabilityOf(globalFlags.rankingAccuracyClass);
-      bestSim=sim;
-      numInGroup=1;
-      currentHighestProbCorrect=goldAnswer.equals(globalFlags.rankingAccuracyClass);
-      foundAnswerInGroup=globalFlags.rankingAccuracyClass.equals(goldAnswer);
-    }
-  }
 }

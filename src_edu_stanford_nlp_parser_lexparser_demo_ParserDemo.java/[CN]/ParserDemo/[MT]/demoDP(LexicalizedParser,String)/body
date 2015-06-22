@@ -1,13 +1,18 @@
 {
-  TreebankLanguagePack tlp=new PennTreebankLanguagePack();
-  GrammaticalStructureFactory gsf=tlp.grammaticalStructureFactory();
+  TreebankLanguagePack tlp=lp.treebankLanguagePack();
+  GrammaticalStructureFactory gsf=null;
+  if (tlp.supportsGrammaticalStructures()) {
+    gsf=tlp.grammaticalStructureFactory();
+  }
   for (  List<HasWord> sentence : new DocumentPreprocessor(filename)) {
     Tree parse=lp.apply(sentence);
     parse.pennPrint();
     System.out.println();
-    GrammaticalStructure gs=gsf.newGrammaticalStructure(parse);
-    Collection tdl=gs.typedDependenciesCCprocessed();
-    System.out.println(tdl);
-    System.out.println();
+    if (gsf != null) {
+      GrammaticalStructure gs=gsf.newGrammaticalStructure(parse);
+      Collection tdl=gs.typedDependenciesCCprocessed();
+      System.out.println(tdl);
+      System.out.println();
+    }
   }
 }

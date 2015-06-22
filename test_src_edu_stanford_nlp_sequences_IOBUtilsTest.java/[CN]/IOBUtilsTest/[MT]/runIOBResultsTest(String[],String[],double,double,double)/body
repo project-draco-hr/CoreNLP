@@ -1,0 +1,10 @@
+{
+  List<CoreLabel> sentence=makeListCoreLabel(gold,guess);
+  Counter<String> entityTP=new ClassicCounter<>();
+  Counter<String> entityFP=new ClassicCounter<>();
+  Counter<String> entityFN=new ClassicCounter<>();
+  IOBUtils.countEntityResults(sentence,entityTP,entityFP,entityFN,BG);
+  assertEquals("For true positives",tp,entityTP.totalCount(),0.0001);
+  assertEquals("For false positives",fp,entityFP.totalCount(),0.0001);
+  assertEquals("For false negatives",fn,entityFN.totalCount(),0.0001);
+}

@@ -2,13 +2,15 @@
   TokenizerFactory<CoreLabel> factory;
   String options=props.getProperty("tokenize.options",null);
   if (options == null) {
-    options=extraOptions;
-  }
- else   if (extraOptions != null) {
-    options=extraOptions + options;
-  }
-  if (options == null) {
     options=type.getDefaultOptions();
+  }
+  if (extraOptions != null) {
+    if (extraOptions.endsWith(",")) {
+      options=extraOptions + options;
+    }
+ else {
+      options=extraOptions + ',' + options;
+    }
   }
 switch (type) {
 case Spanish:
@@ -20,7 +22,7 @@ break;
 case Whitespace:
 boolean eolIsSignificant=Boolean.valueOf(props.getProperty(EOL_PROPERTY,"false"));
 eolIsSignificant=eolIsSignificant || Boolean.valueOf(props.getProperty(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY,"false"));
-factory=new WhitespaceTokenizer.WhitespaceTokenizerFactory<CoreLabel>(new CoreLabelTokenFactory(),eolIsSignificant);
+factory=new WhitespaceTokenizer.WhitespaceTokenizerFactory<>(new CoreLabelTokenFactory(),eolIsSignificant);
 break;
 case English:
 case German:

@@ -1,0 +1,18 @@
+{
+  PriorityQueue<CoreLabel> chunk=new FixedPrioritiesPriorityQueue<>();
+  Queue<IndexedWord> fringe=new LinkedList<>();
+  fringe.add(root);
+  while (!fringe.isEmpty()) {
+    root=fringe.poll();
+    chunk.add(root.backingLabel(),-root.index());
+    for (    SemanticGraphEdge edge : parse.getOutEdgesSorted(root)) {
+      if (!VALID_ENTITY_ARCS.contains(edge.getRelation().getShortName())) {
+        return Optional.empty();
+      }
+ else {
+        fringe.add(edge.getDependent());
+      }
+    }
+  }
+  return Optional.of(chunk.toSortedList());
+}

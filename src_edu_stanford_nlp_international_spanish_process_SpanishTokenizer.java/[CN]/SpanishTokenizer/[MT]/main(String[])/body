@@ -5,11 +5,15 @@
     return;
   }
   final TokenizerFactory<CoreLabel> tf=SpanishTokenizer.coreLabelFactory();
-  if (options.containsKey("ancora"))   tf.setOptions(ANCORA_OPTS);
-  String orthoOptions=options.getProperty("orthoOpts","");
+  String orthoOptions=options.containsKey("ancora") ? ANCORA_OPTIONS : "";
+  if (options.containsKey("options")) {
+    orthoOptions=orthoOptions.length() == 0 ? options.getProperty("options") : orthoOptions + "," + options;
+  }
+  final boolean tokens=PropertiesUtils.getBool(options,"tokens",false);
+  if (!tokens) {
+    orthoOptions=orthoOptions.length() == 0 ? "tokenizeNLs" : orthoOptions + ",tokenizeNLs";
+  }
   tf.setOptions(orthoOptions);
-  tf.setOptions("tokenizeNLs");
-  final boolean lines=options.containsKey("lines");
   final String encoding=options.getProperty("encoding","UTF-8");
   final boolean toLower=PropertiesUtils.getBool(options,"lowerCase",false);
   final Locale es=new Locale("es");
@@ -28,10 +32,7 @@
         System.out.println();
       }
  else {
-        if (printSpace) {
-          if (lines)           System.out.print(" ");
- else           System.out.println();
-        }
+        if (printSpace)         System.out.print(" ");
         String outputToken=toLower ? word.toLowerCase(es) : word;
         System.out.print(outputToken);
         printSpace=true;

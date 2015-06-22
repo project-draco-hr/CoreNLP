@@ -1,0 +1,17 @@
+{
+  if (depths.get(0) == Integer.MAX_VALUE)   return true;
+  if (parent.equals(child))   return true;
+  boolean foundInMaxDepth=false;
+  for (  IndexedWord c : g.getChildren(parent)) {
+    if (c.equals(child)) {
+      return true;
+    }
+  }
+  depths.set(1,depths.get(1) + 1);
+  if (depths.get(1) >= depths.get(0))   return false;
+  for (  IndexedWord c : g.getChildren(parent)) {
+    foundInMaxDepth=checkIfSatisfiedMaxDepth(g,c,child,depths);
+    if (foundInMaxDepth == true)     return foundInMaxDepth;
+  }
+  return false;
+}
