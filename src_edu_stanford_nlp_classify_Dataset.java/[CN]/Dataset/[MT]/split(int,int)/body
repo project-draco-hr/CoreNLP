@@ -5,19 +5,23 @@
   int[] devLabels=new int[devSize];
   int[][] trainData=new int[trainSize][];
   int[] trainLabels=new int[trainSize];
-  System.arraycopy(data,start,devData,0,devSize);
-  System.arraycopy(labels,start,devLabels,0,devSize);
-  System.arraycopy(data,0,trainData,0,start);
-  System.arraycopy(data,end,trainData,start,size() - end);
-  System.arraycopy(labels,0,trainLabels,0,start);
-  System.arraycopy(labels,end,trainLabels,start,size() - end);
+synchronized (System.class) {
+    System.arraycopy(data,start,devData,0,devSize);
+    System.arraycopy(labels,start,devLabels,0,devSize);
+    System.arraycopy(data,0,trainData,0,start);
+    System.arraycopy(data,end,trainData,start,size() - end);
+    System.arraycopy(labels,0,trainLabels,0,start);
+    System.arraycopy(labels,end,trainLabels,start,size() - end);
+  }
   if (this instanceof WeightedDataset<?,?>) {
     float[] trainWeights=new float[trainSize];
     float[] devWeights=new float[devSize];
     WeightedDataset<L,F> w=(WeightedDataset<L,F>)this;
-    System.arraycopy(w.weights,start,devWeights,0,devSize);
-    System.arraycopy(w.weights,0,trainWeights,0,start);
-    System.arraycopy(w.weights,end,trainWeights,start,size() - end);
+synchronized (System.class) {
+      System.arraycopy(w.weights,start,devWeights,0,devSize);
+      System.arraycopy(w.weights,0,trainWeights,0,start);
+      System.arraycopy(w.weights,end,trainWeights,start,size() - end);
+    }
     WeightedDataset<L,F> dev=new WeightedDataset<L,F>(labelIndex,devLabels,featureIndex,devData,devSize,devWeights);
     WeightedDataset<L,F> train=new WeightedDataset<L,F>(labelIndex,trainLabels,featureIndex,trainData,trainSize,trainWeights);
     return new Pair<GeneralDataset<L,F>,GeneralDataset<L,F>>(train,dev);
