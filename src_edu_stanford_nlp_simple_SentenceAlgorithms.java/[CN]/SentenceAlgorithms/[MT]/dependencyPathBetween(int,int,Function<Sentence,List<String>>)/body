@@ -3,7 +3,12 @@
   LinkedList<Integer> rootToEnd=new LinkedList<>();
   int startAncestor=start;
   List<Optional<Integer>> governors=sentence.governors();
+  Set<Integer> seenVertices=new HashSet<>();
   while (governors.get(startAncestor).isPresent() && governors.get(startAncestor).get() >= 0) {
+    if (seenVertices.contains(startAncestor)) {
+      return Collections.EMPTY_LIST;
+    }
+    seenVertices.add(startAncestor);
     rootToStart.addFirst(startAncestor);
     startAncestor=governors.get(startAncestor).get();
   }
@@ -11,7 +16,12 @@
     rootToStart.addFirst(-1);
   }
   int endAncestor=end;
+  seenVertices.clear();
   while (governors.get(endAncestor).isPresent() && governors.get(endAncestor).get() >= 0) {
+    if (seenVertices.contains(startAncestor)) {
+      return Collections.EMPTY_LIST;
+    }
+    seenVertices.add(startAncestor);
     rootToEnd.addFirst(endAncestor);
     endAncestor=governors.get(endAncestor).get();
   }
