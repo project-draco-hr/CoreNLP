@@ -1,5 +1,5 @@
 {
-  StanfordCoreNLP pipeline=new StanfordCoreNLP();
+  StanfordCoreNLP pipeline=new StanfordCoreNLP(PropertiesUtils.asProperties("maxAdditionalKnownLCWords","0"));
   List<File> files=StanfordCoreNLPSlowITest.getFileList();
   files=files.subList(0,numDocs);
   List<String> baseline=getAnnotations(files,pipeline);
@@ -12,7 +12,7 @@
     threads[i].join();
     assertEquals("Thread " + i + " did not produce "+ baseline.size()+ " results",baseline.size(),threads[i].annotations.size());
   }
-  for (int i=0; i < files.size(); ++i) {
+  for (int i=0; i < baseline.size(); ++i) {
     for (int j=0; j < numThreads; ++j) {
       assertEquals("Thread " + j + " produced annotation "+ i+ " differently than the baseline",baseline.get(i),threads[j].annotations.get(i));
     }
