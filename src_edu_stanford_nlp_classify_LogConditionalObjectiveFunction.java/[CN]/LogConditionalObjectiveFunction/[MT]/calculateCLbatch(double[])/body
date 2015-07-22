@@ -31,8 +31,8 @@
     }
     for (int i=0; i < threads; i++) {
       value+=runnables[i].localValue;
-      for (int j=0; j < derivative.length; j++) {
-        derivative[j]+=runnables[i].localDerivative[j];
+      for (      int j : runnables[i].sparseGradient.keySet()) {
+        derivative[j]+=runnables[i].sparseGradient.getCount(j);
       }
     }
   }
