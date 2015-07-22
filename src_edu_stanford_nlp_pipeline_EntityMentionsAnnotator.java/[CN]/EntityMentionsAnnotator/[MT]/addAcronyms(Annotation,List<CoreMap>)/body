@@ -1,2 +1,27 @@
 {
+  List<List<CoreLabel>> organizations=new ArrayList<>();
+  for (  CoreMap mention : mentions) {
+    if ("ORGANIZATION".equals(mention.get(CoreAnnotations.NamedEntityTagAnnotation.class))) {
+      organizations.add(mention.get(CoreAnnotations.TokensAnnotation.class));
+    }
+  }
+  if (organizations.size() > 100) {
+    return;
+  }
+  for (  CoreMap sentence : ann.get(CoreAnnotations.SentencesAnnotation.class)) {
+    List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
+    Integer totalTokensOffset=sentence.get(CoreAnnotations.TokenBeginAnnotation.class);
+    for (int i=0; i < tokens.size(); ++i) {
+      CoreLabel token=tokens.get(i);
+      if ("O".equals(token.ner()) && token.word().toUpperCase().equals(token.word()) && token.word().length() >= 3) {
+        for (        List<CoreLabel> org : organizations) {
+          if (AcronymMatcher.isAcronym(token.word(),org)) {
+            token.setNER("ORGANIZATION");
+            CoreMap chunk=ChunkAnnotationUtils.getAnnotatedChunk(Collections.singletonList(token),i,i + 1,totalTokensOffset,null,null,null);
+            mentions.add(chunk);
+          }
+        }
+      }
+    }
+  }
 }
