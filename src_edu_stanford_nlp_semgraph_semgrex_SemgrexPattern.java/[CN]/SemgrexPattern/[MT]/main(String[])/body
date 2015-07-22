@@ -4,8 +4,6 @@
   flagMap.put(TREE_FILE,1);
   flagMap.put(MODE,1);
   flagMap.put(EXTRAS,1);
-  flagMap.put(CONLLU_FILE,1);
-  flagMap.put(OUTPUT_FORMAT_OPTION,1);
   Map<String,String[]> argsMap=StringUtils.argsToMap(args,flagMap);
   args=argsMap.get(null);
   if (!(argsMap.containsKey(PATTERN)) || argsMap.get(PATTERN).length == 0) {
@@ -18,11 +16,6 @@
     modeString=argsMap.get(MODE)[0].toUpperCase();
   }
   SemanticGraphFactory.Mode mode=SemanticGraphFactory.Mode.valueOf(modeString);
-  String outputFormatString=DEFAULT_OUTPUT_FORMAT;
-  if (argsMap.containsKey(OUTPUT_FORMAT_OPTION) && argsMap.get(OUTPUT_FORMAT_OPTION).length > 0) {
-    outputFormatString=argsMap.get(OUTPUT_FORMAT_OPTION)[0].toUpperCase();
-  }
-  OutputFormat outputFormat=OutputFormat.valueOf(outputFormatString);
   boolean useExtras=true;
   if (argsMap.containsKey(EXTRAS) && argsMap.get(EXTRAS).length > 0) {
     useExtras=Boolean.valueOf(argsMap.get(EXTRAS)[0]);
@@ -55,27 +48,19 @@
     if (!(matcher.find())) {
       continue;
     }
-    if (outputFormat == OutputFormat.LIST) {
-      System.err.println("Matched graph:");
-      System.err.println(graph.toString(SemanticGraph.OutputFormat.LIST));
-      boolean found=true;
-      while (found) {
-        System.err.println("Matches at: " + matcher.getMatch().value() + "-"+ matcher.getMatch().index());
-        List<String> nodeNames=Generics.newArrayList();
-        nodeNames.addAll(matcher.getNodeNames());
-        Collections.sort(nodeNames);
-        for (        String name : nodeNames) {
-          System.err.println("  " + name + ": "+ matcher.getNode(name).value()+ "-"+ matcher.getNode(name).index());
-        }
-        System.err.println();
-        found=matcher.find();
+    System.err.println("Matched graph:");
+    System.err.println(graph.toString(SemanticGraph.OutputFormat.LIST));
+    boolean found=true;
+    while (found) {
+      System.err.println("Matches at: " + matcher.getMatch().value() + "-"+ matcher.getMatch().index());
+      List<String> nodeNames=Generics.newArrayList();
+      nodeNames.addAll(matcher.getNodeNames());
+      Collections.sort(nodeNames);
+      for (      String name : nodeNames) {
+        System.err.println("  " + name + ": "+ matcher.getNode(name).value()+ "-"+ matcher.getNode(name).index());
       }
-    }
- else     if (outputFormat == OutputFormat.OFFSET) {
-      if (graph.vertexListSorted().isEmpty()) {
-        continue;
-      }
-      System.out.printf("+%d %s%n",graph.vertexListSorted().get(0).get(CoreAnnotations.LineNumberAnnotation.class),argsMap.get(CONLLU_FILE)[0]);
+      System.err.println();
+      found=matcher.find();
     }
   }
 }
