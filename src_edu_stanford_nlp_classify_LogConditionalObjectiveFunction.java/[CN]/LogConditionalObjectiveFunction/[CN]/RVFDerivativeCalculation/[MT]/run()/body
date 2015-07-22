@@ -5,10 +5,10 @@
     final int[] features=data[d];
     final double[] vals=values[d];
     Arrays.fill(sums,0.0);
-    for (int f=0; f < features.length; f++) {
-      final int feature=features[f];
-      final double val=vals[f];
-      for (int c=0; c < numClasses; c++) {
+    for (int c=0; c < numClasses; c++) {
+      for (int f=0; f < features.length; f++) {
+        final int feature=features[f];
+        final double val=vals[f];
         int i=indexOf(feature,c);
         sums[c]+=x[i] * val;
       }
@@ -20,10 +20,10 @@
         probs[c]*=dataWeights[d];
       }
     }
-    for (int f=0; f < features.length; f++) {
-      final int feature=features[f];
-      final double val=vals[f];
-      for (int c=0; c < numClasses; c++) {
+    for (int c=0; c < numClasses; c++) {
+      for (int f=0; f < features.length; f++) {
+        final int feature=features[f];
+        final double val=vals[f];
         int i=indexOf(feature,c);
         localDerivative[i]+=probs[c] * val;
       }
