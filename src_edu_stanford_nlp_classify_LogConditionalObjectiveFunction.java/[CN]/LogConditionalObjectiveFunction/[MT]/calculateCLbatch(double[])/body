@@ -16,11 +16,11 @@
     }
   }
   copy(derivative,derivativeNumerator);
-  if (parallelGradientCalculation && threads > 1) {
+  if (parallelGradientCalculation) {
     @SuppressWarnings("unchecked") CLBatchDerivativeCalculation[] runnables=(CLBatchDerivativeCalculation[])Array.newInstance(CLBatchDerivativeCalculation.class,threads);
     CountDownLatch latch=new CountDownLatch(threads);
     for (int i=0; i < threads; i++) {
-      runnables[i]=new CLBatchDerivativeCalculation(threads,i,null,x,derivative.length,latch);
+      runnables[i]=new CLBatchDerivativeCalculation(threads,i,x,derivative.length,latch);
       executorService.execute(runnables[i]);
     }
     try {
