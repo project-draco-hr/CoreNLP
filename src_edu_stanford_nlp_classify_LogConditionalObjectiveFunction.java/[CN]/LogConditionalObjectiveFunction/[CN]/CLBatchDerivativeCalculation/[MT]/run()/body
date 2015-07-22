@@ -1,7 +1,9 @@
 {
   double[] sums=new double[numClasses];
   double[] probs=new double[numClasses];
-  for (int d=threadIdx; d < data.length; d+=numThreads) {
+  int batchSize=batch == null ? data.length : batch.length;
+  for (int m=threadIdx; m < batchSize; m+=numThreads) {
+    int d=batch == null ? m : batch[m];
     Arrays.fill(sums,0.0);
     int[] featuresArr=data[d];
     for (int c=0; c < numClasses; c++) {
