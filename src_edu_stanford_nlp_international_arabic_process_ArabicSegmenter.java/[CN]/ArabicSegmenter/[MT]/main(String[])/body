@@ -28,7 +28,7 @@
       }
     }
  else {
-      BufferedReader br=(segmenter.flags.textFile == null) ? new BufferedReader(new InputStreamReader(System.in)) : new BufferedReader(new InputStreamReader(new FileInputStream(segmenter.flags.textFile),segmenter.flags.inputEncoding));
+      BufferedReader br=(segmenter.flags.textFile == null) ? IOUtils.readerFromStdin() : IOUtils.readerFromString(segmenter.flags.textFile,segmenter.flags.inputEncoding);
       double charsPerSec=decode(segmenter,br,pwOut,nThreads);
       IOUtils.closeIgnoringExceptions(br);
       System.err.printf("Done! Processed input text at %.2f input characters/second%n",charsPerSec);
@@ -37,7 +37,7 @@
  catch (  UnsupportedEncodingException e) {
     e.printStackTrace();
   }
-catch (  FileNotFoundException e) {
+catch (  IOException e) {
     System.err.printf("%s: Could not open %s%n",ArabicSegmenter.class.getName(),segmenter.flags.textFile);
   }
 }
