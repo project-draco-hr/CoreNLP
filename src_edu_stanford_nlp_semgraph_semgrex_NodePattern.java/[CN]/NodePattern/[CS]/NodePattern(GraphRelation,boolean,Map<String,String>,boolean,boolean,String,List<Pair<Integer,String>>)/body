@@ -8,13 +8,13 @@
     String key=entry.getKey();
     String value=entry.getValue();
     if (value.equals("__")) {
-      attributes.put(key,Pattern.compile(".*"));
+      attributes.put(key,Pair.makePair(Pattern.compile(".*"),Pattern.compile(".*",Pattern.CASE_INSENSITIVE)));
     }
  else     if (value.matches("/.*/")) {
-      attributes.put(key,Pattern.compile(value.substring(1,value.length() - 1)));
+      attributes.put(key,Pair.makePair(Pattern.compile(value.substring(1,value.length() - 1)),Pattern.compile(value.substring(1,value.length() - 1),Pattern.CASE_INSENSITIVE)));
     }
  else {
-      attributes.put(key,Pattern.compile("^(" + value + ")$"));
+      attributes.put(key,Pair.makePair(Pattern.compile("^(" + value + ")$"),Pattern.compile("^(" + value + ")$",Pattern.CASE_INSENSITIVE)));
     }
     descString+=(key + ':' + value);
   }
