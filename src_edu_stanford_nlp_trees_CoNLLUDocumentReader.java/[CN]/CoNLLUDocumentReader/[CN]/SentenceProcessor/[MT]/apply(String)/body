@@ -6,7 +6,6 @@
   Collections.sort(sorted);
   List<TypedDependency> deps=new ArrayList<TypedDependency>(sorted.size());
   for (  IndexedWord word : sorted) {
-    lineNumberCounter++;
     GrammaticalRelation reln=GrammaticalRelation.valueOf(Language.UniversalEnglish,word.get(CoreAnnotations.CoNLLDepTypeAnnotation.class));
     int govIdx=word.get(CoreAnnotations.CoNLLDepParentIndexAnnotation.class);
     IndexedWord gov;
@@ -21,9 +20,7 @@
       gov=sorted.get(govIdx - 1);
     }
     TypedDependency dep=new TypedDependency(reln,gov,word);
-    word.set(CoreAnnotations.LineNumberAnnotation.class,lineNumberCounter);
     deps.add(dep);
   }
-  lineNumberCounter++;
   return new SemanticGraph(deps);
 }
