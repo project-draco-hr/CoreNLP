@@ -1,14 +1,21 @@
 {
-  Integer index=indexes.get(o);
-  if (index == null) {
-    if (locked) {
-      index=-1;
-    }
- else {
-      index=objects.size();
-      objects.add(o);
-      indexes.put(o,index);
-    }
+  if (indexes.isEmpty()) {
+    objects.add(o);
+    indexes.put(o,0);
+    return 0;
   }
-  return index;
+ else {
+    Integer index=indexes.get(o);
+    if (index == null) {
+      if (locked) {
+        index=-1;
+      }
+ else {
+        index=objects.size();
+        objects.add(o);
+        indexes.put(o,index);
+      }
+    }
+    return index;
+  }
 }
