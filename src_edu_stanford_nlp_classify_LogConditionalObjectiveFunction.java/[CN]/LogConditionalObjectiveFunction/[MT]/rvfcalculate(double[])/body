@@ -17,40 +17,62 @@
     }
   }
   copy(derivative,derivativeNumerator);
-  double[] sums=new double[numClasses];
-  double[] probs=new double[numClasses];
-  for (int d=0; d < data.length; d++) {
-    final int[] features=data[d];
-    final double[] vals=values[d];
-    Arrays.fill(sums,0.0);
-    for (int f=0; f < features.length; f++) {
-      final int feature=features[f];
-      final double val=vals[f];
-      for (int c=0; c < numClasses; c++) {
-        int i=indexOf(feature,c);
-        sums[c]+=x[i] * val;
+  if (parallelGradientCalculation) {
+    @SuppressWarnings("unchecked") RVFDerivativeCalculation[] runnables=(RVFDerivativeCalculation[])Array.newInstance(RVFDerivativeCalculation.class,threads);
+    CountDownLatch latch=new CountDownLatch(threads);
+    for (int i=0; i < threads; i++) {
+      runnables[i]=new RVFDerivativeCalculation(threads,i,x,derivative.length,latch);
+      executorService.execute(runnables[i]);
+    }
+    try {
+      latch.await();
+    }
+ catch (    InterruptedException e) {
+      e.printStackTrace();
+    }
+    for (int i=0; i < threads; i++) {
+      value+=runnables[i].localValue;
+      for (int j=0; j < derivative.length; j++) {
+        derivative[j]+=runnables[i].localDerivative[j];
       }
     }
-    double total=ArrayMath.logSum(sums);
-    for (int c=0; c < numClasses; c++) {
-      probs[c]=Math.exp(sums[c] - total);
+  }
+ else {
+    double[] sums=new double[numClasses];
+    double[] probs=new double[numClasses];
+    for (int d=0; d < data.length; d++) {
+      final int[] features=data[d];
+      final double[] vals=values[d];
+      Arrays.fill(sums,0.0);
+      for (int f=0; f < features.length; f++) {
+        final int feature=features[f];
+        final double val=vals[f];
+        for (int c=0; c < numClasses; c++) {
+          int i=indexOf(feature,c);
+          sums[c]+=x[i] * val;
+        }
+      }
+      double total=ArrayMath.logSum(sums);
+      for (int c=0; c < numClasses; c++) {
+        probs[c]=Math.exp(sums[c] - total);
+        if (dataWeights != null) {
+          probs[c]*=dataWeights[d];
+        }
+      }
+      for (int f=0; f < features.length; f++) {
+        final int feature=features[f];
+        final double val=vals[f];
+        for (int c=0; c < numClasses; c++) {
+          int i=indexOf(feature,c);
+          derivative[i]+=probs[c] * val;
+        }
+      }
+      double dV=sums[labels[d]] - total;
       if (dataWeights != null) {
-        probs[c]*=dataWeights[d];
+        dV*=dataWeights[d];
       }
+      value-=dV;
     }
-    for (int f=0; f < features.length; f++) {
-      final int feature=features[f];
-      final double val=vals[f];
-      for (int c=0; c < numClasses; c++) {
-        int i=indexOf(feature,c);
-        derivative[i]+=probs[c] * val;
-      }
-    }
-    double dV=sums[labels[d]] - total;
-    if (dataWeights != null) {
-      dV*=dataWeights[d];
-    }
-    value-=dV;
   }
   value+=prior.compute(x,derivative);
 }
