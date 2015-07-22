@@ -1,0 +1,34 @@
+{
+  double[] sums=new double[numClasses];
+  double[] probs=new double[numClasses];
+  for (int d=threadIdx; d < data.length; d+=numThreads) {
+    Arrays.fill(sums,0.0);
+    int[] featuresArr=data[d];
+    for (    int feature : featuresArr) {
+      for (int c=0; c < numClasses; c++) {
+        int i=indexOf(feature,c);
+        sums[c]+=x[i];
+      }
+    }
+    double total=ArrayMath.logSum(sums);
+    for (int c=0; c < numClasses; c++) {
+      probs[c]=Math.exp(sums[c] - total);
+      if (dataWeights != null) {
+        probs[c]*=dataWeights[d];
+      }
+    }
+    for (    int feature : featuresArr) {
+      for (int c=0; c < numClasses; c++) {
+        int i=indexOf(feature,c);
+        localDerivative[i]+=probs[c];
+      }
+    }
+    int labelindex=labels[d];
+    double dV=sums[labelindex] - total;
+    if (dataWeights != null) {
+      dV*=dataWeights[d];
+    }
+    localValue-=dV;
+  }
+  latch.countDown();
+}
