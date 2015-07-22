@@ -2,18 +2,24 @@
   if (tokenSpan.size() == 0) {
     throw new IllegalArgumentException("Cannot find head word of empty span!");
   }
+  List<Optional<Integer>> governors=sentence.governors();
   int candidateStart=tokenSpan.end() - 1;
   Optional<Integer> parent;
-  while (!(parent=sentence.governor(candidateStart)).isPresent()) {
+  while (!(parent=governors.get(candidateStart)).isPresent()) {
     candidateStart-=1;
     if (candidateStart < tokenSpan.start()) {
       return tokenSpan.end() - 1;
     }
   }
   int candidate=candidateStart;
+  Set<Integer> seen=new HashSet<>();
   while (parent.isPresent() && parent.get() >= tokenSpan.start() && parent.get() < tokenSpan.end()) {
     candidate=parent.get();
-    parent=sentence.governor(candidate);
+    if (seen.contains(candidate)) {
+      return candidate;
+    }
+    seen.add(candidate);
+    parent=governors.get(candidate);
   }
   return candidate;
 }
