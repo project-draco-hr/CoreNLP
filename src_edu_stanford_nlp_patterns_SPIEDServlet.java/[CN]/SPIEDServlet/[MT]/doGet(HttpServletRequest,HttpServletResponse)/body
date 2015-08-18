@@ -8,13 +8,14 @@
   try {
     String raw=request.getParameter("q");
     String seedwords=request.getParameter("seedwords");
-    boolean testmode=Boolean.parseBoolean(request.getParameter("testmode"));
-    String model=request.getParameter("model");
+    String test=request.getParameter("testmode");
+    boolean testmode=false;
+    if (test != null)     testmode=Boolean.parseBoolean(test);
     if (raw == null || "".equals(raw)) {
       out.print("{\"okay\":false,\"reason\":\"No data provided\"}");
     }
  else {
-      run(out,raw,seedwords,testmode,model);
+      run(out,raw,seedwords,testmode,"");
     }
   }
  catch (  Throwable t) {
