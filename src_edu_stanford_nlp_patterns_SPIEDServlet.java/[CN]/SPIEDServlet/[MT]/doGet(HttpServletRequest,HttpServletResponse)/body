@@ -5,13 +5,18 @@
   }
   response.setContentType("text/json; charset=UTF-8");
   PrintWriter out=response.getWriter();
-  String raw=request.getParameter("q");
-  String seedwords=request.getParameter("seedwords");
-  if (raw == null || "".equals(raw)) {
-    out.print("{\"okay\":\"false\"}");
-  }
+  try {
+    String raw=request.getParameter("q");
+    String seedwords=request.getParameter("seedwords");
+    if (raw == null || "".equals(raw)) {
+      out.print("{\"okay\":false,\"reason\":\"No data provided\"}");
+    }
  else {
-    doGet(out,raw,seedwords);
+      run(out,raw,seedwords);
+    }
+  }
+ catch (  Throwable t) {
+    writeError(t,out);
   }
   out.close();
 }

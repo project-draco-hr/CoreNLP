@@ -1,3 +1,23 @@
 {
-  doGet(request,response);
+  StringBuffer jb=new StringBuffer();
+  String line;
+  PrintWriter out=response.getWriter();
+  try {
+    BufferedReader reader=request.getReader();
+    while ((line=reader.readLine()) != null)     jb.append(line);
+    JsonReader jsonReader=Json.createReader(new StringReader(jb.toString()));
+    JsonObject obj=jsonReader.readObject();
+    String raw=obj.get("q").toString();
+    String seedwords=obj.get("seedwords").toString();
+    if (raw == null || "".equals(raw)) {
+      out.print("{\"okay\":false,\"reason\":\"No data provided\"}");
+    }
+ else {
+      run(out,raw,seedwords);
+    }
+  }
+ catch (  Throwable t) {
+    writeError(t,out);
+  }
+  out.close();
 }
