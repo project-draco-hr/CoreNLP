@@ -1,15 +1,13 @@
 {
-  FileInputStream delimited=new FileInputStream(in);
   FileInputStream undelimited=new FileInputStream(in);
   CoreNLPProtos.Document doc;
-  try {
+  try (FileInputStream delimited=new FileInputStream(in)){
     doc=CoreNLPProtos.Document.parseFrom(delimited);
   }
  catch (  Exception e) {
     doc=CoreNLPProtos.Document.parseDelimitedFrom(undelimited);
   }
  finally {
-    delimited.close();
     undelimited.close();
   }
   return fromProto(doc);

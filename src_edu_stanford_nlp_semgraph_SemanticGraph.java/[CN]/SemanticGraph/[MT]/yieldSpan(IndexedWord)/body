@@ -1,0 +1,17 @@
+{
+  int min=Integer.MAX_VALUE;
+  int max=Integer.MIN_VALUE;
+  Stack<IndexedWord> fringe=new Stack<>();
+  fringe.push(word);
+  while (!fringe.isEmpty()) {
+    IndexedWord parent=fringe.pop();
+    min=Math.min(min,parent.index() - 1);
+    max=Math.max(max,parent.index());
+    for (    SemanticGraphEdge edge : outgoingEdgeIterable(parent)) {
+      if (!edge.isExtra()) {
+        fringe.push(edge.getDependent());
+      }
+    }
+  }
+  return Pair.makePair(min,max);
+}

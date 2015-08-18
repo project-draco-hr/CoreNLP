@@ -1,10 +1,12 @@
 {
   if (labels.length == size) {
     int[] newLabels=new int[size * 2];
-    System.arraycopy(labels,0,newLabels,0,size);
-    labels=newLabels;
     int[][] newData=new int[size * 2][];
-    System.arraycopy(data,0,newData,0,size);
+synchronized (System.class) {
+      System.arraycopy(labels,0,newLabels,0,size);
+      System.arraycopy(data,0,newData,0,size);
+    }
+    labels=newLabels;
     data=newData;
   }
 }

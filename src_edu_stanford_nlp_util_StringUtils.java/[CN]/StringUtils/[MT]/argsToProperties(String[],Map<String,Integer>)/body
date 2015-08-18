@@ -47,9 +47,8 @@
   if (result.containsKey(PROP)) {
     String file=result.getProperty(PROP);
     result.remove(PROP);
-    Properties toAdd=argsToProperties(new String[]{"-prop",file});
-    for (Enumeration<?> e=toAdd.propertyNames(); e.hasMoreElements(); ) {
-      String key=(String)e.nextElement();
+    Properties toAdd=argsToProperties("-prop",file);
+    for (    String key : toAdd.stringPropertyNames()) {
       String val=toAdd.getProperty(key);
       if (!result.containsKey(key)) {
         result.setProperty(key,val);

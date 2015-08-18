@@ -1,0 +1,56 @@
+{
+  List<CoreMap> sentences=new ArrayList<CoreMap>(document.sentenceWordLists.size());
+  for (  List<String[]> sentWords : document.sentenceWordLists) {
+    sentences.add(wordsToSentence(sentWords));
+  }
+  Annotation docAnnotation=sentencesToDocument(document.documentIdPart,sentences);
+  document.setAnnotation(docAnnotation);
+  CollectionValuedMap<String,CoreMap> corefChainMap=new CollectionValuedMap<String,CoreMap>(CollectionFactory.<CoreMap>arrayListFactory());
+  List<CoreMap> nerChunks=new ArrayList<CoreMap>();
+  for (int i=0; i < sentences.size(); i++) {
+    CoreMap sentence=sentences.get(i);
+    Tree tree=sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+    tree.setSpans();
+    List<String[]> sentWords=document.sentenceWordLists.get(i);
+    List<Triple<Integer,Integer,String>> nerSpans=getNerSpans(sentWords);
+    for (    Triple<Integer,Integer,String> nerSpan : nerSpans) {
+      int startToken=nerSpan.first();
+      int endToken=nerSpan.second();
+      String label=nerSpan.third();
+      CoreMap nerChunk=ChunkAnnotationUtils.getAnnotatedChunk(sentence,startToken,endToken + 1);
+      nerChunk.set(CoreAnnotations.NamedEntityTagAnnotation.class,label);
+      nerChunk.set(CoreAnnotations.SentenceIndexAnnotation.class,sentence.get(CoreAnnotations.SentenceIndexAnnotation.class));
+      nerChunks.add(nerChunk);
+      Tree t=getTreeNonTerminal(tree,startToken,endToken,true);
+      if (t.getSpan().getSource() == startToken && t.getSpan().getTarget() == endToken) {
+        nerChunk.set(TreeCoreAnnotations.TreeAnnotation.class,t);
+        if (options.annotateTreeNer) {
+          Label tlabel=t.label();
+          if (tlabel instanceof CoreLabel) {
+            ((CoreLabel)tlabel).set(NamedEntityAnnotation.class,nerChunk);
+          }
+        }
+      }
+    }
+    List<Triple<Integer,Integer,String>> corefSpans=getCorefSpans(sentWords);
+    for (    Triple<Integer,Integer,String> corefSpan : corefSpans) {
+      int startToken=corefSpan.first();
+      int endToken=corefSpan.second();
+      String corefId=corefSpan.third();
+      CoreMap mention=ChunkAnnotationUtils.getAnnotatedChunk(sentence,startToken,endToken + 1);
+      mention.set(CorefCoreAnnotations.CorefAnnotation.class,corefId);
+      mention.set(CoreAnnotations.SentenceIndexAnnotation.class,sentence.get(CoreAnnotations.SentenceIndexAnnotation.class));
+      corefChainMap.add(corefId,mention);
+      Tree t=getTreeNonTerminal(tree,startToken,endToken,true);
+      mention.set(TreeCoreAnnotations.TreeAnnotation.class,t);
+      if (options.annotateTreeCoref) {
+        Label tlabel=t.label();
+        if (tlabel instanceof CoreLabel) {
+          ((CoreLabel)tlabel).set(CorefMentionAnnotation.class,mention);
+        }
+      }
+    }
+  }
+  document.corefChainMap=corefChainMap;
+  document.nerChunks=nerChunks;
+}

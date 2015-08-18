@@ -1,0 +1,27 @@
+{
+  return new Iterator<E>(){
+    Iterator<E> lastIter=null;
+    List<Iterator<E>> iters=new LinkedList<>(Arrays.asList(iterators));
+    @Override public boolean hasNext(){
+      return !iters.isEmpty() && iters.get(0).hasNext();
+    }
+    @Override public E next(){
+      if (!hasNext()) {
+        throw new IllegalArgumentException("Iterator is empty!");
+      }
+      E next=iters.get(0).next();
+      lastIter=iters.get(0);
+      while (!iters.isEmpty() && !iters.get(0).hasNext()) {
+        iters.remove(0);
+      }
+      return next;
+    }
+    @Override public void remove(){
+      if (lastIter == null) {
+        throw new IllegalStateException("Call next() before calling remove()!");
+      }
+      lastIter.remove();
+    }
+  }
+;
+}

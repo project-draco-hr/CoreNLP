@@ -1,0 +1,17 @@
+{
+  if (!m.spanToString().equalsIgnoreCase("it"))   return false;
+  boolean isPleonastic=false;
+  int patternIdx=-1;
+  int matchedPattern=-1;
+  for (  TregexPattern p : pleonasticPatterns) {
+    patternIdx++;
+    if (checkPleonastic(m,tree,p)) {
+      isPleonastic=true;
+      matchedPattern=patternIdx;
+    }
+  }
+  sbLog.append("PLEONASTIC IT: mention ID: " + m.mentionID + "\thastwin: "+ m.hasTwin+ "\tpleonastic it? "+ isPleonastic+ "\tcorrect? "+ (m.hasTwin != isPleonastic)+ "\tmatched pattern: "+ matchedPattern+ "\n");
+  sbLog.append(m.contextParseTree.pennString()).append("\n");
+  sbLog.append("PLEONASTIC IT END\n");
+  return isPleonastic;
+}

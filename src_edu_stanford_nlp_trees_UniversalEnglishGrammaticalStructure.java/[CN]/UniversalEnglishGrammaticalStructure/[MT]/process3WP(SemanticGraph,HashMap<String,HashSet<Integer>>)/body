@@ -1,0 +1,60 @@
+{
+  for (  String trigram : THREE_WORD_PREPS) {
+    if (trigrams.get(trigram) == null) {
+      continue;
+    }
+    for (    Integer i : trigrams.get(trigram)) {
+      IndexedWord w1=sg.getNodeByIndexSafe(i);
+      IndexedWord w2=sg.getNodeByIndexSafe(i + 1);
+      IndexedWord w3=sg.getNodeByIndexSafe(i + 2);
+      if (w1 == null || w2 == null || w3 == null) {
+        continue;
+      }
+      SemgrexMatcher matcher=THREE_WORD_PREPS_PATTERN.matcher(sg);
+      IndexedWord gov=null;
+      IndexedWord gov2=null;
+      while (matcher.find()) {
+        if (w1.equals(matcher.getNode("w1")) && w2.equals(matcher.getNode("w2")) && w3.equals(matcher.getNode("w3"))) {
+          gov=matcher.getNode("gov");
+          gov2=matcher.getNode("gov2");
+          break;
+        }
+      }
+      if (gov2 == null) {
+        continue;
+      }
+      GrammaticalRelation markerReln=CASE_MARKER;
+      if (sg.getRoots().contains(w2)) {
+        SemanticGraphEdge edge=sg.getEdge(w2,gov2);
+        if (edge == null) {
+          continue;
+        }
+        sg.removeEdge(edge);
+        sg.getRoots().remove(w2);
+        sg.addRoot(gov2);
+      }
+ else {
+        SemanticGraphEdge edge=sg.getEdge(w2,gov2);
+        if (edge == null) {
+          continue;
+        }
+        sg.removeEdge(edge);
+        gov=gov == null ? sg.getParent(w2) : gov;
+        if (gov == null) {
+          continue;
+        }
+        GrammaticalRelation reln=sg.getEdge(gov,w2).getRelation();
+        if (reln == NOMINAL_MODIFIER && (edge.getRelation() == CLAUSAL_MODIFIER || edge.getRelation() == ADV_CLAUSE_MODIFIER)) {
+          reln=edge.getRelation();
+          markerReln=MARKER;
+        }
+        sg.addEdge(gov,gov2,reln,Double.NEGATIVE_INFINITY,false);
+      }
+      for (      SemanticGraphEdge edge2 : sg.getOutEdgesSorted(w2)) {
+        sg.removeEdge(edge2);
+        sg.addEdge(gov2,edge2.getDependent(),edge2.getRelation(),edge2.getWeight(),edge2.isExtra());
+      }
+      createMultiWordExpression(sg,gov2,markerReln,w1,w2,w3);
+    }
+  }
+}

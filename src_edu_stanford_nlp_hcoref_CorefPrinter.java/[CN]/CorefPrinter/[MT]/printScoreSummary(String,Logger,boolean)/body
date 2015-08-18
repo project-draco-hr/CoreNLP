@@ -1,0 +1,21 @@
+{
+  String[] lines=summary.split("\n");
+  if (!afterPostProcessing) {
+    for (    String line : lines) {
+      if (line.startsWith("Identification of Mentions")) {
+        Redwood.log(line);
+        return;
+      }
+    }
+  }
+ else {
+    StringBuilder sb=new StringBuilder();
+    for (    String line : lines) {
+      if (line.startsWith("METRIC"))       sb.append(line);
+      if (!line.startsWith("Identification of Mentions") && line.contains("Recall")) {
+        sb.append(line).append("\n");
+      }
+    }
+    Redwood.log(sb.toString());
+  }
+}

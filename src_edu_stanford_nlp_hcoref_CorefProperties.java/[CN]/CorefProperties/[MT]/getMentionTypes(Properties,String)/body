@@ -1,0 +1,11 @@
+{
+  if (!props.containsKey(propKey) || props.getProperty(propKey).equalsIgnoreCase("all")) {
+    return new HashSet<MentionType>(Arrays.asList(MentionType.values()));
+  }
+  Set<MentionType> types=new HashSet<MentionType>();
+  for (  String type : props.getProperty(propKey).trim().split(",\\s*")) {
+    if (type.toLowerCase().matches("i|you|we|they|it|she|he"))     type="PRONOMINAL";
+    types.add(MentionType.valueOf(type));
+  }
+  return types;
+}

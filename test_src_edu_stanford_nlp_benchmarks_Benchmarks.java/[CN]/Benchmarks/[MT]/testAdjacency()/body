@@ -1,0 +1,27 @@
+{
+  double[][] sqar=new double[10000][1000];
+  Random r=new Random();
+  int k=0;
+  long msStart=System.currentTimeMillis();
+  for (int i=0; i < 10000; i++) {
+    int loc=r.nextInt(10000);
+    for (int j=0; j < 1000; j++) {
+      k+=sqar[loc][j];
+    }
+  }
+  long delay=System.currentTimeMillis() - msStart;
+  System.out.println("Scanning with cache friendly lookups took " + delay + " ms");
+  int[] randLocs=new int[10000];
+  for (int i=0; i < 10000; i++) {
+    randLocs[i]=r.nextInt(10000);
+  }
+  k=0;
+  msStart=System.currentTimeMillis();
+  for (int j=0; j < 1000; j++) {
+    for (int i=0; i < 10000; i++) {
+      k+=sqar[randLocs[i]][j];
+    }
+  }
+  delay=System.currentTimeMillis() - msStart;
+  System.out.println("Scanning with cache UNfriendly lookups took " + delay + " ms");
+}

@@ -1,0 +1,17 @@
+{
+  doc.goldCorefClusters=Generics.newHashMap();
+  for (  List<Mention> mentions : doc.goldMentions) {
+    for (    Mention m : mentions) {
+      int id=m.goldCorefClusterID;
+      if (id == -1) {
+        throw new RuntimeException("No gold info");
+      }
+      CorefCluster c=doc.goldCorefClusters.get(id);
+      if (c == null) {
+        c=new CorefCluster(id);
+        doc.goldCorefClusters.put(id,c);
+      }
+      c.corefMentions.add(m);
+    }
+  }
+}

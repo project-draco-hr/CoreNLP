@@ -1,0 +1,32 @@
+{
+  List<CoreLabel> sent=s.get(CoreAnnotations.TokensAnnotation.class);
+  SemanticGraph basic=s.get(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class);
+  SemanticGraph collapsed=s.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class);
+  int beginIdx=headword.index() - 1;
+  int endIdx=headword.index();
+  if (sent.size() > headword.index() && sent.get(headword.index()).word().matches("all|both")) {
+    IndexedWord c=dep.getNodeByIndex(headword.index() + 1);
+    SemanticGraphEdge edge=dep.getEdge(headword,c);
+    if (edge != null)     endIdx++;
+  }
+  IntPair mSpan=new IntPair(beginIdx,endIdx);
+  if (!mentionSpanSet.contains(mSpan) && (!insideNE(mSpan,namedEntitySpanSet))) {
+    int dummyMentionId=-1;
+    Mention m=new Mention(dummyMentionId,beginIdx,endIdx,sent,basic,collapsed,new ArrayList<CoreLabel>(sent.subList(beginIdx,endIdx)));
+    m.headIndex=headword.index() - 1;
+    m.headWord=sent.get(m.headIndex);
+    m.headString=m.headWord.word().toLowerCase(Locale.ENGLISH);
+    mentions.add(m);
+    mentionSpanSet.add(mSpan);
+  }
+  Set<IndexedWord> conjChildren=dep.getChildrenWithReln(headword,EnglishGrammaticalRelations.CONJUNCT);
+  if (conjChildren.size() > 0) {
+    IntPair npSpan=getNPSpan(headword,dep,sent);
+    beginIdx=npSpan.get(0);
+    endIdx=npSpan.get(1) + 1;
+    if (",".equals(sent.get(endIdx - 1).word())) {
+      endIdx--;
+    }
+    addMention(beginIdx,endIdx,headword,mentions,mentionSpanSet,namedEntitySpanSet,sent,basic,collapsed);
+  }
+}

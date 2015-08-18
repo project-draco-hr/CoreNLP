@@ -1,0 +1,36 @@
+{
+  double[] sums=new double[numClasses];
+  double[] probs=new double[numClasses];
+  int batchSize=batch == null ? data.length : batch.length;
+  for (int m=threadIdx; m < batchSize; m+=numThreads) {
+    int d=batch == null ? m : batch[m];
+    Arrays.fill(sums,0.0);
+    int[] featuresArr=data[d];
+    for (int c=0; c < numClasses; c++) {
+      for (      int feature : featuresArr) {
+        int i=indexOf(feature,c);
+        sums[c]+=x[i];
+      }
+    }
+    double total=ArrayMath.logSum(sums);
+    for (int c=0; c < numClasses; c++) {
+      probs[c]=Math.exp(sums[c] - total);
+      if (dataWeights != null) {
+        probs[c]*=dataWeights[d];
+      }
+    }
+    for (int c=0; c < numClasses; c++) {
+      for (      int feature : featuresArr) {
+        int i=indexOf(feature,c);
+        sparseGradient.incrementCount(i,probs[c]);
+      }
+    }
+    int labelindex=labels[d];
+    double dV=sums[labelindex] - total;
+    if (dataWeights != null) {
+      dV*=dataWeights[d];
+    }
+    localValue-=dV;
+  }
+  latch.countDown();
+}

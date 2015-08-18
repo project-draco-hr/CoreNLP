@@ -1,0 +1,21 @@
+{
+  if (sg.getRoots().isEmpty())   return;
+  SemanticGraph sgCopy=sg.makeSoftCopy();
+  SemgrexMatcher matcher=CORRECT_SUBJPASS_PATTERN.matcher(sgCopy);
+  while (matcher.find()) {
+    IndexedWord gov=matcher.getNode("gov");
+    IndexedWord subj=matcher.getNode("subj");
+    SemanticGraphEdge edge=sg.getEdge(gov,subj);
+    GrammaticalRelation reln=null;
+    if (edge.getRelation() == NOMINAL_SUBJECT) {
+      reln=NOMINAL_PASSIVE_SUBJECT;
+    }
+ else     if (edge.getRelation() == CLAUSAL_SUBJECT) {
+      reln=CLAUSAL_PASSIVE_SUBJECT;
+    }
+    if (reln != null) {
+      sg.removeEdge(edge);
+      sg.addEdge(gov,subj,reln,Double.NEGATIVE_INFINITY,false);
+    }
+  }
+}

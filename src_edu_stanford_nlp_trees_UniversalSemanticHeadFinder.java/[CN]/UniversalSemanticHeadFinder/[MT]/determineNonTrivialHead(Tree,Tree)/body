@@ -1,0 +1,102 @@
+{
+  String motherCat=tlp.basicCategory(t.label().value());
+  if (DEBUG) {
+    System.err.println("At " + motherCat + ", my parent is "+ parent);
+  }
+  if (motherCat.equals("CONJP")) {
+    for (    TregexPattern pattern : headOfConjpTregex) {
+      TregexMatcher matcher=pattern.matcher(t);
+      if (matcher.matchesAt(t)) {
+        return matcher.getNode("head");
+      }
+    }
+  }
+  if (motherCat.equals("SBARQ") || motherCat.equals("SINV")) {
+    if (!makeCopulaHead) {
+      for (      TregexPattern pattern : headOfCopulaTregex) {
+        TregexMatcher matcher=pattern.matcher(t);
+        if (matcher.matchesAt(t)) {
+          return matcher.getNode("head");
+        }
+      }
+    }
+  }
+  if ((motherCat.equals("VP") || motherCat.equals("SQ") || motherCat.equals("SINV"))) {
+    Tree[] kids=t.children();
+    if (DEBUG) {
+      System.err.println("Semantic head finder: at VP");
+      System.err.println("Class is " + t.getClass().getName());
+      t.pennPrint(System.err);
+    }
+    Tree[] tmpFilteredChildren=null;
+    if (hasVerbalAuxiliary(kids,verbalAuxiliaries,true) || hasPassiveProgressiveAuxiliary(kids)) {
+      String[] how;
+      if (hasVerbalAuxiliary(kids,copulars,true)) {
+        how=new String[]{"left","VP","ADJP"};
+      }
+ else {
+        how=new String[]{"left","VP"};
+      }
+      if (tmpFilteredChildren == null) {
+        tmpFilteredChildren=ArrayUtils.filter(kids,REMOVE_TMP_AND_ADV);
+      }
+      Tree pti=traverseLocate(tmpFilteredChildren,how,false);
+      if (DEBUG) {
+        System.err.println("Determined head (case 1) for " + t.value() + " is: "+ pti);
+      }
+      if (pti != null) {
+        return pti;
+      }
+    }
+    if (hasVerbalAuxiliary(kids,copulars,false) && !isExistential(t,parent) && !isWHQ(t,parent)) {
+      String[][] how;
+      if (motherCat.equals("SQ")) {
+        how=new String[][]{{"right","VP","ADJP","NP","UCP","PP","WHADJP","WHNP"}};
+      }
+ else {
+        how=new String[][]{{"left","VP","ADJP","NP","UCP","PP","WHADJP","WHNP"}};
+      }
+      if (tmpFilteredChildren == null) {
+        tmpFilteredChildren=ArrayUtils.filter(kids,REMOVE_TMP_AND_ADV);
+      }
+      Tree pti=null;
+      for (int i=0; i < how.length && pti == null; i++) {
+        pti=traverseLocate(tmpFilteredChildren,how[i],false);
+      }
+      if (motherCat.equals("SQ") && pti != null && pti.label() != null && pti.label().value().startsWith("NP")) {
+        boolean foundAnotherNp=false;
+        for (        Tree kid : kids) {
+          if (kid == pti) {
+            break;
+          }
+ else           if (kid.label() != null && kid.label().value().startsWith("NP")) {
+            foundAnotherNp=true;
+            break;
+          }
+        }
+        if (!foundAnotherNp) {
+          pti=null;
+        }
+      }
+      if (DEBUG) {
+        System.err.println("Determined head (case 2) for " + t.value() + " is: "+ pti);
+      }
+      if (pti != null) {
+        return pti;
+      }
+ else {
+        if (DEBUG) {
+          System.err.println("------");
+          System.err.println("SemanticHeadFinder failed to reassign head for");
+          t.pennPrint(System.err);
+          System.err.println("------");
+        }
+      }
+    }
+  }
+  Tree hd=super.determineNonTrivialHead(t,parent);
+  if (DEBUG) {
+    System.err.println("Determined head (case 3) for " + t.value() + " is: "+ hd);
+  }
+  return hd;
+}
