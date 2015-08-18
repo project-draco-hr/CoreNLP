@@ -1,6 +1,12 @@
 {
   TextAnnotationPatterns annotate=new TextAnnotationPatterns();
-  String jsonObject="{\"input\":" + quote(q) + ",\"seedWords\":{\"name\":[\""+ StringUtils.join(seedWords.split("[,;]"),"\",")+ "\"]}}";
+  String quotedString=quote(q);
+  String jsonObject="{\"input\":" + quotedString + ",\"seedWords\":{\"name\":[\""+ StringUtils.join(seedWords.split("[,;]"),"\",\"")+ "\"]}}";
+  logger.info("Json is");
+  logger.info(jsonObject);
+  JsonReader jsonReader=Json.createReader(new StringReader(jsonObject));
+  JsonObject obj=jsonReader.readObject();
+  logger.info("Done parsing JSON");
   annotate.processText(jsonObject,false,false);
   String suggestions=annotate.suggestPhrases();
   out.print(suggestions);

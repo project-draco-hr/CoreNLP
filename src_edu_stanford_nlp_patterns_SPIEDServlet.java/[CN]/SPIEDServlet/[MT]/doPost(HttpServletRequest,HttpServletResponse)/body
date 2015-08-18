@@ -1,15 +1,12 @@
 {
   logger.info("POST SPIED query from " + request.getRemoteAddr());
-  StringBuffer jb=new StringBuffer();
   String line="";
+  response.setContentType("text/json; charset=UTF-8");
   PrintWriter out=response.getWriter();
   try {
-    BufferedReader reader=request.getReader();
-    while ((line=reader.readLine()) != null)     jb.append(line);
-    JsonReader jsonReader=Json.createReader(new StringReader(jb.toString()));
-    JsonObject obj=jsonReader.readObject();
-    String raw=obj.get("q").toString();
-    String seedwords=obj.get("seedwords").toString();
+    String raw=StringUtils.toAscii(request.getParameter("q"));
+    String seedwords=request.getParameter("seedwords");
+    line=request.toString();
     if (raw == null || "".equals(raw)) {
       out.print("{\"okay\":false,\"reason\":\"No data provided\"}");
     }
@@ -18,7 +15,7 @@
     }
   }
  catch (  Throwable t) {
-    writeError(t,out,jb.toString());
+    writeError(t,out,line);
   }
   out.close();
 }
