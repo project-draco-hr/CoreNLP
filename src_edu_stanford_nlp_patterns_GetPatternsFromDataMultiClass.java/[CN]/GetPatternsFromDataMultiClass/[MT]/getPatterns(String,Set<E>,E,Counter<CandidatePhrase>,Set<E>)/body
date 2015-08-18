@@ -192,37 +192,39 @@ catch (    InstantiationException e) {
     for (    Entry<E,ClassicCounter<CandidatePhrase>> en : unLabeledPatternsandWords4Label.entrySet()) {
       unlabWords.addAll(en.getKey(),en.getValue().keySet());
     }
-    String outputdir=constVars.outDir + "/" + constVars.identifier+ "/"+ label;
-    Redwood.log(ConstantsAndVariables.minimaldebug,"Saving output in " + outputdir);
-    IOUtils.ensureDir(new File(outputdir));
-    String filename=outputdir + "/patterns" + ".json";
-    JsonArrayBuilder obj=Json.createArrayBuilder();
-    if (writtenPatInJustification.containsKey(label) && writtenPatInJustification.get(label)) {
-      JsonReader jsonReader=Json.createReader(new BufferedInputStream(new FileInputStream(filename)));
-      JsonArray objarr=jsonReader.readArray();
-      jsonReader.close();
-      for (      JsonValue o : objarr)       obj.add(o);
+    if (constVars.outDir != null) {
+      String outputdir=constVars.outDir + "/" + constVars.identifier+ "/"+ label;
+      Redwood.log(ConstantsAndVariables.minimaldebug,"Saving output in " + outputdir);
+      IOUtils.ensureDir(new File(outputdir));
+      String filename=outputdir + "/patterns" + ".json";
+      JsonArrayBuilder obj=Json.createArrayBuilder();
+      if (writtenPatInJustification.containsKey(label) && writtenPatInJustification.get(label)) {
+        JsonReader jsonReader=Json.createReader(new BufferedInputStream(new FileInputStream(filename)));
+        JsonArray objarr=jsonReader.readArray();
+        jsonReader.close();
+        for (        JsonValue o : objarr)         obj.add(o);
+      }
+ else       obj=Json.createArrayBuilder();
+      JsonObjectBuilder objThisIter=Json.createObjectBuilder();
+      for (      Pair<E,Double> pat : chosenPatSorted) {
+        JsonObjectBuilder o=Json.createObjectBuilder();
+        JsonArrayBuilder pos=Json.createArrayBuilder();
+        JsonArrayBuilder neg=Json.createArrayBuilder();
+        JsonArrayBuilder unlab=Json.createArrayBuilder();
+        for (        CandidatePhrase w : posWords.get(pat.first()))         pos.add(w.getPhrase());
+        for (        CandidatePhrase w : negWords.get(pat.first()))         neg.add(w.getPhrase());
+        for (        CandidatePhrase w : unlabWords.get(pat.first()))         unlab.add(w.getPhrase());
+        o.add("Positive",pos);
+        o.add("Negative",neg);
+        o.add("Unlabeled",unlab);
+        o.add("Score",pat.second());
+        objThisIter.add(pat.first().toStringSimple(),o);
+      }
+      obj.add(objThisIter.build());
+      IOUtils.ensureDir(new File(filename).getParentFile());
+      IOUtils.writeStringToFile(StringUtils.normalize(StringUtils.toAscii(obj.build().toString())),filename,"ASCII");
+      writtenPatInJustification.put(label,true);
     }
- else     obj=Json.createArrayBuilder();
-    JsonObjectBuilder objThisIter=Json.createObjectBuilder();
-    for (    Pair<E,Double> pat : chosenPatSorted) {
-      JsonObjectBuilder o=Json.createObjectBuilder();
-      JsonArrayBuilder pos=Json.createArrayBuilder();
-      JsonArrayBuilder neg=Json.createArrayBuilder();
-      JsonArrayBuilder unlab=Json.createArrayBuilder();
-      for (      CandidatePhrase w : posWords.get(pat.first()))       pos.add(w.getPhrase());
-      for (      CandidatePhrase w : negWords.get(pat.first()))       neg.add(w.getPhrase());
-      for (      CandidatePhrase w : unlabWords.get(pat.first()))       unlab.add(w.getPhrase());
-      o.add("Positive",pos);
-      o.add("Negative",neg);
-      o.add("Unlabeled",unlab);
-      o.add("Score",pat.second());
-      objThisIter.add(pat.first().toStringSimple(),o);
-    }
-    obj.add(objThisIter.build());
-    IOUtils.ensureDir(new File(filename).getParentFile());
-    IOUtils.writeStringToFile(StringUtils.normalize(StringUtils.toAscii(obj.build().toString())),filename,"ASCII");
-    writtenPatInJustification.put(label,true);
   }
   if (constVars.justify) {
     Redwood.log(Redwood.DBG,"Justification for Patterns:");

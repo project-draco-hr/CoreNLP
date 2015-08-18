@@ -19,16 +19,20 @@
   Map<String,BufferedWriter> wordsOutput=new HashMap<String,BufferedWriter>();
   Map<String,BufferedWriter> patternsOutput=new HashMap<String,BufferedWriter>();
   for (  String label : constVars.getLabels()) {
-    IOUtils.ensureDir(new File(constVars.outDir + "/" + constVars.identifier+ "/"+ label));
-    String wordsOutputFileLabel;
-    if (wordsOutputFile == null)     wordsOutputFileLabel=constVars.outDir + "/" + constVars.identifier+ "/"+ label+ "/learnedwords.txt";
- else     wordsOutputFileLabel=wordsOutputFile + "_" + label;
-    wordsOutput.put(label,new BufferedWriter(new FileWriter(wordsOutputFileLabel)));
-    Redwood.log(ConstantsAndVariables.minimaldebug,"Saving the learned words for label " + label + " in "+ wordsOutputFileLabel);
-    String patternsOutputFileLabel=patternsOutFile + "_" + label;
-    if (patternsOutFile == null)     patternsOutputFileLabel=constVars.outDir + "/" + constVars.identifier+ "/"+ label+ "/learnedpatterns.txt";
-    patternsOutput.put(label,new BufferedWriter(new FileWriter(patternsOutputFileLabel)));
-    Redwood.log(ConstantsAndVariables.minimaldebug,"Saving the learned patterns for label " + label + " in "+ patternsOutputFileLabel);
+    if (constVars.outDir != null) {
+      IOUtils.ensureDir(new File(constVars.outDir + "/" + constVars.identifier+ "/"+ label));
+      String wordsOutputFileLabel;
+      if (wordsOutputFile == null)       wordsOutputFileLabel=constVars.outDir + "/" + constVars.identifier+ "/"+ label+ "/learnedwords.txt";
+ else       wordsOutputFileLabel=wordsOutputFile + "_" + label;
+      wordsOutput.put(label,new BufferedWriter(new FileWriter(wordsOutputFileLabel)));
+      Redwood.log(ConstantsAndVariables.minimaldebug,"Saving the learned words for label " + label + " in "+ wordsOutputFileLabel);
+    }
+    if (constVars.outDir != null) {
+      String patternsOutputFileLabel=patternsOutFile + "_" + label;
+      if (patternsOutFile == null)       patternsOutputFileLabel=constVars.outDir + "/" + constVars.identifier+ "/"+ label+ "/learnedpatterns.txt";
+      patternsOutput.put(label,new BufferedWriter(new FileWriter(patternsOutputFileLabel)));
+      Redwood.log(ConstantsAndVariables.minimaldebug,"Saving the learned patterns for label " + label + " in "+ patternsOutputFileLabel);
+    }
   }
   for (int i=0; i < constVars.numIterationsForPatterns; i++) {
     Redwood.log(ConstantsAndVariables.minimaldebug,"\n\n################################ Iteration " + (i + 1) + " ##############################");
@@ -77,7 +81,7 @@
         }
       }
     }
-    if (constVars.writeMatchedTokensIdsForEachPhrase) {
+    if (constVars.writeMatchedTokensIdsForEachPhrase && constVars.outDir != null) {
       String matchedtokensfilename=constVars.outDir + "/" + constVars.identifier+ "/tokenids4matchedphrases"+ ".json";
       IOUtils.writeStringToFile(matchedTokensByPhraseJsonString(),matchedtokensfilename,"utf8");
     }
