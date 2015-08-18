@@ -1,7 +1,4 @@
 {
-  Map<String,Set<E>> ignorePatterns=new HashMap<String,Set<E>>();
-  Map<String,E> p0=new HashMap<String,E>();
-  Map<String,Counter<CandidatePhrase>> p0Set=new HashMap<String,Counter<CandidatePhrase>>();
   Map<String,Set<CandidatePhrase>> seedWords=readSeedWords(props);
   Map<String,Class> answerClasses=new HashMap<String,Class>();
   String ansClasses=props.getProperty("answerClasses");
@@ -15,62 +12,7 @@
     }
   }
   Pair<Map<String,DataInstance>,Map<String,DataInstance>> sentsPair=processSents(props,seedWords.keySet());
-  boolean learn=Boolean.parseBoolean(props.getProperty("learn","true"));
   boolean labelUsingSeedSets=Boolean.parseBoolean(props.getProperty("labelUsingSeedSets","true"));
   GetPatternsFromDataMultiClass<E> model=new GetPatternsFromDataMultiClass<E>(props,sentsPair.first(),seedWords,labelUsingSeedSets);
-  Execution.fillOptions(model,props);
-  String sentsOutFile=props.getProperty("sentsOutFile");
-  String wordsOutputFile=props.getProperty("wordsOutputFile");
-  String patternOutFile=props.getProperty("patternOutFile");
-  boolean loadSavedPatternsWordsDir=Boolean.parseBoolean(props.getProperty("loadSavedPatternsWordsDir"));
-  boolean labelSentsUsingModel=Boolean.parseBoolean(props.getProperty("labelSentsUsingModel","true"));
-  boolean applyPatsUsingModel=Boolean.parseBoolean(props.getProperty("applyPatsUsingModel","true"));
-  int numIterationsOfSavedPatternsToLoad=Integer.parseInt(props.getProperty(Flags.numIterationsOfSavedPatternsToLoad,String.valueOf(Integer.MAX_VALUE)));
-  if (loadSavedPatternsWordsDir) {
-    loadFromSavedPatternsWordsDir(model,props,labelSentsUsingModel,applyPatsUsingModel,numIterationsOfSavedPatternsToLoad);
-  }
-  if (learn)   model.iterateExtractApply(p0,p0Set,wordsOutputFile,sentsOutFile,patternOutFile,ignorePatterns);
-  if (model.constVars.markedOutputTextFile != null) {
-    model.writeLabeledData(model.constVars.markedOutputTextFile);
-  }
-  if (model.constVars.columnOutputFile != null)   writeColumnOutput(model.constVars.columnOutputFile,model.constVars.batchProcessSents,model.constVars.getAnswerClass());
-  boolean savePatternsWordsDir=Boolean.parseBoolean(props.getProperty("savePatternsWordsDir"));
-  if (savePatternsWordsDir) {
-    String patternsWordsDir=props.getProperty("patternsWordsDir");
-    Redwood.log(Redwood.FORCE,"Saving output in " + patternsWordsDir);
-    for (    String label : model.constVars.getLabels()) {
-      IOUtils.ensureDir(new File(patternsWordsDir + "/" + label));
-      Map<Integer,Counter<E>> pats=model.getLearnedPatternsEachIter(label);
-      IOUtils.writeObjectToFile(pats,patternsWordsDir + "/" + label+ "/patternsEachIter.ser");
-      BufferedWriter w=new BufferedWriter(new FileWriter(patternsWordsDir + "/" + label+ "/phrases.txt"));
-      model.writeWordsToFile(model.constVars.getLearnedWordsEachIter(label),w);
-      writeClassesInEnv(model.constVars.env,ConstantsAndVariables.globalEnv,patternsWordsDir + "/env.txt");
-      if (model.constVars.patternType.equals(PatternFactory.PatternType.SURFACE))       IOUtils.writeStringToFile(Token.toStringClass2KeyMapping(),patternsWordsDir + "/tokenenv.txt","utf8");
-      w.close();
-    }
-  }
-  boolean evaluate=Boolean.parseBoolean(props.getProperty("evaluate"));
-  if (evaluate) {
-    if (model.constVars.goldEntitiesEvalFiles != null) {
-      for (      String label : model.constVars.getLabels()) {
-        if (model.constVars.goldEntities.containsKey(label)) {
-          Pair<Double,Double> pr=model.getPrecisionRecall(label,model.constVars.goldEntities.get(label));
-          Redwood.log(ConstantsAndVariables.minimaldebug,"\nFor label " + label + ": Number of gold entities is "+ model.constVars.goldEntities.get(label).size()+ ", Precision is "+ model.df.format(pr.first() * 100)+ ", Recall is "+ model.df.format(pr.second() * 100)+ ", F1 is "+ model.df.format(model.FScore(pr.first(),pr.second(),1.0) * 100)+ "\n\n");
-        }
-      }
-    }
-    Map<String,DataInstance> evalsents=sentsPair.second();
-    if (evalsents.size() > 0) {
-      boolean evalPerEntity=Boolean.parseBoolean(props.getProperty("evalPerEntity","true"));
-      model.evaluate(evalsents,evalPerEntity);
-    }
-    if (evalsents.size() == 0 && model.constVars.goldEntitiesEvalFiles == null)     System.err.println("No eval sentences or list of gold entities provided to evaluate! Make sure evalFileWithGoldLabels or goldEntitiesEvalFiles is set, or turn off the evaluate flag");
-  }
-  if (model.constVars.saveInvertedIndex) {
-    model.constVars.invertedIndex.saveIndex(model.constVars.invertedIndexDirectory);
-  }
-  if (model.constVars.storePatsForEachToken.equals(ConstantsAndVariables.PatternForEachTokenWay.LUCENE)) {
-    model.patsForEachToken.close();
-  }
-  return model;
+  return runNineYards(model,props,sentsPair.second());
 }

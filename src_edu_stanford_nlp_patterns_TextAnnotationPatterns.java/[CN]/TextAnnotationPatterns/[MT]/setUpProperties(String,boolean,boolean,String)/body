@@ -19,12 +19,19 @@
  else     props.setProperty(o,objarr.getString(o));
   }
   System.out.println("seedwords are " + seedWords);
-  String outputfile=null;
+  if (additionalSeedWordsFiles != null && !additionalSeedWordsFiles.isEmpty()) {
+    Map<String,Set<CandidatePhrase>> additionalSeedWords=GetPatternsFromDataMultiClass.readSeedWords(additionalSeedWordsFiles);
+    logger.info("additional seed words are " + additionalSeedWords);
+    for (    String label : seedWords.keySet()) {
+      if (additionalSeedWords.containsKey(label))       seedWords.get(label).addAll(additionalSeedWords.get(label));
+    }
+  }
+  outputFile=null;
   if (readFile) {
     System.out.println("input value is " + objarr.getString("input"));
-    outputfile=props.getProperty("input") + "_processed";
+    outputFile=props.getProperty("input") + "_processed";
     props.setProperty("file",objarr.getString("input"));
-    if (writeOutputToFile && !props.containsKey("columnOutputFile"))     props.setProperty("columnOutputFile",outputfile);
+    if (writeOutputToFile && !props.containsKey("columnOutputFile"))     props.setProperty("columnOutputFile",outputFile);
   }
  else {
     String systemdir=System.getProperty("java.io.tmpdir");
@@ -35,8 +42,6 @@
   }
   setProperties(props);
   this.props=props;
-  Pair<Map<String,DataInstance>,Map<String,DataInstance>> sentsPair=GetPatternsFromDataMultiClass.processSents(props,seedWords.keySet());
-  Data.sents=sentsPair.first();
   int i=1;
   for (  String label : seedWords.keySet()) {
     String ansclstr="edu.stanford.nlp.patterns.PatternsAnnotations$PatternLabel" + i;
@@ -46,13 +51,4 @@
     humanLabelClasses.put(label,(Class<? extends TypesafeMap.Key<String>>)Class.forName(humanansclstr));
     i++;
   }
-  ConstantsAndVariables constVars=new ConstantsAndVariables(props,seedWords.keySet(),machineAnswerClasses);
-  for (  String label : seedWords.keySet()) {
-    GetPatternsFromDataMultiClass.runLabelSeedWords(Data.sents,humanLabelClasses.get(label),label,seedWords.get(label),constVars,true);
-  }
-  if (writeOutputToFile) {
-    GetPatternsFromDataMultiClass.writeColumnOutput(outputfile,false,humanLabelClasses);
-    System.out.println("written the output to " + outputfile);
-  }
-  return "SUCCESS";
 }

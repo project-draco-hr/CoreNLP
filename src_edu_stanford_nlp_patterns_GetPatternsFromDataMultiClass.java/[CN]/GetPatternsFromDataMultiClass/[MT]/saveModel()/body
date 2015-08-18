@@ -1,0 +1,30 @@
+{
+  String patternsWordsDirValue=props.getProperty("patternsWordsDir");
+  String patternsWordsDir;
+  if (patternsWordsDirValue.endsWith(".zip")) {
+    File temp=File.createTempFile("patswords","dir");
+    temp.deleteOnExit();
+    temp.delete();
+    temp.mkdirs();
+    patternsWordsDir=temp.getAbsolutePath();
+  }
+ else {
+    patternsWordsDir=patternsWordsDirValue;
+  }
+  Redwood.log(Redwood.FORCE,"Saving output in " + patternsWordsDir);
+  for (  String label : constVars.getLabels()) {
+    IOUtils.ensureDir(new File(patternsWordsDir + "/" + label));
+    BufferedWriter seedW=new BufferedWriter(new FileWriter(patternsWordsDir + "/" + label+ "/seedwords.txt"));
+    for (    CandidatePhrase p : constVars.getSeedLabelDictionary().get(label)) {
+      seedW.write(p.getPhrase() + "\n");
+    }
+    seedW.close();
+    Map<Integer,Counter<E>> pats=getLearnedPatternsEachIter(label);
+    IOUtils.writeObjectToFile(pats,patternsWordsDir + "/" + label+ "/patternsEachIter.ser");
+    BufferedWriter w=new BufferedWriter(new FileWriter(patternsWordsDir + "/" + label+ "/phrases.txt"));
+    writeWordsToFile(constVars.getLearnedWordsEachIter(label),w);
+    writeClassesInEnv(constVars.env,ConstantsAndVariables.globalEnv,patternsWordsDir + "/env.txt");
+    if (constVars.patternType.equals(PatternFactory.PatternType.SURFACE))     IOUtils.writeStringToFile(Token.toStringClass2KeyMapping(),patternsWordsDir + "/tokenenv.txt","utf8");
+    w.close();
+  }
+}
