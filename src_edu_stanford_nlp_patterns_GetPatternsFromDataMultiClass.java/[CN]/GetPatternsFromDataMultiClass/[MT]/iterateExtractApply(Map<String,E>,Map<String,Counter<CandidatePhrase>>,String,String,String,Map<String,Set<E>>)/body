@@ -41,7 +41,7 @@
     for (    String label : constVars.getLabels()) {
       Redwood.log(ConstantsAndVariables.minimaldebug,"\n###Learning for label " + label + " ######");
       String sentout=sentsOutFile == null ? null : sentsOutFile + "_" + label;
-      Pair<Counter<E>,Counter<CandidatePhrase>> learnedPatWords4label=iterateExtractApply4Label(label,p0 != null ? p0.get(label) : null,p0Set != null ? p0Set.get(label) : null,wordsOutput.get(label),sentout,patternsOutput.get(label),ignorePatterns != null ? ignorePatterns.get(label) : null,ignoreWordsAll.get(label),matchedTokensByPatAllLabels.get(label),termsAllLabels.get(label),i);
+      Pair<Counter<E>,Counter<CandidatePhrase>> learnedPatWords4label=iterateExtractApply4Label(label,p0 != null ? p0.get(label) : null,p0Set != null ? p0Set.get(label) : null,wordsOutput.get(label),sentout,patternsOutput.get(label),ignorePatterns != null ? ignorePatterns.get(label) : null,ignoreWordsAll.get(label),matchedTokensByPatAllLabels.get(label),termsAllLabels.get(label),i + numIterationsLoadedModel);
       learnedWordsThisIter.put(label,learnedPatWords4label.second());
       if (learnedPatWords4label.first().size() > 0 && constVars.getLearnedWords(label).size() < constVars.maxExtractNumWords) {
         keepRunning=true;
@@ -95,8 +95,11 @@
     }
   }
   System.out.println("\n\nAll words learned:");
-  for (  Entry<String,Counter<CandidatePhrase>> en : this.constVars.getLearnedWords().entrySet()) {
-    System.out.println(en.getKey() + ":\t\t" + en.getValue().keySet()+ "\n\n");
+  for (  String label : constVars.getLabels()) {
+    System.out.println("\nLabel " + label + "\n");
+    for (    Entry<Integer,Counter<CandidatePhrase>> en : this.constVars.getLearnedWordsEachIter(label).entrySet()) {
+      System.out.println("Iteration " + en.getKey() + ":\t\t"+ en.getValue().keySet());
+    }
   }
   for (  String label : constVars.getLabels()) {
     if (wordsOutput.containsKey(label) && wordsOutput.get(label) != null)     wordsOutput.get(label).close();

@@ -1,21 +1,3 @@
 {
-  logger.info("POST SPIED query from " + request.getRemoteAddr());
-  String line="";
-  response.setContentType("text/json; charset=UTF-8");
-  PrintWriter out=response.getWriter();
-  try {
-    String raw=StringUtils.toAscii(request.getParameter("q"));
-    String seedwords=request.getParameter("seedwords");
-    line=request.toString();
-    if (raw == null || "".equals(raw)) {
-      out.print("{\"okay\":false,\"reason\":\"No data provided\"}");
-    }
- else {
-      run(out,raw,seedwords);
-    }
-  }
- catch (  Throwable t) {
-    writeError(t,out,line);
-  }
-  out.close();
+  doGet(request,response);
 }
