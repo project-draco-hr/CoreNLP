@@ -20,15 +20,10 @@
   notComputedAllPatternsYet=false;
   if (constVars.computeAllPatterns) {
     if (constVars.storePatsForEachToken.equals(ConstantsAndVariables.PatternForEachTokenWay.DB))     patsForEachToken.createIndexIfUsingDBAndNotExists();
-    if (constVars.allPatternsDir == null) {
-      String systemdir=System.getProperty("java.io.tmpdir");
-      File tempFile=File.createTempFile("patterns",".tmp",new File(systemdir));
-      tempFile.deleteOnExit();
-      tempFile.delete();
-      constVars.allPatternsDir=tempFile.getAbsolutePath();
+    if (constVars.allPatternsDir != null) {
+      IOUtils.ensureDir(new File(constVars.allPatternsDir));
+      patsForEachToken.save(constVars.allPatternsDir);
     }
-    IOUtils.ensureDir(new File(constVars.allPatternsDir));
-    patsForEachToken.save(constVars.allPatternsDir);
   }
   patsForEachToken.close();
   constVars.computeAllPatterns=false;
