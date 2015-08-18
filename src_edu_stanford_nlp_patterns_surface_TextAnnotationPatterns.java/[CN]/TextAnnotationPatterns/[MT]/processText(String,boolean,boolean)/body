@@ -1,0 +1,58 @@
+{
+  JsonReader jsonReader=Json.createReader(new StringReader(line));
+  JsonObject objarr=jsonReader.readObject();
+  jsonReader.close();
+  Properties props=new Properties();
+  for (  String o : objarr.keySet()) {
+    if (o.equals("seedWords")) {
+      JsonObject obj=objarr.getJsonObject(o);
+      for (      String st : obj.keySet()) {
+        seedWords.put(st,new HashSet<CandidatePhrase>());
+        JsonArray arr=obj.getJsonArray(st);
+        for (int i=0; i < arr.size(); i++) {
+          String val=arr.getString(i);
+          seedWords.get(st).add(CandidatePhrase.createOrGet(val));
+          System.out.println("adding " + val + " for label "+ st);
+        }
+      }
+    }
+ else     props.setProperty(o,objarr.getString(o));
+  }
+  System.out.println("seedwords are " + seedWords);
+  String outputfile=null;
+  if (readFile) {
+    System.out.println("input value is " + objarr.getString("input"));
+    outputfile=props.getProperty("input") + "_processed";
+    props.setProperty("file",objarr.getString("input"));
+    if (writeOutputToFile && !props.containsKey("columnOutputFile"))     props.setProperty("columnOutputFile",outputfile);
+  }
+ else {
+    String systemdir=System.getProperty("java.io.tmpdir");
+    File tempFile=File.createTempFile("sents",".tmp",new File(systemdir));
+    tempFile.deleteOnExit();
+    IOUtils.writeStringToFile(props.getProperty("input"),tempFile.getPath(),"utf8");
+    props.setProperty("file",tempFile.getAbsolutePath());
+  }
+  setProperties(props);
+  this.props=props;
+  Pair<Map<String,DataInstance>,Map<String,DataInstance>> sentsPair=GetPatternsFromDataMultiClass.processSents(props,seedWords.keySet());
+  Data.sents=sentsPair.first();
+  int i=1;
+  for (  String label : seedWords.keySet()) {
+    String ansclstr="edu.stanford.nlp.patterns.PatternsAnnotations$PatternLabel" + i;
+    Class<? extends TypesafeMap.Key<String>> mcCl=(Class<? extends TypesafeMap.Key<String>>)Class.forName(ansclstr);
+    machineAnswerClasses.put(label,mcCl);
+    String humanansclstr="edu.stanford.nlp.patterns.PatternsAnnotations$PatternHumanLabel" + i;
+    humanLabelClasses.put(label,(Class<? extends TypesafeMap.Key<String>>)Class.forName(humanansclstr));
+    i++;
+  }
+  ConstantsAndVariables constVars=new ConstantsAndVariables(props,seedWords.keySet(),machineAnswerClasses);
+  for (  String label : seedWords.keySet()) {
+    GetPatternsFromDataMultiClass.runLabelSeedWords(Data.sents,humanLabelClasses.get(label),label,seedWords.get(label),constVars,true);
+  }
+  if (writeOutputToFile) {
+    GetPatternsFromDataMultiClass.writeColumnOutput(outputfile,false,humanLabelClasses);
+    System.out.println("written the output to " + outputfile);
+  }
+  return "SUCCESS";
+}

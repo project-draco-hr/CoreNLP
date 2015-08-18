@@ -1,3 +1,25 @@
 {
-  return createNERClassifierCombiner(name,DEFAULT_PASS_DOWN_PROPERTIES,properties);
+  String prefix=(name != null) ? name + '.' : "ner.";
+  String modelNames=properties.getProperty(prefix + "model");
+  if (modelNames == null) {
+    modelNames=DefaultPaths.DEFAULT_NER_THREECLASS_MODEL + ',' + DefaultPaths.DEFAULT_NER_MUC_MODEL+ ','+ DefaultPaths.DEFAULT_NER_CONLL_MODEL;
+  }
+  String[] models;
+  if (!modelNames.isEmpty()) {
+    models=modelNames.split(",");
+  }
+ else {
+    System.err.println("WARNING: no NER models specified");
+    models=StringUtils.EMPTY_STRING_ARRAY;
+  }
+  NERClassifierCombiner nerCombiner;
+  try {
+    boolean applyNumericClassifiers=PropertiesUtils.getBool(properties,prefix + "applyNumericClassifiers",APPLY_NUMERIC_CLASSIFIERS_DEFAULT);
+    boolean useSUTime=PropertiesUtils.getBool(properties,prefix + "useSUTime",NumberSequenceClassifier.USE_SUTIME_DEFAULT);
+    nerCombiner=new NERClassifierCombiner(applyNumericClassifiers,useSUTime,properties,models);
+  }
+ catch (  IOException e) {
+    throw new RuntimeIOException(e);
+  }
+  return nerCombiner;
 }

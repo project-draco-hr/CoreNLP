@@ -1,13 +1,14 @@
 {
   String origText=annotation.get(CoreAnnotations.TextAnnotation.class);
   boolean seg=true;
-  List<CoreLabel> words=new ArrayList<>();
+  List<CoreLabel> words=new ArrayList<CoreLabel>();
   for (int i=0; i < origText.length(); i++) {
     CoreLabel wi=new CoreLabel();
     char[] ca={origText.charAt(i)};
     String wordString=new String(ca);
     if (Character.isWhitespace(origText.charAt(i)) || Character.isISOControl(origText.charAt(i))) {
       seg=true;
+      continue;
     }
  else {
       wi.set(CoreAnnotations.ChineseCharAnnotation.class,wordString);
@@ -24,4 +25,7 @@
     }
   }
   annotation.set(ChineseCoreAnnotations.CharactersAnnotation.class,words);
+  if (VERBOSE) {
+    System.err.println("output: " + words);
+  }
 }

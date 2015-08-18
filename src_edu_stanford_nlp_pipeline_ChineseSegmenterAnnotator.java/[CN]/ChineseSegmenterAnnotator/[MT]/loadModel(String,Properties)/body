@@ -1,6 +1,7 @@
 {
   if (VERBOSE) {
-    System.err.print("Loading Segmentation Model ... ");
+    timer.start();
+    System.err.print("Loading Segmentation Model [" + segLoc + "]...");
   }
   try {
     segmenter=CRFClassifier.getClassifier(segLoc,props);
@@ -10,5 +11,8 @@
   }
 catch (  Exception e) {
     throw new RuntimeException(e);
+  }
+  if (VERBOSE) {
+    timer.stop("done.");
   }
 }

@@ -32,15 +32,15 @@
       featuresC.add("IS_TITLE");
     }
   }
- else   if (flags.useTitle2) {
-    Matcher m=titlePattern2.matcher(cWord);
-    if (m.matches()) {
-      featuresC.add("IS_TITLE");
-    }
-  }
   if (flags.slashHyphenTreatment != SeqClassifierFlags.SlashHyphenEnum.NONE) {
     if (flags.useWord) {
       generateSlashHyphenFeatures(cWord,featuresC,"-WFRAG","-WORD");
+    }
+    if (flags.useNext) {
+      generateSlashHyphenFeatures(nWord,featuresC,"-NWFRAG","-NW");
+    }
+    if (flags.usePrev) {
+      generateSlashHyphenFeatures(nWord,featuresC,"-PWFRAG","-PW");
     }
   }
   if (flags.useInternal && flags.useExternal) {

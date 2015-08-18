@@ -1,17 +1,17 @@
 {
   final LatticeXMLReader reader=new LatticeXMLReader();
   if (!reader.load(inputStream,serInput)) {
-    System.err.printf("%s: Error loading input lattice xml from stdin%n",this.getClass().getName());
+    System.err.printf("%s: Error loading input lattice xml from stdin\n",this.getClass().getName());
     return false;
   }
-  System.err.printf("%s: Entering main parsing loop...%n",this.getClass().getName());
+  System.err.printf("%s: Entering main parsing loop...\n",this.getClass().getName());
   int latticeNum=0;
   int parseable=0;
   int successes=0;
   int fParseSucceeded=0;
   for (  final Lattice lattice : reader) {
     if (lattice.getNumNodes() > op.testOptions.maxLength + 1) {
-      System.err.printf("%s: Lattice %d too big! (%d nodes)%n",this.getClass().getName(),latticeNum,lattice.getNumNodes());
+      System.err.printf("%s: Lattice %d too big! (%d nodes)\n",this.getClass().getName(),latticeNum,lattice.getNumNodes());
       latticeNum++;
       continue;
     }
@@ -22,22 +22,22 @@
         rawTree=pparser.getBestParse();
         bestSegmentationB=rawTree.yield(new ArrayList<CoreLabel>());
         if (op.doDep && dparser.parse(bestSegmentationB)) {
-          System.err.printf("%s: Dependency parse succeeded!%n",this.getClass().getName());
+          System.err.printf("%s: Dependency parse succeeded!\n",this.getClass().getName());
           if (bparser.parse(bestSegmentationB)) {
-            System.err.printf("%s: Factored parse succeeded!%n",this.getClass().getName());
+            System.err.printf("%s: Factored parse succeeded!\n",this.getClass().getName());
             rawTree=bparser.getBestParse();
             fParseSucceeded++;
           }
         }
  else {
-          System.out.printf("%s: Dependency parse failed. Backing off to PCFG...%n",this.getClass().getName());
+          System.out.printf("%s: Dependency parse failed. Backing off to PCFG...\n",this.getClass().getName());
         }
       }
  else {
-        System.out.printf("%s: WARNING: parsing failed for lattice %d%n",this.getClass().getName(),latticeNum);
+        System.out.printf("%s: WARNING: parsing failed for lattice %d\n",this.getClass().getName(),latticeNum);
       }
       if (rawTree == null) {
-        System.out.printf("%s: WARNING: Could not extract best parse for lattice %d%n",this.getClass().getName(),latticeNum);
+        System.out.printf("%s: WARNING: Could not extract best parse for lattice %d\n",this.getClass().getName(),latticeNum);
       }
  else {
         Tree t=debinarizer.transformTree(rawTree);
@@ -47,7 +47,7 @@
       }
     }
  catch (    Exception e) {
-      System.out.printf("%s: WARNING: Could not extract best parse for lattice %d%n",this.getClass().getName(),latticeNum);
+      System.out.printf("%s: WARNING: Could not extract best parse for lattice %d\n",this.getClass().getName(),latticeNum);
       e.printStackTrace();
     }
     latticeNum++;
