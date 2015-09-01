@@ -1,6 +1,10 @@
 {
   model.vectorToParams(theta);
-  final ModelDerivatives derivatives=new ModelDerivatives(model);
+  TwoDimensionalMap<String,String,SimpleMatrix> binaryTD=initDerivatives(model.binaryTransform);
+  TwoDimensionalMap<String,String,SimpleTensor> binaryTensorTD=(model.op.useTensors) ? initTensorDerivatives(model.binaryTensors) : TwoDimensionalMap.treeMap();
+  TwoDimensionalMap<String,String,SimpleMatrix> binaryCD=(!model.op.combineClassification) ? initDerivatives(model.binaryClassification) : TwoDimensionalMap.treeMap();
+  Map<String,SimpleMatrix> unaryCD=initDerivatives(model.unaryClassification);
+  Map<String,SimpleMatrix> wordVectorD=Generics.newTreeMap();
   List<Tree> forwardPropTrees=Generics.newArrayList();
   for (  Tree tree : trainingBatch) {
     Tree trainingTree=tree.deepCopy();
@@ -9,15 +13,15 @@
   }
   double error=0.0;
   for (  Tree tree : forwardPropTrees) {
-    backpropDerivativesAndError(tree,derivatives.binaryTD,derivatives.binaryCD,derivatives.binaryTensorTD,derivatives.unaryCD,derivatives.wordVectorD);
+    backpropDerivativesAndError(tree,binaryTD,binaryCD,binaryTensorTD,unaryCD,wordVectorD);
     error+=sumError(tree);
   }
   double scale=(1.0 / trainingBatch.size());
   value=error * scale;
-  value+=scaleAndRegularize(derivatives.binaryTD,model.binaryTransform,scale,model.op.trainOptions.regTransformMatrix,false);
-  value+=scaleAndRegularize(derivatives.binaryCD,model.binaryClassification,scale,model.op.trainOptions.regClassification,true);
-  value+=scaleAndRegularizeTensor(derivatives.binaryTensorTD,model.binaryTensors,scale,model.op.trainOptions.regTransformTensor);
-  value+=scaleAndRegularize(derivatives.unaryCD,model.unaryClassification,scale,model.op.trainOptions.regClassification,false,true);
-  value+=scaleAndRegularize(derivatives.wordVectorD,model.wordVectors,scale,model.op.trainOptions.regWordVector,true,false);
-  derivative=NeuralUtils.paramsToVector(theta.length,derivatives.binaryTD.valueIterator(),derivatives.binaryCD.valueIterator(),SimpleTensor.iteratorSimpleMatrix(derivatives.binaryTensorTD.valueIterator()),derivatives.unaryCD.values().iterator(),derivatives.wordVectorD.values().iterator());
+  value+=scaleAndRegularize(binaryTD,model.binaryTransform,scale,model.op.trainOptions.regTransformMatrix,false);
+  value+=scaleAndRegularize(binaryCD,model.binaryClassification,scale,model.op.trainOptions.regClassification,true);
+  value+=scaleAndRegularizeTensor(binaryTensorTD,model.binaryTensors,scale,model.op.trainOptions.regTransformTensor);
+  value+=scaleAndRegularize(unaryCD,model.unaryClassification,scale,model.op.trainOptions.regClassification,false,true);
+  value+=scaleAndRegularize(wordVectorD,model.wordVectors,scale,model.op.trainOptions.regWordVector,true,false);
+  derivative=NeuralUtils.paramsToVector(theta.length,binaryTD.valueIterator(),binaryCD.valueIterator(),SimpleTensor.iteratorSimpleMatrix(binaryTensorTD.valueIterator()),unaryCD.values().iterator(),wordVectorD.values().iterator());
 }
