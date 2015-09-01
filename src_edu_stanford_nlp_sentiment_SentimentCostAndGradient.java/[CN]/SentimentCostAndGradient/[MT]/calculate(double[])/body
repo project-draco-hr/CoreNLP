@@ -1,10 +1,35 @@
 {
   model.vectorToParams(theta);
-  TwoDimensionalMap<String,String,SimpleMatrix> binaryTD=initDerivatives(model.binaryTransform);
-  TwoDimensionalMap<String,String,SimpleTensor> binaryTensorTD=(model.op.useTensors) ? initTensorDerivatives(model.binaryTensors) : TwoDimensionalMap.treeMap();
-  TwoDimensionalMap<String,String,SimpleMatrix> binaryCD=(!model.op.combineClassification) ? initDerivatives(model.binaryClassification) : TwoDimensionalMap.treeMap();
-  Map<String,SimpleMatrix> unaryCD=initDerivatives(model.unaryClassification);
+  TwoDimensionalMap<String,String,SimpleMatrix> binaryTD=TwoDimensionalMap.treeMap();
+  TwoDimensionalMap<String,String,SimpleTensor> binaryTensorTD=TwoDimensionalMap.treeMap();
+  TwoDimensionalMap<String,String,SimpleMatrix> binaryCD=TwoDimensionalMap.treeMap();
+  Map<String,SimpleMatrix> unaryCD=Generics.newTreeMap();
   Map<String,SimpleMatrix> wordVectorD=Generics.newTreeMap();
+  for (  TwoDimensionalMap.Entry<String,String,SimpleMatrix> entry : model.binaryTransform) {
+    int numRows=entry.getValue().numRows();
+    int numCols=entry.getValue().numCols();
+    binaryTD.put(entry.getFirstKey(),entry.getSecondKey(),new SimpleMatrix(numRows,numCols));
+  }
+  if (!model.op.combineClassification) {
+    for (    TwoDimensionalMap.Entry<String,String,SimpleMatrix> entry : model.binaryClassification) {
+      int numRows=entry.getValue().numRows();
+      int numCols=entry.getValue().numCols();
+      binaryCD.put(entry.getFirstKey(),entry.getSecondKey(),new SimpleMatrix(numRows,numCols));
+    }
+  }
+  if (model.op.useTensors) {
+    for (    TwoDimensionalMap.Entry<String,String,SimpleTensor> entry : model.binaryTensors) {
+      int numRows=entry.getValue().numRows();
+      int numCols=entry.getValue().numCols();
+      int numSlices=entry.getValue().numSlices();
+      binaryTensorTD.put(entry.getFirstKey(),entry.getSecondKey(),new SimpleTensor(numRows,numCols,numSlices));
+    }
+  }
+  for (  Map.Entry<String,SimpleMatrix> entry : model.unaryClassification.entrySet()) {
+    int numRows=entry.getValue().numRows();
+    int numCols=entry.getValue().numCols();
+    unaryCD.put(entry.getKey(),new SimpleMatrix(numRows,numCols));
+  }
   List<Tree> forwardPropTrees=Generics.newArrayList();
   for (  Tree tree : trainingBatch) {
     Tree trainingTree=tree.deepCopy();
