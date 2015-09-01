@@ -1,8 +1,17 @@
 {
-  Set<Integer> paramRange=initializeParamRange(func,x);
-  for (  int i : paramRange) {
-    if (dir[i] * fg[i] >= 0.0) {
-      dir[i]=0.0;
+  if (func instanceof HasRegularizerParamRange) {
+    Set<Integer> paramRange=((HasRegularizerParamRange)func).getRegularizerParamRange(x);
+    for (    int i : paramRange) {
+      if (dir[i] * fg[i] >= 0.0) {
+        dir[i]=0.0;
+      }
+    }
+  }
+ else {
+    for (int i=0; i < x.length; i++) {
+      if (dir[i] * fg[i] >= 0.0) {
+        dir[i]=0.0;
+      }
     }
   }
 }
