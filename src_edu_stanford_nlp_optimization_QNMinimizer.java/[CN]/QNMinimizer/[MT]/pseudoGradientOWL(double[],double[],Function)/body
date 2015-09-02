@@ -1,8 +1,8 @@
 {
-  Set<Integer> paramRange=func instanceof HasRegularizerParamRange ? ((HasRegularizerParamRange)func).getRegularizerParamRange(x) : null;
+  Set<Integer> paramRange=initializeParamRange(func,x);
   double[] newGrad=new double[grad.length];
   for (int i=0; i < x.length; i++) {
-    if (paramRange == null || paramRange.contains(i)) {
+    if (paramRange.contains(i)) {
       if (x[i] < 0.0) {
         newGrad[i]=grad[i] - lambdaOWL;
       }
