@@ -1,17 +1,12 @@
 {
-  this.properties=new Properties();
-  Enumeration<?> keys=properties.propertyNames();
-  while (keys.hasMoreElements()) {
-    String key=keys.nextElement().toString();
-    this.properties.setProperty(key,properties.getProperty(key));
-  }
+  this.properties=new Properties(properties);
   this.scheduler=new BackendScheduler(backends);
   this.properties.setProperty("inputFormat","serialized");
   this.properties.setProperty("outputFormat","serialized");
   this.properties.setProperty("inputSerializer",ProtobufAnnotationSerializer.class.getName());
   this.properties.setProperty("outputSerializer",ProtobufAnnotationSerializer.class.getName());
   List<String> jsonProperties=new ArrayList<>();
-  keys=this.properties.propertyNames();
+  Enumeration<?> keys=this.properties.propertyNames();
   while (keys.hasMoreElements()) {
     Object key=keys.nextElement();
     jsonProperties.add("\"" + JSONOutputter.cleanJSON(key.toString()) + "\": \""+ JSONOutputter.cleanJSON(this.properties.getProperty(key.toString()))+ "\"");
