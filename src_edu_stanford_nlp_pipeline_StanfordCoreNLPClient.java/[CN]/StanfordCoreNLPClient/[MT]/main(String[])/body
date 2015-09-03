@@ -1,6 +1,6 @@
 {
   if (args.length < 2) {
-    System.err.println("Usage: " + CoreNLPWebClient.class.getSimpleName() + " -host <hostname> -port <port> ...");
+    System.err.println("Usage: " + StanfordCoreNLPClient.class.getSimpleName() + " -host <hostname> -port <port> ...");
     System.exit(1);
   }
   Properties props=StringUtils.argsToProperties(args);
@@ -12,7 +12,7 @@
     return;
   }
   if (props.getProperty("backend") == null) {
-    System.err.println("Usage: " + CoreNLPWebClient.class.getSimpleName() + " -backend <hostname:port,...> ...");
+    System.err.println("Usage: " + StanfordCoreNLPClient.class.getSimpleName() + " -backend <hostname:port,...> ...");
     System.err.println("Missing required option: -backend <hostname:port,...>");
     System.exit(1);
   }
@@ -22,7 +22,7 @@
     int port=Integer.parseInt(spec.substring(spec.indexOf(":") + 1));
     backends.add(new Backend(host,port));
   }
-  CoreNLPWebClient client=new CoreNLPWebClient(props,backends);
+  StanfordCoreNLPClient client=new StanfordCoreNLPClient(props,backends);
   client.run();
   try {
     client.shutdown();
