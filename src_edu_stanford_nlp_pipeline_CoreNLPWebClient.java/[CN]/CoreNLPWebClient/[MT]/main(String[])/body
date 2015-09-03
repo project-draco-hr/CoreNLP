@@ -1,5 +1,5 @@
 {
-  if (args.length < 4) {
+  if (args.length < 2) {
     System.err.println("Usage: " + CoreNLPWebClient.class.getSimpleName() + " -host <hostname> -port <port> ...");
     System.exit(1);
   }
@@ -16,5 +16,11 @@
     System.err.println("Missing required option: -backend <hostname:port,...>");
     System.exit(1);
   }
-  new CoreNLPWebClient(props,props.getProperty("host"),Integer.parseInt(props.getProperty("port"))).run();
+  List<Backend> backends=new ArrayList<>();
+  for (  String spec : props.getProperty("backend").split(",")) {
+    String host=spec.substring(0,spec.indexOf(":"));
+    int port=Integer.parseInt(spec.substring(spec.indexOf(":") + 1));
+    backends.add(new Backend(host,port));
+  }
+  new CoreNLPWebClient(props,backends).run();
 }
