@@ -11,5 +11,10 @@
     StanfordCoreNLP.printHelp(System.err,helpValue);
     return;
   }
+  if (props.getProperty("backend") == null) {
+    System.err.println("Usage: " + CoreNLPWebClient.class.getSimpleName() + " -backend <hostname:port,...> ...");
+    System.err.println("Missing required option: -backend <hostname:port,...>");
+    System.exit(1);
+  }
   new CoreNLPWebClient(props,props.getProperty("host"),Integer.parseInt(props.getProperty("port"))).run();
 }
