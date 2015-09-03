@@ -22,5 +22,11 @@
     int port=Integer.parseInt(spec.substring(spec.indexOf(":") + 1));
     backends.add(new Backend(host,port));
   }
-  new CoreNLPWebClient(props,backends).run();
+  CoreNLPWebClient client=new CoreNLPWebClient(props,backends);
+  client.run();
+  try {
+    client.shutdown();
+  }
+ catch (  InterruptedException ignored) {
+  }
 }
