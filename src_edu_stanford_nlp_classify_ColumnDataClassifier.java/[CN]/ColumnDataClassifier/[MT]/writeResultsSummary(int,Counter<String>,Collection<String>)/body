@@ -1,10 +1,11 @@
 {
-  System.err.println();
-  System.err.print(num + " examples");
+  Logging.logger(ColumnDataClassifier.class).info("");
+  String message="";
+  message+=num + " examples";
   if (globalFlags.groupingColumn >= 0 && globalFlags.rankingAccuracyClass != null) {
-    System.err.print(" and " + numGroups + " ranking groups");
+    message+=" and " + numGroups + " ranking groups";
   }
-  System.err.println(" in test set");
+  Logging.logger(ColumnDataClassifier.class).info(message + " in test set");
   int numClasses=0;
   double microAccuracy=0.0;
   double macroF1=0.0;
@@ -20,7 +21,7 @@
     double acc=((double)tp + tn) / num;
     macroF1+=f;
     microAccuracy+=tp;
-    System.err.println("Cls " + key + ": TP="+ tp+ " FN="+ fn+ " FP="+ fp+ " TN="+ tn+ "; Acc "+ nf.format(acc)+ " P "+ nf.format(p)+ " R "+ nf.format(r)+ " F1 "+ nf.format(f));
+    Logging.logger(ColumnDataClassifier.class).info("Cls " + key + ": TP="+ tp+ " FN="+ fn+ " FP="+ fp+ " TN="+ tn+ "; Acc "+ nf.format(acc)+ " P "+ nf.format(p)+ " R "+ nf.format(r)+ " F1 "+ nf.format(f));
   }
   if (globalFlags.groupingColumn >= 0 && globalFlags.rankingAccuracyClass != null) {
     double cor=(int)contingency.getCount("Ranking|Correct");
@@ -33,21 +34,21 @@
     if (coverr > 0.5) {
       double ce=(int)(contingency.getCount("Ranking|Error") - contingency.getCount("Ranking|Uncovered"));
       double crankacc=(cor + ce == 0) ? 0 : cor / (cor + ce);
-      System.err.println(" (on " + nf.format(covacc) + " of groups with correct answer: "+ nf.format(crankacc)+ ')');
+      Logging.logger(ColumnDataClassifier.class).info(" (on " + nf.format(covacc) + " of groups with correct answer: "+ nf.format(crankacc)+ ')');
     }
  else {
-      System.err.println();
+      Logging.logger(ColumnDataClassifier.class).info("");
     }
     if (globalFlags.rankingScoreColumn >= 0) {
       double totalSim=contingency.getCount("Ranking|Score");
       double ranksim=(cor + err == 0) ? 0 : totalSim / (cor + err);
-      System.err.println("Ranking average score: " + nf.format(ranksim));
+      Logging.logger(ColumnDataClassifier.class).info("Ranking average score: " + nf.format(ranksim));
     }
   }
   microAccuracy=microAccuracy / num;
   macroF1=macroF1 / numClasses;
   NumberFormat nf2=new DecimalFormat("0.00000");
-  System.err.println("Accuracy/micro-averaged F1: " + nf2.format(microAccuracy));
-  System.err.println("Macro-averaged F1: " + nf2.format(macroF1));
+  Logging.logger(ColumnDataClassifier.class).info("Accuracy/micro-averaged F1: " + nf2.format(microAccuracy));
+  Logging.logger(ColumnDataClassifier.class).info("Macro-averaged F1: " + nf2.format(macroF1));
   return new Pair<Double,Double>(microAccuracy,macroF1);
 }

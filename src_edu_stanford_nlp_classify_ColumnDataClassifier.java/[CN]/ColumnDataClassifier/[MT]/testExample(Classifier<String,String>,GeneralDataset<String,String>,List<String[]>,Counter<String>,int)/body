@@ -8,16 +8,16 @@
     d=test.getDatum(i);
   }
   if (globalFlags.justify) {
-    System.err.println("### Test item " + i);
+    Logging.logger(ColumnDataClassifier.class).info("### Test item " + i);
+    String message="";
     for (    String field : example) {
-      System.err.print(field);
-      System.err.print('\t');
+      message+=field + "\t";
     }
-    System.err.println();
+    Logging.logger(ColumnDataClassifier.class).info(message + "\n");
     if (cl instanceof LinearClassifier) {
       ((LinearClassifier<String,String>)cl).justificationOf(d);
     }
-    System.err.println();
+    Logging.logger(ColumnDataClassifier.class).info("");
   }
   Counter<String> logScores;
   if (globalFlags.usesRealValues) {
