@@ -1,0 +1,21 @@
+{
+  try {
+    availableProcessors.acquire();
+  }
+ catch (  InterruptedException e) {
+    throw new RuntimeException(e);
+  }
+  new Thread(){
+    @Override public void run(){
+      try {
+        annotate(annotation);
+      }
+ catch (      Throwable t) {
+        annotation.set(CoreAnnotations.ExceptionAnnotation.class,t);
+      }
+      callback.accept(annotation);
+      availableProcessors.release();
+    }
+  }
+.start();
+}
