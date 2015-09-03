@@ -6,7 +6,7 @@
   FeedforwardParams params=new FeedforwardParams(batchSize,dropOutProb);
   gradSaved=new double[preMap.size()][config.hiddenSize];
   int numChunks=config.trainingThreads;
-  List<List<Example>> chunks=CollectionUtils.partitionIntoFolds(examples,numChunks);
+  List<Collection<Example>> chunks=CollectionUtils.partitionIntoFolds(examples,numChunks);
   for (  Collection<Example> chunk : chunks)   jobHandler.put(new Pair<>(chunk,params));
   jobHandler.join(false);
   Cost cost=null;
