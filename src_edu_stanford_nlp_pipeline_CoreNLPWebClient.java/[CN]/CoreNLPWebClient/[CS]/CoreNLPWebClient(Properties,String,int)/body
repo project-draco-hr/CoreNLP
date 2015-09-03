@@ -1,3 +1,16 @@
 {
-  this(properties,Collections.singletonList(new Backend(host,port)));
+  this.properties=new Properties(properties);
+  this.host=host;
+  this.port=port;
+  this.properties.setProperty("inputFormat","serialized");
+  this.properties.setProperty("outputFormat","serialized");
+  this.properties.setProperty("inputSerializer",ProtobufAnnotationSerializer.class.getName());
+  this.properties.setProperty("outputSerializer",ProtobufAnnotationSerializer.class.getName());
+  List<String> jsonProperties=new ArrayList<>();
+  Enumeration<?> keys=this.properties.propertyNames();
+  while (keys.hasMoreElements()) {
+    Object key=keys.nextElement();
+    jsonProperties.add("\"" + JSONOutputter.cleanJSON(key.toString()) + "\": \""+ JSONOutputter.cleanJSON(this.properties.getProperty(key.toString()))+ "\"");
+  }
+  this.propsAsJSON="{ " + StringUtils.join(jsonProperties,", ") + " }";
 }
