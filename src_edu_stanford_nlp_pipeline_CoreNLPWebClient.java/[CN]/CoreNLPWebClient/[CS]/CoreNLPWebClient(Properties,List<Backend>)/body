@@ -1,20 +1,21 @@
 {
-  this.properties=new Properties();
+  this.properties=properties;
+  Properties serverProperties=new Properties();
   Enumeration<?> keys=properties.propertyNames();
   while (keys.hasMoreElements()) {
     String key=keys.nextElement().toString();
-    this.properties.setProperty(key,properties.getProperty(key));
+    serverProperties.setProperty(key,properties.getProperty(key));
   }
   this.scheduler=new BackendScheduler(backends);
-  this.properties.setProperty("inputFormat","serialized");
-  this.properties.setProperty("outputFormat","serialized");
-  this.properties.setProperty("inputSerializer",ProtobufAnnotationSerializer.class.getName());
-  this.properties.setProperty("outputSerializer",ProtobufAnnotationSerializer.class.getName());
+  serverProperties.setProperty("inputFormat","serialized");
+  serverProperties.setProperty("outputFormat","serialized");
+  serverProperties.setProperty("inputSerializer",ProtobufAnnotationSerializer.class.getName());
+  serverProperties.setProperty("outputSerializer",ProtobufAnnotationSerializer.class.getName());
   List<String> jsonProperties=new ArrayList<>();
-  keys=this.properties.propertyNames();
+  keys=serverProperties.propertyNames();
   while (keys.hasMoreElements()) {
     Object key=keys.nextElement();
-    jsonProperties.add("\"" + JSONOutputter.cleanJSON(key.toString()) + "\": \""+ JSONOutputter.cleanJSON(this.properties.getProperty(key.toString()))+ "\"");
+    jsonProperties.add("\"" + JSONOutputter.cleanJSON(key.toString()) + "\": \""+ JSONOutputter.cleanJSON(serverProperties.getProperty(key.toString()))+ "\"");
   }
   this.propsAsJSON="{ " + StringUtils.join(jsonProperties,", ") + " }";
   this.scheduler.start();
