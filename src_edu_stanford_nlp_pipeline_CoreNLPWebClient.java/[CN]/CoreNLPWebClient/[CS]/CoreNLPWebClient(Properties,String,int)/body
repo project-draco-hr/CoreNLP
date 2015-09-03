@@ -1,16 +1,16 @@
 {
-  this.props=new Properties(props);
+  this.properties=new Properties(properties);
   this.host=host;
   this.port=port;
-  this.props.setProperty("inputFormat","serialized");
-  this.props.setProperty("outputFormat","serialized");
-  this.props.setProperty("inputSerializer",ProtobufAnnotationSerializer.class.getName());
-  this.props.setProperty("outputSerializer",ProtobufAnnotationSerializer.class.getName());
+  this.properties.setProperty("inputFormat","serialized");
+  this.properties.setProperty("outputFormat","serialized");
+  this.properties.setProperty("inputSerializer",ProtobufAnnotationSerializer.class.getName());
+  this.properties.setProperty("outputSerializer",ProtobufAnnotationSerializer.class.getName());
   List<String> jsonProperties=new ArrayList<>();
-  Enumeration<?> keys=this.props.propertyNames();
+  Enumeration<?> keys=this.properties.propertyNames();
   while (keys.hasMoreElements()) {
     Object key=keys.nextElement();
-    jsonProperties.add("\"" + JSONOutputter.cleanJSON(key.toString()) + "\": \""+ JSONOutputter.cleanJSON(this.props.get(key).toString())+ "\"");
+    jsonProperties.add("\"" + JSONOutputter.cleanJSON(key.toString()) + "\": \""+ JSONOutputter.cleanJSON(this.properties.get(key).toString())+ "\"");
   }
   this.propsAsJSON="{ " + StringUtils.join(jsonProperties,", ") + " }";
 }
