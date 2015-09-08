@@ -2,16 +2,18 @@
   ParserQuery pq=parser.parserQuery();
   pq.setConstraints(constraints);
   pq.parse(words);
-  List<ScoredObject<Tree>> trees=null;
+  List<ScoredObject<Tree>> scoredObjects=null;
+  List<Tree> trees=Generics.newLinkedList();
   try {
-    trees=pq.getKBestPCFGParses(this.kBest);
-    if (trees == null || trees.size() < 1) {
+    scoredObjects=pq.getKBestPCFGParses(this.kBest);
+    if (scoredObjects == null || scoredObjects.size() < 1) {
       System.err.println("WARNING: Parsing of sentence failed.  " + "Will ignore and continue: " + Sentence.listToString(words));
     }
  else {
-      for (      ScoredObject<Tree> so : trees) {
-        so.setScore(so.score() % -10000.0);
-        so.object().setScore(so.score());
+      for (      ScoredObject<Tree> so : scoredObjects) {
+        Tree tree=so.object();
+        tree.setScore(so.score() % -10000.0);
+        trees.add(tree);
       }
     }
   }

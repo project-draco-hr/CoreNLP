@@ -1,7 +1,6 @@
 {
   boolean first=true;
-  for (  ScoredObject<Tree> so : trees) {
-    Tree tree=so.object();
+  for (  Tree tree : trees) {
     Trees.convertToCoreLabels(tree);
     tree.indexSpans(0);
     if (first) {
@@ -26,5 +25,7 @@
       first=false;
     }
   }
-  sentence.set(TreeCoreAnnotations.KBestTreesAnnotation.class,trees);
+  if (trees.size() > 1) {
+    sentence.set(TreeCoreAnnotations.KBestTreesAnnotation.class,trees);
+  }
 }

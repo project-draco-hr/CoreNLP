@@ -1,14 +1,16 @@
 {
   if (treeMap != null) {
-    for (    ScoredObject<Tree> so : trees) {
-      Tree tree=treeMap.apply(so.object());
-      so.setObject(tree);
+    List<Tree> mappedTrees=Generics.newLinkedList();
+    for (    Tree tree : trees) {
+      Tree mappedTree=treeMap.apply(tree);
+      mappedTrees.add(mappedTree);
     }
+    trees=mappedTrees;
   }
   ParserAnnotatorUtils.fillInParseAnnotations(VERBOSE,BUILD_GRAPHS,gsf,sentence,trees,extraDependencies);
   if (saveBinaryTrees) {
     TreeBinarizer binarizer=TreeBinarizer.simpleTreeBinarizer(parser.getTLPParams().headFinder(),parser.treebankLanguagePack());
-    Tree binarized=binarizer.transformTree(trees.get(0).object());
+    Tree binarized=binarizer.transformTree(trees.get(0));
     Trees.convertToCoreLabels(binarized);
     sentence.set(TreeCoreAnnotations.BinarizedTreeAnnotation.class,binarized);
   }
