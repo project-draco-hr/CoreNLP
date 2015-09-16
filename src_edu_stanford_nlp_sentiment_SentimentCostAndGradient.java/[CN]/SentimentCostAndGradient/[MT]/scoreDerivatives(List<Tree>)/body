@@ -1,0 +1,14 @@
+{
+  final ModelDerivatives derivatives=new ModelDerivatives(model);
+  List<Tree> forwardPropTrees=Generics.newArrayList();
+  for (  Tree tree : trainingBatch) {
+    Tree trainingTree=tree.deepCopy();
+    forwardPropagateTree(trainingTree);
+    forwardPropTrees.add(trainingTree);
+  }
+  for (  Tree tree : forwardPropTrees) {
+    backpropDerivativesAndError(tree,derivatives.binaryTD,derivatives.binaryCD,derivatives.binaryTensorTD,derivatives.unaryCD,derivatives.wordVectorD);
+    derivatives.error+=sumError(tree);
+  }
+  return derivatives;
+}
