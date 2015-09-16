@@ -1,0 +1,29 @@
+{
+  byte[] contents=new byte[128];
+  File tmpInput=File.createTempFile("parser",null);
+  PrintWriter pw=IOUtils.getPrintWriter(tmpInput,encoding);
+  pw.println(input);
+  pw.close();
+  File tmpFile=File.createTempFile("parser",null);
+  System.err.println("Sending output to " + tmpFile.getCanonicalPath());
+  PrintStream ps=new PrintStream(tmpFile);
+  System.setOut(ps);
+  LexicalizedParser.main(new String[]{"-encoding",encoding,"edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz",tmpInput.getCanonicalPath()});
+  ps.close();
+  InputStream is=new FileInputStream(tmpFile);
+  int offset=0;
+  int numRead;
+  do {
+    int length=contents.length - offset;
+    numRead=is.read(contents,offset,length);
+    offset+=numRead;
+  }
+ while (numRead > 0);
+  is.close();
+  for (int i=0; i < Math.min(expected.length,offset); i++) {
+    assertEquals("Byte " + i + " should be "+ expected[i]+ " but was "+ contents[i]+ ".",expected[i],contents[i]);
+  }
+  if (expected.length > offset)   System.err.println("First non-received byte was " + expected[offset]);
+  if (expected.length < offset)   System.err.println("First wrongly received byte was " + contents[expected.length]);
+  assertEquals("Was expecting " + expected.length + " bytes but got "+ offset+ " bytes.",expected.length,offset);
+}
