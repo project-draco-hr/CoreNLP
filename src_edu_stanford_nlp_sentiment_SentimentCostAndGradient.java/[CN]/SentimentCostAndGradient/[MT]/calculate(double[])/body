@@ -1,23 +1,19 @@
 {
   model.vectorToParams(theta);
-  final ModelDerivatives derivatives;
-  if (model.op.trainOptions.nThreads == 1) {
-    derivatives=scoreDerivatives(trainingBatch);
+  final ModelDerivatives derivatives=new ModelDerivatives(model);
+  List<Tree> forwardPropTrees=Generics.newArrayList();
+  for (  Tree tree : trainingBatch) {
+    Tree trainingTree=tree.deepCopy();
+    forwardPropagateTree(trainingTree);
+    forwardPropTrees.add(trainingTree);
   }
- else {
-    MulticoreWrapper<List<Tree>,ModelDerivatives> wrapper=new MulticoreWrapper<List<Tree>,ModelDerivatives>(model.op.trainOptions.nThreads,new ScoringProcessor());
-    for (    List<Tree> chunk : CollectionUtils.partitionIntoFolds(trainingBatch,wrapper.nThreads())) {
-      wrapper.put(chunk);
-    }
-    wrapper.join();
-    derivatives=new ModelDerivatives(model);
-    while (wrapper.peek()) {
-      ModelDerivatives batchDerivatives=wrapper.poll();
-      derivatives.add(batchDerivatives);
-    }
+  double error=0.0;
+  for (  Tree tree : forwardPropTrees) {
+    backpropDerivativesAndError(tree,derivatives.binaryTD,derivatives.binaryCD,derivatives.binaryTensorTD,derivatives.unaryCD,derivatives.wordVectorD);
+    error+=sumError(tree);
   }
   double scale=(1.0 / trainingBatch.size());
-  value=derivatives.error * scale;
+  value=error * scale;
   value+=scaleAndRegularize(derivatives.binaryTD,model.binaryTransform,scale,model.op.trainOptions.regTransformMatrix,false);
   value+=scaleAndRegularize(derivatives.binaryCD,model.binaryClassification,scale,model.op.trainOptions.regClassification,true);
   value+=scaleAndRegularizeTensor(derivatives.binaryTensorTD,model.binaryTensors,scale,model.op.trainOptions.regTransformTensor);

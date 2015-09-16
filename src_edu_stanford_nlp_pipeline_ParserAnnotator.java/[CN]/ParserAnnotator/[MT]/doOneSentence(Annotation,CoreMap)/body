@@ -6,23 +6,23 @@
   if (VERBOSE) {
     System.err.println("Parsing: " + words);
   }
-  List<Tree> trees=null;
+  Tree tree=null;
   if (maxSentenceLength <= 0 || words.size() <= maxSentenceLength) {
     try {
       final List<ParserConstraint> constraints=sentence.get(ParserAnnotations.ConstraintAnnotation.class);
-      trees=doOneSentence(constraints,words);
+      tree=doOneSentence(constraints,words);
     }
  catch (    RuntimeInterruptedException e) {
       if (VERBOSE) {
         System.err.println("Took too long parsing: " + words);
       }
-      trees=null;
+      tree=null;
     }
   }
-  if (trees == null || trees.size() < 1) {
+  if (tree == null) {
     doOneFailedSentence(annotation,sentence);
   }
  else {
-    finishSentence(sentence,trees);
+    finishSentence(sentence,tree);
   }
 }
