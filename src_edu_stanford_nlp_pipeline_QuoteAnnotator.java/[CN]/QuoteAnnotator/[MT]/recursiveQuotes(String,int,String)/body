@@ -73,17 +73,12 @@
  else {
     for (    String qKind : quotesMap.keySet()) {
       for (      Pair<Integer,Integer> q : quotesMap.get(qKind)) {
-        if (q.second() - q.first() >= qKind.length() * 2) {
+        if (q.first() < q.second() - qKind.length() * 2) {
           String toPass=text.substring(q.first() + qKind.length(),q.second() - qKind.length());
-          String qKindToPass=null;
-          if (!(DIRECTED_QUOTES.containsKey(qKind) || qKind.equals("`")) || !ALLOW_EMBEDDED_SAME) {
-            qKindToPass=qKind;
-          }
+          String qKindToPass=DIRECTED_QUOTES.containsKey(qKind) || qKind.equals("`") ? null : qKind;
           List<Pair<Integer,Integer>> embedded=recursiveQuotes(toPass,q.first() + qKind.length() + offset,qKindToPass);
           for (          Pair<Integer,Integer> e : embedded) {
-            if (e.second() - e.first() > 2) {
-              quotes.add(new Pair(e.first(),e.second()));
-            }
+            quotes.add(new Pair(e.first(),e.second()));
           }
         }
         quotes.add(new Pair(q.first() + offset,q.second() + offset));

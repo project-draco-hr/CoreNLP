@@ -1,10 +1,10 @@
 {
   try {
-    T nextToken;
+    T nextToken=null;
     do {
-      nextToken=(splitAny && !compoundBuffer.isEmpty()) ? (T)compoundBuffer.remove(0) : (T)lexer.next();
+      nextToken=(splitAny && compoundBuffer.size() > 0) ? (T)compoundBuffer.remove(0) : (T)lexer.next();
     }
- while (nextToken != null && nextToken.word().isEmpty());
+ while (nextToken != null && nextToken.word().length() == 0);
     if (splitAny && nextToken instanceof CoreLabel) {
       CoreLabel cl=(CoreLabel)nextToken;
       if (cl.containsKey(ParentAnnotation.class)) {

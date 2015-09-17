@@ -150,6 +150,13 @@ case 40:
 break;
 case 7:
 {
+final String origTxt=yytext();
+return getNext(asciiQuotes(origTxt),origTxt);
+}
+case 41:
+break;
+case 8:
+{
 if (ptb3Dashes) {
 return getNext(ptbmdash,yytext());
 }
@@ -157,62 +164,51 @@ return getNext(ptbmdash,yytext());
 return getNext();
 }
 }
-case 41:
+case 42:
 break;
-case 8:
+case 9:
 {
 if (invertible) {
 prevWordAfter.append(yytext());
 }
 }
-case 42:
-break;
-case 9:
-{
-return handleEllipsis(yytext());
-}
 case 43:
 break;
 case 10:
+{
+return handleEllipsis(yytext());
+}
+case 44:
+break;
+case 11:
 {
 if (yylength() >= 3 && yylength() <= 4 && ptb3Dashes) {
 return getNext(ptbmdash,yytext());
 }
  else {
 String origTxt=yytext();
-return getNext(handleDash(origTxt),origTxt);
+return getNext(asciiDash(origTxt),origTxt);
 }
-}
-case 44:
-break;
-case 11:
-{
-return normalizeFractions(yytext());
 }
 case 45:
 break;
 case 12:
 {
-final String origTxt=yytext();
-return getNext(handleQuotes(origTxt),origTxt);
+return normalizeFractions(yytext());
 }
 case 46:
 break;
 case 13:
 {
-if (normalizeOtherBrackets) {
-return getNext(closebrace,yytext());
-}
- else {
-return getNext();
-}
+final String origTxt=yytext();
+return getNext(asciiQuotes(origTxt),origTxt);
 }
 case 47:
 break;
 case 14:
 {
-if (normalizeParentheses) {
-return getNext(openparen,yytext());
+if (normalizeOtherBrackets) {
+return getNext(closebrace,yytext());
 }
  else {
 return getNext();
@@ -223,7 +219,7 @@ break;
 case 15:
 {
 if (normalizeParentheses) {
-return getNext(closeparen,yytext());
+return getNext(openparen,yytext());
 }
  else {
 return getNext();
@@ -233,8 +229,8 @@ case 49:
 break;
 case 16:
 {
-if (escapeForwardSlashAsterisk) {
-return getNext(delimit(yytext(),'*'),yytext());
+if (normalizeParentheses) {
+return getNext(closeparen,yytext());
 }
  else {
 return getNext();
@@ -244,8 +240,8 @@ case 50:
 break;
 case 17:
 {
-if (normalizeOtherBrackets) {
-return getNext(openbrace,yytext());
+if (escapeForwardSlashAsterisk) {
+return getNext(delimit(yytext(),'*'),yytext());
 }
  else {
 return getNext();
@@ -254,27 +250,38 @@ return getNext();
 case 51:
 break;
 case 18:
-yypushback(1);
 {
+if (normalizeOtherBrackets) {
+return getNext(openbrace,yytext());
+}
+ else {
 return getNext();
+}
 }
 case 52:
 break;
 case 19:
+yypushback(1);
 {
-final String origTxt=yytext();
-return getNext(origTxt,origTxt,CONTR_ANNOTATION);
+return getNext();
 }
 case 53:
 break;
 case 20:
 {
 final String origTxt=yytext();
-return getNext(origTxt,origTxt,VB_PRON_ANNOTATION);
+return getNext(origTxt,origTxt,CONTR_ANNOTATION);
 }
 case 54:
 break;
 case 21:
+{
+final String origTxt=yytext();
+return getNext(origTxt,origTxt,VB_PRON_ANNOTATION);
+}
+case 55:
+break;
+case 22:
 {
 int zzFState=1;
 int zzFPos=zzStartRead;
@@ -305,27 +312,20 @@ zzMarkedPos=zzFPos;
 {
 return getNext();
 }
-case 55:
-break;
-case 22:
-{
-if (!noSGML) {
-return getNext();
-}
-}
 case 56:
 break;
 case 23:
 {
-final String origTxt=yytext();
-return getNext(handleQuotes(origTxt),origTxt);
+if (!noSGML) {
+return getNext();
+}
 }
 case 57:
 break;
 case 24:
 {
 final String origTxt=yytext();
-return getNext(handleQuotes(handleDash(origTxt)),origTxt,COMPOUND_ANNOTATION);
+return getNext(asciiQuotes(asciiDash(origTxt)),origTxt,COMPOUND_ANNOTATION);
 }
 case 58:
 break;
@@ -380,7 +380,7 @@ break;
 case 27:
 {
 final String origTxt=yytext();
-return getNext(handleQuotes(handleDash(origTxt)),origTxt);
+return getNext(asciiQuotes(asciiDash(origTxt)),origTxt);
 }
 case 61:
 break;
@@ -471,8 +471,8 @@ case 34:
 {
 String txt=yytext();
 if (normalizeParentheses) {
-txt=LEFT_PAREN_PATTERN.matcher(txt).replaceAll(openparen);
-txt=RIGHT_PAREN_PATTERN.matcher(txt).replaceAll(closeparen);
+txt=txt.replaceAll("\\(",openparen);
+txt=txt.replaceAll("\\)",closeparen);
 }
 return getNext(txt,yytext());
 }
