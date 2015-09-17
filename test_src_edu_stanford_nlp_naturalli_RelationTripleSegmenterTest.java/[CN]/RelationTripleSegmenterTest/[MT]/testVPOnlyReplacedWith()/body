@@ -1,0 +1,11 @@
+{
+  String conll="1\treplaced\t0\tconj:and\tVBD\n" + "2\twith\t5\tcase\tIN\n" + "3\ta\t5\tdet\tDT\n"+ "4\tdifferent\t5\tamod\tJJ\n"+ "5\ttype\t1\tnmod:with\tNN\n"+ "6\tof\t7\tcase\tIN\n"+ "7\tfilter\t5\tnmod:of\tNN\n";
+  boolean matches=false;
+  SemanticGraph tree=mkTree(conll).first;
+  for (  SemgrexPattern candidate : new RelationTripleSegmenter().VP_PATTERNS) {
+    if (candidate.matcher(tree).matches()) {
+      matches=true;
+    }
+  }
+  assertTrue(matches);
+}
