@@ -1,12 +1,19 @@
 {
+  httpExchange.getResponseHeaders().add("Access-Control-Allow-Origin","*");
   Properties props;
   Annotation ann;
   StanfordCoreNLP.OutputFormat of;
-  log("Received message from " + httpExchange.getRemoteAddress());
+  log("[" + httpExchange.getRemoteAddress() + "] Received message");
   try {
     props=getProperties(httpExchange);
     ann=getDocument(props,httpExchange);
-    of=StanfordCoreNLP.OutputFormat.valueOf(props.getProperty("outputFormat").toUpperCase());
+    of=StanfordCoreNLP.OutputFormat.valueOf(props.getProperty("outputFormat","json").toUpperCase());
+    if (ann.get(CoreAnnotations.TextAnnotation.class).length() == 0) {
+      log("[" + httpExchange.getRemoteAddress() + "] Interactive connection");
+      staticPageHandle.handle(httpExchange);
+      return;
+    }
+    log("[" + httpExchange.getRemoteAddress() + "] API call");
   }
  catch (  IOException|ClassNotFoundException e) {
     e.printStackTrace();
