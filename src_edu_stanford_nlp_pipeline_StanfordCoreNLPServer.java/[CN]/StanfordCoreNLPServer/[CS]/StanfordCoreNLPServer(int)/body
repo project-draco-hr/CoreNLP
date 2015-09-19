@@ -4,5 +4,15 @@
   defaultProps.setProperty("annotators","tokenize, ssplit, pos, lemma, ner, parse, depparse, natlog, openie, dcoref");
   defaultProps.setProperty("inputFormat","text");
   defaultProps.setProperty("outputFormat","json");
+  String tmpDir=System.getProperty("java.io.tmpdir");
+  File tmpFile=new File(tmpDir + File.separator + "corenlp.shutdown");
+  tmpFile.deleteOnExit();
+  if (tmpFile.exists()) {
+    if (!tmpFile.delete()) {
+      throw new IllegalStateException("Could not delete shutdown key file");
+    }
+  }
+  this.shutdownKey=new BigInteger(130,new Random()).toString(32);
+  IOUtils.writeStringToFile(shutdownKey,tmpFile.getPath(),"utf-8");
   this.staticPageHandle=new FileHandler("edu/stanford/nlp/pipeline/demo/corenlp-brat.html");
 }
