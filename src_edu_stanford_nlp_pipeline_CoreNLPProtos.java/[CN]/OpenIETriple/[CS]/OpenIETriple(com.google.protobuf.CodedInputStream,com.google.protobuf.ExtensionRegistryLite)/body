@@ -44,52 +44,79 @@ bitField0_|=0x00000008;
 confidence_=input.readDouble();
 break;
 }
+case 40:
+{
+if (!((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
+subjectTokens_=new java.util.ArrayList<java.lang.Integer>();
+mutable_bitField0_|=0x00000010;
+}
+subjectTokens_.add(input.readUInt32());
+break;
+}
 case 42:
 {
-edu.stanford.nlp.pipeline.CoreNLPProtos.Span.Builder subBuilder=null;
-if (((bitField0_ & 0x00000010) == 0x00000010)) {
-subBuilder=subjectSpan_.toBuilder();
+int length=input.readRawVarint32();
+int limit=input.pushLimit(length);
+if (!((mutable_bitField0_ & 0x00000010) == 0x00000010) && input.getBytesUntilLimit() > 0) {
+subjectTokens_=new java.util.ArrayList<java.lang.Integer>();
+mutable_bitField0_|=0x00000010;
 }
-subjectSpan_=input.readMessage(edu.stanford.nlp.pipeline.CoreNLPProtos.Span.PARSER,extensionRegistry);
-if (subBuilder != null) {
-subBuilder.mergeFrom(subjectSpan_);
-subjectSpan_=subBuilder.buildPartial();
+while (input.getBytesUntilLimit() > 0) {
+subjectTokens_.add(input.readUInt32());
 }
-bitField0_|=0x00000010;
+input.popLimit(limit);
+break;
+}
+case 48:
+{
+if (!((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
+relationTokens_=new java.util.ArrayList<java.lang.Integer>();
+mutable_bitField0_|=0x00000020;
+}
+relationTokens_.add(input.readUInt32());
 break;
 }
 case 50:
 {
-edu.stanford.nlp.pipeline.CoreNLPProtos.Span.Builder subBuilder=null;
-if (((bitField0_ & 0x00000020) == 0x00000020)) {
-subBuilder=relationSpan_.toBuilder();
+int length=input.readRawVarint32();
+int limit=input.pushLimit(length);
+if (!((mutable_bitField0_ & 0x00000020) == 0x00000020) && input.getBytesUntilLimit() > 0) {
+relationTokens_=new java.util.ArrayList<java.lang.Integer>();
+mutable_bitField0_|=0x00000020;
 }
-relationSpan_=input.readMessage(edu.stanford.nlp.pipeline.CoreNLPProtos.Span.PARSER,extensionRegistry);
-if (subBuilder != null) {
-subBuilder.mergeFrom(relationSpan_);
-relationSpan_=subBuilder.buildPartial();
+while (input.getBytesUntilLimit() > 0) {
+relationTokens_.add(input.readUInt32());
 }
-bitField0_|=0x00000020;
+input.popLimit(limit);
+break;
+}
+case 56:
+{
+if (!((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
+objectTokens_=new java.util.ArrayList<java.lang.Integer>();
+mutable_bitField0_|=0x00000040;
+}
+objectTokens_.add(input.readUInt32());
 break;
 }
 case 58:
 {
-edu.stanford.nlp.pipeline.CoreNLPProtos.Span.Builder subBuilder=null;
-if (((bitField0_ & 0x00000040) == 0x00000040)) {
-subBuilder=objectSpan_.toBuilder();
+int length=input.readRawVarint32();
+int limit=input.pushLimit(length);
+if (!((mutable_bitField0_ & 0x00000040) == 0x00000040) && input.getBytesUntilLimit() > 0) {
+objectTokens_=new java.util.ArrayList<java.lang.Integer>();
+mutable_bitField0_|=0x00000040;
 }
-objectSpan_=input.readMessage(edu.stanford.nlp.pipeline.CoreNLPProtos.Span.PARSER,extensionRegistry);
-if (subBuilder != null) {
-subBuilder.mergeFrom(objectSpan_);
-objectSpan_=subBuilder.buildPartial();
+while (input.getBytesUntilLimit() > 0) {
+objectTokens_.add(input.readUInt32());
 }
-bitField0_|=0x00000040;
+input.popLimit(limit);
 break;
 }
 case 66:
 {
 edu.stanford.nlp.pipeline.CoreNLPProtos.DependencyGraph.Builder subBuilder=null;
-if (((bitField0_ & 0x00000080) == 0x00000080)) {
+if (((bitField0_ & 0x00000010) == 0x00000010)) {
 subBuilder=tree_.toBuilder();
 }
 tree_=input.readMessage(edu.stanford.nlp.pipeline.CoreNLPProtos.DependencyGraph.PARSER,extensionRegistry);
@@ -97,7 +124,31 @@ if (subBuilder != null) {
 subBuilder.mergeFrom(tree_);
 tree_=subBuilder.buildPartial();
 }
+bitField0_|=0x00000010;
+break;
+}
+case 72:
+{
+bitField0_|=0x00000020;
+istmod_=input.readBool();
+break;
+}
+case 80:
+{
+bitField0_|=0x00000040;
+prefixBe_=input.readBool();
+break;
+}
+case 88:
+{
 bitField0_|=0x00000080;
+suffixBe_=input.readBool();
+break;
+}
+case 96:
+{
+bitField0_|=0x00000100;
+suffixOf_=input.readBool();
 break;
 }
 }
@@ -110,6 +161,15 @@ catch (java.io.IOException e) {
 throw new com.google.protobuf.InvalidProtocolBufferException(e.getMessage()).setUnfinishedMessage(this);
 }
  finally {
+if (((mutable_bitField0_ & 0x00000010) == 0x00000010)) {
+subjectTokens_=java.util.Collections.unmodifiableList(subjectTokens_);
+}
+if (((mutable_bitField0_ & 0x00000020) == 0x00000020)) {
+relationTokens_=java.util.Collections.unmodifiableList(relationTokens_);
+}
+if (((mutable_bitField0_ & 0x00000040) == 0x00000040)) {
+objectTokens_=java.util.Collections.unmodifiableList(objectTokens_);
+}
 this.unknownFields=unknownFields.build();
 makeExtensionsImmutable();
 }
