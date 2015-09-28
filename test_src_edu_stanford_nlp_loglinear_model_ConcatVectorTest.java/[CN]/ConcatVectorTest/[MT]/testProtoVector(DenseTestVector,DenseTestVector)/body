@@ -1,0 +1,11 @@
+{
+  double expected=d1.vector.dotProduct(d2.vector);
+  ByteArrayOutputStream byteArrayOutputStream=new ByteArrayOutputStream();
+  assert(d1.vector.getClass() == ConcatVector.class);
+  d1.vector.writeToStream(byteArrayOutputStream);
+  byteArrayOutputStream.close();
+  byte[] bytes=byteArrayOutputStream.toByteArray();
+  ByteArrayInputStream byteArrayInputStream=new ByteArrayInputStream(bytes);
+  ConcatVector recovered=ConcatVector.readFromStream(byteArrayInputStream);
+  assertEquals(expected,recovered.dotProduct(d2.vector),5.0e-4);
+}

@@ -1,0 +1,56 @@
+{
+  for (int i=0; i < pointers.length; i++) {
+    if (pointers[i] == null)     continue;
+    if (copyOnWrite[i]) {
+      copyOnWrite[i]=false;
+      pointers[i]=pointers[i].clone();
+    }
+    if (i >= other.pointers.length) {
+      if (sparse[i]) {
+        pointers[i][1]=0;
+      }
+ else {
+        for (int j=0; j < pointers[i].length; j++) {
+          pointers[i][j]=0;
+        }
+      }
+    }
+ else     if (other.pointers[i] == null) {
+      pointers[i]=null;
+    }
+ else     if (sparse[i] && other.sparse[i]) {
+      if ((int)pointers[i][0] == (int)other.pointers[i][0]) {
+        pointers[i][1]*=other.pointers[i][1];
+      }
+ else {
+        pointers[i][1]=0.0f;
+      }
+    }
+ else     if (sparse[i] && !other.sparse[i]) {
+      int sparseIndex=(int)pointers[i][0];
+      if (sparseIndex >= 0 && sparseIndex < other.pointers[i].length) {
+        pointers[i][1]*=other.pointers[i][sparseIndex];
+      }
+ else {
+        pointers[i][1]=0.0f;
+      }
+    }
+ else     if (!sparse[i] && other.sparse[i]) {
+      int sparseIndex=(int)other.pointers[i][0];
+      double sparseValue=0.0f;
+      if (sparseIndex >= 0 && sparseIndex < pointers[i].length) {
+        sparseValue=pointers[i][sparseIndex] * other.pointers[i][1];
+      }
+      sparse[i]=true;
+      pointers[i]=new double[]{sparseIndex,sparseValue};
+    }
+ else {
+      for (int j=0; j < Math.min(pointers[i].length,other.pointers[i].length); j++) {
+        pointers[i][j]*=other.pointers[i][j];
+      }
+      for (int j=other.pointers[i].length; j < pointers[i].length; j++) {
+        pointers[i][j]=0.0f;
+      }
+    }
+  }
+}

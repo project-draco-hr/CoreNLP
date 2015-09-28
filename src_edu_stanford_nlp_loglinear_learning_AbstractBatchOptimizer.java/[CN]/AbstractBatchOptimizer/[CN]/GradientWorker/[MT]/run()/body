@@ -1,0 +1,14 @@
+{
+  long startTime=ManagementFactory.getThreadMXBean().getThreadCpuTime(jvmThreadId);
+  for (  T datum : queue) {
+    AbstractFunction.FunctionSummaryAtPoint summary=fn.getSummaryForInstance(datum,weights);
+    if (Double.isFinite(summary.value)) {
+      localDerivative.addVectorInPlace(summary.gradient,1.0);
+      localLogLikelihood+=summary.value;
+    }
+    if (mainWorker.isFinished)     return;
+  }
+  finishedAtTime=System.currentTimeMillis();
+  long endTime=ManagementFactory.getThreadMXBean().getThreadCpuTime(jvmThreadId);
+  cpuTimeRequired=endTime - startTime;
+}

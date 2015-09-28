@@ -1,0 +1,12 @@
+{
+  ConcatVector v1=new ConcatVector(1);
+  v1.setSparseComponent(0,sparseIndex1,val1);
+  ConcatVector v2=new ConcatVector(1);
+  v2.setSparseComponent(0,sparseIndex2,val2);
+  v1.elementwiseProductInPlace(v2);
+  for (int i=0; i < 10; i++) {
+    double expected=0.0f;
+    if (i == sparseIndex1 && i == sparseIndex2)     expected=val1 * val2;
+    assertEquals(expected,v1.getValueAt(0,i),5.0e-4);
+  }
+}
