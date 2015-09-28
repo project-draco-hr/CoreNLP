@@ -1,0 +1,26 @@
+{
+  System.err.println("\n**************\nBeginning training\n");
+  TrainingWorker<T> mainWorker=new TrainingWorker<>(dataset,fn,initialWeights,l2regularization);
+  new Thread(mainWorker).start();
+  BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
+  System.err.println("NOTE: you can press any key (and maybe ENTER afterwards to jog stdin) to terminate learning early.");
+  System.err.println("The convergence criteria are quite aggressive if left uninterrupted, and will run for a while");
+  System.err.println("if left to their own devices.\n");
+  while (true) {
+    if (mainWorker.isFinished) {
+      System.err.println("training completed without interruption");
+      return mainWorker.weights;
+    }
+    try {
+      if (br.ready()) {
+        System.err.println("received quit command: quitting");
+        System.err.println("training completed by interruption");
+        mainWorker.isFinished=true;
+        return mainWorker.weights;
+      }
+    }
+ catch (    IOException e) {
+      e.printStackTrace();
+    }
+  }
+}

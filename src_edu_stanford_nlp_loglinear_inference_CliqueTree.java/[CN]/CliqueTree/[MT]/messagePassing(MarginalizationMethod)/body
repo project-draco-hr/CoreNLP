@@ -1,0 +1,248 @@
+{
+  boolean impossibleObservationMade=false;
+  double partitionFunction=1.0;
+  outer:   for (  GraphicalModel.Factor f : model.factors) {
+    for (    int n : f.neigborIndices) {
+      if (!model.getVariableMetaDataByReference(n).containsKey(VARIABLE_OBSERVED_VALUE))       continue outer;
+    }
+    int[] assignment=new int[f.neigborIndices.length];
+    for (int i=0; i < f.neigborIndices.length; i++) {
+      assignment[i]=Integer.parseInt(model.getVariableMetaDataByReference(f.neigborIndices[i]).get(VARIABLE_OBSERVED_VALUE));
+    }
+    double assignmentValue=f.featuresTable.getAssignmentValue(assignment).get().dotProduct(weights);
+    if (Double.isInfinite(assignmentValue)) {
+      impossibleObservationMade=true;
+    }
+ else {
+      partitionFunction*=Math.exp(assignmentValue);
+    }
+  }
+  List<TableFactor> cliquesList=new ArrayList<>();
+  Map<Integer,GraphicalModel.Factor> cliqueToFactor=new HashMap<>();
+  for (  GraphicalModel.Factor f : model.factors) {
+    boolean allObserved=true;
+    for (    int n : f.neigborIndices) {
+      if (!model.getVariableMetaDataByReference(n).containsKey(VARIABLE_OBSERVED_VALUE))       allObserved=false;
+    }
+    if (allObserved)     continue;
+    TableFactor clique=new TableFactor(weights,f);
+    cliqueToFactor.put(cliquesList.size(),f);
+    cliquesList.add(clique);
+  }
+  TableFactor[] cliques=cliquesList.toArray(new TableFactor[cliquesList.size()]);
+  for (int i=0; i < cliques.length; i++) {
+    assert(cliqueToFactor.containsKey(i));
+    TableFactor result=cliques[i];
+    for (    int n : cliques[i].neighborIndices) {
+      Map<String,String> metadata=model.getVariableMetaDataByReference(n);
+      if (metadata.containsKey(VARIABLE_OBSERVED_VALUE)) {
+        int value=Integer.parseInt(metadata.get(VARIABLE_OBSERVED_VALUE));
+        result=result.observe(n,value);
+      }
+    }
+    boolean nonZeroValue=false;
+    for (    int[] assignment : result) {
+      if (result.getAssignmentValue(assignment) > 0) {
+        nonZeroValue=true;
+        break;
+      }
+    }
+    if (!nonZeroValue)     impossibleObservationMade=true;
+    cliques[i]=result;
+  }
+  if (impossibleObservationMade) {
+    int maxVar=0;
+    for (    TableFactor c : cliques) {
+      for (      int i : c.neighborIndices)       if (i > maxVar)       maxVar=i;
+    }
+    double[][] result=new double[maxVar + 1][];
+    for (    TableFactor c : cliques) {
+      for (int i=0; i < c.neighborIndices.length; i++) {
+        result[c.neighborIndices[i]]=new double[c.getDimensions()[i]];
+        for (int j=0; j < result[c.neighborIndices[i]].length; j++) {
+          result[c.neighborIndices[i]][j]=1.0 / result[c.neighborIndices[i]].length;
+        }
+      }
+    }
+    Map<GraphicalModel.Factor,TableFactor> jointMarginals=new IdentityHashMap<>();
+    for (    GraphicalModel.Factor f : model.factors) {
+      TableFactor uniformZero=new TableFactor(f.neigborIndices,f.featuresTable.getDimensions());
+      for (      int[] assignment : uniformZero) {
+        uniformZero.setAssignmentValue(assignment,0.0);
+      }
+      jointMarginals.put(f,uniformZero);
+    }
+    return new MarginalResult(result,1.0,jointMarginals);
+  }
+  TableFactor[][] messages=new TableFactor[cliques.length][cliques.length];
+  List<Integer> visited=new ArrayList<>();
+  int[] parent=new int[cliques.length];
+  for (int i=0; i < parent.length; i++)   parent[i]=-1;
+  int[] trees=new int[cliques.length];
+  int treeIndex=-1;
+  while (visited.size() < cliques.length) {
+    treeIndex++;
+    int root=-1;
+    for (int i=0; i < cliques.length; i++) {
+      if (!visited.contains(i) && (root == -1 || cliques[i].neighborIndices.length > cliques[root].neighborIndices.length)) {
+        root=i;
+      }
+    }
+    assert(root != -1);
+    Queue<Integer> toVisit=new ArrayDeque<>();
+    toVisit.add(root);
+    while (toVisit.size() > 0) {
+      int cursor=toVisit.poll();
+      trees[cursor]=treeIndex;
+      if (visited.contains(cursor)) {
+        System.err.println("Visited contains: " + cursor);
+        System.err.println("Visited: " + visited);
+        System.err.println("To visit: " + toVisit);
+      }
+      assert(!visited.contains(cursor));
+      visited.add(cursor);
+      for (int i=0; i < cliques.length; i++) {
+        if (i == cursor)         continue;
+        if (i == parent[cursor])         continue;
+        if (domainsOverlap(cliques[cursor],cliques[i])) {
+          if (parent[i] == -1) {
+            if (!toVisit.contains(i)) {
+              toVisit.add(i);
+            }
+            parent[i]=cursor;
+          }
+        }
+      }
+    }
+  }
+  assert(visited.size() == cliques.length);
+  for (int i=visited.size() - 1; i >= 0; i--) {
+    int cursor=visited.get(i);
+    if (parent[cursor] == -1)     continue;
+    TableFactor message=cliques[cursor];
+    for (int k=0; k < cliques.length; k++) {
+      if (k == parent[cursor])       continue;
+      if (messages[k][cursor] != null) {
+        message=message.multiply(messages[k][cursor]);
+      }
+    }
+    messages[cursor][parent[cursor]]=marginalizeMessage(message,cliques[parent[cursor]].neighborIndices,marginalize);
+  }
+  for (  int cursor : visited) {
+    for (int j=0; j < cliques.length; j++) {
+      if (parent[j] != cursor)       continue;
+      TableFactor message=cliques[cursor];
+      for (int k=0; k < cliques.length; k++) {
+        if (k == j)         continue;
+        if (messages[k][cursor] != null) {
+          message=message.multiply(messages[k][cursor]);
+        }
+      }
+      messages[cursor][j]=marginalizeMessage(message,cliques[j].neighborIndices,marginalize);
+    }
+  }
+  int maxVar=0;
+  for (  GraphicalModel.Factor fac : model.factors) {
+    for (    int i : fac.neigborIndices)     if (i > maxVar)     maxVar=i;
+  }
+  double[][] marginals=new double[maxVar + 1][];
+  for (  GraphicalModel.Factor fac : model.factors) {
+    for (int i=0; i < fac.neigborIndices.length; i++) {
+      int n=fac.neigborIndices[i];
+      if (model.getVariableMetaDataByReference(n).containsKey(VARIABLE_OBSERVED_VALUE)) {
+        double[] deterministic=new double[fac.featuresTable.getDimensions()[i]];
+        deterministic[Integer.parseInt(model.getVariableMetaDataByReference(n).get(VARIABLE_OBSERVED_VALUE))]=1.0;
+        marginals[n]=deterministic;
+      }
+    }
+  }
+  boolean[] partitionIncludesTrees=new boolean[treeIndex + 1];
+  double[] treePartitionFunctions=new double[treeIndex + 1];
+  Map<GraphicalModel.Factor,TableFactor> jointMarginals=new IdentityHashMap<>();
+  for (int i=0; i < cliques.length; i++) {
+    TableFactor convergedClique=cliques[i];
+    for (int j=0; j < cliques.length; j++) {
+      if (i == j)       continue;
+      if (messages[j][i] == null)       continue;
+      convergedClique=convergedClique.multiply(messages[j][i]);
+    }
+    if (marginalize == MarginalizationMethod.SUM) {
+      if (!partitionIncludesTrees[trees[i]]) {
+        partitionIncludesTrees[trees[i]]=true;
+        treePartitionFunctions[trees[i]]=convergedClique.valueSum();
+        partitionFunction*=treePartitionFunctions[trees[i]];
+      }
+ else {
+        if (assertsEnabled()) {
+          double valueSum=convergedClique.valueSum();
+          if (Double.isFinite(valueSum) && Double.isFinite(treePartitionFunctions[trees[i]])) {
+            if (Math.abs(treePartitionFunctions[trees[i]] - valueSum) >= 1.0e-3 * treePartitionFunctions[trees[i]]) {
+              System.err.println("Different partition functions for tree " + i + ": ");
+              System.err.println("Pre-existing for tree: " + treePartitionFunctions[trees[i]]);
+              System.err.println("This clique for tree: " + valueSum);
+            }
+            assert(Math.abs(treePartitionFunctions[trees[i]] - valueSum) < 1.0e-3 * treePartitionFunctions[trees[i]]);
+          }
+        }
+      }
+      GraphicalModel.Factor f=cliqueToFactor.get(i);
+      assert(f != null);
+      if (!jointMarginals.containsKey(f)) {
+        int[] observedAssignments=getObservedAssignments(f);
+        int[] backPointers=new int[observedAssignments.length];
+        int cursor=0;
+        for (int j=0; j < observedAssignments.length; j++) {
+          if (observedAssignments[j] == -1) {
+            backPointers[j]=cursor;
+            cursor++;
+          }
+ else           backPointers[j]=-1;
+        }
+        double sum=convergedClique.valueSum();
+        TableFactor jointMarginal=new TableFactor(f.neigborIndices,f.featuresTable.getDimensions());
+        Iterator<int[]> fastPassByReferenceIterator=convergedClique.fastPassByReferenceIterator();
+        int[] assignment=fastPassByReferenceIterator.next();
+        while (true) {
+          if (backPointers.length == assignment.length) {
+            jointMarginal.setAssignmentValue(assignment,convergedClique.getAssignmentValue(assignment) / sum);
+          }
+ else {
+            int[] jointAssignment=new int[backPointers.length];
+            for (int j=0; j < jointAssignment.length; j++) {
+              if (observedAssignments[j] != -1)               jointAssignment[j]=observedAssignments[j];
+ else               jointAssignment[j]=assignment[backPointers[j]];
+            }
+            jointMarginal.setAssignmentValue(jointAssignment,convergedClique.getAssignmentValue(assignment) / sum);
+          }
+          if (fastPassByReferenceIterator.hasNext())           fastPassByReferenceIterator.next();
+ else           break;
+        }
+        jointMarginals.put(f,jointMarginal);
+      }
+    }
+    for (    int j : convergedClique.neighborIndices) {
+      if (marginals[j] == null) {
+switch (marginalize) {
+case SUM:
+          marginals[j]=convergedClique.getSummedMarginal(j);
+        break;
+case MAX:
+      marginals[j]=convergedClique.getMaxedMarginal(j);
+    break;
+}
+}
+}
+}
+if (marginalize == MarginalizationMethod.SUM) {
+for (GraphicalModel.Factor f : model.factors) {
+if (!jointMarginals.containsKey(f)) {
+TableFactor deterministicJointMarginal=new TableFactor(f.neigborIndices,f.featuresTable.getDimensions());
+int[] observedAssignment=getObservedAssignments(f);
+for (int i : observedAssignment) assert(i != -1);
+deterministicJointMarginal.setAssignmentValue(observedAssignment,1.0);
+jointMarginals.put(f,deterministicJointMarginal);
+}
+}
+}
+return new MarginalResult(marginals,partitionFunction,jointMarginals);
+}

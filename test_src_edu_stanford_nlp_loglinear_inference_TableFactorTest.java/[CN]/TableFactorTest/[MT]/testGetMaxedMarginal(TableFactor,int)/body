@@ -1,0 +1,20 @@
+{
+  if (!Arrays.stream(factor.neighborIndices).boxed().collect(Collectors.toSet()).contains(marginalizeTo))   return;
+  int indexOfVariable=-1;
+  for (int i=0; i < factor.neighborIndices.length; i++) {
+    if (factor.neighborIndices[i] == marginalizeTo) {
+      indexOfVariable=i;
+      break;
+    }
+  }
+  assumeTrue(indexOfVariable > -1);
+  double[] gold=new double[factor.getDimensions()[indexOfVariable]];
+  for (int i=0; i < gold.length; i++) {
+    gold[i]=Double.NEGATIVE_INFINITY;
+  }
+  for (  int[] assignment : factor) {
+    gold[assignment[indexOfVariable]]=Math.max(gold[assignment[indexOfVariable]],factor.getAssignmentValue(assignment));
+  }
+  normalize(gold);
+  assertArrayEquals(gold,factor.getMaxedMarginal(marginalizeTo),1.0e-5);
+}
