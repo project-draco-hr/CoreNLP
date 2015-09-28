@@ -4,10 +4,14 @@
   IndexedWord root=originalRoot;
   fringe.add(root);
   boolean isCopula=false;
+  IndexedWord primaryCase=null;
   for (  SemanticGraphEdge edge : parse.outgoingEdgeIterable(originalRoot)) {
     String shortName=edge.getRelation().getShortName();
     if (shortName.equals("cop") || shortName.equals("auxpass")) {
       isCopula=true;
+    }
+    if (shortName.equals("case")) {
+      primaryCase=edge.getDependent();
     }
   }
   while (!fringe.isEmpty()) {
@@ -17,10 +21,6 @@
       if (edge.getDependent() != originalRoot) {
         String relStr=edge.getRelation().toString();
         if ((relStr.startsWith("nmod:") && !"nmod:poss".equals(relStr) && !"nmod:npmod".equals(relStr)) || relStr.startsWith("acl:") || relStr.startsWith("advcl:")) {
-          chunk.add(mockNode(edge.getGovernor().backingLabel(),1,edge.getRelation().toString().substring(edge.getRelation().toString().indexOf(":") + 1).replace("tmod","at_time"),"PP"),-(((double)edge.getGovernor().index()) + 0.9));
-        }
-        if (edge.getRelation().getShortName().equals("conj")) {
-          chunk.add(mockNode(root.backingLabel(),-1,edge.getRelation().getSpecific(),"CC"),-(((double)root.index()) - 0.9));
         }
       }
     }
@@ -28,6 +28,8 @@
       String shortName=edge.getRelation().getShortName();
       String name=edge.getRelation().toString();
       if (isCopula && (shortName.equals("cop") || shortName.contains("subj") || shortName.equals("auxpass"))) {
+      }
+ else       if (edge.getDependent() == primaryCase) {
       }
  else       if (ignoredArc.isPresent() && ignoredArc.get().equals(name)) {
       }
