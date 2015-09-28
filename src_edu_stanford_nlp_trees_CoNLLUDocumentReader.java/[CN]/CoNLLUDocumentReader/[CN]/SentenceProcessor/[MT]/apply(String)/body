@@ -1,0 +1,29 @@
+{
+  if (line == null)   return null;
+  Function<String,IndexedWord> func=new WordProcessor();
+  ObjectBank<IndexedWord> words=ObjectBank.getLineIterator(new StringReader(line),func);
+  List<IndexedWord> sorted=new ArrayList<IndexedWord>(words);
+  Collections.sort(sorted);
+  List<TypedDependency> deps=new ArrayList<TypedDependency>(sorted.size());
+  for (  IndexedWord word : sorted) {
+    lineNumberCounter++;
+    GrammaticalRelation reln=GrammaticalRelation.valueOf(Language.UniversalEnglish,word.get(CoreAnnotations.CoNLLDepTypeAnnotation.class));
+    int govIdx=word.get(CoreAnnotations.CoNLLDepParentIndexAnnotation.class);
+    IndexedWord gov;
+    if (govIdx == 0) {
+      gov=new IndexedWord(word.docID(),word.sentIndex(),0);
+      gov.setValue("ROOT");
+      if (word.get(CoreAnnotations.CoNLLDepTypeAnnotation.class).equals("root")) {
+        reln=GrammaticalRelation.ROOT;
+      }
+    }
+ else {
+      gov=sorted.get(govIdx - 1);
+    }
+    TypedDependency dep=new TypedDependency(reln,gov,word);
+    word.set(CoreAnnotations.LineNumberAnnotation.class,lineNumberCounter);
+    deps.add(dep);
+  }
+  lineNumberCounter++;
+  return new SemanticGraph(deps);
+}

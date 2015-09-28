@@ -1,17 +1,8 @@
 {
-  TreeMap<Integer,Counter<CandidatePhrase>> learned=new TreeMap<Integer,Counter<CandidatePhrase>>();
-  Counter<CandidatePhrase> words=null;
-  int numIter=-1;
+  Counter<CandidatePhrase> words=new ClassicCounter<CandidatePhrase>();
   for (  String line : IOUtils.readLines(file)) {
-    if (line.startsWith("###")) {
-      if (words != null)       learned.put(numIter,words);
-      numIter++;
-      words=new ClassicCounter<CandidatePhrase>();
-      continue;
-    }
     String[] t=line.split("\t");
     words.setCount(CandidatePhrase.createOrGet(t[0]),Double.parseDouble(t[1]));
   }
-  if (words != null)   learned.put(numIter,words);
-  return learned;
+  return words;
 }

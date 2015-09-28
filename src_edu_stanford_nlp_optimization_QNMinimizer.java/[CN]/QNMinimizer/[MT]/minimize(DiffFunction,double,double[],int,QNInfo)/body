@@ -1,7 +1,7 @@
 {
-  say("QNMinimizer called on double function of " + dFunction.domainDimension() + " variables,");
+  say("QNMinimizer called on double function of " + dfunction.domainDimension() + " variables,");
   if (mem > 0) {
-    sayln(" using M = " + mem + '.');
+    sayln(" using M = " + mem + ".");
   }
  else {
     sayln(" using dynamic setting of M.");
@@ -28,11 +28,11 @@
   newGrad=new double[x.length];
   newX=new double[x.length];
   dir=new double[x.length];
-  value=evaluateFunction(dFunction,x,grad);
+  value=evaluateFunction(dfunction,x,grad);
   if (useOWLQN) {
-    double norm=l1NormOWL(x,dFunction);
+    double norm=l1NormOWL(x,dfunction);
     value+=norm * lambdaOWL;
-    grad=pseudoGradientOWL(x,grad,dFunction);
+    grad=pseudoGradientOWL(x,grad,dfunction);
   }
   PrintWriter outFile=null;
   PrintWriter infoFile=null;
@@ -41,7 +41,7 @@
       String baseName="QN_m" + mem + "_"+ lsOpt.toString()+ "_"+ scaleOpt.toString();
       outFile=new PrintWriter(new FileOutputStream(baseName + ".output"),true);
       infoFile=new PrintWriter(new FileOutputStream(baseName + ".info"),true);
-      infoFile.println(dFunction.domainDimension() + "; DomainDimension ");
+      infoFile.println(dfunction.domainDimension() + "; DomainDimension ");
       infoFile.println(mem + "; memory");
     }
  catch (    IOException e) {
@@ -75,9 +75,10 @@
       boolean doEval=(its >= 0 && its >= startEvaluateIters && evaluateIters > 0 && its % evaluateIters == 0);
       its+=1;
       double newValue;
-      say("Iter " + its + " evals "+ fevals+ ' ');
+      double[] newPoint=new double[3];
+      say("Iter " + its + " evals "+ fevals+ " ");
       say("<");
-      computeDir(dir,grad,x,qn,dFunction);
+      computeDir(dir,grad,x,qn,dfunction);
       say("> ");
       boolean hasNaNDir=false;
       boolean hasNaNGrad=false;
@@ -89,23 +90,22 @@
         say("(NaN dir likely due to Hessian approx - resetting) ");
         qn.clear();
         say("<");
-        computeDir(dir,grad,x,qn,dFunction);
+        computeDir(dir,grad,x,qn,dfunction);
         say("> ");
       }
       say("[");
-      double[] newPoint;
       if (useOWLQN) {
-        newPoint=lineSearchBacktrackOWL(dFunction,dir,x,newX,grad,value);
+        newPoint=lineSearchBacktrackOWL(dfunction,dir,x,newX,grad,value);
         say("B");
       }
  else {
 switch (lsOpt) {
 case BACKTRACK:
-          newPoint=lineSearchBacktrack(dFunction,dir,x,newX,grad,value);
+          newPoint=lineSearchBacktrack(dfunction,dir,x,newX,grad,value);
         say("B");
       break;
 case MINPACK:
-    newPoint=lineSearchMinPack(dFunction,dir,x,newX,grad,value,functionTolerance);
+    newPoint=lineSearchMinPack(dfunction,dir,x,newX,grad,value,functionTolerance);
   say("M");
 break;
 default :
@@ -116,10 +116,10 @@ newValue=newPoint[f];
 say(" ");
 say(nf.format(newPoint[a]));
 say("] ");
-System.arraycopy(dFunction.derivativeAt(newX),0,newGrad,0,newGrad.length);
+System.arraycopy(dfunction.derivativeAt(newX),0,newGrad,0,newGrad.length);
 qn.update(newX,x,newGrad,grad,newPoint[a]);
 if (useOWLQN) {
-newGrad=pseudoGradientOWL(newX,newGrad,dFunction);
+newGrad=pseudoGradientOWL(newX,newGrad,dfunction);
 }
 double evalScore=Double.NEGATIVE_INFINITY;
 if (doEval) {
