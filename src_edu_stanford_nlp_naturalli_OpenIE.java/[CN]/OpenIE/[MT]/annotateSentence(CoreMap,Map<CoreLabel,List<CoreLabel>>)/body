@@ -2,7 +2,7 @@
   List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
   if (tokens.size() < 2) {
     sentence.set(NaturalLogicAnnotations.RelationTriplesAnnotation.class,Collections.EMPTY_LIST);
-    sentence.set(NaturalLogicAnnotations.EntailedSentencesAnnotation.class,Collections.EMPTY_SET);
+    sentence.set(NaturalLogicAnnotations.EntailedSentencesAnnotation.class,Collections.EMPTY_LIST);
   }
  else {
     SemanticGraph parse=sentence.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class);
@@ -14,7 +14,7 @@
     }
     List<RelationTriple> extractions=segmenter.extract(parse,tokens);
     List<SentenceFragment> clauses=clausesInSentence(sentence);
-    Set<SentenceFragment> fragments=entailmentsFromClauses(clauses);
+    List<SentenceFragment> fragments=entailmentsFromClauses(clauses);
     extractions.addAll(relationsInFragments(fragments,sentence,canonicalMentionMap));
     sentence.set(NaturalLogicAnnotations.EntailedSentencesAnnotation.class,fragments);
     sentence.set(NaturalLogicAnnotations.RelationTriplesAnnotation.class,new ArrayList<>(new HashSet<>(extractions)));

@@ -1,24 +1,10 @@
 {
   value=0.0;
-  if (parallelGradientCalculation && threads > 1) {
-    int examplesPerProcessor=50;
-    if (batch.length <= Runtime.getRuntime().availableProcessors() * examplesPerProcessor) {
-      System.err.println("\n\n***************");
-      System.err.println("CONFIGURATION ERROR: YOUR BATCH SIZE DOESN'T MEET PARALLEL MINIMUM SIZE FOR PERFORMANCE");
-      System.err.println("Batch size: " + batch.length);
-      System.err.println("CPUS: " + Runtime.getRuntime().availableProcessors());
-      System.err.println("Minimum batch size per CPU: " + examplesPerProcessor);
-      System.err.println("MINIMIM BATCH SIZE ON THIS MACHINE: " + (Runtime.getRuntime().availableProcessors() * examplesPerProcessor));
-      System.err.println("TURNING OFF PARALLEL GRADIENT COMPUTATION");
-      System.err.println("***************\n");
-      parallelGradientCalculation=false;
-    }
-  }
-  if (parallelGradientCalculation && threads > 1) {
-    @SuppressWarnings("unchecked") CLBatchDerivativeCalculation[] runnables=(CLBatchDerivativeCalculation[])Array.newInstance(CLBatchDerivativeCalculation.class,threads);
+  if (parallelGradientCalculation && Execution.threads > 1) {
+    @SuppressWarnings("unchecked") HogWildStochasticUpdate[] runnables=(HogWildStochasticUpdate[])Array.newInstance(HogWildStochasticUpdate.class,threads);
     CountDownLatch latch=new CountDownLatch(threads);
     for (int i=0; i < threads; i++) {
-      runnables[i]=new CLBatchDerivativeCalculation(threads,i,batch,x,x.length,latch);
+      runnables[i]=new HogWildStochasticUpdate(threads,i,x,xscale,batch,gain,latch);
       executorService.execute(runnables[i]);
     }
     try {
@@ -29,9 +15,6 @@
     }
     for (int i=0; i < threads; i++) {
       value+=runnables[i].localValue;
-      for (int j=0; j < x.length; j++) {
-        x[j]+=runnables[i].localDerivative[j] * xscale * gain;
-      }
     }
   }
  else {
