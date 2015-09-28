@@ -2,5 +2,7 @@
   if (!seedLabelDictionary.containsKey(label)) {
     throw new Exception("label not present in the model");
   }
-  this.seedLabelDictionary.get(label).addAll(seeds);
+  Set<CandidatePhrase> seedWords=new HashSet<CandidatePhrase>(seedLabelDictionary.get(label));
+  seedWords.addAll(seeds);
+  seedLabelDictionary.put(label,Collections.unmodifiableSet(seedWords));
 }

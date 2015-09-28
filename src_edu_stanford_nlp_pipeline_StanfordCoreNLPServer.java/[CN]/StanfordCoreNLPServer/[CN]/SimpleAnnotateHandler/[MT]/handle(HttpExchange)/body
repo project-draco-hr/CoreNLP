@@ -1,0 +1,48 @@
+{
+  httpExchange.getResponseHeaders().add("Access-Control-Allow-Origin","*");
+  Properties props;
+  Annotation ann;
+  StanfordCoreNLP.OutputFormat of;
+  log("[" + httpExchange.getRemoteAddress() + "] Received message");
+  try {
+    props=getProperties(httpExchange);
+    ann=getDocument(props,httpExchange);
+    of=StanfordCoreNLP.OutputFormat.valueOf(props.getProperty("outputFormat","json").toUpperCase());
+    if (ann.get(CoreAnnotations.TextAnnotation.class).length() == 0) {
+      log("[" + httpExchange.getRemoteAddress() + "] Interactive connection");
+      staticPageHandle.handle(httpExchange);
+      return;
+    }
+    log("[" + httpExchange.getRemoteAddress() + "] API call");
+  }
+ catch (  IOException|ClassNotFoundException e) {
+    e.printStackTrace();
+    String response=e.getMessage();
+    httpExchange.getResponseHeaders().add("Content-Type","text/plain");
+    httpExchange.sendResponseHeaders(HTTP_BAD_INPUT,response.length());
+    httpExchange.getResponseBody().write(response.getBytes());
+    httpExchange.close();
+    return;
+  }
+  try {
+    StanfordCoreNLP pipeline=mkStanfordCoreNLP(props);
+    pipeline.annotate(ann);
+    ByteArrayOutputStream os=new ByteArrayOutputStream();
+    StanfordCoreNLP.createOutputter(props,AnnotationOutputter.getOptions(pipeline)).accept(ann,os);
+    os.close();
+    byte[] response=os.toByteArray();
+    httpExchange.getResponseHeaders().add("Content-Type",getContentType(props,of));
+    httpExchange.getResponseHeaders().add("Content-Length",Integer.toString(response.length));
+    httpExchange.sendResponseHeaders(HTTP_OK,response.length);
+    httpExchange.getResponseBody().write(response);
+    httpExchange.close();
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+    String response=e.getMessage();
+    httpExchange.getResponseHeaders().add("Content-Type","text/plain");
+    httpExchange.sendResponseHeaders(HTTP_ERR,response.length());
+    httpExchange.getResponseBody().write(response.getBytes());
+    httpExchange.close();
+  }
+}

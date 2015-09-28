@@ -2,11 +2,15 @@
   Redwood.log(Redwood.DBG,"ignoreCaseSeedMatch is " + constVars.ignoreCaseSeedMatch);
   List<List<String>> threadedSentIds=getThreadBatches(new ArrayList<String>(sents.keySet()),constVars.numThreads);
   ExecutorService executor=Executors.newFixedThreadPool(constVars.numThreads);
-  List<Future<Map<String,DataInstance>>> list=new ArrayList<Future<Map<String,DataInstance>>>();
+  List<Future<Pair<Map<String,DataInstance>,Counter<CandidatePhrase>>>> list=new ArrayList<>();
+  Counter<CandidatePhrase> matchedPhrasesCounter=new ClassicCounter<CandidatePhrase>();
   for (  List<String> keys : threadedSentIds) {
-    Callable<Map<String,DataInstance>> task=new LabelWithSeedWords(seedWords,sents,keys,answerclass,label,constVars.fuzzyMatch,constVars.minLen4FuzzyForPattern,constVars.backgroundSymbol,constVars.getEnglishWords(),stringTransformationFunction,constVars.writeMatchedTokensIdsForEachPhrase,overwriteExistingLabels,constVars.patternType,constVars.ignoreCaseSeedMatch);
-    Map<String,DataInstance> sentsi=executor.submit(task).get();
-    sents.putAll(sentsi);
+    Callable<Pair<Map<String,DataInstance>,Counter<CandidatePhrase>>> task=new LabelWithSeedWords(seedWords,sents,keys,answerclass,label,constVars.fuzzyMatch,constVars.minLen4FuzzyForPattern,constVars.backgroundSymbol,constVars.getEnglishWords(),stringTransformationFunction,constVars.writeMatchedTokensIdsForEachPhrase,overwriteExistingLabels,constVars.patternType,constVars.ignoreCaseSeedMatch);
+    Pair<Map<String,DataInstance>,Counter<CandidatePhrase>> sentsi=executor.submit(task).get();
+    sents.putAll(sentsi.first());
+    matchedPhrasesCounter.addAll(sentsi.second());
   }
   executor.shutdown();
+  Redwood.log("extremedebug","Matched phrases freq is " + matchedPhrasesCounter);
+  return matchedPhrasesCounter;
 }

@@ -1,25 +1,26 @@
 {
+  HashMap<String,String> dictionary=new HashMap<>();
+  BufferedReader br=null;
   try {
-    dict=new HashMap<String,String>();
-    BufferedReader br=IOUtils.readerFromString(dictPath);
+    br=IOUtils.readerFromString(dictPath);
     for (String line; (line=br.readLine()) != null; ) {
       String[] words=line.trim().split("\\s");
       if (words.length < 3) {
-        System.err.printf("SpanishVerbStripper: addings words to dict, missing word, ignoring line%n");
+        System.err.printf("SpanishVerbStripper: adding words to dict, missing fields, ignoring line: %s%n",line);
       }
  else {
-        dict.put(words[0],words[2]);
+        dictionary.put(words[0],words[2]);
       }
     }
-    IOUtils.closeIgnoringExceptions(br);
   }
  catch (  UnsupportedEncodingException e) {
     e.printStackTrace();
   }
-catch (  FileNotFoundException e) {
-    System.err.println("Could not load Spanish data file " + dictPath);
-  }
 catch (  IOException e) {
     System.err.println("Could not load Spanish data file " + dictPath);
   }
+ finally {
+    IOUtils.closeIgnoringExceptions(br);
+  }
+  return dictionary;
 }
