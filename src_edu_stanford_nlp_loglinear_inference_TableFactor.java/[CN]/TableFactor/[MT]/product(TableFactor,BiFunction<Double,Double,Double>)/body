@@ -1,0 +1,42 @@
+{
+  List<Integer> domain=new ArrayList<>();
+  List<Integer> otherDomain=new ArrayList<>();
+  List<Integer> resultDomain=new ArrayList<>();
+  for (  int n : neighborIndices) {
+    domain.add(n);
+    resultDomain.add(n);
+  }
+  for (  int n : other.neighborIndices) {
+    otherDomain.add(n);
+    if (!resultDomain.contains(n))     resultDomain.add(n);
+  }
+  int[] resultNeighborIndices=new int[resultDomain.size()];
+  int[] resultDimensions=new int[resultNeighborIndices.length];
+  for (int i=0; i < resultDomain.size(); i++) {
+    int var=resultDomain.get(i);
+    resultNeighborIndices[i]=var;
+    assert((getVariableSize(var) == 0 && other.getVariableSize(var) > 0) || (getVariableSize(var) > 0 && other.getVariableSize(var) == 0) || (getVariableSize(var) == other.getVariableSize(var)));
+    resultDimensions[i]=Math.max(getVariableSize(resultDomain.get(i)),other.getVariableSize(resultDomain.get(i)));
+  }
+  TableFactor result=new TableFactor(resultNeighborIndices,resultDimensions);
+  int[] mapping=new int[result.neighborIndices.length];
+  int[] otherMapping=new int[result.neighborIndices.length];
+  for (int i=0; i < result.neighborIndices.length; i++) {
+    mapping[i]=domain.indexOf(result.neighborIndices[i]);
+    otherMapping[i]=otherDomain.indexOf(result.neighborIndices[i]);
+  }
+  int[] assignment=new int[neighborIndices.length];
+  int[] otherAssignment=new int[other.neighborIndices.length];
+  Iterator<int[]> fastPassByReferenceIterator=result.fastPassByReferenceIterator();
+  int[] resultAssignment=fastPassByReferenceIterator.next();
+  while (true) {
+    for (int i=0; i < resultAssignment.length; i++) {
+      if (mapping[i] != -1)       assignment[mapping[i]]=resultAssignment[i];
+      if (otherMapping[i] != -1)       otherAssignment[otherMapping[i]]=resultAssignment[i];
+    }
+    result.setAssignmentLogValue(resultAssignment,join.apply(getAssignmentLogValue(assignment),other.getAssignmentLogValue(otherAssignment)));
+    if (fastPassByReferenceIterator.hasNext())     fastPassByReferenceIterator.next();
+ else     break;
+  }
+  return result;
+}

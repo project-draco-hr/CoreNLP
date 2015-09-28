@@ -1,0 +1,12 @@
+{
+  ConcatVector v1=new ConcatVector(1);
+  v1.setDenseComponent(0,dense1);
+  ConcatVector v2=new ConcatVector(1);
+  v2.setSparseComponent(0,sparseIndex,v);
+  v1.elementwiseProductInPlace(v2);
+  for (int i=0; i < dense1.length; i++) {
+    double expected=0.0f;
+    if (i == sparseIndex)     expected=dense1[i] * v;
+    assertEquals(expected,v1.getValueAt(0,i),5.0e-4);
+  }
+}

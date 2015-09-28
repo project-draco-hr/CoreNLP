@@ -1,0 +1,28 @@
+{
+  final int[] assignments=new int[dimensions.length];
+  if (dimensions.length > 0)   assignments[0]=-1;
+  return new Iterator<int[]>(){
+    @Override public boolean hasNext(){
+      for (int i=0; i < assignments.length; i++) {
+        if (assignments[i] < dimensions[i] - 1)         return true;
+      }
+      return false;
+    }
+    @Override public int[] next(){
+      assignments[0]++;
+      for (int i=0; i < assignments.length; i++) {
+        if (assignments[i] >= dimensions[i]) {
+          assignments[i]=0;
+          if (i < assignments.length - 1) {
+            assignments[i + 1]++;
+          }
+        }
+ else {
+          break;
+        }
+      }
+      return assignments;
+    }
+  }
+;
+}
