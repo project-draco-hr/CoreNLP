@@ -1,57 +1,16 @@
 {
-  com.google.protobuf.UnknownFieldSet.Builder unknownFields=com.google.protobuf.UnknownFieldSet.newBuilder(this.getUnknownFields());
-  while (true) {
-    int tag=input.readTag();
-switch (tag) {
-case 0:
-      this.setUnknownFields(unknownFields.build());
-    onChanged();
-  return this;
-default :
-{
-  if (!parseUnknownField(input,unknownFields,extensionRegistry,tag)) {
-    this.setUnknownFields(unknownFields.build());
-    onChanged();
-    return this;
+  edu.stanford.nlp.loglinear.model.proto.GraphicalModelProto.Factor parsedMessage=null;
+  try {
+    parsedMessage=PARSER.parsePartialFrom(input,extensionRegistry);
   }
-  break;
-}
-case 10:
-{
-edu.stanford.nlp.loglinear.model.proto.ConcatVectorTableProto.ConcatVectorTable.Builder subBuilder=edu.stanford.nlp.loglinear.model.proto.ConcatVectorTableProto.ConcatVectorTable.newBuilder();
-if (hasFeaturesTable()) {
-  subBuilder.mergeFrom(getFeaturesTable());
-}
-input.readMessage(subBuilder,extensionRegistry);
-setFeaturesTable(subBuilder.buildPartial());
-break;
-}
-case 16:
-{
-ensureNeighborIsMutable();
-neighbor_.add(input.readInt32());
-break;
-}
-case 18:
-{
-int length=input.readRawVarint32();
-int limit=input.pushLimit(length);
-while (input.getBytesUntilLimit() > 0) {
-addNeighbor(input.readInt32());
-}
-input.popLimit(limit);
-break;
-}
-case 26:
-{
-edu.stanford.nlp.loglinear.model.proto.GraphicalModelProto.MetaData.Builder subBuilder=edu.stanford.nlp.loglinear.model.proto.GraphicalModelProto.MetaData.newBuilder();
-if (hasMetaData()) {
-subBuilder.mergeFrom(getMetaData());
-}
-input.readMessage(subBuilder,extensionRegistry);
-setMetaData(subBuilder.buildPartial());
-break;
-}
-}
-}
+ catch (  com.google.protobuf.InvalidProtocolBufferException e) {
+    parsedMessage=(edu.stanford.nlp.loglinear.model.proto.GraphicalModelProto.Factor)e.getUnfinishedMessage();
+    throw e;
+  }
+ finally {
+    if (parsedMessage != null) {
+      mergeFrom(parsedMessage);
+    }
+  }
+  return this;
 }
