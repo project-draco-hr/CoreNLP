@@ -1,0 +1,25 @@
+{
+  for (int i=0; i < d1.values.length; i++) {
+    for (int j=0; j < d1.values[i].length; j++) {
+      assumeTrue(d1.values[i][j] == d1.vector.getValueAt(i,j));
+    }
+  }
+  for (int i=0; i < d2.values.length; i++) {
+    for (int j=0; j < d2.values[i].length; j++) {
+      assumeTrue(d2.values[i][j] == d2.vector.getValueAt(i,j));
+    }
+  }
+  ConcatVector clone=d1.vector.deepClone();
+  clone.elementwiseProductInPlace(d2.vector);
+  for (int i=0; i < d1.values.length; i++) {
+    for (int j=0; j < d1.values[i].length; j++) {
+      double val=0.0f;
+      if (i < d2.values.length) {
+        if (j < d2.values[i].length) {
+          val=d1.values[i][j] * d2.values[i][j];
+        }
+      }
+      assertEquals(val,clone.getValueAt(i,j),5.0e-4);
+    }
+  }
+}

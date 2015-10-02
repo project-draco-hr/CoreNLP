@@ -1,8 +1,11 @@
 {
   try {
     server=HttpServer.create(new InetSocketAddress(serverPort),0);
-    server.createContext("/ping",new PingHandler());
     server.createContext("/",new SimpleAnnotateHandler(defaultProps));
+    server.createContext("/corenlp-brat.js",new FileHandler("edu/stanford/nlp/pipeline/demo/corenlp-brat.js"));
+    server.createContext("/corenlp-brat.cs",new FileHandler("edu/stanford/nlp/pipeline/demo/corenlp-brat.css"));
+    server.createContext("/ping",new PingHandler());
+    server.createContext("/shutdown",new ShutdownHandler());
     server.start();
     log("StanfordCoreNLPServer listening at " + server.getAddress());
   }

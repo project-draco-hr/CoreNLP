@@ -1,0 +1,14 @@
+{
+  Map<List<Integer>,List<int[]>> subsetToSupersets=new HashMap<>();
+  for (  int[] assignment : subset) {
+    List<Integer> subsetAssignmentList=Arrays.stream(assignment).boxed().collect(Collectors.toList());
+    List<int[]> supersetAssignments=new ArrayList<>();
+    for (    int[] supersetAssignment : superset) {
+      if (Arrays.equals(assignment,subsetAssignment(supersetAssignment,superset,subset))) {
+        supersetAssignments.add(supersetAssignment);
+      }
+    }
+    subsetToSupersets.put(subsetAssignmentList,supersetAssignments);
+  }
+  return subsetToSupersets;
+}
