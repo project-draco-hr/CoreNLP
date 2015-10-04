@@ -1,6 +1,7 @@
 {
+  BufferedReader in=null;
   try {
-    BufferedReader in=IOUtils.readerFromString(filename);
+    in=IOUtils.readerFromString(filename);
     List<Pair<Pattern,Integer>> thresholds=new ArrayList<>();
     for (String line; (line=in.readLine()) != null; ) {
       int i=line.lastIndexOf(' ');
@@ -12,7 +13,10 @@
     in.close();
     return thresholds;
   }
- catch (  Exception e) {
-    throw new RuntimeException("Error reading threshold file",e);
+ catch (  IOException e) {
+    throw new RuntimeIOException("Error reading threshold file",e);
+  }
+ finally {
+    IOUtils.closeIgnoringExceptions(in);
   }
 }
