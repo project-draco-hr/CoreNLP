@@ -1,20 +1,19 @@
 {
   if (!(globalFlags.crossValidationFolds > 0 && !globalFlags.printCrossValidationDecisions)) {
-    String message="";
     if (globalFlags.csvOutput != null) {
-      message+=formatCsv(globalFlags.csvOutput,storedHeader.split("\t"),null);
+      System.out.print(formatCsv(globalFlags.csvOutput,storedHeader.split("\t"),null));
     }
  else {
-      message+="Output format: ";
+      System.err.print("Output format: ");
       if (globalFlags.displayedColumn >= 0) {
-        message+="dataColumn" + globalFlags.displayedColumn + "\t";
+        System.err.printf("dataColumn%d\t",globalFlags.displayedColumn);
       }
-      message+="goldAnswer\t";
+      System.err.print("goldAnswer\t");
       if (globalFlags.displayAllAnswers) {
-        Logging.logger(ColumnDataClassifier.class).info(message + "[P(class) class]+ {sorted by probability}");
+        System.err.println("[P(class) class]+ {sorted by probability}");
       }
  else {
-        Logging.logger(ColumnDataClassifier.class).info(message + "classifierAnswer\tP(clAnswer)\tP(goldAnswer)");
+        System.err.println("classifierAnswer\tP(clAnswer)\tP(goldAnswer)");
       }
     }
   }

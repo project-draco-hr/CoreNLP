@@ -1,2 +1,29 @@
 {
+  CoreMap lossySentence=fromProtoNoTokens(proto);
+  List<CoreLabel> tokens=new ArrayList<CoreLabel>();
+  for (  CoreNLPProtos.Token token : proto.getTokenList()) {
+    tokens.add(fromProto(token));
+  }
+  lossySentence.set(TokensAnnotation.class,tokens);
+  if (proto.hasBasicDependencies()) {
+    lossySentence.set(BasicDependenciesAnnotation.class,fromProto(proto.getBasicDependencies(),tokens,null));
+  }
+  if (proto.hasCollapsedDependencies()) {
+    lossySentence.set(CollapsedDependenciesAnnotation.class,fromProto(proto.getCollapsedDependencies(),tokens,null));
+  }
+  if (proto.hasCollapsedCCProcessedDependencies()) {
+    lossySentence.set(CollapsedCCProcessedDependenciesAnnotation.class,fromProto(proto.getCollapsedCCProcessedDependencies(),tokens,null));
+  }
+  if (proto.hasAlternativeDependencies()) {
+    lossySentence.set(AlternativeDependenciesAnnotation.class,fromProto(proto.getAlternativeDependencies(),tokens,null));
+  }
+  if (proto.getOpenieTripleCount() > 0) {
+    List<RelationTriple> triples=new ArrayList<>();
+    for (    CoreNLPProtos.OpenIETriple triple : proto.getOpenieTripleList()) {
+      triples.add(fromProto(triple,tokens,null));
+    }
+    lossySentence.set(NaturalLogicAnnotations.RelationTriplesAnnotation.class,triples);
+  }
+  lossySentence.set(TextAnnotation.class,recoverOriginalText(tokens,proto));
+  return lossySentence;
 }
