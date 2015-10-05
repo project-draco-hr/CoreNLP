@@ -4,17 +4,19 @@
 {
       add(SemgrexPattern.compile("{tag:/N.*/}=subject >appos ( {}=relation >/nmod:.*/=relaux {}=object)"));
       add(SemgrexPattern.compile("{}=relation >/nmod:.*/=relaux {}=subject >appos {}=object"));
+      add(SemgrexPattern.compile("{tag:/N.*/}=object >/nmod:poss/=relaux ( {}=subject >case {} )"));
+      if (allowNominalsWithoutNER) {
+        add(SemgrexPattern.compile("{tag:/N.*/}=subject >/nmod:(?!poss).*/=relaux {}=object"));
+      }
+ else {
+        add(SemgrexPattern.compile("{ner:/PERSON|ORGANIZATION|LOCATION/}=subject >/nmod:(?!poss).*/=relaux {ner:/..+/}=object"));
+        add(SemgrexPattern.compile("{tag:/N.*/}=subject >/nmod:(in|with)/=relaux {}=object"));
+      }
       if (allowNominalsWithoutNER) {
         add(SemgrexPattern.compile("{tag:/N.*/}=subject >/amod/=arc {}=object"));
       }
  else {
         add(SemgrexPattern.compile("{ner:/PERSON|ORGANIZATION|LOCATION/}=subject >/amod|compound/=arc {ner:/..+/}=object"));
-      }
-      if (allowNominalsWithoutNER) {
-        add(SemgrexPattern.compile("{tag:/N.*/}=subject >/nmod:.*/=relaux {}=object"));
-      }
- else {
-        add(SemgrexPattern.compile("{ner:/PERSON|ORGANIZATION|LOCATION/}=subject >/nmod:.*/=relaux {ner:/..+/}=object"));
       }
     }
   }

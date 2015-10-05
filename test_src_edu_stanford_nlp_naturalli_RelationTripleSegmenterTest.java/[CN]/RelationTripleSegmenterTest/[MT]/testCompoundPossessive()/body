@@ -1,11 +1,11 @@
 {
-  String conll="1\tIBM\t0\troot\tNNP\tORGANIZATION\n" + "2\t's\t1\tcase\tPOS\tO\n" + "3\tCEO\t4\tcompound\tNNP\tTITLE\n"+ "4\tRometty\t1\tnmod:poss\tNNP\tORGANIZATION\n";
-  Optional<RelationTriple> extraction=mkExtraction(conll,0);
+  String conll="1\tIBM\t4\tnmod:poss\tNNP\tORGANIZATION\n" + "2\t's\t1\tcase\tPOS\tO\n" + "3\tCEO\t4\tcompound\tNNP\tTITLE\n"+ "4\tRometty\t0\troot\tNNP\tORGANIZATION\n";
+  Optional<RelationTriple> extraction=mkExtraction(conll,1);
   assertTrue("No extraction for sentence!",extraction.isPresent());
   assertEquals("1.0\tRometty\tis\tCEO",extraction.get().toString());
-  extraction=mkExtraction(conll,1);
+  extraction=mkExtraction(conll,0);
   assertTrue("No extraction for sentence!",extraction.isPresent());
-  assertEquals("1.0\tIBM\t's\tRometty",extraction.get().toString());
+  assertEquals("1.0\tIBM\thas\tRometty",extraction.get().toString());
   extraction=mkExtraction(conll,2);
   assertTrue("No extraction for sentence!",extraction.isPresent());
   assertEquals("1.0\tRometty\tis CEO of\tIBM",extraction.get().toString());

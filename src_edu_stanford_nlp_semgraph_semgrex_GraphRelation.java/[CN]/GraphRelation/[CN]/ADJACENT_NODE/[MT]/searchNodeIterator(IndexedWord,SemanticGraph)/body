@@ -1,0 +1,24 @@
+{
+  return new SearchNodeIterator(){
+    Iterator<IndexedWord> iterator;
+    @Override public void advance(){
+      if (node.equals(IndexedWord.NO_WORD)) {
+        next=null;
+        return;
+      }
+      if (iterator == null) {
+        iterator=sg.vertexSet().iterator();
+      }
+      while (iterator.hasNext()) {
+        IndexedWord word=iterator.next();
+        if (node.index() != (word.index() - 1)) {
+          continue;
+        }
+        this.next=word;
+        return;
+      }
+      this.next=null;
+    }
+  }
+;
+}
