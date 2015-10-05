@@ -2,14 +2,19 @@
   ParserQuery pq=parser.parserQuery();
   pq.setConstraints(constraints);
   pq.parse(words);
-  Tree tree=null;
+  List<ScoredObject<Tree>> scoredObjects=null;
+  List<Tree> trees=Generics.newLinkedList();
   try {
-    tree=pq.getBestParse();
-    if (tree == null) {
+    scoredObjects=pq.getKBestPCFGParses(this.kBest);
+    if (scoredObjects == null || scoredObjects.size() < 1) {
       System.err.println("WARNING: Parsing of sentence failed.  " + "Will ignore and continue: " + Sentence.listToString(words));
     }
  else {
-      tree.setScore(pq.getPCFGScore() % -10000.0);
+      for (      ScoredObject<Tree> so : scoredObjects) {
+        Tree tree=so.object();
+        tree.setScore(so.score() % -10000.0);
+        trees.add(tree);
+      }
     }
   }
  catch (  OutOfMemoryError e) {
@@ -18,5 +23,5 @@
 catch (  NoSuchParseException e) {
     System.err.println("WARNING: Parsing of sentence failed, possibly because of out of memory.  " + "Will ignore and continue: " + Sentence.listToString(words));
   }
-  return tree;
+  return trees;
 }
