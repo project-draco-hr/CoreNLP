@@ -21,7 +21,7 @@
     CountDownLatch latch=new CountDownLatch(threads);
     for (int i=0; i < threads; i++) {
       runnables[i]=new CLBatchDerivativeCalculation(threads,i,null,x,derivative.length,latch);
-      new Thread(runnables[i]).start();
+      executorService.execute(runnables[i]);
     }
     try {
       latch.await();
