@@ -1,20 +1,2 @@
 {
-  MatchedExpression.SingleAnnotationExtractor annotationExtractor=createAnnotationExtractor(env,r);
-  SequenceMatchResultExtractor<CoreMap> valueExtractor=new SequenceMatchResultExtractor<>(env,action,result);
-  SequencePatternExtractRule<CoreMap,Value> valueExtractRule=new SequencePatternExtractRule<>(pattern,valueExtractor,r.matchFindType,r.matchWithResults);
-  SequenceMatchedExpressionExtractor exprExtractor=new SequenceMatchedExpressionExtractor(annotationExtractor,r.matchedExpressionGroup);
-  SequencePatternExtractRule<CoreMap,MatchedExpression> exprExtractRule=new SequencePatternExtractRule<>(pattern,exprExtractor,r.matchFindType,r.matchWithResults);
-  if (r.annotationField != null && r.annotationField != CoreMap.class) {
-    annotationExtractor.valueExtractor=new CoreMapFunctionApplier<>(env,r.annotationField,valueExtractRule);
-    r.extractRule=new CoreMapExtractRule<>(env,r.annotationField,exprExtractRule);
-  }
- else {
-    annotationExtractor.valueExtractor=new CoreMapToListFunctionApplier<>(env,valueExtractRule);
-    r.extractRule=new CoreMapToListExtractRule<>(exprExtractRule);
-  }
-  r.filterRule=new AnnotationMatchedFilter(annotationExtractor);
-  r.pattern=pattern;
-  r.result=result;
-  pattern.weight=r.weight;
-  pattern.priority=r.priority;
 }
