@@ -1,0 +1,23 @@
+{
+  int numNeighbors=sourceOfRandomness.nextInt(1,3);
+  int[] neighbors=new int[numNeighbors];
+  int[] dimensions=new int[numNeighbors];
+  Set<Integer> usedNeighbors=new HashSet<>();
+  for (int i=0; i < neighbors.length; i++) {
+    while (true) {
+      int neighbor=sourceOfRandomness.nextInt(0,3);
+      if (!usedNeighbors.contains(neighbor)) {
+        usedNeighbors.add(neighbor);
+        neighbors[i]=neighbor;
+        dimensions[i]=variableSizes[neighbor];
+        break;
+      }
+    }
+  }
+  double multiple=sourceOfRandomness.nextDouble();
+  TableFactor factor=new TableFactor(neighbors,dimensions);
+  for (  int[] assignment : factor) {
+    factor.setAssignmentValue(assignment,multiple * sourceOfRandomness.nextDouble());
+  }
+  return factor;
+}

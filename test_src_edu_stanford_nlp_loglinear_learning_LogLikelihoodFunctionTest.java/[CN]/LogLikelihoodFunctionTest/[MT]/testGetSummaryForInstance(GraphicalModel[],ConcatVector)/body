@@ -1,0 +1,18 @@
+{
+  LogLikelihoodFunction fn=new LogLikelihoodFunction();
+  for (  GraphicalModel model : dataset) {
+    double goldLogLikelihood=logLikelihood(model,weights);
+    ConcatVector goldGradient=definitionOfDerivative(model,weights);
+    LogLikelihoodFunction.FunctionSummaryAtPoint summary=fn.getSummaryForInstance(model,weights);
+    assertEquals(goldLogLikelihood,summary.value,Math.max(1.0e-3,goldLogLikelihood * 1.0e-2));
+    ConcatVector difference=goldGradient.deepClone();
+    difference.addVectorInPlace(summary.gradient,-1);
+    double distance=Math.sqrt(difference.dotProduct(difference));
+    if (distance > 5.0e-2) {
+      System.err.println("Definitional and calculated gradient differ!");
+      System.err.println("Definition approx: " + goldGradient);
+      System.err.println("Calculated: " + summary.gradient);
+    }
+    assertEquals(0.0,distance,5.0e-2);
+  }
+}
