@@ -6,7 +6,7 @@
   seen.add(root);
   while (!todo.isEmpty()) {
     State state=todo.poll();
-    if (state instanceof NodePatternState) {
+    if ((allowOptional || !state.isOptional) && (state instanceof NodePatternState)) {
       NodePattern<T> pattern=((NodePatternState)state).pattern;
       OUT res=filter.apply(pattern);
       if (res != null) {
