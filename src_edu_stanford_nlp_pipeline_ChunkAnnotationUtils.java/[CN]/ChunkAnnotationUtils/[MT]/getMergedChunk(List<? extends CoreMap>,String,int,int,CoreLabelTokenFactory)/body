@@ -6,7 +6,13 @@
   int firstTokenIndex=firstChunk.get(CoreAnnotations.TokenBeginAnnotation.class);
   int lastTokenIndex=lastChunk.get(CoreAnnotations.TokenEndAnnotation.class);
   String chunkText=origText.substring(firstCharOffset,lastCharOffset);
-  CoreMap newChunk=new Annotation(chunkText);
+  CoreMap newChunk;
+  if (tokenFactory != null) {
+    newChunk=tokenFactory.makeToken(chunkText,firstCharOffset,lastCharOffset);
+  }
+ else {
+    newChunk=new Annotation(chunkText);
+  }
   newChunk.set(CoreAnnotations.CharacterOffsetBeginAnnotation.class,firstCharOffset);
   newChunk.set(CoreAnnotations.CharacterOffsetEndAnnotation.class,lastCharOffset);
   newChunk.set(CoreAnnotations.TokenBeginAnnotation.class,firstTokenIndex);

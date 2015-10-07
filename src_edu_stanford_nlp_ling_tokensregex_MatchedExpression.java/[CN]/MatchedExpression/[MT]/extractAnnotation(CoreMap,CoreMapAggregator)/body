@@ -1,7 +1,7 @@
 {
   Class tokensAnnotationKey=extractFunc.tokensAnnotationField;
   if (chunkOffsets != null) {
-    annotation=ChunkAnnotationUtils.getMergedChunk((List<? extends CoreMap>)sourceAnnotation.get(tokensAnnotationKey),chunkOffsets.getBegin(),chunkOffsets.getEnd(),aggregators);
+    annotation=aggregator.merge((List<? extends CoreMap>)sourceAnnotation.get(tokensAnnotationKey),chunkOffsets.getBegin(),chunkOffsets.getEnd());
     if (sourceAnnotation.containsKey(CoreAnnotations.TextAnnotation.class)) {
       ChunkAnnotationUtils.annotateChunkText(annotation,sourceAnnotation);
     }
@@ -22,7 +22,7 @@
       baseCharOffset=0;
     }
     chunkOffsets=ChunkAnnotationUtils.getChunkOffsetsUsingCharOffsets((List<? extends CoreMap>)sourceAnnotation.get(tokensAnnotationKey),charOffsets.getBegin() + baseCharOffset,charOffsets.getEnd() + baseCharOffset);
-    CoreMap annotation2=ChunkAnnotationUtils.getMergedChunk((List<? extends CoreMap>)sourceAnnotation.get(tokensAnnotationKey),chunkOffsets.getBegin(),chunkOffsets.getEnd(),aggregators);
+    CoreMap annotation2=aggregator.merge((List<? extends CoreMap>)sourceAnnotation.get(tokensAnnotationKey),chunkOffsets.getBegin(),chunkOffsets.getEnd());
     annotation=ChunkAnnotationUtils.getAnnotatedChunkUsingCharOffsets(sourceAnnotation,charOffsets.getBegin(),charOffsets.getEnd());
     tokenOffsets=Interval.toInterval(annotation.get(CoreAnnotations.TokenBeginAnnotation.class),annotation.get(CoreAnnotations.TokenEndAnnotation.class),Interval.INTERVAL_OPEN_END);
     annotation.set(tokensAnnotationKey,annotation2.get(tokensAnnotationKey));
