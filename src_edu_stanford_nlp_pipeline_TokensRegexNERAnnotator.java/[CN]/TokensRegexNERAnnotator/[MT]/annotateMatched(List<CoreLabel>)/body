@@ -5,18 +5,28 @@
     int g=entry.annotateGroup;
     int start=m.start(g);
     int end=m.end(g);
+    String str=m.group(g);
+    if (commonWords.contains(str)) {
+      if (verbose) {
+        System.err.println("Not annotating (common word) '" + str + "': "+ StringUtils.joinFields(m.groupNodes(g),CoreAnnotations.NamedEntityTagAnnotation.class)+ " with "+ entry.getTypeDescription()+ ", sentence is '"+ StringUtils.joinWords(tokens," ")+ "'");
+      }
+      continue;
+    }
     boolean overwriteOriginalNer=checkPosTags(tokens,start,end);
     if (overwriteOriginalNer) {
       overwriteOriginalNer=checkOrigNerTags(entry,tokens,start,end);
     }
     if (overwriteOriginalNer) {
       for (int i=start; i < end; i++) {
-        tokens.get(i).set(CoreAnnotations.NamedEntityTagAnnotation.class,entry.type);
+        CoreLabel token=tokens.get(i);
+        for (int j=0; j < annotationFields.size(); j++) {
+          token.set(annotationFields.get(j),entry.types[j]);
+        }
       }
     }
  else {
       if (verbose) {
-        System.err.println("Not annotating  '" + m.group(g) + "': "+ StringUtils.joinFields(m.groupNodes(g),CoreAnnotations.NamedEntityTagAnnotation.class)+ " with "+ entry.type+ ", sentence is '"+ StringUtils.joinWords(tokens," ")+ "'");
+        System.err.println("Not annotating  '" + m.group(g) + "': "+ StringUtils.joinFields(m.groupNodes(g),CoreAnnotations.NamedEntityTagAnnotation.class)+ " with "+ entry.getTypeDescription()+ ", sentence is '"+ StringUtils.joinWords(tokens," ")+ "'");
       }
     }
   }
