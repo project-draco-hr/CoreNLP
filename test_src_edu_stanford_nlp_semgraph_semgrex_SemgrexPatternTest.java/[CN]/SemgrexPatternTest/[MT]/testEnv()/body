@@ -2,10 +2,11 @@
   SemanticGraph h=SemanticGraph.valueOf("[married/VBN nsubjpass>Hughes/NNP auxpass>was/VBD nmod:to>Gracia/NNP]");
   h.getFirstRoot().set(PatternsAnnotations.PatternLabel1.class,"YES");
   String macro="macro WORD = married";
+  SemgrexBatchParser parser=new SemgrexBatchParser();
   Env env=new Env();
   env.bind("pattern1",PatternsAnnotations.PatternLabel1.class);
   String pattern="({pattern1:YES}=parent >>nsubjpass {}=node)";
-  List<SemgrexPattern> pats=SemgrexBatchParser.compileStream(new ByteArrayInputStream((macro + "\n" + pattern).getBytes(StandardCharsets.UTF_8)),env);
+  List<SemgrexPattern> pats=parser.compileStream(new ByteArrayInputStream((macro + "\n" + pattern).getBytes(StandardCharsets.UTF_8)),env);
   SemgrexPattern pat3=pats.get(0);
   boolean ignoreCase=true;
   SemgrexMatcher mat3=pat3.matcher(h,ignoreCase);
