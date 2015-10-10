@@ -1,0 +1,12 @@
+{
+  File tempFile=File.createTempFile("tokensregexnertest.patterns","txt");
+  tempFile.deleteOnExit();
+  PrintWriter pw=IOUtils.getPrintWriter(tempFile.getAbsolutePath());
+  for (  String[] p : patterns) {
+    pw.println(StringUtils.join(p,"\t"));
+  }
+  pw.close();
+  props.setProperty(REGEX_ANNOTATOR_NAME + ".mapping",tempFile.getAbsolutePath());
+  props.setProperty(REGEX_ANNOTATOR_NAME + ".ignorecase",String.valueOf(ignoreCase));
+  return new TokensRegexNERAnnotator(REGEX_ANNOTATOR_NAME,props);
+}
