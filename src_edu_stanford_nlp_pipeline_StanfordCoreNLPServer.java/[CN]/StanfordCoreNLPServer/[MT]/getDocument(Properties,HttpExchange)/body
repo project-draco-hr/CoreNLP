@@ -1,10 +1,10 @@
 {
-  String inputFormat=props.getProperty("inputFormat");
+  String inputFormat=props.getProperty("inputFormat","text");
 switch (inputFormat) {
 case "text":
     return new Annotation(IOUtils.slurpReader(new InputStreamReader(httpExchange.getRequestBody())));
 case "serialized":
-  String inputSerializerName=props.getProperty("inputSerializer");
+  String inputSerializerName=props.getProperty("inputSerializer",ProtobufAnnotationSerializer.class.getName());
 AnnotationSerializer serializer=MetaClass.create(inputSerializerName).createInstance();
 Pair<Annotation,InputStream> pair=serializer.read(httpExchange.getRequestBody());
 return pair.first;
