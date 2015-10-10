@@ -5,17 +5,17 @@
   Annotation document=createDocument(str);
   annotatorCased.annotate(document);
   List<CoreLabel> tokens=document.get(CoreAnnotations.TokensAnnotation.class);
-  checkNerTags(tokens,"ORGANIZATION","ORGANIZATION","ORGANIZATION","O","O","O","LOCATION","O");
+  checkTags(tokens,"ORGANIZATION","ORGANIZATION","ORGANIZATION","O","O","O","LOCATION","O");
   reannotate(tokens,CoreAnnotations.NamedEntityTagAnnotation.class,"O","O","LOCATION","O","O","O","LOCATION","O");
   annotatorCased.annotate(document);
-  checkNerTags(tokens,"SCHOOL","SCHOOL","SCHOOL","O","O","O","LOCATION","O");
+  checkTags(tokens,"SCHOOL","SCHOOL","SCHOOL","O","O","O","LOCATION","O");
   Annotator annotatorCaseless=getTokensRegexNerAnnotator(regexes,true);
   str="university of alaska is located in alaska.";
   document=createDocument(str);
   tokens=document.get(CoreAnnotations.TokensAnnotation.class);
-  checkNerTags(tokens,"O","O","LOCATION","O","O","O","LOCATION","O");
+  checkTags(tokens,"O","O","LOCATION","O","O","O","LOCATION","O");
   annotatorCased.annotate(document);
-  checkNerTags(tokens,"O","O","LOCATION","O","O","O","LOCATION","O");
+  checkTags(tokens,"O","O","LOCATION","O","O","O","LOCATION","O");
   annotatorCaseless.annotate(document);
-  checkNerTags(tokens,"SCHOOL","SCHOOL","SCHOOL","O","O","O","LOCATION","O");
+  checkTags(tokens,"SCHOOL","SCHOOL","SCHOOL","O","O","O","LOCATION","O");
 }
