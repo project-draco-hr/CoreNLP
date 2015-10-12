@@ -10,9 +10,7 @@
   if (args.length > 2) {
     xmlOut=new PrintWriter(args[2]);
   }
-  Properties props=new Properties();
-  props.put("annotators","tokenize, ssplit, pos, lemma, ner, parse, dcoref, sentiment");
-  StanfordCoreNLP pipeline=new StanfordCoreNLP(props);
+  StanfordCoreNLP pipeline=new StanfordCoreNLP();
   Annotation annotation;
   if (args.length > 0) {
     annotation=new Annotation(IOUtils.slurpFileNoExceptions(args[0]));
@@ -28,12 +26,9 @@
   out.println();
   out.println("The top level annotation");
   out.println(annotation.toShorterString());
-  out.println();
   List<CoreMap> sentences=annotation.get(CoreAnnotations.SentencesAnnotation.class);
   if (sentences != null && !sentences.isEmpty()) {
     CoreMap sentence=sentences.get(0);
-    out.println("The keys of the first sentence's CoreMap are:");
-    out.println(sentence.keySet());
     out.println();
     out.println("The first sentence is:");
     out.println(sentence.toShorterString());
@@ -64,8 +59,6 @@
         out.println("  " + m + ", i.e., 0-based character offsets ["+ tokens.get(m.startIndex - 1).beginPosition()+ ", "+ tokens.get(m.endIndex - 2).endPosition()+ ")");
       }
     }
-    out.println();
-    out.println("The first sentence overall sentiment rating is " + sentence.get(SentimentCoreAnnotations.SentimentClass.class));
   }
   IOUtils.closeIgnoringExceptions(out);
   IOUtils.closeIgnoringExceptions(xmlOut);
