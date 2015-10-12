@@ -9,9 +9,11 @@
   LinearClassifier<String,String> lc=(LinearClassifier<String,String>)classifier;
   LOOP:   while (featureIt.hasNext()) {
     String f=featureIt.next();
+    Iterator<String> labelIt=labelIndex.iterator();
     double smallest=Double.POSITIVE_INFINITY;
     double biggest=Double.NEGATIVE_INFINITY;
-    for (    String l : labelIndex) {
+    while (labelIt.hasNext()) {
+      String l=labelIt.next();
       double weight=lc.weight(f,l);
       if (weight < smallest) {
         smallest=weight;
