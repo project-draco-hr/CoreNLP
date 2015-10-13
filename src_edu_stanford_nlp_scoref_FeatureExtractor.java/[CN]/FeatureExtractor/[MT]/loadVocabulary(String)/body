@@ -1,0 +1,15 @@
+{
+  Set<String> vocabulary=new HashSet<>();
+  try {
+    Counter<String> counts=IOUtils.readObjectFromURLOrClasspathOrFileSystem(wordCountsPath);
+    for (    Map.Entry<String,Double> e : counts.entrySet()) {
+      if (e.getValue() > MIN_WORD_COUNT) {
+        vocabulary.add(e.getKey());
+      }
+    }
+  }
+ catch (  Exception e) {
+    throw new RuntimeException("Error loading word counts",e);
+  }
+  return vocabulary;
+}

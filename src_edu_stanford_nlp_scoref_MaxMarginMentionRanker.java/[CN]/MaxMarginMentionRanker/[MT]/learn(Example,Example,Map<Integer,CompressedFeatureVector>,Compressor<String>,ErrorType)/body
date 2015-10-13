@@ -1,0 +1,13 @@
+{
+  Counter<String> cFeatures=meta.getFeatures(correct,mentionFeatures,compressor);
+  Counter<String> iFeatures=meta.getFeatures(incorrect,mentionFeatures,compressor);
+  for (  Map.Entry<String,Double> e : cFeatures.entrySet()) {
+    iFeatures.decrementCount(e.getKey(),e.getValue());
+  }
+  if (multiplicativeCost) {
+    classifier.learn(iFeatures,1.0,costs[errorType.id],loss);
+  }
+ else {
+    classifier.learn(iFeatures,1.0,1.0,losses[errorType.id]);
+  }
+}

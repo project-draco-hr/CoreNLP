@@ -1,0 +1,33 @@
+{
+  int p=0;
+  int t=0;
+  List<Pair<Example,Map<Integer,CompressedFeatureVector>>> examples=new ArrayList<>();
+  while (!documents.isEmpty()) {
+    DocumentExamples doc=documents.remove(documents.size() - 1);
+    Map<Integer,Boolean> areAnaphoric=new HashMap<>();
+    for (    Example e : doc.examples) {
+      Boolean isAnaphoric=areAnaphoric.get(e.mentionId2);
+      if (isAnaphoric == null) {
+        areAnaphoric.put(e.mentionId2,false);
+      }
+      if (e.label == 1) {
+        areAnaphoric.put(e.mentionId2,true);
+      }
+    }
+    for (    Map.Entry<Integer,Boolean> e : areAnaphoric.entrySet()) {
+      if (e.getValue()) {
+        p++;
+      }
+      t++;
+    }
+    for (    Example e : doc.examples) {
+      Boolean isAnaphoric=areAnaphoric.get(e.mentionId2);
+      if (isAnaphoric != null) {
+        areAnaphoric.remove(e.mentionId2);
+        examples.add(new Pair<>(new Example(e,isAnaphoric),doc.mentionFeatures));
+      }
+    }
+  }
+  Redwood.log("scoref-train","Num anaphoricity examples " + p + " positive, "+ t+ " total");
+  return examples;
+}

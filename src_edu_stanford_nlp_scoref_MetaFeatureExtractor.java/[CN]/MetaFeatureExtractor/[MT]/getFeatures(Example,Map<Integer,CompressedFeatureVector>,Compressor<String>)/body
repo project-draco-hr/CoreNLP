@@ -1,0 +1,65 @@
+{
+  Counter<String> features=new ClassicCounter<>();
+  Counter<String> pairFeatures=new ClassicCounter<>();
+  Counter<String> features1=new ClassicCounter<>();
+  Counter<String> features2=compressor.uncompress(mentionFeatures.get(example.mentionId2));
+  if (!example.isNewLink()) {
+    assert(!anaphoricityClassifier);
+    pairFeatures=compressor.uncompress(example.features);
+    features1=compressor.uncompress(mentionFeatures.get(example.mentionId1));
+  }
+ else {
+    features2.incrementCount("BIAS_FEATURE");
+  }
+  if (!disallowedPrefixes.isEmpty()) {
+    features1=filterOut(features1,disallowedPrefixes);
+    features2=filterOut(features2,disallowedPrefixes);
+    pairFeatures=filterOut(pairFeatures,disallowedPrefixes);
+  }
+  List<String> ids1=example.isNewLink() ? new ArrayList<>() : identifiers(features1,example.mentionType1);
+  List<String> ids2=identifiers(features2,example.mentionType2);
+  features.addAll(pairFeatures);
+  for (  String id1 : ids1) {
+    for (    String id2 : ids2) {
+      if (pairConjunctions.contains(PairConjunction.FIRST)) {
+        features.addAll(getConjunction(pairFeatures,"_m1=" + id1));
+      }
+      if (pairConjunctions.contains(PairConjunction.LAST)) {
+        features.addAll(getConjunction(pairFeatures,"_m2=" + id2));
+      }
+      if (pairConjunctions.contains(PairConjunction.BOTH)) {
+        features.addAll(getConjunction(pairFeatures,"_ms=" + id1 + "_"+ id2));
+      }
+      if (singleConjunctions.contains(SingleConjunction.INDEX)) {
+        features.addAll(getConjunction(features1,"_1"));
+        features.addAll(getConjunction(features2,"_2"));
+      }
+      if (singleConjunctions.contains(SingleConjunction.INDEX_CURRENT)) {
+        features.addAll(getConjunction(features1,"_1" + "_m=" + id1));
+        features.addAll(getConjunction(features2,"_2" + "_m=" + id2));
+      }
+      if (singleConjunctions.contains(SingleConjunction.INDEX_LAST)) {
+        features.addAll(getConjunction(features1,"_1" + "_m2=" + id2));
+        features.addAll(getConjunction(features2,"_2" + "_m2=" + id2));
+      }
+      if (singleConjunctions.contains(SingleConjunction.INDEX_OTHER)) {
+        features.addAll(getConjunction(features1,"_1" + "_m=" + id2));
+        features.addAll(getConjunction(features2,"_2" + "_m=" + id1));
+      }
+      if (singleConjunctions.contains(SingleConjunction.INDEX_BOTH)) {
+        features.addAll(getConjunction(features1,"_1" + "_ms=" + id1 + "_"+ id2));
+        features.addAll(getConjunction(features2,"_2" + "_ms=" + id1 + "_"+ id2));
+      }
+    }
+  }
+  if (example.isNewLink()) {
+    features.addAll(features2);
+    features.addAll(getConjunction(features2,"_m=" + ids2.get(0)));
+    Counter<String> newFeatures=new ClassicCounter<>();
+    for (    Map.Entry<String,Double> e : features.entrySet()) {
+      newFeatures.incrementCount(e.getKey() + "_NEW",e.getValue());
+    }
+    features=newFeatures;
+  }
+  return features;
+}
