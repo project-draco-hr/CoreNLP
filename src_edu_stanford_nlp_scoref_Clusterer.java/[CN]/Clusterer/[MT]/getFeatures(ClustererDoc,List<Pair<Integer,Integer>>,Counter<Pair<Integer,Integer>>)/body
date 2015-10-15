@@ -1,0 +1,35 @@
+{
+  Counter<String> features=new ClassicCounter<>();
+  double maxScore=0;
+  double minScore=1;
+  Counter<String> totals=new ClassicCounter<>();
+  Counter<String> totalsLog=new ClassicCounter<>();
+  Counter<String> counts=new ClassicCounter<>();
+  for (  Pair<Integer,Integer> mentionPair : mentionPairs) {
+    if (!scores.containsKey(mentionPair)) {
+      mentionPair=new Pair<>(mentionPair.second,mentionPair.first);
+    }
+    double score=scores.getCount(mentionPair);
+    double logScore=cappedLog(score);
+    String mt1=doc.mentionTypes.get(mentionPair.first);
+    String mt2=doc.mentionTypes.get(mentionPair.second);
+    mt1=mt1.equals("PRONOMINAL") ? "PRONOMINAL" : "NON_PRONOMINAL";
+    mt2=mt2.equals("PRONOMINAL") ? "PRONOMINAL" : "NON_PRONOMINAL";
+    String conj="_" + mt1 + "_"+ mt2;
+    maxScore=Math.max(maxScore,score);
+    minScore=Math.min(minScore,score);
+    totals.incrementCount("",score);
+    totalsLog.incrementCount("",logScore);
+    counts.incrementCount("");
+    totals.incrementCount(conj,score);
+    totalsLog.incrementCount(conj,logScore);
+    counts.incrementCount(conj);
+  }
+  features.incrementCount("max",maxScore);
+  features.incrementCount("min",minScore);
+  for (  String key : counts.keySet()) {
+    features.incrementCount("avg" + key,totals.getCount(key) / counts.getCount(key));
+    features.incrementCount("avgLog" + key,totalsLog.getCount(key) / counts.getCount(key));
+  }
+  return features;
+}

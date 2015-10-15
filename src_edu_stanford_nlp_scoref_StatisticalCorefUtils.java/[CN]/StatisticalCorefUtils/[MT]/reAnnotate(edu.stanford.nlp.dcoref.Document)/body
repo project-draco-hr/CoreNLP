@@ -1,0 +1,17 @@
+{
+  Annotation newAnn=new Annotation("pos, lemma, ner, depparse");
+  List<CoreMap> newSentences=new ArrayList<>();
+  List<CoreLabel> newTokens=new ArrayList<>();
+  List<CoreMap> sentences=document.annotation.get(CoreAnnotations.SentencesAnnotation.class);
+  for (int i=0; i < sentences.size(); i++) {
+    CoreMap sentence=sentences.get(i);
+    Annotation sentenceAnn=new Annotation(sentence.get(CoreAnnotations.TextAnnotation.class));
+    pipeline().annotate(sentenceAnn);
+    CoreMap newSentence=sentenceAnn.get(CoreAnnotations.SentencesAnnotation.class).get(0);
+    newSentences.add(newSentence);
+    newTokens.addAll(newSentence.get(CoreAnnotations.TokensAnnotation.class));
+  }
+  newAnn.set(CoreAnnotations.SentencesAnnotation.class,newSentences);
+  newAnn.set(CoreAnnotations.TokensAnnotation.class,newTokens);
+  return newAnn;
+}

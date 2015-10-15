@@ -1,0 +1,15 @@
+{
+  try {
+    Document document=docMaker.makeDocument(ann);
+    runCoref(document);
+    StatisticalCorefUtils.removeSingletonClusters(document);
+    Map<Integer,CorefChain> result=Generics.newHashMap();
+    for (    CorefCluster c : document.corefClusters.values()) {
+      result.put(c.clusterID,new CorefChain(c,document.positions));
+    }
+    ann.set(CorefCoreAnnotations.CorefChainAnnotation.class,result);
+  }
+ catch (  Exception e) {
+    throw new RuntimeException("Error making document",e);
+  }
+}

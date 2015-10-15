@@ -1,0 +1,23 @@
+{
+  Properties newProps=new Properties(props);
+  newProps.setProperty(CorefProperties.USE_SEMANTICS_PROP,"false");
+  newProps.setProperty(CorefProperties.GENDER_NUMBER_PROP,"edu/stanford/nlp/models/dcoref/gender.data.gz");
+  if (props.containsKey("scoref.scorer")) {
+    newProps.setProperty(CorefProperties.SCORE_PROP,props.getProperty("scoref.scorer"));
+  }
+  if (isConll(props)) {
+    newProps.setProperty(CorefProperties.INPUT_TYPE_PROP,"conll");
+    newProps.setProperty(CorefProperties.PARSER_PROP,"true");
+    newProps.setProperty(CorefProperties.MD_TYPE_PROP,"rule");
+    newProps.setProperty("hcoref.useMarkedDiscourse","true");
+  }
+ else {
+    newProps.setProperty(CorefProperties.MD_TYPE_PROP,"dependency");
+    newProps.setProperty(CorefProperties.PATH_MODEL_PROP,"md-model");
+    newProps.setProperty(CorefProperties.PATH_MODEL_PROP,"");
+    newProps.setProperty(CorefProperties.USE_GOLD_POS_PROP,"false");
+    newProps.setProperty(CorefProperties.USE_GOLD_NE_PROP,"false");
+    newProps.setProperty(CorefProperties.USE_GOLD_PARSES_PROP,"false");
+  }
+  return newProps;
+}

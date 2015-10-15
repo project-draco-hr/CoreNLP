@@ -1,0 +1,15 @@
+{
+  if (e == null) {
+    features.incrementCount("no-" + prefix);
+    return;
+  }
+  IndexedWord parent=e.getSource();
+  String parentPOS=parent.tag();
+  String parentWord=parent.word();
+  String parentRelation=e.getRelation().toString();
+  if (addWord) {
+    features.incrementCount(prefix + "-word=" + wordIndicator(parentWord,parentPOS));
+  }
+  features.incrementCount(prefix + "-POS=" + parentPOS);
+  features.incrementCount(prefix + "-relation=" + parentRelation);
+}
