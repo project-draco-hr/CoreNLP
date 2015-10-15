@@ -2,12 +2,12 @@
   if (uri.getQuery() != null) {
     Map<String,String> urlParams=new HashMap<>();
     String query=uri.getQuery();
-    String[] queryFields=query.replace("\\&","___AMP___").replace("\\+","___PLUS___").split("&");
+    String[] queryFields=query.split("&");
     for (    String queryField : queryFields) {
-      int firstEq=queryField.indexOf('=');
-      String key=URLDecoder.decode(queryField.substring(0,firstEq),"utf8").replace("___AMP___","&").replace("___PLUS___","+");
-      String value=URLDecoder.decode(queryField.substring(firstEq + 1),"utf8").replace("___AMP___","&").replace("___PLUS___","+");
-      urlParams.put(key,value);
+      String[] keyValue=queryField.split("=");
+      keyValue[0]=keyValue[0].replace("+"," ");
+      keyValue[1]=keyValue[1].replace("+"," ");
+      urlParams.put(keyValue[0],keyValue[1]);
     }
     return urlParams;
   }
