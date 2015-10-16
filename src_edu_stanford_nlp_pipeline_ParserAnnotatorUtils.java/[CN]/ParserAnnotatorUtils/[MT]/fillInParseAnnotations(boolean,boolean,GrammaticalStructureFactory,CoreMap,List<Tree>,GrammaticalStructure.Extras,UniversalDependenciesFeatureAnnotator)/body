@@ -1,0 +1,34 @@
+{
+  boolean first=true;
+  for (  Tree tree : trees) {
+    Trees.convertToCoreLabels(tree);
+    tree.indexSpans(0);
+    if (first) {
+      sentence.set(TreeCoreAnnotations.TreeAnnotation.class,tree);
+      if (verbose) {
+        System.err.println("Tree is:");
+        tree.pennPrint(System.err);
+      }
+      setMissingTags(sentence,tree);
+      if (buildGraphs) {
+        SemanticGraph deps=SemanticGraphFactory.generateCollapsedDependencies(gsf.newGrammaticalStructure(tree),extras);
+        SemanticGraph uncollapsedDeps=SemanticGraphFactory.generateUncollapsedDependencies(gsf.newGrammaticalStructure(tree),extras);
+        SemanticGraph ccDeps=SemanticGraphFactory.generateCCProcessedDependencies(gsf.newGrammaticalStructure(tree),extras);
+        if (featureAnnotator != null) {
+          featureAnnotator.addFeatures(deps,tree,false,true);
+        }
+        if (verbose) {
+          System.err.println("SDs:");
+          System.err.println(deps.toString(SemanticGraph.OutputFormat.LIST));
+        }
+        sentence.set(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class,deps);
+        sentence.set(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class,uncollapsedDeps);
+        sentence.set(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class,ccDeps);
+      }
+      first=false;
+    }
+  }
+  if (trees.size() > 1) {
+    sentence.set(TreeCoreAnnotations.KBestTreesAnnotation.class,trees);
+  }
+}
