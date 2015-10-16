@@ -1,10 +1,11 @@
 {
   DataInputStream dataIn=new DataInputStream(in);
-  int size=dataIn.readInt();
+  itype keyIntType=itype.getType(dataIn.readInt());
   int dim=dataIn.readInt();
+  int size=dataIn.readInt();
   VectorMap vectors=new VectorMap();
   for (int i=0; i < size; ++i) {
-    int strlen=dataIn.readInt();
+    int strlen=keyIntType.read(dataIn);
     byte[] buffer=new byte[strlen];
     if (dataIn.read(buffer,0,strlen) != strlen) {
       throw new IOException("Could not read string buffer fully!");
@@ -12,7 +13,7 @@
     String key=new String(buffer);
     float[] vector=new float[dim];
     for (int k=0; k < vector.length; ++k) {
-      vector[k]=dataIn.readFloat();
+      vector[k]=toFloat(dataIn.readShort());
     }
     vectors.put(key,vector);
   }
