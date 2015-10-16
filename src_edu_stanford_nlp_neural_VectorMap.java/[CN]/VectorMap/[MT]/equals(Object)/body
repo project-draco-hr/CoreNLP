@@ -1,0 +1,31 @@
+{
+  if (other instanceof Map) {
+    try {
+      Map<String,float[]> otherMap=(Map<String,float[]>)other;
+      if (this.keySet().size() != otherMap.keySet().size()) {
+        return false;
+      }
+      for (      Entry<String,float[]> entry : this.entrySet()) {
+        float[] otherValue=otherMap.get(entry.getKey());
+        if (otherValue == null && entry.getValue() != null) {
+          return false;
+        }
+        if (otherValue != null && entry.getValue() == null) {
+          return false;
+        }
+        if (entry.getValue() != null && otherValue != null) {
+          if (!Arrays.equals(entry.getValue(),otherValue)) {
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+ catch (    ClassCastException e) {
+      return false;
+    }
+  }
+ else {
+    return false;
+  }
+}
