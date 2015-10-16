@@ -1,26 +1,18 @@
 {
   if (curMatchIter != null && curMatchIter.hasNext()) {
-    while (curMatchIter.hasNext()) {
-      int next=curMatchIter.next();
-      curMatchStates.setMatchedGroups(next);
-      String sig=getMatchedSignature();
-      if (!prevMatchedSignatures.contains(sig)) {
-        prevMatchedSignatures.add(sig);
-        return true;
-      }
-    }
+    int next=curMatchIter.next();
+    curMatchStates.setMatchedGroups(next);
+    return true;
   }
   if (nextMatchStart < 0) {
     return false;
   }
-  prevMatchedSignatures.clear();
   boolean matched=find(nextMatchStart,false);
   if (matched) {
     Collection<Integer> matchedBranches=curMatchStates.getMatchIndices();
     curMatchIter=matchedBranches.iterator();
     int next=curMatchIter.next();
     curMatchStates.setMatchedGroups(next);
-    prevMatchedSignatures.add(getMatchedSignature());
   }
   return matched;
 }

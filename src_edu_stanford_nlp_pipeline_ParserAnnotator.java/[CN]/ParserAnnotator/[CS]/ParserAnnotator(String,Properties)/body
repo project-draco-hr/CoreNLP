@@ -16,7 +16,6 @@
   }
   this.maxParseTime=PropertiesUtils.getLong(props,annotatorName + ".maxtime",-1);
   this.kBest=PropertiesUtils.getInt(props,annotatorName + ".kbest",1);
-  this.keepPunct=PropertiesUtils.getBool(props,annotatorName + ".keepPunct",false);
   String buildGraphsProperty=annotatorName + ".buildgraphs";
   if (!this.parser.getTLPParams().supportsBasicDependencies()) {
     if (props.getProperty(buildGraphsProperty) != null && PropertiesUtils.getBool(props,buildGraphsProperty)) {
@@ -31,15 +30,7 @@
     boolean generateOriginalDependencies=PropertiesUtils.getBool(props,annotatorName + ".originalDependencies",false);
     parser.getTLPParams().setGenerateOriginalDependencies(generateOriginalDependencies);
     TreebankLanguagePack tlp=parser.getTLPParams().treebankLanguagePack();
-    Predicate<String> punctFilter=this.keepPunct ? Filters.acceptFilter() : tlp.punctuationWordRejectFilter();
-    this.gsf=tlp.grammaticalStructureFactory(punctFilter,parser.getTLPParams().typedDependencyHeadFinder());
-    if (this.gsf instanceof UniversalEnglishGrammaticalStructureFactory) {
-      try {
-        this.featureAnnotator=new UniversalDependenciesFeatureAnnotator();
-      }
- catch (      IOException e) {
-      }
-    }
+    this.gsf=tlp.grammaticalStructureFactory(tlp.punctuationWordRejectFilter(),parser.getTLPParams().typedDependencyHeadFinder());
   }
  else {
     this.gsf=null;
