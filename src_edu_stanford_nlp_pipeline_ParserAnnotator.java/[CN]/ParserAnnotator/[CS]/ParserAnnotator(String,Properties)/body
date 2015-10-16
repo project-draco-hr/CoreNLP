@@ -33,6 +33,13 @@
     TreebankLanguagePack tlp=parser.getTLPParams().treebankLanguagePack();
     Predicate<String> punctFilter=this.keepPunct ? Filters.acceptFilter() : tlp.punctuationWordRejectFilter();
     this.gsf=tlp.grammaticalStructureFactory(punctFilter,parser.getTLPParams().typedDependencyHeadFinder());
+    if (this.gsf instanceof UniversalEnglishGrammaticalStructureFactory) {
+      try {
+        this.featureAnnotator=new UniversalDependenciesFeatureAnnotator();
+      }
+ catch (      IOException e) {
+      }
+    }
   }
  else {
     this.gsf=null;

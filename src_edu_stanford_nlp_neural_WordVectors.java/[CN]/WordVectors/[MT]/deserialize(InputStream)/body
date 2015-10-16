@@ -1,0 +1,20 @@
+{
+  DataInputStream dataIn=new DataInputStream(in);
+  int size=dataIn.readInt();
+  int dim=dataIn.readInt();
+  WordVectors vectors=new WordVectors();
+  for (int i=0; i < size; ++i) {
+    int strlen=dataIn.readInt();
+    byte[] buffer=new byte[strlen];
+    if (dataIn.read(buffer,0,strlen) != strlen) {
+      throw new IOException("Could not read string buffer fully!");
+    }
+    String key=new String(buffer);
+    float[] vector=new float[dim];
+    for (int k=0; k < vector.length; ++k) {
+      vector[k]=dataIn.readFloat();
+    }
+    vectors.put(key,vector);
+  }
+  return vectors;
+}

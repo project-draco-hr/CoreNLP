@@ -1,0 +1,8 @@
+{
+  WordVectors vec=WordVectors.readWord2Vec("/scr/nlp/data/coref/wordvectors/en/vectors.txt.gz");
+  File tmp=File.createTempFile("word2vec",".ser.gz");
+  System.err.println(tmp.getPath());
+  vec.serialize(tmp.getPath());
+  WordVectors reread=WordVectors.deserialize(tmp.getPath());
+  assertEquals(vec,reread);
+}

@@ -1,0 +1,17 @@
+{
+  DataOutputStream dataOut=new DataOutputStream(out);
+  dataOut.writeInt(this.size());
+  int dim=-1;
+  for (  Map.Entry<String,float[]> entry : this.entrySet()) {
+    if (dim == -1) {
+      dim=entry.getValue().length;
+      dataOut.writeInt(dim);
+    }
+    byte[] key=entry.getKey().getBytes();
+    dataOut.writeInt(key.length);
+    dataOut.write(key);
+    for (    float v : entry.getValue()) {
+      dataOut.writeFloat(v);
+    }
+  }
+}
