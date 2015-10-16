@@ -4,11 +4,11 @@
     System.err.println("LOAD: WordVectors");
     String wordvectorFile=CorefProperties.getPathSerializedWordVectors(props);
     if (new File(wordvectorFile).exists()) {
-      vectors=WordVectors.deserialize(wordvectorFile);
+      vectors=VectorMap.deserialize(wordvectorFile);
       dimVector=vectors.entrySet().iterator().next().getValue().length;
     }
  else {
-      vectors=WordVectors.readWord2Vec(CorefProperties.getPathWord2Vec(props));
+      vectors=VectorMap.readWord2Vec(CorefProperties.getPathWord2Vec(props));
       if (wordvectorFile != null && !wordvectorFile.startsWith("edu")) {
         vectors.serialize(wordvectorFile);
       }
