@@ -1,0 +1,35 @@
+{
+  if (args.length < 2) {
+    System.err.print("Usage: ");
+    System.err.print("java ");
+    System.err.print(UniversalDependenciesFeatureAnnotator.class.getCanonicalName());
+    System.err.println(" CoNLL-U_file tree_file [-addUPOS]");
+    return;
+  }
+  String coNLLUFile=args[0];
+  String treeFile=args[1];
+  boolean addUPOS=false;
+  if (args.length == 3 && args[2].equals("-addUPOS")) {
+    addUPOS=true;
+  }
+  UniversalDependenciesFeatureAnnotator featureAnnotator=new UniversalDependenciesFeatureAnnotator();
+  Reader r=IOUtils.readerFromString(coNLLUFile);
+  CoNLLUDocumentReader depReader=new CoNLLUDocumentReader();
+  CoNLLUDocumentWriter depWriter=new CoNLLUDocumentWriter();
+  Iterator<SemanticGraph> it=depReader.getIterator(r);
+  Iterator<Tree> treeIt=treebankIterator(treeFile);
+  while (it.hasNext()) {
+    SemanticGraph sg=it.next();
+    Tree t=treeIt.next();
+    if (t == null || t.yield().size() != sg.size()) {
+      StringBuffer sentenceSb=new StringBuffer();
+      for (      IndexedWord word : sg.vertexListSorted()) {
+        sentenceSb.append(word.get(CoreAnnotations.TextAnnotation.class));
+        sentenceSb.append(" ");
+      }
+      throw new RuntimeException("CoNLL-U file and tree file are not aligned. \n" + "Sentence: " + sentenceSb.toString() + "\n"+ "Tree: "+ t.pennString());
+    }
+    featureAnnotator.addFeatures(sg,t,true,addUPOS);
+    System.out.println(depWriter.printSemanticGraph(sg));
+  }
+}
