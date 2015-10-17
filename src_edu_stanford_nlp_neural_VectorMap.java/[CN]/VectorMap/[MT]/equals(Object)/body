@@ -3,22 +3,27 @@
     try {
       Map<String,float[]> otherMap=(Map<String,float[]>)other;
       if (this.keySet().size() != otherMap.keySet().size()) {
+        System.err.println("Different keyset");
         return false;
       }
       for (      Entry<String,float[]> entry : this.entrySet()) {
         float[] otherValue=otherMap.get(entry.getKey());
         if (otherValue == null && entry.getValue() != null) {
+          System.err.println("Different null: " + entry.getValue() + " vs "+ otherValue);
           return false;
         }
         if (otherValue != null && entry.getValue() == null) {
+          System.err.println("Different null: " + entry.getValue() + " vs "+ otherValue);
           return false;
         }
         if (entry.getValue() != null && otherValue != null) {
           if (entry.getValue().length != otherValue.length) {
+            System.err.println("Different length: " + entry.getValue().length + " vs "+ otherValue.length);
             return false;
           }
           for (int i=0; i < otherValue.length; ++i) {
             if (!sameFloat(entry.getValue()[i],otherValue[i])) {
+              System.err.println("Different float: " + entry.getValue()[i] + " vs "+ otherValue[i]);
               return false;
             }
           }
@@ -27,10 +32,12 @@
       return true;
     }
  catch (    ClassCastException e) {
+      e.printStackTrace();
       return false;
     }
   }
  else {
+    System.err.println("Different class");
     return false;
   }
 }
