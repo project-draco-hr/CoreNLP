@@ -4,14 +4,19 @@
     System.err.println("LOAD: WordVectors");
     String wordvectorFile=CorefProperties.getPathSerializedWordVectors(props);
     String word2vecFile=CorefProperties.getPathWord2Vec(props);
-    if (new File(word2vecFile).exists()) {
-      vectors=VectorMap.readWord2Vec(word2vecFile);
-      if (wordvectorFile != null && !wordvectorFile.startsWith("edu")) {
-        vectors.serialize(wordvectorFile);
-      }
-    }
- else {
+    try {
       vectors=VectorMap.deserialize(wordvectorFile);
+    }
+ catch (    IOException e) {
+      if (new File(word2vecFile).exists()) {
+        vectors=VectorMap.readWord2Vec(word2vecFile);
+        if (wordvectorFile != null && !wordvectorFile.startsWith("edu")) {
+          vectors.serialize(wordvectorFile);
+        }
+      }
+ else {
+        throw new RuntimeIOException(e);
+      }
     }
     dimVector=vectors.entrySet().iterator().next().getValue().length;
   }
