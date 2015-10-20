@@ -1,11 +1,12 @@
 {
-  Properties newProps=new Properties(props);
+  Properties newProps=(Properties)props.clone();
   newProps.setProperty(CorefProperties.USE_SEMANTICS_PROP,"false");
   newProps.setProperty(CorefProperties.GENDER_NUMBER_PROP,"edu/stanford/nlp/models/dcoref/gender.data.gz");
+  newProps.setProperty(CorefProperties.INPUT_TYPE_PROP,"conll");
   if (props.containsKey("scoref.scorer")) {
-    newProps.setProperty(CorefProperties.SCORE_PROP,props.getProperty("scoref.scorer"));
+    newProps.setProperty(CorefProperties.PATH_SCORER_PROP,props.getProperty("scoref.scorer"));
   }
-  if (isConll(props)) {
+  if (conll(props)) {
     newProps.setProperty(CorefProperties.INPUT_TYPE_PROP,"conll");
     newProps.setProperty(CorefProperties.PARSER_PROP,"true");
     newProps.setProperty(CorefProperties.MD_TYPE_PROP,"rule");
@@ -13,11 +14,14 @@
   }
  else {
     newProps.setProperty(CorefProperties.MD_TYPE_PROP,"dependency");
-    newProps.setProperty(CorefProperties.PATH_MODEL_PROP,"md-model");
-    newProps.setProperty(CorefProperties.PATH_MODEL_PROP,"");
+    newProps.setProperty("hcoref.md.model","md-model.ser");
+    newProps.setProperty(CorefProperties.PATH_SERIALIZED_PROP,"/Users/kevinclark/Programming/research/kbp/hybrid-conll/");
     newProps.setProperty(CorefProperties.USE_GOLD_POS_PROP,"false");
     newProps.setProperty(CorefProperties.USE_GOLD_NE_PROP,"false");
     newProps.setProperty(CorefProperties.USE_GOLD_PARSES_PROP,"false");
+  }
+  if (props.containsKey("scoref.test")) {
+    newProps.setProperty(CorefProperties.PATH_INPUT_PROP,props.getProperty("scoref.test"));
   }
   return newProps;
 }

@@ -1,10 +1,10 @@
 {
-  classifier.setWeight("bias",-7);
-  classifier.setWeight("anaphorSeen",-500);
-  classifier.setWeight("max-classification",20);
-  classifier.setWeight("bias-single",-7);
-  classifier.setWeight("anaphorSeen-single",-500);
-  classifier.setWeight("max-classification-single",20);
+  classifier.setWeight("bias",-0.7);
+  classifier.setWeight("anaphorSeen",-2);
+  classifier.setWeight("max-ranking",2);
+  classifier.setWeight("bias-single",-0.7);
+  classifier.setWeight("anaphorSeen-single",-2);
+  classifier.setWeight("max-ranking-single",2);
   String outputPath=StatisticalCorefTrainer.clusteringModelsPath + modelName + "/";
   File outDir=new File(outputPath);
   if (!outDir.exists()) {
@@ -19,7 +19,7 @@
     configWriter.close();
     progressWriter=new PrintWriter(outputPath + "progress","UTF-8");
     Redwood.log("scoref.train","Loading training data");
-    StatisticalCorefTrainer.setDataPath("dev_dcoref");
+    StatisticalCorefTrainer.setDataPath("dev",false);
     trainDocs=ClustererDataLoader.loadDocuments(MAX_DOCS);
     validateDocs=new ArrayList<>();
   }
