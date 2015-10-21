@@ -1,6 +1,6 @@
 {
-  PriorityQueue<CoreLabel> chunk=new FixedPrioritiesPriorityQueue<>();
-  BitSet seenIndices=new BitSet();
+  PriorityQueue<IndexedWord> chunk=new FixedPrioritiesPriorityQueue<>();
+  Set<Double> seenIndices=new HashSet<>();
   Queue<IndexedWord> fringe=new LinkedList<>();
   IndexedWord root=originalRoot;
   fringe.add(root);
@@ -17,11 +17,11 @@
   }
   while (!fringe.isEmpty()) {
     root=fringe.poll();
-    chunk.add(root.backingLabel(),-root.index());
-    if (seenIndices.get(root.index())) {
+    chunk.add(root,-root.pseudoPosition());
+    if (seenIndices.contains(root.pseudoPosition())) {
       return Optional.empty();
     }
-    seenIndices.set(root.index());
+    seenIndices.add(root.pseudoPosition());
     boolean hasConj=false;
     boolean hasCC=false;
     for (    SemanticGraphEdge edge : parse.getOutEdgesSorted(root)) {
