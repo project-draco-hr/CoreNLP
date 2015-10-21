@@ -5,9 +5,9 @@
   }
   for (  IndexedWord token : sg.vertexListSorted()) {
     if (token.containsKey(CoreAnnotations.CoNLLUTokenSpanAnnotation.class)) {
-      Pair<Integer,Integer> tokenSpan=token.get(CoreAnnotations.CoNLLUTokenSpanAnnotation.class);
-      if (tokenSpan.first == token.index()) {
-        String range=String.format("%d-%d",tokenSpan.first,tokenSpan.second);
+      IntPair tokenSpan=token.get(CoreAnnotations.CoNLLUTokenSpanAnnotation.class);
+      if (tokenSpan.getSource() == token.index()) {
+        String range=String.format("%d-%d",tokenSpan.getSource(),tokenSpan.getTarget());
         sb.append(String.format("%s\t%s\t_\t_\t_\t_\t_\t_\t_\t_%n",range,token.originalText()));
       }
     }
