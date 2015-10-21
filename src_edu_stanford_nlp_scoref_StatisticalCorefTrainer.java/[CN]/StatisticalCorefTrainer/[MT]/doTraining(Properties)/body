@@ -3,21 +3,14 @@
   setDataPath("train",true);
   StatisticalCorefProperties.setInput(props,Dataset.TRAIN);
   preprocess(props,dictionaries,true);
-  setDataPath("dev");
-  StatisticalCorefProperties.setInput(props,Dataset.DEV);
-  preprocess(props,dictionaries,false);
-  setDataPath("test");
-  StatisticalCorefProperties.setInput(props,Dataset.TEST);
-  preprocess(props,dictionaries,false);
-  setDataPath("train");
   PairwiseModel classificationModel=PairwiseModel.newBuilder(CLASSIFICATION_MODEL,MetaFeatureExtractor.newBuilder().build()).build();
   PairwiseModel rankingModel=PairwiseModel.newBuilder(RANKING_MODEL,MetaFeatureExtractor.newBuilder().build()).build();
   PairwiseModel anaphoricityModel=PairwiseModel.newBuilder(ANAPHORICITY_MODEL,anaphoricityMFE()).trainingExamples(5000000).build();
   PairwiseModelTrainer.trainRanking(rankingModel);
   PairwiseModelTrainer.trainClassification(classificationModel,false);
   PairwiseModelTrainer.trainClassification(anaphoricityModel,true);
-  setDataPath("dev");
+  setDataPath("dev",false);
+  StatisticalCorefProperties.setInput(props,Dataset.DEV);
+  preprocess(props,dictionaries,false);
   test(classificationModel,rankingModel,anaphoricityModel);
-  Clusterer cl=new Clusterer();
-  cl.doTraining(CLUSTERING_MODEL_NAME);
 }

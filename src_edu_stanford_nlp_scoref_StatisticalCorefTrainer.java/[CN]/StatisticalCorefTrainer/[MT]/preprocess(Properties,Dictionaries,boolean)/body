@@ -1,5 +1,5 @@
 {
-  runDocumentProcessor(props,dictionaries,new DatasetBuilder(StatisticalCorefProperties.minClassImbalance(props),StatisticalCorefProperties.minTrainExamplesPerDocument(props)));
-  runDocumentProcessor(props,dictionaries,new MetadataWriter(isTrainSet));
-  runDocumentProcessor(props,dictionaries,new FeatureExtractorRunner(props,dictionaries));
+  (isTrainSet ? new DatasetBuilder(StatisticalCorefProperties.minClassImbalance(props),StatisticalCorefProperties.minTrainExamplesPerDocument(props)) : new DatasetBuilder()).run(props,dictionaries);
+  new MetadataWriter(isTrainSet).run(props,dictionaries);
+  new FeatureExtractorRunner(props,dictionaries).run(props,dictionaries);
 }
