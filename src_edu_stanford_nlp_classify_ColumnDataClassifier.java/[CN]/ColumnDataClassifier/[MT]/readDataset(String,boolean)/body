@@ -1,6 +1,6 @@
 {
   Timing tim=new Timing();
-  Logging.logger(this.getClass()).info("Reading dataset from " + filename + " ... ");
+  logger.info("Reading dataset from " + filename + " ... ");
   GeneralDataset<String,String> dataset;
   List<String[]> lineInfos=null;
   if ((inTestPhase && Flags.testFromSVMLight) || (!inTestPhase && Flags.trainFromSVMLight)) {
@@ -66,14 +66,14 @@
         dataset.add(makeDatumFromStrings(strings));
       }
       if (lineNo > 0 && minColumns != maxColumns) {
-        Logging.logger(ColumnDataClassifier.class).info("");
-        Logging.logger(ColumnDataClassifier.class).info("WARNING: Number of tab-separated columns in " + filename + " varies between "+ minColumns+ " and "+ maxColumns);
+        logger.info("");
+        logger.info("WARNING: Number of tab-separated columns in " + filename + " varies between "+ minColumns+ " and "+ maxColumns);
       }
     }
  catch (    Exception e) {
       throw new RuntimeException("Dataset could not be loaded",e);
     }
   }
-  Logging.logger(ColumnDataClassifier.class).info("done [" + tim.toSecondsString() + "s, "+ dataset.size()+ " items].");
+  logger.info("done [" + tim.toSecondsString() + "s, "+ dataset.size()+ " items].");
   return new Pair<GeneralDataset<String,String>,List<String[]>>(dataset,lineInfos);
 }
