@@ -1,11 +1,17 @@
 {
 switch (CorefProperties.getMDType(props)) {
 case RULE:
-    return new RuleBasedCorefMentionFinder(headFinder,props);
+    mentionDetectorRequirements=Collections.unmodifiableSet(new ArraySet<>(DEPENDENCY_REQUIREMENT,PARSE_REQUIREMENT));
+  mdName="rule";
+return new RuleBasedCorefMentionFinder(headFinder,props);
 case HYBRID:
-  return new HybridCorefMentionFinder(headFinder,props);
+mdName="hybrid";
+mentionDetectorRequirements=Collections.unmodifiableSet(new ArraySet<>(DEPENDENCY_REQUIREMENT,PARSE_REQUIREMENT));
+return new HybridCorefMentionFinder(headFinder,props);
 case DEPENDENCY:
 default :
+mdName="dependency";
+mentionDetectorRequirements=Collections.unmodifiableSet(new ArraySet<>(DEPENDENCY_REQUIREMENT));
 return new DependencyCorefMentionFinder(props);
 }
 }
