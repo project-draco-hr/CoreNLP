@@ -1,0 +1,10 @@
+{
+  List<List<Mention>> mentions=md.findMentions(annotation,dictionaries,corefProperties);
+  int currIndex=0;
+  List<CoreMap> sentences=annotation.get(CoreAnnotations.SentencesAnnotation.class);
+  for (  CoreMap sentence : sentences) {
+    List<Mention> mentionsForThisSentence=mentions.get(currIndex);
+    sentence.set(CorefCoreAnnotations.CorefMentionsAnnotation.class,mentionsForThisSentence);
+    currIndex++;
+  }
+}

@@ -1,0 +1,24 @@
+{
+  try {
+    COREF_MODE=props.getProperty("coref.mode","hybrid");
+    if (COREF_MODE.equals(HYBRID_MODE)) {
+      hcorefSystem=new CorefSystem(props);
+      scorefSystem=null;
+    }
+ else     if (COREF_MODE.equals(STATISTICAL_MODE)) {
+      System.out.println("building scorefSystem...");
+      scorefSystem=StatisticalCorefSystem.fromProps(props);
+      hcorefSystem=null;
+    }
+ else {
+      scorefSystem=null;
+      hcorefSystem=null;
+    }
+    OLD_FORMAT=Boolean.parseBoolean(props.getProperty("oldCorefFormat","false"));
+  }
+ catch (  Exception e) {
+    System.err.println("ERROR: cannot create CorefAnnotator!");
+    e.printStackTrace();
+    throw new RuntimeException(e);
+  }
+}
