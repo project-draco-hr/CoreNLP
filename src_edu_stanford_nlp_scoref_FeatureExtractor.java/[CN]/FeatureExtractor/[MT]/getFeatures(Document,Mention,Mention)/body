@@ -2,9 +2,11 @@
   assert(m1.appearEarlierThan(m2));
   Counter<String> features=new ClassicCounter<>();
   features.incrementCount("bias");
-  features.incrementCount("doc-type=" + doc.docType);
-  if (doc.docInfo != null && doc.docInfo.containsKey("DOC_ID")) {
-    features.incrementCount("doc-source=" + doc.docInfo.get("DOC_ID").split("/")[1]);
+  if (useDocSource) {
+    features.incrementCount("doc-type=" + doc.docType);
+    if (doc.docInfo != null && doc.docInfo.containsKey("DOC_ID")) {
+      features.incrementCount("doc-source=" + doc.docInfo.get("DOC_ID").split("/")[1]);
+    }
   }
   List<String> singletonFeatures1=m1.getSingletonFeatures(dictionaries);
   List<String> singletonFeatures2=m2.getSingletonFeatures(dictionaries);
@@ -69,13 +71,11 @@
   addFeature(features,"person-disagree-same-speaker",Rules.entityPersonDisagree(doc,m2,m1,dictionaries) && Rules.entitySameSpeaker(doc,m2,m1));
   addFeature(features,"antecedent-matches-anaphor-speaker",Rules.antecedentMatchesMentionSpeakerAnnotation(m2,m1,doc));
   addFeature(features,"discourse-you-PER0",m2.person == Person.YOU && doc.docType == DocType.ARTICLE && m2.headWord.get(CoreAnnotations.SpeakerAnnotation.class).equals("PER0"));
-  addFeature(features,"same-speaker-info",m2.speakerInfo != null && m2.speakerInfo == m1.speakerInfo);
   addFeature(features,"speaker-match-i-i",m2.number == Number.SINGULAR && dictionaries.firstPersonPronouns.contains(s1) && m1.number == Number.SINGULAR && dictionaries.firstPersonPronouns.contains(s2) && Rules.entitySameSpeaker(doc,m2,m1));
   addFeature(features,"1st-person-mention-speaker-match",m2.number == Number.SINGULAR && dictionaries.firstPersonPronouns.contains(s2) && Rules.antecedentIsMentionSpeaker(doc,m2,m1,dictionaries));
   addFeature(features,"1st-person-antecedent-speaker-match",m1.number == Number.SINGULAR && dictionaries.firstPersonPronouns.contains(s1) && Rules.antecedentIsMentionSpeaker(doc,m1,m2,dictionaries));
   addFeature(features,"2nd-person-same-speaker",dictionaries.secondPersonPronouns.contains(s1) && dictionaries.secondPersonPronouns.contains(s2) && Rules.entitySameSpeaker(doc,m2,m1));
   addFeature(features,"discourse-between-two-person",((m2.person == Person.I && m1.person == Person.YOU || (m2.person == Person.YOU && m1.person == Person.I)) && (m2.headWord.get(CoreAnnotations.UtteranceAnnotation.class) - m1.headWord.get(CoreAnnotations.UtteranceAnnotation.class) == 1) && doc.docType == DocType.CONVERSATION));
-  addFeature(features,"discourse-match-reflexive-pronoun",dictionaries.reflexivePronouns.contains(m2.headString) && Rules.entitySubjectObject(m2,m1));
   addFeature(features,"incompatible-not-match",m1.person != Person.I && m2.person != Person.I && (Rules.antecedentIsMentionSpeaker(doc,m1,m2,dictionaries) || Rules.antecedentIsMentionSpeaker(doc,m2,m1,dictionaries)));
   int utteranceDist=Math.abs(m1.headWord.get(CoreAnnotations.UtteranceAnnotation.class) - m2.headWord.get(CoreAnnotations.UtteranceAnnotation.class));
   if (doc.docType != DocType.ARTICLE && utteranceDist == 1 && !Rules.entitySameSpeaker(doc,m2,m1)) {
@@ -83,24 +83,16 @@
     addFeature(features,"incompatibles-neighbor-you",m1.person == Person.YOU && m2.person == Person.YOU);
     addFeature(features,"incompatibles-neighbor-we",m1.person == Person.WE && m2.person == Person.WE);
   }
-  addFeature(features,"apposition",m1.isApposition(m2));
   String firstWord1=firstWord(m1).word().toLowerCase();
   addFeature(features,"indefinite-article-np",(m1.appositions == null && m1.predicateNominatives == null && (firstWord1.equals("a") || firstWord1.equals("an"))));
-  addFeature(features,"indefinite-pronoun",dictionaries.indefinitePronouns.contains(m1.lowercaseNormalizedSpanString()));
-  addFeature(features,"indefinite-pronoun-start",dictionaries.indefinitePronouns.contains(firstWord1));
   addFeature(features,"far-this",m2.lowercaseNormalizedSpanString().equals("this") && Math.abs(m2.sentNum - m1.sentNum) > 3);
   addFeature(features,"per0-you-in-article",m2.person == Person.YOU && doc.docType == DocType.ARTICLE && m2.headWord.get(CoreAnnotations.SpeakerAnnotation.class).equals("PER0"));
   addFeature(features,"inside-in",m2.insideIn(m1) || m1.insideIn(m2));
-  addFeature(features,"common-noun-poper-noun",m1.mentionType != MentionType.PROPER && (m2.headWord.get(CoreAnnotations.PartOfSpeechAnnotation.class).startsWith("NNP") || !m2.headWord.word().substring(1).equals(m2.headWord.word().substring(1).toLowerCase())));
   addFeature(features,"indefinite-determiners",dictionaries.indefinitePronouns.contains(m1.originalSpan.get(0).lemma()) || dictionaries.indefinitePronouns.contains(m2.originalSpan.get(0).lemma()));
   addFeature(features,"entity-attributes-agree",Rules.entityAttributesAgree(c2,c1));
   addFeature(features,"entity-token-distance",Rules.entityTokenDistance(m2,m1));
-  addFeature(features,"same-list",m1.isMemberOfSameList(m2));
-  addFeature(features,"same-proper-head-last-word",Rules.entitySameProperHeadLastWord(c2,c1,m2,m1));
   addFeature(features,"i-within-i",Rules.entityIWithinI(m2,m1,dictionaries));
   addFeature(features,"exact-string-match",Rules.entityExactStringMatch(c2,c1,dictionaries,doc.roleSet));
-  addFeature(features,"relaxed-string-match",Rules.entityRelaxedExactStringMatch(c2,c1,m2,m1,dictionaries,doc.roleSet));
-  addFeature(features,"entity-heads-agree",Rules.entityHeadsAgree(c2,c1,m2,m1,dictionaries));
   addFeature(features,"entity-relaxed-heads-agree",Rules.entityRelaxedHeadsAgreeBetweenMentions(c2,c1,m2,m1));
   addFeature(features,"is-acronym",Rules.entityIsAcronym(doc,c2,c1));
   addFeature(features,"demonym",m2.isDemonym(m1,dictionaries));
