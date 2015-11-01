@@ -1,6 +1,5 @@
 {
   Class source=null;
-  Object backupSource=null;
   Redwood.Flag flag=Redwood.Flag.STDOUT;
   for (  Object c : channel) {
     if (c instanceof Class) {
@@ -11,19 +10,16 @@
         flag=(Redwood.Flag)c;
       }
     }
- else {
-      backupSource=c;
-    }
   }
   Logger impl=null;
-  if (source != null) {
-    impl=LoggerFactory.getLogger(source);
+  if (channel.length == 0) {
+    impl=LoggerFactory.getLogger("CoreNLP");
   }
- else   if (backupSource != null) {
-    impl=LoggerFactory.getLogger(backupSource.toString());
+ else   if (channel[0] instanceof Class) {
+    impl=LoggerFactory.getLogger((Class)channel[0]);
   }
  else {
-    impl=LoggerFactory.getLogger("CoreNLP");
+    impl=LoggerFactory.getLogger(channel[0].toString());
   }
 switch (flag) {
 case ERROR:
