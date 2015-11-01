@@ -17,23 +17,23 @@
   }
   Logger impl=null;
   if (source != null) {
-    impl=LoggerFactory.getLogger(source);
+    impl=Logger.getLogger(source.getName());
   }
  else   if (backupSource != null) {
-    impl=LoggerFactory.getLogger(backupSource.toString());
+    impl=Logger.getLogger(backupSource.toString());
   }
  else {
-    impl=LoggerFactory.getLogger("CoreNLP");
+    impl=Logger.getLogger("CoreNLP");
   }
 switch (flag) {
 case ERROR:
-    impl.error(line);
+    impl.log(Level.SEVERE,line);
   break;
 case WARN:
-impl.warn(line);
+impl.log(Level.WARNING,line);
 break;
 case DEBUG:
-impl.debug(line);
+impl.log(Level.FINE,line);
 break;
 case STDOUT:
 case STDERR:
