@@ -4,6 +4,13 @@
     URL u=new URL(textFileOrUrl);
     URLConnection uc=u.openConnection();
     in=uc.getInputStream();
+    if (textFileOrUrl.endsWith(".gz")) {
+      try {
+        in=new GZIPInputStream(in);
+      }
+ catch (      IOException e) {
+      }
+    }
   }
  else {
     try {
@@ -16,16 +23,8 @@
         in=uc.getInputStream();
       }
  catch (      IOException e2) {
-        throw new IOException("Unable to open \"" + textFileOrUrl + "\" as "+ "class path, filename or URL");
+        throw new IOException("Unable to resolve \"" + textFileOrUrl + "\" as either "+ "class path, filename or URL");
       }
-    }
-  }
-  if (textFileOrUrl.endsWith(".gz")) {
-    try {
-      in=new GZIPInputStream(in);
-    }
- catch (    IOException e) {
-      System.err.println("Resource or file looks like a gzip file, but is not: " + textFileOrUrl);
     }
   }
   in=new BufferedInputStream(in);
