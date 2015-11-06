@@ -1,0 +1,41 @@
+{
+  double logLikelihood=0.0;
+  CliqueTree.MarginalResult result=new CliqueTree(model,weights).calculateMarginals();
+  for (  GraphicalModel.Factor factor : model.factors) {
+    factor.featuresTable.cacheVectors();
+  }
+  logLikelihood-=Math.log(result.partitionFunction);
+  if (Double.isInfinite(logLikelihood))   return 0.0;
+  for (  GraphicalModel.Factor factor : model.factors) {
+    int[] assignment=new int[factor.neigborIndices.length];
+    for (int i=0; i < assignment.length; i++) {
+      int deterministicValue=getDeterministicAssignment(result.marginals[factor.neigborIndices[i]]);
+      if (deterministicValue != -1) {
+        assignment[i]=deterministicValue;
+      }
+ else {
+        int trainingObservation=Integer.parseInt(model.getVariableMetaDataByReference(factor.neigborIndices[i]).get(LogLikelihoodDifferentiableFunction.VARIABLE_TRAINING_VALUE));
+        assignment[i]=trainingObservation;
+      }
+    }
+    ConcatVector features=factor.featuresTable.getAssignmentValue(assignment).get();
+    logLikelihood+=features.dotProduct(weights);
+    gradient.addVectorInPlace(features,1.0);
+  }
+  for (  GraphicalModel.Factor factor : model.factors) {
+    Iterator<int[]> fastPassByReferenceIterator=factor.featuresTable.fastPassByReferenceIterator();
+    int[] assignment=fastPassByReferenceIterator.next();
+    while (true) {
+      double assignmentProb=result.jointMarginals.get(factor).getAssignmentValue(assignment);
+      if (assignmentProb > 0) {
+        gradient.addVectorInPlace(factor.featuresTable.getAssignmentValue(assignment).get(),-assignmentProb);
+      }
+      if (fastPassByReferenceIterator.hasNext())       fastPassByReferenceIterator.next();
+ else       break;
+    }
+  }
+  for (  GraphicalModel.Factor factor : model.factors) {
+    factor.featuresTable.releaseCache();
+  }
+  return logLikelihood;
+}

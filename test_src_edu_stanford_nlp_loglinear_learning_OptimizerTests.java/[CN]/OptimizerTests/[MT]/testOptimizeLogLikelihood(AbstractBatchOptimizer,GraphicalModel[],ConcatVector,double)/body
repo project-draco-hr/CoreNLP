@@ -1,6 +1,6 @@
 {
-  AbstractDifferentiableFunction<GraphicalModel> ll=new LogLikelihoodFunction();
-  ConcatVector finalWeights=optimizer.optimize(dataset,ll,initialWeights,l2regularization);
+  AbstractDifferentiableFunction<GraphicalModel> ll=new LogLikelihoodDifferentiableFunction();
+  ConcatVector finalWeights=optimizer.optimize(dataset,ll,initialWeights,l2regularization,1.0e-9,true);
   System.err.println("Finished optimizing");
   double logLikelihood=getValueSum(dataset,finalWeights,ll,l2regularization);
   Random r=new Random(42);
@@ -17,10 +17,10 @@
     ConcatVector randomPerturbation=finalWeights.deepClone();
     randomPerturbation.addVectorInPlace(randomDirection,1.0);
     double randomPerturbedLogLikelihood=getValueSum(dataset,randomPerturbation,ll,l2regularization);
-    if (logLikelihood < randomPerturbedLogLikelihood - (1.0e-7 * Math.max(1.0e-1,Math.abs(logLikelihood)))) {
+    if (logLikelihood < randomPerturbedLogLikelihood - Math.abs(1.0e-7 * logLikelihood)) {
       System.err.println("Thought optimal point was: " + logLikelihood);
       System.err.println("Discovered better point: " + randomPerturbedLogLikelihood);
     }
-    assertTrue(logLikelihood >= randomPerturbedLogLikelihood - (1.0e-7 * Math.max(1.0e-1,Math.abs(logLikelihood))));
+    assertTrue(logLikelihood >= randomPerturbedLogLikelihood - Math.abs(1.0e-7 * logLikelihood));
   }
 }

@@ -5,15 +5,7 @@
     copyOnWrite=new boolean[other.pointers.length];
   }
  else   if (pointers.length < other.pointers.length) {
-    double[][] pointersBuf=new double[other.pointers.length][];
-    boolean[] sparseBuf=new boolean[other.pointers.length];
-    boolean[] copyOnWriteBuf=new boolean[other.pointers.length];
-    System.arraycopy(pointers,0,pointersBuf,0,pointers.length);
-    System.arraycopy(sparse,0,sparseBuf,0,pointers.length);
-    System.arraycopy(copyOnWrite,0,copyOnWriteBuf,0,pointers.length);
-    pointers=pointersBuf;
-    sparse=sparseBuf;
-    copyOnWrite=copyOnWriteBuf;
+    increaseSizeTo(other.pointers.length);
   }
   for (int i=0; i < other.pointers.length; i++) {
     if (other.pointers[i] == null)     continue;
@@ -79,7 +71,9 @@
  else     if (!sparse[i] && other.sparse[i]) {
       int sparseIndex=(int)other.pointers[i][0];
       if (sparseIndex >= pointers[i].length) {
-        double[] denseBuf=new double[sparseIndex + 1];
+        int newSize=pointers[i].length;
+        while (newSize <= sparseIndex)         newSize*=2;
+        double[] denseBuf=new double[newSize];
         System.arraycopy(pointers[i],0,denseBuf,0,pointers[i].length);
         copyOnWrite[i]=false;
         pointers[i]=denseBuf;
