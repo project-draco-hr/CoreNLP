@@ -1,6 +1,10 @@
 {
   List<CoreMap> sentences=annotation.get(CoreAnnotations.SentencesAnnotation.class);
-  if (annotation.get(CoreAnnotations.DocIDAnnotation.class).contains("nw") && corefProperties.getProperty("coref.input.type").equals("conll") && corefProperties.getProperty("coref.language","en").equals("zh")) {
+  String docID=annotation.get(CoreAnnotations.DocIDAnnotation.class);
+  if (docID == null) {
+    docID="";
+  }
+  if (docID.contains("nw") && corefProperties.getProperty("coref.input.type","raw").equals("conll") && corefProperties.getProperty("coref.language","en").equals("zh")) {
     CorefProperties.setRemoveNested(corefProperties,false);
   }
  else {
