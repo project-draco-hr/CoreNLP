@@ -1,17 +1,17 @@
 {
-  TreeFactory lstf=new LabeledScoredTreeFactory();
+  TreeFactory treeFactory=new LabeledScoredTreeFactory();
   List<Tree> lst2=new ArrayList<Tree>();
   for (  HasWord obj : words) {
     String s=obj.word();
-    Tree t=lstf.newLeaf(s);
+    Tree t=treeFactory.newLeaf(s);
     String tag="XX";
     if (obj instanceof HasTag) {
       if (((HasTag)obj).tag() != null) {
         tag=((HasTag)obj).tag();
       }
     }
-    Tree t2=lstf.newTreeNode(tag,Collections.singletonList(t));
+    Tree t2=treeFactory.newTreeNode(tag,Collections.singletonList(t));
     lst2.add(t2);
   }
-  return lstf.newTreeNode("X",lst2);
+  return treeFactory.newTreeNode("X",lst2);
 }
