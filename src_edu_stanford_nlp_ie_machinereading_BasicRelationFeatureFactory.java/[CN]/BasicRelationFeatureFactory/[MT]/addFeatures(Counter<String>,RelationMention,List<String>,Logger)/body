@@ -25,7 +25,7 @@
     System.err.println("Arg1 sentence: " + arg1Sentence.get(TextAnnotation.class));
     return false;
   }
-  List<String> checklist=new ArrayList<>(types);
+  List<String> checklist=new ArrayList<String>(types);
   if (usingFeature(types,checklist,"arg_type")) {
     features.setCount("arg1type=" + arg0.getType() + "_and_arg2type="+ arg1.getType(),1.0);
   }
@@ -115,7 +115,7 @@
       features.setCount("surface_distance_bin_ge10",1.0);
     }
   }
-  List<EntityMention> args=new ArrayList<>();
+  List<EntityMention> args=new ArrayList<EntityMention>();
   args.add(arg0);
   args.add(arg1);
   for (int windowSize=1; windowSize <= 3; windowSize++) {
@@ -203,7 +203,7 @@
       }
     }
   }
-  Counter<String> typeCounts=new ClassicCounter<>();
+  Counter<String> typeCounts=new ClassicCounter<String>();
   if (rel.getSentence().get(MachineReadingAnnotations.EntityMentionsAnnotation.class) != null) {
     for (    EntityMention arg : rel.getSentence().get(MachineReadingAnnotations.EntityMentionsAnnotation.class))     typeCounts.incrementCount(arg.getType());
     for (    String type : typeCounts.keySet()) {
@@ -307,12 +307,12 @@
     if ((arg0Male && arg1Male) || (arg0Female && arg1Female))     features.setCount("arg_same_gender",1.0);
     if ((arg0Male && arg1Female) || (arg0Female && arg1Male))     features.setCount("arg_different_gender",1.0);
   }
-  List<String> tempDepFeatures=new ArrayList<>(dependencyFeatures);
+  List<String> tempDepFeatures=new ArrayList<String>(dependencyFeatures);
   if (tempDepFeatures.removeAll(types) || types.contains("all")) {
     addDependencyPathFeatures(features,rel,arg0,arg1,types,checklist,logger);
   }
   if (!checklist.isEmpty() && !checklist.contains("all"))   throw new AssertionError("RelationFeatureFactory: features not handled: " + checklist);
-  List<String> featureList=new ArrayList<>(features.keySet());
+  List<String> featureList=new ArrayList<String>(features.keySet());
   Collections.sort(featureList);
   return true;
 }

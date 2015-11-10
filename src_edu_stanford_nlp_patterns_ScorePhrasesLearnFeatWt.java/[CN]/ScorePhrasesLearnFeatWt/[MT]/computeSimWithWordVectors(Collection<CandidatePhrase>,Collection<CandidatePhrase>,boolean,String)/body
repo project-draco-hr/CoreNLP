@@ -1,8 +1,8 @@
 {
-  Counter<CandidatePhrase> sims=new ClassicCounter<>(candidatePhrases.size());
+  Counter<CandidatePhrase> sims=new ClassicCounter<CandidatePhrase>(candidatePhrases.size());
   for (  CandidatePhrase p : candidatePhrases) {
     Map<String,double[]> simsAvgMaxAllLabels=similaritiesWithLabeledPhrases.get(p.getPhrase());
-    if (simsAvgMaxAllLabels == null)     simsAvgMaxAllLabels=new HashMap<>();
+    if (simsAvgMaxAllLabels == null)     simsAvgMaxAllLabels=new HashMap<String,double[]>();
     double[] simsAvgMax=simsAvgMaxAllLabels.get(label);
     if (simsAvgMax == null) {
       simsAvgMax=new double[Similarities.values().length];
@@ -10,7 +10,7 @@
     }
     if (wordVectors.containsKey(p.getPhrase()) && (!ignoreWordRegex || !PatternFactory.ignoreWordRegex.matcher(p.getPhrase()).matches())) {
       double[] d1=wordVectors.get(p.getPhrase());
-      BinaryHeapPriorityQueue<CandidatePhrase> topSimPhs=new BinaryHeapPriorityQueue<>(constVars.expandPhrasesNumTopSimilar);
+      BinaryHeapPriorityQueue<CandidatePhrase> topSimPhs=new BinaryHeapPriorityQueue<CandidatePhrase>(constVars.expandPhrasesNumTopSimilar);
       double allsum=0;
       double max=Double.MIN_VALUE;
       boolean donotuse=false;

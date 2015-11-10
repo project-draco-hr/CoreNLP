@@ -2,11 +2,11 @@
   final int maxBeamSize=Math.max(parser.op.testOptions().beamSize,1);
   success=true;
   unparsable=false;
-  PriorityQueue<State> beam=new PriorityQueue<>(maxBeamSize + 1,ScoredComparator.ASCENDING_COMPARATOR);
+  PriorityQueue<State> beam=new PriorityQueue<State>(maxBeamSize + 1,ScoredComparator.ASCENDING_COMPARATOR);
   beam.add(initialState);
   while (beam.size() > 0) {
     PriorityQueue<State> oldBeam=beam;
-    beam=new PriorityQueue<>(maxBeamSize + 1,ScoredComparator.ASCENDING_COMPARATOR);
+    beam=new PriorityQueue<State>(maxBeamSize + 1,ScoredComparator.ASCENDING_COMPARATOR);
     State bestState=null;
     for (    State state : oldBeam) {
       Collection<ScoredObject<Integer>> predictedTransitions=parser.model.findHighestScoringTransitions(state,true,maxBeamSize,constraints);

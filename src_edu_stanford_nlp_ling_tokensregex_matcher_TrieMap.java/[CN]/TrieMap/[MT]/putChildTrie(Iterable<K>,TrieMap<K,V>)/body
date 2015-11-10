@@ -6,7 +6,7 @@
     K element=keyIter.next();
     boolean isLast=!keyIter.hasNext();
     if (curTrie.children == null) {
-      curTrie.children=new ConcurrentHashMap<>();
+      curTrie.children=new ConcurrentHashMap<K,TrieMap<K,V>>();
     }
     parentTrie=curTrie;
     curTrie=curTrie.children.get(element);
@@ -14,7 +14,7 @@
       parentTrie.children.put(element,child);
     }
  else     if (curTrie == null) {
-      parentTrie.children.put(element,curTrie=new TrieMap<>());
+      parentTrie.children.put(element,curTrie=new TrieMap<K,V>());
     }
   }
   if (parentTrie == null) {

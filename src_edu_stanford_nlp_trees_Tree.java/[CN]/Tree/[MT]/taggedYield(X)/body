@@ -1,9 +1,10 @@
 {
-  if (isPreTerminal()) {
-    ty.add(new TaggedWord(firstChild().label(),label()));
+  Tree[] kids=children();
+  if (kids.length == 1 && kids[0].isLeaf()) {
+    ty.add(new TaggedWord(kids[0].label(),label()));
   }
  else {
-    for (    Tree kid : children()) {
+    for (    Tree kid : kids) {
       kid.taggedYield(ty);
     }
   }
