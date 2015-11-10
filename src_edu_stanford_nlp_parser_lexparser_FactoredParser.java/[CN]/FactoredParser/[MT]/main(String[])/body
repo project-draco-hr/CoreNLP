@@ -81,11 +81,11 @@ catch (      IllegalAccessException e) {
     collinsPuncTransformer=new CollinsPuncTransformer(tlp);
   }
   TreeTransformer debinarizer=new Debinarizer(op.forceCNF);
-  List<Tree> binaryTrainTrees=new ArrayList<Tree>();
+  List<Tree> binaryTrainTrees=new ArrayList<>();
   if (op.trainOptions.selectiveSplit) {
     op.trainOptions.splitters=ParentAnnotationStats.getSplitCategories(trainTreebank,op.trainOptions.tagSelectiveSplit,0,op.trainOptions.selectiveSplitCutOff,op.trainOptions.tagSelectiveSplitCutOff,op.tlpParams.treebankLanguagePack());
     if (op.trainOptions.deleteSplitters != null) {
-      List<String> deleted=new ArrayList<String>();
+      List<String> deleted=new ArrayList<>();
       for (      String del : op.trainOptions.deleteSplitters) {
         String baseDel=tlp.basicCategory(del);
         boolean checkBasic=del.equals(baseDel);
@@ -127,7 +127,7 @@ catch (      IllegalAccessException e) {
   if (op.testOptions.verbose) {
     binarizer.dumpStats();
   }
-  List<Tree> binaryTestTrees=new ArrayList<Tree>();
+  List<Tree> binaryTestTrees=new ArrayList<>();
   for (  Tree tree : testTreebank) {
     if (op.trainOptions.collinsPunc) {
       tree=collinsPuncTransformer.transformTree(tree);
@@ -140,13 +140,13 @@ catch (      IllegalAccessException e) {
   UnaryGrammar ug=null;
   DependencyGrammar dg=null;
   Lexicon lex=null;
-  Index<String> stateIndex=new HashIndex<String>();
+  Index<String> stateIndex=new HashIndex<>();
   Extractor<Pair<UnaryGrammar,BinaryGrammar>> bgExtractor=new BinaryGrammarExtractor(op,stateIndex);
   if (op.doPCFG) {
     System.err.print("Extracting PCFG...");
     Pair<UnaryGrammar,BinaryGrammar> bgug=null;
     if (op.trainOptions.cheatPCFG) {
-      List<Tree> allTrees=new ArrayList<Tree>(binaryTrainTrees);
+      List<Tree> allTrees=new ArrayList<>(binaryTrainTrees);
       allTrees.addAll(binaryTestTrees);
       bgug=bgExtractor.extract(allTrees);
     }
@@ -160,8 +160,8 @@ catch (      IllegalAccessException e) {
     Timing.tick("done.");
   }
   System.err.print("Extracting Lexicon...");
-  Index<String> wordIndex=new HashIndex<String>();
-  Index<String> tagIndex=new HashIndex<String>();
+  Index<String> wordIndex=new HashIndex<>();
+  Index<String> tagIndex=new HashIndex<>();
   lex=op.tlpParams.lex(op,wordIndex,tagIndex);
   lex.initializeTraining(binaryTrainTrees.size());
   lex.train(binaryTrainTrees);

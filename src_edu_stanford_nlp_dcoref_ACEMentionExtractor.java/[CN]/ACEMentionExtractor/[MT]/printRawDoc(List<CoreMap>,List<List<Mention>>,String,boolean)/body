@@ -1,7 +1,7 @@
 {
   StringBuilder doc=new StringBuilder();
   int previousOffset=0;
-  Counter<Integer> mentionCount=new ClassicCounter<Integer>();
+  Counter<Integer> mentionCount=new ClassicCounter<>();
   for (  List<Mention> l : allMentions) {
     for (    Mention m : l) {
       mentionCount.incrementCount(m.goldCorefClusterID);
@@ -15,8 +15,8 @@
     List<CoreLabel> t=sentence.get(CoreAnnotations.TokensAnnotation.class);
     if (previousOffset + 2 < t.get(0).get(CoreAnnotations.CharacterOffsetBeginAnnotation.class))     sent+="\n";
     previousOffset=t.get(t.size() - 1).get(CoreAnnotations.CharacterOffsetEndAnnotation.class);
-    Counter<Integer> startCounts=new ClassicCounter<Integer>();
-    Counter<Integer> endCounts=new ClassicCounter<Integer>();
+    Counter<Integer> startCounts=new ClassicCounter<>();
+    Counter<Integer> endCounts=new ClassicCounter<>();
     Map<Integer,Set<Integer>> endID=Generics.newHashMap();
     for (    Mention m : mentions) {
       startCounts.incrementCount(m.startIndex);

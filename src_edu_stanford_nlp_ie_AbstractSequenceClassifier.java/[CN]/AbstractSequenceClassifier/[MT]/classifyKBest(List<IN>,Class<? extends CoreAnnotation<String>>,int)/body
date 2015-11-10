@@ -1,15 +1,15 @@
 {
   if (doc.isEmpty()) {
-    return new ClassicCounter<List<IN>>();
+    return new ClassicCounter<>();
   }
-  ObjectBankWrapper<IN> obw=new ObjectBankWrapper<IN>(flags,null,knownLCWords);
+  ObjectBankWrapper<IN> obw=new ObjectBankWrapper<>(flags,null,knownLCWords);
   doc=obw.processDocument(doc);
   SequenceModel model=getSequenceModel(doc);
   KBestSequenceFinder tagInference=new KBestSequenceFinder();
   Counter<int[]> bestSequences=tagInference.kBestSequences(model,k);
-  Counter<List<IN>> kBest=new ClassicCounter<List<IN>>();
+  Counter<List<IN>> kBest=new ClassicCounter<>();
   for (  int[] seq : bestSequences.keySet()) {
-    List<IN> kth=new ArrayList<IN>();
+    List<IN> kth=new ArrayList<>();
     int pos=model.leftWindow();
     for (    IN fi : doc) {
       IN newFL=tokenFactory.makeToken(fi);

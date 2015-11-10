@@ -1,5 +1,5 @@
 {
-  GeneralDataset<String,String> dataset=new Dataset<String,String>();
+  GeneralDataset<String,String> dataset=new Dataset<>();
   Dictionaries dict=new Dictionaries(props);
   MentionExtractor mentionExtractor=new CoNLLMentionExtractor(dict,props,new Semantics(dict));
   Document document;
@@ -13,10 +13,10 @@
         IndexedWord head=mention.dependency.getNodeByIndexSafe(mention.headWord.index());
         if (head == null)         continue;
         ArrayList<String> feats=mention.getSingletonFeatures(dict);
-        dataset.add(new BasicDatum<String,String>(feats,"1"));
+        dataset.add(new BasicDatum<>(feats,"1"));
       }
     }
-    ArrayList<CoreLabel> gold_heads=new ArrayList<CoreLabel>();
+    ArrayList<CoreLabel> gold_heads=new ArrayList<>();
     for (    Mention gold_men : document.allGoldMentions.values()) {
       gold_heads.add(gold_men.headWord);
     }
@@ -26,7 +26,7 @@
       if (head == null)       continue;
       if (predicted_men.headWord.tag().startsWith("V"))       continue;
       if (gold_heads.contains(predicted_men.headWord))       continue;
-      dataset.add(new BasicDatum<String,String>(predicted_men.getSingletonFeatures(dict),"0"));
+      dataset.add(new BasicDatum<>(predicted_men.getSingletonFeatures(dict),"0"));
     }
   }
   dataset.summaryStatistics();

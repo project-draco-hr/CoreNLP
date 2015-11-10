@@ -1,13 +1,12 @@
 {
-  ClassicCounter<Integer> wordLengthCounter=new ClassicCounter<Integer>();
-  ClassicCounter<TaggedWord> wordCounter=new ClassicCounter<TaggedWord>();
-  ClassicCounter<Symbol> charCounter=new ClassicCounter<Symbol>();
+  ClassicCounter<Integer> wordLengthCounter=new ClassicCounter<>();
+  ClassicCounter<TaggedWord> wordCounter=new ClassicCounter<>();
+  ClassicCounter<Symbol> charCounter=new ClassicCounter<>();
   int counter=0;
   for (  Tree tree : trees) {
     counter++;
     List<TaggedWord> taggedWords=tree.taggedYield();
-    for (int i=0, size=taggedWords.size(); i < size; i++) {
-      TaggedWord taggedWord=taggedWords.get(i);
+    for (    TaggedWord taggedWord : taggedWords) {
       String word=taggedWord.word();
       if (word.equals(Lexicon.BOUNDARY)) {
         continue;
@@ -23,12 +22,12 @@
   }
   Set<Symbol> singletonChars=Counters.keysBelow(charCounter,1.5);
   Set<TaggedWord> singletonWords=Counters.keysBelow(wordCounter,1.5);
-  ClassicCounter<String> singletonWordPOSes=new ClassicCounter<String>();
+  ClassicCounter<String> singletonWordPOSes=new ClassicCounter<>();
   for (  TaggedWord taggedWord : singletonWords) {
     singletonWordPOSes.incrementCount(taggedWord.tag());
   }
   Distribution<String> singletonWordPOSDist=Distribution.getDistribution(singletonWordPOSes);
-  ClassicCounter<Character> singletonCharRads=new ClassicCounter<Character>();
+  ClassicCounter<Character> singletonCharRads=new ClassicCounter<>();
   for (  Symbol s : singletonChars) {
     singletonCharRads.incrementCount(Character.valueOf(RadicalMap.getRadical(s.getCh())));
   }
