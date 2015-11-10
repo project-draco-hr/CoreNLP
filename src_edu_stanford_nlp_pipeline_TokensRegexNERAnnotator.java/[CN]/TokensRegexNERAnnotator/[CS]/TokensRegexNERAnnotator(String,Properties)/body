@@ -7,7 +7,7 @@
   String validPosRegex=properties.getProperty(prefix + "validpospattern");
   this.posMatchType=PosMatchType.valueOf(properties.getProperty(prefix + "posmatchtype",DEFAULT_POS_MATCH_TYPE.name()));
   String commonWordsFile=properties.getProperty(prefix + "commonWords");
-  commonWords=new HashSet<String>();
+  commonWords=new HashSet<>();
   if (commonWordsFile != null) {
     try {
       BufferedReader reader=IOUtils.getBufferedFileReader(commonWordsFile);
@@ -30,10 +30,9 @@
   }
  else {
     headerFields=COMMA_DELIMITERS_PATTERN.split(headerProp);
-    List<String> fieldNames=new ArrayList<String>();
-    List<Class> fieldClasses=new ArrayList<Class>();
-    for (int i=0; i < headerFields.length; i++) {
-      String field=headerFields[i];
+    List<String> fieldNames=new ArrayList<>();
+    List<Class> fieldClasses=new ArrayList<>();
+    for (    String field : headerFields) {
       if (!predefinedHeaderFields.contains(field)) {
         Class fieldClass=EnvLookup.lookupAnnotationKeyWithClassname(null,field);
         if (fieldClass == null) {
@@ -54,7 +53,7 @@
     annotationFields=fieldClasses;
   }
   String noDefaultOverwriteLabelsProp=properties.getProperty(prefix + "noDefaultOverwriteLabels");
-  this.noDefaultOverwriteLabels=(noDefaultOverwriteLabelsProp != null) ? Collections.unmodifiableSet(CollectionUtils.asSet(noDefaultOverwriteLabelsProp.split("\\s*,\\s*"))) : Collections.unmodifiableSet(new HashSet<String>());
+  this.noDefaultOverwriteLabels=(noDefaultOverwriteLabelsProp != null) ? Collections.unmodifiableSet(CollectionUtils.asSet(noDefaultOverwriteLabelsProp.split("\\s*,\\s*"))) : Collections.unmodifiableSet(new HashSet<>());
   this.ignoreCase=PropertiesUtils.getBool(properties,prefix + "ignorecase",false);
   this.verbose=PropertiesUtils.getBool(properties,prefix + "verbose",false);
   if (validPosRegex != null && !validPosRegex.equals("")) {
@@ -64,7 +63,7 @@
     validPosPattern=null;
   }
   entries=Collections.unmodifiableList(readEntries(name,noDefaultOverwriteLabels,ignoreCase,verbose,headerFields,annotationFieldnames,mappings));
-  IdentityHashMap<SequencePattern<CoreMap>,Entry> patternToEntry=new IdentityHashMap<SequencePattern<CoreMap>,Entry>();
+  IdentityHashMap<SequencePattern<CoreMap>,Entry> patternToEntry=new IdentityHashMap<>();
   multiPatternMatcher=createPatternMatcher(patternToEntry);
   this.patternToEntry=Collections.unmodifiableMap(patternToEntry);
   Set<String> myLabels=Generics.newHashSet();

@@ -120,6 +120,7 @@
   boolean[][] backwardPassedMessages=new boolean[cliques.length][cliques.length];
   int forceRootForCachedMessagePassing=-1;
   int[] cachedCliquesBackPointers=null;
+  boolean backPointersConsistent=true;
   if (CACHE_MESSAGES && (numFactorsCached == cliques.length - 1) && (numFactorsCached > 0)) {
     cachedCliquesBackPointers=new int[cliques.length];
     for (int i=0; i < cliques.length; i++) {
@@ -131,11 +132,14 @@
         }
       }
       if (cachedCliquesBackPointers[i] == -1) {
-        assert(forceRootForCachedMessagePassing == -1);
+        if (forceRootForCachedMessagePassing != -1) {
+          backPointersConsistent=false;
+          break;
+        }
         forceRootForCachedMessagePassing=i;
       }
     }
-    assert(forceRootForCachedMessagePassing != -1);
+    if (!backPointersConsistent)     forceRootForCachedMessagePassing=-1;
   }
   boolean[] visited=new boolean[cliques.length];
   int numVisited=0;
@@ -278,7 +282,7 @@
         partitionFunction*=treePartitionFunctions[trees[i]];
       }
  else {
-        if (assertsEnabled()) {
+        if (assertsEnabled() && !TableFactor.USE_EXP_APPROX) {
           double valueSum=convergedClique.valueSum();
           if (Double.isFinite(valueSum) && Double.isFinite(treePartitionFunctions[trees[i]])) {
             if (Math.abs(treePartitionFunctions[trees[i]] - valueSum) >= 1.0e-3 * treePartitionFunctions[trees[i]]) {

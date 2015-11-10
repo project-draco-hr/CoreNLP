@@ -1,16 +1,15 @@
 {
-  ClassicCounter<Integer> c=new ClassicCounter<Integer>();
-  for (Iterator iterator=tb.iterator(); iterator.hasNext(); ) {
-    Tree gold=(Tree)iterator.next();
+  ClassicCounter<Integer> c=new ClassicCounter<>();
+  for (  Tree gold : tb) {
     StringBuilder goldChars=new StringBuilder();
     ArrayList goldYield=gold.yield();
-    for (Iterator wordIter=goldYield.iterator(); wordIter.hasNext(); ) {
-      Word word=(Word)wordIter.next();
+    for (    Object aGoldYield : goldYield) {
+      Word word=(Word)aGoldYield;
       goldChars.append(word);
     }
     List<HasWord> ourWords=segment(goldChars.toString());
-    for (int i=0; i < ourWords.size(); i++) {
-      c.incrementCount(Integer.valueOf(ourWords.get(i).word().length()));
+    for (    HasWord ourWord : ourWords) {
+      c.incrementCount(Integer.valueOf(ourWord.word().length()));
     }
   }
   return Distribution.getDistribution(c);

@@ -11,12 +11,12 @@
       featureCountIndices[i]=Generics.newHashMap();
     }
   }
-  labelIndices=new ArrayList<Index<CRFLabel>>(windowSize);
+  labelIndices=new ArrayList<>(windowSize);
   for (int i=0; i < windowSize; i++) {
-    labelIndices.add(new HashIndex<CRFLabel>());
+    labelIndices.add(new HashIndex<>());
   }
   Index<CRFLabel> labelIndex=labelIndices.get(windowSize - 1);
-  if (classIndex == null)   classIndex=new HashIndex<String>();
+  if (classIndex == null)   classIndex=new HashIndex<>();
   classIndex.add(flags.backgroundSymbol);
   Set<String>[] seenBackgroundFeatures=new HashSet[2];
   seenBackgroundFeatures[0]=Generics.newHashSet();
@@ -134,14 +134,14 @@
     numFeatures+=featureIndices[i].size();
   }
   System.err.println("numFeatures = " + numFeatures);
-  featureIndex=new HashIndex<String>();
+  featureIndex=new HashIndex<>();
   map=new int[numFeatures];
   if (flags.groupByFeatureTemplate) {
-    templateGroupIndex=new HashIndex<String>();
-    featureIndexToTemplateIndex=new HashMap<Integer,Integer>();
+    templateGroupIndex=new HashIndex<>();
+    featureIndexToTemplateIndex=new HashMap<>();
   }
   for (int i=0; i < windowSize; i++) {
-    Index<Integer> featureIndexMap=new HashIndex<Integer>();
+    Index<Integer> featureIndexMap=new HashIndex<>();
     featureIndex.addAll(featureIndices[i]);
     for (    String str : featureIndices[i]) {
       int index=featureIndex.indexOf(str);

@@ -3,14 +3,14 @@
   String minPh=ph;
   for (  CandidatePhrase ec : words) {
     String e=ec.getPhrase();
-    if (e.equals(ph))     return new Pair<String,Double>(ph,0.0);
+    if (e.equals(ph))     return new Pair<>(ph,0.0);
     double d=EditDistanceDamerauLevenshteinLike.editDistance(e,ph,3);
-    if (d == 1)     return new Pair<String,Double>(e,d);
+    if (d == 1)     return new Pair<>(e,d);
     if (d == -1)     d=editDistMax;
     if (d < minD) {
       minD=d;
       minPh=e;
     }
   }
-  return new Pair<String,Double>(minPh,minD);
+  return new Pair<>(minPh,minD);
 }

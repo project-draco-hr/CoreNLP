@@ -5,7 +5,7 @@
     derivatives=scoreDerivatives(trainingBatch);
   }
  else {
-    MulticoreWrapper<List<Tree>,ModelDerivatives> wrapper=new MulticoreWrapper<List<Tree>,ModelDerivatives>(model.op.trainOptions.nThreads,new ScoringProcessor());
+    MulticoreWrapper<List<Tree>,ModelDerivatives> wrapper=new MulticoreWrapper<>(model.op.trainOptions.nThreads,new ScoringProcessor());
     for (    List<Tree> chunk : CollectionUtils.partitionIntoFolds(trainingBatch,wrapper.nThreads())) {
       wrapper.put(chunk);
     }

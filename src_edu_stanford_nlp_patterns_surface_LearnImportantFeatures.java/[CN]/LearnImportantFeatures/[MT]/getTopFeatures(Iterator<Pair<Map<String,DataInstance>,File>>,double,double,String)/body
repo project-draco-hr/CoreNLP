@@ -1,22 +1,22 @@
 {
-  Counter<String> features=new ClassicCounter<String>();
-  RVFDataset<String,String> dataset=new RVFDataset<String,String>();
+  Counter<String> features=new ClassicCounter<>();
+  RVFDataset<String,String> dataset=new RVFDataset<>();
   Random r=new Random(10);
   Random rneg=new Random(10);
   int numrand=0;
-  List<Pair<String,Integer>> chosen=new ArrayList<Pair<String,Integer>>();
+  List<Pair<String,Integer>> chosen=new ArrayList<>();
   while (sentsf.hasNext()) {
     Pair<Map<String,DataInstance>,File> sents=sentsf.next();
     numrand=this.sample(sents.first(),r,rneg,perSelectNeg,perSelectRand,numrand,chosen,dataset);
   }
   System.out.println("num random chosen: " + numrand);
   System.out.println("Number of datums per label: " + dataset.numDatumsPerLabel());
-  LogisticClassifierFactory<String,String> logfactory=new LogisticClassifierFactory<String,String>();
+  LogisticClassifierFactory<String,String> logfactory=new LogisticClassifierFactory<>();
   LogisticClassifier<String,String> classifier=logfactory.trainClassifier(dataset);
   Counter<String> weights=classifier.weightsAsCounter();
   if (!classifier.getLabelForInternalPositiveClass().equals(answerLabel))   weights=Counters.scale(weights,-1);
   if (thresholdWeight != null) {
-    HashSet<String> removeKeys=new HashSet<String>();
+    HashSet<String> removeKeys=new HashSet<>();
     for (    Entry<String,Double> en : weights.entrySet()) {
       if (Math.abs(en.getValue()) <= thresholdWeight)       removeKeys.add(en.getKey());
     }
