@@ -2,9 +2,10 @@
   ParserQuery pq=parser.parserQuery();
   pq.setConstraints(constraints);
   pq.parse(words);
+  List<ScoredObject<Tree>> scoredObjects=null;
   List<Tree> trees=Generics.newLinkedList();
   try {
-    List<ScoredObject<Tree>> scoredObjects=pq.getKBestPCFGParses(this.kBest);
+    scoredObjects=pq.getKBestPCFGParses(this.kBest);
     if (scoredObjects == null || scoredObjects.size() < 1) {
       System.err.println("WARNING: Parsing of sentence failed.  " + "Will ignore and continue: " + Sentence.listToString(words));
     }
