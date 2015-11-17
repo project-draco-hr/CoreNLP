@@ -1,13 +1,3 @@
 {
-  try {
-    System.err.println("Reading TokensRegex rules from " + filename);
-    BufferedReader br=IOUtils.getBufferedReaderFromClasspathOrFileSystem(filename);
-    TokenSequenceParser parser=new TokenSequenceParser();
-    CoreMapExpressionExtractor extractor=parser.getExpressionExtractor(env,br);
-    IOUtils.closeIgnoringExceptions(br);
-    return extractor;
-  }
- catch (  Exception ex) {
-    throw new RuntimeException("Error parsing file: " + filename,ex);
-  }
+  return createExtractorFromFiles(env,Collections.singletonList(filename));
 }
