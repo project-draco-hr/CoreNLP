@@ -1,15 +1,15 @@
 {
   boolean expandNeg=false;
   if (closeToNegativesFirstIter == null) {
-    closeToNegativesFirstIter=new ClassicCounter<CandidatePhrase>();
+    closeToNegativesFirstIter=new ClassicCounter<>();
     if (constVars.expandNegativesWhenSampling)     expandNeg=true;
   }
   boolean expandPos=false;
   if (closeToPositivesFirstIter == null) {
-    closeToPositivesFirstIter=new ClassicCounter<CandidatePhrase>();
+    closeToPositivesFirstIter=new ClassicCounter<>();
     if (constVars.expandPositivesWhenSampling)     expandPos=true;
   }
-  Counter<Integer> distSimClustersOfPositive=new ClassicCounter<Integer>();
+  Counter<Integer> distSimClustersOfPositive=new ClassicCounter<>();
   if ((expandPos || expandNeg) && !constVars.useWordVectorsToComputeSim) {
     for (    CandidatePhrase s : CollectionUtils.union(constVars.getLearnedWords(answerLabel).keySet(),constVars.getSeedLabelDictionary().get(answerLabel))) {
       String[] toks=s.getPhrase().split("\\s+");
@@ -28,20 +28,20 @@
     }
   }
   Map<String,Collection<CandidatePhrase>> allPossibleNegativePhrases=getAllPossibleNegativePhrases(answerLabel);
-  GeneralDataset<String,ScorePhraseMeasures> dataset=new RVFDataset<String,ScorePhraseMeasures>();
+  GeneralDataset<String,ScorePhraseMeasures> dataset=new RVFDataset<>();
   int numpos=0;
-  Set<CandidatePhrase> allNegativePhrases=new HashSet<CandidatePhrase>();
-  Set<CandidatePhrase> allUnknownPhrases=new HashSet<CandidatePhrase>();
-  Set<CandidatePhrase> allPositivePhrases=new HashSet<CandidatePhrase>();
+  Set<CandidatePhrase> allNegativePhrases=new HashSet<>();
+  Set<CandidatePhrase> allUnknownPhrases=new HashSet<>();
+  Set<CandidatePhrase> allPositivePhrases=new HashSet<>();
   ConstantsAndVariables.DataSentsIterator sentsIter=new ConstantsAndVariables.DataSentsIterator(constVars.batchProcessSents);
   while (sentsIter.hasNext()) {
     Pair<Map<String,DataInstance>,File> sentsf=sentsIter.next();
     Map<String,DataInstance> sents=sentsf.first();
     Redwood.log(Redwood.DBG,"Sampling datums from " + sentsf.second());
     if (computeRawFreq)     Data.computeRawFreqIfNull(sents,PatternFactory.numWordsCompoundMax);
-    List<List<String>> threadedSentIds=GetPatternsFromDataMultiClass.getThreadBatches(new ArrayList<String>(sents.keySet()),constVars.numThreads);
+    List<List<String>> threadedSentIds=GetPatternsFromDataMultiClass.getThreadBatches(new ArrayList<>(sents.keySet()),constVars.numThreads);
     ExecutorService executor=Executors.newFixedThreadPool(constVars.numThreads);
-    List<Future<Quintuple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>,Counter<CandidatePhrase>>>> list=new ArrayList<Future<Quintuple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>,Counter<CandidatePhrase>>>>();
+    List<Future<Quintuple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>,Counter<CandidatePhrase>>>> list=new ArrayList<>();
     for (    List<String> keys : threadedSentIds) {
       Callable<Quintuple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>,Counter<CandidatePhrase>>> task=new ChooseDatumsThread(answerLabel,sents,keys,wordsPatExtracted,allSelectedPatterns,distSimClustersOfPositive,allPossibleNegativePhrases,expandPos,expandNeg);
       Future<Quintuple<Set<CandidatePhrase>,Set<CandidatePhrase>,Set<CandidatePhrase>,Counter<CandidatePhrase>,Counter<CandidatePhrase>>> submit=executor.submit(task);
@@ -108,7 +108,7 @@
  else {
       feat=getFeatures(answerLabel,candidate,wordsPatExtracted.getCounter(candidate),allSelectedPatterns);
     }
-    RVFDatum<String,ScorePhraseMeasures> datum=new RVFDatum<String,ScorePhraseMeasures>(feat,"true");
+    RVFDatum<String,ScorePhraseMeasures> datum=new RVFDatum<>(feat,"true");
     dataset.add(datum);
     numpos+=1;
     if (logFileFeat != null) {
@@ -128,7 +128,7 @@
   if (allNegativePhrases.size() > numpos) {
     Redwood.log(Redwood.WARN,"Num of negative (" + allNegativePhrases.size() + ") is higher than number of positive phrases ("+ numpos+ ") = "+ (allNegativePhrases.size() / (double)numpos)+ ". "+ "Capping the number by taking the first numPositives as negative. Consider decreasing perSelectRand");
     int i=0;
-    Set<CandidatePhrase> selectedNegPhrases=new HashSet<CandidatePhrase>();
+    Set<CandidatePhrase> selectedNegPhrases=new HashSet<>();
     for (    CandidatePhrase p : allNegativePhrases) {
       if (i >= numpos)       break;
       selectedNegPhrases.add(p);
@@ -146,7 +146,7 @@
  else {
       feat=getFeatures(answerLabel,negative,wordsPatExtracted.getCounter(negative),allSelectedPatterns);
     }
-    RVFDatum<String,ScorePhraseMeasures> datum=new RVFDatum<String,ScorePhraseMeasures>(feat,"false");
+    RVFDatum<String,ScorePhraseMeasures> datum=new RVFDatum<>(feat,"false");
     dataset.add(datum);
     if (logFile != null && wordVectors != null && wordVectors.containsKey(negative.getPhrase())) {
       logFile.write(negative.getPhrase() + "-N" + " "+ ArrayUtils.toString(wordVectors.get(negative.getPhrase())," ")+ "\n");

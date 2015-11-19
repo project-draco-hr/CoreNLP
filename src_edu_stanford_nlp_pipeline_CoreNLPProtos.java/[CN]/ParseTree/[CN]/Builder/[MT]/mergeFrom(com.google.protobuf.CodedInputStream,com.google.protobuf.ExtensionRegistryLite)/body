@@ -1,65 +1,16 @@
 {
-  com.google.protobuf.UnknownFieldSet.Builder unknownFields=com.google.protobuf.UnknownFieldSet.newBuilder(this.getUnknownFields());
-  while (true) {
-    int tag=input.readTag();
-switch (tag) {
-case 0:
-      this.setUnknownFields(unknownFields.build());
-    onChanged();
-  return this;
-default :
-{
-  if (!parseUnknownField(input,unknownFields,extensionRegistry,tag)) {
-    this.setUnknownFields(unknownFields.build());
-    onChanged();
-    return this;
+  edu.stanford.nlp.pipeline.CoreNLPProtos.ParseTree parsedMessage=null;
+  try {
+    parsedMessage=PARSER.parsePartialFrom(input,extensionRegistry);
   }
-  break;
-}
-case 10:
-{
-edu.stanford.nlp.pipeline.CoreNLPProtos.ParseTree.Builder subBuilder=edu.stanford.nlp.pipeline.CoreNLPProtos.ParseTree.newBuilder();
-input.readMessage(subBuilder,extensionRegistry);
-addChild(subBuilder.buildPartial());
-break;
-}
-case 18:
-{
-bitField0_|=0x00000002;
-value_=input.readBytes();
-break;
-}
-case 24:
-{
-bitField0_|=0x00000004;
-yieldBeginIndex_=input.readUInt32();
-break;
-}
-case 32:
-{
-bitField0_|=0x00000008;
-yieldEndIndex_=input.readUInt32();
-break;
-}
-case 41:
-{
-bitField0_|=0x00000010;
-score_=input.readDouble();
-break;
-}
-case 48:
-{
-int rawValue=input.readEnum();
-edu.stanford.nlp.pipeline.CoreNLPProtos.Sentiment value=edu.stanford.nlp.pipeline.CoreNLPProtos.Sentiment.valueOf(rawValue);
-if (value == null) {
-unknownFields.mergeVarintField(6,rawValue);
-}
- else {
-bitField0_|=0x00000020;
-sentiment_=value;
-}
-break;
-}
-}
-}
+ catch (  com.google.protobuf.InvalidProtocolBufferException e) {
+    parsedMessage=(edu.stanford.nlp.pipeline.CoreNLPProtos.ParseTree)e.getUnfinishedMessage();
+    throw e;
+  }
+ finally {
+    if (parsedMessage != null) {
+      mergeFrom(parsedMessage);
+    }
+  }
+  return this;
 }

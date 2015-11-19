@@ -1,0 +1,22 @@
+{
+  if (!modelMetaData.equals(other.modelMetaData)) {
+    return false;
+  }
+  if (!variableMetaData.equals(other.variableMetaData)) {
+    return false;
+  }
+  Set<Factor> remaining=new HashSet<>();
+  remaining.addAll(factors);
+  for (  Factor otherFactor : other.factors) {
+    Factor match=null;
+    for (    Factor factor : remaining) {
+      if (factor.valueEquals(otherFactor,tolerance)) {
+        match=factor;
+        break;
+      }
+    }
+    if (match == null)     return false;
+ else     remaining.remove(match);
+  }
+  return remaining.size() <= 0;
+}

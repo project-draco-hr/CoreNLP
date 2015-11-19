@@ -1,6 +1,6 @@
 {
   Map<String,Set<CandidatePhrase>> seedWords=readSeedWords(props);
-  Map<String,Class> answerClasses=new HashMap<String,Class>();
+  Map<String,Class> answerClasses=new HashMap<>();
   String ansClasses=props.getProperty("answerClasses");
   if (ansClasses != null) {
     for (    String l : ansClasses.split(";")) {
@@ -13,6 +13,6 @@
   }
   Pair<Map<String,DataInstance>,Map<String,DataInstance>> sentsPair=processSents(props,seedWords.keySet());
   boolean labelUsingSeedSets=Boolean.parseBoolean(props.getProperty("labelUsingSeedSets","true"));
-  GetPatternsFromDataMultiClass<E> model=new GetPatternsFromDataMultiClass<E>(props,sentsPair.first(),seedWords,labelUsingSeedSets);
+  GetPatternsFromDataMultiClass<E> model=new GetPatternsFromDataMultiClass<>(props,sentsPair.first(),seedWords,labelUsingSeedSets);
   return runNineYards(model,props,sentsPair.second());
 }

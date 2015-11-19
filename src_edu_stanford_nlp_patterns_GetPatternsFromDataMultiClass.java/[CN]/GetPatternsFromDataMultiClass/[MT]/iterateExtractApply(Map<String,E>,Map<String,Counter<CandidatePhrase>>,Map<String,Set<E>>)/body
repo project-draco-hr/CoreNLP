@@ -1,12 +1,12 @@
 {
-  Map<String,CollectionValuedMap<E,Triple<String,Integer,Integer>>> matchedTokensByPatAllLabels=new HashMap<String,CollectionValuedMap<E,Triple<String,Integer,Integer>>>();
-  Map<String,TwoDimensionalCounter<CandidatePhrase,E>> termsAllLabels=new HashMap<String,TwoDimensionalCounter<CandidatePhrase,E>>();
-  Map<String,Set<CandidatePhrase>> ignoreWordsAll=new HashMap<String,Set<CandidatePhrase>>();
+  Map<String,CollectionValuedMap<E,Triple<String,Integer,Integer>>> matchedTokensByPatAllLabels=new HashMap<>();
+  Map<String,TwoDimensionalCounter<CandidatePhrase,E>> termsAllLabels=new HashMap<>();
+  Map<String,Set<CandidatePhrase>> ignoreWordsAll=new HashMap<>();
   for (  String label : constVars.getSeedLabelDictionary().keySet()) {
-    matchedTokensByPatAllLabels.put(label,new CollectionValuedMap<E,Triple<String,Integer,Integer>>());
-    termsAllLabels.put(label,new TwoDimensionalCounter<CandidatePhrase,E>());
+    matchedTokensByPatAllLabels.put(label,new CollectionValuedMap<>());
+    termsAllLabels.put(label,new TwoDimensionalCounter<>());
     if (constVars.useOtherLabelsWordsasNegative) {
-      Set<CandidatePhrase> w=new HashSet<CandidatePhrase>();
+      Set<CandidatePhrase> w=new HashSet<>();
       for (      Entry<String,Set<CandidatePhrase>> en : constVars.getSeedLabelDictionary().entrySet()) {
         if (en.getKey().equals(label))         continue;
         w.addAll(en.getValue());
@@ -15,8 +15,8 @@
     }
   }
   Redwood.log(ConstantsAndVariables.minimaldebug,"Iterating " + constVars.numIterationsForPatterns + " times.");
-  Map<String,BufferedWriter> wordsOutput=new HashMap<String,BufferedWriter>();
-  Map<String,BufferedWriter> patternsOutput=new HashMap<String,BufferedWriter>();
+  Map<String,BufferedWriter> wordsOutput=new HashMap<>();
+  Map<String,BufferedWriter> patternsOutput=new HashMap<>();
   for (  String label : constVars.getLabels()) {
     if (constVars.outDir != null) {
       IOUtils.ensureDir(new File(constVars.outDir + "/" + constVars.identifier+ "/"+ label));
@@ -33,7 +33,7 @@
   for (int i=0; i < constVars.numIterationsForPatterns; i++) {
     Redwood.log(ConstantsAndVariables.minimaldebug,"\n\n################################ Iteration " + (i + 1) + " ##############################");
     boolean keepRunning=false;
-    Map<String,Counter<CandidatePhrase>> learnedWordsThisIter=new HashMap<String,Counter<CandidatePhrase>>();
+    Map<String,Counter<CandidatePhrase>> learnedWordsThisIter=new HashMap<>();
     for (    String label : constVars.getLabels()) {
       Redwood.log(ConstantsAndVariables.minimaldebug,"\n###Learning for label " + label + " ######");
       String sentout=constVars.sentsOutFile == null ? null : constVars.sentsOutFile + "_" + label;

@@ -1,8 +1,8 @@
 {
-  TwoDimensionalCounter<E,CandidatePhrase> patternsandWords4Label=new TwoDimensionalCounter<E,CandidatePhrase>();
-  TwoDimensionalCounter<E,CandidatePhrase> negPatternsandWords4Label=new TwoDimensionalCounter<E,CandidatePhrase>();
-  TwoDimensionalCounter<E,CandidatePhrase> unLabeledPatternsandWords4Label=new TwoDimensionalCounter<E,CandidatePhrase>();
-  Set<String> allCandidatePhrases=new HashSet<String>();
+  TwoDimensionalCounter<E,CandidatePhrase> patternsandWords4Label=new TwoDimensionalCounter<>();
+  TwoDimensionalCounter<E,CandidatePhrase> negPatternsandWords4Label=new TwoDimensionalCounter<>();
+  TwoDimensionalCounter<E,CandidatePhrase> unLabeledPatternsandWords4Label=new TwoDimensionalCounter<>();
+  Set<String> allCandidatePhrases=new HashSet<>();
   ConstantsAndVariables.DataSentsIterator sentsIter=new ConstantsAndVariables.DataSentsIterator(constVars.batchProcessSents);
   boolean firstCallToProcessSents=true;
   while (sentsIter.hasNext()) {
@@ -27,9 +27,9 @@
   }
   patsForEachToken.close();
   constVars.computeAllPatterns=false;
-  if (patternsandWords == null)   patternsandWords=new HashMap<String,TwoDimensionalCounter<E,CandidatePhrase>>();
-  if (currentPatternWeights == null)   currentPatternWeights=new HashMap<String,Counter<E>>();
-  Counter<E> currentPatternWeights4Label=new ClassicCounter<E>();
+  if (patternsandWords == null)   patternsandWords=new HashMap<>();
+  if (currentPatternWeights == null)   currentPatternWeights=new HashMap<>();
+  Counter<E> currentPatternWeights4Label=new ClassicCounter<>();
   Set<E> removePats=enforceMinSupportRequirements(patternsandWords4Label,unLabeledPatternsandWords4Label);
   Counters.removeKeys(patternsandWords4Label,removePats);
   Counters.removeKeys(unLabeledPatternsandWords4Label,removePats);
@@ -91,8 +91,8 @@ catch (    InstantiationException e) {
   }
   PriorityQueue<E> q=Counters.toPriorityQueue(currentPatternWeights4Label);
   int num=0;
-  Counter<E> chosenPat=new ClassicCounter<E>();
-  Set<E> removePatterns=new HashSet<E>();
+  Counter<E> chosenPat=new ClassicCounter<>();
+  Set<E> removePatterns=new HashSet<>();
   Set<E> removeIdentifiedPatterns=null;
   while (num < constVars.numPatterns && !q.isEmpty()) {
     E pat=q.removeFirst();
@@ -118,7 +118,7 @@ catch (    InstantiationException e) {
           int rest=pat.equalContext(p);
           if (rest == Integer.MAX_VALUE)           continue;
           if (rest < 0) {
-            if (removeIdentifiedPatterns == null)             removeIdentifiedPatterns=new HashSet<E>();
+            if (removeIdentifiedPatterns == null)             removeIdentifiedPatterns=new HashSet<>();
             removeIdentifiedPatterns.add(p);
           }
  else {
@@ -152,7 +152,7 @@ catch (    InstantiationException e) {
             }
           }
           if (removeChosenPatFlag) {
-            if (removeChosenPats == null)             removeChosenPats=new HashSet<E>();
+            if (removeChosenPats == null)             removeChosenPats=new HashSet<>();
             removeChosenPats.add(pat);
             num--;
           }
@@ -180,15 +180,15 @@ catch (    InstantiationException e) {
   List<Pair<E,Double>> chosenPatSorted=Counters.toSortedListWithCounts(chosenPat);
   for (  Pair<E,Double> en : chosenPatSorted)   Redwood.log(ConstantsAndVariables.minimaldebug,en.first().toString() + ":" + df.format(en.second)+ "\n");
   if (constVars.outDir != null && !constVars.outDir.isEmpty()) {
-    CollectionValuedMap<E,CandidatePhrase> posWords=new CollectionValuedMap<E,CandidatePhrase>();
+    CollectionValuedMap<E,CandidatePhrase> posWords=new CollectionValuedMap<>();
     for (    Entry<E,ClassicCounter<CandidatePhrase>> en : patternsandWords4Label.entrySet()) {
       posWords.addAll(en.getKey(),en.getValue().keySet());
     }
-    CollectionValuedMap<E,CandidatePhrase> negWords=new CollectionValuedMap<E,CandidatePhrase>();
+    CollectionValuedMap<E,CandidatePhrase> negWords=new CollectionValuedMap<>();
     for (    Entry<E,ClassicCounter<CandidatePhrase>> en : negPatternsandWords4Label.entrySet()) {
       negWords.addAll(en.getKey(),en.getValue().keySet());
     }
-    CollectionValuedMap<E,CandidatePhrase> unlabWords=new CollectionValuedMap<E,CandidatePhrase>();
+    CollectionValuedMap<E,CandidatePhrase> unlabWords=new CollectionValuedMap<>();
     for (    Entry<E,ClassicCounter<CandidatePhrase>> en : unLabeledPatternsandWords4Label.entrySet()) {
       unlabWords.addAll(en.getKey(),en.getValue().keySet());
     }

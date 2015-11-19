@@ -20,8 +20,8 @@
  else {
       newBeam=new Beam(beamSize,ScoredComparator.ASCENDING_COMPARATOR);
     }
-    for (Iterator beamI=oldBeam.iterator(); beamI.hasNext(); ) {
-      TagSeq tagSeq=(TagSeq)beamI.next();
+    for (    Object anOldBeam : oldBeam) {
+      TagSeq tagSeq=(TagSeq)anOldBeam;
       for (int nextTagNum=0; nextTagNum < tagNum[pos]; nextTagNum++) {
         TagSeq nextSeq=tagSeq.tclone();
         if (pos >= leftWindow + rightWindow) {
@@ -35,14 +35,14 @@
     }
     if (recenter) {
       double max=Double.NEGATIVE_INFINITY;
-      for (Iterator beamI=newBeam.iterator(); beamI.hasNext(); ) {
-        TagSeq tagSeq=(TagSeq)beamI.next();
+      for (      Object aNewBeam1 : newBeam) {
+        TagSeq tagSeq=(TagSeq)aNewBeam1;
         if (tagSeq.score > max) {
           max=tagSeq.score;
         }
       }
-      for (Iterator beamI=newBeam.iterator(); beamI.hasNext(); ) {
-        TagSeq tagSeq=(TagSeq)beamI.next();
+      for (      Object aNewBeam : newBeam) {
+        TagSeq tagSeq=(TagSeq)aNewBeam;
         tagSeq.score-=max;
       }
     }

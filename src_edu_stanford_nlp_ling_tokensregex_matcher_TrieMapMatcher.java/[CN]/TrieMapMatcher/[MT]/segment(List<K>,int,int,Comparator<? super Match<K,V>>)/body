@@ -1,17 +1,17 @@
 {
   List<Match<K,V>> nonOverlapping=findNonOverlapping(list,start,end,compareFunc);
-  List<Match<K,V>> segments=new ArrayList<Match<K,V>>(nonOverlapping.size());
+  List<Match<K,V>> segments=new ArrayList<>(nonOverlapping.size());
   int last=0;
   for (  Match<K,V> match : nonOverlapping) {
     if (match.begin > last) {
-      Match<K,V> empty=new Match<K,V>(list.subList(last,match.begin),null,last,match.begin);
+      Match<K,V> empty=new Match<>(list.subList(last,match.begin),null,last,match.begin);
       segments.add(empty);
     }
     segments.add(match);
     last=match.end;
   }
   if (list.size() > last) {
-    Match<K,V> empty=new Match<K,V>(list.subList(last,list.size()),null,last,list.size());
+    Match<K,V> empty=new Match<>(list.subList(last,list.size()),null,last,list.size());
     segments.add(empty);
   }
   return segments;

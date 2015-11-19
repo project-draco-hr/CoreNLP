@@ -1,0 +1,12 @@
+{
+  Mention m1=document.predictedMentionsByID.get(mentionPair.first);
+  Mention m2=document.predictedMentionsByID.get(mentionPair.second);
+  if (m1.corefClusterID == m2.corefClusterID) {
+    return;
+  }
+  int removeId=m1.corefClusterID;
+  CorefCluster c1=document.corefClusters.get(m1.corefClusterID);
+  CorefCluster c2=document.corefClusters.get(m2.corefClusterID);
+  CorefCluster.mergeClusters(c2,c1);
+  document.corefClusters.remove(removeId);
+}

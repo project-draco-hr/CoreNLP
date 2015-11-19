@@ -1,9 +1,8 @@
 {
   List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
   if (tokens.size() < 2) {
-    System.err.println("Very short sentence (<2 tokens); " + this.getClass().getSimpleName() + " is skipping it.");
     sentence.set(NaturalLogicAnnotations.RelationTriplesAnnotation.class,Collections.EMPTY_LIST);
-    sentence.set(NaturalLogicAnnotations.EntailedSentencesAnnotation.class,Collections.EMPTY_LIST);
+    sentence.set(NaturalLogicAnnotations.EntailedSentencesAnnotation.class,Collections.EMPTY_SET);
   }
  else {
     SemanticGraph parse=sentence.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class);
@@ -13,18 +12,15 @@
     if (parse == null) {
       throw new IllegalStateException("Cannot run OpenIE without a parse tree!");
     }
+    SemanticGraph canonicalizedParse=parse;
+    if (resolveCoref && !canonicalMentionMap.isEmpty()) {
+      canonicalizedParse=canonicalizeCoref(parse,canonicalMentionMap);
+    }
+    List<SentenceFragment> clauses=clausesInSentence(canonicalizedParse,true);
+    Set<SentenceFragment> fragments=entailmentsFromClauses(clauses);
     List<RelationTriple> extractions=segmenter.extract(parse,tokens);
-    if (tokens.size() > 63) {
-      System.err.println("Very long sentence (>63 tokens); " + this.getClass().getSimpleName() + " is not attempting to extract clauses.");
-      sentence.set(NaturalLogicAnnotations.RelationTriplesAnnotation.class,Collections.EMPTY_LIST);
-      sentence.set(NaturalLogicAnnotations.EntailedSentencesAnnotation.class,Collections.EMPTY_LIST);
-    }
- else {
-      List<SentenceFragment> clauses=clausesInSentence(sentence);
-      List<SentenceFragment> fragments=entailmentsFromClauses(clauses);
-      extractions.addAll(relationsInFragments(fragments,sentence,canonicalMentionMap));
-      sentence.set(NaturalLogicAnnotations.EntailedSentencesAnnotation.class,fragments);
-      sentence.set(NaturalLogicAnnotations.RelationTriplesAnnotation.class,new ArrayList<>(new HashSet<>(extractions)));
-    }
+    extractions.addAll(relationsInFragments(fragments,sentence));
+    sentence.set(NaturalLogicAnnotations.EntailedSentencesAnnotation.class,fragments);
+    sentence.set(NaturalLogicAnnotations.RelationTriplesAnnotation.class,new ArrayList<>(new HashSet<>(extractions)));
   }
 }

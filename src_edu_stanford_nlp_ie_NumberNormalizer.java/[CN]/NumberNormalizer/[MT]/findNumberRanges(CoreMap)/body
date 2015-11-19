@@ -13,7 +13,7 @@
         if (v2.doubleValue() > v1.doubleValue()) {
           token.set(CoreAnnotations.NumericTypeAnnotation.class,"NUMBER_RANGE");
           token.set(CoreAnnotations.NumericCompositeTypeAnnotation.class,"NUMBER_RANGE");
-          Pair<Number,Number> range=new Pair<Number,Number>(v1,v2);
+          Pair<Number,Number> range=new Pair<>(v1,v2);
           token.set(CoreAnnotations.NumericCompositeObjectAnnotation.class,range);
         }
       }
@@ -22,7 +22,7 @@
       }
     }
   }
-  List<CoreMap> numberRanges=new ArrayList<CoreMap>();
+  List<CoreMap> numberRanges=new ArrayList<>();
   TokenSequenceMatcher matcher=rangePattern.getMatcher(numerizedTokens);
   while (matcher.find()) {
     List<CoreMap> matched=matcher.groupNodes();
@@ -33,9 +33,9 @@
       Number v1=matched.get(0).get(CoreAnnotations.NumericCompositeValueAnnotation.class);
       Number v2=matched.get(matched.size() - 1).get(CoreAnnotations.NumericCompositeValueAnnotation.class);
       if (v2.doubleValue() > v1.doubleValue()) {
-        CoreMap newChunk=ChunkAnnotationUtils.getMergedChunk(numerizedTokens,matcher.start(),matcher.end(),CoreMapAttributeAggregator.getDefaultAggregators());
+        CoreMap newChunk=CoreMapAggregator.getDefaultAggregator().merge(numerizedTokens,matcher.start(),matcher.end());
         newChunk.set(CoreAnnotations.NumericCompositeTypeAnnotation.class,"NUMBER_RANGE");
-        Pair<Number,Number> range=new Pair<Number,Number>(v1,v2);
+        Pair<Number,Number> range=new Pair<>(v1,v2);
         newChunk.set(CoreAnnotations.NumericCompositeObjectAnnotation.class,range);
         numberRanges.add(newChunk);
       }

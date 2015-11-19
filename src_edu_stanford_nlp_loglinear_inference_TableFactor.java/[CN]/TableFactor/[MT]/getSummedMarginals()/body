@@ -1,0 +1,63 @@
+{
+  double[][] results=new double[neighborIndices.length][];
+  for (int i=0; i < neighborIndices.length; i++) {
+    results[i]=new double[getDimensions()[i]];
+  }
+  double[][] maxValues=new double[neighborIndices.length][];
+  for (int i=0; i < neighborIndices.length; i++) {
+    maxValues[i]=new double[getDimensions()[i]];
+    for (int j=0; j < maxValues[i].length; j++)     maxValues[i][j]=Double.NEGATIVE_INFINITY;
+  }
+  Iterator<int[]> fastPassByReferenceIterator=fastPassByReferenceIterator();
+  int[] assignment=fastPassByReferenceIterator.next();
+  while (true) {
+    double v=getAssignmentLogValue(assignment);
+    for (int i=0; i < neighborIndices.length; i++) {
+      if (maxValues[i][assignment[i]] < v)       maxValues[i][assignment[i]]=v;
+    }
+    if (fastPassByReferenceIterator.hasNext()) {
+      fastPassByReferenceIterator.next();
+    }
+ else     break;
+  }
+  Iterator<int[]> secondFastPassByReferenceIterator=fastPassByReferenceIterator();
+  assignment=secondFastPassByReferenceIterator.next();
+  while (true) {
+    double v=getAssignmentLogValue(assignment);
+    for (int i=0; i < neighborIndices.length; i++) {
+      if (USE_EXP_APPROX) {
+        results[i][assignment[i]]+=exp(v - maxValues[i][assignment[i]]);
+      }
+ else {
+        results[i][assignment[i]]+=Math.exp(v - maxValues[i][assignment[i]]);
+      }
+    }
+    if (secondFastPassByReferenceIterator.hasNext()) {
+      secondFastPassByReferenceIterator.next();
+    }
+ else     break;
+  }
+  for (int i=0; i < neighborIndices.length; i++) {
+    double sum=0.0;
+    for (int j=0; j < results[i].length; j++) {
+      if (USE_EXP_APPROX) {
+        results[i][j]=exp(maxValues[i][j]) * results[i][j];
+      }
+ else {
+        results[i][j]=Math.exp(maxValues[i][j]) * results[i][j];
+      }
+      sum+=results[i][j];
+    }
+    if (Double.isInfinite(sum)) {
+      for (int j=0; j < results[i].length; j++) {
+        results[i][j]=1.0 / results[i].length;
+      }
+    }
+ else {
+      for (int j=0; j < results[i].length; j++) {
+        results[i][j]/=sum;
+      }
+    }
+  }
+  return results;
+}

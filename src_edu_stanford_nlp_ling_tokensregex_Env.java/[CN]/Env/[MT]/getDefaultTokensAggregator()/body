@@ -1,0 +1,11 @@
+{
+  if (defaultTokensAggregator == null && (defaultTokensAggregators != null || aggregateToTokens)) {
+    CoreLabelTokenFactory tokenFactory=(aggregateToTokens) ? new CoreLabelTokenFactory() : null;
+    Map<Class,CoreMapAttributeAggregator> aggregators=defaultTokensAggregators;
+    if (aggregators == null) {
+      aggregators=CoreMapAttributeAggregator.DEFAULT_NUMERIC_TOKENS_AGGREGATORS;
+    }
+    defaultTokensAggregator=CoreMapAggregator.getAggregator(aggregators,null,tokenFactory);
+  }
+  return defaultTokensAggregator;
+}

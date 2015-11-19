@@ -1,7 +1,7 @@
 {
   if (matchedExprs == null)   return list;
-  Map<Integer,Integer> tokenBeginToListIndexMap=new HashMap<Integer,Integer>();
-  Map<Integer,Integer> tokenEndToListIndexMap=new HashMap<Integer,Integer>();
+  Map<Integer,Integer> tokenBeginToListIndexMap=new HashMap<>();
+  Map<Integer,Integer> tokenEndToListIndexMap=new HashMap<>();
   for (int i=0; i < list.size(); i++) {
     CoreMap cm=list.get(i);
     if (cm.has(CoreAnnotations.TokenBeginAnnotation.class) && cm.has(CoreAnnotations.TokenEndAnnotation.class)) {
@@ -14,7 +14,7 @@
     }
   }
   Collections.sort(matchedExprs,EXPR_TOKEN_OFFSET_COMPARATOR);
-  List<CoreMap> merged=new ArrayList<CoreMap>(list.size());
+  List<CoreMap> merged=new ArrayList<>(list.size());
   int last=0;
   for (  MatchedExpression expr : matchedExprs) {
     int start=expr.tokenOffsets.first();

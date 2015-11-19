@@ -1,0 +1,17 @@
+{
+  for (int i=0; i < pointers.length; i++) {
+    if (pointers[i] == null)     continue;
+    if (copyOnWrite[i]) {
+      copyOnWrite[i]=false;
+      pointers[i]=pointers[i].clone();
+    }
+    if (sparse[i]) {
+      pointers[i][1]=fn.apply(pointers[i][1]);
+    }
+ else {
+      for (int j=0; j < pointers[i].length; j++) {
+        pointers[i][j]=fn.apply(pointers[i][j]);
+      }
+    }
+  }
+}

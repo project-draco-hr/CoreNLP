@@ -1,0 +1,51 @@
+{
+  MergeKey key=new MergeKey(c1,c2,gf.currentIndex);
+  CompressedFeatureVector cfv=featuresCache.get(key);
+  Counter<String> features=cfv == null ? null : compressor.uncompress(cfv);
+  if (features != null) {
+    featuresCacheHits+=isTraining;
+    return features;
+  }
+  featuresCacheMisses+=isTraining;
+  features=new ClassicCounter<>();
+  if (gf.anaphorSeen) {
+    features.incrementCount("anaphorSeen");
+  }
+  features.incrementCount("docSize",gf.docSize);
+  features.incrementCount("percentComplete",gf.currentIndex / (double)gf.size);
+  features.incrementCount("bias",1.0);
+  int earliest1=earliestMention(c1,doc);
+  int earliest2=earliestMention(c2,doc);
+  if (doc.mentionIndices.get(earliest1) > doc.mentionIndices.get(earliest2)) {
+    int tmp=earliest1;
+    earliest1=earliest2;
+    earliest2=tmp;
+  }
+  features.incrementCount("anaphoricity",doc.anaphoricityScores.getCount(earliest2));
+  if (c1.mentions.size() == 1 && c2.mentions.size() == 1) {
+    Pair<Integer,Integer> mentionPair=new Pair<>(c1.mentions.get(0),c2.mentions.get(0));
+    if (USE_CLASSIFICATION) {
+      features.addAll(addSuffix(getFeatures(doc,mentionPair,doc.classificationScores),"-classification"));
+    }
+    if (USE_RANKING) {
+      features.addAll(addSuffix(getFeatures(doc,mentionPair,doc.rankingScores),"-ranking"));
+    }
+    features=addSuffix(features,"-single");
+  }
+ else {
+    List<Pair<Integer,Integer>> between=new ArrayList<>();
+    for (    int m1 : c1.mentions) {
+      for (      int m2 : c2.mentions) {
+        between.add(new Pair<>(m1,m2));
+      }
+    }
+    if (USE_CLASSIFICATION) {
+      features.addAll(addSuffix(getFeatures(doc,between,doc.classificationScores),"-classification"));
+    }
+    if (USE_RANKING) {
+      features.addAll(addSuffix(getFeatures(doc,between,doc.rankingScores),"-ranking"));
+    }
+  }
+  featuresCache.put(key,compressor.compress(features));
+  return features;
+}

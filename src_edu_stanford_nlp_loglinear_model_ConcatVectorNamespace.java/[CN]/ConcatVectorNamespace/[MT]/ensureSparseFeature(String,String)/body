@@ -1,0 +1,18 @@
+{
+  ensureFeature(featureName);
+synchronized (sparseFeatureIndex) {
+    if (!sparseFeatureIndex.containsKey(featureName)) {
+      sparseFeatureIndex.put(featureName,new HashMap<>());
+      reverseSparseFeatureIndex.put(featureName,new HashMap<>());
+    }
+  }
+  final Map<String,Integer> sparseIndex=sparseFeatureIndex.get(featureName);
+  final Map<Integer,String> reverseSparseIndex=reverseSparseFeatureIndex.get(featureName);
+synchronized (sparseIndex) {
+    if (!sparseIndex.containsKey(index)) {
+      reverseSparseIndex.put(sparseIndex.size(),index);
+      sparseIndex.put(index,sparseIndex.size());
+    }
+    return sparseIndex.get(index);
+  }
+}

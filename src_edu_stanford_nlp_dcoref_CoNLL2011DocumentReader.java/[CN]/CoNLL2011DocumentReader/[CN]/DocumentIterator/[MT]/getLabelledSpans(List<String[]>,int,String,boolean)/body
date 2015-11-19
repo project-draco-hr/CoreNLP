@@ -1,6 +1,6 @@
 {
-  List<Triple<Integer,Integer,String>> spans=new ArrayList<Triple<Integer,Integer,String>>();
-  Stack<Triple<Integer,Integer,String>> openSpans=new Stack<Triple<Integer,Integer,String>>();
+  List<Triple<Integer,Integer,String>> spans=new ArrayList<>();
+  Stack<Triple<Integer,Integer,String>> openSpans=new Stack<>();
   boolean removeStar=(ASTERISK.equals(defaultMarker));
   for (int wordPos=0; wordPos < sentWords.size(); wordPos++) {
     String[] fields=sentWords.get(wordPos);
@@ -17,7 +17,7 @@
             if (removeStar) {
               s=starPattern.matcher(s).replaceAll("");
             }
-            openSpans.push(new Triple<Integer,Integer,String>(wordPos,-1,s));
+            openSpans.push(new Triple<>(wordPos,-1,s));
             openParenIndex=-1;
           }
           isDelimiter=true;
@@ -30,7 +30,7 @@
           if (checkEndLabel) {
             String s=val.substring(lastDelimiterIndex + 1,j);
             if (!s.equals(t.third())) {
-              Stack<Triple<Integer,Integer,String>> saved=new Stack<Triple<Integer,Integer,String>>();
+              Stack<Triple<Integer,Integer,String>> saved=new Stack<>();
               while (!s.equals(t.third())) {
                 saved.push(t);
                 if (openSpans.isEmpty()) {
@@ -56,7 +56,7 @@
         if (removeStar) {
           s=starPattern.matcher(s).replaceAll("");
         }
-        openSpans.push(new Triple<Integer,Integer,String>(wordPos,-1,s));
+        openSpans.push(new Triple<>(wordPos,-1,s));
       }
     }
   }

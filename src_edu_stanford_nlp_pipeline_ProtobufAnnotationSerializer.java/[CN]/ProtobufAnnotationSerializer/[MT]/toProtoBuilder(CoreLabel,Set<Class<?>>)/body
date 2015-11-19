@@ -1,5 +1,6 @@
 {
   CoreNLPProtos.Token.Builder builder=CoreNLPProtos.Token.newBuilder();
+  Set<Class<?>> keySet=coreLabel.keySetNotNull();
   keysToSerialize.remove(TextAnnotation.class);
   keysToSerialize.remove(SentenceIndexAnnotation.class);
   keysToSerialize.remove(DocIDAnnotation.class);
@@ -13,106 +14,122 @@
   keysToSerialize.remove(ForcedSentenceUntilEndAnnotation.class);
   keysToSerialize.remove(ForcedSentenceEndAnnotation.class);
   builder.setWord(coreLabel.word());
-  if (coreLabel.tag() != null) {
+  if (keySet.contains(PartOfSpeechAnnotation.class)) {
     builder.setPos(coreLabel.tag());
     keysToSerialize.remove(PartOfSpeechAnnotation.class);
   }
-  if (coreLabel.value() != null) {
+  if (keySet.contains(ValueAnnotation.class)) {
     builder.setValue(coreLabel.value());
     keysToSerialize.remove(ValueAnnotation.class);
   }
-  if (coreLabel.category() != null) {
+  if (keySet.contains(CategoryAnnotation.class)) {
     builder.setCategory(coreLabel.category());
     keysToSerialize.remove(CategoryAnnotation.class);
   }
-  if (coreLabel.before() != null) {
+  if (keySet.contains(BeforeAnnotation.class)) {
     builder.setBefore(coreLabel.before());
     keysToSerialize.remove(BeforeAnnotation.class);
   }
-  if (coreLabel.after() != null) {
+  if (keySet.contains(AfterAnnotation.class)) {
     builder.setAfter(coreLabel.after());
     keysToSerialize.remove(AfterAnnotation.class);
   }
-  if (coreLabel.originalText() != null) {
+  if (keySet.contains(OriginalTextAnnotation.class)) {
     builder.setOriginalText(coreLabel.originalText());
     keysToSerialize.remove(OriginalTextAnnotation.class);
   }
-  if (coreLabel.ner() != null) {
+  if (keySet.contains(NamedEntityTagAnnotation.class)) {
     builder.setNer(coreLabel.ner());
     keysToSerialize.remove(NamedEntityTagAnnotation.class);
   }
-  if (coreLabel.beginPosition() >= 0) {
+  if (keySet.contains(CharacterOffsetBeginAnnotation.class)) {
     builder.setBeginChar(coreLabel.beginPosition());
     keysToSerialize.remove(CharacterOffsetBeginAnnotation.class);
   }
-  if (coreLabel.endPosition() >= 0) {
+  if (keySet.contains(CharacterOffsetEndAnnotation.class)) {
     builder.setEndChar(coreLabel.endPosition());
     keysToSerialize.remove(CharacterOffsetEndAnnotation.class);
   }
-  if (coreLabel.lemma() != null) {
+  if (keySet.contains(LemmaAnnotation.class)) {
     builder.setLemma(coreLabel.lemma());
     keysToSerialize.remove(LemmaAnnotation.class);
   }
-  if (coreLabel.containsKey(UtteranceAnnotation.class)) {
+  if (keySet.contains(UtteranceAnnotation.class)) {
     builder.setUtterance(getAndRegister(coreLabel,keysToSerialize,UtteranceAnnotation.class));
   }
-  if (coreLabel.containsKey(SpeakerAnnotation.class)) {
+  if (keySet.contains(SpeakerAnnotation.class)) {
     builder.setSpeaker(getAndRegister(coreLabel,keysToSerialize,SpeakerAnnotation.class));
   }
-  if (coreLabel.containsKey(BeginIndexAnnotation.class)) {
+  if (keySet.contains(BeginIndexAnnotation.class)) {
     builder.setBeginIndex(getAndRegister(coreLabel,keysToSerialize,BeginIndexAnnotation.class));
   }
-  if (coreLabel.containsKey(EndIndexAnnotation.class)) {
+  if (keySet.contains(EndIndexAnnotation.class)) {
     builder.setEndIndex(getAndRegister(coreLabel,keysToSerialize,EndIndexAnnotation.class));
   }
-  if (coreLabel.containsKey(TokenBeginAnnotation.class)) {
+  if (keySet.contains(TokenBeginAnnotation.class)) {
     builder.setTokenBeginIndex(getAndRegister(coreLabel,keysToSerialize,TokenBeginAnnotation.class));
   }
-  if (coreLabel.containsKey(TokenEndAnnotation.class)) {
+  if (keySet.contains(TokenEndAnnotation.class)) {
     builder.setTokenEndIndex(getAndRegister(coreLabel,keysToSerialize,TokenEndAnnotation.class));
   }
-  if (getAndRegister(coreLabel,keysToSerialize,NormalizedNamedEntityTagAnnotation.class) != null) {
+  if (keySet.contains(NormalizedNamedEntityTagAnnotation.class)) {
     builder.setNormalizedNER(getAndRegister(coreLabel,keysToSerialize,NormalizedNamedEntityTagAnnotation.class));
   }
-  if (coreLabel.containsKey(TimexAnnotation.class)) {
+  if (keySet.contains(TimexAnnotation.class)) {
     builder.setTimexValue(toProto(getAndRegister(coreLabel,keysToSerialize,TimexAnnotation.class)));
   }
-  if (coreLabel.containsKey(AnswerAnnotation.class)) {
+  if (keySet.contains(AnswerAnnotation.class)) {
     builder.setAnswer(getAndRegister(coreLabel,keysToSerialize,AnswerAnnotation.class));
   }
-  if (coreLabel.containsKey(XmlContextAnnotation.class)) {
+  if (keySet.contains(XmlContextAnnotation.class)) {
     builder.setHasXmlContext(true);
     builder.addAllXmlContext(getAndRegister(coreLabel,keysToSerialize,XmlContextAnnotation.class));
   }
  else {
     builder.setHasXmlContext(false);
   }
-  if (coreLabel.containsKey(CorefClusterIdAnnotation.class)) {
+  if (keySet.contains(CorefClusterIdAnnotation.class)) {
     builder.setCorefClusterID(getAndRegister(coreLabel,keysToSerialize,CorefClusterIdAnnotation.class));
   }
-  if (coreLabel.containsKey(NaturalLogicAnnotations.OperatorAnnotation.class)) {
+  if (keySet.contains(NaturalLogicAnnotations.OperatorAnnotation.class)) {
     builder.setOperator(toProto(getAndRegister(coreLabel,keysToSerialize,NaturalLogicAnnotations.OperatorAnnotation.class)));
   }
-  if (coreLabel.containsKey(NaturalLogicAnnotations.PolarityAnnotation.class)) {
+  if (keySet.contains(NaturalLogicAnnotations.PolarityAnnotation.class)) {
     builder.setPolarity(toProto(getAndRegister(coreLabel,keysToSerialize,NaturalLogicAnnotations.PolarityAnnotation.class)));
   }
-  if (coreLabel.get(SpanAnnotation.class) != null) {
+  if (keySet.contains(SpanAnnotation.class)) {
     IntPair span=getAndRegister(coreLabel,keysToSerialize,SpanAnnotation.class);
     builder.setSpan(CoreNLPProtos.Span.newBuilder().setBegin(span.getSource()).setEnd(span.getTarget()).build());
   }
-  if (coreLabel.get(SentimentCoreAnnotations.SentimentClass.class) != null) {
+  if (keySet.contains(SentimentCoreAnnotations.SentimentClass.class)) {
     builder.setSentiment(getAndRegister(coreLabel,keysToSerialize,SentimentCoreAnnotations.SentimentClass.class));
   }
-  if (coreLabel.get(QuotationIndexAnnotation.class) != null) {
+  if (keySet.contains(QuotationIndexAnnotation.class)) {
     builder.setQuotationIndex(getAndRegister(coreLabel,keysToSerialize,QuotationIndexAnnotation.class));
   }
-  if (getAndRegister(coreLabel,keysToSerialize,GenderAnnotation.class) != null) {
+  if (keySet.contains(CoNLLUFeats.class)) {
+    builder.setConllUFeatures(toMapStringStringProto(getAndRegister(coreLabel,keysToSerialize,CoNLLUFeats.class)));
+  }
+  if (keySet.contains(CoNLLUTokenSpanAnnotation.class)) {
+    IntPair span=getAndRegister(coreLabel,keysToSerialize,CoNLLUTokenSpanAnnotation.class);
+    builder.setConllUTokenSpan(CoreNLPProtos.Span.newBuilder().setBegin(span.getSource()).setEnd(span.getTarget()).build());
+  }
+  if (keySet.contains(CoNLLUMisc.class)) {
+    builder.setConllUMisc(getAndRegister(coreLabel,keysToSerialize,CoNLLUMisc.class));
+  }
+  if (keySet.contains(CoarseTagAnnotation.class)) {
+    builder.setCoarseTag(getAndRegister(coreLabel,keysToSerialize,CoarseTagAnnotation.class));
+  }
+  if (keySet.contains(CoNLLUSecondaryDepsAnnotation.class)) {
+    builder.setConllUSecondaryDeps(toMapIntStringProto(getAndRegister(coreLabel,keysToSerialize,CoNLLUSecondaryDepsAnnotation.class)));
+  }
+  if (keySet.contains(GenderAnnotation.class)) {
     builder.setGender(getAndRegister(coreLabel,keysToSerialize,GenderAnnotation.class));
   }
-  if (coreLabel.containsKey(TrueCaseAnnotation.class)) {
+  if (keySet.contains(TrueCaseAnnotation.class)) {
     builder.setTrueCase(getAndRegister(coreLabel,keysToSerialize,TrueCaseAnnotation.class));
   }
-  if (coreLabel.containsKey(TrueCaseTextAnnotation.class)) {
+  if (keySet.contains(TrueCaseTextAnnotation.class)) {
     builder.setTrueCaseText(getAndRegister(coreLabel,keysToSerialize,TrueCaseTextAnnotation.class));
   }
   return builder;

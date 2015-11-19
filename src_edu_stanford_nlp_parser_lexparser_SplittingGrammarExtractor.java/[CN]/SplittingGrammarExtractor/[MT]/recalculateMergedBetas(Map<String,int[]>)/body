@@ -1,19 +1,19 @@
 {
-  TwoDimensionalMap<String,String,double[][]> tempUnaryBetas=new TwoDimensionalMap<String,String,double[][]>();
-  ThreeDimensionalMap<String,String,String,double[][][]> tempBinaryBetas=new ThreeDimensionalMap<String,String,String,double[][][]>();
-  tempWordIndex=new HashIndex<String>();
-  tempTagIndex=new HashIndex<String>();
+  TwoDimensionalMap<String,String,double[][]> tempUnaryBetas=new TwoDimensionalMap<>();
+  ThreeDimensionalMap<String,String,String,double[][][]> tempBinaryBetas=new ThreeDimensionalMap<>();
+  tempWordIndex=new HashIndex<>();
+  tempTagIndex=new HashIndex<>();
   tempLex=op.tlpParams.lex(op,tempWordIndex,tempTagIndex);
   tempLex.initializeTraining(trainSize);
   for (  Tree tree : trees) {
     double treeWeight=treeWeights.getCount(tree);
     double[] stateWeights={Math.log(treeWeight)};
     tempLex.incrementTreesRead(treeWeight);
-    IdentityHashMap<Tree,double[][]> oldUnaryTransitions=new IdentityHashMap<Tree,double[][]>();
-    IdentityHashMap<Tree,double[][][]> oldBinaryTransitions=new IdentityHashMap<Tree,double[][][]>();
+    IdentityHashMap<Tree,double[][]> oldUnaryTransitions=new IdentityHashMap<>();
+    IdentityHashMap<Tree,double[][][]> oldBinaryTransitions=new IdentityHashMap<>();
     recountTree(tree,false,oldUnaryTransitions,oldBinaryTransitions);
-    IdentityHashMap<Tree,double[][]> unaryTransitions=new IdentityHashMap<Tree,double[][]>();
-    IdentityHashMap<Tree,double[][][]> binaryTransitions=new IdentityHashMap<Tree,double[][][]>();
+    IdentityHashMap<Tree,double[][]> unaryTransitions=new IdentityHashMap<>();
+    IdentityHashMap<Tree,double[][][]> binaryTransitions=new IdentityHashMap<>();
     mergeTransitions(tree,oldUnaryTransitions,oldBinaryTransitions,unaryTransitions,binaryTransitions,stateWeights,mergeCorrespondence);
     recalculateTemporaryBetas(tree,stateWeights,0,unaryTransitions,binaryTransitions,null,tempUnaryBetas,tempBinaryBetas);
   }

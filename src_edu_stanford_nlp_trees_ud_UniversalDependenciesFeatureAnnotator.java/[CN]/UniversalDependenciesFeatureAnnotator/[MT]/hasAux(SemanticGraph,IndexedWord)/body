@@ -1,0 +1,13 @@
+{
+  if (sg.hasChildWithReln(word,UniversalEnglishGrammaticalRelations.AUX_MODIFIER)) {
+    return true;
+  }
+  IndexedWord gov=sg.getParent(word);
+  if (gov != null) {
+    SemanticGraphEdge edge=sg.getEdge(gov,word);
+    if (UniversalEnglishGrammaticalRelations.CONJUNCT.isAncestor(edge.getRelation()) || UniversalEnglishGrammaticalRelations.COPULA.equals(edge.getRelation())) {
+      return hasAux(sg,gov);
+    }
+  }
+  return false;
+}

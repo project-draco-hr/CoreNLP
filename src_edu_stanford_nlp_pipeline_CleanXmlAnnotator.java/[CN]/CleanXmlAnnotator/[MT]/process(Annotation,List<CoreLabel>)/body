@@ -1,25 +1,25 @@
 {
-  Stack<String> enclosingTags=new Stack<String>();
+  Stack<String> enclosingTags=new Stack<>();
   List<String> currentTagSet=null;
   int matchDepth=0;
-  List<CoreLabel> newTokens=new ArrayList<CoreLabel>();
+  List<CoreLabel> newTokens=new ArrayList<>();
   StringBuilder removedText=new StringBuilder();
-  Set<Class> toAnnotate=new HashSet<Class>();
+  Set<Class> toAnnotate=new HashSet<>();
   toAnnotate.addAll(docAnnotationPatterns.keySet());
   int utteranceIndex=0;
   boolean inUtterance=false;
   boolean inSpeakerTag=false;
   String currentSpeaker=null;
-  List<CoreLabel> speakerTokens=new ArrayList<CoreLabel>();
-  List<CoreLabel> docDateTokens=new ArrayList<CoreLabel>();
-  List<CoreLabel> docTypeTokens=new ArrayList<CoreLabel>();
-  List<CoreLabel> docIdTokens=new ArrayList<CoreLabel>();
+  List<CoreLabel> speakerTokens=new ArrayList<>();
+  List<CoreLabel> docDateTokens=new ArrayList<>();
+  List<CoreLabel> docTypeTokens=new ArrayList<>();
+  List<CoreLabel> docIdTokens=new ArrayList<>();
   CoreMap tokenAnnotations=(tokenAnnotationPatterns != null && !tokenAnnotationPatterns.isEmpty()) ? new ArrayCoreMap() : null;
-  Map<Class,Stack<Pair<String,String>>> savedTokenAnnotations=new ArrayMap<Class,Stack<Pair<String,String>>>();
+  Map<Class,Stack<Pair<String,String>>> savedTokenAnnotations=new ArrayMap<>();
   XMLUtils.XMLTag sectionStartTag=null;
   CoreLabel sectionStartToken=null;
   CoreMap sectionAnnotations=null;
-  Map<Class,List<CoreLabel>> savedTokensForSection=new HashMap<Class,List<CoreLabel>>();
+  Map<Class,List<CoreLabel>> savedTokensForSection=new HashMap<>();
   boolean markSingleSentence=false;
   for (  CoreLabel token : tokens) {
     String word=token.word().trim();
@@ -56,7 +56,7 @@
         removedText=new StringBuilder();
       }
       if (currentTagSet == null) {
-        currentTagSet=Collections.unmodifiableList(new ArrayList<String>(enclosingTags));
+        currentTagSet=Collections.unmodifiableList(new ArrayList<>(enclosingTags));
       }
       token.set(CoreAnnotations.XmlContextAnnotation.class,currentTagSet);
       if (dateTagMatcher != null && currentTagSet.size() > 0 && dateTagMatcher.matcher(currentTagSet.get(currentTagSet.size() - 1)).matches()) {
