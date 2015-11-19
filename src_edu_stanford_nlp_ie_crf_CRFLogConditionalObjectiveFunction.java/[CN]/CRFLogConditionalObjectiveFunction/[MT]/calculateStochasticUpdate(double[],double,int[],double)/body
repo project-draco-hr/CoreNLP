@@ -1,11 +1,10 @@
 {
+  double prob=0.0;
   to2D(x,xScale,weights);
   setWeights(weights);
-  List<Integer> docIDs=new ArrayList<>(batch.length);
-  for (  int item : batch) {
-    docIDs.add(item);
-  }
-  double prob=multiThreadGradient(docIDs,true);
+  List<Integer> docIDs=new ArrayList<Integer>(batch.length);
+  for (int m=0; m < batch.length; m++)   docIDs.add(batch[m]);
+  prob=multiThreadGradient(docIDs,true);
   if (Double.isNaN(prob)) {
     throw new RuntimeException("Got NaN for prob in CRFLogConditionalObjectiveFunction.calculate()");
   }

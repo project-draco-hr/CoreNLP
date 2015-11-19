@@ -4,10 +4,10 @@
   setWeights(weights);
   clear2D(E);
   clear2D(dropoutPriorGradTotal);
-  MulticoreWrapper<Pair<Integer,Boolean>,Quadruple<Integer,Double,Map<Integer,double[]>,Map<Integer,double[]>>> wrapper=new MulticoreWrapper<>(multiThreadGrad,dropoutPriorThreadProcessor);
+  MulticoreWrapper<Pair<Integer,Boolean>,Quadruple<Integer,Double,Map<Integer,double[]>,Map<Integer,double[]>>> wrapper=new MulticoreWrapper<Pair<Integer,Boolean>,Quadruple<Integer,Double,Map<Integer,double[]>,Map<Integer,double[]>>>(multiThreadGrad,dropoutPriorThreadProcessor);
   for (int m=0; m < totalData.length; m++) {
     boolean submitIsUnsup=(m >= unsupDropoutStartIndex);
-    wrapper.put(new Pair<>(m,submitIsUnsup));
+    wrapper.put(new Pair<Integer,Boolean>(m,submitIsUnsup));
     while (wrapper.peek()) {
       Quadruple<Integer,Double,Map<Integer,double[]>,Map<Integer,double[]>> result=wrapper.poll();
       int docIndex=result.first();

@@ -32,9 +32,9 @@
   System.out.println("Language: " + language.toString());
   System.out.println("Features: " + args[1]);
   System.out.print("Loading training trees...");
-  List<Tree> trainTrees=new ArrayList<>(19000);
-  Index<String> wordIndex=new HashIndex<>();
-  Index<String> tagIndex=new HashIndex<>();
+  List<Tree> trainTrees=new ArrayList<Tree>(19000);
+  Index<String> wordIndex=new HashIndex<String>();
+  Index<String> tagIndex=new HashIndex<String>();
   for (  Tree tree : trainTreebank) {
     for (    Tree subTree : tree) {
       if (!subTree.isLeaf()) {
@@ -55,10 +55,10 @@
   List<FactoredLexiconEvent> tuningSet=getTuningSet(devTreebank,lexicon,tlpp);
   System.out.printf("...Done! (%d events)%n",tuningSet.size());
   int nCorrect=0;
-  Counter<String> errors=new ClassicCounter<>();
+  Counter<String> errors=new ClassicCounter<String>();
   for (  FactoredLexiconEvent event : tuningSet) {
     Iterator<IntTaggedWord> itr=lexicon.ruleIteratorByWord(event.word(),event.getLoc(),event.featureStr());
-    Counter<Integer> logScores=new ClassicCounter<>();
+    Counter<Integer> logScores=new ClassicCounter<Integer>();
     boolean noRules=true;
     int goldTagId=-1;
     while (itr.hasNext()) {
@@ -89,7 +89,7 @@
   double acc=(double)nCorrect / (double)tuningSet.size();
   System.err.printf("%n%nACCURACY: %.2f%n%n",acc * 100.0);
   System.err.println("% of errors by type:");
-  List<String> biggestKeys=new ArrayList<>(errors.keySet());
+  List<String> biggestKeys=new ArrayList<String>(errors.keySet());
   Collections.sort(biggestKeys,Counters.toComparator(errors,false,true));
   Counters.normalize(errors);
   for (  String key : biggestKeys) {

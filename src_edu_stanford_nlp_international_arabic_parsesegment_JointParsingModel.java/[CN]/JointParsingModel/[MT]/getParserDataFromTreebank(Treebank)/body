@@ -2,7 +2,7 @@
   System.err.print("Binarizing training trees...");
   List<Tree> binaryTrainTrees=getAnnotatedBinaryTreebankFromTreebank(trainTreebank);
   Timing.tick("done.");
-  Index<String> stateIndex=new HashIndex<>();
+  Index<String> stateIndex=new HashIndex<String>();
   System.err.print("Extracting PCFG...");
   Extractor<Pair<UnaryGrammar,BinaryGrammar>> bgExtractor=new BinaryGrammarExtractor(op,stateIndex);
   Pair<UnaryGrammar,BinaryGrammar> bgug=bgExtractor.extract(binaryTrainTrees);
@@ -12,8 +12,8 @@
   ug.purgeRules();
   Timing.tick("done.");
   System.err.print("Extracting Lexicon...");
-  Index<String> wordIndex=new HashIndex<>();
-  Index<String> tagIndex=new HashIndex<>();
+  Index<String> wordIndex=new HashIndex<String>();
+  Index<String> tagIndex=new HashIndex<String>();
   Lexicon lex=op.tlpParams.lex(op,wordIndex,tagIndex);
   lex.initializeTraining(binaryTrainTrees.size());
   lex.train(binaryTrainTrees);

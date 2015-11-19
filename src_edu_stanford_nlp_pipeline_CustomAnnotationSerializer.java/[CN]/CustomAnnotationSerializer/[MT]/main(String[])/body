@@ -3,13 +3,13 @@
   StanfordCoreNLP pipeline=new StanfordCoreNLP(props);
   String file=props.getProperty("file");
   String loadFile=props.getProperty("loadFile");
-  if (loadFile != null && !loadFile.isEmpty()) {
+  if (loadFile != null && !loadFile.equals("")) {
     CustomAnnotationSerializer ser=new CustomAnnotationSerializer(false,false);
     InputStream is=new FileInputStream(loadFile);
     Pair<Annotation,InputStream> pair=ser.read(is);
     pair.second.close();
     Annotation anno=pair.first;
-    System.out.println(anno.toShorterString(StringUtils.EMPTY_STRING_ARRAY));
+    System.out.println(anno.toShorterString(new String[0]));
     is.close();
   }
  else   if (file != null && !file.equals("")) {

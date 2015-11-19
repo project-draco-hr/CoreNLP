@@ -1,14 +1,14 @@
 {
   long time1=new SUTime.IsoDate(2013,1,1).getJodaTimeInstant().getMillis();
   long time2=new SUTime.IsoDate(2013,6,1).getJodaTimeInstant().getMillis();
-  CollectionValuedMap<String,DateTimeZone> tzMap=new CollectionValuedMap<>();
+  CollectionValuedMap<String,DateTimeZone> tzMap=new CollectionValuedMap<String,DateTimeZone>();
   for (  DateTimeZone dtz : TimeZoneIdComponent.timeZonesById.values()) {
     tzMap.add(dtz.getShortName(time1,locale).toLowerCase(),dtz);
     tzMap.add(dtz.getName(time1,locale).toLowerCase(),dtz);
     tzMap.add(dtz.getShortName(time2,locale).toLowerCase(),dtz);
     tzMap.add(dtz.getName(time2,locale).toLowerCase(),dtz);
   }
-  List<String> tzNames=new ArrayList<>(tzMap.keySet());
+  List<String> tzNames=new ArrayList<String>(tzMap.keySet());
   Collections.sort(tzNames,STRING_LENGTH_REV_COMPARATOR);
   String tzRegex=makeRegex(tzNames);
 synchronized (TimeZoneComponent.class) {

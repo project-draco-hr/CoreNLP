@@ -1,6 +1,6 @@
 {
   if (args.length != 4) {
-    logger.info("Usage: MnistConverter dataFile labelFile outFile propsFile");
+    System.err.println("Usage: MnistConverter dataFile labelFile outFile propsFile");
     return;
   }
   DataInputStream xStream=IOUtils.getDataInputStream(args[0]);
@@ -14,7 +14,7 @@
   int xNumImages=xStream.readInt();
   int yNumLabels=yStream.readInt();
   if (xNumImages != yNumLabels)   throw new RuntimeException("x and y sizes don't match");
-  logger.info("Images and label file both contain " + xNumImages + " entries.");
+  System.err.println("Images and label file both contain " + xNumImages + " entries.");
   int xRows=xStream.readInt();
   int xColumns=xStream.readInt();
   for (int i=0; i < xNumImages; i++) {
@@ -30,7 +30,7 @@
     }
     oStream.println();
   }
-  logger.info("Converted.");
+  System.err.println("Converted.");
   xStream.close();
   yStream.close();
   oStream.close();

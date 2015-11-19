@@ -26,7 +26,7 @@ catch (                IllegalArgumentException ex) {
                 }
               }
             }
-            return new PrimitiveValue<>(typeName,obj);
+            return new PrimitiveValue<Object>(typeName,obj);
           }
  catch (          InstantiationException ex) {
             throw new RuntimeException("Cannot instantiate " + c,ex);
@@ -41,7 +41,7 @@ catch (          IllegalAccessException ex) {
             Method m=c.getMethod("create",CompositeValue.class);
             CompositeValue evaluatedCv=cv.evaluateNoTypeConversion(env,args);
             try {
-              return new PrimitiveValue<>(typeName,m.invoke(typeValue.get(),evaluatedCv));
+              return new PrimitiveValue<Object>(typeName,m.invoke(typeValue.get(),evaluatedCv));
             }
  catch (            InvocationTargetException ex) {
               throw new RuntimeException("Cannot instantiate " + c,ex);
@@ -81,12 +81,12 @@ case TYPE_CLASS:
         }
       }
 case TYPE_STRING:
-    return new PrimitiveValue<>(TYPE_STRING,(String)value.get());
+    return new PrimitiveValue<String>(TYPE_STRING,(String)value.get());
 case TYPE_REGEX:
   return new RegexValue((String)value.get());
 case TYPE_NUMBER:
 if (value.get() instanceof Number) {
-  return new PrimitiveValue<>(TYPE_NUMBER,(Number)value.get());
+  return new PrimitiveValue<Number>(TYPE_NUMBER,(Number)value.get());
 }
  else if (value.get() instanceof String) {
   String str=(String)value.get();

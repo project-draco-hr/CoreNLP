@@ -1,6 +1,6 @@
 {
-  ClassicCounter<Integer> c=new ClassicCounter<>();
-  RVFDatum<String,Integer> d=new RVFDatum<>(c);
+  ClassicCounter<Integer> c=new ClassicCounter<Integer>();
+  RVFDatum<String,Integer> d=new RVFDatum<String,Integer>(c);
   int attrNo=0;
   for (int index=0; index < values.length; index++) {
     if (index == classColumn) {
@@ -13,14 +13,14 @@
     Integer featKey=Integer.valueOf(attrNo);
     Index<String> ind=indices.get(featKey);
     if (ind == null) {
-      ind=new HashIndex<>();
+      ind=new HashIndex<String>();
       indices.put(featKey,ind);
     }
     ind.add(values[index]);
     int valInd=ind.indexOf(values[index]);
     if (valInd == -1) {
       valInd=0;
-      logger.info("unknown attribute value " + values[index] + " of attribute "+ attrNo);
+      System.err.println("unknown attribute value " + values[index] + " of attribute "+ attrNo);
     }
     c.incrementCount(featKey,valInd);
     attrNo++;
