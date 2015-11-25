@@ -2,11 +2,11 @@
   line1++;
   l=l.replaceAll("#.*","");
   String[] line=l.split("\\s+");
-  Collection<String> features=new ArrayList<String>();
+  Collection<String> features=new ArrayList<>();
   for (int i=1; i < line.length; i++) {
     String[] f=line[i].split(":");
     if (f.length != 2) {
-      Logging.logger(Dataset.class).info("Dataset error: line " + line1);
+      logger.info("Dataset error: line " + line1);
     }
     int val=(int)Double.parseDouble(f[1]);
     for (int j=0; j < val; j++) {
@@ -14,6 +14,6 @@
     }
   }
   features.add(String.valueOf(Integer.MAX_VALUE));
-  Datum<String,String> d=new BasicDatum<String,String>(features,line[0]);
+  Datum<String,String> d=new BasicDatum<>(features,line[0]);
   return d;
 }

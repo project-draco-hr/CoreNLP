@@ -1,7 +1,7 @@
 {
   StringUtils.printErrInvocationString("CRFFeatureExporter",args);
   Properties props=StringUtils.argsToProperties(args);
-  CRFClassifier<CoreLabel> crf=new CRFClassifier<CoreLabel>(props);
+  CRFClassifier<CoreLabel> crf=new CRFClassifier<>(props);
   String inputFile=crf.flags.trainFile;
   if (inputFile == null) {
     System.err.println("Please provide input file using -trainFile");
@@ -12,7 +12,7 @@
     System.err.println("Please provide output file using -exportFeatures");
     System.exit(-1);
   }
-  CRFFeatureExporter<CoreLabel> featureExporter=new CRFFeatureExporter<CoreLabel>(crf);
+  CRFFeatureExporter<CoreLabel> featureExporter=new CRFFeatureExporter<>(crf);
   Collection<List<CoreLabel>> docs=crf.makeObjectBankFromFile(inputFile,crf.makeReaderAndWriter());
   crf.makeAnswerArraysAndTagIndex(docs);
   featureExporter.printFeatures(outputFile,docs);

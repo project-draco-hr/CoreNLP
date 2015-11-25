@@ -1,0 +1,16 @@
+{
+  boolean matched=true;
+  for (  Pair<K,NodePattern> entry : annotationPatterns) {
+    NodePattern annoPattern=entry.second;
+    Object anno=getter.apply(token,entry.first);
+    Object matchResult=annoPattern.matchWithResult(anno);
+    if (matchResult != null) {
+      matchResults.put(entry.first,matchResult);
+    }
+ else {
+      matched=false;
+      break;
+    }
+  }
+  return matched;
+}

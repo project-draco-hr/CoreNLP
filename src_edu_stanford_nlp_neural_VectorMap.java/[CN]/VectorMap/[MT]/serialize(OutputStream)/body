@@ -1,0 +1,21 @@
+{
+  DataOutputStream dataOut=new DataOutputStream(out);
+  int maxKeyLength=0;
+  int vectorLength=0;
+  for (  Entry<String,float[]> entry : this.entrySet()) {
+    maxKeyLength=Math.max(entry.getKey().getBytes().length,maxKeyLength);
+    vectorLength=entry.getValue().length;
+  }
+  itype keyIntType=itype.getType(maxKeyLength);
+  dataOut.writeInt(maxKeyLength);
+  dataOut.writeInt(vectorLength);
+  dataOut.writeInt(this.size());
+  for (  Map.Entry<String,float[]> entry : this.entrySet()) {
+    byte[] key=entry.getKey().getBytes();
+    keyIntType.write(dataOut,key.length);
+    dataOut.write(key);
+    for (    float v : entry.getValue()) {
+      dataOut.writeShort(fromFloat(v));
+    }
+  }
+}

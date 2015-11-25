@@ -1,0 +1,32 @@
+{
+  List<CoNLLSentence> sentences=new ArrayList<>();
+  List<String> tokens=new ArrayList<>();
+  List<String> ner=new ArrayList<>();
+  List<String> pos=new ArrayList<>();
+  List<String> npchunk=new ArrayList<>();
+  BufferedReader br=new BufferedReader(new FileReader(filename));
+  String line;
+  while ((line=br.readLine()) != null) {
+    String[] parts=line.split("\t");
+    if (parts.length == 4) {
+      tokens.add(parts[0]);
+      pos.add(parts[1]);
+      npchunk.add(parts[2]);
+      String tag=parts[3];
+      if (tag.contains("-")) {
+        ner.add(tag.split("-")[1]);
+      }
+ else {
+        ner.add(tag);
+      }
+      if (parts[0].equals(".")) {
+        sentences.add(new CoNLLSentence(tokens,ner,pos,npchunk));
+        tokens=new ArrayList<>();
+        ner=new ArrayList<>();
+        pos=new ArrayList<>();
+        npchunk=new ArrayList<>();
+      }
+    }
+  }
+  return sentences;
+}
