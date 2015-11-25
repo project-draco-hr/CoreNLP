@@ -1,9 +1,10 @@
 {
   JsonObjectBuilder obj=Json.createObjectBuilder();
-  for (  Map.Entry<String,Counter<CandidatePhrase>> en : learnedWords.entrySet()) {
+  for (  String label : getLabels()) {
+    Counter<CandidatePhrase> learnedWords=getLearnedWords(label);
     JsonArrayBuilder arr=Json.createArrayBuilder();
-    for (    CandidatePhrase k : en.getValue().keySet())     arr.add(k.getPhrase());
-    obj.add(en.getKey(),arr);
+    for (    CandidatePhrase k : learnedWords.keySet())     arr.add(k.getPhrase());
+    obj.add(label,arr);
   }
   return obj.build().toString();
 }

@@ -7,9 +7,8 @@
     String[] t=seedFile.split(",");
     String label=t[0];
     Set<CandidatePhrase> seedWords4Label=new HashSet<CandidatePhrase>();
-    if (t.length == 2) {
-      String seedWordsFile=t[1];
-      File f=new File(seedWordsFile);
+    for (int i=1; i < t.length; i++) {
+      String seedWordsFile=t[i];
       for (      File fin : ConstantsAndVariables.listFileIncludingItself(seedWordsFile)) {
         Redwood.log(Redwood.DBG,"Reading seed words from " + fin + " for label "+ label);
         for (        String line : IOUtils.readLines(fin)) {
@@ -17,6 +16,7 @@
           if (line.isEmpty() || line.startsWith("#")) {
             continue;
           }
+          line=line.split("\t")[0];
           seedWords4Label.add(CandidatePhrase.createOrGet(line));
         }
       }

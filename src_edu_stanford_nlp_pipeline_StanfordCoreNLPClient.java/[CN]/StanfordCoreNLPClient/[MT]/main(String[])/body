@@ -1,0 +1,23 @@
+{
+  Properties props=StringUtils.argsToProperties(args);
+  boolean hasH=props.containsKey("h");
+  boolean hasHelp=props.containsKey("help");
+  if (hasH || hasHelp) {
+    String helpValue=hasH ? props.getProperty("h") : props.getProperty("help");
+    StanfordCoreNLP.printHelp(System.err,helpValue);
+    return;
+  }
+  List<Backend> backends=new ArrayList<>();
+  for (  String spec : props.getProperty("backends","104.131.152.210:80").split(",")) {
+    String host=spec.substring(0,spec.indexOf(":"));
+    int port=Integer.parseInt(spec.substring(spec.indexOf(":") + 1));
+    backends.add(new Backend(host,port));
+  }
+  StanfordCoreNLPClient client=new StanfordCoreNLPClient(props,backends);
+  client.run();
+  try {
+    client.shutdown();
+  }
+ catch (  InterruptedException ignored) {
+  }
+}
