@@ -1,0 +1,20 @@
+{
+  Map<Integer,CorefChain> allCorefs=document.coref();
+  Set<Integer> toDeleteEntirely=new HashSet<>();
+  for (  Integer clusterID : allCorefs.keySet()) {
+    CorefChain chain=allCorefs.get(clusterID);
+    ArrayList<CorefChain.CorefMention> mentions=new ArrayList<>(chain.getMentionsInTextualOrder());
+    for (    CorefChain.CorefMention m : mentions) {
+      if (m.sentNum != this.sentenceIndex() + 1) {
+        chain.deleteMention(m);
+      }
+    }
+    if (chain.getMentionsInTextualOrder().isEmpty()) {
+      toDeleteEntirely.add(clusterID);
+    }
+  }
+  for (  Integer danglingChain : toDeleteEntirely) {
+    allCorefs.remove(danglingChain);
+  }
+  return allCorefs;
+}

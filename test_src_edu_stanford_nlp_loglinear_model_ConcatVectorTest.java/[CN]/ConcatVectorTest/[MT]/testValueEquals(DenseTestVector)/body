@@ -1,0 +1,32 @@
+{
+  ConcatVector clone=d1.vector.deepClone();
+  assertTrue(clone.valueEquals(d1.vector,1.0e-5));
+  assertTrue(d1.vector.valueEquals(clone,1.0e-5));
+  assertTrue(d1.vector.valueEquals(d1.vector,1.0e-5));
+  assertTrue(clone.valueEquals(clone,1.0e-5));
+  Random r=new Random();
+  int size=clone.getNumberOfComponents();
+  if (size > 0) {
+    clone.addVectorInPlace(d1.vector,1.0);
+    boolean isZero=true;
+    for (    double[] arr : d1.values) {
+      for (      double d : arr)       if (d != 0)       isZero=false;
+    }
+    if (isZero) {
+      assertTrue(clone.valueEquals(d1.vector,1.0e-5));
+      assertTrue(d1.vector.valueEquals(clone,1.0e-5));
+    }
+ else {
+      assertFalse(clone.valueEquals(d1.vector,1.0e-5));
+      assertFalse(d1.vector.valueEquals(clone,1.0e-5));
+    }
+    assertTrue(d1.vector.valueEquals(d1.vector,1.0e-5));
+    assertTrue(clone.valueEquals(clone,1.0e-5));
+    clone=d1.vector.deepClone();
+    int tinker=r.nextInt(size);
+    d1.vector.setDenseComponent(tinker,new double[]{0,0,1});
+    clone.setSparseComponent(tinker,2,1);
+    assertTrue(d1.vector.valueEquals(clone,1.0e-5));
+    assertTrue(clone.valueEquals(d1.vector,1.0e-5));
+  }
+}

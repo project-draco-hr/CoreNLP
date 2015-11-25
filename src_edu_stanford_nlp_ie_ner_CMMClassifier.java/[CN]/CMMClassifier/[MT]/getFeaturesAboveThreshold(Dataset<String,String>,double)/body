@@ -1,0 +1,29 @@
+{
+  if (!(classifier instanceof LinearClassifier)) {
+    throw new RuntimeException("Attempting to remove features based on weight from a non-linear classifier");
+  }
+  Index<String> featureIndex=dataset.featureIndex;
+  Index<String> labelIndex=dataset.labelIndex;
+  Index<String> features=new HashIndex<>();
+  Iterator<String> featureIt=featureIndex.iterator();
+  LinearClassifier<String,String> lc=(LinearClassifier<String,String>)classifier;
+  LOOP:   while (featureIt.hasNext()) {
+    String f=featureIt.next();
+    double smallest=Double.POSITIVE_INFINITY;
+    double biggest=Double.NEGATIVE_INFINITY;
+    for (    String l : labelIndex) {
+      double weight=lc.weight(f,l);
+      if (weight < smallest) {
+        smallest=weight;
+      }
+      if (weight > biggest) {
+        biggest=weight;
+      }
+      if (biggest - smallest > thresh) {
+        features.add(f);
+        continue LOOP;
+      }
+    }
+  }
+  return features;
+}

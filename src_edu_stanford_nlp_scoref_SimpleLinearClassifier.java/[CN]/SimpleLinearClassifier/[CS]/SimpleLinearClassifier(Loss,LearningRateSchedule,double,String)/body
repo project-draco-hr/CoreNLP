@@ -1,0 +1,18 @@
+{
+  if (modelFile != null) {
+    try {
+      this.weights=IOUtils.readObjectFromURLOrClasspathOrFileSystem(modelFile);
+    }
+ catch (    Exception e) {
+      throw new RuntimeException("Error leading weights from " + modelFile,e);
+    }
+  }
+ else {
+    this.weights=new ClassicCounter<>();
+  }
+  this.defaultLoss=loss;
+  this.regularizationStrength=regularizationStrength;
+  this.learningRateSchedule=learningRateSchedule;
+  accessTimes=new ClassicCounter<>();
+  examplesSeen=0;
+}

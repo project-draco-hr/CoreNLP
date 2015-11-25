@@ -5,12 +5,12 @@
   int numMaxSentencesPerBatchFile=Integer.parseInt(props.getProperty("numMaxSentencesPerBatchFile",String.valueOf(Integer.MAX_VALUE)));
   boolean preserveSentenceSequence=Boolean.parseBoolean(props.getProperty("preserveSentenceSequence","false"));
   if (!batchProcessSents) {
-    if (preserveSentenceSequence)     sents=new LinkedHashMap<String,DataInstance>();
- else     sents=new HashMap<String,DataInstance>();
+    if (preserveSentenceSequence)     sents=new LinkedHashMap<>();
+ else     sents=new HashMap<>();
   }
  else {
-    Data.sentsFiles=new ArrayList<File>();
-    Data.sentId2File=new ConcurrentHashMap<String,File>();
+    Data.sentsFiles=new ArrayList<>();
+    Data.sentId2File=new ConcurrentHashMap<>();
   }
   String file=props.getProperty("file");
   String posModelPath=props.getProperty("posModelPath");
@@ -42,8 +42,8 @@
     int numFilesTillNow=0;
     if (fileFormat == null || fileFormat.equalsIgnoreCase("text") || fileFormat.equalsIgnoreCase("txt")) {
       Map<String,DataInstance> sentsthis;
-      if (preserveSentenceSequence)       sentsthis=new LinkedHashMap<String,DataInstance>();
- else       sentsthis=new HashMap<String,DataInstance>();
+      if (preserveSentenceSequence)       sentsthis=new LinkedHashMap<>();
+ else       sentsthis=new HashMap<>();
       for (      File f : GetPatternsFromDataMultiClass.getAllFiles(file)) {
         Redwood.log(Redwood.DBG,"Annotating text in " + f);
         Iterator<String> reader=IOUtils.readLines(f).iterator();
@@ -76,7 +76,7 @@
       throw new RuntimeException("Cannot identify the file format. Valid values are text (or txt) and ser, where the serialized file is of the type Map<String, DataInstance>.");
     }
   }
-  Map<String,DataInstance> evalsents=new HashMap<String,DataInstance>();
+  Map<String,DataInstance> evalsents=new HashMap<>();
   File saveEvalSentencesSerFileFile=null;
   boolean evaluate=Boolean.parseBoolean(props.getProperty("evaluate"));
   if (evaluate) {

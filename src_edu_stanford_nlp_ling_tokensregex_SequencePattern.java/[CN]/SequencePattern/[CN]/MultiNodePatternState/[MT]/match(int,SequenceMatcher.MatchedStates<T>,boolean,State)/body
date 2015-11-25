@@ -5,6 +5,12 @@
     if (matchedInterval == null) {
       List<? extends T> nodes=matchedStates.elements();
       Collection<HasInterval<Integer>> matched=pattern.match(nodes,cur);
+      if (pattern.isGreedyMatch()) {
+        matched=CollectionUtils.sorted(matched,Interval.LENGTH_GT_COMPARATOR);
+      }
+ else {
+        matched=CollectionUtils.sorted(matched,Interval.LENGTH_LT_COMPARATOR);
+      }
       if (matched != null && matched.size() > 0) {
         int nBranches=matched.size();
         int i=0;

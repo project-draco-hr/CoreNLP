@@ -1,0 +1,16 @@
+{
+  List<Integer> keys=new ArrayList<>(c.size());
+  List<Double> values=new ArrayList<>(c.size());
+  for (  Map.Entry<K,Double> e : c.entrySet()) {
+    K key=e.getKey();
+    Integer id=index.get(key);
+    if (id == null) {
+      id=index.size();
+      inverse.put(id,key);
+      index.put(key,id);
+    }
+    keys.add(id);
+    values.add(e.getValue());
+  }
+  return new CompressedFeatureVector(keys,values);
+}

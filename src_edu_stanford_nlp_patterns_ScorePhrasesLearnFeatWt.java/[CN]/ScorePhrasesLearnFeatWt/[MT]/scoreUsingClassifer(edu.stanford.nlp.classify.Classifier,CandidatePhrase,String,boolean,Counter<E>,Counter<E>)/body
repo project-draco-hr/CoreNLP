@@ -5,7 +5,7 @@
     Counter<ScorePhraseMeasures> feat=null;
     if (forLearningPatterns)     feat=getPhraseFeaturesForPattern(label,word);
  else     feat=this.getFeatures(label,word,patternsThatExtractedPat,allSelectedPatterns);
-    RVFDatum<String,ScorePhraseMeasures> d=new RVFDatum<String,ScorePhraseMeasures>(feat,Boolean.FALSE.toString());
+    RVFDatum<String,ScorePhraseMeasures> d=new RVFDatum<>(feat,Boolean.FALSE.toString());
     Counter<String> sc=classifier.scoresOf(d);
     score=sc.getCount(Boolean.TRUE.toString());
   }
@@ -15,14 +15,14 @@
     Counter<ScorePhraseMeasures> feat;
     if (forLearningPatterns)     feat=getPhraseFeaturesForPattern(label,word);
  else     feat=this.getFeatures(label,word,patternsThatExtractedPat,allSelectedPatterns);
-    RVFDatum<String,ScorePhraseMeasures> d=new RVFDatum<String,ScorePhraseMeasures>(feat,Boolean.TRUE.toString());
+    RVFDatum<String,ScorePhraseMeasures> d=new RVFDatum<>(feat,Boolean.TRUE.toString());
     score=logcl.probabilityOf(d);
   }
  else   if (scoreClassifierType.equals(ClassifierType.SHIFTLR)) {
     Counter<ScorePhraseMeasures> feat;
     if (forLearningPatterns)     feat=getPhraseFeaturesForPattern(label,word);
  else     feat=this.getFeatures(label,word,patternsThatExtractedPat,allSelectedPatterns);
-    BasicDatum<String,ScorePhraseMeasures> d=new BasicDatum<String,ScorePhraseMeasures>(feat.keySet(),Boolean.FALSE.toString());
+    BasicDatum<String,ScorePhraseMeasures> d=new BasicDatum<>(feat.keySet(),Boolean.FALSE.toString());
     Counter<String> sc=((MultinomialLogisticClassifier)classifier).probabilityOf(d);
     score=sc.getCount(Boolean.TRUE.toString());
   }
@@ -30,7 +30,7 @@
     Counter<ScorePhraseMeasures> feat=null;
     if (forLearningPatterns)     feat=getPhraseFeaturesForPattern(label,word);
  else     feat=this.getFeatures(label,word,patternsThatExtractedPat,allSelectedPatterns);
-    RVFDatum<String,ScorePhraseMeasures> d=new RVFDatum<String,ScorePhraseMeasures>(feat,Boolean.FALSE.toString());
+    RVFDatum<String,ScorePhraseMeasures> d=new RVFDatum<>(feat,Boolean.FALSE.toString());
     Counter<String> sc=classifier.scoresOf(d);
     score=sc.getCount(Boolean.TRUE.toString());
   }

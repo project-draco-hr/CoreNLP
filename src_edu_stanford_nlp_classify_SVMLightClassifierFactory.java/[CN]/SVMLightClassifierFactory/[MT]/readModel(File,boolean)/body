@@ -8,7 +8,7 @@
       in.readLine();
       modelLineCount++;
     }
-    List<Pair<Double,ClassicCounter<Integer>>> supportVectors=new ArrayList<Pair<Double,ClassicCounter<Integer>>>();
+    List<Pair<Double,ClassicCounter<Integer>>> supportVectors=new ArrayList<>();
     String thresholdLine=in.readLine();
     modelLineCount++;
     String[] pieces=thresholdLine.split("\\s+");
@@ -18,7 +18,7 @@
       modelLineCount++;
       pieces=svLine.split("\\s+");
       double alpha=Double.parseDouble(pieces[0]);
-      ClassicCounter<Integer> supportVector=new ClassicCounter<Integer>();
+      ClassicCounter<Integer> supportVector=new ClassicCounter<>();
       for (int i=1; i < pieces.length; ++i) {
         String piece=pieces[i];
         if (piece.equals(stopToken))         break;
@@ -29,10 +29,10 @@
           supportVector.incrementCount(Integer.valueOf(featureIndex),count);
         }
       }
-      supportVectors.add(new Pair<Double,ClassicCounter<Integer>>(alpha,supportVector));
+      supportVectors.add(new Pair<>(alpha,supportVector));
     }
     in.close();
-    return new Pair<Double,ClassicCounter<Integer>>(threshold,getWeights(supportVectors));
+    return new Pair<>(threshold,getWeights(supportVectors));
   }
  catch (  Exception e) {
     e.printStackTrace();

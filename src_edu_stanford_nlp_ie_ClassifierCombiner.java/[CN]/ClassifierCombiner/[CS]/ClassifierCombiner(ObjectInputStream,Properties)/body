@@ -17,19 +17,19 @@
   }
   this.combinationMode=newCM;
   Integer numClassifiers=ois.readInt();
-  this.baseClassifiers=new ArrayList<AbstractSequenceClassifier<IN>>();
+  this.baseClassifiers=new ArrayList<>();
   int i=0;
   while (i < numClassifiers) {
     try {
       System.err.println("loading CRF...");
-      CRFClassifier newCRF=ErasureUtils.uncheckedCast(CRFClassifier.getClassifier(ois));
+      CRFClassifier newCRF=ErasureUtils.uncheckedCast(CRFClassifier.getClassifier(ois,props));
       baseClassifiers.add(newCRF);
       i++;
     }
  catch (    Exception e) {
       try {
         System.err.println("loading CMM...");
-        CMMClassifier newCMM=ErasureUtils.uncheckedCast(CMMClassifier.getClassifier(ois));
+        CMMClassifier newCMM=ErasureUtils.uncheckedCast(CMMClassifier.getClassifier(ois,props));
         baseClassifiers.add(newCMM);
         i++;
       }

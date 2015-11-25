@@ -1,0 +1,11 @@
+{
+  List<TokenSequencePattern> patterns=new ArrayList<TokenSequencePattern>();
+  patterns.add(TokenSequencePattern.compile("which word should be matched"));
+  MultiPatternMatcher.SequencePatternTrigger<CoreMap> trigger=new MultiPatternMatcher.BasicSequencePatternTrigger<CoreMap>(new CoreMapNodePatternTrigger(patterns));
+  Collection<SequencePattern<CoreMap>> triggered=trigger.apply(Sentence.toCoreLabelList("one","two","three"));
+  assertEquals(0,triggered.size());
+  triggered=trigger.apply(Sentence.toCoreLabelList("which"));
+  assertEquals(0,triggered.size());
+  triggered=trigger.apply(Sentence.toCoreLabelList("which","word","should","be","matched"));
+  assertEquals(1,triggered.size());
+}

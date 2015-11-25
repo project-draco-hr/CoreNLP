@@ -1,0 +1,13 @@
+{
+  Annotation doc=new Annotation(text);
+  pipeline.annotate(doc);
+  List<CoreMap> sentences=doc.get(CoreAnnotations.SentencesAnnotation.class);
+  Assert.assertNotNull(sentences);
+  Assert.assertEquals(message + ": number of sentences",nExpectedSentences,sentences.size());
+  List<CoreLabel> tokens=doc.get(CoreAnnotations.TokensAnnotation.class);
+  Assert.assertNotNull(tokens);
+  Assert.assertEquals(message + ": number of tokens",nExpectedTokens,tokens.size());
+  for (  Map.Entry<Integer,String> kv : expectedNormalizedNER.entrySet()) {
+    Assert.assertEquals(message + ": token " + kv.getKey(),kv.getValue(),tokens.get(kv.getKey()).get(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class));
+  }
+}

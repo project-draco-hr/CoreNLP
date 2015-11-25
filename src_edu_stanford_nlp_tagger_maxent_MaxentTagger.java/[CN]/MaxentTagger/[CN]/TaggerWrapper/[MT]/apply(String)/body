@@ -9,7 +9,7 @@
     sentences.add(Sentence.toWordList(o.split("\\s+")));
   }
   if (config.getNThreads() != 1) {
-    MulticoreWrapper<List<? extends HasWord>,List<? extends HasWord>> wrapper=new MulticoreWrapper<List<? extends HasWord>,List<? extends HasWord>>(config.getNThreads(),new SentenceTaggingProcessor(tagger,outputLemmas));
+    MulticoreWrapper<List<? extends HasWord>,List<? extends HasWord>> wrapper=new MulticoreWrapper<>(config.getNThreads(),new SentenceTaggingProcessor(tagger,outputLemmas));
     for (    List<? extends HasWord> sentence : sentences) {
       wrapper.put(sentence);
       while (wrapper.peek()) {
@@ -25,7 +25,6 @@
   }
  else {
     for (    List<? extends HasWord> sent : sentences) {
-      Morphology morpha=(outputLemmas) ? new Morphology() : null;
       sent=tagger.tagCoreLabelsOrHasWords(sent,morpha,outputLemmas);
       tagger.outputTaggedSentence(sent,outputLemmas,outputStyle,outputVerbosity,sentNum++," ",taggedResults);
     }

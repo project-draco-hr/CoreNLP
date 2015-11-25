@@ -1,0 +1,19 @@
+{
+  double epsilon=1.0e-7;
+  ConcatVector goldGradient=new ConcatVector(CONCAT_VEC_COMPONENTS);
+  for (int i=0; i < CONCAT_VEC_COMPONENTS; i++) {
+    double[] component=new double[CONCAT_VEC_COMPONENT_LENGTH];
+    for (int j=0; j < CONCAT_VEC_COMPONENT_LENGTH; j++) {
+      ConcatVector unitVectorIJ=new ConcatVector(CONCAT_VEC_COMPONENTS);
+      unitVectorIJ.setSparseComponent(i,j,1.0);
+      ConcatVector weightsPlusEpsilon=weights.deepClone();
+      weightsPlusEpsilon.addVectorInPlace(unitVectorIJ,epsilon);
+      ConcatVector weightsMinusEpsilon=weights.deepClone();
+      weightsMinusEpsilon.addVectorInPlace(unitVectorIJ,-epsilon);
+      component[j]=(logLikelihood(model,weightsPlusEpsilon) - logLikelihood(model,weightsMinusEpsilon)) / (2 * epsilon);
+      if (Double.isNaN(component[j]))       component[j]=0.0;
+    }
+    goldGradient.setDenseComponent(i,component);
+  }
+  return goldGradient;
+}

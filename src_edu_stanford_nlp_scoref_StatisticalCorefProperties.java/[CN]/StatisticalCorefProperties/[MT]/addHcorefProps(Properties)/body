@@ -1,0 +1,25 @@
+{
+  Properties newProps=(Properties)props.clone();
+  newProps.setProperty(CorefProperties.USE_SEMANTICS_PROP,"false");
+  newProps.setProperty(CorefProperties.GENDER_NUMBER_PROP,"edu/stanford/nlp/models/dcoref/gender.data.gz");
+  newProps.setProperty(CorefProperties.INPUT_TYPE_PROP,"conll");
+  if (props.containsKey("coref.scorer")) {
+    newProps.setProperty(CorefProperties.PATH_SCORER_PROP,props.getProperty("coref.scorer"));
+  }
+  if (conll(props)) {
+    newProps.setProperty(CorefProperties.PARSER_PROP,"true");
+    newProps.setProperty(CorefProperties.MD_TYPE_PROP,"rule");
+    newProps.setProperty("coref.useMarkedDiscourse","true");
+  }
+ else {
+    String mdPath=PropertiesUtils.getString(newProps,"coref.mentionDetectionModel","edu/stanford/nlp/models/hcoref/md-model.ser");
+    newProps.setProperty(CorefProperties.MD_TYPE_PROP,"dependency");
+    newProps.setProperty(CorefProperties.USE_GOLD_POS_PROP,"false");
+    newProps.setProperty(CorefProperties.USE_GOLD_NE_PROP,"false");
+    newProps.setProperty(CorefProperties.USE_GOLD_PARSES_PROP,"false");
+  }
+  if (props.containsKey("coref.test")) {
+    newProps.setProperty(CorefProperties.PATH_INPUT_PROP,props.getProperty("coref.test"));
+  }
+  return newProps;
+}

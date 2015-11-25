@@ -1,5 +1,9 @@
 {
-  Optional<RelationTriple> extraction=mkExtraction("1\tUnited\t2\tcompound\tNNP\tLOCATION\n" + "2\tStates\t4\tnmod:poss\tNNP\tLOCATION\n" + "3\t's\t2\tcase\tPOS\tO\n"+ "4\tally\t0\troot\tNN\tO\n"+ "5\tBritain\t2\tappos\tNNP\tPERSON\n");
+  String conll="1\tUnited\t2\tcompound\tNNP\tLOCATION\n" + "2\tStates\t4\tnmod:poss\tNNP\tLOCATION\n" + "3\t's\t2\tcase\tPOS\tO\n"+ "4\tally\t0\troot\tNN\tO\n"+ "5\tBritain\t2\tappos\tNNP\tPERSON\n";
+  Optional<RelationTriple> extraction=mkExtraction(conll,0);
+  assertTrue("No extraction for sentence!",extraction.isPresent());
+  assertEquals("1.0\tUnited States\thas\tally",extraction.get().toString());
+  extraction=mkExtraction(conll,1);
   assertTrue("No extraction for sentence!",extraction.isPresent());
   assertEquals("1.0\tBritain\tis ally of\tUnited States",extraction.get().toString());
 }

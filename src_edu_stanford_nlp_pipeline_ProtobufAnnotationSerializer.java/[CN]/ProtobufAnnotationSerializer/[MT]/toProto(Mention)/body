@@ -1,0 +1,94 @@
+{
+  CoreNLPProtos.Mention.Builder builder=CoreNLPProtos.Mention.newBuilder();
+  if (mention.mentionType != null) {
+    builder.setMentionType(mention.mentionType.name());
+  }
+  if (mention.gender != null) {
+    builder.setGender(mention.gender.name());
+  }
+  if (mention.number != null) {
+    builder.setNumber(mention.number.name());
+  }
+  if (mention.animacy != null) {
+    builder.setAnimacy(mention.animacy.name());
+  }
+  if (mention.person != null) {
+    builder.setPerson(mention.person.name());
+  }
+  if (mention.headString != null) {
+    builder.setHeadString(mention.headString);
+  }
+  if (mention.nerString != null) {
+    builder.setNerString(mention.nerString);
+  }
+  builder.setStartIndex(mention.startIndex);
+  builder.setEndIndex(mention.endIndex);
+  builder.setHeadIndex(mention.headIndex);
+  builder.setMentionID(mention.mentionID);
+  builder.setOriginalRef(mention.originalRef);
+  builder.setGoldCorefClusterID(mention.goldCorefClusterID);
+  builder.setCorefClusterID(mention.corefClusterID);
+  builder.setMentionNum(mention.mentionNum);
+  builder.setSentNum(mention.sentNum);
+  builder.setUtter(mention.utter);
+  builder.setParagraph(mention.paragraph);
+  builder.setIsSubject(mention.isSubject);
+  builder.setIsDirectObject(mention.isDirectObject);
+  builder.setIsIndirectObject(mention.isIndirectObject);
+  builder.setIsPrepositionObject(mention.isPrepositionObject);
+  builder.setHasTwin(mention.hasTwin);
+  builder.setGeneric(mention.generic);
+  builder.setIsSingleton(mention.isSingleton);
+  if (mention.dependents != null) {
+    for (    String dependent : mention.dependents) {
+      builder.addDependents(dependent);
+    }
+  }
+  if (mention.preprocessedTerms != null) {
+    for (    String preprocessed : mention.preprocessedTerms) {
+      builder.addPreprocessedTerms(preprocessed);
+    }
+  }
+  builder.setDependingVerb(createIndexedWordProtoFromIW(mention.dependingVerb));
+  builder.setHeadIndexedWord(createIndexedWordProtoFromIW(mention.headIndexedWord));
+  builder.setHeadWord(createIndexedWordProtoFromCL(mention.headWord));
+  if (mention.sentenceWords != null) {
+    for (    CoreLabel cl : mention.sentenceWords) {
+      builder.addSentenceWords(createIndexedWordProtoFromCL(cl));
+    }
+  }
+  if (mention.originalSpan != null) {
+    for (    CoreLabel cl : mention.originalSpan) {
+      builder.addOriginalSpan(createIndexedWordProtoFromCL(cl));
+    }
+  }
+  builder.setHasBasicDependency((mention.basicDependency != null));
+  builder.setHasCollapsedDependency((mention.collapsedDependency != null));
+  builder.setHasContextParseTree((mention.contextParseTree != null));
+  if (mention.appositions != null) {
+    for (    Mention m : mention.appositions) {
+      builder.addAppositions(m.mentionID);
+    }
+  }
+  if (mention.predicateNominatives != null) {
+    for (    Mention m : mention.predicateNominatives) {
+      builder.addPredicateNominatives(m.mentionID);
+    }
+  }
+  if (mention.relativePronouns != null) {
+    for (    Mention m : mention.relativePronouns) {
+      builder.addRelativePronouns(m.mentionID);
+    }
+  }
+  if (mention.listMembers != null) {
+    for (    Mention m : mention.listMembers) {
+      builder.addListMembers(m.mentionID);
+    }
+  }
+  if (mention.belongToLists != null) {
+    for (    Mention m : mention.belongToLists) {
+      builder.addBelongToLists(m.mentionID);
+    }
+  }
+  return builder.build();
+}

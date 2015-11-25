@@ -1,0 +1,14 @@
+{
+  if (!Arrays.stream(factor.neighborIndices).boxed().collect(Collectors.toSet()).contains(observe))   return;
+  if (factor.neighborIndices.length == 1)   return;
+  TableFactor observedOut=factor.observe(observe,value);
+  int observeIndex=-1;
+  for (int i=0; i < factor.neighborIndices.length; i++) {
+    if (factor.neighborIndices[i] == observe)     observeIndex=i;
+  }
+  for (  int[] assignment : factor) {
+    if (assignment[observeIndex] == value) {
+      assertEquals(factor.getAssignmentValue(assignment),observedOut.getAssignmentValue(subsetAssignment(assignment,factor,observedOut)),1.0e-7);
+    }
+  }
+}
