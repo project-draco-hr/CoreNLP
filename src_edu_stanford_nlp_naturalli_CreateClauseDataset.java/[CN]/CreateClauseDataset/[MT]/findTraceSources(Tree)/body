@@ -1,0 +1,12 @@
+{
+  Map<Integer,Integer> spansInTree=new HashMap<>(4);
+  Matcher m=TRACE_SOURCE_PATTERN.matcher(root.label().value() == null ? "NULL" : root.label().value());
+  if (m.matches()) {
+    int index=Integer.parseInt(m.group(1));
+    spansInTree.put(index,((CoreLabel)root.label()).index() - 1);
+  }
+  for (  Tree child : root.children()) {
+    spansInTree.putAll(findTraceSources(child));
+  }
+  return spansInTree;
+}

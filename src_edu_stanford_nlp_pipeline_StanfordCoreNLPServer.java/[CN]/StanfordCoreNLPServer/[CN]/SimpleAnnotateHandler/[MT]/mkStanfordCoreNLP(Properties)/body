@@ -1,0 +1,11 @@
+{
+  StanfordCoreNLP impl;
+synchronized (pipelineCache) {
+    impl=pipelineCache.get(props);
+    if (impl == null) {
+      impl=new StanfordCoreNLP(props);
+      pipelineCache.put(props,impl);
+    }
+  }
+  return impl;
+}

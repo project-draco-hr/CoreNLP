@@ -1,7 +1,7 @@
 {
   if (ph.length() < minLen)   return new Pair<String,Double>(ph,editDistMax);
-  Set<CandidatePhrase> words=seedLabelDictionary.get(label);
-  words.addAll(learnedWords.get(label).keySet());
+  Set<CandidatePhrase> words=new HashSet<CandidatePhrase>(seedLabelDictionary.get(label));
+  words.addAll(getLearnedWords(label).keySet());
   Pair<String,Double> minD=getEditDist(words,ph);
   double minDtotal=minD.second();
   String minPh=minD.first();

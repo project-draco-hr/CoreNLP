@@ -1,0 +1,13 @@
+{
+  scheduler.queueLock.lock();
+  try {
+    while (!scheduler.queue.isEmpty()) {
+      scheduler.queueEmpty.await();
+    }
+    scheduler.doRun=false;
+    scheduler.enqueued.signalAll();
+  }
+  finally {
+    scheduler.queueLock.unlock();
+  }
+}

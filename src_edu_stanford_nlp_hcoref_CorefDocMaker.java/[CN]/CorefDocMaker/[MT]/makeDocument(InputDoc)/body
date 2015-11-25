@@ -2,6 +2,9 @@
   if (input == null)   return null;
   Annotation anno=input.annotation;
   addMissingAnnotation(anno);
+  if (Boolean.parseBoolean(props.getProperty("hcoref.useMarkedDiscourse","false"))) {
+    anno.set(CoreAnnotations.UseMarkedDiscourseAnnotation.class,true);
+  }
   if (input.conllDoc != null && CorefProperties.getLanguage(props) == Locale.CHINESE) {
     CorefProperties.setRemoveNested(props,!input.conllDoc.documentID.contains("nw"));
   }

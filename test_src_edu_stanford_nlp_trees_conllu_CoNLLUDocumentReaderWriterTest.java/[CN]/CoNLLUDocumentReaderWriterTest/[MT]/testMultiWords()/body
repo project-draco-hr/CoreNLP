@@ -1,0 +1,18 @@
+{
+  CoNLLUDocumentReader reader=new CoNLLUDocumentReader();
+  Reader stringReader=new StringReader(MULTIWORD_TEST_INPUT);
+  Iterator<SemanticGraph> it=reader.getIterator(stringReader);
+  SemanticGraph sg=it.next();
+  assertNotNull(sg);
+  assertFalse("The input only contains one dependency tree.",it.hasNext());
+  assertEquals("[have/VBP nsubj>I/PRP neg>not/RB dobj>[clue/NN det>a/DT] punct>./.]",sg.toCompactString(true));
+  for (  IndexedWord iw : sg.vertexListSorted()) {
+    if (iw.index() != 2 && iw.index() != 3) {
+      assertEquals("",iw.originalText());
+    }
+ else {
+      assertEquals("haven't",iw.originalText());
+    }
+  }
+  assertEquals(Integer.valueOf(3),sg.getNodeByIndex(2).get(CoreAnnotations.LineNumberAnnotation.class));
+}
