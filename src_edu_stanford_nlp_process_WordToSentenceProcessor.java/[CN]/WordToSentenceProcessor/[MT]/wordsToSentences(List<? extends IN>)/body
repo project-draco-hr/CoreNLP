@@ -1,7 +1,7 @@
 {
   IdentityHashMap<Object,Boolean> isSentenceBoundary=null;
   if (sentenceBoundaryMultiTokenPattern != null) {
-    isSentenceBoundary=new IdentityHashMap<>();
+    isSentenceBoundary=new IdentityHashMap<Object,Boolean>();
     SequenceMatcher<? super IN> matcher=sentenceBoundaryMultiTokenPattern.getMatcher(words);
     while (matcher.find()) {
       List nodes=matcher.groupNodes();
@@ -11,7 +11,7 @@
     }
   }
   List<List<IN>> sentences=Generics.newArrayList();
-  List<IN> currentSentence=new ArrayList<>();
+  List<IN> currentSentence=new ArrayList<IN>();
   List<IN> lastSentence=null;
   boolean insideRegion=false;
   boolean inWaitForForcedEnd=false;
@@ -137,7 +137,7 @@
       }
       sentences.add(currentSentence);
       lastSentence=currentSentence;
-      currentSentence=new ArrayList<>();
+      currentSentence=new ArrayList<IN>();
     }
   }
   if (!currentSentence.isEmpty()) {

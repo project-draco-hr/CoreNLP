@@ -1,7 +1,7 @@
 {
   try {
-    List<Tree> trees=new ArrayList<>();
-    List<List<CoreLabel>> sentences=new ArrayList<>();
+    List<Tree> trees=new ArrayList<Tree>();
+    List<List<CoreLabel>> sentences=new ArrayList<List<CoreLabel>>();
     boolean hasSpeakerAnnotations=false;
     if (annotation.containsKey(CoreAnnotations.SentencesAnnotation.class)) {
       for (      CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
@@ -9,7 +9,7 @@
         sentences.add(tokens);
         Tree tree=sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
         trees.add(tree);
-        SemanticGraph dependencies=SemanticGraphFactory.makeFromTree(tree,Mode.COLLAPSED,Extras.NONE,true,null,true);
+        SemanticGraph dependencies=SemanticGraphFactory.makeFromTree(tree,Mode.COLLAPSED,Extras.NONE,false,null,true);
         sentence.set(SemanticGraphCoreAnnotations.AlternativeDependenciesAnnotation.class,dependencies);
         if (!hasSpeakerAnnotations) {
           for (          CoreLabel t : tokens) {
@@ -36,23 +36,16 @@
     List<List<Mention>> orderedMentions=document.getOrderedMentions();
     if (VERBOSE) {
       for (int i=0; i < orderedMentions.size(); i++) {
-        System.err.printf("Mentions in sentence #%d:%n",i);
+        System.err.printf("Mentions in sentence #%d:\n",i);
         for (int j=0; j < orderedMentions.get(i).size(); j++) {
           System.err.println("\tMention #" + j + ": "+ orderedMentions.get(i).get(j).spanToString());
         }
       }
     }
-    if (outputHybridVersion) {
-      Map<Integer,edu.stanford.nlp.hcoref.data.CorefChain> result=corefSystem.corefReturnHybridOutput(document);
-      annotation.set(edu.stanford.nlp.hcoref.CorefCoreAnnotations.CorefChainAnnotation.class,result);
-    }
- else {
-      Map<Integer,CorefChain> result=corefSystem.coref(document);
-      annotation.set(CorefCoreAnnotations.CorefChainAnnotation.class,result);
-    }
+    Map<Integer,CorefChain> result=corefSystem.coref(document);
+    annotation.set(CorefCoreAnnotations.CorefChainAnnotation.class,result);
     if (OLD_FORMAT) {
-      Map<Integer,CorefChain> oldResult=corefSystem.coref(document);
-      addObsoleteCoreferenceAnnotations(annotation,orderedMentions,oldResult);
+      addObsoleteCoreferenceAnnotations(annotation,orderedMentions,result);
     }
   }
  catch (  RuntimeException e) {

@@ -3,7 +3,7 @@
   if (MachineReadingProperties.trainOnly) {
     this.forceRetraining=true;
   }
-  List<String> retMsg=new ArrayList<>();
+  List<String> retMsg=new ArrayList<String>();
   boolean haveSerializedEntityExtractor=serializedModelExists(MachineReadingProperties.serializedEntityExtractorPath);
   boolean haveSerializedRelationExtractor=serializedModelExists(MachineReadingProperties.serializedRelationExtractorPath);
   boolean haveSerializedEventExtractor=serializedModelExists(MachineReadingProperties.serializedEventExtractorPath);
@@ -35,7 +35,7 @@
   }
   if (!MachineReadingProperties.trainOnly) {
     Annotation gold=new Annotation("");
-    for (    Pair<Annotation,Annotation> dataset : datasets)     AnnotationUtils.addSentences(gold,dataset.second().get(SentencesAnnotation.class));
+    for (int i=0; i < datasets.length; i++)     AnnotationUtils.addSentences(gold,datasets[i].second().get(CoreAnnotations.SentencesAnnotation.class));
     Annotation[] mergedPredictions=new Annotation[3];
     assert(predictions != null);
     for (int taskLevel=0; taskLevel < mergedPredictions.length; taskLevel++) {

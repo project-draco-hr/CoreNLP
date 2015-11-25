@@ -1,0 +1,45 @@
+{
+  double[] sums=new double[numClasses];
+  double[] probs=new double[numClasses];
+  for (int t=threadIdx; t < batch.length; t+=numThreads) {
+    int m=batch[t];
+    int[] features=data[m];
+    Arrays.fill(sums,0.0);
+    for (int c=0; c < numClasses; c++) {
+      for (int f=0; f < features.length; f++) {
+        int i=indexOf(features[f],c);
+        if (values != null) {
+          sums[c]+=x[i] * xscale * values[m][f];
+        }
+ else {
+          sums[c]+=x[i] * xscale;
+        }
+      }
+    }
+    for (int f=0; f < features.length; f++) {
+      int i=indexOf(features[f],labels[m]);
+      double v=(values != null) ? values[m][f] : 1;
+      double delta=(dataWeights != null) ? dataWeights[m] * v : v;
+      x[i]+=delta * gain;
+    }
+    double total=ArrayMath.logSum(sums);
+    for (int c=0; c < numClasses; c++) {
+      probs[c]=Math.exp(sums[c] - total);
+      if (dataWeights != null) {
+        probs[c]*=dataWeights[m];
+      }
+      for (int f=0; f < features.length; f++) {
+        int i=indexOf(features[f],c);
+        double v=(values != null) ? values[m][f] : 1;
+        double delta=probs[c] * v;
+        x[i]-=delta * gain;
+      }
+    }
+    double dV=sums[labels[m]] - total;
+    if (dataWeights != null) {
+      dV*=dataWeights[m];
+    }
+    value-=dV;
+  }
+  latch.countDown();
+}

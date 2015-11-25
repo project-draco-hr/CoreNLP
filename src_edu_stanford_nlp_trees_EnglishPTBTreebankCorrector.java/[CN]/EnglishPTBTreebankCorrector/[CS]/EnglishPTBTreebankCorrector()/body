@@ -1,11 +1,11 @@
 {
-  ops=new ArrayList<>();
+  ops=new ArrayList<Pair<TregexPattern,TsurgeonPattern>>();
   TreebankLanguagePack tlp=new PennTreebankLanguagePack();
   TregexPatternCompiler tpc=new TregexPatternCompiler(tlp.headFinder(),tlp.getBasicCategoryFunction());
   Macros.addAllMacros(tpc,getBufferedReader(macroStr));
   try {
     BufferedReader br=getBufferedReader(editStr);
-    List<TsurgeonPattern> tsp=new ArrayList<>();
+    List<TsurgeonPattern> tsp=new ArrayList<TsurgeonPattern>();
     for (String line; (line=br.readLine()) != null; ) {
       TregexPattern matchPattern=tpc.compile(line);
       tsp.clear();
@@ -17,7 +17,7 @@
       }
       if (!tsp.isEmpty()) {
         TsurgeonPattern tp=Tsurgeon.collectOperations(tsp);
-        ops.add(new Pair<>(matchPattern,tp));
+        ops.add(new Pair<TregexPattern,TsurgeonPattern>(matchPattern,tp));
       }
     }
   }

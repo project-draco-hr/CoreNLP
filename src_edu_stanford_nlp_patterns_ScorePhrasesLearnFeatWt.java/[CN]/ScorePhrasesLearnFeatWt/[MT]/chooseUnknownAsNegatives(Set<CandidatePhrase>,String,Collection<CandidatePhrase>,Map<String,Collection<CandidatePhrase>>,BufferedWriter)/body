@@ -1,9 +1,9 @@
 {
   List<List<CandidatePhrase>> threadedCandidates=GetPatternsFromDataMultiClass.getThreadBatches(CollectionUtils.toList(candidatePhrases),constVars.numThreads);
-  Counter<CandidatePhrase> sims=new ClassicCounter<>();
+  Counter<CandidatePhrase> sims=new ClassicCounter<CandidatePhrase>();
   AtomicDouble allMaxSim=new AtomicDouble(Double.MIN_VALUE);
   ExecutorService executor=Executors.newFixedThreadPool(constVars.numThreads);
-  List<Future<Pair<Counter<CandidatePhrase>,Counter<CandidatePhrase>>>> list=new ArrayList<>();
+  List<Future<Pair<Counter<CandidatePhrase>,Counter<CandidatePhrase>>>> list=new ArrayList<Future<Pair<Counter<CandidatePhrase>,Counter<CandidatePhrase>>>>();
   for (  List<CandidatePhrase> keys : threadedCandidates) {
     Callable<Pair<Counter<CandidatePhrase>,Counter<CandidatePhrase>>> task=new ComputeSim(label,keys,allMaxSim,positivePhrases,knownNegativePhrases);
     Future<Pair<Counter<CandidatePhrase>,Counter<CandidatePhrase>>> submit=executor.submit(task);

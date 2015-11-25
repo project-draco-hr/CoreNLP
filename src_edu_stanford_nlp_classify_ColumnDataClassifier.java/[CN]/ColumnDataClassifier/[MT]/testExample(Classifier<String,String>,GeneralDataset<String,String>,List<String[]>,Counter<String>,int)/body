@@ -8,16 +8,16 @@
     d=test.getDatum(i);
   }
   if (globalFlags.justify) {
-    logger.info("### Test item " + i);
-    String message="";
+    System.err.println("### Test item " + i);
     for (    String field : example) {
-      message+=field + "\t";
+      System.err.print(field);
+      System.err.print('\t');
     }
-    logger.info(message + "\n");
+    System.err.println();
     if (cl instanceof LinearClassifier) {
       ((LinearClassifier<String,String>)cl).justificationOf(d);
     }
-    logger.info("");
+    System.err.println();
   }
   Counter<String> logScores;
   if (globalFlags.usesRealValues) {
@@ -29,7 +29,7 @@
   Distribution<String> dist=Distribution.distributionFromLogisticCounter(logScores);
   String answer=null;
   if (globalFlags.biasedHyperplane != null) {
-    List<String> biggestKeys=new ArrayList<>(logScores.keySet());
+    List<String> biggestKeys=new ArrayList<String>(logScores.keySet());
     Collections.sort(biggestKeys,Counters.toComparatorDescending(logScores));
     for (    String key : biggestKeys) {
       double prob=dist.probabilityOf(key);

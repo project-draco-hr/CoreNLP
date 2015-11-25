@@ -1,10 +1,10 @@
 {
-  List<List<AceToken>> sentences=new ArrayList<>();
+  List<List<AceToken>> sentences=new ArrayList<List<AceToken>>();
   File inputFile=new File(filenamePrefix + AceDocument.ORIG_EXT);
   String input=IOUtils.slurpFile(inputFile);
-  RobustTokenizer<Word> tokenizer=new RobustTokenizer<>(input);
+  RobustTokenizer<Word> tokenizer=new RobustTokenizer<Word>(input);
   List<WordToken> tokenList=tokenizer.tokenizeToWordTokens();
-  ArrayList<AceToken> currentSentence=new ArrayList<>();
+  ArrayList<AceToken> currentSentence=new ArrayList<AceToken>();
   int quoteCount=0;
   for (int i=0; i < tokenList.size(); i++) {
     WordToken token=tokenList.get(i);
@@ -12,7 +12,7 @@
     AceToken convertedToken=wordTokenToAceToken(token,sentences.size());
     if (AceToken.isSgml(tokenText)) {
       if (currentSentence.size() > 0)       sentences.add(currentSentence);
-      currentSentence=new ArrayList<>();
+      currentSentence=new ArrayList<AceToken>();
       quoteCount=0;
     }
     currentSentence.add(convertedToken);
@@ -25,12 +25,12 @@
         i++;
       }
       if (currentSentence.size() > 0)       sentences.add(currentSentence);
-      currentSentence=new ArrayList<>();
+      currentSentence=new ArrayList<AceToken>();
       quoteCount=0;
     }
  else     if (AceToken.isSgml(tokenText)) {
       if (currentSentence.size() > 0)       sentences.add(currentSentence);
-      currentSentence=new ArrayList<>();
+      currentSentence=new ArrayList<AceToken>();
       quoteCount=0;
     }
   }

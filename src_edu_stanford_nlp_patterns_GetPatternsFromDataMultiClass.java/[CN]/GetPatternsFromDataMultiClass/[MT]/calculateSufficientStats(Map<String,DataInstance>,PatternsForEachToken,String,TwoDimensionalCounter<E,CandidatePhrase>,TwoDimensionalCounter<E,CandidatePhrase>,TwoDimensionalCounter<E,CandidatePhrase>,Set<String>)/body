@@ -6,7 +6,7 @@
   List<List<String>> sampledSentIds=splitIntoNumThreadsWithSampling(CollectionUtils.toList(sents.keySet()),sampleSize,constVars.numThreads);
   Redwood.log(Redwood.DBG,"sampled " + sampleSize + " sentences ("+ constVars.sampleSentencesForSufficientStats * 100 + "%)");
   ExecutorService executor=Executors.newFixedThreadPool(constVars.numThreads);
-  List<Future<Triple<List<Pair<E,CandidatePhrase>>,List<Pair<E,CandidatePhrase>>,List<Pair<E,CandidatePhrase>>>>> list=new ArrayList<>();
+  List<Future<Triple<List<Pair<E,CandidatePhrase>>,List<Pair<E,CandidatePhrase>>,List<Pair<E,CandidatePhrase>>>>> list=new ArrayList<Future<Triple<List<Pair<E,CandidatePhrase>>,List<Pair<E,CandidatePhrase>>,List<Pair<E,CandidatePhrase>>>>>();
   for (  List<String> sampledSents : sampledSentIds) {
     Callable<Triple<List<Pair<E,CandidatePhrase>>,List<Pair<E,CandidatePhrase>>,List<Pair<E,CandidatePhrase>>>> task=new CalculateSufficientStatsThreads(patternsForEachToken,sampledSents,sents,label,answerClass4Label);
     Future<Triple<List<Pair<E,CandidatePhrase>>,List<Pair<E,CandidatePhrase>>,List<Pair<E,CandidatePhrase>>>> submit=executor.submit(task);

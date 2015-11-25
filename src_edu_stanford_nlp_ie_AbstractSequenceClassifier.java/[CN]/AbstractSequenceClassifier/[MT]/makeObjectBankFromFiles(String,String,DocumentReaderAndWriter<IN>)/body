@@ -2,7 +2,7 @@
   File path=new File(baseDir);
   FileFilter filter=new RegExFileFilter(Pattern.compile(filePattern));
   File[] origFiles=path.listFiles(filter);
-  Collection<File> files=new ArrayList<>();
+  Collection<File> files=new ArrayList<File>();
   for (  File file : origFiles) {
     if (file.isFile()) {
       if (flags.announceObjectBankEntries) {
@@ -14,5 +14,5 @@
   if (files.isEmpty()) {
     throw new RuntimeException("No matching files: " + baseDir + '\t'+ filePattern);
   }
-  return new ObjectBankWrapper<>(flags,new ObjectBank<>(new ResettableReaderIteratorFactory(files,flags.inputEncoding),readerAndWriter),knownLCWords);
+  return new ObjectBankWrapper<IN>(flags,new ObjectBank<List<IN>>(new ResettableReaderIteratorFactory(files,flags.inputEncoding),readerAndWriter),knownLCWords);
 }

@@ -1,12 +1,12 @@
 {
   Timing tim=new Timing();
-  logger.info("Reading dataset from " + filename + " ... ");
+  System.err.print("Reading dataset from " + filename + " ... ");
   GeneralDataset<String,String> dataset;
   List<String[]> lineInfos=null;
   if ((inTestPhase && Flags.testFromSVMLight) || (!inTestPhase && Flags.trainFromSVMLight)) {
     List<String> lines=null;
     if (inTestPhase) {
-      lines=new ArrayList<>();
+      lines=new ArrayList<String>();
     }
     if (globalFlags.usesRealValues) {
       dataset=RVFDataset.readSVMLightFormat(filename,lines);
@@ -21,13 +21,13 @@
  else {
     try {
       if (inTestPhase) {
-        lineInfos=new ArrayList<>();
+        lineInfos=new ArrayList<String[]>();
       }
       if (globalFlags.usesRealValues) {
-        dataset=new RVFDataset<>();
+        dataset=new RVFDataset<String,String>();
       }
  else {
-        dataset=new Dataset<>();
+        dataset=new Dataset<String,String>();
       }
       int lineNo=0;
       int minColumns=Integer.MAX_VALUE;
@@ -66,14 +66,14 @@
         dataset.add(makeDatumFromStrings(strings));
       }
       if (lineNo > 0 && minColumns != maxColumns) {
-        logger.info("");
-        logger.info("WARNING: Number of tab-separated columns in " + filename + " varies between "+ minColumns+ " and "+ maxColumns);
+        System.err.println();
+        System.err.println("WARNING: Number of tab-separated columns in " + filename + " varies between "+ minColumns+ " and "+ maxColumns);
       }
     }
  catch (    Exception e) {
       throw new RuntimeException("Dataset could not be loaded",e);
     }
   }
-  logger.info("done [" + tim.toSecondsString() + "s, "+ dataset.size()+ " items].");
-  return new Pair<>(dataset,lineInfos);
+  System.err.println("done [" + tim.toSecondsString() + "s, "+ dataset.size()+ " items].");
+  return new Pair<GeneralDataset<String,String>,List<String[]>>(dataset,lineInfos);
 }

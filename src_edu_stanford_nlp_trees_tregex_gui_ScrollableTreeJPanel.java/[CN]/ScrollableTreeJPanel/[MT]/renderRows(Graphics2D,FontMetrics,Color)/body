@@ -7,13 +7,13 @@
     g2.drawString(sentence.get(i).word(),yieldOffsets[i],(float)(yieldHeight + layerHeight));
   }
   final float rowOrigin=(float)(yieldHeight + 2.0 * layerHeight);
-  List<List<IntPair>> rows=new ArrayList<>();
+  List<List<IntPair>> rows=new ArrayList<List<IntPair>>();
   for (  Constituent c : diffConstituents) {
     for (int rowIdx=0; rowIdx < diffConstituents.size(); rowIdx++) {
       float rowHeight=rowOrigin + (float)(rowIdx * layerHeight);
       int ext=(c.end() == (yieldOffsets.length - 1)) ? 0 : 1;
       if (rowIdx >= rows.size()) {
-        rows.add(new ArrayList<>());
+        rows.add(new ArrayList<IntPair>());
         rows.get(rowIdx).add(new IntPair(c.start(),c.end()));
         double nodeWidth=fM.stringWidth(c.value());
         g2.drawString(c.value(),yieldOffsets[c.start()],rowHeight);
