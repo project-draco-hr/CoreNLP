@@ -1,11 +1,11 @@
 {
   Minimizer<DiffFunction> minimizer=getMinimizer();
-  logger.info("adaptWeights in LinearClassifierFactory. increase weight dim only");
+  Logging.logger(this.getClass()).info("adaptWeights in LinearClassifierFactory. increase weight dim only");
   double[][] newWeights=new double[adaptDataset.featureIndex.size()][adaptDataset.labelIndex.size()];
 synchronized (System.class) {
     System.arraycopy(origWeights,0,newWeights,0,origWeights.length);
   }
-  AdaptedGaussianPriorObjectiveFunction<L,F> objective=new AdaptedGaussianPriorObjectiveFunction<>(adaptDataset,logPrior,newWeights);
+  AdaptedGaussianPriorObjectiveFunction<L,F> objective=new AdaptedGaussianPriorObjectiveFunction<L,F>(adaptDataset,logPrior,newWeights);
   double[] initial=objective.initial();
   double[] weights=minimizer.minimize(objective,TOL,initial);
   return objective.to2D(weights);

@@ -3,7 +3,7 @@
   int bestIteration=0;
   PriorityQueue<ScoredObject<PerceptronModel>> bestModels=null;
   if (op.trainOptions().averagedModels > 0) {
-    bestModels=new PriorityQueue<>(op.trainOptions().averagedModels + 1,ScoredComparator.ASCENDING_COMPARATOR);
+    bestModels=new PriorityQueue<ScoredObject<PerceptronModel>>(op.trainOptions().averagedModels + 1,ScoredComparator.ASCENDING_COMPARATOR);
   }
   List<Integer> indices=Generics.newArrayList();
   for (int i=0; i < binarizedTrees.size(); ++i) {
@@ -17,11 +17,11 @@
   MulticoreWrapper<Integer,Pair<Integer,Integer>> wrapper=null;
   if (nThreads != 1) {
     updates=Collections.synchronizedList(updates);
-    wrapper=new MulticoreWrapper<>(op.trainOptions.trainingThreads,new TrainTreeProcessor(binarizedTrees,transitionLists,updates,oracle));
+    wrapper=new MulticoreWrapper<Integer,Pair<Integer,Integer>>(op.trainOptions.trainingThreads,new TrainTreeProcessor(binarizedTrees,transitionLists,updates,oracle));
   }
   IntCounter<String> featureFrequencies=null;
   if (op.trainOptions().featureFrequencyCutoff > 1) {
-    featureFrequencies=new IntCounter<>();
+    featureFrequencies=new IntCounter<String>();
   }
   for (int iteration=1; iteration <= op.trainOptions.trainingIterations; ++iteration) {
     Timing trainingTimer=new Timing();
@@ -75,7 +75,7 @@
       }
       System.err.println();
       if (bestModels != null) {
-        bestModels.add(new ScoredObject<>(new PerceptronModel(this),labelF1));
+        bestModels.add(new ScoredObject<PerceptronModel>(new PerceptronModel(this),labelF1));
         if (bestModels.size() > op.trainOptions().averagedModels) {
           bestModels.poll();
         }

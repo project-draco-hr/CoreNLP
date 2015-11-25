@@ -1,5 +1,5 @@
 {
-  Queue<DFSAState<T,S>> q=new LinkedList<>();
+  Queue<DFSAState<T,S>> q=new LinkedList<DFSAState<T,S>>();
   Set<DFSAState<T,S>> visited=Generics.newHashSet();
   q.offer(initialState);
   while (q.peek() != null) {
@@ -10,7 +10,7 @@
       w.write(state.toString() + "\t" + state.score()+ "\n");
       continue;
     }
-    TreeSet<T> inputs=new TreeSet<>(state.continuingInputs());
+    TreeSet<T> inputs=new TreeSet<T>(state.continuingInputs());
     for (    T input : inputs) {
       DFSATransition<T,S> transition=state.transition(input);
       DFSAState<T,S> target=transition.target();

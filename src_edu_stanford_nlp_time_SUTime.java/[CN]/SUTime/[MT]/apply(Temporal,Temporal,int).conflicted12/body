@@ -1,14 +1,20 @@
 {
   if (arg1 == null) {
-    return new RelativeTime(OFFSET_EXACT,arg2);
+    return arg2;
   }
-  if (arg1 instanceof Time && arg2 instanceof Duration) {
-    return ((Time)arg1).offset((Duration)arg2,flags);
+  if (arg2 == null) {
+    return arg1;
+  }
+  if (arg1 instanceof Duration && arg2 instanceof Duration) {
+    return ((Duration)arg1).subtract((Duration)arg2);
+  }
+ else   if (arg1 instanceof Time && arg2 instanceof Duration) {
+    return ((Time)arg1).subtract((Duration)arg2);
   }
  else   if (arg1 instanceof Range && arg2 instanceof Duration) {
-    return ((Range)arg1).offset((Duration)arg2,flags);
+    return ((Range)arg1).subtract((Duration)arg2);
   }
  else {
-    throw new UnsupportedOperationException("OFFSET_EXACT not implemented for arg1=" + arg1.getClass() + ", arg2="+ arg2.getClass());
+    throw new UnsupportedOperationException("MINUS not implemented for arg1=" + arg1.getClass() + ", arg2="+ arg2.getClass());
   }
 }

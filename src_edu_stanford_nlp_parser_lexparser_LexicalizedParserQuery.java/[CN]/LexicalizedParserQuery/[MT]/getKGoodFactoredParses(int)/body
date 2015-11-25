@@ -6,12 +6,12 @@
   if (binaryTrees == null) {
     return null;
   }
-  List<ScoredObject<Tree>> trees=new ArrayList<>(k);
+  List<ScoredObject<Tree>> trees=new ArrayList<ScoredObject<Tree>>(k);
   for (  ScoredObject<Tree> tp : binaryTrees) {
     Tree t=debinarizer.transformTree(tp.object());
     t=subcategoryStripper.transformTree(t);
     restoreOriginalWords(t);
-    trees.add(new ScoredObject<>(t,tp.score()));
+    trees.add(new ScoredObject<Tree>(t,tp.score()));
   }
   return trees;
 }

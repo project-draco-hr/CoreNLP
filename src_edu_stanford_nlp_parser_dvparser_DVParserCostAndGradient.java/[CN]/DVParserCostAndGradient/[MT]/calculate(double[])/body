@@ -9,13 +9,13 @@
   binaryScoreDerivativesG=TwoDimensionalMap.treeMap();
   binaryScoreDerivativesB=TwoDimensionalMap.treeMap();
   Map<String,SimpleMatrix> unaryW_dfsG, unaryW_dfsB;
-  unaryW_dfsG=new TreeMap<>();
-  unaryW_dfsB=new TreeMap<>();
+  unaryW_dfsG=new TreeMap<String,SimpleMatrix>();
+  unaryW_dfsB=new TreeMap<String,SimpleMatrix>();
   Map<String,SimpleMatrix> unaryScoreDerivativesG, unaryScoreDerivativesB;
-  unaryScoreDerivativesG=new TreeMap<>();
-  unaryScoreDerivativesB=new TreeMap<>();
-  Map<String,SimpleMatrix> wordVectorDerivativesG=new TreeMap<>();
-  Map<String,SimpleMatrix> wordVectorDerivativesB=new TreeMap<>();
+  unaryScoreDerivativesG=new TreeMap<String,SimpleMatrix>();
+  unaryScoreDerivativesB=new TreeMap<String,SimpleMatrix>();
+  Map<String,SimpleMatrix> wordVectorDerivativesG=new TreeMap<String,SimpleMatrix>();
+  Map<String,SimpleMatrix> wordVectorDerivativesB=new TreeMap<String,SimpleMatrix>();
   for (  TwoDimensionalMap.Entry<String,String,SimpleMatrix> entry : dvModel.binaryTransform) {
     int numRows=entry.getValue().numRows();
     int numCols=entry.getValue().numCols();
@@ -43,7 +43,7 @@
   Timing scoreTiming=new Timing();
   scoreTiming.doing("Scoring trees");
   int treeNum=0;
-  MulticoreWrapper<Tree,Pair<DeepTree,DeepTree>> wrapper=new MulticoreWrapper<>(op.trainOptions.trainingThreads,new ScoringProcessor());
+  MulticoreWrapper<Tree,Pair<DeepTree,DeepTree>> wrapper=new MulticoreWrapper<Tree,Pair<DeepTree,DeepTree>>(op.trainOptions.trainingThreads,new ScoringProcessor());
   for (  Tree tree : trainingBatch) {
     wrapper.put(tree);
   }
@@ -87,8 +87,8 @@
   ArrayMath.multiplyInPlace(derivative,(1.0 / trainingBatch.size()));
   double[] currentParams=dvModel.paramsToVector();
   double regCost=0;
-  for (  double currentParam : currentParams) {
-    regCost+=currentParam * currentParam;
+  for (int i=0; i < currentParams.length; i++) {
+    regCost+=currentParams[i] * currentParams[i];
   }
   regCost=op.trainOptions.regCost * 0.5 * regCost;
   value+=regCost;

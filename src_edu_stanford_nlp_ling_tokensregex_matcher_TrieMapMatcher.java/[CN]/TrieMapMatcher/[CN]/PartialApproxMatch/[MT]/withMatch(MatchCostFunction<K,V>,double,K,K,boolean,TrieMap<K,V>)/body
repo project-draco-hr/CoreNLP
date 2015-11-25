@@ -2,14 +2,14 @@
   PartialApproxMatch<K,V> res=withMatch(costFunction,deltaCost,t,k);
   if (multimatch && res.matched != null && res.value != null) {
     if (res.multimatches == null) {
-      res.multimatches=new ArrayList<>(1);
+      res.multimatches=new ArrayList<Match<K,V>>(1);
     }
  else {
-      res.multimatches=new ArrayList<>(multimatches.size() + 1);
+      res.multimatches=new ArrayList<Match<K,V>>(multimatches.size() + 1);
       res.multimatches.addAll(multimatches);
     }
     List<K> newlyMatched=res.matched.subList(lastMultimatchedMatchedStartIndex,res.matched.size());
-    res.multimatches.add(new Match<>(newlyMatched,res.value,lastMultimatchedOriginalStartIndex,res.end));
+    res.multimatches.add(new Match<K,V>(newlyMatched,res.value,lastMultimatchedOriginalStartIndex,res.end));
     res.cost+=costFunction.multiMatchDeltaCost(newlyMatched,res.value,multimatches,res.multimatches);
     res.lastMultimatchedMatchedStartIndex=res.matched.size();
     res.lastMultimatchedOriginalStartIndex=res.end;

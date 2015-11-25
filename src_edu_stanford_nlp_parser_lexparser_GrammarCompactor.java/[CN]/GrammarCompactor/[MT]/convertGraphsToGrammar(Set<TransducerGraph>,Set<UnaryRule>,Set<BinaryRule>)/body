@@ -1,5 +1,5 @@
 {
-  newStateIndex=new HashIndex<>();
+  newStateIndex=new HashIndex<String>();
   for (  UnaryRule rule : unaryRules) {
     String parent=stateIndex.get(rule.parent);
     rule.parent=newStateIndex.addToIndex(parent);
@@ -48,7 +48,7 @@
       }
     }
   }
-  ClassicCounter<String> symbolCounter=new ClassicCounter<>();
+  ClassicCounter<String> symbolCounter=new ClassicCounter<String>();
   if (outputType == RAW_COUNTS) {
     for (    UnaryRule rule : unaryRules) {
       symbolCounter.incrementCount(newStateIndex.get(rule.parent),rule.score);
@@ -83,5 +83,5 @@
   }
   ug.purgeRules();
   bg.splitRules();
-  return new Pair<>(ug,bg);
+  return new Pair<UnaryGrammar,BinaryGrammar>(ug,bg);
 }

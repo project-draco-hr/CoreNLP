@@ -1,14 +1,14 @@
 {
-  KNNClassifier<K,V> classifier=new KNNClassifier<>(k,weightedVotes,l2NormalizeVectors);
-  Collection<RVFDatum<K,V>> instances=new ArrayList<>();
+  KNNClassifier<K,V> classifier=new KNNClassifier<K,V>(k,weightedVotes,l2NormalizeVectors);
+  Collection<RVFDatum<K,V>> instances=new ArrayList<RVFDatum<K,V>>();
   for (  Counter<V> vector : vectors) {
     K label=labelMap.get(vector);
     RVFDatum<K,V> datum;
     if (l2NormalizeVectors) {
-      datum=new RVFDatum<>(Counters.L2Normalize(new ClassicCounter<>(vector)),label);
+      datum=new RVFDatum<K,V>(Counters.L2Normalize(new ClassicCounter<V>(vector)),label);
     }
  else {
-      datum=new RVFDatum<>(vector,label);
+      datum=new RVFDatum<K,V>(vector,label);
     }
     instances.add(datum);
   }

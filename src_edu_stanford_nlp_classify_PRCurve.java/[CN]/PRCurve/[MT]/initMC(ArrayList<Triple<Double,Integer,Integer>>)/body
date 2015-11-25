@@ -1,13 +1,13 @@
 {
-  PriorityQueue<Pair<Integer,Triple<Double,Integer,Integer>>> q=new BinaryHeapPriorityQueue<>();
+  PriorityQueue<Pair<Integer,Triple<Double,Integer,Integer>>> q=new BinaryHeapPriorityQueue<Pair<Integer,Triple<Double,Integer,Integer>>>();
   for (int i=0; i < dataScores.size(); i++) {
-    q.add(new Pair<>(Integer.valueOf(i),dataScores.get(i)),-dataScores.get(i).first().doubleValue());
+    q.add(new Pair<Integer,Triple<Double,Integer,Integer>>(Integer.valueOf(i),dataScores.get(i)),-dataScores.get(i).first().doubleValue());
   }
   List<Pair<Integer,Triple<Double,Integer,Integer>>> sorted=q.toSortedList();
   scores=new double[sorted.size()];
   classes=new int[sorted.size()];
   guesses=new int[sorted.size()];
-  logger.info("incoming size " + dataScores.size() + " resulting "+ sorted.size());
+  Logging.logger(this.getClass()).info("incoming size " + dataScores.size() + " resulting "+ sorted.size());
   for (int i=0; i < sorted.size(); i++) {
     Triple<Double,Integer,Integer> next=sorted.get(i).second();
     scores[i]=next.first().doubleValue();

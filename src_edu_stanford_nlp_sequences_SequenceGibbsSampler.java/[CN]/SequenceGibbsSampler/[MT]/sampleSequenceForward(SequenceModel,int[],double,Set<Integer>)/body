@@ -12,13 +12,13 @@
       }
     }
  else     if (samplingStyle == RANDOM_SAMPLING) {
-      for (      int aSequence : sequence) {
+      for (int itr=0; itr < sequence.length; itr++) {
         int pos=random.nextInt(sequence.length);
         returnScore=samplePosition(model,sequence,pos,temperature);
       }
     }
  else     if (samplingStyle == CHROMATIC_SAMPLING) {
-      List<Pair<Integer,Integer>> results=new ArrayList<>();
+      List<Pair<Integer,Integer>> results=new ArrayList<Pair<Integer,Integer>>();
       for (      List<Integer> indieList : partition) {
         if (indieList.size() <= chromaticSize) {
           for (          int pos : indieList) {
@@ -27,13 +27,13 @@
           }
         }
  else {
-          MulticoreWrapper<List<Integer>,List<Pair<Integer,Integer>>> wrapper=new MulticoreWrapper<>(chromaticSize,new ThreadsafeProcessor<List<Integer>,List<Pair<Integer,Integer>>>(){
+          MulticoreWrapper<List<Integer>,List<Pair<Integer,Integer>>> wrapper=new MulticoreWrapper<List<Integer>,List<Pair<Integer,Integer>>>(chromaticSize,new ThreadsafeProcessor<List<Integer>,List<Pair<Integer,Integer>>>(){
             @Override public List<Pair<Integer,Integer>> process(            List<Integer> posList){
-              List<Pair<Integer,Integer>> allPos=new ArrayList<>(posList.size());
+              List<Pair<Integer,Integer>> allPos=new ArrayList<Pair<Integer,Integer>>(posList.size());
               Pair<Integer,Double> newPosProb=null;
               for (              int pos : posList) {
                 newPosProb=samplePositionHelper(model,sequence,pos,temperature);
-                allPos.add(new Pair<>(pos,newPosProb.first()));
+                allPos.add(new Pair<Integer,Integer>(pos,newPosProb.first()));
               }
               return allPos;
             }

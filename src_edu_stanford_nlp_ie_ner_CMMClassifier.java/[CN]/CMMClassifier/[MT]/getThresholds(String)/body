@@ -1,22 +1,18 @@
 {
-  BufferedReader in=null;
   try {
-    in=IOUtils.readerFromString(filename);
+    BufferedReader in=IOUtils.readerFromString(filename);
     List<Pair<Pattern,Integer>> thresholds=new ArrayList<>();
     for (String line; (line=in.readLine()) != null; ) {
       int i=line.lastIndexOf(' ');
       Pattern p=Pattern.compile(line.substring(0,i));
       Integer t=Integer.valueOf(line.substring(i + 1));
-      Pair<Pattern,Integer> pair=new Pair<>(p,t);
+      Pair<Pattern,Integer> pair=new Pair<Pattern,Integer>(p,t);
       thresholds.add(pair);
     }
     in.close();
     return thresholds;
   }
- catch (  IOException e) {
-    throw new RuntimeIOException("Error reading threshold file",e);
-  }
- finally {
-    IOUtils.closeIgnoringExceptions(in);
+ catch (  Exception e) {
+    throw new RuntimeException("Error reading threshold file",e);
   }
 }

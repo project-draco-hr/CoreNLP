@@ -13,12 +13,12 @@
   Document<Object,Word,Word> doc;
   try {
     if (urlOrFile.startsWith("http://") || urlOrFile.endsWith(".htm") || urlOrFile.endsWith(".html")) {
-      Document<Object,Word,Word> docPre=new BasicDocument<>().init(new URL(urlOrFile));
-      DocumentProcessor<Word,Word,Object,Word> noTags=new StripTagsProcessor<>();
+      Document<Object,Word,Word> docPre=new BasicDocument<Object>().init(new URL(urlOrFile));
+      DocumentProcessor<Word,Word,Object,Word> noTags=new StripTagsProcessor<Object,Word>();
       doc=noTags.processDocument(docPre);
     }
  else {
-      doc=new BasicDocument<>(this.getTokenizerFactory()).init(new InputStreamReader(new FileInputStream(filename),encoding));
+      doc=new BasicDocument<Object>(this.getTokenizerFactory()).init(new InputStreamReader(new FileInputStream(filename),encoding));
     }
   }
  catch (  Exception e) {
@@ -28,11 +28,11 @@
     return;
   }
   StringBuilder docStr=new StringBuilder();
-  for (  Word aDoc : doc) {
+  for (Iterator<?> it=doc.iterator(); it.hasNext(); ) {
     if (docStr.length() > 0) {
       docStr.append(' ');
     }
-    docStr.append(aDoc.toString());
+    docStr.append(it.next().toString());
   }
   textPane.setText(docStr.toString());
   dataFileLabel.setText(urlOrFile);

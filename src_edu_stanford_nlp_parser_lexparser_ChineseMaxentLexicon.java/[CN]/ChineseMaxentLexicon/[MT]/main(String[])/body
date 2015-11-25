@@ -8,14 +8,14 @@
   Treebank trainTreebank=tlpParams.memoryTreebank();
   trainTreebank.loadPath(args[0],trainFilter);
   System.err.println("Annotating trees...");
-  Collection<Tree> trainTrees=new ArrayList<>();
+  Collection<Tree> trainTrees=new ArrayList<Tree>();
   for (  Tree tree : trainTreebank) {
     trainTrees.add(ta.transformTree(tree));
   }
   trainTreebank=null;
   System.err.println("Training lexicon...");
-  Index<String> wordIndex=new HashIndex<>();
-  Index<String> tagIndex=new HashIndex<>();
+  Index<String> wordIndex=new HashIndex<String>();
+  Index<String> tagIndex=new HashIndex<String>();
   int featureLevel=DEFAULT_FEATURE_LEVEL;
   if (args.length > 3) {
     featureLevel=Integer.parseInt(args[3]);
@@ -28,7 +28,7 @@
   FileFilter testFilter=new NumberRangesFileFilter(args[2],true);
   Treebank testTreebank=tlpParams.memoryTreebank();
   testTreebank.loadPath(args[0],testFilter);
-  List<TaggedWord> testWords=new ArrayList<>();
+  List<TaggedWord> testWords=new ArrayList<TaggedWord>();
   for (  Tree t : testTreebank) {
     for (    TaggedWord tw : t.taggedYield()) {
       testWords.add(tw);

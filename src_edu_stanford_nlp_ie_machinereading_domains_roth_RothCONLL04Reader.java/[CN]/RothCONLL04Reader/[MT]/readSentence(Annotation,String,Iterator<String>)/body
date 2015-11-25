@@ -1,13 +1,13 @@
 {
   Annotation sentence=new Annotation("");
   sentence.set(CoreAnnotations.DocIDAnnotation.class,docId);
-  sentence.set(MachineReadingAnnotations.EntityMentionsAnnotation.class,new ArrayList<>());
+  sentence.set(MachineReadingAnnotations.EntityMentionsAnnotation.class,new ArrayList<EntityMention>());
   StringBuilder textContent=new StringBuilder();
   int tokenCount=0;
-  List<CoreLabel> tokens=new ArrayList<>();
+  List<CoreLabel> tokens=new ArrayList<CoreLabel>();
   int numBlankLinesSeen=0;
   String sentenceID=null;
-  Map<String,EntityMention> indexToEntityMention=new HashMap<>();
+  Map<String,EntityMention> indexToEntityMention=new HashMap<String,EntityMention>();
   while (lineIterator.hasNext() && numBlankLinesSeen < 2) {
     String currentLine=lineIterator.next();
     currentLine=currentLine.replace("COMMA",",");
@@ -20,7 +20,7 @@ case 1:
     break;
 case 3:
   String type=pieces.get(2);
-List<ExtractionObject> args=new ArrayList<>();
+List<ExtractionObject> args=new ArrayList<ExtractionObject>();
 EntityMention entity1=indexToEntityMention.get(pieces.get(0));
 EntityMention entity2=indexToEntityMention.get(pieces.get(1));
 args.add(entity1);

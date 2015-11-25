@@ -4,7 +4,7 @@
     annotation.set(CoreAnnotations.NumerizedTokensAnnotation.class,mergedNumbers);
   }
   List<? extends MatchedExpression> matchedExpressions=expressionExtractor.extractExpressions(annotation);
-  List<TimeExpression> timeExpressions=new ArrayList<>(matchedExpressions.size());
+  List<TimeExpression> timeExpressions=new ArrayList<TimeExpression>(matchedExpressions.size());
   for (  MatchedExpression expr : matchedExpressions) {
     TimeExpression annoTe=expr.getAnnotation().get(TimeExpression.Annotation.class);
     if (annoTe != null) {
@@ -18,9 +18,11 @@
     }
   }
   if (refDate == null)   refDate=timeIndex.docDate;
-  resolveTimeExpressions(annotation,timeExpressions,refDate);
+  if (timeExpressions != null) {
+    resolveTimeExpressions(annotation,timeExpressions,refDate);
+  }
   if (options.restrictToTimex3) {
-    List<TimeExpression> kept=new ArrayList<>(timeExpressions.size());
+    List<TimeExpression> kept=new ArrayList<TimeExpression>(timeExpressions.size());
     for (    TimeExpression te : timeExpressions) {
       if (te.getTemporal() != null && te.getTemporal().getTimexValue() != null) {
         kept.add(te);
@@ -43,7 +45,7 @@
     timeExpressions=kept;
   }
   if (options.includeNested) {
-    List<TimeExpression> nestedTimeExpressions=new ArrayList<>();
+    List<TimeExpression> nestedTimeExpressions=new ArrayList<TimeExpression>();
     for (    TimeExpression te : timeExpressions) {
       if (te.isIncludeNested()) {
         List<? extends CoreMap> children=te.getAnnotation().get(TimeExpression.ChildrenAnnotation.class);
@@ -61,6 +63,8 @@
     timeExpressions.addAll(nestedTimeExpressions);
   }
   Collections.sort(timeExpressions,MatchedExpression.EXPR_TOKEN_OFFSETS_NESTED_FIRST_COMPARATOR);
-  resolveTimeExpressions(annotation,timeExpressions,refDate);
+  if (timeExpressions != null) {
+    resolveTimeExpressions(annotation,timeExpressions,refDate);
+  }
   return timeExpressions;
 }
