@@ -41,7 +41,7 @@
           scores=Scorer.recenter(scores);
           bgScore+=scores[bgTag];
         }
-        ClassicCounter<Pair<Integer,Integer>> prevScores=new ClassicCounter<>();
+        ClassicCounter<Pair<Integer,Integer>> prevScores=new ClassicCounter<Pair<Integer,Integer>>();
         for (j=start; j < end; j++) {
           for (int k=start; k < end; k++) {
             copy[k]=bgTag;
@@ -54,16 +54,16 @@
               scores=Scorer.recenter(scores);
               ngScore+=scores[tags[m]];
             }
-            prevScores.incrementCount(new Pair<>(Integer.valueOf(j),Integer.valueOf(k)),ngScore - bgScore);
+            prevScores.incrementCount(new Pair<Integer,Integer>(Integer.valueOf(j),Integer.valueOf(k)),ngScore - bgScore);
           }
         }
         for (j=start; j < end; j++) {
           for (int k=j; k < end; k++) {
-            double score=prevScores.getCount(new Pair<>(Integer.valueOf(j),Integer.valueOf(k)));
-            Pair<Integer,Integer> al=new Pair<>(Integer.valueOf(j - 1),Integer.valueOf(k));
-            Pair<Integer,Integer> ar=new Pair<>(Integer.valueOf(j),Integer.valueOf(k + 1));
-            Pair<Integer,Integer> sl=new Pair<>(Integer.valueOf(j + 1),Integer.valueOf(k));
-            Pair<Integer,Integer> sr=new Pair<>(Integer.valueOf(j),Integer.valueOf(k - 1));
+            double score=prevScores.getCount(new Pair<Integer,Integer>(Integer.valueOf(j),Integer.valueOf(k)));
+            Pair<Integer,Integer> al=new Pair<Integer,Integer>(Integer.valueOf(j - 1),Integer.valueOf(k));
+            Pair<Integer,Integer> ar=new Pair<Integer,Integer>(Integer.valueOf(j),Integer.valueOf(k + 1));
+            Pair<Integer,Integer> sl=new Pair<Integer,Integer>(Integer.valueOf(j + 1),Integer.valueOf(k));
+            Pair<Integer,Integer> sr=new Pair<Integer,Integer>(Integer.valueOf(j),Integer.valueOf(k - 1));
             if (score >= flags.newgeneThreshold && (!prevScores.containsKey(al) || score > prevScores.getCount(al)) && (!prevScores.containsKey(ar) || score > prevScores.getCount(ar)) && (!prevScores.containsKey(sl) || score > prevScores.getCount(sl)) && (!prevScores.containsKey(sr) || score > prevScores.getCount(sr))) {
               StringBuilder sb=new StringBuilder();
               wordInfo=document.get(j);

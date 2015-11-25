@@ -4,13 +4,13 @@
   Map<L,Classifier<String,F>> classifiers=Generics.newHashMap();
   for (  L label : trainLabels) {
     int i=labelIndex.indexOf(label);
-    logger.info("Training " + label + "="+ i+ ", posIndex="+ posIndex);
-    Map<L,String> posLabelMap=new ArrayMap<>();
+    Logging.logger(OneVsAllClassifier.class).info("Training " + label + "="+ i+ ", posIndex="+ posIndex);
+    Map<L,String> posLabelMap=new ArrayMap<L,String>();
     posLabelMap.put(label,POS_LABEL);
     GeneralDataset<String,F> binaryDataset=dataset.<String>mapDataset(dataset,binaryIndex,posLabelMap,NEG_LABEL);
     Classifier<String,F> binaryClassifier=classifierFactory.trainClassifier(binaryDataset);
     classifiers.put(label,binaryClassifier);
   }
-  OneVsAllClassifier<L,F> classifier=new OneVsAllClassifier<>(featureIndex,labelIndex,classifiers);
+  OneVsAllClassifier<L,F> classifier=new OneVsAllClassifier<L,F>(featureIndex,labelIndex,classifiers);
   return classifier;
 }

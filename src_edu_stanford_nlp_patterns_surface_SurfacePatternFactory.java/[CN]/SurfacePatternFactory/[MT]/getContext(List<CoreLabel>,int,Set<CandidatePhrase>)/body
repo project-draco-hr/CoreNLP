@@ -1,7 +1,7 @@
 {
-  Set<SurfacePattern> prevpatterns=new HashSet<>();
-  Set<SurfacePattern> nextpatterns=new HashSet<>();
-  Set<SurfacePattern> prevnextpatterns=new HashSet<>();
+  Set<SurfacePattern> prevpatterns=new HashSet<SurfacePattern>();
+  Set<SurfacePattern> nextpatterns=new HashSet<SurfacePattern>();
+  Set<SurfacePattern> prevnextpatterns=new HashSet<SurfacePattern>();
   CoreLabel token=sent.get(i);
   String tag=null;
   if (usePOS4Pattern) {
@@ -11,9 +11,9 @@
   }
   String nerTag=token.get(CoreAnnotations.NamedEntityTagAnnotation.class);
   for (int maxWin=1; maxWin <= maxWindow4Pattern; maxWin++) {
-    List<Token> previousTokens=new ArrayList<>();
-    List<String> originalPrev=new ArrayList<>(), originalNext=new ArrayList<>();
-    List<Token> nextTokens=new ArrayList<>();
+    List<Token> previousTokens=new ArrayList<Token>();
+    List<String> originalPrev=new ArrayList<String>(), originalNext=new ArrayList<String>();
+    List<Token> nextTokens=new ArrayList<Token>();
     int numStopWordsprev=0, numStopWordsnext=0;
     int numNonStopWordsNext=0, numNonStopWordsPrev=0;
     boolean useprev=false, usenext=false;
@@ -107,8 +107,8 @@
     }
     Token[] prevContext=null;
     if (previousTokens.size() >= minWindow4Pattern && (numNonStopWordsPrev > 0 || numStopWordsprev > numMinStopWordsToAdd)) {
-      List<Token> prevContextList=new ArrayList<>();
-      List<String> prevOriginal=new ArrayList<>();
+      List<Token> prevContextList=new ArrayList<Token>();
+      List<String> prevOriginal=new ArrayList<String>();
       for (      Token p : previousTokens) {
         prevContextList.add(p);
         if (!fw.isEmpty())         prevContextList.add(fw);
@@ -138,8 +138,8 @@
     }
     Token[] nextContext=null;
     if (nextTokens.size() > 0 && (numNonStopWordsNext > 0 || numStopWordsnext > numMinStopWordsToAdd)) {
-      List<Token> nextContextList=new ArrayList<>();
-      List<String> nextOriginal=new ArrayList<>();
+      List<Token> nextContextList=new ArrayList<Token>();
+      List<String> nextOriginal=new ArrayList<String>();
       if (!sw.isEmpty()) {
         nextContextList.add(sw);
         nextOriginal.add(" SW ");

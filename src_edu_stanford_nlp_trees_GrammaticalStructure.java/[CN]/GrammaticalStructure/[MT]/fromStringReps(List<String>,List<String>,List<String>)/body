@@ -2,11 +2,11 @@
   if (tokens.size() != posTags.size()) {
     throw new RuntimeException(String.format("tokens.size(): %d != pos.size(): %d%n",tokens.size(),posTags.size()));
   }
-  List<TreeGraphNode> tgWordNodes=new ArrayList<>(tokens.size());
-  List<TreeGraphNode> tgPOSNodes=new ArrayList<>(tokens.size());
+  List<TreeGraphNode> tgWordNodes=new ArrayList<TreeGraphNode>(tokens.size());
+  List<TreeGraphNode> tgPOSNodes=new ArrayList<TreeGraphNode>(tokens.size());
   CoreLabel rootLabel=new CoreLabel();
   rootLabel.setValue("ROOT");
-  List<IndexedWord> nodeWords=new ArrayList<>(tgPOSNodes.size() + 1);
+  List<IndexedWord> nodeWords=new ArrayList<IndexedWord>(tgPOSNodes.size() + 1);
   nodeWords.add(new IndexedWord(rootLabel));
   UniversalSemanticHeadFinder headFinder=new UniversalSemanticHeadFinder();
   Iterator<String> posIter=posTags.iterator();
@@ -32,7 +32,7 @@
   TreeGraphNode root=new TreeGraphNode(rootLabel);
   root.setChildren(tgPOSNodes.toArray(new TreeGraphNode[tgPOSNodes.size()]));
   root.setIndex(0);
-  List<TypedDependency> tdeps=new ArrayList<>(deps.size());
+  List<TypedDependency> tdeps=new ArrayList<TypedDependency>(deps.size());
   for (  String depString : deps) {
     int firstBracket=depString.indexOf('(');
     if (firstBracket == -1)     throwDepFormatException(depString);

@@ -17,25 +17,22 @@
  else   if (qn != null) {
     noHistory=false;
   }
-  double[] x, newX, rawGrad, grad, newGrad, dir;
+  double[] x, newX, grad, newGrad, dir;
   double value;
   its=0;
   fevals=0;
   success=false;
   qn.scaleOpt=scaleOpt;
   x=initial;
-  rawGrad=new double[x.length];
+  grad=new double[x.length];
   newGrad=new double[x.length];
   newX=new double[x.length];
   dir=new double[x.length];
-  value=evaluateFunction(dFunction,x,rawGrad);
+  value=evaluateFunction(dFunction,x,grad);
   if (useOWLQN) {
     double norm=l1NormOWL(x,dFunction);
     value+=norm * lambdaOWL;
-    grad=pseudoGradientOWL(x,rawGrad,dFunction);
-  }
- else {
-    grad=rawGrad;
+    grad=pseudoGradientOWL(x,grad,dFunction);
   }
   PrintWriter outFile=null;
   PrintWriter infoFile=null;
@@ -52,7 +49,7 @@
     }
   }
   Record rec=new Record(quiet,monitor,functionTolerance,outFile);
-  rec.start(value,rawGrad,x);
+  rec.start(value,grad,x);
   maxFevals=(maxFunctionEvaluations > 0) ? maxFunctionEvaluations : Integer.MAX_VALUE;
   sayln("               An explanation of the output:");
   sayln("Iter           The number of iterations");
@@ -120,9 +117,8 @@ say(" ");
 say(nf.format(newPoint[a]));
 say("] ");
 System.arraycopy(dFunction.derivativeAt(newX),0,newGrad,0,newGrad.length);
-qn.update(newX,x,newGrad,rawGrad,newPoint[a]);
+qn.update(newX,x,newGrad,grad,newPoint[a]);
 if (useOWLQN) {
-System.arraycopy(newGrad,0,rawGrad,0,newGrad.length);
 newGrad=pseudoGradientOWL(newX,newGrad,dFunction);
 }
 double evalScore=Double.NEGATIVE_INFINITY;

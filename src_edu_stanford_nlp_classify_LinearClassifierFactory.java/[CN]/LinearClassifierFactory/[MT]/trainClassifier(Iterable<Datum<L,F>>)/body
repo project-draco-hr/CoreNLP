@@ -6,10 +6,10 @@
     labelIndex.add(d.label());
     featureIndex.addAll(d.asFeatures());
   }
-  logger.info(String.format("Training linear classifier with %d features and %d labels",featureIndex.size(),labelIndex.size()));
-  LogConditionalObjectiveFunction<L,F> objective=new LogConditionalObjectiveFunction<>(dataIterable,logPrior,featureIndex,labelIndex);
+  Logging.logger(this.getClass()).info(String.format("Training linear classifier with %d features and %d labels",featureIndex.size(),labelIndex.size()));
+  LogConditionalObjectiveFunction<L,F> objective=new LogConditionalObjectiveFunction<L,F>(dataIterable,logPrior,featureIndex,labelIndex);
   double[] initial=objective.initial();
   double[] weights=minimizer.minimize(objective,TOL,initial);
-  LinearClassifier<L,F> classifier=new LinearClassifier<>(objective.to2D(weights),featureIndex,labelIndex);
+  LinearClassifier<L,F> classifier=new LinearClassifier<L,F>(objective.to2D(weights),featureIndex,labelIndex);
   return classifier;
 }

@@ -6,14 +6,14 @@
   @SuppressWarnings("MismatchedQueryAndUpdateOfCollection") List<Span> subjectSpans=new ArrayList<>();
   NEXTNODE:   for (  IndexedWord head : depparse.topologicalSort()) {
     if (head.tag().startsWith("N") || head.tag().equals("PRP")) {
-      Optional<List<IndexedWord>> subjectChunk=segmenter.getValidChunk(depparse,head,segmenter.VALID_SUBJECT_ARCS,Optional.empty(),true);
+      Optional<List<CoreLabel>> subjectChunk=segmenter.getValidChunk(depparse,head,segmenter.VALID_SUBJECT_ARCS,Optional.empty(),true);
       if (subjectChunk.isPresent()) {
-        for (        IndexedWord tok : subjectChunk.get()) {
+        for (        CoreLabel tok : subjectChunk.get()) {
           if (consumedAsSubjects.get(tok.index())) {
             continue NEXTNODE;
           }
         }
-        for (        IndexedWord tok : subjectChunk.get()) {
+        for (        CoreLabel tok : subjectChunk.get()) {
           consumedAsSubjects.set(tok.index());
         }
         subjectSpans.add(toSpan(subjectChunk.get()));

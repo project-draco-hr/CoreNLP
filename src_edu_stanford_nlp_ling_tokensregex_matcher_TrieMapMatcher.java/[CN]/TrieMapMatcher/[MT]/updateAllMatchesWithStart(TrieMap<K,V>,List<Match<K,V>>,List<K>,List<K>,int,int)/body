@@ -4,13 +4,13 @@
     K key=list.get(start);
     TrieMap<K,V> child=trie.children.get(key);
     if (child != null) {
-      List<K> p=new ArrayList<>(matched.size() + 1);
+      List<K> p=new ArrayList<K>(matched.size() + 1);
       p.addAll(matched);
       p.add(key);
       updateAllMatchesWithStart(child,matches,p,list,start + 1,end);
     }
   }
   if (trie.isLeaf()) {
-    matches.add(new Match<>(matched,trie.value,start - matched.size(),start));
+    matches.add(new Match<K,V>(matched,trie.value,start - matched.size(),start));
   }
 }

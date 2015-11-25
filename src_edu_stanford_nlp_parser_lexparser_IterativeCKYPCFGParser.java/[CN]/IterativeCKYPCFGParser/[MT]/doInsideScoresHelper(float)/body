@@ -25,7 +25,8 @@
           continue;
         }
         BinaryRule[] leftRules=bg.splitRulesWithLC(leftState);
-        for (        BinaryRule r : leftRules) {
+        for (int i=0; i < leftRules.length; i++) {
+          BinaryRule r=leftRules[i];
           int narrowL=narrowLExtent[end][r.rightChild];
           boolean iPossibleR=(narrowL >= narrowR);
           if (!iPossibleR) {
@@ -157,7 +158,8 @@
           continue;
         }
         BinaryRule[] rightRules=bg.splitRulesWithRC(rightState);
-        for (        BinaryRule r : rightRules) {
+        for (int i=0; i < rightRules.length; i++) {
+          BinaryRule r=rightRules[i];
           int narrowR=narrowRExtent[start][r.leftChild];
           boolean iPossibleL=(narrowR <= narrowL);
           if (!iPossibleL) {
@@ -291,7 +293,8 @@
           continue;
         }
         UnaryRule[] unaries=ug.closedRulesByChild(state);
-        for (        UnaryRule ur : unaries) {
+        for (int r=0; r < unaries.length; r++) {
+          UnaryRule ur=unaries[r];
           if (getConstraints() != null) {
             boolean skip=false;
             for (            ParserConstraint c : getConstraints()) {

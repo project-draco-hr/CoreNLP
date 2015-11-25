@@ -1,19 +1,14 @@
 {
-  if (addMissingAnnotations) {
-    boolean useConstituency=CorefProperties.useConstituencyTree(props);
-    final boolean LEMMATIZE=true;
-    List<CoreMap> sentences=anno.get(CoreAnnotations.SentencesAnnotation.class);
-    for (    CoreMap sentence : sentences) {
-      boolean hasTree=sentence.containsKey(TreeCoreAnnotations.TreeAnnotation.class);
-      Tree tree=sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
-      if (!useConstituency) {
-        sentence.remove(TreeCoreAnnotations.TreeAnnotation.class);
-      }
-      if (LEMMATIZE && hasTree && useConstituency)       treeLemmatizer.transformTree(tree);
+  boolean useConstituency=CorefProperties.useConstituencyTree(props);
+  final boolean LEMMATIZE=true;
+  List<CoreMap> sentences=anno.get(CoreAnnotations.SentencesAnnotation.class);
+  for (  CoreMap sentence : sentences) {
+    boolean hasTree=sentence.containsKey(TreeCoreAnnotations.TreeAnnotation.class);
+    Tree tree=sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+    if (!useConstituency) {
+      sentence.remove(TreeCoreAnnotations.TreeAnnotation.class);
     }
-    corenlp.annotate(anno);
+    if (LEMMATIZE && hasTree && useConstituency)     treeLemmatizer.transformTree(tree);
   }
- else {
-    throw new RuntimeException("Error: must set coref.addMissingAnnotations = true to call method addMissingAnnotation");
-  }
+  corenlp.annotate(anno);
 }

@@ -1,5 +1,5 @@
 {
-  List<Pair<IntTuple,IntTuple>> links=new ArrayList<>();
+  List<Pair<IntTuple,IntTuple>> links=new ArrayList<Pair<IntTuple,IntTuple>>();
   Map<Integer,IntTuple> positions=Generics.newHashMap();
   Map<Integer,List<IntTuple>> antecedents=Generics.newHashMap();
   for (int i=0; i < goldMentions.size(); i++) {
@@ -10,7 +10,7 @@
       pos.set(0,i);
       pos.set(1,j);
       positions.put(id,pos);
-      antecedents.put(id,new ArrayList<>());
+      antecedents.put(id,new ArrayList<IntTuple>());
     }
   }
   for (  List<Mention> mentions : goldMentions) {
@@ -38,20 +38,20 @@
             IntTuple missed=new IntTuple(2);
             missed.set(0,k);
             missed.set(1,l);
-            if (links.contains(new Pair<>(missed,dst))) {
+            if (links.contains(new Pair<IntTuple,IntTuple>(missed,dst))) {
               antecedents.get(id).add(missed);
-              links.add(new Pair<>(src,missed));
+              links.add(new Pair<IntTuple,IntTuple>(src,missed));
             }
           }
         }
-        links.add(new Pair<>(src,dst));
+        links.add(new Pair<IntTuple,IntTuple>(src,dst));
         assert(antecedents.get(id) != null);
         antecedents.get(id).add(dst);
         List<IntTuple> ants=antecedents.get(m.originalRef);
         assert(ants != null);
         for (        IntTuple ant : ants) {
           antecedents.get(id).add(ant);
-          links.add(new Pair<>(src,ant));
+          links.add(new Pair<IntTuple,IntTuple>(src,ant));
         }
       }
     }

@@ -11,10 +11,10 @@
  else {
     plainTextReaderAndWriter=makePlainTextReaderAndWriter();
   }
-  if (knownLCWords == null || knownLCWords.isEmpty()) {
-    knownLCWords=new MaxSizeConcurrentHashSet<>(flags.maxAdditionalKnownLCWords);
+  if (!flags.useKnownLCWords) {
+    knownLCWords=Collections.emptySet();
   }
- else {
-    knownLCWords.setMaxSize(knownLCWords.size() + flags.maxAdditionalKnownLCWords);
+ else   if (knownLCWords == null || knownLCWords.isEmpty()) {
+    knownLCWords=Collections.newSetFromMap(new ConcurrentHashMap<String,Boolean>());
   }
 }

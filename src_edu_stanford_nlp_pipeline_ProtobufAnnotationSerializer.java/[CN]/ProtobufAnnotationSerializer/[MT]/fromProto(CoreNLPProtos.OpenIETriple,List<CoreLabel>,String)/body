@@ -1,2 +1,13 @@
 {
+  List<CoreLabel> subject=sentence.subList(proto.getSubjectSpan().getBegin(),proto.getSubjectSpan().getEnd());
+  List<CoreLabel> relation=sentence.subList(proto.getRelationSpan().getBegin(),proto.getRelationSpan().getEnd());
+  List<CoreLabel> object=sentence.subList(proto.getRelationSpan().getBegin(),proto.getRelationSpan().getEnd());
+  double confidence=proto.getConfidence();
+  if (proto.hasTree()) {
+    SemanticGraph tree=fromProto(proto.getTree(),sentence,docid);
+    return new RelationTriple.WithTree(subject,relation,object,tree,confidence);
+  }
+ else {
+    return new RelationTriple(subject,relation,object,confidence);
+  }
 }
