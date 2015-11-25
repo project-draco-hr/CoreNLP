@@ -19,7 +19,7 @@
   for (int i=0; i < origSieves.length; i++) {
     remainingSieveIndices.add(i);
   }
-  List<Integer> optimizedOrdering=new ArrayList<Integer>();
+  List<Integer> optimizedOrdering=new ArrayList<>();
   while (!remainingSieveIndices.isEmpty()) {
     int curSievesNumber=optimizedOrdering.size();
     sieves=new DeterministicCorefSieve[curSievesNumber + 1];
@@ -29,7 +29,7 @@
       sieveClassNames[i]=origSieveNames[optimizedOrdering.get(i)];
     }
     logger.info("*** Optimizing Sieve ordering for pass " + curSievesNumber + " ***");
-    Set<Integer> selectableSieveIndices=new TreeSet<Integer>(remainingSieveIndices);
+    Set<Integer> selectableSieveIndices=new TreeSet<>(remainingSieveIndices);
     if (sievesKeepOrder != null) {
       for (      Pair<Integer,Integer> ko : sievesKeepOrder) {
         if (ko.second() < 0) {
@@ -59,7 +59,7 @@
     }
     int selected=-1;
     if (selectableSieveIndices.size() > 1) {
-      List<Pair<Double,Integer>> scores=new ArrayList<Pair<Double,Integer>>();
+      List<Pair<Double,Integer>> scores=new ArrayList<>();
       if (runDistributedCmd != null) {
         String workDirPath=mainWorkDirPath + curSievesNumber + File.separator;
         File workDir=new File(workDirPath);
@@ -97,7 +97,7 @@
             int potentialSieveIndex=Integer.parseInt(m.group(2));
             String text=IOUtils.slurpFile(file);
             double score=Double.parseDouble(text);
-            scores.add(new Pair<Double,Integer>(score,potentialSieveIndex));
+            scores.add(new Pair<>(score,potentialSieveIndex));
           }
  else {
             throw new RuntimeException("Bad score file name: " + file);
@@ -111,7 +111,7 @@
           logger.info("Trying sieve " + curSievesNumber + "="+ sieveClassNames[curSievesNumber]+ ": ");
           logger.info(" Trying sieves: " + StringUtils.join(sieveClassNames,","));
           double score=runAndScoreCoref(this,mentionExtractor,props,timestamp);
-          scores.add(new Pair<Double,Integer>(score,potentialSieveIndex));
+          scores.add(new Pair<>(score,potentialSieveIndex));
           logger.info(" Trying sieves: " + StringUtils.join(sieveClassNames,","));
           logger.info(" Trying sieves score: " + score);
         }

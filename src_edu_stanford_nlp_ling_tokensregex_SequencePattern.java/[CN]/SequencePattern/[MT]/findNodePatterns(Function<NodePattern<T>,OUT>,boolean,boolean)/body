@@ -1,0 +1,29 @@
+{
+  List<OUT> outList=new ArrayList<>();
+  Queue<State> todo=new LinkedList<>();
+  Set<State> seen=new HashSet<>();
+  todo.add(root);
+  seen.add(root);
+  while (!todo.isEmpty()) {
+    State state=todo.poll();
+    if ((allowOptional || !state.isOptional) && (state instanceof NodePatternState)) {
+      NodePattern<T> pattern=((NodePatternState)state).pattern;
+      OUT res=filter.apply(pattern);
+      if (res != null) {
+        outList.add(res);
+      }
+    }
+    if (state.next != null) {
+      boolean addNext=allowBranching || state.next.size() == 1;
+      if (addNext) {
+        for (        State s : state.next) {
+          if (!seen.contains(s)) {
+            seen.add(s);
+            todo.add(s);
+          }
+        }
+      }
+    }
+  }
+  return outList;
+}

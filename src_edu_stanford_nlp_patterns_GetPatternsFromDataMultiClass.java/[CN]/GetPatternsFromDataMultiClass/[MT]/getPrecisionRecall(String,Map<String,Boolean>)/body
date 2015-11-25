@@ -5,7 +5,7 @@
   for (  Entry<String,Boolean> en : goldWords4Label.entrySet()) {
     if (en.getValue())     numgoldcorrect++;
   }
-  Set<String> assumedNeg=new HashSet<String>();
+  Set<String> assumedNeg=new HashSet<>();
   for (  CandidatePhrase e : learnedWords) {
     if (!goldWords4Label.containsKey(e.getPhrase())) {
       assumedNeg.add(e.getPhrase());
@@ -20,5 +20,5 @@
   if (!assumedNeg.isEmpty())   System.err.println("\nGold entity list does not contain words " + assumedNeg + " for label "+ label+ ". *****Assuming them as negative.******");
   double precision=numcorrect / (double)(numcorrect + numincorrect);
   double recall=numcorrect / (double)(numgoldcorrect);
-  return new Pair<Double,Double>(precision,recall);
+  return new Pair<>(precision,recall);
 }

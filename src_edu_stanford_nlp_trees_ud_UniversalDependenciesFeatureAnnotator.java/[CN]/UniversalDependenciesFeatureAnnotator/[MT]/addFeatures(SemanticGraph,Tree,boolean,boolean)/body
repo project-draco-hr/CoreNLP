@@ -1,0 +1,36 @@
+{
+  Set<Integer> imperatives=t != null ? getImperatives(t) : new HashSet<>();
+  for (  IndexedWord word : sg.vertexListSorted()) {
+    String posTag=word.get(CoreAnnotations.PartOfSpeechAnnotation.class);
+    String token=word.get(CoreAnnotations.TextAnnotation.class);
+    Integer index=word.get(CoreAnnotations.IndexAnnotation.class);
+    HashMap<String,String> wordFeatures=word.get(CoreAnnotations.CoNLLUFeats.class);
+    if (wordFeatures == null) {
+      wordFeatures=new HashMap<>();
+      word.set(CoreAnnotations.CoNLLUFeats.class,wordFeatures);
+    }
+    wordFeatures.putAll(getPOSFeatures(token,posTag));
+    wordFeatures.putAll(getGraphFeatures(sg,word));
+    if (imperatives.contains(index)) {
+      wordFeatures.put("VerbForm","Fin");
+      wordFeatures.put("Mood","Imp");
+    }
+ else     if (posTag.equals("VB")) {
+      wordFeatures.put("VerbForm","Inf");
+    }
+    String lemma=word.get(CoreAnnotations.LemmaAnnotation.class);
+    if (addLemma && (lemma == null || lemma.equals("_"))) {
+      word.set(CoreAnnotations.LemmaAnnotation.class,morphology.lemma(token,posTag));
+    }
+  }
+  if (addUPOS && t != null) {
+    t=UniversalPOSMapper.mapTree(t);
+    List<Label> uPOSTags=t.preTerminalYield();
+    List<IndexedWord> yield=sg.vertexListSorted();
+    int len=yield.size();
+    for (    IndexedWord word : yield) {
+      Label uPOSTag=uPOSTags.get(word.index() - 1);
+      word.set(CoreAnnotations.CoarseTagAnnotation.class,uPOSTag.value());
+    }
+  }
+}

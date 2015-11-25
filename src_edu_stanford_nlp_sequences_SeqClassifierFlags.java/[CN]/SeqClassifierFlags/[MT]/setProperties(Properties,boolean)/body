@@ -267,7 +267,7 @@
  else     if (key.equalsIgnoreCase("phraseGazettes")) {
       StringTokenizer st=new StringTokenizer(val," ,;\t");
       if (phraseGazettes == null) {
-        phraseGazettes=new ArrayList<String>();
+        phraseGazettes=new ArrayList<>();
       }
       while (st.hasMoreTokens()) {
         phraseGazettes.add(st.nextToken());
@@ -608,7 +608,7 @@
       useGazettes=true;
       StringTokenizer st=new StringTokenizer(val," ,;\t");
       if (gazettes == null) {
-        gazettes=new ArrayList<String>();
+        gazettes=new ArrayList<>();
       }
       while (st.hasMoreTokens()) {
         gazettes.add(st.nextToken());
@@ -750,14 +750,14 @@
         featureFactory=getFeatureFactory(val);
       }
       featureFactories=new String[numFactories];
-      featureFactoriesArgs=new ArrayList<Object[]>(numFactories);
+      featureFactoriesArgs=new ArrayList<>(numFactories);
       for (int i=0; i < numFactories; i++) {
         featureFactories[i]=getFeatureFactory(tokens[i]);
         featureFactoriesArgs.add(new Object[0]);
       }
     }
  else     if (key.equalsIgnoreCase("printXML")) {
-      printXML=Boolean.parseBoolean(val);
+      System.err.println("printXML is disused; perhaps try using the -outputFormat xml option.");
     }
  else     if (key.equalsIgnoreCase("useSeenFeaturesOnly")) {
       useSeenFeaturesOnly=Boolean.parseBoolean(val);
@@ -1990,7 +1990,8 @@
       useGEforSup=Boolean.parseBoolean(val);
     }
  else     if (key.equalsIgnoreCase("useKnownLCWords")) {
-      useKnownLCWords=Boolean.parseBoolean(val);
+      System.err.println("useKnownLCWords is deprecated; see maxAdditionalKnownLCWords (true = -1, false = 0");
+      maxAdditionalKnownLCWords=Boolean.parseBoolean(val) ? -1 : 0;
     }
  else     if (key.equalsIgnoreCase("useNoisyLabel")) {
       useNoisyLabel=Boolean.parseBoolean(val);

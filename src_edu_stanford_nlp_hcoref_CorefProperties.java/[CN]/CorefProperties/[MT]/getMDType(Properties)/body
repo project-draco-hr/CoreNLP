@@ -1,5 +1,15 @@
 {
-  String type=PropertiesUtils.getString(props,MD_TYPE_PROP,"RULE");
+  String defaultMD;
+  if (getLanguage(props).equals(Locale.ENGLISH)) {
+    defaultMD="DEPENDENCY";
+  }
+ else   if (getLanguage(props).equals(Locale.CHINESE)) {
+    defaultMD="RULE";
+  }
+ else {
+    defaultMD="RULE";
+  }
+  String type=PropertiesUtils.getString(props,MD_TYPE_PROP,defaultMD);
   if (type.equalsIgnoreCase("dep"))   type="DEPENDENCY";
   return MentionDetectionType.valueOf(type.toUpperCase());
 }

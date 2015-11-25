@@ -1,31 +1,31 @@
 {
-  List<CRFDatum<? extends Collection<String>,? extends CharSequence>> result=new ArrayList<CRFDatum<? extends Collection<String>,? extends CharSequence>>();
+  List<CRFDatum<? extends Collection<String>,? extends CharSequence>> result=new ArrayList<>();
   int beginContext=beginPosition - windowSize + 1;
   if (beginContext < 0) {
     beginContext=0;
   }
   for (int position=beginContext; position < beginPosition; position++) {
-    List<Collection<String>> cliqueFeatures=new ArrayList<Collection<String>>();
-    List<double[]> featureVals=new ArrayList<double[]>();
+    List<Collection<String>> cliqueFeatures=new ArrayList<>();
+    List<double[]> featureVals=new ArrayList<>();
     for (int i=0; i < windowSize; i++) {
       cliqueFeatures.add(Collections.<String>emptyList());
       featureVals.add(null);
     }
-    CRFDatum<Collection<String>,String> datum=new CRFDatum<Collection<String>,String>(cliqueFeatures,labeledWordInfos.get(position).get(CoreAnnotations.AnswerAnnotation.class),featureVals);
+    CRFDatum<Collection<String>,String> datum=new CRFDatum<>(cliqueFeatures,labeledWordInfos.get(position).get(CoreAnnotations.AnswerAnnotation.class),featureVals);
     result.add(datum);
   }
   for (int position=beginPosition; position <= endPosition; position++) {
-    List<Collection<String>> cliqueFeatures=new ArrayList<Collection<String>>();
-    List<double[]> featureVals=new ArrayList<double[]>();
+    List<Collection<String>> cliqueFeatures=new ArrayList<>();
+    List<double[]> featureVals=new ArrayList<>();
     for (int i=0; i < windowSize; i++) {
-      Collection<String> features=new ArrayList<String>();
+      Collection<String> features=new ArrayList<>();
       for (int j=0; j < allData[position][i].length; j++) {
         features.add(featureIndex.get(allData[position][i][j]));
       }
       cliqueFeatures.add(features);
       featureVals.add(null);
     }
-    CRFDatum<Collection<String>,String> datum=new CRFDatum<Collection<String>,String>(cliqueFeatures,labeledWordInfos.get(position).get(CoreAnnotations.AnswerAnnotation.class),featureVals);
+    CRFDatum<Collection<String>,String> datum=new CRFDatum<>(cliqueFeatures,labeledWordInfos.get(position).get(CoreAnnotations.AnswerAnnotation.class),featureVals);
     result.add(datum);
   }
   return result;

@@ -6,7 +6,7 @@
  else {
     Arrays.fill(derivative,0.0);
   }
-  Counter<Triple<Integer,Integer,Integer>> feature2classPairDerivatives=new ClassicCounter<Triple<Integer,Integer,Integer>>();
+  Counter<Triple<Integer,Integer,Integer>> feature2classPairDerivatives=new ClassicCounter<>();
   value=0.0;
   for (int n=0; n < geFeatures.size(); n++) {
     double[] modelDist=new double[numClasses];
@@ -30,7 +30,7 @@
         for (int c=0; c < numClasses; c++) {
           int wtIndex=indexOf(f,c);
           for (int cPrime=0; cPrime < numClasses; cPrime++) {
-            derivative[wtIndex]+=feature2classPairDerivatives.getCount(new Triple<Integer,Integer,Integer>(f,c,cPrime)) * geFeature2EmpiricalDist[n][cPrime] / modelDist[cPrime];
+            derivative[wtIndex]+=feature2classPairDerivatives.getCount(new Triple<>(f,c,cPrime)) * geFeature2EmpiricalDist[n][cPrime] / modelDist[cPrime];
           }
           derivative[wtIndex]/=activeData.size();
         }

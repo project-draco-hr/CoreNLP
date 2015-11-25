@@ -3,8 +3,8 @@
   double accuracySum=0.0;
   double macroF1Sum=0.0;
   for (int fold=0; fold < numFolds; fold++) {
-    Logging.logger(ColumnDataClassifier.class).info("");
-    Logging.logger(ColumnDataClassifier.class).info("### Fold " + fold);
+    logger.info("");
+    logger.info("### Fold " + fold);
     Pair<GeneralDataset<String,String>,GeneralDataset<String,String>> split=dataset.splitOutFold(fold,numFolds);
     GeneralDataset<String,String> devTrain=split.first();
     GeneralDataset<String,String> devTest=split.second();
@@ -24,8 +24,8 @@
   double averageAccuracy=accuracySum / numFolds;
   double averageMacroF1=macroF1Sum / numFolds;
   NumberFormat nf2=new DecimalFormat("0.00000");
-  Logging.logger(ColumnDataClassifier.class).info("Average accuracy/micro-averaged F1: " + nf2.format(averageAccuracy));
-  Logging.logger(ColumnDataClassifier.class).info("Average macro-averaged F1: " + nf2.format(averageMacroF1));
-  Logging.logger(ColumnDataClassifier.class).info("");
-  return new Pair<Double,Double>(averageAccuracy,averageMacroF1);
+  logger.info("Average accuracy/micro-averaged F1: " + nf2.format(averageAccuracy));
+  logger.info("Average macro-averaged F1: " + nf2.format(averageMacroF1));
+  logger.info("");
+  return new Pair<>(averageAccuracy,averageMacroF1);
 }

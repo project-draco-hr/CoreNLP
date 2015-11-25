@@ -1,0 +1,21 @@
+{
+  Redwood.log("scoref-train","Reading compression...");
+  Compressor<String> compressor=IOUtils.readObjectFromFile(StatisticalCorefTrainer.compressorFile);
+  Redwood.log("scoref-train","Reading test data...");
+  List<DocumentExamples> testDocuments=IOUtils.readObjectFromFile(StatisticalCorefTrainer.extractedFeaturesFile);
+  Redwood.log("scoref-train","Building test set...");
+  List<Pair<Example,Map<Integer,CompressedFeatureVector>>> allExamples=anaphoricityModel ? getAnaphoricityExamples(testDocuments) : getExamples(testDocuments);
+  Redwood.log("scoref-train","Testing...");
+  PrintWriter writer=new PrintWriter(model.getDefaultOutputPath() + predictionsName);
+  Map<Integer,Counter<Pair<Integer,Integer>>> scores=new HashMap<>();
+  writeScores(allExamples,compressor,model,writer,scores);
+  if (model instanceof MaxMarginMentionRanker) {
+    writer.close();
+    writer=new PrintWriter(model.getDefaultOutputPath() + predictionsName + "_anaphoricity");
+    testDocuments=IOUtils.readObjectFromFile(StatisticalCorefTrainer.extractedFeaturesFile);
+    allExamples=getAnaphoricityExamples(testDocuments);
+    writeScores(allExamples,compressor,model,writer,scores);
+  }
+  IOUtils.writeObjectToFile(scores,model.getDefaultOutputPath() + predictionsName + ".ser");
+  writer.close();
+}

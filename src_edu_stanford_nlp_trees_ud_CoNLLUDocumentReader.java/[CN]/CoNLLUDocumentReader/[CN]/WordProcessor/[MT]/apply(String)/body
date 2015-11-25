@@ -1,0 +1,33 @@
+{
+  IndexedWord word=new IndexedWord();
+  if (line.startsWith("#")) {
+    word.setWord(line);
+    word.setTag(COMMENT_POS);
+    return word;
+  }
+  String[] bits=line.split("\\s+");
+  word.set(CoreAnnotations.TextAnnotation.class,bits[1]);
+  if (bits[0].contains("-")) {
+    String[] span=bits[0].split("-");
+    Integer start=Integer.parseInt(span[0]);
+    Integer end=Integer.parseInt(span[1]);
+    word.set(CoreAnnotations.CoNLLUTokenSpanAnnotation.class,new IntPair(start,end));
+    word.set(CoreAnnotations.IndexAnnotation.class,start);
+  }
+ else {
+    word.set(CoreAnnotations.IndexAnnotation.class,Integer.parseInt(bits[0]));
+    word.set(CoreAnnotations.LemmaAnnotation.class,bits[2]);
+    word.set(CoreAnnotations.CoarseTagAnnotation.class,bits[3]);
+    word.set(CoreAnnotations.PartOfSpeechAnnotation.class,bits[4]);
+    word.set(CoreAnnotations.CoNLLDepParentIndexAnnotation.class,Integer.parseInt(bits[6]));
+    word.set(CoreAnnotations.CoNLLDepTypeAnnotation.class,bits[7]);
+    word.set(CoreAnnotations.CoNLLUMisc.class,bits[9]);
+    word.setIndex(Integer.parseInt(bits[0]));
+    word.setValue(bits[1]);
+    HashMap<String,String> features=CoNLLUUtils.parseFeatures(bits[5]);
+    word.set(CoreAnnotations.CoNLLUFeats.class,features);
+    HashMap<Integer,String> extraDeps=CoNLLUUtils.parseExtraDeps(bits[8]);
+    word.set(CoreAnnotations.CoNLLUSecondaryDepsAnnotation.class,extraDeps);
+  }
+  return word;
+}

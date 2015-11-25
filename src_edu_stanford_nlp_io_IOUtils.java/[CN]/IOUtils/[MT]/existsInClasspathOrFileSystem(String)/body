@@ -2,6 +2,9 @@
   InputStream is=IOUtils.class.getClassLoader().getResourceAsStream(name);
   if (is == null) {
     is=IOUtils.class.getClassLoader().getResourceAsStream(name.replaceAll("\\\\","/"));
+    if (is == null) {
+      is=IOUtils.class.getClassLoader().getResourceAsStream(name.replaceAll("\\\\","/").replaceAll("/+","/"));
+    }
   }
   return is != null || new File(name).exists();
 }

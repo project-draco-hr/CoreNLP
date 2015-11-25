@@ -1,5 +1,5 @@
 {
-  List<List<Mention>> orderedMentionsBySentence=new ArrayList<List<Mention>>();
+  List<List<Mention>> orderedMentionsBySentence=new ArrayList<>();
   for (int sent=0, sz=words.size(); sent < sz; sent++) {
     List<CoreLabel> sentence=words.get(sent);
     Tree tree=trees.get(sent);
@@ -9,7 +9,7 @@
     for (    Mention mention : mentions) {
       mention.contextParseTree=tree;
       mention.sentenceWords=sentence;
-      mention.originalSpan=new ArrayList<CoreLabel>(mention.sentenceWords.subList(mention.startIndex,mention.endIndex));
+      mention.originalSpan=new ArrayList<>(mention.sentenceWords.subList(mention.startIndex,mention.endIndex));
       if (!((CoreLabel)tree.label()).has(CoreAnnotations.BeginIndexAnnotation.class))       tree.indexSpans(0);
       if (mention.headWord == null) {
         Tree headTree=((RuleBasedCorefMentionFinder)mentionFinder).findSyntacticHead(mention,tree,sentence);
@@ -36,13 +36,13 @@
       }
       List<Mention> mentionsForTree=mentionsToTrees.get(treeToKey(mention.mentionSubTree));
       if (mentionsForTree == null) {
-        mentionsForTree=new ArrayList<Mention>();
+        mentionsForTree=new ArrayList<>();
         mentionsToTrees.put(treeToKey(mention.mentionSubTree),mentionsForTree);
       }
       mentionsForTree.add(mention);
       mention.process(dictionaries,semantics,this,singletonPredictor);
     }
-    List<Mention> orderedMentions=new ArrayList<Mention>();
+    List<Mention> orderedMentions=new ArrayList<>();
     orderedMentionsBySentence.add(orderedMentions);
     for (    Tree t : tree.preOrderNodeList()) {
       List<Mention> lm=mentionsToTrees.get(treeToKey(t));
