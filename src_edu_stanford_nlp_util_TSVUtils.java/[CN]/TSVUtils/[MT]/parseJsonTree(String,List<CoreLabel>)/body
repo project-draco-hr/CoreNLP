@@ -1,0 +1,43 @@
+{
+  jsonString=jsonString.substring(1,jsonString.length() - 1).replace("\"\"","\"").replace("\\\\","\\");
+  JsonReader json=Json.createReader(new StringReader(jsonString));
+  SemanticGraph tree=new SemanticGraph();
+  JsonArray array=json.readArray();
+  if (array == null || array.isEmpty()) {
+    return tree;
+  }
+  IndexedWord[] vertices=new IndexedWord[tokens.size() + 2];
+  for (int i=0; i < array.size(); i++) {
+    JsonObject entry=array.getJsonObject(i);
+    int dependentIndex=entry.getInt("dependent");
+    if (vertices[dependentIndex] == null) {
+      if (dependentIndex > tokens.size()) {
+        return new SemanticGraph();
+      }
+      vertices[dependentIndex]=new IndexedWord(tokens.get(dependentIndex - 1));
+    }
+    IndexedWord dependent=vertices[dependentIndex];
+    int governorIndex=entry.getInt("governor");
+    if (governorIndex > tokens.size()) {
+      return new SemanticGraph();
+    }
+    if (vertices[governorIndex] == null && governorIndex > 0) {
+      vertices[governorIndex]=new IndexedWord(tokens.get(governorIndex - 1));
+    }
+    IndexedWord governor=vertices[governorIndex];
+    String relation=entry.getString("dep");
+    if (governorIndex == 0) {
+      tree.addRoot(dependent);
+    }
+ else {
+      tree.addVertex(dependent);
+      if (!tree.containsVertex(governor)) {
+        tree.addVertex(governor);
+      }
+      if (!"ref".equals(relation)) {
+        tree.addEdge(governor,dependent,GrammaticalRelation.valueOf(Language.English,relation),Double.NEGATIVE_INFINITY,false);
+      }
+    }
+  }
+  return tree;
+}

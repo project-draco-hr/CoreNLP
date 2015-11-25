@@ -1,0 +1,165 @@
+{
+  CoreMap map=new ArrayCoreMap(fields.size());
+  Optional<List<CoreLabel>> tokens=Optional.empty();
+  for (  Pair<SentenceField,String> entry : Iterables.zip(fields,entries)) {
+    SentenceField field=entry.first;
+    String value=entry.second;
+switch (field) {
+case WORDS:
+{
+        List<String> values=TSVUtils.parseArray(value);
+        if (!tokens.isPresent()) {
+          tokens=Optional.of(new ArrayList<>(values.size()));
+          for (int i=0; i < values.size(); i++)           tokens.get().add(new CoreLabel());
+        }
+        int beginChar=0;
+        for (int i=0; i < values.size(); i++) {
+          tokens.get().get(i).setValue(values.get(i));
+          tokens.get().get(i).setWord(values.get(i));
+          tokens.get().get(i).setBeginPosition(beginChar);
+          tokens.get().get(i).setEndPosition(beginChar + values.get(i).length());
+          beginChar+=values.get(i).length() + 1;
+        }
+      }
+    break;
+case LEMMAS:
+{
+    List<String> values=TSVUtils.parseArray(value);
+    if (!tokens.isPresent()) {
+      tokens=Optional.of(new ArrayList<>(values.size()));
+      for (int i=0; i < values.size(); i++)       tokens.get().add(new CoreLabel());
+    }
+    for (int i=0; i < values.size(); i++) {
+      tokens.get().get(i).setLemma(values.get(i));
+    }
+  }
+break;
+case POS_TAGS:
+{
+List<String> values=TSVUtils.parseArray(value);
+if (!tokens.isPresent()) {
+  tokens=Optional.of(new ArrayList<>(values.size()));
+  for (int i=0; i < values.size(); i++)   tokens.get().add(new CoreLabel());
+}
+for (int i=0; i < values.size(); i++) {
+  tokens.get().get(i).setTag(values.get(i));
+}
+}
+break;
+case NER_TAGS:
+{
+List<String> values=TSVUtils.parseArray(value);
+if (!tokens.isPresent()) {
+tokens=Optional.of(new ArrayList<>(values.size()));
+for (int i=0; i < values.size(); i++) tokens.get().add(new CoreLabel());
+}
+for (int i=0; i < values.size(); i++) {
+tokens.get().get(i).setNER(values.get(i));
+}
+}
+break;
+default :
+break;
+}
+}
+Optional<String> docId=Optional.empty();
+Optional<String> sentenceId=Optional.empty();
+Optional<Integer> sentenceIndex=Optional.empty();
+for (Pair<SentenceField,String> entry : Iterables.zip(fields,entries)) {
+SentenceField field=entry.first;
+String value=entry.second;
+switch (field) {
+case ID:
+sentenceId=Optional.of(value);
+break;
+case DOC_ID:
+docId=Optional.of(value);
+break;
+case SENTENCE_INDEX:
+sentenceIndex=Optional.of(Integer.parseInt(value));
+break;
+case GLOSS:
+value=value.replace("\\n","\n").replace("\\t","\t");
+map.set(CoreAnnotations.TextAnnotation.class,value);
+break;
+default :
+break;
+}
+}
+map.set(CoreAnnotations.SentenceIDAnnotation.class,sentenceId.orElse("-1"));
+map.set(CoreAnnotations.DocIDAnnotation.class,docId.orElse("???"));
+map.set(CoreAnnotations.SentenceIndexAnnotation.class,sentenceIndex.orElse(0));
+if (tokens.isPresent()) {
+for (Pair<SentenceField,String> entry : Iterables.zip(fields,entries)) {
+SentenceField field=entry.first;
+String value=entry.second;
+switch (field) {
+case DOC_CHAR_BEGIN:
+{
+List<String> values=TSVUtils.parseArray(value);
+for (int i=0; i < tokens.get().size(); i++) {
+tokens.get().get(i).setBeginPosition(Integer.parseInt(values.get(i)));
+}
+}
+break;
+case DOC_CHAR_END:
+{
+List<String> values=TSVUtils.parseArray(value);
+for (int i=0; i < tokens.get().size(); i++) {
+tokens.get().get(i).setEndPosition(Integer.parseInt(values.get(i)));
+}
+}
+break;
+default :
+break;
+}
+}
+}
+if (tokens.isPresent()) {
+for (int i=0; i < tokens.get().size(); i++) {
+tokens.get().get(i).set(CoreAnnotations.DocIDAnnotation.class,docId.orElse("???"));
+tokens.get().get(i).set(CoreAnnotations.SentenceIndexAnnotation.class,sentenceIndex.orElse(-1));
+tokens.get().get(i).set(CoreAnnotations.IndexAnnotation.class,i + 1);
+tokens.get().get(i).set(CoreAnnotations.TokenBeginAnnotation.class,i);
+tokens.get().get(i).set(CoreAnnotations.TokenEndAnnotation.class,i + 1);
+}
+}
+if (tokens.isPresent()) {
+map.set(CoreAnnotations.TokensAnnotation.class,tokens.get());
+map.set(CoreAnnotations.TokenBeginAnnotation.class,0);
+map.set(CoreAnnotations.TokenEndAnnotation.class,tokens.get().size());
+for (Pair<SentenceField,String> entry : Iterables.zip(fields,entries)) {
+SentenceField field=entry.first;
+String value=entry.second;
+switch (field) {
+case DEPENDENCIES_BASIC:
+{
+SemanticGraph graph=TSVUtils.parseJsonTree(value,tokens.get());
+map.set(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class,graph);
+}
+break;
+case DEPENDENCIES_COLLAPSED:
+{
+SemanticGraph graph=TSVUtils.parseJsonTree(value,tokens.get());
+map.set(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class,graph);
+}
+break;
+case DEPENDENCIES_COLLAPSED_CC:
+{
+SemanticGraph graph=TSVUtils.parseJsonTree(value,tokens.get());
+map.set(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class,graph);
+}
+break;
+case DEPENDENCIES_ALTERNATE:
+{
+SemanticGraph graph=TSVUtils.parseJsonTree(value,tokens.get());
+map.set(SemanticGraphCoreAnnotations.AlternativeDependenciesAnnotation.class,graph);
+}
+break;
+default :
+break;
+}
+}
+}
+return map;
+}
