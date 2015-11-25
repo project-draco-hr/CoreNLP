@@ -1,14 +1,11 @@
 {
   if (input == null)   return null;
   Annotation anno=input.annotation;
-  if (addMissingAnnotations) {
-    addMissingAnnotation(anno);
-  }
-  if (Boolean.parseBoolean(props.getProperty("hcoref.useMarkedDiscourse","false"))) {
+  if (Boolean.parseBoolean(props.getProperty("coref.useMarkedDiscourse","false"))) {
     anno.set(CoreAnnotations.UseMarkedDiscourseAnnotation.class,true);
   }
-  if (input.conllDoc != null && CorefProperties.getLanguage(props) == Locale.CHINESE) {
-    CorefProperties.setRemoveNested(props,!input.conllDoc.documentID.contains("nw"));
+  if (addMissingAnnotations) {
+    addMissingAnnotation(anno);
   }
   List<List<Mention>> mentions=new ArrayList<>();
   for (  CoreMap sentence : anno.get(CoreAnnotations.SentencesAnnotation.class)) {
