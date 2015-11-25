@@ -3,7 +3,11 @@
     if (!nextParagraphSpeaker.isEmpty()) {
       doc.speakers.put(paragraphUtterIndex,nextParagraphSpeaker);
     }
- else     if (paragraph.size() > 0) {
+ else {
+      if (paragraph.isEmpty()) {
+        Redwood.log("debug-preprocessor","Empty paragraph; skipping findParagraphSpeaker");
+        return "";
+      }
       CoreMap lastSent=paragraph.get(paragraph.size() - 1);
       String speaker="";
       boolean hasVerb=false;
