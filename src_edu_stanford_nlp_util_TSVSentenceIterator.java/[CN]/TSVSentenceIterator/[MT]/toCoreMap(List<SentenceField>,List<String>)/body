@@ -88,7 +88,7 @@ break;
 }
 map.set(CoreAnnotations.SentenceIDAnnotation.class,sentenceId.orElse("-1"));
 map.set(CoreAnnotations.DocIDAnnotation.class,docId.orElse("???"));
-map.set(CoreAnnotations.SentenceIndexAnnotation.class,sentenceIndex.orElse(-1));
+map.set(CoreAnnotations.SentenceIndexAnnotation.class,sentenceIndex.orElse(0));
 if (tokens.isPresent()) {
 for (Pair<SentenceField,String> entry : Iterables.zip(fields,entries)) {
 SentenceField field=entry.first;
@@ -130,32 +130,29 @@ map.set(CoreAnnotations.TokenBeginAnnotation.class,0);
 map.set(CoreAnnotations.TokenEndAnnotation.class,tokens.get().size());
 for (Pair<SentenceField,String> entry : Iterables.zip(fields,entries)) {
 SentenceField field=entry.first;
-String value=entry.second.replace("\"\"","\"").replace("\\\\","\\");
+String value=entry.second;
 switch (field) {
-case DEPENDENCIES_STANFORD:
+case DEPENDENCIES_BASIC:
 {
-JsonReader json=Json.createReader(new StringReader(value));
-SemanticGraph graph=TSVUtils.parseTree(json,tokens.get());
+SemanticGraph graph=TSVUtils.parseJsonTree(value,tokens.get());
 map.set(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class,graph);
-if (!map.containsKey(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class)) map.set(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class,graph);
-if (!map.containsKey(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class)) map.set(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class,graph);
 }
 break;
-case DEPENDENCIES_EXTRAS:
+case DEPENDENCIES_COLLAPSED:
 {
-JsonReader json=Json.createReader(new StringReader(value));
-SemanticGraph graph=TSVUtils.parseTree(json,tokens.get());
-if (!map.containsKey(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class)) map.set(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class,graph);
+SemanticGraph graph=TSVUtils.parseJsonTree(value,tokens.get());
 map.set(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class,graph);
+}
+break;
+case DEPENDENCIES_COLLAPSED_CC:
+{
+SemanticGraph graph=TSVUtils.parseJsonTree(value,tokens.get());
 map.set(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class,graph);
 }
 break;
-case DEPENDENCIES_MALT:
-case DEPENDENCIES_MALT_ALT1:
-case DEPENDENCIES_MALT_ALT2:
+case DEPENDENCIES_ALTERNATE:
 {
-JsonReader json=Json.createReader(new StringReader(value));
-SemanticGraph graph=TSVUtils.parseTree(json,tokens.get());
+SemanticGraph graph=TSVUtils.parseJsonTree(value,tokens.get());
 map.set(SemanticGraphCoreAnnotations.AlternativeDependenciesAnnotation.class,graph);
 }
 break;
