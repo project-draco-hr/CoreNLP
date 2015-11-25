@@ -130,11 +130,12 @@ map.set(CoreAnnotations.TokenBeginAnnotation.class,0);
 map.set(CoreAnnotations.TokenEndAnnotation.class,tokens.get().size());
 for (Pair<SentenceField,String> entry : Iterables.zip(fields,entries)) {
 SentenceField field=entry.first;
-String value=entry.second;
+String value=entry.second.replace("\"\"","\"").replace("\\\\","\\");
 switch (field) {
 case DEPENDENCIES_STANFORD:
 {
-SemanticGraph graph=TSVUtils.parseTree(value,tokens.get());
+JsonReader json=Json.createReader(new StringReader(value));
+SemanticGraph graph=TSVUtils.parseTree(json,tokens.get());
 map.set(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class,graph);
 if (!map.containsKey(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class)) map.set(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class,graph);
 if (!map.containsKey(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class)) map.set(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class,graph);
@@ -142,7 +143,8 @@ if (!map.containsKey(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenci
 break;
 case DEPENDENCIES_EXTRAS:
 {
-SemanticGraph graph=TSVUtils.parseTree(value,tokens.get());
+JsonReader json=Json.createReader(new StringReader(value));
+SemanticGraph graph=TSVUtils.parseTree(json,tokens.get());
 if (!map.containsKey(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class)) map.set(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class,graph);
 map.set(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class,graph);
 map.set(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class,graph);
@@ -152,7 +154,8 @@ case DEPENDENCIES_MALT:
 case DEPENDENCIES_MALT_ALT1:
 case DEPENDENCIES_MALT_ALT2:
 {
-SemanticGraph graph=TSVUtils.parseTree(value,tokens.get());
+JsonReader json=Json.createReader(new StringReader(value));
+SemanticGraph graph=TSVUtils.parseTree(json,tokens.get());
 map.set(SemanticGraphCoreAnnotations.AlternativeDependenciesAnnotation.class,graph);
 }
 break;
