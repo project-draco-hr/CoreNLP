@@ -12,13 +12,13 @@
     Entity prev=entities[position - 1];
     Entity next=entities[position + 1];
     newEntity.startPosition=prev.startPosition;
-    newEntity.words=new ArrayList<>();
+    newEntity.words=new ArrayList<String>();
     newEntity.words.addAll(prev.words);
     String word=doc.get(position).get(CoreAnnotations.TextAnnotation.class);
     newEntity.words.add(word);
     newEntity.words.addAll(next.words);
     newEntity.type=sequence[position];
-    List<Integer> other=new ArrayList<>();
+    List<Integer> other=new ArrayList<Integer>();
     for (int i=0; i < prev.otherOccurrences.length; i++) {
       int pos=prev.otherOccurrences[i];
       if (matches(newEntity,pos)) {
@@ -36,13 +36,13 @@
     Entity prev=new Entity();
     prev.type=entity.type;
     prev.startPosition=entity.startPosition;
-    prev.words=new ArrayList<>(entity.words.subList(0,position - entity.startPosition));
+    prev.words=new ArrayList<String>(entity.words.subList(0,position - entity.startPosition));
     prev.otherOccurrences=otherOccurrences(prev);
     addEntityToEntitiesArray(prev);
     Entity next=new Entity();
     next.type=entity.type;
     next.startPosition=position + 1;
-    next.words=new ArrayList<>(entity.words.subList(position - entity.startPosition + 1,entity.words.size()));
+    next.words=new ArrayList<String>(entity.words.subList(position - entity.startPosition + 1,entity.words.size()));
     next.otherOccurrences=otherOccurrences(next);
     addEntityToEntitiesArray(next);
     if (sequence[position] == backgroundSymbol) {
@@ -52,7 +52,7 @@
       Entity newEntity=new Entity();
       newEntity.startPosition=position;
       newEntity.type=sequence[position];
-      newEntity.words=new ArrayList<>();
+      newEntity.words=new ArrayList<String>();
       String word=doc.get(position).get(CoreAnnotations.TextAnnotation.class);
       newEntity.words.add(word);
       newEntity.otherOccurrences=otherOccurrences(newEntity);
@@ -66,7 +66,7 @@
     Entity newEntity=new Entity();
     Entity next=entities[position + 1];
     newEntity.startPosition=position;
-    newEntity.words=new ArrayList<>();
+    newEntity.words=new ArrayList<String>();
     String word=doc.get(position).get(CoreAnnotations.TextAnnotation.class);
     newEntity.words.add(word);
     newEntity.words.addAll(next.words);
@@ -87,12 +87,12 @@
     Entity newEntity=new Entity();
     Entity prev=entities[position - 1];
     newEntity.startPosition=prev.startPosition;
-    newEntity.words=new ArrayList<>();
+    newEntity.words=new ArrayList<String>();
     newEntity.words.addAll(prev.words);
     String word=doc.get(position).get(CoreAnnotations.TextAnnotation.class);
     newEntity.words.add(word);
     newEntity.type=sequence[position];
-    List<Integer> other=new ArrayList<>();
+    List<Integer> other=new ArrayList<Integer>();
     for (int i=0; i < prev.otherOccurrences.length; i++) {
       int pos=prev.otherOccurrences[i];
       if (matches(newEntity,pos)) {
@@ -113,7 +113,7 @@
     Entity newEntity=new Entity();
     if (VERBOSE)     System.out.println("adding singleton entity");
     newEntity.startPosition=position;
-    newEntity.words=new ArrayList<>();
+    newEntity.words=new ArrayList<String>();
     String word=doc.get(position).get(CoreAnnotations.TextAnnotation.class);
     newEntity.words.add(word);
     newEntity.type=sequence[position];

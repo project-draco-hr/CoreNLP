@@ -1,12 +1,12 @@
 {
   Date startDate=new Date();
-  List<String> keyset=new ArrayList<>(sents.keySet());
+  List<String> keyset=new ArrayList<String>(sents.keySet());
   int num;
   if (constVars.numThreads == 1)   num=keyset.size();
  else   num=keyset.size() / (constVars.numThreads);
   ExecutorService executor=Executors.newFixedThreadPool(constVars.numThreads);
   Redwood.log(ConstantsAndVariables.extremedebug,"Computing all patterns. keyset size is " + keyset.size() + ". Assigning "+ num+ " values to each thread");
-  List<Future<Boolean>> list=new ArrayList<>();
+  List<Future<Boolean>> list=new ArrayList<Future<Boolean>>();
   for (int i=0; i < constVars.numThreads; i++) {
     int from=i * num;
     int to=-1;

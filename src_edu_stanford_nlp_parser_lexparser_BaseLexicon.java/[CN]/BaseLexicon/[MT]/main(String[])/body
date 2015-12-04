@@ -6,8 +6,8 @@
   System.out.print("Training BaseLexicon from " + args[0] + ' '+ args[1]+ " ... ");
   Treebank tb=new DiskTreebank();
   tb.loadPath(args[0],new NumberRangesFileFilter(args[1],true));
-  Index<String> wordIndex=new HashIndex<>();
-  Index<String> tagIndex=new HashIndex<>();
+  Index<String> wordIndex=new HashIndex<String>();
+  Index<String> tagIndex=new HashIndex<String>();
   Options op=new Options();
   op.lexOptions.useUnknownWordSignatures=Integer.parseInt(args[2]);
   BaseLexicon lex=new BaseLexicon(op,wordIndex,tagIndex);
@@ -18,7 +18,7 @@
   System.out.println();
   NumberFormat nf=NumberFormat.getNumberInstance();
   nf.setMaximumFractionDigits(4);
-  List<String> impos=new ArrayList<>();
+  List<String> impos=new ArrayList<String>();
   for (int i=3; i < args.length; i++) {
     if (lex.isKnown(args[i])) {
       System.out.println(args[i] + " is a known word.  Log probabilities [log P(w|t)] for its taggings are:");
@@ -31,7 +31,7 @@
       String sig=lex.getUnknownWordModel().getSignature(args[i],i - 3);
       System.out.println(args[i] + " is an unknown word.  Signature with uwm " + lex.getUnknownWordModel().getUnknownLevel()+ ((i == 3) ? " init" : "non-init")+ " is: "+ sig);
       impos.clear();
-      List<String> lis=new ArrayList<>(tagIndex.objectsList());
+      List<String> lis=new ArrayList<String>(tagIndex.objectsList());
       Collections.sort(lis);
       for (      String tStr : lis) {
         IntTaggedWord iTW=new IntTaggedWord(args[i],tStr,wordIndex,tagIndex);

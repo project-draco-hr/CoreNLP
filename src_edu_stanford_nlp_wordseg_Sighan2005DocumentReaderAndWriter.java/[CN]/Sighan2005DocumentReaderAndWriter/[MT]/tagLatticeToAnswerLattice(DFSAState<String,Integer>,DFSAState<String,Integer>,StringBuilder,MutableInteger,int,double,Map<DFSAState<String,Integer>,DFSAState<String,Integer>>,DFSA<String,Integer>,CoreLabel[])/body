@@ -1,6 +1,6 @@
 {
   if (tSource.isAccepting() && tSource.continuingInputs().isEmpty()) {
-    tSource.addTransition(new DFSATransition<>("",tSource,new DFSAState<>(-1,null),"1","",0));
+    tSource.addTransition(new DFSATransition<String,Integer>("",tSource,new DFSAState<String,Integer>(-1,null),"1","",0));
   }
   CoreLabel curLabel=(pos < docArray.length) ? docArray[pos] : null;
   String curChr=null, origSpace=null;
@@ -56,13 +56,13 @@
       if (newAnswer.toString().length() > 0) {
         if (stateLinks.containsKey(tSource)) {
           DFSAState<String,Integer> aDest=stateLinks.get(tSource);
-          newASource.addTransition(new DFSATransition<>("",newASource,aDest,newAnswer.toString(),"",newCost));
+          newASource.addTransition(new DFSATransition<String,Integer>("",newASource,aDest,newAnswer.toString(),"",newCost));
           continue;
         }
         nodeId.incValue(1);
-        DFSAState<String,Integer> aDest=new DFSAState<>(nodeId.intValue(),answerLattice,0.0);
+        DFSAState<String,Integer> aDest=new DFSAState<String,Integer>(nodeId.intValue(),answerLattice,0.0);
         stateLinks.put(tSource,aDest);
-        newASource.addTransition(new DFSATransition<>("",newASource,aDest,newAnswer.toString(),"",newCost));
+        newASource.addTransition(new DFSATransition<String,Integer>("",newASource,aDest,newAnswer.toString(),"",newCost));
         if (tSource.isAccepting()) {
           aDest.setAccepting(true);
           continue;

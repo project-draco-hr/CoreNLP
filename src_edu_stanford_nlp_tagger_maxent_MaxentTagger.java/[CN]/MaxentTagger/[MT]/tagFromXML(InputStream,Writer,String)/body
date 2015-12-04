@@ -1,14 +1,14 @@
 {
   OutputStyle outputStyle=OutputStyle.fromShortName(config.getOutputFormat());
-  TransformXML<String> txml=new TransformXML<>();
+  TransformXML<String> txml=new TransformXML<String>();
 switch (outputStyle) {
 case XML:
 case INLINE_XML:
-    txml.transformXML(xmlTags,new TaggerWrapper(this),input,writer,new TransformXML.NoEscapingSAXInterface<>());
+    txml.transformXML(xmlTags,new TaggerWrapper(this),input,writer,new TransformXML.NoEscapingSAXInterface<String>());
   break;
 case SLASH_TAGS:
 case TSV:
-txml.transformXML(xmlTags,new TaggerWrapper(this),input,writer,new TransformXML.SAXInterface<>());
+txml.transformXML(xmlTags,new TaggerWrapper(this),input,writer,new TransformXML.SAXInterface<String>());
 break;
 default :
 throw new RuntimeException("Unexpected format " + outputStyle);

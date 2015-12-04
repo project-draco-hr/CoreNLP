@@ -43,7 +43,7 @@
       throw new IllegalArgumentException("Illegal beam size " + op.trainOptions().beamSize);
     }
     List<Transition> transitions=Generics.newLinkedList(transitionLists.get(index));
-    PriorityQueue<State> agenda=new PriorityQueue<>(op.trainOptions().beamSize + 1,ScoredComparator.ASCENDING_COMPARATOR);
+    PriorityQueue<State> agenda=new PriorityQueue<State>(op.trainOptions().beamSize + 1,ScoredComparator.ASCENDING_COMPARATOR);
     State goldState=ShiftReduceParser.initialStateFromGoldTagTree(tree);
     agenda.add(goldState);
     int transitionCount=0;
@@ -51,7 +51,7 @@
       Transition goldTransition=transitions.get(0);
       Transition highestScoringTransitionFromGoldState=null;
       double highestScoreFromGoldState=0.0;
-      PriorityQueue<State> newAgenda=new PriorityQueue<>(op.trainOptions().beamSize + 1,ScoredComparator.ASCENDING_COMPARATOR);
+      PriorityQueue<State> newAgenda=new PriorityQueue<State>(op.trainOptions().beamSize + 1,ScoredComparator.ASCENDING_COMPARATOR);
       State highestScoringState=null;
       State highestCurrentState=null;
       for (      State currentState : agenda) {

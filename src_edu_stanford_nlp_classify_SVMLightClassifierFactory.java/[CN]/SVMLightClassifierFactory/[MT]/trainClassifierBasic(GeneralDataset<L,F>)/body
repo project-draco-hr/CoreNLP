@@ -43,12 +43,12 @@
     Pair<Double,ClassicCounter<Integer>> weightsAndThresh=readModel(modelFile,multiclass);
     double threshold=weightsAndThresh.first();
     ClassicCounter<Pair<F,L>> weights=convertWeights(weightsAndThresh.second(),featureIndex,labelIndex,multiclass);
-    ClassicCounter<L> thresholds=new ClassicCounter<>();
+    ClassicCounter<L> thresholds=new ClassicCounter<L>();
     if (!multiclass) {
       thresholds.setCount(labelIndex.get(0),-threshold);
       thresholds.setCount(labelIndex.get(1),threshold);
     }
-    SVMLightClassifier<L,F> classifier=new SVMLightClassifier<>(weights,thresholds);
+    SVMLightClassifier<L,F> classifier=new SVMLightClassifier<L,F>(weights,thresholds);
     if (doEval) {
       File predictFile=File.createTempFile("svm-",".pred2");
       if (deleteTempFilesOnExit) {

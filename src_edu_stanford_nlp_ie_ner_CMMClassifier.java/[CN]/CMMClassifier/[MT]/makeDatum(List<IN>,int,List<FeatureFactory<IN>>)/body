@@ -1,6 +1,6 @@
 {
-  PaddedList<IN> pInfo=new PaddedList<>(info,pad);
-  Collection<String> features=new ArrayList<>();
+  PaddedList<IN> pInfo=new PaddedList<IN>(info,pad);
+  Collection<String> features=new ArrayList<String>();
   for (  FeatureFactory<IN> featureFactory : featureFactories) {
     List<Clique> cliques=featureFactory.getCliques();
     for (    Clique c : cliques) {
@@ -11,5 +11,5 @@
   }
   printFeatures(pInfo.get(loc),features);
   CoreLabel c=info.get(loc);
-  return new BasicDatum<>(features,c.get(CoreAnnotations.AnswerAnnotation.class));
+  return new BasicDatum<String,String>(features,c.get(CoreAnnotations.AnswerAnnotation.class));
 }

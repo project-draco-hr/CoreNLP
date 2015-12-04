@@ -3,7 +3,7 @@
   Tree newFoot=null;
   if (node.isLeaf()) {
     if (node == foot) {
-      clone=treeFactory.newTreeNode(node.label(),new ArrayList<>(0));
+      clone=treeFactory.newTreeNode(node.label(),new ArrayList<Tree>(0));
       newFoot=clone;
     }
  else {
@@ -11,7 +11,7 @@
     }
   }
  else {
-    List<Tree> newChildren=new ArrayList<>(node.children().length);
+    List<Tree> newChildren=new ArrayList<Tree>(node.children().length);
     for (    Tree child : node.children()) {
       Pair<Tree,Tree> newChild=copyHelper(child,newNamesToNodes,treeFactory,labelFactory);
       newChildren.add(newChild.first());
@@ -25,5 +25,5 @@
     clone=treeFactory.newTreeNode(labelFactory.newLabel(node.label()),newChildren);
   }
   if (nodesToNames.containsKey(node))   newNamesToNodes.put(nodesToNames.get(node),clone);
-  return new Pair<>(clone,newFoot);
+  return new Pair<Tree,Tree>(clone,newFoot);
 }

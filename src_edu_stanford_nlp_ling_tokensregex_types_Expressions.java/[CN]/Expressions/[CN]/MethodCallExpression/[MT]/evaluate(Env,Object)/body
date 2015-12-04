@@ -3,7 +3,7 @@
   if (evaledObj == null || evaledObj.get() == null)   return null;
   Object mainObj=evaledObj.get();
   Class c=mainObj.getClass();
-  List<Value> evaled=new ArrayList<>();
+  List<Value> evaled=new ArrayList<Value>();
   for (  Expression param : params) {
     evaled.add(param.evaluate(env,args));
   }
@@ -49,7 +49,7 @@
   }
   try {
     Object res=method.invoke(mainObj,objs);
-    return new PrimitiveValue<>(function,res);
+    return new PrimitiveValue<Object>(function,res);
   }
  catch (  InvocationTargetException ex) {
     throw new RuntimeException("Cannot evaluate method " + function + " on object "+ mainObj,ex);

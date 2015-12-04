@@ -8,14 +8,14 @@
   }
   if (funcValue instanceof ValueFunction) {
     ValueFunction f=(ValueFunction)funcValue;
-    List<Value> evaled=new ArrayList<>();
+    List<Value> evaled=new ArrayList<Value>();
     for (    Expression param : params) {
       evaled.add(param.evaluate(env,args));
     }
     return f.apply(env,evaled);
   }
  else   if (funcValue instanceof Collection) {
-    List<Value> evaled=new ArrayList<>();
+    List<Value> evaled=new ArrayList<Value>();
     for (    Expression param : params) {
       evaled.add(param.evaluate(env,args));
     }
@@ -38,7 +38,7 @@
   }
  else   if (funcValue instanceof Class) {
     Class c=(Class)funcValue;
-    List<Value> evaled=new ArrayList<>();
+    List<Value> evaled=new ArrayList<Value>();
     for (    Expression param : params) {
       evaled.add(param.evaluate(env,args));
     }
@@ -66,7 +66,7 @@
     if (paramsNotNull) {
       Object obj=MetaClass.create(c).createInstance(objs);
       if (obj != null) {
-        return new PrimitiveValue<>(function,obj);
+        return new PrimitiveValue<Object>(function,obj);
       }
     }
     try {
@@ -89,7 +89,7 @@
         }
       }
       Object obj=constructor.newInstance(objs);
-      return new PrimitiveValue<>(function,obj);
+      return new PrimitiveValue<Object>(function,obj);
     }
  catch (    InvocationTargetException ex) {
       throw new RuntimeException("Cannot instantiate " + c,ex);

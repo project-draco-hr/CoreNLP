@@ -5,14 +5,14 @@
   env.setDefaultStringPatternFlags(patternFlags);
   env.setDefaultStringMatchFlags(stringMatchFlags);
   NodePattern<String> posTagPattern=(validPosPattern != null && PosMatchType.MATCH_ALL_TOKENS.equals(posMatchType)) ? new CoreMapNodePattern.StringAnnotationRegexPattern(validPosPattern) : null;
-  List<TokenSequencePattern> patterns=new ArrayList<>(entries.size());
+  List<TokenSequencePattern> patterns=new ArrayList<TokenSequencePattern>(entries.size());
   for (  Entry entry : entries) {
     TokenSequencePattern pattern;
     if (entry.tokensRegex != null) {
       pattern=TokenSequencePattern.compile(env,entry.tokensRegex);
     }
  else {
-      List<SequencePattern.PatternExpr> nodePatterns=new ArrayList<>();
+      List<SequencePattern.PatternExpr> nodePatterns=new ArrayList<SequencePattern.PatternExpr>();
       for (      String p : entry.regex) {
         CoreMapNodePattern c=CoreMapNodePattern.valueOf(p,patternFlags);
         if (posTagPattern != null) {

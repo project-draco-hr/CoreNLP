@@ -1,7 +1,7 @@
 {
   try {
-    List<Tree> trees=new ArrayList<>();
-    List<List<CoreLabel>> sentences=new ArrayList<>();
+    List<Tree> trees=new ArrayList<Tree>();
+    List<List<CoreLabel>> sentences=new ArrayList<List<CoreLabel>>();
     boolean hasSpeakerAnnotations=false;
     if (annotation.containsKey(CoreAnnotations.SentencesAnnotation.class)) {
       for (      CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
@@ -42,17 +42,10 @@
         }
       }
     }
-    if (outputHybridVersion) {
-      Map<Integer,edu.stanford.nlp.hcoref.data.CorefChain> result=corefSystem.corefReturnHybridOutput(document);
-      annotation.set(edu.stanford.nlp.hcoref.CorefCoreAnnotations.CorefChainAnnotation.class,result);
-    }
- else {
-      Map<Integer,CorefChain> result=corefSystem.coref(document);
-      annotation.set(CorefCoreAnnotations.CorefChainAnnotation.class,result);
-    }
+    Map<Integer,CorefChain> result=corefSystem.coref(document);
+    annotation.set(CorefCoreAnnotations.CorefChainAnnotation.class,result);
     if (OLD_FORMAT) {
-      Map<Integer,CorefChain> oldResult=corefSystem.coref(document);
-      addObsoleteCoreferenceAnnotations(annotation,orderedMentions,oldResult);
+      addObsoleteCoreferenceAnnotations(annotation,orderedMentions,result);
     }
   }
  catch (  RuntimeException e) {
