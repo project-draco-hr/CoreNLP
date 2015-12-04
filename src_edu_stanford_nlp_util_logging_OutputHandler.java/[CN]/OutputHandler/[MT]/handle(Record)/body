@@ -1,5 +1,5 @@
 {
-  StringBuilder b=new StringBuilder();
+  StringBuilder b=new StringBuilder(1024);
   String[] content;
   if (record.content instanceof Throwable) {
     List<String> lines=new ArrayList<>();
@@ -34,12 +34,18 @@
     content=new String[]{"null"};
   }
  else {
-    String toStr=record.content.toString();
+    String toStr;
+    if (record.content instanceof Supplier) {
+      toStr=((Supplier<Object>)record.content).get().toString();
+    }
+ else {
+      toStr=record.content.toString();
+    }
     if (toStr == null) {
       content=new String[]{"<null toString()>"};
     }
  else {
-      content=record.content.toString().split("\n");
+      content=toStr.split("\n");
     }
   }
   updateTracks(record.depth);
