@@ -1,0 +1,28 @@
+{
+  Pair<Logger,Redwood.Flag> loggerAndLevel=getLoggerAndLevel(record.channels());
+switch (loggerAndLevel.second) {
+case FORCE:
+    break;
+case ERROR:
+  if (!loggerAndLevel.first.isErrorEnabled()) {
+    return Collections.EMPTY_LIST;
+  }
+break;
+case WARN:
+if (!loggerAndLevel.first.isWarnEnabled()) {
+return Collections.EMPTY_LIST;
+}
+break;
+case DEBUG:
+if (!loggerAndLevel.first.isDebugEnabled()) {
+return Collections.EMPTY_LIST;
+}
+break;
+default :
+if (!loggerAndLevel.first.isInfoEnabled()) {
+return Collections.EMPTY_LIST;
+}
+break;
+}
+return super.handle(record);
+}

@@ -1,26 +1,26 @@
 {
-  RVFDataset<String,String> data=new RVFDataset<String,String>();
-  ClassicCounter<String> c1=new ClassicCounter<String>();
+  RVFDataset<String,String> data=new RVFDataset<>();
+  ClassicCounter<String> c1=new ClassicCounter<>();
   c1.incrementCount("fever",3.5);
   c1.incrementCount("cough",1.1);
   c1.incrementCount("congestion",4.2);
-  ClassicCounter<String> c2=new ClassicCounter<String>();
+  ClassicCounter<String> c2=new ClassicCounter<>();
   c2.incrementCount("fever",1.5);
   c2.incrementCount("cough",2.1);
   c2.incrementCount("nausea",3.2);
-  ClassicCounter<String> c3=new ClassicCounter<String>();
+  ClassicCounter<String> c3=new ClassicCounter<>();
   c3.incrementCount("cough",2.5);
   c3.incrementCount("congestion",3.2);
-  data.add(new RVFDatum<String,String>(c1,"cold"));
-  data.add(new RVFDatum<String,String>(c2,"flu"));
-  data.add(new RVFDatum<String,String>(c3,"cold"));
+  data.add(new RVFDatum<>(c1,"cold"));
+  data.add(new RVFDatum<>(c2,"flu"));
+  data.add(new RVFDatum<>(c3,"cold"));
   data.summaryStatistics();
-  LinearClassifierFactory<String,String> factory=new LinearClassifierFactory<String,String>();
+  LinearClassifierFactory<String,String> factory=new LinearClassifierFactory<>();
   factory.useQuasiNewton();
   LinearClassifier<String,String> c=factory.trainClassifier(data);
-  ClassicCounter<String> c4=new ClassicCounter<String>();
+  ClassicCounter<String> c4=new ClassicCounter<>();
   c4.incrementCount("cough",2.3);
   c4.incrementCount("fever",1.3);
-  RVFDatum<String,String> datum=new RVFDatum<String,String>(c4);
+  RVFDatum<String,String> datum=new RVFDatum<>(c4);
   c.justificationOf((Datum<String,String>)datum);
 }

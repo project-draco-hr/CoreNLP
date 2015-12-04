@@ -16,8 +16,8 @@
   try {
     Class<?>[] classes=new Class<?>[]{String.class,String[].class};
     Method method=Class.forName("edu.stanford.nlp.parser.lexparser.LexicalizedParser").getMethod("loadModel",classes);
-    String[] opts={};
-    if (parserOptions.length() > 0) {
+    String[] opts=StringUtils.EMPTY_STRING_ARRAY;
+    if (!parserOptions.isEmpty()) {
       opts=parserOptions.split(" +");
     }
     lp=(Function<List<? extends HasWord>,Tree>)method.invoke(null,parserFile,opts);

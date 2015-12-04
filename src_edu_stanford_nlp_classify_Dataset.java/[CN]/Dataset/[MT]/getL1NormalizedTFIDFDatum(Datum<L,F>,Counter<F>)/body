@@ -1,5 +1,5 @@
 {
-  Counter<F> tfidfFeatures=new ClassicCounter<F>();
+  Counter<F> tfidfFeatures=new ClassicCounter<>();
   for (  F feature : datum.asFeatures()) {
     if (featureDocCounts.containsKey(feature))     tfidfFeatures.incrementCount(feature,1.0);
   }
@@ -14,6 +14,6 @@
     double tfidf=tfidfFeatures.getCount(feature);
     tfidfFeatures.setCount(feature,tfidf / l1norm);
   }
-  RVFDatum<L,F> rvfDatum=new RVFDatum<L,F>(tfidfFeatures,datum.label());
+  RVFDatum<L,F> rvfDatum=new RVFDatum<>(tfidfFeatures,datum.label());
   return rvfDatum;
 }

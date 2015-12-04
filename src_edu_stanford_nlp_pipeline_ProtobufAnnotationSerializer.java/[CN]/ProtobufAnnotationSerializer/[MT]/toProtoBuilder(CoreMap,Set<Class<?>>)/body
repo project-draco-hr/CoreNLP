@@ -95,5 +95,13 @@
       builder.addRelation(toProto(relation));
     }
   }
+  if (keySet.contains(CorefMentionsAnnotation.class)) {
+    builder.setHasCorefMentionsAnnotation(true);
+    for (    Mention m : sentence.get(CorefMentionsAnnotation.class)) {
+      builder.addMentionsForCoref(toProto(m));
+    }
+    keysToSerialize.remove(CorefMentionsAnnotation.class);
+  }
+  if (keySet.contains(SentenceIDAnnotation.class))   builder.setSentenceID(getAndRegister(sentence,keysToSerialize,SentenceIDAnnotation.class));
   return builder;
 }

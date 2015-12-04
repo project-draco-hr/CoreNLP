@@ -22,11 +22,11 @@ synchronized (System.class) {
       System.arraycopy(w.weights,0,trainWeights,0,start);
       System.arraycopy(w.weights,end,trainWeights,start,size() - end);
     }
-    WeightedDataset<L,F> dev=new WeightedDataset<L,F>(labelIndex,devLabels,featureIndex,devData,devSize,devWeights);
-    WeightedDataset<L,F> train=new WeightedDataset<L,F>(labelIndex,trainLabels,featureIndex,trainData,trainSize,trainWeights);
-    return new Pair<GeneralDataset<L,F>,GeneralDataset<L,F>>(train,dev);
+    WeightedDataset<L,F> dev=new WeightedDataset<>(labelIndex,devLabels,featureIndex,devData,devSize,devWeights);
+    WeightedDataset<L,F> train=new WeightedDataset<>(labelIndex,trainLabels,featureIndex,trainData,trainSize,trainWeights);
+    return new Pair<>(train,dev);
   }
-  Dataset<L,F> dev=new Dataset<L,F>(labelIndex,devLabels,featureIndex,devData,devSize);
-  Dataset<L,F> train=new Dataset<L,F>(labelIndex,trainLabels,featureIndex,trainData,trainSize);
-  return new Pair<GeneralDataset<L,F>,GeneralDataset<L,F>>(train,dev);
+  Dataset<L,F> dev=new Dataset<>(labelIndex,devLabels,featureIndex,devData,devSize);
+  Dataset<L,F> train=new Dataset<>(labelIndex,trainLabels,featureIndex,trainData,trainSize);
+  return new Pair<>(train,dev);
 }
