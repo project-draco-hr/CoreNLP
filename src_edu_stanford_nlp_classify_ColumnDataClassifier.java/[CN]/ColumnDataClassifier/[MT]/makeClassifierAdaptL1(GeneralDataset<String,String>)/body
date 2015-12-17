@@ -5,11 +5,11 @@
   double l1regmax=globalFlags.l1regmax;
   double l1regmin=globalFlags.l1regmin;
   if (globalFlags.l1reg <= 0.0) {
-    System.err.println("WARNING: useAdaptL1 set and limitFeatures to " + globalFlags.limitFeatures + ", but invalid value of l1reg="+ globalFlags.l1reg+ ", defaulting to "+ globalFlags.l1regmax);
+    logger.info("WARNING: useAdaptL1 set and limitFeatures to " + globalFlags.limitFeatures + ", but invalid value of l1reg="+ globalFlags.l1reg+ ", defaulting to "+ globalFlags.l1regmax);
     l1reg=l1regmax;
   }
  else {
-    System.err.println("TRAIN: useAdaptL1 set and limitFeatures to " + globalFlags.limitFeatures + ", l1reg="+ globalFlags.l1reg+ ", l1regmax="+ globalFlags.l1regmax+ ", l1regmin="+ globalFlags.l1regmin);
+    logger.info("TRAIN: useAdaptL1 set and limitFeatures to " + globalFlags.limitFeatures + ", l1reg="+ globalFlags.l1reg+ ", l1regmax="+ globalFlags.l1regmax+ ", l1regmin="+ globalFlags.l1regmin);
   }
   Set<String> limitFeatureLabels=null;
   if (globalFlags.limitFeaturesLabels != null) {
@@ -24,27 +24,27 @@
   int limitFeatureTol=5;
   double l1regminchange=0.05;
   while (true) {
-    System.err.println("Training: l1reg=" + l1reg + ", threshold="+ globalFlags.featureWeightThreshold+ ", target="+ globalFlags.limitFeatures);
+    logger.info("Training: l1reg=" + l1reg + ", threshold="+ globalFlags.featureWeightThreshold+ ", target="+ globalFlags.limitFeatures);
     LinearClassifierFactory<String,String> lcf;
     Minimizer<DiffFunction> minim=ReflectionLoading.loadByReflection("edu.stanford.nlp.optimization.OWLQNMinimizer",l1reg);
-    lcf=new LinearClassifierFactory<String,String>(minim,globalFlags.tolerance,globalFlags.useSum,globalFlags.prior,globalFlags.sigma,globalFlags.epsilon);
+    lcf=new LinearClassifierFactory<>(minim,globalFlags.tolerance,globalFlags.useSum,globalFlags.prior,globalFlags.sigma,globalFlags.epsilon);
     int featureCount=-1;
     try {
       LinearClassifier<String,String> c=lcf.trainClassifier(train);
       lc=c;
       featureCount=c.getFeatureCount(limitFeatureLabels,globalFlags.featureWeightThreshold,false);
-      System.err.println("Training Done: l1reg=" + l1reg + ", threshold="+ globalFlags.featureWeightThreshold+ ", features="+ featureCount+ ", target="+ globalFlags.limitFeatures);
+      logger.info("Training Done: l1reg=" + l1reg + ", threshold="+ globalFlags.featureWeightThreshold+ ", features="+ featureCount+ ", target="+ globalFlags.limitFeatures);
       List<Triple<String,String,Double>> topFeatures=c.getTopFeatures(limitFeatureLabels,globalFlags.featureWeightThreshold,false,globalFlags.limitFeatures,true);
       String classifierDesc=c.topFeaturesToString(topFeatures);
-      System.err.println("Printing top " + globalFlags.limitFeatures + " features with weights above "+ globalFlags.featureWeightThreshold);
+      logger.info("Printing top " + globalFlags.limitFeatures + " features with weights above "+ globalFlags.featureWeightThreshold);
       if (globalFlags.limitFeaturesLabels != null) {
-        System.err.println("  Limited to labels: " + globalFlags.limitFeaturesLabels);
+        logger.info("  Limited to labels: " + globalFlags.limitFeaturesLabels);
       }
-      System.err.println(classifierDesc);
+      logger.info(classifierDesc);
     }
  catch (    RuntimeException ex) {
       if (ex.getMessage() != null && ex.getMessage().startsWith("L-BFGS chose a non-descent direction")) {
-        System.err.println("Error in optimization, will try again with different l1reg");
+        logger.info("Error in optimization, will try again with different l1reg");
         ex.printStackTrace(System.err);
       }
  else {
@@ -55,7 +55,7 @@
       l1regtop=l1reg;
       l1reg=0.5 * (l1reg + l1regbottom);
       if (l1regtop - l1reg < l1regminchange) {
-        System.err.println("Stopping: old l1reg  " + l1regtop + "- new l1reg "+ l1reg+ ", difference less than "+ l1regminchange);
+        logger.info("Stopping: old l1reg  " + l1regtop + "- new l1reg "+ l1reg+ ", difference less than "+ l1regminchange);
         break;
       }
     }
@@ -63,12 +63,12 @@
       l1regbottom=l1reg;
       l1reg=0.5 * (l1reg + l1regtop);
       if (l1reg - l1regbottom < l1regminchange) {
-        System.err.println("Stopping: new l1reg  " + l1reg + "- old l1reg "+ l1regbottom+ ", difference less than "+ l1regminchange);
+        logger.info("Stopping: new l1reg  " + l1reg + "- old l1reg "+ l1regbottom+ ", difference less than "+ l1regminchange);
         break;
       }
     }
  else {
-      System.err.println("Stopping: # of features within " + limitFeatureTol + " of target");
+      logger.info("Stopping: # of features within " + limitFeatureTol + " of target");
       break;
     }
   }

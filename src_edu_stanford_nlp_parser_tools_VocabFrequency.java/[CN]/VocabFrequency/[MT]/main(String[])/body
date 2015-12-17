@@ -11,7 +11,7 @@
 switch (args[i]) {
 case "-l":
         Language lang=Language.valueOf(args[++i].trim());
-      tlpp=Languages.getLanguageParams(lang);
+      tlpp=lang.params;
     break;
 case "-e":
   encoding=args[++i];
@@ -36,12 +36,12 @@ tb=tlpp.diskTreebank();
 tb.loadPath(args[i]);
 }
 }
-Counter<String> vocab=new ClassicCounter<String>();
+Counter<String> vocab=new ClassicCounter<>();
 for (Tree t : tb) {
 List<Label> yield=t.yield();
 for (Label word : yield) vocab.incrementCount(word.value());
 }
-List<String> biggestKeys=new ArrayList<String>(vocab.keySet());
+List<String> biggestKeys=new ArrayList<>(vocab.keySet());
 Collections.sort(biggestKeys,Counters.toComparatorDescending(vocab));
 PrintWriter pw=tlpp.pw();
 for (String wordType : biggestKeys) pw.printf("%s\t%d%n",wordType,(int)vocab.getCount(wordType));

@@ -1,14 +1,40 @@
 {
   if (findIterator == null) {
     try {
-      if (hyp)       findIterator=sg.topologicalSort().iterator();
- else       if (sg_aligned == null)       return false;
- else       findIterator=sg_aligned.topologicalSort().iterator();
+      if (hyp) {
+synchronized (topologicalSortCache) {
+          List<IndexedWord> topoSort=topologicalSortCache.get(System.identityHashCode(sg));
+          if (topoSort == null || topoSort.size() != sg.size()) {
+            topoSort=sg.topologicalSort();
+            topologicalSortCache.put(System.identityHashCode(sg),topoSort);
+          }
+          findIterator=topoSort.iterator();
+        }
+      }
+ else       if (sg_aligned == null) {
+        return false;
+      }
+ else {
+synchronized (topologicalSortCache) {
+          List<IndexedWord> topoSort=topologicalSortCache.get(System.identityHashCode(sg_aligned));
+          if (topoSort == null || topoSort.size() != sg_aligned.size()) {
+            topoSort=sg_aligned.topologicalSort();
+            topologicalSortCache.put(System.identityHashCode(sg_aligned),topoSort);
+          }
+          findIterator=topoSort.iterator();
+        }
+      }
     }
  catch (    Exception ex) {
-      if (hyp)       findIterator=sg.vertexSet().iterator();
- else       if (sg_aligned == null)       return false;
- else       findIterator=sg_aligned.vertexSet().iterator();
+      if (hyp) {
+        findIterator=sg.vertexSet().iterator();
+      }
+ else       if (sg_aligned == null) {
+        return false;
+      }
+ else {
+        findIterator=sg_aligned.vertexSet().iterator();
+      }
     }
   }
   if (findCurrent != null && matches()) {

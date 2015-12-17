@@ -1,0 +1,22 @@
+{
+  Pair<Logger,Redwood.Flag> loggerAndLevel=getLoggerAndLevel(channel);
+switch (loggerAndLevel.second) {
+case ERROR:
+    loggerAndLevel.first.error(line);
+  break;
+case WARN:
+loggerAndLevel.first.warn(line);
+break;
+case DEBUG:
+loggerAndLevel.first.debug(line);
+break;
+case STDOUT:
+case STDERR:
+loggerAndLevel.first.info(line);
+break;
+case FORCE:
+throw new IllegalStateException("Should not reach this switch case");
+default :
+throw new IllegalStateException("Unknown Redwood flag for slf4j integration: " + loggerAndLevel.second);
+}
+}

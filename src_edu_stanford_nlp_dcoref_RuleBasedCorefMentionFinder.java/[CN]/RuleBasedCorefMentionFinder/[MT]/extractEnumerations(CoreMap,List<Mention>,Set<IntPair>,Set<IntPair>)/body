@@ -1,7 +1,7 @@
 {
   List<CoreLabel> sent=s.get(CoreAnnotations.TokensAnnotation.class);
   Tree tree=s.get(TreeCoreAnnotations.TreeAnnotation.class);
-  SemanticGraph dependency=s.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class);
+  SemanticGraph dependency=s.get(SemanticGraphCoreAnnotations.AlternativeDependenciesAnnotation.class);
   TregexPattern tgrepPattern=enumerationsMentionPattern;
   TregexMatcher matcher=tgrepPattern.matcher(tree);
   Map<IntPair,Tree> spanToMentionSubTree=Generics.newHashMap();
@@ -21,7 +21,7 @@
   for (  IntPair mSpan : spanToMentionSubTree.keySet()) {
     if (!mentionSpanSet.contains(mSpan) && !insideNE(mSpan,namedEntitySpanSet)) {
       int dummyMentionId=-1;
-      Mention m=new Mention(dummyMentionId,mSpan.get(0),mSpan.get(1),dependency,new ArrayList<CoreLabel>(sent.subList(mSpan.get(0),mSpan.get(1))),spanToMentionSubTree.get(mSpan));
+      Mention m=new Mention(dummyMentionId,mSpan.get(0),mSpan.get(1),dependency,new ArrayList<>(sent.subList(mSpan.get(0),mSpan.get(1))),spanToMentionSubTree.get(mSpan));
       mentions.add(m);
       mentionSpanSet.add(mSpan);
     }

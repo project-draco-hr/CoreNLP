@@ -7,16 +7,33 @@
   int[][] trainData=new int[trainSize][];
   double[][] trainValues=new double[trainSize][];
   int[] trainLabels=new int[trainSize];
-  System.arraycopy(data,start,devData,0,devSize);
-  System.arraycopy(values,start,devValues,0,devSize);
-  System.arraycopy(labels,start,devLabels,0,devSize);
-  System.arraycopy(data,0,trainData,0,start);
-  System.arraycopy(data,end,trainData,start,size() - end);
-  System.arraycopy(values,0,trainValues,0,start);
-  System.arraycopy(values,end,trainValues,start,size() - end);
-  System.arraycopy(labels,0,trainLabels,0,start);
-  System.arraycopy(labels,end,trainLabels,start,size() - end);
-  GeneralDataset<L,F> dev=new RVFDataset<L,F>(labelIndex,devLabels,featureIndex,devData,devValues);
-  GeneralDataset<L,F> train=new RVFDataset<L,F>(labelIndex,trainLabels,featureIndex,trainData,trainValues);
-  return new Pair<GeneralDataset<L,F>,GeneralDataset<L,F>>(train,dev);
+synchronized (System.class) {
+    System.arraycopy(data,start,devData,0,devSize);
+    System.arraycopy(values,start,devValues,0,devSize);
+    System.arraycopy(labels,start,devLabels,0,devSize);
+    System.arraycopy(data,0,trainData,0,start);
+    System.arraycopy(data,end,trainData,start,size() - end);
+    System.arraycopy(values,0,trainValues,0,start);
+    System.arraycopy(values,end,trainValues,start,size() - end);
+    System.arraycopy(labels,0,trainLabels,0,start);
+    System.arraycopy(labels,end,trainLabels,start,size() - end);
+  }
+  if (this instanceof WeightedRVFDataset<?,?>) {
+    float[] trainWeights=new float[trainSize];
+    float[] devWeights=new float[devSize];
+    WeightedRVFDataset<L,F> w=(WeightedRVFDataset<L,F>)this;
+synchronized (System.class) {
+      System.arraycopy(w.weights,start,devWeights,0,devSize);
+      System.arraycopy(w.weights,0,trainWeights,0,start);
+      System.arraycopy(w.weights,end,trainWeights,start,size() - end);
+    }
+    WeightedRVFDataset<L,F> dev=new WeightedRVFDataset<>(labelIndex,devLabels,featureIndex,devData,devValues,devWeights);
+    WeightedRVFDataset<L,F> train=new WeightedRVFDataset<>(labelIndex,trainLabels,featureIndex,trainData,trainValues,trainWeights);
+    return new Pair<>(train,dev);
+  }
+ else {
+    GeneralDataset<L,F> dev=new RVFDataset<>(labelIndex,devLabels,featureIndex,devData,devValues);
+    GeneralDataset<L,F> train=new RVFDataset<>(labelIndex,trainLabels,featureIndex,trainData,trainValues);
+    return new Pair<>(train,dev);
+  }
 }

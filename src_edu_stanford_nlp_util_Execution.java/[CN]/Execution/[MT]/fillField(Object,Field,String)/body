@@ -11,7 +11,7 @@
   try {
     boolean accessState=true;
     if (Modifier.isFinal(f.getModifiers())) {
-      fatal("Option cannot be final: " + f);
+      runtimeException("Option cannot be final: " + f);
     }
     if (!f.isAccessible()) {
       accessState=false;
@@ -22,7 +22,7 @@
       if (objVal.getClass().isArray()) {
         Object[] array=(Object[])objVal;
         if (!f.getType().isArray()) {
-          fatal("Setting an array to a non-array field. field: " + f + " value: "+ Arrays.toString(array)+ " src: "+ value);
+          runtimeException("Setting an array to a non-array field. field: " + f + " value: "+ Arrays.toString(array)+ " src: "+ value);
         }
         Object toSet=Array.newInstance(f.getType().getComponentType(),array.length);
         for (int i=0; i < array.length; i++) {
@@ -35,7 +35,7 @@
       }
     }
  else {
-      fatal("Cannot assign option field: " + f + " value: "+ value+ "; invalid type");
+      runtimeException("Cannot assign option field: " + f + " value: "+ value+ "; invalid type");
     }
     if (!accessState) {
       f.setAccessible(false);
@@ -43,14 +43,14 @@
   }
  catch (  IllegalArgumentException e) {
     err(e);
-    fatal("Cannot assign option field: " + f.getDeclaringClass().getCanonicalName() + "."+ f.getName()+ " value: "+ value+ " cause: "+ e.getMessage());
+    runtimeException("Cannot assign option field: " + f.getDeclaringClass().getCanonicalName() + "."+ f.getName()+ " value: "+ value+ " cause: "+ e.getMessage());
   }
 catch (  IllegalAccessException e) {
     err(e);
-    fatal("Cannot access option field: " + f.getDeclaringClass().getCanonicalName() + "."+ f.getName());
+    runtimeException("Cannot access option field: " + f.getDeclaringClass().getCanonicalName() + "."+ f.getName());
   }
 catch (  Exception e) {
     err(e);
-    fatal("Cannot assign option field: " + f.getDeclaringClass().getCanonicalName() + "."+ f.getName()+ " value: "+ value+ " cause: "+ e.getMessage());
+    runtimeException("Cannot assign option field: " + f.getDeclaringClass().getCanonicalName() + "."+ f.getName()+ " value: "+ value+ " cause: "+ e.getMessage());
   }
 }

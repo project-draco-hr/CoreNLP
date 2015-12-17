@@ -1,0 +1,35 @@
+{
+  if (!ant.headString.equalsIgnoreCase(m.headString))   return false;
+  boolean thisHasExtra=false;
+  int lengthThis=m.originalSpan.size();
+  int lengthM=ant.originalSpan.size();
+  Set<String> thisWordSet=Generics.newHashSet();
+  Set<String> antWordSet=Generics.newHashSet();
+  Set<String> locationModifier=Generics.newHashSet(Arrays.asList("east","west","north","south","eastern","western","northern","southern","upper","lower"));
+  for (int i=0; i < lengthThis; i++) {
+    String w1=m.originalSpan.get(i).get(CoreAnnotations.TextAnnotation.class).toLowerCase();
+    String pos1=m.originalSpan.get(i).get(CoreAnnotations.PartOfSpeechAnnotation.class);
+    if (!(pos1.startsWith("N") || pos1.startsWith("JJ") || pos1.equals("CD")|| pos1.startsWith("V")) || w1.equalsIgnoreCase(m.headString)) {
+      continue;
+    }
+    thisWordSet.add(w1);
+  }
+  for (int j=0; j < lengthM; j++) {
+    String w2=ant.originalSpan.get(j).get(CoreAnnotations.TextAnnotation.class).toLowerCase();
+    antWordSet.add(w2);
+  }
+  for (  String w : thisWordSet) {
+    if (!antWordSet.contains(w)) {
+      thisHasExtra=true;
+      break;
+    }
+  }
+  boolean hasLocationModifier=false;
+  for (  String l : locationModifier) {
+    if (antWordSet.contains(l) && !thisWordSet.contains(l)) {
+      hasLocationModifier=true;
+      break;
+    }
+  }
+  return (thisHasExtra || hasLocationModifier);
+}

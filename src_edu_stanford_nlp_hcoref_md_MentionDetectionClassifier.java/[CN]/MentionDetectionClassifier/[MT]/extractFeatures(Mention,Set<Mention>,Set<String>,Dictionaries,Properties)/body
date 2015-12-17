@@ -1,0 +1,42 @@
+{
+  Counter<String> features=new ClassicCounter<>();
+  String span=p.lowercaseNormalizedSpanString();
+  String ner=p.headWord.ner();
+  int sIdx=p.startIndex;
+  int eIdx=p.endIndex;
+  List<CoreLabel> sent=p.sentenceWords;
+  CoreLabel preWord=(sIdx == 0) ? null : sent.get(sIdx - 1);
+  CoreLabel nextWord=(eIdx == sent.size()) ? null : sent.get(eIdx);
+  CoreLabel firstWord=p.originalSpan.get(0);
+  CoreLabel lastWord=p.originalSpan.get(p.originalSpan.size() - 1);
+  features.incrementCount("B-NETYPE-" + ner);
+  if (neStrings.contains(span)) {
+    features.incrementCount("B-NE-STRING-EXIST");
+    if ((preWord == null || !preWord.ner().equals(ner)) && (nextWord == null || !nextWord.ner().equals(ner))) {
+      features.incrementCount("B-NE-FULLSPAN");
+    }
+  }
+  if (preWord != null)   features.incrementCount("B-PRECEDINGWORD-" + preWord.word());
+  if (nextWord != null)   features.incrementCount("B-FOLLOWINGWORD-" + nextWord.word());
+  if (preWord != null)   features.incrementCount("B-PRECEDINGPOS-" + preWord.tag());
+  if (nextWord != null)   features.incrementCount("B-FOLLOWINGPOS-" + nextWord.tag());
+  features.incrementCount("B-FIRSTWORD-" + firstWord.word());
+  features.incrementCount("B-FIRSTPOS-" + firstWord.tag());
+  features.incrementCount("B-LASTWORD-" + lastWord.word());
+  features.incrementCount("B-LASTWORD-" + lastWord.tag());
+  for (  Mention s : shares) {
+    if (s == p)     continue;
+    if (s.insideIn(p)) {
+      features.incrementCount("B-BIGGER-THAN-ANOTHER");
+      break;
+    }
+  }
+  for (  Mention s : shares) {
+    if (s == p)     continue;
+    if (p.insideIn(s)) {
+      features.incrementCount("B-SMALLER-THAN-ANOTHER");
+      break;
+    }
+  }
+  return features;
+}

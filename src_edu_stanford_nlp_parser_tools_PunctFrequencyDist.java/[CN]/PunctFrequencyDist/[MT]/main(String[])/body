@@ -12,7 +12,7 @@
 switch (args[i]) {
 case "-l":
         Language lang=Language.valueOf(args[++i].trim());
-      tlpp=Languages.getLanguageParams(lang);
+      tlpp=lang.params;
     break;
 case "-e":
   encoding=args[++i];
@@ -38,12 +38,12 @@ tb=tlpp.diskTreebank();
 tb.loadPath(args[i]);
 }
 }
-Counter<String> puncTypes=new ClassicCounter<String>();
+Counter<String> puncTypes=new ClassicCounter<>();
 for (Tree t : tb) {
 List<CoreLabel> yield=t.taggedLabeledYield();
 for (CoreLabel word : yield) if (word.tag().equals(puncTag)) puncTypes.incrementCount(word.word());
 }
-List<String> biggestKeys=new ArrayList<String>(puncTypes.keySet());
+List<String> biggestKeys=new ArrayList<>(puncTypes.keySet());
 Collections.sort(biggestKeys,Counters.toComparatorDescending(puncTypes));
 PrintWriter pw=tlpp.pw();
 for (String wordType : biggestKeys) pw.printf("%s\t%d%n",wordType,(int)puncTypes.getCount(wordType));

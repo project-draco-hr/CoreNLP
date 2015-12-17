@@ -1,10 +1,9 @@
 {
   this.props=props;
   StringBuilder sb=new StringBuilder(stringRep);
-  for (Enumeration e=props.propertyNames(); e.hasMoreElements(); ) {
-    String key=(String)e.nextElement();
+  for (  String key : props.stringPropertyNames()) {
     String val=props.getProperty(key);
-    if (!(key.length() == 0 && val.length() == 0)) {
+    if (!(key.isEmpty() && val.isEmpty())) {
       if (printProps) {
         System.err.println(key + '=' + val);
       }
@@ -268,7 +267,7 @@
  else     if (key.equalsIgnoreCase("phraseGazettes")) {
       StringTokenizer st=new StringTokenizer(val," ,;\t");
       if (phraseGazettes == null) {
-        phraseGazettes=new ArrayList<String>();
+        phraseGazettes=new ArrayList<>();
       }
       while (st.hasMoreTokens()) {
         phraseGazettes.add(st.nextToken());
@@ -386,7 +385,12 @@
       useUndirectedDisjunctive=Boolean.parseBoolean(val);
     }
  else     if (key.equalsIgnoreCase("splitSlashHyphenWords")) {
-      splitSlashHyphenWords=Boolean.parseBoolean(val);
+      try {
+        slashHyphenTreatment=SlashHyphenEnum.valueOf(val.trim().toUpperCase());
+      }
+ catch (      IllegalArgumentException|NullPointerException iae) {
+        slashHyphenTreatment=SlashHyphenEnum.NONE;
+      }
     }
  else     if (key.equalsIgnoreCase("disjunctionWidth")) {
       disjunctionWidth=Integer.parseInt(val);
@@ -405,6 +409,9 @@
     }
  else     if (key.equalsIgnoreCase("useTitle")) {
       useTitle=Boolean.parseBoolean(val);
+    }
+ else     if (key.equalsIgnoreCase("useTitle2")) {
+      useTitle2=Boolean.parseBoolean(val);
     }
  else     if (key.equalsIgnoreCase("booleanFeatures")) {
       booleanFeatures=Boolean.parseBoolean(val);
@@ -593,11 +600,15 @@
  else     if (key.equalsIgnoreCase("outputEncoding")) {
       outputEncoding=val;
     }
+ else     if (key.equalsIgnoreCase("encoding")) {
+      inputEncoding=val;
+      outputEncoding=val;
+    }
  else     if (key.equalsIgnoreCase("gazette")) {
       useGazettes=true;
       StringTokenizer st=new StringTokenizer(val," ,;\t");
       if (gazettes == null) {
-        gazettes=new ArrayList<String>();
+        gazettes=new ArrayList<>();
       }
       while (st.hasMoreTokens()) {
         gazettes.add(st.nextToken());
@@ -739,14 +750,14 @@
         featureFactory=getFeatureFactory(val);
       }
       featureFactories=new String[numFactories];
-      featureFactoriesArgs=new ArrayList<Object[]>(numFactories);
+      featureFactoriesArgs=new ArrayList<>(numFactories);
       for (int i=0; i < numFactories; i++) {
         featureFactories[i]=getFeatureFactory(tokens[i]);
         featureFactoriesArgs.add(new Object[0]);
       }
     }
  else     if (key.equalsIgnoreCase("printXML")) {
-      printXML=Boolean.parseBoolean(val);
+      System.err.println("printXML is disused; perhaps try using the -outputFormat xml option.");
     }
  else     if (key.equalsIgnoreCase("useSeenFeaturesOnly")) {
       useSeenFeaturesOnly=Boolean.parseBoolean(val);
@@ -1979,7 +1990,8 @@
       useGEforSup=Boolean.parseBoolean(val);
     }
  else     if (key.equalsIgnoreCase("useKnownLCWords")) {
-      useKnownLCWords=Boolean.parseBoolean(val);
+      System.err.println("useKnownLCWords is deprecated; see maxAdditionalKnownLCWords (true = -1, false = 0");
+      maxAdditionalKnownLCWords=Boolean.parseBoolean(val) ? -1 : 0;
     }
  else     if (key.equalsIgnoreCase("useNoisyLabel")) {
       useNoisyLabel=Boolean.parseBoolean(val);
@@ -2022,6 +2034,27 @@
     }
  else     if (key.equalsIgnoreCase("maxAdditionalKnownLCWords")) {
       maxAdditionalKnownLCWords=Integer.parseInt(val);
+    }
+ else     if (key.equalsIgnoreCase("showNCCInfo")) {
+      showNCCInfo=Boolean.parseBoolean(val);
+    }
+ else     if (key.equalsIgnoreCase("showCCInfo")) {
+      showCCInfo=Boolean.parseBoolean(val);
+    }
+ else     if (key.equalsIgnoreCase("crfToExamine")) {
+      crfToExamine=val;
+    }
+ else     if (key.equalsIgnoreCase("ner.useSUTime")) {
+      useSUTime=Boolean.parseBoolean(val);
+    }
+ else     if (key.equalsIgnoreCase("ner.applyNumericClassifiers")) {
+      applyNumericClassifiers=Boolean.parseBoolean(val);
+    }
+ else     if (key.equalsIgnoreCase("ner.combinationMode")) {
+      combinationMode=val;
+    }
+ else     if (key.equalsIgnoreCase("ner.model")) {
+      nerModel=val;
     }
  else     if (!key.isEmpty() && !key.equals("prop")) {
       System.err.println("Unknown property: |" + key + '|');

@@ -1,0 +1,24 @@
+{
+  SemanticGraphEdge edge=sg.getEdge(gov,mod);
+  int lastCaseMarkerIndex=0;
+  StringBuilder sb=new StringBuilder();
+  boolean firstWord=true;
+  for (  IndexedWord cm : caseMarkers) {
+    if (lastCaseMarkerIndex == 0 || cm.index() == (lastCaseMarkerIndex + 1)) {
+      if (!firstWord) {
+        sb.append("_");
+      }
+      sb.append(cm.value());
+      firstWord=false;
+    }
+ else {
+      GrammaticalRelation reln=getCaseMarkedRelation(edge.getRelation(),sb.toString().toLowerCase());
+      sg.addEdge(gov,mod,reln,Double.NEGATIVE_INFINITY,true);
+      sb=new StringBuilder(cm.value());
+      firstWord=true;
+    }
+    lastCaseMarkerIndex=cm.index();
+  }
+  GrammaticalRelation reln=getCaseMarkedRelation(edge.getRelation(),sb.toString().toLowerCase());
+  edge.setRelation(reln);
+}

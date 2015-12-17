@@ -1,8 +1,34 @@
 {
   SequencePattern.PatternExpr expr;
-  expr=SeqRegexDisjConj(env);
+  boolean hasStart=false;
+  boolean hasEnd=false;
+switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
+case 40:
+    jj_consume_token(40);
+  hasStart=true;
+break;
+default :
+jj_la1[24]=jj_gen;
+;
+}
+expr=SeqRegexDisjConj(env);
+switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
+case 41:
+jj_consume_token(41);
+hasEnd=true;
+break;
+default :
+jj_la1[25]=jj_gen;
+;
+}
+if (hasStart) {
+expr=new SequencePattern.SequencePatternExpr(SequencePattern.SEQ_BEGIN_PATTERN_EXPR,expr);
+}
+if (hasEnd) {
+expr=new SequencePattern.SequencePatternExpr(expr,SequencePattern.SEQ_END_PATTERN_EXPR);
+}
 {
-    if (true)     return expr;
-  }
-  throw new Error("Missing return statement in function");
+if (true) return expr;
+}
+throw new Error("Missing return statement in function");
 }

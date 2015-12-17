@@ -1,8 +1,8 @@
 {
-  TwoDimensionalCounter<E,CandidatePhrase> patternsandWords4Label=new TwoDimensionalCounter<E,CandidatePhrase>();
-  TwoDimensionalCounter<E,CandidatePhrase> negPatternsandWords4Label=new TwoDimensionalCounter<E,CandidatePhrase>();
-  TwoDimensionalCounter<E,CandidatePhrase> unLabeledPatternsandWords4Label=new TwoDimensionalCounter<E,CandidatePhrase>();
-  Set<String> allCandidatePhrases=new HashSet<String>();
+  TwoDimensionalCounter<E,CandidatePhrase> patternsandWords4Label=new TwoDimensionalCounter<>();
+  TwoDimensionalCounter<E,CandidatePhrase> negPatternsandWords4Label=new TwoDimensionalCounter<>();
+  TwoDimensionalCounter<E,CandidatePhrase> unLabeledPatternsandWords4Label=new TwoDimensionalCounter<>();
+  Set<String> allCandidatePhrases=new HashSet<>();
   ConstantsAndVariables.DataSentsIterator sentsIter=new ConstantsAndVariables.DataSentsIterator(constVars.batchProcessSents);
   boolean firstCallToProcessSents=true;
   while (sentsIter.hasNext()) {
@@ -20,14 +20,16 @@
   notComputedAllPatternsYet=false;
   if (constVars.computeAllPatterns) {
     if (constVars.storePatsForEachToken.equals(ConstantsAndVariables.PatternForEachTokenWay.DB))     patsForEachToken.createIndexIfUsingDBAndNotExists();
-    IOUtils.ensureDir(new File(constVars.allPatternsDir));
-    patsForEachToken.save(constVars.allPatternsDir);
+    if (constVars.allPatternsDir != null) {
+      IOUtils.ensureDir(new File(constVars.allPatternsDir));
+      patsForEachToken.save(constVars.allPatternsDir);
+    }
   }
   patsForEachToken.close();
   constVars.computeAllPatterns=false;
-  if (patternsandWords == null)   patternsandWords=new HashMap<String,TwoDimensionalCounter<E,CandidatePhrase>>();
-  if (currentPatternWeights == null)   currentPatternWeights=new HashMap<String,Counter<E>>();
-  Counter<E> currentPatternWeights4Label=new ClassicCounter<E>();
+  if (patternsandWords == null)   patternsandWords=new HashMap<>();
+  if (currentPatternWeights == null)   currentPatternWeights=new HashMap<>();
+  Counter<E> currentPatternWeights4Label=new ClassicCounter<>();
   Set<E> removePats=enforceMinSupportRequirements(patternsandWords4Label,unLabeledPatternsandWords4Label);
   Counters.removeKeys(patternsandWords4Label,removePats);
   Counters.removeKeys(unLabeledPatternsandWords4Label,removePats);
@@ -89,8 +91,8 @@ catch (    InstantiationException e) {
   }
   PriorityQueue<E> q=Counters.toPriorityQueue(currentPatternWeights4Label);
   int num=0;
-  Counter<E> chosenPat=new ClassicCounter<E>();
-  Set<E> removePatterns=new HashSet<E>();
+  Counter<E> chosenPat=new ClassicCounter<>();
+  Set<E> removePatterns=new HashSet<>();
   Set<E> removeIdentifiedPatterns=null;
   while (num < constVars.numPatterns && !q.isEmpty()) {
     E pat=q.removeFirst();
@@ -116,7 +118,7 @@ catch (    InstantiationException e) {
           int rest=pat.equalContext(p);
           if (rest == Integer.MAX_VALUE)           continue;
           if (rest < 0) {
-            if (removeIdentifiedPatterns == null)             removeIdentifiedPatterns=new HashSet<E>();
+            if (removeIdentifiedPatterns == null)             removeIdentifiedPatterns=new HashSet<>();
             removeIdentifiedPatterns.add(p);
           }
  else {
@@ -150,7 +152,7 @@ catch (    InstantiationException e) {
             }
           }
           if (removeChosenPatFlag) {
-            if (removeChosenPats == null)             removeChosenPats=new HashSet<E>();
+            if (removeChosenPats == null)             removeChosenPats=new HashSet<>();
             removeChosenPats.add(pat);
             num--;
           }
@@ -178,49 +180,51 @@ catch (    InstantiationException e) {
   List<Pair<E,Double>> chosenPatSorted=Counters.toSortedListWithCounts(chosenPat);
   for (  Pair<E,Double> en : chosenPatSorted)   Redwood.log(ConstantsAndVariables.minimaldebug,en.first().toString() + ":" + df.format(en.second)+ "\n");
   if (constVars.outDir != null && !constVars.outDir.isEmpty()) {
-    CollectionValuedMap<E,CandidatePhrase> posWords=new CollectionValuedMap<E,CandidatePhrase>();
+    CollectionValuedMap<E,CandidatePhrase> posWords=new CollectionValuedMap<>();
     for (    Entry<E,ClassicCounter<CandidatePhrase>> en : patternsandWords4Label.entrySet()) {
       posWords.addAll(en.getKey(),en.getValue().keySet());
     }
-    CollectionValuedMap<E,CandidatePhrase> negWords=new CollectionValuedMap<E,CandidatePhrase>();
+    CollectionValuedMap<E,CandidatePhrase> negWords=new CollectionValuedMap<>();
     for (    Entry<E,ClassicCounter<CandidatePhrase>> en : negPatternsandWords4Label.entrySet()) {
       negWords.addAll(en.getKey(),en.getValue().keySet());
     }
-    CollectionValuedMap<E,CandidatePhrase> unlabWords=new CollectionValuedMap<E,CandidatePhrase>();
+    CollectionValuedMap<E,CandidatePhrase> unlabWords=new CollectionValuedMap<>();
     for (    Entry<E,ClassicCounter<CandidatePhrase>> en : unLabeledPatternsandWords4Label.entrySet()) {
       unlabWords.addAll(en.getKey(),en.getValue().keySet());
     }
-    String outputdir=constVars.outDir + "/" + constVars.identifier+ "/"+ label;
-    Redwood.log(ConstantsAndVariables.minimaldebug,"Saving output in " + outputdir);
-    IOUtils.ensureDir(new File(outputdir));
-    String filename=outputdir + "/patterns" + ".json";
-    JsonArrayBuilder obj=Json.createArrayBuilder();
-    if (writtenPatInJustification.containsKey(label) && writtenPatInJustification.get(label)) {
-      JsonReader jsonReader=Json.createReader(new BufferedInputStream(new FileInputStream(filename)));
-      JsonArray objarr=jsonReader.readArray();
-      jsonReader.close();
-      for (      JsonValue o : objarr)       obj.add(o);
+    if (constVars.outDir != null) {
+      String outputdir=constVars.outDir + "/" + constVars.identifier+ "/"+ label;
+      Redwood.log(ConstantsAndVariables.minimaldebug,"Saving output in " + outputdir);
+      IOUtils.ensureDir(new File(outputdir));
+      String filename=outputdir + "/patterns" + ".json";
+      JsonArrayBuilder obj=Json.createArrayBuilder();
+      if (writtenPatInJustification.containsKey(label) && writtenPatInJustification.get(label)) {
+        JsonReader jsonReader=Json.createReader(new BufferedInputStream(new FileInputStream(filename)));
+        JsonArray objarr=jsonReader.readArray();
+        jsonReader.close();
+        for (        JsonValue o : objarr)         obj.add(o);
+      }
+ else       obj=Json.createArrayBuilder();
+      JsonObjectBuilder objThisIter=Json.createObjectBuilder();
+      for (      Pair<E,Double> pat : chosenPatSorted) {
+        JsonObjectBuilder o=Json.createObjectBuilder();
+        JsonArrayBuilder pos=Json.createArrayBuilder();
+        JsonArrayBuilder neg=Json.createArrayBuilder();
+        JsonArrayBuilder unlab=Json.createArrayBuilder();
+        for (        CandidatePhrase w : posWords.get(pat.first()))         pos.add(w.getPhrase());
+        for (        CandidatePhrase w : negWords.get(pat.first()))         neg.add(w.getPhrase());
+        for (        CandidatePhrase w : unlabWords.get(pat.first()))         unlab.add(w.getPhrase());
+        o.add("Positive",pos);
+        o.add("Negative",neg);
+        o.add("Unlabeled",unlab);
+        o.add("Score",pat.second());
+        objThisIter.add(pat.first().toStringSimple(),o);
+      }
+      obj.add(objThisIter.build());
+      IOUtils.ensureDir(new File(filename).getParentFile());
+      IOUtils.writeStringToFile(StringUtils.normalize(StringUtils.toAscii(obj.build().toString())),filename,"ASCII");
+      writtenPatInJustification.put(label,true);
     }
- else     obj=Json.createArrayBuilder();
-    JsonObjectBuilder objThisIter=Json.createObjectBuilder();
-    for (    Pair<E,Double> pat : chosenPatSorted) {
-      JsonObjectBuilder o=Json.createObjectBuilder();
-      JsonArrayBuilder pos=Json.createArrayBuilder();
-      JsonArrayBuilder neg=Json.createArrayBuilder();
-      JsonArrayBuilder unlab=Json.createArrayBuilder();
-      for (      CandidatePhrase w : posWords.get(pat.first()))       pos.add(w.getPhrase());
-      for (      CandidatePhrase w : negWords.get(pat.first()))       neg.add(w.getPhrase());
-      for (      CandidatePhrase w : unlabWords.get(pat.first()))       unlab.add(w.getPhrase());
-      o.add("Positive",pos);
-      o.add("Negative",neg);
-      o.add("Unlabeled",unlab);
-      o.add("Score",pat.second());
-      objThisIter.add(pat.first().toStringSimple(),o);
-    }
-    obj.add(objThisIter.build());
-    IOUtils.ensureDir(new File(filename).getParentFile());
-    IOUtils.writeStringToFile(StringUtils.normalize(StringUtils.toAscii(obj.build().toString())),filename,"ASCII");
-    writtenPatInJustification.put(label,true);
   }
   if (constVars.justify) {
     Redwood.log(Redwood.DBG,"Justification for Patterns:");

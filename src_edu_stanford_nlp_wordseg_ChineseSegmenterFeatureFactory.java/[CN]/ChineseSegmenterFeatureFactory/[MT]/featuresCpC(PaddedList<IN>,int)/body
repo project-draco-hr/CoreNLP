@@ -1,5 +1,5 @@
 {
-  Collection<String> features=new ArrayList<String>();
+  Collection<String> features=new ArrayList<>();
   CoreLabel c=cInfo.get(loc);
   CoreLabel c1=cInfo.get(loc + 1);
   CoreLabel c2=cInfo.get(loc + 2);
@@ -93,7 +93,7 @@
   }
   if (flags.useOutDict2) {
     if (outDict == null) {
-      System.err.println("reading " + flags.outDict2 + " as a seen lexicon");
+      logger.info("reading " + flags.outDict2 + " as a seen lexicon");
       outDict=new CorpusDictionary(flags.outDict2,true);
     }
     features.add(outDict.getW(charp + charc) + "outdict");
@@ -124,8 +124,8 @@
     if (taDetector == null) {
       taDetector=new TagAffixDetector(flags);
     }
-    for (int k=0; k < tagsets.length; k++) {
-      features.add(taDetector.checkDic(tagsets[k] + "p",charp) + taDetector.checkDic(tagsets[k] + "i",charp) + taDetector.checkDic(tagsets[k] + "s",charc)+ taDetector.checkInDic(charp)+ taDetector.checkInDic(charc)+ tagsets[k]+ "prep-sufc");
+    for (    String tagset : tagsets) {
+      features.add(taDetector.checkDic(tagset + "p",charp) + taDetector.checkDic(tagset + "i",charp) + taDetector.checkDic(tagset + "s",charc)+ taDetector.checkInDic(charp)+ taDetector.checkInDic(charc)+ tagset+ "prep-sufc");
     }
   }
   if (flags.useRule2) {

@@ -1,6 +1,6 @@
 {
   if (items.size() > 1) {
-    Map<E,PartialScoredList<T,E>> bestNonOverlapping=new TreeMap<E,PartialScoredList<T,E>>();
+    Map<E,PartialScoredList<T,E>> bestNonOverlapping=new TreeMap<>();
     for (    T item : items) {
       Interval<E> itemInterval=toIntervalFunc.apply(item);
       E mBegin=itemInterval.getBegin();
@@ -8,7 +8,7 @@
       PartialScoredList<T,E> bestk=bestNonOverlapping.get(mEnd);
       double itemScore=scoreFunc.apply(item);
       if (bestk == null) {
-        bestk=new PartialScoredList<T,E>();
+        bestk=new PartialScoredList<>();
         bestk.size=1;
         bestk.score=itemScore;
         bestk.object=item;
@@ -41,7 +41,7 @@
         best=v;
       }
     }
-    List<T> nonOverlapping=new ArrayList<T>(best.size);
+    List<T> nonOverlapping=new ArrayList<>(best.size);
     PartialScoredList<T,E> prev=best;
     while (prev != null) {
       if (prev.object != null) {
@@ -58,7 +58,7 @@
     return nonOverlapping;
   }
  else {
-    List<T> nonOverlapping=new ArrayList<T>(items);
+    List<T> nonOverlapping=new ArrayList<>(items);
     return nonOverlapping;
   }
 }

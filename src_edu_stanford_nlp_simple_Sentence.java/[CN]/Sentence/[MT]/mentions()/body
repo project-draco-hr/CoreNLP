@@ -1,0 +1,29 @@
+{
+  List<String> mentionsOfTag=new ArrayList<>();
+  StringBuilder lastMention=new StringBuilder();
+  String lastTag="O";
+  for (int i=0; i < length(); ++i) {
+    String ner=nerTag(i);
+    if (!ner.equals("O") && !lastTag.equals(ner)) {
+      if (lastMention.length() > 0) {
+        mentionsOfTag.add(lastMention.toString().trim());
+      }
+      lastMention.setLength(0);
+      lastMention.append(word(i)).append(' ');
+    }
+ else     if (!ner.equals("O") && lastTag.equals(ner)) {
+      lastMention.append(word(i)).append(' ');
+    }
+ else     if (ner.equals("O") && !lastTag.equals("O")) {
+      if (lastMention.length() > 0) {
+        mentionsOfTag.add(lastMention.toString().trim());
+      }
+      lastMention.setLength(0);
+    }
+    lastTag=ner;
+  }
+  if (lastMention.length() > 0) {
+    mentionsOfTag.add(lastMention.toString().trim());
+  }
+  return mentionsOfTag;
+}

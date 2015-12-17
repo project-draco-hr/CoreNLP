@@ -1,4 +1,5 @@
 {
+  Timing tim=new Timing();
   this.numWords=0;
   this.constituentTreePrinter=new TreePrint("penn");
   this.dependencyTreePrinter=new TreePrint("typedDependenciesCollapsed");
@@ -12,6 +13,13 @@
   }
   this.properties=props;
   AnnotatorPool pool=getDefaultAnnotatorPool(props,annotatorImplementations);
+  if (this.properties.containsKey("threads")) {
+    Execution.threads=PropertiesUtils.getInt(this.properties,"threads");
+    this.availableProcessors=new Semaphore(Execution.threads);
+  }
+ else {
+    this.availableProcessors=new Semaphore(1);
+  }
   List<String> annoNames=Arrays.asList(getRequiredProperty(props,"annotators").split("[, \t]+"));
   Set<String> alreadyAddedAnnoNames=Generics.newHashSet();
   Set<Requirement> requirementsSatisfied=Generics.newHashSet();
@@ -20,7 +28,7 @@
     if (name.isEmpty()) {
       continue;
     }
-    System.err.println("Adding annotator " + name);
+    logger.info("Adding annotator " + name);
     Annotator an=pool.get(name);
     this.addAnnotator(an);
     if (enforceRequirements) {
@@ -38,4 +46,5 @@
   if (!alreadyAddedAnnoNames.contains(STANFORD_SSPLIT)) {
     System.setProperty(NEWLINE_SPLITTER_PROPERTY,"false");
   }
+  this.pipelineSetupTime=tim.report();
 }

@@ -1,0 +1,26 @@
+{
+  for (  SemanticGraphEdge prep : sg.findAllRelns(PREPOSITION)) {
+    boolean changedPrep=false;
+    for (    SemanticGraphEdge nmod : sg.outgoingEdgeIterable(prep.getGovernor())) {
+      if (nmod.getRelation() != NOMINAL_MODIFIER && nmod.getRelation() != RELATIVE) {
+        continue;
+      }
+      if (prep.getDependent().index() < nmod.getDependent().index()) {
+        continue;
+      }
+      sg.removeEdge(prep);
+      sg.addEdge(nmod.getDependent(),prep.getDependent(),CASE_MARKER,Double.NEGATIVE_INFINITY,false);
+      changedPrep=true;
+      if (nmod.getRelation() == RELATIVE) {
+        nmod.setRelation(NOMINAL_MODIFIER);
+      }
+      break;
+    }
+    if (!changedPrep) {
+      prep.setRelation(NOMINAL_MODIFIER);
+    }
+  }
+  for (  SemanticGraphEdge edge : sg.findAllRelns(RELATIVE)) {
+    edge.setRelation(DIRECT_OBJECT);
+  }
+}

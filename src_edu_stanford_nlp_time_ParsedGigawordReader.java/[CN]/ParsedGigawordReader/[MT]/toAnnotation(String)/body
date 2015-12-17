@@ -14,14 +14,14 @@ catch (  IOException e) {
   Element textElem=docElem.getFirstChildElement("TEXT");
   StringBuilder text=new StringBuilder();
   int offset=0;
-  List<CoreMap> sentences=new ArrayList<CoreMap>();
+  List<CoreMap> sentences=new ArrayList<>();
   Elements sentenceElements=textElem.getChildElements("SENT");
   for (int crtsent=0; crtsent < sentenceElements.size(); crtsent++) {
     Element sentElem=sentenceElements.get(crtsent);
     CoreMap sentence=new ArrayCoreMap();
     sentence.set(CoreAnnotations.CharacterOffsetBeginAnnotation.class,offset);
     Tree tree=Tree.valueOf(sentElem.getChild(0).getValue());
-    List<CoreLabel> tokens=new ArrayList<CoreLabel>();
+    List<CoreLabel> tokens=new ArrayList<>();
     List<Tree> preTerminals=preTerminals(tree);
     for (    Tree preTerminal : preTerminals) {
       String posTag=preTerminal.value();

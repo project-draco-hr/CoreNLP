@@ -1,5 +1,7 @@
 {
   Token tok=null;
+  Token head=null;
+  Token tail=null;
   SequencePattern.PatternExpr seqRegex=null;
 switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
 case REGEX:
@@ -11,7 +13,7 @@ break;
 case STR:
 tok=jj_consume_token(STR);
 {
-if (true) return new Expressions.PrimitiveValue<String>("STRING",parseQuotedString(tok.image));
+if (true) return new Expressions.PrimitiveValue<>("STRING",parseQuotedString(tok.image));
 }
 break;
 case NONNEGINT:
@@ -34,12 +36,13 @@ if (true) return new Expressions.PrimitiveValue<Number>("REAL",Double.valueOf(to
 }
 break;
 case 25:
-jj_consume_token(25);
+head=jj_consume_token(25);
 seqRegex=SeqRegex(env);
-jj_consume_token(26);
-TokenSequencePattern seqPattern=new TokenSequencePattern(null,seqRegex);
+tail=jj_consume_token(26);
+String str=getStringFromTokens(head,tail,true);
+TokenSequencePattern seqPattern=new TokenSequencePattern(str,seqRegex);
 {
-if (true) return new Expressions.PrimitiveValue<TokenSequencePattern>("TOKEN_REGEX",seqPattern);
+if (true) return new Expressions.PrimitiveValue<>("TOKEN_REGEX",seqPattern);
 }
 break;
 default :

@@ -1,0 +1,37 @@
+{
+  Set<String> unorderedAnnotators=new HashSet<>();
+  for (  String annotator : annotators) {
+    if (!Annotator.REQUIREMENTS.containsKey(annotator.toLowerCase())) {
+      throw new IllegalArgumentException("Unknown annotator: " + annotator);
+    }
+    unorderedAnnotators.add(annotator.toLowerCase());
+    Set<Requirement> requirements=Annotator.REQUIREMENTS.get(annotator.toLowerCase());
+    for (    Requirement prereq : requirements) {
+      unorderedAnnotators.add(prereq.name);
+    }
+  }
+  List<String> orderedAnnotators=new ArrayList<>();
+  while (!unorderedAnnotators.isEmpty()) {
+    boolean somethingAdded=false;
+    Iterator<String> iter=unorderedAnnotators.iterator();
+    while (iter.hasNext()) {
+      String candidate=iter.next();
+      boolean canAdd=true;
+      for (      Requirement prereq : Annotator.REQUIREMENTS.get(candidate)) {
+        if (!orderedAnnotators.contains(prereq.name)) {
+          canAdd=false;
+          break;
+        }
+      }
+      if (canAdd) {
+        orderedAnnotators.add(candidate);
+        iter.remove();
+        somethingAdded=true;
+      }
+    }
+    if (!somethingAdded) {
+      throw new IllegalArgumentException("Unsatisfiable annotator list: " + StringUtils.join(annotators,","));
+    }
+  }
+  return StringUtils.join(orderedAnnotators,",");
+}

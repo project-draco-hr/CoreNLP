@@ -1,0 +1,39 @@
+{
+  parse=new SemanticGraph(parse);
+  IndexedWord root=parse.getFirstRoot();
+  if ((root.lemma() != null && root.lemma().equalsIgnoreCase("be")) || (root.lemma() == null && (root.word().equalsIgnoreCase("is") || root.word().equalsIgnoreCase("are") || root.word().equalsIgnoreCase("were")|| root.word().equalsIgnoreCase("be")))) {
+    boolean foundThere=false;
+    boolean tooMayArcs=false;
+    Optional<SemanticGraphEdge> newRoot=Optional.empty();
+    for (    SemanticGraphEdge edge : parse.outgoingEdgeIterable(root)) {
+      if (edge.getRelation().toString().equals("expl") && edge.getDependent().word().equalsIgnoreCase("there")) {
+        foundThere=true;
+      }
+ else       if (edge.getRelation().toString().equals("nsubj")) {
+        newRoot=Optional.of(edge);
+      }
+ else {
+        tooMayArcs=true;
+      }
+    }
+    if (foundThere && newRoot.isPresent() && !tooMayArcs) {
+      ClauseSplitterSearchProblem.splitToChildOfEdge(parse,newRoot.get());
+    }
+  }
+  Optional<RelationTriple> extraction=segmentVerb(parse,confidence,consumeAll);
+  if (!extraction.isPresent()) {
+    extraction=segmentACL(parse,confidence,consumeAll);
+  }
+  if (extraction.isPresent()) {
+    boolean shouldRemove=true;
+    for (    CoreLabel token : extraction.get()) {
+      if (token.get(NaturalLogicAnnotations.PolarityAnnotation.class) == null || !token.get(NaturalLogicAnnotations.PolarityAnnotation.class).isDownwards()) {
+        shouldRemove=false;
+      }
+    }
+    if (shouldRemove) {
+      return Optional.empty();
+    }
+  }
+  return extraction;
+}

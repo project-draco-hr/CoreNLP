@@ -1,0 +1,24 @@
+{
+  GraphicalModel model=new GraphicalModel();
+  int[] variableSizes=new int[8];
+  for (int i=0; i < variableSizes.length; i++) {
+    variableSizes[i]=sourceOfRandomness.nextInt(1,3);
+  }
+  generateCliques(variableSizes,new ArrayList<>(),new HashSet<>(),model,sourceOfRandomness);
+  generateMetaData(sourceOfRandomness,model.getModelMetaDataByReference());
+  for (int i=0; i < 20; i++) {
+    generateMetaData(sourceOfRandomness,model.getVariableMetaDataByReference(i));
+  }
+  for (  GraphicalModel.Factor factor : model.factors) {
+    generateMetaData(sourceOfRandomness,factor.getMetaDataByReference());
+  }
+  for (  GraphicalModel.Factor f : model.factors) {
+    for (int i=0; i < f.neigborIndices.length; i++) {
+      if (sourceOfRandomness.nextDouble() > 0.8) {
+        int obs=sourceOfRandomness.nextInt(f.featuresTable.getDimensions()[i]);
+        model.getVariableMetaDataByReference(f.neigborIndices[i]).put(CliqueTree.VARIABLE_OBSERVED_VALUE,"" + obs);
+      }
+    }
+  }
+  return model;
+}

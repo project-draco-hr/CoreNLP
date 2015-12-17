@@ -11,7 +11,7 @@
   String cShape=c.getString(CoreAnnotations.ShapeAnnotation.class);
   String pShape=p.getString(CoreAnnotations.ShapeAnnotation.class);
   String nShape=n.getString(CoreAnnotations.ShapeAnnotation.class);
-  Collection<String> featuresC=new ArrayList<String>();
+  Collection<String> featuresC=new ArrayList<>();
   if (flags.useDistSim) {
     distSimAnnotate(cInfo);
   }
@@ -32,10 +32,15 @@
       featuresC.add("IS_TITLE");
     }
   }
-  if (flags.splitSlashHyphenWords) {
-    String[] bits=splitSlashHyphenWordsPattern.split(cWord);
-    for (    String bit : bits) {
-      featuresC.add(bit + "WFRAG");
+ else   if (flags.useTitle2) {
+    Matcher m=titlePattern2.matcher(cWord);
+    if (m.matches()) {
+      featuresC.add("IS_TITLE");
+    }
+  }
+  if (flags.slashHyphenTreatment != SeqClassifierFlags.SlashHyphenEnum.NONE) {
+    if (flags.useWord) {
+      generateSlashHyphenFeatures(cWord,featuresC,"-WFRAG","-WORD");
     }
   }
   if (flags.useInternal && flags.useExternal) {
@@ -400,7 +405,7 @@
         subs=wordToSubstrings.get(cWord);
       }
       if (subs == null) {
-        subs=new ArrayList<String>();
+        subs=new ArrayList<>();
         String word='<' + cWord + '>';
         if (flags.lowercaseNGrams) {
           word=word.toLowerCase();
@@ -556,7 +561,7 @@
     if (flags.useNGrams) {
       Collection<String> subs=wordToSubstrings.get(cWord);
       if (subs == null) {
-        subs=new ArrayList<String>();
+        subs=new ArrayList<>();
         String word='<' + cWord + '>';
         if (flags.lowercaseNGrams) {
           word=word.toLowerCase();

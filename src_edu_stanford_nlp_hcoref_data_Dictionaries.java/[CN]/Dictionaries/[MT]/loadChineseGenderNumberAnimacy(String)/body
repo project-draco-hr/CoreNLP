@@ -1,0 +1,35 @@
+{
+  for (  String line : IOUtils.readLines(file)) {
+    if (line.startsWith("#WORD"))     continue;
+    String[] split=line.split("\t");
+    String word=split[0];
+    int animate=Integer.parseInt(split[1]);
+    int inanimate=Integer.parseInt(split[2]);
+    int male=Integer.parseInt(split[3]);
+    int female=Integer.parseInt(split[4]);
+    int neutral=Integer.parseInt(split[5]);
+    int singular=Integer.parseInt(split[6]);
+    int plural=Integer.parseInt(split[7]);
+    if (male * 0.5 > female + neutral && male > 2) {
+      maleWords.add(word);
+    }
+ else     if (female * 0.5 > male + neutral && female > 2) {
+      femaleWords.add(word);
+    }
+ else     if (neutral * 0.5 > male + female && neutral > 2) {
+      neutralWords.add(word);
+    }
+    if (animate * 0.5 > inanimate && animate > 2) {
+      animateWords.add(word);
+    }
+ else     if (inanimate * 0.5 > animate && inanimate > 2) {
+      inanimateWords.add(word);
+    }
+    if (singular * 0.5 > plural && singular > 2) {
+      singularWords.add(word);
+    }
+ else     if (plural * 0.5 > singular && plural > 2) {
+      pluralWords.add(word);
+    }
+  }
+}

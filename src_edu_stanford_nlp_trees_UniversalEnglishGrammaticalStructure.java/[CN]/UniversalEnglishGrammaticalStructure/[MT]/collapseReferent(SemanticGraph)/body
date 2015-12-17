@@ -1,0 +1,15 @@
+{
+  List<SemanticGraphEdge> refs=new ArrayList<>(sg.findAllRelns(REFERENT));
+  SemanticGraph sgCopy=sg.makeSoftCopy();
+  for (  SemanticGraphEdge ref : refs) {
+    IndexedWord dep=ref.getDependent();
+    IndexedWord ant=ref.getGovernor();
+    for (Iterator<SemanticGraphEdge> iter=sgCopy.incomingEdgeIterator(dep); iter.hasNext(); ) {
+      SemanticGraphEdge edge=iter.next();
+      if (edge.getRelation() != REFERENT && !edge.getGovernor().equals(ant)) {
+        sg.removeEdge(edge);
+        sg.addEdge(edge.getGovernor(),ant,edge.getRelation(),Double.NEGATIVE_INFINITY,true);
+      }
+    }
+  }
+}

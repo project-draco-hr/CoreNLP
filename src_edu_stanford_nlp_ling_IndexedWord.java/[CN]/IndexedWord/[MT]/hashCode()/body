@@ -1,4 +1,7 @@
 {
+  if (cachedHashCode != 0) {
+    return cachedHashCode;
+  }
   boolean sensible=false;
   int result=0;
   if (get(CoreAnnotations.DocIDAnnotation.class) != null) {
@@ -16,5 +19,6 @@
   if (!sensible) {
     System.err.println("WARNING!!!  You have hashed an IndexedWord with no docID, sentIndex or wordIndex. You will almost certainly lose");
   }
+  cachedHashCode=result;
   return result;
 }

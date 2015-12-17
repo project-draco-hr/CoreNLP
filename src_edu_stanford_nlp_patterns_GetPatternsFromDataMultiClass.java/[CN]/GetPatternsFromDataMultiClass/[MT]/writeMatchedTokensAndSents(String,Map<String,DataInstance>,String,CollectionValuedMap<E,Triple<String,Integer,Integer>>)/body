@@ -1,35 +1,37 @@
 {
-  Set<String> allMatchedSents=new HashSet<String>();
-  String matchedtokensfilename=constVars.outDir + "/" + constVars.identifier+ "/"+ label+ "/tokensmatchedpatterns"+ suffix+ ".json";
-  JsonObjectBuilder pats=Json.createObjectBuilder();
-  for (  Entry<E,Collection<Triple<String,Integer,Integer>>> en : tokensMatchedPat.entrySet()) {
-    CollectionValuedMap<String,Pair<Integer,Integer>> matchedStrs=new CollectionValuedMap<String,Pair<Integer,Integer>>();
-    for (    Triple<String,Integer,Integer> en2 : en.getValue()) {
-      allMatchedSents.add(en2.first());
-      matchedStrs.add(en2.first(),new Pair<Integer,Integer>(en2.second(),en2.third()));
-    }
-    JsonObjectBuilder senttokens=Json.createObjectBuilder();
-    for (    Entry<String,Collection<Pair<Integer,Integer>>> sen : matchedStrs.entrySet()) {
-      JsonArrayBuilder obj=Json.createArrayBuilder();
-      for (      Pair<Integer,Integer> sen2 : sen.getValue()) {
-        JsonArrayBuilder startend=Json.createArrayBuilder();
-        startend.add(sen2.first());
-        startend.add(sen2.second());
-        obj.add(startend);
+  if (constVars.outDir != null) {
+    Set<String> allMatchedSents=new HashSet<>();
+    String matchedtokensfilename=constVars.outDir + "/" + constVars.identifier+ "/"+ label+ "/tokensmatchedpatterns"+ suffix+ ".json";
+    JsonObjectBuilder pats=Json.createObjectBuilder();
+    for (    Entry<E,Collection<Triple<String,Integer,Integer>>> en : tokensMatchedPat.entrySet()) {
+      CollectionValuedMap<String,Pair<Integer,Integer>> matchedStrs=new CollectionValuedMap<>();
+      for (      Triple<String,Integer,Integer> en2 : en.getValue()) {
+        allMatchedSents.add(en2.first());
+        matchedStrs.add(en2.first(),new Pair<>(en2.second(),en2.third()));
       }
-      senttokens.add(sen.getKey(),obj);
+      JsonObjectBuilder senttokens=Json.createObjectBuilder();
+      for (      Entry<String,Collection<Pair<Integer,Integer>>> sen : matchedStrs.entrySet()) {
+        JsonArrayBuilder obj=Json.createArrayBuilder();
+        for (        Pair<Integer,Integer> sen2 : sen.getValue()) {
+          JsonArrayBuilder startend=Json.createArrayBuilder();
+          startend.add(sen2.first());
+          startend.add(sen2.second());
+          obj.add(startend);
+        }
+        senttokens.add(sen.getKey(),obj);
+      }
+      pats.add(en.getKey().toStringSimple(),senttokens);
     }
-    pats.add(en.getKey().toStringSimple(),senttokens);
-  }
-  IOUtils.writeStringToFile(pats.build().toString(),matchedtokensfilename,"utf8");
-  JsonObjectBuilder senttokens=Json.createObjectBuilder();
-  for (  String sentId : allMatchedSents) {
-    JsonArrayBuilder sent=Json.createArrayBuilder();
-    for (    CoreLabel l : sents.get(sentId).getTokens()) {
-      sent.add(l.word());
+    IOUtils.writeStringToFile(pats.build().toString(),matchedtokensfilename,"utf8");
+    JsonObjectBuilder senttokens=Json.createObjectBuilder();
+    for (    String sentId : allMatchedSents) {
+      JsonArrayBuilder sent=Json.createArrayBuilder();
+      for (      CoreLabel l : sents.get(sentId).getTokens()) {
+        sent.add(l.word());
+      }
+      senttokens.add(sentId,sent);
     }
-    senttokens.add(sentId,sent);
+    String sentfilename=constVars.outDir + "/" + constVars.identifier+ "/sentences"+ suffix+ ".json";
+    IOUtils.writeStringToFile(senttokens.build().toString(),sentfilename,"utf8");
   }
-  String sentfilename=constVars.outDir + "/" + constVars.identifier+ "/sentences"+ suffix+ ".json";
-  IOUtils.writeStringToFile(senttokens.build().toString(),sentfilename,"utf8");
 }

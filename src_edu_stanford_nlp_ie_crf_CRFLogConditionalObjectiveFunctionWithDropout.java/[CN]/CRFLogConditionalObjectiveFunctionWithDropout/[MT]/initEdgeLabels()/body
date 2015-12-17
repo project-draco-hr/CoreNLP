@@ -4,17 +4,17 @@
   edgeLabelIndexSize=edgeLabelIndex.size();
   Index<CRFLabel> nodeLabelIndex=labelIndices.get(0);
   nodeLabelIndexSize=nodeLabelIndex.size();
-  currPrevLabelsMap=new HashMap<Integer,List<Integer>>();
-  currNextLabelsMap=new HashMap<Integer,List<Integer>>();
+  currPrevLabelsMap=new HashMap<>();
+  currNextLabelsMap=new HashMap<>();
   edgeLabels=new int[edgeLabelIndexSize][];
   for (int k=0; k < edgeLabelIndexSize; k++) {
     int[] labelPair=edgeLabelIndex.get(k).getLabel();
     edgeLabels[k]=labelPair;
     int curr=labelPair[1];
     int prev=labelPair[0];
-    if (!currPrevLabelsMap.containsKey(curr))     currPrevLabelsMap.put(curr,new ArrayList<Integer>(numClasses));
+    if (!currPrevLabelsMap.containsKey(curr))     currPrevLabelsMap.put(curr,new ArrayList<>(numClasses));
     currPrevLabelsMap.get(curr).add(prev);
-    if (!currNextLabelsMap.containsKey(prev))     currNextLabelsMap.put(prev,new ArrayList<Integer>(numClasses));
+    if (!currNextLabelsMap.containsKey(prev))     currNextLabelsMap.put(prev,new ArrayList<>(numClasses));
     currNextLabelsMap.get(prev).add(curr);
   }
 }

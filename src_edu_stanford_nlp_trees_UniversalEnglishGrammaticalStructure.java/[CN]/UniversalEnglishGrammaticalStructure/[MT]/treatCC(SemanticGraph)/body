@@ -1,0 +1,89 @@
+{
+  Map<IndexedWord,Set<SemanticGraphEdge>> map=Generics.newHashMap();
+  Map<IndexedWord,SemanticGraphEdge> subjectMap=Generics.newHashMap();
+  Set<IndexedWord> withPassiveAuxiliary=Generics.newHashSet();
+  List<IndexedWord> rcmodHeads=Generics.newArrayList();
+  List<IndexedWord> prepcDep=Generics.newArrayList();
+  for (  SemanticGraphEdge edge : sg.edgeIterable()) {
+    if (!map.containsKey(edge.getDependent())) {
+      map.put(edge.getDependent(),new TreeSet<>());
+    }
+    map.get(edge.getDependent()).add(edge);
+    if (edge.getRelation().equals(AUX_PASSIVE_MODIFIER)) {
+      withPassiveAuxiliary.add(edge.getGovernor());
+    }
+    if (edge.getRelation().getParent() == NOMINAL_SUBJECT || edge.getRelation().getParent() == SUBJECT || edge.getRelation().getParent() == CLAUSAL_SUBJECT) {
+      if (!subjectMap.containsKey(edge.getGovernor())) {
+        subjectMap.put(edge.getGovernor(),edge);
+      }
+    }
+    if (edge.getRelation() == RELATIVE_CLAUSE_MODIFIER) {
+      rcmodHeads.add(edge.getGovernor());
+    }
+    if (edge.getRelation().toString().startsWith("acl:") || edge.getRelation().toString().startsWith("advcl:")) {
+      prepcDep.add(edge.getDependent());
+    }
+  }
+  SemanticGraph sgCopy=sg.makeSoftCopy();
+  for (  SemanticGraphEdge edge : sgCopy.edgeIterable()) {
+    if (UniversalEnglishGrammaticalRelations.getConjs().contains(edge.getRelation())) {
+      IndexedWord gov=edge.getGovernor();
+      IndexedWord dep=edge.getDependent();
+      Set<SemanticGraphEdge> gov_relations=map.get(gov);
+      if (gov_relations != null) {
+        for (        SemanticGraphEdge edge1 : gov_relations) {
+          IndexedWord newGov=edge1.getGovernor();
+          if (newGov.equals(dep)) {
+            continue;
+          }
+          GrammaticalRelation newRel=edge1.getRelation();
+          if (newRel != ROOT && newRel != CASE_MARKER) {
+            if (rcmodHeads.contains(gov) && rcmodHeads.contains(dep)) {
+              if (newRel != DIRECT_OBJECT && newRel != NOMINAL_SUBJECT) {
+                if (DEBUG) {
+                  System.err.println("Adding new " + newRel + " dependency from "+ newGov+ " to "+ dep+ " (subj/obj case)");
+                }
+                sg.addEdge(newGov,dep,newRel,Double.NEGATIVE_INFINITY,true);
+              }
+            }
+ else {
+              if (DEBUG) {
+                System.err.println("Adding new " + newRel + " dependency from "+ newGov+ " to "+ dep);
+              }
+              sg.addEdge(newGov,dep,newRel,Double.NEGATIVE_INFINITY,true);
+            }
+          }
+        }
+      }
+      String tag=dep.tag();
+      if (subjectMap.containsKey(gov) && (tag.startsWith("VB") || tag.startsWith("JJ")) && !subjectMap.containsKey(dep)) {
+        SemanticGraphEdge tdsubj=subjectMap.get(gov);
+        GrammaticalRelation relation=tdsubj.getRelation();
+        if (relation == NOMINAL_PASSIVE_SUBJECT) {
+          if (isDefinitelyActive(tag)) {
+            relation=NOMINAL_SUBJECT;
+          }
+        }
+ else         if (relation == CLAUSAL_PASSIVE_SUBJECT) {
+          if (isDefinitelyActive(tag)) {
+            relation=CLAUSAL_SUBJECT;
+          }
+        }
+ else         if (relation == NOMINAL_SUBJECT) {
+          if (withPassiveAuxiliary.contains(dep)) {
+            relation=NOMINAL_PASSIVE_SUBJECT;
+          }
+        }
+ else         if (relation == CLAUSAL_SUBJECT) {
+          if (withPassiveAuxiliary.contains(dep)) {
+            relation=CLAUSAL_PASSIVE_SUBJECT;
+          }
+        }
+        if (DEBUG) {
+          System.err.println("Adding new " + relation + " dependency from "+ dep+ " to "+ tdsubj.getDependent()+ " (subj propagation case)");
+        }
+        sg.addEdge(dep,tdsubj.getDependent(),relation,Double.NEGATIVE_INFINITY,true);
+      }
+    }
+  }
+}

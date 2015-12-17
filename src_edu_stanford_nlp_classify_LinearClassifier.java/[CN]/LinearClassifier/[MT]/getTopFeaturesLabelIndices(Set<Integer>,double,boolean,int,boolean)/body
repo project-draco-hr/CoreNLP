@@ -1,5 +1,5 @@
 {
-  edu.stanford.nlp.util.PriorityQueue<Pair<Integer,Integer>> biggestKeys=new FixedPrioritiesPriorityQueue<Pair<Integer,Integer>>();
+  edu.stanford.nlp.util.PriorityQueue<Pair<Integer,Integer>> biggestKeys=new FixedPrioritiesPriorityQueue<>();
   for (int feat=0; feat < weights.length; feat++) {
     for (int lab=0; lab < weights[feat].length; lab++) {
       if (iLabels != null && !iLabels.contains(lab)) {
@@ -18,22 +18,22 @@
           double lowest=biggestKeys.getPriority();
           if (thisWeight < lowest) {
             biggestKeys.removeFirst();
-            biggestKeys.add(new Pair<Integer,Integer>(feat,lab),thisWeight);
+            biggestKeys.add(new Pair<>(feat,lab),thisWeight);
           }
         }
  else {
-          biggestKeys.add(new Pair<Integer,Integer>(feat,lab),thisWeight);
+          biggestKeys.add(new Pair<>(feat,lab),thisWeight);
         }
       }
     }
   }
-  List<Triple<F,L,Double>> topFeatures=new ArrayList<Triple<F,L,Double>>(biggestKeys.size());
+  List<Triple<F,L,Double>> topFeatures=new ArrayList<>(biggestKeys.size());
   while (!biggestKeys.isEmpty()) {
     Pair<Integer,Integer> p=biggestKeys.removeFirst();
     double weight=weights[p.first()][p.second()];
     F feat=featureIndex.get(p.first());
     L label=labelIndex.get(p.second());
-    topFeatures.add(new Triple<F,L,Double>(feat,label,weight));
+    topFeatures.add(new Triple<>(feat,label,weight));
   }
   if (descending) {
     Collections.reverse(topFeatures);

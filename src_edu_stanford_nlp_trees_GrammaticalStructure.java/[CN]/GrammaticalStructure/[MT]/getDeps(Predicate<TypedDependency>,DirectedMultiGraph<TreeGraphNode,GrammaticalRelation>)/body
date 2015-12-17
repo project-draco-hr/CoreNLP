@@ -27,6 +27,23 @@
     if (puncTypedDepFilter.test(rootTypedDep)) {
       basicDep.add(rootTypedDep);
     }
+ else {
+      IndexedWord root=rootTypedDep.dep();
+      IndexedWord newRoot=null;
+      Collections.sort(basicDep);
+      for (      TypedDependency td : basicDep) {
+        if (td.gov().equals(root)) {
+          if (newRoot != null) {
+            td.setGov(newRoot);
+          }
+ else {
+            td.setGov(td.gov());
+            td.setReln(ROOT);
+            newRoot=td.dep();
+          }
+        }
+      }
+    }
   }
   postProcessDependencies(basicDep);
   Collections.sort(basicDep);

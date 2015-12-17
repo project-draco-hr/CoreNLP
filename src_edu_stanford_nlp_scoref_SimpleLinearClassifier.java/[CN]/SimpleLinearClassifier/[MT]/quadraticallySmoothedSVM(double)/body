@@ -1,0 +1,15 @@
+{
+  return new Loss(){
+    @Override public double predict(    double product){
+      return product;
+    }
+    @Override public double derivative(    double label,    double product){
+      double mistake=label * product;
+      return mistake >= 1 ? 0 : (mistake >= 1 - gamma ? (mistake - 1) * label / gamma : -label);
+    }
+    @Override public String toString(){
+      return String.format("quadraticallySmoothed(%s)",gamma);
+    }
+  }
+;
+}

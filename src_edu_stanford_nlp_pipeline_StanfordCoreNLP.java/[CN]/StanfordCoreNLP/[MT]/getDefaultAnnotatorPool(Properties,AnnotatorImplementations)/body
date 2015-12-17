@@ -13,20 +13,22 @@
   pool.register(STANFORD_GENDER,AnnotatorFactories.gender(properties,annotatorImplementation));
   pool.register(STANFORD_TRUECASE,AnnotatorFactories.truecase(properties,annotatorImplementation));
   pool.register(STANFORD_PARSE,AnnotatorFactories.parse(properties,annotatorImplementation));
-  pool.register(STANFORD_DETERMINISTIC_COREF,AnnotatorFactories.coref(properties,annotatorImplementation));
+  pool.register(STANFORD_MENTION,AnnotatorFactories.mention(properties,annotatorImplementation));
+  pool.register(STANFORD_DETERMINISTIC_COREF,AnnotatorFactories.dcoref(properties,annotatorImplementation));
+  pool.register(STANFORD_COREF,AnnotatorFactories.coref(properties,annotatorImplementation));
   pool.register(STANFORD_RELATION,AnnotatorFactories.relation(properties,annotatorImplementation));
   pool.register(STANFORD_SENTIMENT,AnnotatorFactories.sentiment(properties,annotatorImplementation));
   pool.register(STANFORD_COLUMN_DATA_CLASSIFIER,AnnotatorFactories.columnDataClassifier(properties,annotatorImplementation));
   pool.register(STANFORD_DEPENDENCIES,AnnotatorFactories.dependencies(properties,annotatorImplementation));
   pool.register(STANFORD_NATLOG,AnnotatorFactories.natlog(properties,annotatorImplementation));
+  pool.register(STANFORD_OPENIE,AnnotatorFactories.openie(properties,annotatorImplementation));
   pool.register(STANFORD_QUOTE,AnnotatorFactories.quote(properties,annotatorImplementation));
-  for (  Object propertyKey : inputProps.stringPropertyNames()) {
-    if (!(propertyKey instanceof String))     continue;
-    final String property=(String)propertyKey;
+  pool.register(STANFORD_UD_FEATURES,AnnotatorFactories.udfeats(properties,annotatorImplementation));
+  for (  String property : inputProps.stringPropertyNames()) {
     if (property.startsWith(CUSTOM_ANNOTATOR_PREFIX)) {
       final String customName=property.substring(CUSTOM_ANNOTATOR_PREFIX.length());
       final String customClassName=inputProps.getProperty(property);
-      System.err.println("Registering annotator " + customName + " with class "+ customClassName);
+      logger.info("Registering annotator " + customName + " with class "+ customClassName);
       pool.register(customName,new AnnotatorFactory(inputProps,annotatorImplementation){
         private static final long serialVersionUID=1L;
         @Override public Annotator create(){
@@ -34,9 +36,8 @@
         }
         @Override public String additionalSignature(){
           StringBuilder os=new StringBuilder();
-          for (          Object key : properties.keySet()) {
-            String skey=(String)key;
-            os.append(skey + ":" + properties.getProperty(skey));
+          for (          String skey : properties.stringPropertyNames()) {
+            os.append(skey).append(':').append(properties.getProperty(skey));
           }
           return os.toString();
         }

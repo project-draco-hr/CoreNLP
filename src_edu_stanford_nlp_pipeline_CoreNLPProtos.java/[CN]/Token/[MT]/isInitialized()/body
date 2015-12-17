@@ -1,6 +1,7 @@
 {
   byte isInitialized=memoizedIsInitialized;
-  if (isInitialized != -1)   return isInitialized == 1;
+  if (isInitialized == 1)   return true;
+  if (isInitialized == 0)   return false;
   if (!hasWord()) {
     memoizedIsInitialized=0;
     return false;
@@ -13,6 +14,18 @@
   }
   if (hasPolarity()) {
     if (!getPolarity().isInitialized()) {
+      memoizedIsInitialized=0;
+      return false;
+    }
+  }
+  if (hasSpan()) {
+    if (!getSpan().isInitialized()) {
+      memoizedIsInitialized=0;
+      return false;
+    }
+  }
+  if (hasConllUTokenSpan()) {
+    if (!getConllUTokenSpan().isInitialized()) {
       memoizedIsInitialized=0;
       return false;
     }

@@ -1,0 +1,42 @@
+{
+  super(PropertiesUtils.overWriteProperties((Properties)ois.readObject(),props));
+  this.initProps=PropertiesUtils.overWriteProperties((Properties)ois.readObject(),props);
+  this.initLoadPaths=(ArrayList<String>)ois.readObject();
+  String cm=(String)ois.readObject();
+  CombinationMode newCM;
+  if (props.getProperty("ner.combinationMode") != null) {
+    try {
+      newCM=CombinationMode.valueOf(props.getProperty("ner.combinationMode"));
+    }
+ catch (    IllegalArgumentException e) {
+      newCM=CombinationMode.valueOf(cm);
+    }
+  }
+ else {
+    newCM=CombinationMode.valueOf(cm);
+  }
+  this.combinationMode=newCM;
+  Integer numClassifiers=ois.readInt();
+  this.baseClassifiers=new ArrayList<>();
+  int i=0;
+  while (i < numClassifiers) {
+    try {
+      System.err.println("loading CRF...");
+      CRFClassifier newCRF=ErasureUtils.uncheckedCast(CRFClassifier.getClassifier(ois,props));
+      baseClassifiers.add(newCRF);
+      i++;
+    }
+ catch (    Exception e) {
+      try {
+        System.err.println("loading CMM...");
+        CMMClassifier newCMM=ErasureUtils.uncheckedCast(CMMClassifier.getClassifier(ois,props));
+        baseClassifiers.add(newCMM);
+        i++;
+      }
+ catch (      Exception ex) {
+        ex.printStackTrace();
+        throw new IOException("Couldn't load classifier!");
+      }
+    }
+  }
+}

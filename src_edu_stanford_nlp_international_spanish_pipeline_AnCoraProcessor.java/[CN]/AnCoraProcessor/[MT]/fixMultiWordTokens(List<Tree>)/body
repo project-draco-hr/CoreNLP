@@ -9,10 +9,10 @@
   TreeFactory tf=new LabeledScoredTreeFactory();
   ThreadsafeProcessor<Collection<Tree>,Collection<Tree>> processor=new MultiWordProcessor(tnf,tf,ner);
   int availableProcessors=Runtime.getRuntime().availableProcessors();
-  MulticoreWrapper<Collection<Tree>,Collection<Tree>> wrapper=new MulticoreWrapper<Collection<Tree>,Collection<Tree>>(availableProcessors,processor,false);
+  MulticoreWrapper<Collection<Tree>,Collection<Tree>> wrapper=new MulticoreWrapper<>(availableProcessors,processor,false);
   int numChunks=availableProcessors * 20;
-  List<Collection<Tree>> chunked=CollectionUtils.partitionIntoFolds(trees,numChunks);
-  List<Tree> ret=new ArrayList<Tree>();
+  List<List<Tree>> chunked=CollectionUtils.partitionIntoFolds(trees,numChunks);
+  List<Tree> ret=new ArrayList<>();
   for (  final Collection<Tree> coll : chunked) {
     wrapper.put(coll);
     while (wrapper.peek())     ret.addAll(wrapper.poll());

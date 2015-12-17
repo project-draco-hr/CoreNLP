@@ -1,7 +1,12 @@
 {
-  Counter<L> scores=new ClassicCounter<L>();
+  Counter<L> scores=new ClassicCounter<>();
+  Counter<F> asCounter=example.asFeaturesCounter();
+  Counter<Integer> asIndexedCounter=new ClassicCounter<>(asCounter.size());
+  for (  Map.Entry<F,Double> entry : asCounter.entrySet()) {
+    asIndexedCounter.setCount(featureIndex.indexOf(entry.getKey()),entry.getValue());
+  }
   for (  L l : labels()) {
-    scores.setCount(l,scoreOfRVFDatum(example,l));
+    scores.setCount(l,scoreOfRVFDatum(asIndexedCounter,l));
   }
   return scores;
 }

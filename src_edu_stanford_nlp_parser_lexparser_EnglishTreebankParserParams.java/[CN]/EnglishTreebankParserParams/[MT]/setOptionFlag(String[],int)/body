@@ -186,13 +186,17 @@
       headFinder=(HeadFinder)Class.forName(args[i + 1]).newInstance();
     }
  catch (    Exception e) {
-      System.err.println(e);
-      System.err.println("Warning: Default HeadFinder will be used.");
+      System.err.println("Error: Unable to load HeadFinder; default HeadFinder will be used.");
+      e.printStackTrace();
     }
     i+=2;
   }
  else   if (args[i].equalsIgnoreCase("-makeCopulaHead")) {
     englishTest.makeCopulaHead=true;
+    i+=1;
+  }
+ else   if (args[i].equalsIgnoreCase("-originalDependencies")) {
+    setGenerateOriginalDependencies(true);
     i+=1;
   }
  else   if (args[i].equalsIgnoreCase("-acl03pcfg")) {

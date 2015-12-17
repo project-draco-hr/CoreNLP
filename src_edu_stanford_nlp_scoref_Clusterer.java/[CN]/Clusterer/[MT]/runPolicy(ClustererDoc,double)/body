@@ -1,0 +1,16 @@
+{
+  List<Pair<CandidateAction,CandidateAction>> examples=new ArrayList<>();
+  State currentState=new State(doc);
+  while (!currentState.isComplete()) {
+    Pair<CandidateAction,CandidateAction> actions=currentState.getActions(classifier);
+    if (actions == null) {
+      continue;
+    }
+    examples.add(actions);
+    boolean useExpert=random.nextDouble() < beta;
+    double action1Score=useExpert ? -actions.first.cost : classifier.weightFeatureProduct(actions.first.features);
+    double action2Score=useExpert ? -actions.second.cost : classifier.weightFeatureProduct(actions.second.features);
+    currentState.doAction(action1Score >= action2Score);
+  }
+  return examples;
+}

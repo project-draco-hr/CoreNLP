@@ -1,8 +1,15 @@
 {
-  Set<Integer> paramRange=initializeParamRange(func,x);
   double sum=0.0;
-  for (  int i : paramRange) {
-    sum+=Math.abs(x[i]);
+  if (func instanceof HasRegularizerParamRange) {
+    Set<Integer> paramRange=((HasRegularizerParamRange)func).getRegularizerParamRange(x);
+    for (    int i : paramRange) {
+      sum+=Math.abs(x[i]);
+    }
+  }
+ else {
+    for (    double v : x) {
+      sum+=Math.abs(v);
+    }
   }
   return sum;
 }

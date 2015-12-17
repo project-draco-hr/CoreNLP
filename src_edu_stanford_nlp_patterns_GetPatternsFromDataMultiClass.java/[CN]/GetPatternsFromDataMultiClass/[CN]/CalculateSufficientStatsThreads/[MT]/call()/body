@@ -1,7 +1,7 @@
 {
-  List<Pair<E,CandidatePhrase>> posWords=new ArrayList<Pair<E,CandidatePhrase>>();
-  List<Pair<E,CandidatePhrase>> negWords=new ArrayList<Pair<E,CandidatePhrase>>();
-  List<Pair<E,CandidatePhrase>> unlabWords=new ArrayList<Pair<E,CandidatePhrase>>();
+  List<Pair<E,CandidatePhrase>> posWords=new ArrayList<>();
+  List<Pair<E,CandidatePhrase>> negWords=new ArrayList<>();
+  List<Pair<E,CandidatePhrase>> unlabWords=new ArrayList<>();
   for (  String sentId : sentIds) {
     Map<Integer,Set<E>> pat4Sent=patternsForEachToken.getPatternsForAllTokens(sentId);
     if (pat4Sent == null) {
@@ -20,8 +20,19 @@
       }
  else       longestMatchingPhrase=tokenWordOrLemma;
       Set<E> pats=pat4Sent.get(i);
+      Set newpats=new HashSet<E>();
+      boolean changedpats=false;
+      for (      E s : pats) {
+        if (s instanceof SurfacePattern) {
+          changedpats=true;
+          SurfacePattern snew=((SurfacePattern)s).copyNewToken();
+          snew.setNumWordsCompound(PatternFactory.numWordsCompoundMapped.get(label));
+          newpats.add(snew);
+        }
+      }
+      if (changedpats)       pats=newpats;
       if (pats == null) {
-        if (!constVars.patternType.equals(PatternFactory.PatternType.DEP))         throw new RuntimeException("Why are patterns null for sentence " + sentId + " and token "+ i+ "("+ tokens.get(i)+ "). pat4Sent has token ids "+ pat4Sent.keySet()+ (constVars.batchProcessSents ? "" : ". The sentence is " + Data.sents.get(sentId))+ ". If you have switched batchProcessSents, recompute the patterns.");
+        if (!constVars.patternType.equals(PatternFactory.PatternType.DEP))         throw new RuntimeException("Why are patterns null for sentence " + sentId + " and token "+ i+ "("+ tokens.get(i)+ "). pat4Sent has token ids "+ pat4Sent.keySet()+ (constVars.batchProcessSents ? "" : ". The sentence is " + Data.sents.get(sentId))+ ". If you have changed parameters, recompute all patterns.");
         continue;
       }
       if (PatternFactory.ignoreWordRegex.matcher(token.word()).matches())       continue;
@@ -44,7 +55,7 @@
       }
       if (token.get(answerClass4Label).equals(label)) {
         for (        E s : pats) {
-          posWords.add(new Pair<E,CandidatePhrase>(s,longestMatchingPhrase));
+          posWords.add(new Pair<>(s,longestMatchingPhrase));
         }
       }
  else {
@@ -55,12 +66,22 @@
           break;
         }
         if (!negToken)         if (constVars.getOtherSemanticClassesWords().contains(token.word()) || constVars.getOtherSemanticClassesWords().contains(token.lemma()))         negToken=true;
+        if (!negToken) {
+          for (          String labelA : constVars.getLabels()) {
+            if (!labelA.equals(label)) {
+              if (constVars.getSeedLabelDictionary().get(labelA).contains(longestMatchingPhrase) || constVars.getSeedLabelDictionary().get(labelA).contains(tokenWordOrLemma) || constVars.getLearnedWords(labelA).containsKey(longestMatchingPhrase)|| constVars.getLearnedWords(labelA).containsKey(tokenWordOrLemma)) {
+                negToken=true;
+                break;
+              }
+            }
+          }
+        }
         for (        E sindex : pats) {
           if (negToken) {
-            negWords.add(new Pair<E,CandidatePhrase>(sindex,tokenWordOrLemma));
+            negWords.add(new Pair<>(sindex,longestMatchingPhrase));
           }
  else {
-            unlabWords.add(new Pair<E,CandidatePhrase>(sindex,tokenWordOrLemma));
+            unlabWords.add(new Pair<>(sindex,longestMatchingPhrase));
           }
         }
       }

@@ -1,9 +1,9 @@
 {
-  List<List<CoreLabel>> allWords=new ArrayList<List<CoreLabel>>();
-  List<Tree> allTrees=new ArrayList<Tree>();
-  List<List<Mention>> allGoldMentions=new ArrayList<List<Mention>>();
+  List<List<CoreLabel>> allWords=new ArrayList<>();
+  List<Tree> allTrees=new ArrayList<>();
+  List<List<Mention>> allGoldMentions=new ArrayList<>();
   List<List<Mention>> allPredictedMentions;
-  List<CoreMap> allSentences=new ArrayList<CoreMap>();
+  List<CoreMap> allSentences=new ArrayList<>();
   Annotation docAnno=new Annotation("");
   Pattern docPattern=Pattern.compile("<DOC>(.*?)</DOC>",Pattern.DOTALL + Pattern.CASE_INSENSITIVE);
   Pattern sentencePattern=Pattern.compile("(<s>|<hl>|<dd>|<DATELINE>)(.*?)(</s>|</hl>|</dd>|</DATELINE>)",Pattern.DOTALL + Pattern.CASE_INSENSITIVE);
@@ -35,9 +35,9 @@
         words.remove(i - 1);
       }
     }
-    List<CoreLabel> sentence=new ArrayList<CoreLabel>();
-    Stack<Mention> stack=new Stack<Mention>();
-    List<Mention> mentions=new ArrayList<Mention>();
+    List<CoreLabel> sentence=new ArrayList<>();
+    Stack<Mention> stack=new Stack<>();
+    List<Mention> mentions=new ArrayList<>();
     allWords.add(sentence);
     allGoldMentions.add(mentions);
     for (    CoreLabel word : words) {
@@ -154,7 +154,7 @@
     List<CoreLabel> unannotatedSent=allWords.get(i);
     List<Mention> mentionInSent=allGoldMentions.get(i);
     for (    Mention m : mentionInSent) {
-      m.dependency=allSentences.get(i).get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class);
+      m.dependency=allSentences.get(i).get(SemanticGraphCoreAnnotations.AlternativeDependenciesAnnotation.class);
     }
     if (annotatedSent.size() != unannotatedSent.size()) {
       throw new IllegalStateException("annotatedSent != unannotatedSent");

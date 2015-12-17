@@ -1,0 +1,71 @@
+{
+  super.paintComponent(g);
+  Graphics2D g2d=(Graphics2D)g.create();
+  g.setFont(new Font("Arial",Font.PLAIN,10));
+  int width=getWidth();
+  int height=getHeight();
+  int cellWidth=width / columnCount;
+  int cellHeight=height / rowCount;
+  int xOffset=(width - (columnCount * cellWidth)) / 2;
+  int yOffset=(height - (rowCount * cellHeight)) / 2;
+  List<U> labels=uniqueLabels().stream().collect(Collectors.toList());
+  int maxDiag=0;
+  int maxOffdiag=0;
+  for (  Map.Entry<Pair<U,U>,Integer> entry : confTable.entrySet()) {
+    if (entry.getKey().first == entry.getKey().second) {
+      maxDiag=Math.max(maxDiag,entry.getValue());
+    }
+ else {
+      maxOffdiag=Math.max(maxOffdiag,entry.getValue());
+    }
+  }
+  float[] hsb=new float[3];
+  for (int row=0; row < rowCount; row++) {
+    for (int col=0; col < columnCount; col++) {
+      int x=xOffset + (col * cellWidth);
+      int y=yOffset + (row * cellHeight);
+      float xCenter=xOffset + (col * cellWidth) + cellWidth / 3.0f;
+      float yCenter=yOffset + (row * cellHeight) + cellHeight / 2.0f;
+      String text;
+      Color bg=Color.WHITE;
+      if (row == 0 && col == 0) {
+        text="V guess | gold >";
+      }
+ else       if (row == 0) {
+        text=labels.get(col - 1).toString();
+      }
+ else       if (col == 0) {
+        text=labels.get(row - 1).toString();
+      }
+ else {
+        Integer count=confTable.get(Pair.makePair(labels.get(row - 1),labels.get(col - 1)));
+        if (count == null) {
+          count=0;
+        }
+        text="" + count;
+        if (row == col) {
+          double percentGood=((double)count) / ((double)maxDiag);
+          hsb=Color.RGBtoHSB((int)(255 - (255.0 * percentGood)),(int)(255 - (255.0 * percentGood / 2.0)),(int)(255 - (255.0 * percentGood)),hsb);
+          bg=Color.getHSBColor(hsb[0],hsb[1],hsb[2]);
+        }
+ else {
+          double percentBad=((double)count) / ((double)maxOffdiag);
+          hsb=Color.RGBtoHSB((int)(255 - (255.0 * percentBad / 2.0)),(int)(255 - (255.0 * percentBad)),(int)(255 - (255.0 * percentBad)),hsb);
+          bg=Color.getHSBColor(hsb[0],hsb[1],hsb[2]);
+        }
+      }
+      Rectangle cell=new Rectangle(x,y,cellWidth,cellHeight);
+      g2d.setColor(bg);
+      g2d.fill(cell);
+      g2d.setColor(Color.BLACK);
+      g2d.drawString(text,xCenter,yCenter);
+      cells.add(cell);
+    }
+  }
+  if (selectedCell != null && selectedCell.x > 0 && selectedCell.y > 0) {
+    int index=selectedCell.x + (selectedCell.y * columnCount);
+    Rectangle cell=cells.get(index);
+    onMouseOver(g2d,cell,labels.get(selectedCell.y - 1),labels.get(selectedCell.x - 1));
+  }
+  g2d.dispose();
+}
