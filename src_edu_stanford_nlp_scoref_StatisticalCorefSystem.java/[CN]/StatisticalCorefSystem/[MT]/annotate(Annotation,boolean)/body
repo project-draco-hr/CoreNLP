@@ -1,9 +1,15 @@
 {
   try {
     Document document=docMaker.makeDocument(ann);
+    if (Thread.interrupted()) {
+      throw new RuntimeInterruptedException();
+    }
     runCoref(document);
     if (removeSingletonClusters) {
       StatisticalCorefUtils.removeSingletonClusters(document);
+    }
+    if (Thread.interrupted()) {
+      throw new RuntimeInterruptedException();
     }
     Map<Integer,CorefChain> result=Generics.newHashMap();
     for (    CorefCluster c : document.corefClusters.values()) {
