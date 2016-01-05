@@ -17,6 +17,7 @@
   final String encoding=options.getProperty("encoding","UTF-8");
   final boolean toLower=PropertiesUtils.getBool(options,"lowerCase",false);
   final Locale es=new Locale("es");
+  boolean onePerLine=PropertiesUtils.getBool(options,"onePerLine",false);
   int nLines=0;
   int nTokens=0;
   final long startTime=System.nanoTime();
@@ -28,14 +29,23 @@
       String word=tokenizer.next().word();
       if (word.equals(SpanishLexer.NEWLINE_TOKEN)) {
         ++nLines;
-        printSpace=false;
         System.out.println();
+        if (!onePerLine) {
+          printSpace=false;
+        }
       }
  else {
-        if (printSpace)         System.out.print(" ");
         String outputToken=toLower ? word.toLowerCase(es) : word;
-        System.out.print(outputToken);
-        printSpace=true;
+        if (onePerLine) {
+          System.out.println(outputToken);
+        }
+ else {
+          if (printSpace) {
+            System.out.print(" ");
+          }
+          System.out.print(outputToken);
+          printSpace=true;
+        }
       }
     }
   }
