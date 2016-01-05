@@ -1,5 +1,15 @@
 {
   String test="This is a whitespace tokenized test case . \n  This should be the second sentence    . \n \n  \n\n  This should be the third sentence .  \n  This should be one sentence . The period should not break it . \n This is the fifth sentence , with a weird period at the end.";
   String[] expectedResults={"This is a whitespace tokenized test case .","This should be the second sentence .","This should be the third sentence .","This should be one sentence . The period should not break it .","This is the fifth sentence , with a weird period at the end."};
-  runTest(test,expectedResults,null,true);
+  ArrayList<String> results=new ArrayList<String>();
+  DocumentPreprocessor document=new DocumentPreprocessor(new BufferedReader(new StringReader(test)));
+  document.setTokenizerFactory(null);
+  document.setSentenceDelimiter("\n");
+  for (  List<HasWord> sentence : document) {
+    results.add(Sentence.listToString(sentence));
+  }
+  assertEquals(expectedResults.length,results.size());
+  for (int i=0; i < results.size(); ++i) {
+    assertEquals(expectedResults[i],results.get(i));
+  }
 }
