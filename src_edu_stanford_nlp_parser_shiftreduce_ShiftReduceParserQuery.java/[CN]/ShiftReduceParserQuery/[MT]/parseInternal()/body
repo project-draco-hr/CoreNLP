@@ -5,16 +5,10 @@
   PriorityQueue<State> beam=new PriorityQueue<>(maxBeamSize + 1,ScoredComparator.ASCENDING_COMPARATOR);
   beam.add(initialState);
   while (beam.size() > 0) {
-    if (Thread.interrupted()) {
-      throw new RuntimeInterruptedException();
-    }
     PriorityQueue<State> oldBeam=beam;
     beam=new PriorityQueue<>(maxBeamSize + 1,ScoredComparator.ASCENDING_COMPARATOR);
     State bestState=null;
     for (    State state : oldBeam) {
-      if (Thread.interrupted()) {
-        throw new RuntimeInterruptedException();
-      }
       Collection<ScoredObject<Integer>> predictedTransitions=parser.model.findHighestScoringTransitions(state,true,maxBeamSize,constraints);
       for (      ScoredObject<Integer> predictedTransition : predictedTransitions) {
         Transition transition=parser.model.transitionIndex.get(predictedTransition.object());

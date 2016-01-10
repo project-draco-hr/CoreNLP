@@ -1,5 +1,13 @@
 {
   String test="This is a test of the preprocessor2.  It should split this text into sentences.  I like resting my feet on my desk.  Hopefully the people around my office don't hear me singing along to my music, and if they do, hopefully they aren't annoyed.  My test cases are probably terrifying looks into my psyche.";
   String[] expectedResults={"This is a test of the preprocessor2 .","It should split this text into sentences .","I like resting my feet on my desk .","Hopefully the people around my office do n't hear me singing along to my music , and if they do , hopefully they are n't annoyed .","My test cases are probably terrifying looks into my psyche ."};
-  runTest(test,expectedResults);
+  ArrayList<String> results=new ArrayList<String>();
+  DocumentPreprocessor document=new DocumentPreprocessor(new BufferedReader(new StringReader(test)));
+  for (  List<HasWord> sentence : document) {
+    results.add(Sentence.listToString(sentence));
+  }
+  assertEquals(expectedResults.length,results.size());
+  for (int i=0; i < results.size(); ++i) {
+    assertEquals(expectedResults[i],results.get(i));
+  }
 }

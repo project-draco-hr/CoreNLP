@@ -21,44 +21,38 @@
       }
       if (m.spanToString().contains("????????????")) {
         remove.add(m);
-        if (VERBOSE)         System.err.println("MENTION FILTERING Removed formatting error: " + m.spanToString());
-      }
-      if (m.headWord.tag().equals("PU")) {
-        remove.add(m);
-        if (VERBOSE)         System.err.println("MENTION FILTERING Punctuation only mention: " + m.spanToString());
+        System.err.println("MENTION FILTERING Removed formatting error: " + m.spanToString());
       }
       String lastWord=m.originalSpan.get(m.originalSpan.size() - 1).word();
       if (lastWord.length() > 0 && m.spanToString().endsWith("???") && dict.countries.contains(lastWord.substring(0,lastWord.length() - 1))) {
         remove.add(m);
-        if (VERBOSE)         System.err.println("MENTION FILTERING Removed demonym: " + m.spanToString());
+        System.err.println("MENTION FILTERING Removed demonym: " + m.spanToString());
       }
       if (m.spanToString().equals("??????") && m.startIndex > 0 && sent.get(m.startIndex - 1).word().endsWith("???")) {
         remove.add(m);
-        if (VERBOSE)         System.err.println("MENTION FILTERING Removed meiyou: " + m.spanToString());
+        System.err.println("MENTION FILTERING Removed meiyou: " + m.spanToString());
       }
       if (m.spanToString().equals("???") && m.startIndex > 0) {
         String priorWord=sent.get(m.startIndex - 1).word();
         if (priorWord.endsWith("???") || priorWord.endsWith("???") || priorWord.endsWith("")) {
           remove.add(m);
-          if (VERBOSE)           System.err.println("MENTION FILTERING Removed rangren: " + m.spanToString());
+          System.err.println("MENTION FILTERING Removed rangren: " + m.spanToString());
         }
       }
       if (m.spanToString().equals("???") && m.startIndex < sent.size() - 1 && sent.get(m.startIndex + 1).word().startsWith("??????")) {
         remove.add(m);
-        if (VERBOSE)         System.err.println("MENTION FILTERING Removed nizhidao: " + m.spanToString());
+        System.err.println("MENTION FILTERING Removed nizhidao: " + m.spanToString());
       }
       if (m.spanToString().contains("??????") || m.spanToString().contains("??????")) {
         remove.add(m);
-        if (VERBOSE)         System.err.println("MENTION FILTERING Removed many/few mention ending: " + m.spanToString());
       }
       if (m.spanToString().endsWith("???")) {
         remove.add(m);
-        if (VERBOSE)         System.err.println("MENTION FILTERING Removed de ending: " + m.spanToString());
+        System.err.println("MENTION FILTERING Removed de ending: " + m.spanToString());
       }
-      for (      CoreLabel cl : m.originalSpan) {
-        if (dict.interrogativePronouns.contains(cl.word())) {
-          remove.add(m);
-          if (VERBOSE)           System.err.println("MENTION FILTERING Removed interrogative pronoun: " + m.spanToString());
+      for (      String interrogative : dict.interrogativePronouns) {
+        for (        CoreLabel cl : m.originalSpan) {
+          if (cl.word().equals(interrogative))           remove.add(m);
         }
       }
     }
