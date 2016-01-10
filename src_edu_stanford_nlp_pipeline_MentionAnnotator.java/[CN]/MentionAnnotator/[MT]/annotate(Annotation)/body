@@ -11,10 +11,15 @@
     CorefProperties.setRemoveNested(corefProperties,true);
   }
   List<List<Mention>> mentions=md.findMentions(annotation,dictionaries,corefProperties);
+  int mentionIndex=0;
   int currIndex=0;
   for (  CoreMap sentence : sentences) {
     List<Mention> mentionsForThisSentence=mentions.get(currIndex);
     sentence.set(CorefCoreAnnotations.CorefMentionsAnnotation.class,mentionsForThisSentence);
     currIndex++;
+    for (    Mention m : mentionsForThisSentence) {
+      m.mentionID=mentionIndex;
+      mentionIndex++;
+    }
   }
 }
