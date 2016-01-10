@@ -8,6 +8,9 @@
   }
   output[3]=new StringBuilder();
   for (  Sieve sieve : sieves) {
+    if (Thread.interrupted()) {
+      throw new RuntimeInterruptedException();
+    }
     output[3].append(sieve.resolveMention(document,dictionaries,props));
   }
   if (CorefProperties.doPostProcessing(props))   postProcessing(document);

@@ -55,6 +55,12 @@
           sentElem.appendChild(depInfo);
         }
       }
+      Collection<RelationTriple> openieTriples=sentence.get(NaturalLogicAnnotations.RelationTriplesAnnotation.class);
+      if (openieTriples != null) {
+        Element openieElem=new Element("openie",NAMESPACE_URI);
+        addTriples(openieTriples,openieElem,NAMESPACE_URI);
+        sentElem.appendChild(openieElem);
+      }
       List<EntityMention> entities=sentence.get(MachineReadingAnnotations.EntityMentionsAnnotation.class);
       List<RelationMention> relations=sentence.get(MachineReadingAnnotations.RelationMentionsAnnotation.class);
       if (entities != null && !entities.isEmpty()) {
