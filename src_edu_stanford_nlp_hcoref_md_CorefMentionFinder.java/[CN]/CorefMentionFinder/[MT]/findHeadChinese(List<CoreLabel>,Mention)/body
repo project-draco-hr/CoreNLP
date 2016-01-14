@@ -1,9 +1,9 @@
 {
   int headPos=m.endIndex - 1;
-  while (sent.get(headPos).get(PartOfSpeechAnnotation.class).equals("PU") && headPos >= m.startIndex) {
+  while (headPos > m.startIndex && sent.get(headPos).tag().equals("PU")) {
     headPos--;
   }
-  if (headPos < m.startIndex) {
+  if (headPos == m.startIndex && sent.get(headPos).tag().equals("PU")) {
     headPos=m.endIndex - 1;
   }
   if (sent.get(headPos).originalText().equals("??????") && m.endIndex != m.startIndex) {
