@@ -4,22 +4,17 @@
   if (docID == null) {
     docID="";
   }
-  if (docID.contains("nw") && corefProperties.getProperty("coref.input.type","raw").equals("conll") && corefProperties.getProperty("coref.language","en").equals("zh")&& PropertiesUtils.getBool(corefProperties,"coref.specialCaseNewswire")) {
+  if (docID.contains("nw") && corefProperties.getProperty("coref.input.type","raw").equals("conll") && corefProperties.getProperty("coref.language","en").equals("zh")) {
     CorefProperties.setRemoveNested(corefProperties,false);
   }
  else {
     CorefProperties.setRemoveNested(corefProperties,true);
   }
   List<List<Mention>> mentions=md.findMentions(annotation,dictionaries,corefProperties);
-  int mentionIndex=0;
   int currIndex=0;
   for (  CoreMap sentence : sentences) {
     List<Mention> mentionsForThisSentence=mentions.get(currIndex);
     sentence.set(CorefCoreAnnotations.CorefMentionsAnnotation.class,mentionsForThisSentence);
     currIndex++;
-    for (    Mention m : mentionsForThisSentence) {
-      m.mentionID=mentionIndex;
-      mentionIndex++;
-    }
   }
 }

@@ -1,6 +1,7 @@
 {
   if ((this.mentionSubTree != null && isListLike()) || (this.mentionSubTree == null && isListLikeByDependency())) {
     mentionType=MentionType.LIST;
+    Redwood.log("debug-mention","IS LIST: " + this);
   }
  else   if (headWord.has(CoreAnnotations.EntityTypeAnnotation.class)) {
     if (headWord.get(CoreAnnotations.EntityTypeAnnotation.class).equals("PRO")) {
@@ -16,6 +17,7 @@
  else {
     if (!headWord.has(CoreAnnotations.NamedEntityTagAnnotation.class)) {
       mentionType=MentionType.NOMINAL;
+      Redwood.log("debug-mention","no NamedEntityTagAnnotation: " + headWord);
     }
  else     if (headWord.tag().startsWith("PRP") || headWord.tag().startsWith("PN") || (originalSpan.size() == 1 && headWord.get(CoreAnnotations.NamedEntityTagAnnotation.class).equals("O") && (dict.allPronouns.contains(headString) || dict.relativePronouns.contains(headString)))) {
       mentionType=MentionType.PRONOMINAL;
