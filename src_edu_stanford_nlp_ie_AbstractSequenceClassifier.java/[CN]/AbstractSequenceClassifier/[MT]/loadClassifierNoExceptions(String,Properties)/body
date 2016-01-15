@@ -1,11 +1,12 @@
 {
-  try {
-    loadClassifier(loadPath,props);
+  InputStream is;
+  if ((is=loadStreamFromClasspath(loadPath)) != null) {
+    Timing.startDoing("Loading classifier from " + loadPath);
+    loadClassifierNoExceptions(is,props);
+    IOUtils.closeIgnoringExceptions(is);
+    Timing.endDoing();
   }
- catch (  IOException e) {
-    throw new RuntimeIOException(e);
-  }
-catch (  ClassCastException|ClassNotFoundException e) {
-    throw new RuntimeException(e);
+ else {
+    loadClassifierNoExceptions(new File(loadPath),props);
   }
 }
