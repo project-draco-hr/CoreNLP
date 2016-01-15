@@ -12,8 +12,10 @@
           }
  catch (          RejectedExecutionException e) {
             List<CoreMap> failedSentences=wrapper.joinWithTimeout();
-            for (            CoreMap failed : failedSentences) {
-              doOneFailedSentence(annotation,failed);
+            if (failedSentences != null) {
+              for (              CoreMap failed : failedSentences) {
+                doOneFailedSentence(annotation,failed);
+              }
             }
             wrapper=buildWrapper(annotation);
           }
