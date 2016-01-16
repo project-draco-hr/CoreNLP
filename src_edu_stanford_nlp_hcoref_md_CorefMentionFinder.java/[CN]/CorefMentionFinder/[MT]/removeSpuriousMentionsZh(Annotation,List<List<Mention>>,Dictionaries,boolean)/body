@@ -1,6 +1,6 @@
 {
   List<CoreMap> sentences=doc.get(CoreAnnotations.SentencesAnnotation.class);
-  for (int i=0; i < predictedMentions.size(); i++) {
+  for (int i=0, sz=predictedMentions.size(); i < sz; i++) {
     List<Mention> mentions=predictedMentions.get(i);
     List<CoreLabel> sent=sentences.get(i).get(CoreAnnotations.TokensAnnotation.class);
     Set<Mention> remove=Generics.newHashSet();
@@ -8,58 +8,46 @@
       if (m.headWord.ner().matches("PERCENT|MONEY|QUANTITY|CARDINAL")) {
         remove.add(m);
       }
-      if (m.originalSpan.size() == 1 && m.headWord.tag().equals("CD")) {
+ else       if (m.originalSpan.size() == 1 && m.headWord.tag().equals("CD")) {
         remove.add(m);
       }
-      if (dict.removeWords.contains(m.spanToString())) {
+ else       if (dict.removeWords.contains(m.spanToString())) {
         remove.add(m);
       }
-      for (      String ch : dict.removeChars) {
-        if (m.spanToString().contains(ch)) {
-          remove.add(m);
-        }
-      }
-      if (m.spanToString().contains("????????????")) {
+ else       if (mentionContainsRemoveChars(m,dict.removeChars)) {
         remove.add(m);
-        if (VERBOSE)         System.err.println("MENTION FILTERING Removed formatting error: " + m.spanToString());
       }
-      if (m.headWord.tag().equals("PU")) {
+ else       if (m.headWord.tag().equals("PU")) {
         remove.add(m);
         if (VERBOSE)         System.err.println("MENTION FILTERING Punctuation only mention: " + m.spanToString());
       }
-      String lastWord=m.originalSpan.get(m.originalSpan.size() - 1).word();
-      if (lastWord.length() > 0 && m.spanToString().endsWith("???") && dict.countries.contains(lastWord.substring(0,lastWord.length() - 1))) {
+ else       if (mentionIsDemonym(m,dict.countries)) {
         remove.add(m);
         if (VERBOSE)         System.err.println("MENTION FILTERING Removed demonym: " + m.spanToString());
       }
-      if (m.spanToString().equals("??????") && m.startIndex > 0 && sent.get(m.startIndex - 1).word().endsWith("???")) {
+ else       if (m.spanToString().equals("??????") && m.startIndex > 0 && sent.get(m.startIndex - 1).word().endsWith("???")) {
         remove.add(m);
         if (VERBOSE)         System.err.println("MENTION FILTERING Removed meiyou: " + m.spanToString());
       }
-      if (m.spanToString().equals("???") && m.startIndex > 0) {
-        String priorWord=sent.get(m.startIndex - 1).word();
-        if (priorWord.endsWith("???") || priorWord.endsWith("???") || priorWord.endsWith("")) {
-          remove.add(m);
-          if (VERBOSE)           System.err.println("MENTION FILTERING Removed rangren: " + m.spanToString());
-        }
+ else       if (mentionIsRangren(m,sent)) {
+        remove.add(m);
+        if (VERBOSE)         System.err.println("MENTION FILTERING Removed rangren: " + m.spanToString());
       }
-      if (m.spanToString().equals("???") && m.startIndex < sent.size() - 1 && sent.get(m.startIndex + 1).word().startsWith("??????")) {
+ else       if (m.spanToString().equals("???") && m.startIndex < sent.size() - 1 && sent.get(m.startIndex + 1).word().startsWith("??????")) {
         remove.add(m);
         if (VERBOSE)         System.err.println("MENTION FILTERING Removed nizhidao: " + m.spanToString());
       }
-      if (m.spanToString().contains("??????") || m.spanToString().contains("??????")) {
+ else       if (m.spanToString().contains("??????") || m.spanToString().contains("??????")) {
         remove.add(m);
         if (VERBOSE)         System.err.println("MENTION FILTERING Removed many/few mention ending: " + m.spanToString());
       }
-      if (m.spanToString().endsWith("???")) {
+ else       if (m.spanToString().endsWith("???")) {
         remove.add(m);
-        if (VERBOSE)         System.err.println("MENTION FILTERING Removed de ending: " + m.spanToString());
+        if (VERBOSE)         System.err.println("MENTION FILTERING Removed de ending mention: " + m.spanToString());
       }
-      for (      CoreLabel cl : m.originalSpan) {
-        if (dict.interrogativePronouns.contains(cl.word())) {
-          remove.add(m);
-          if (VERBOSE)           System.err.println("MENTION FILTERING Removed interrogative pronoun: " + m.spanToString());
-        }
+ else       if (mentionIsInterrogativePronoun(m,dict.interrogativePronouns)) {
+        remove.add(m);
+        if (VERBOSE)         System.err.println("MENTION FILTERING Removed interrogative pronoun: " + m.spanToString());
       }
     }
     if (removeNested) {
