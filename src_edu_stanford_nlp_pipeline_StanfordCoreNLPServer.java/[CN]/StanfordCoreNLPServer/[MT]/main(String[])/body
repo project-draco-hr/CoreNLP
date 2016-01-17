@@ -1,6 +1,7 @@
 {
   int port=DEFAULT_PORT;
   int timeout=DEFAULT_TIMEOUT;
+  boolean strict=false;
   Properties props=new Properties();
   if (args.length > 0) {
     props=StringUtils.argsToProperties(args);
@@ -18,7 +19,12 @@
   if (props.containsKey("timeout")) {
     timeout=Integer.parseInt(props.getProperty("timeout"));
   }
+  if (props.containsKey("strict")) {
+    if (props.get("strict") != null && !"".equals(props.get("strict"))) {
+      strict=Boolean.parseBoolean(props.getProperty("strict"));
+    }
+  }
   log("Starting server on port " + port + " with timeout of "+ timeout+ " milliseconds.");
-  StanfordCoreNLPServer server=new StanfordCoreNLPServer(port,timeout);
+  StanfordCoreNLPServer server=new StanfordCoreNLPServer(port,timeout,strict);
   server.run();
 }
