@@ -7,15 +7,19 @@
     for (    Mention m : mentions) {
       if (m.headWord.ner().matches("PERCENT|MONEY|QUANTITY|CARDINAL")) {
         remove.add(m);
+        if (VERBOSE)         System.err.println("MENTION FILTERING number NER: " + m.spanToString());
       }
  else       if (m.originalSpan.size() == 1 && m.headWord.tag().equals("CD")) {
         remove.add(m);
+        if (VERBOSE)         System.err.println("MENTION FILTERING number: " + m.spanToString());
       }
  else       if (dict.removeWords.contains(m.spanToString())) {
         remove.add(m);
+        if (VERBOSE)         System.err.println("MENTION FILTERING removeWord: " + m.spanToString());
       }
  else       if (mentionContainsRemoveChars(m,dict.removeChars)) {
         remove.add(m);
+        if (VERBOSE)         System.err.println("MENTION FILTERING removeChars: " + m.spanToString());
       }
  else       if (m.headWord.tag().equals("PU")) {
         remove.add(m);
@@ -37,17 +41,9 @@
         remove.add(m);
         if (VERBOSE)         System.err.println("MENTION FILTERING Removed nizhidao: " + m.spanToString());
       }
- else       if (m.spanToString().contains("??????") || m.spanToString().contains("??????")) {
-        remove.add(m);
-        if (VERBOSE)         System.err.println("MENTION FILTERING Removed many/few mention ending: " + m.spanToString());
-      }
  else       if (m.spanToString().endsWith("???")) {
         remove.add(m);
         if (VERBOSE)         System.err.println("MENTION FILTERING Removed de ending mention: " + m.spanToString());
-      }
- else       if (mentionIsInterrogativePronoun(m,dict.interrogativePronouns)) {
-        remove.add(m);
-        if (VERBOSE)         System.err.println("MENTION FILTERING Removed interrogative pronoun: " + m.spanToString());
       }
     }
     if (removeNested) {
