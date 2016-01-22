@@ -1,0 +1,16 @@
+{
+  for (int sent=0; sent < inputs.length; sent++) {
+    Tokenizer<CoreLabel> spanishTokenizer=tf.getTokenizer(new StringReader(inputs[sent]));
+    int i=0;
+    while (spanishTokenizer.hasNext()) {
+      String w=spanishTokenizer.next().word();
+      try {
+        assertEquals("SpanishTokenizer problem",gold[sent][i],w);
+      }
+ catch (      ArrayIndexOutOfBoundsException aioobe) {
+      }
+      i++;
+    }
+    assertEquals("SpanishTokenizer num tokens problem",i,gold[sent].length);
+  }
+}

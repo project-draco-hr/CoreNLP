@@ -3,6 +3,9 @@
   List<SequenceMatchResult<T>> all=new ArrayList<>();
   int i=0;
   for (  SequencePattern<T> p : triggered) {
+    if (Thread.interrupted()) {
+      throw new RuntimeInterruptedException();
+    }
     SequenceMatcher<T> m=p.getMatcher(elements);
     m.setMatchWithResult(matchWithResult);
     m.setFindType(findType);

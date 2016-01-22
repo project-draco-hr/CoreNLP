@@ -1,17 +1,16 @@
 {
-  for (int a=0; a < tokens.size(); a++) {
-    String extract=tokens.get(a);
-    if (QuantifiableEntityNormalizer.wordsToValues.containsKey(extract)) {
-      extract=Integer.toString(Double.valueOf(QuantifiableEntityNormalizer.wordsToValues.getCount(extract)).intValue());
-    }
- else     if (QuantifiableEntityNormalizer.ordinalsToValues.containsKey(extract)) {
-      extract=Integer.toString(Double.valueOf(QuantifiableEntityNormalizer.ordinalsToValues.getCount(extract)).intValue());
-    }
-    extract=extract.replaceAll("[^0-9]","");
-    if (!extract.equals("")) {
-      try {
+  try {
+    for (    String extract : tokens) {
+      if (QuantifiableEntityNormalizer.wordsToValues.containsKey(extract)) {
+        extract=Integer.toString(Double.valueOf(QuantifiableEntityNormalizer.wordsToValues.getCount(extract)).intValue());
+      }
+ else       if (QuantifiableEntityNormalizer.ordinalsToValues.containsKey(extract)) {
+        extract=Integer.toString(Double.valueOf(QuantifiableEntityNormalizer.ordinalsToValues.getCount(extract)).intValue());
+      }
+      extract=extract.replaceAll("[^0-9]","");
+      if (!extract.isEmpty()) {
         Long i=Long.parseLong(extract);
-        if (i.intValue() < 32l && i.intValue() > 0l) {
+        if (i.intValue() < 32L && i.intValue() > 0L) {
           if (isoDate.length() < 6) {
             if (isoDate.length() != 4) {
               isoDate=isoDate + "******";
@@ -25,12 +24,12 @@
           return true;
         }
       }
- catch (      NumberFormatException e) {
-        System.err.println("Exception in extract Day.");
-        System.err.println("tokens size :" + tokens.size());
-        e.printStackTrace();
-      }
     }
+  }
+ catch (  NumberFormatException e) {
+    System.err.println("Exception in extract Day.");
+    System.err.println("tokens size :" + tokens.size());
+    e.printStackTrace();
   }
   return false;
 }

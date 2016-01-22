@@ -2,6 +2,9 @@
   int numTrans=system.numTransitions();
   Configuration c=system.initialConfiguration(sentence);
   while (!system.isTerminal(c)) {
+    if (Thread.interrupted()) {
+      throw new RuntimeInterruptedException();
+    }
     double[] scores=classifier.computeScores(getFeatureArray(c));
     double optScore=Double.NEGATIVE_INFINITY;
     String optTrans=null;
