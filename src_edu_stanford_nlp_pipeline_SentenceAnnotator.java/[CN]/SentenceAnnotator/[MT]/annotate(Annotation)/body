@@ -1,58 +1,49 @@
 {
-  Annotator.ANNOTATIONS_USED.clear();
-  try {
-    if (annotation.containsKey(CoreAnnotations.SentencesAnnotation.class)) {
-      if (nThreads() != 1 || maxTime() > 0) {
-        InterruptibleMulticoreWrapper<CoreMap,CoreMap> wrapper=buildWrapper(annotation);
-        for (        CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
-          boolean success=false;
-          for (int attempt=0; attempt < 2; ++attempt) {
-            try {
-              wrapper.put(sentence);
-              success=true;
-              break;
-            }
- catch (            RejectedExecutionException e) {
-              List<CoreMap> failedSentences=wrapper.joinWithTimeout();
-              if (failedSentences != null) {
-                for (                CoreMap failed : failedSentences) {
-                  doOneFailedSentence(annotation,failed);
-                }
+  if (annotation.containsKey(CoreAnnotations.SentencesAnnotation.class)) {
+    if (nThreads() != 1 || maxTime() > 0) {
+      InterruptibleMulticoreWrapper<CoreMap,CoreMap> wrapper=buildWrapper(annotation);
+      for (      CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
+        boolean success=false;
+        for (int attempt=0; attempt < 2; ++attempt) {
+          try {
+            wrapper.put(sentence);
+            success=true;
+            break;
+          }
+ catch (          RejectedExecutionException e) {
+            List<CoreMap> failedSentences=wrapper.joinWithTimeout();
+            if (failedSentences != null) {
+              for (              CoreMap failed : failedSentences) {
+                doOneFailedSentence(annotation,failed);
               }
-              wrapper=buildWrapper(annotation);
             }
-          }
-          if (!success) {
-            doOneFailedSentence(annotation,sentence);
-          }
-          while (wrapper.peek()) {
-            wrapper.poll();
+            wrapper=buildWrapper(annotation);
           }
         }
-        List<CoreMap> failedSentences=wrapper.joinWithTimeout();
+        if (!success) {
+          doOneFailedSentence(annotation,sentence);
+        }
         while (wrapper.peek()) {
           wrapper.poll();
         }
-        if (failedSentences != null) {
-          for (          CoreMap failed : failedSentences) {
-            doOneFailedSentence(annotation,failed);
-          }
-        }
       }
- else {
-        for (        CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
-          doOneSentence(annotation,sentence);
+      List<CoreMap> failedSentences=wrapper.joinWithTimeout();
+      while (wrapper.peek()) {
+        wrapper.poll();
+      }
+      if (failedSentences != null) {
+        for (        CoreMap failed : failedSentences) {
+          doOneFailedSentence(annotation,failed);
         }
       }
     }
  else {
-      throw new RuntimeException("unable to find sentences in: " + annotation);
+      for (      CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
+        doOneSentence(annotation,sentence);
+      }
     }
   }
-  finally {
-    if (!Annotator.ANNOTATIONS_USED.equals(requires())) {
-      throw new IllegalStateException("Annotations used and requested don't match in annotator " + this.getClass().getSimpleName() + ":\n\t "+ Annotator.ANNOTATIONS_USED+ "\n\tvs\n\t"+ requires());
-    }
-    Annotator.ANNOTATIONS_USED.clear();
+ else {
+    throw new RuntimeException("unable to find sentences in: " + annotation);
   }
 }
