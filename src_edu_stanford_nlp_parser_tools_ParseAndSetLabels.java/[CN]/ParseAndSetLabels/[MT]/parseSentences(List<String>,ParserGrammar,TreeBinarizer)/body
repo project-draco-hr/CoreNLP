@@ -1,0 +1,15 @@
+{
+  logger.info("Parsing sentences");
+  List<Tree> trees=new ArrayList<>();
+  for (  String sentence : sentences) {
+    Tree tree=parser.parse(sentence);
+    if (binarizer != null) {
+      tree=binarizer.transformTree(tree);
+    }
+    trees.add(tree);
+    if (trees.size() % 1000 == 0) {
+      logger.info("  Parsed " + trees.size() + " trees");
+    }
+  }
+  return trees;
+}
