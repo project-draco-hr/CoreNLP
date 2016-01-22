@@ -1,0 +1,18 @@
+{
+  String pattern="\\$\\{?([a-zA-Z_]+[a-zA-Z0-9_]*)\\}?";
+  Pattern expr=Pattern.compile(pattern);
+  String text=raw;
+  Matcher matcher=expr.matcher(text);
+  while (matcher.find()) {
+    String envValue=env.get(matcher.group(1));
+    if (envValue == null) {
+      envValue="";
+    }
+ else {
+      envValue=envValue.replace("\\","\\\\");
+    }
+    Pattern subexpr=Pattern.compile(Pattern.quote(matcher.group(0)));
+    text=subexpr.matcher(text).replaceAll(envValue);
+  }
+  return text;
+}
