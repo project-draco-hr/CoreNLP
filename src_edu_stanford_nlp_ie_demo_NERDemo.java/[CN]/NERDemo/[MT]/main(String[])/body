@@ -3,7 +3,7 @@
   if (args.length > 0) {
     serializedClassifier=args[0];
   }
-  AbstractSequenceClassifier<CoreLabel> classifier=CRFClassifier.getClassifier(serializedClassifier);
+  AbstractSequenceClassifier<CoreLabel> classifier=CRFClassifier.getClassifierNoExceptions(serializedClassifier);
   if (args.length > 1) {
     String fileContents=IOUtils.slurpFile(args[1]);
     List<List<CoreLabel>> out=classifier.classify(fileContents);
@@ -13,7 +13,6 @@
       }
       System.out.println();
     }
-    System.out.println("---");
     out=classifier.classifyFile(args[1]);
     for (    List<CoreLabel> sentence : out) {
       for (      CoreLabel word : sentence) {
@@ -21,63 +20,19 @@
       }
       System.out.println();
     }
-    System.out.println("---");
-    List<Triple<String,Integer,Integer>> list=classifier.classifyToCharacterOffsets(fileContents);
-    for (    Triple<String,Integer,Integer> item : list) {
-      System.out.println(item.first() + ": " + fileContents.substring(item.second(),item.third()));
-    }
-    System.out.println("---");
-    System.out.println("Ten best entity labelings");
-    DocumentReaderAndWriter<CoreLabel> readerAndWriter=classifier.makePlainTextReaderAndWriter();
-    classifier.classifyAndWriteAnswersKBest(args[1],10,readerAndWriter);
-    System.out.println("---");
-    System.out.println("Per-token marginalized probabilities");
-    classifier.printProbs(args[1],readerAndWriter);
   }
  else {
-    String[] example={"Good afternoon Rajat Raina, how are you today?","I go to school at Stanford University, which is located in California."};
-    for (    String str : example) {
-      System.out.println(classifier.classifyToString(str));
-    }
-    System.out.println("---");
-    for (    String str : example) {
-      System.out.print(classifier.classifyToString(str,"slashTags",false));
-    }
-    System.out.println("---");
-    for (    String str : example) {
-      System.out.print(classifier.classifyToString(str,"tabbedEntities",false));
-    }
-    System.out.println("---");
-    for (    String str : example) {
-      System.out.println(classifier.classifyWithInlineXML(str));
-    }
-    System.out.println("---");
-    for (    String str : example) {
-      System.out.println(classifier.classifyToString(str,"xml",true));
-    }
-    System.out.println("---");
-    for (    String str : example) {
-      System.out.print(classifier.classifyToString(str,"tsv",false));
-    }
-    System.out.println("---");
-    int j=0;
-    for (    String str : example) {
-      j++;
-      List<Triple<String,Integer,Integer>> triples=classifier.classifyToCharacterOffsets(str);
-      for (      Triple<String,Integer,Integer> trip : triples) {
-        System.out.printf("%s over character offsets [%d, %d) in sentence %d.%n",trip.first(),trip.second(),trip.third,j);
-      }
-    }
-    System.out.println("---");
+    String s1="Good afternoon Rajat Raina, how are you today?";
+    String s2="I go to school at Stanford University, which is located in California.";
+    System.out.println(classifier.classifyToString(s1));
+    System.out.println(classifier.classifyWithInlineXML(s2));
+    System.out.println(classifier.classifyToString(s2,"xml",true));
     int i=0;
-    for (    String str : example) {
-      for (      List<CoreLabel> lcl : classifier.classify(str)) {
-        for (        CoreLabel cl : lcl) {
-          System.out.print(i++ + ": ");
-          System.out.println(cl.toShorterString());
-        }
+    for (    List<CoreLabel> lcl : classifier.classify(s2)) {
+      for (      CoreLabel cl : lcl) {
+        System.out.println(i++ + ":");
+        System.out.println(cl);
       }
     }
-    System.out.println("---");
   }
 }

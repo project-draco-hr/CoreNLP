@@ -1,7 +1,7 @@
 {
-  List<Arc> bs=new ArrayList<>();
-  if (isTag[v.goal] && v.start + 1 == v.end) {
-    List<Vertex> tails=new ArrayList<>();
+  List<Arc> bs=new ArrayList<Arc>();
+  if (isTag[v.goal]) {
+    List<Vertex> tails=new ArrayList<Vertex>();
     double score=iScore[v.start][v.end][v.goal];
     Arc arc=new Arc(tails,v,score);
     bs.add(arc);
@@ -10,7 +10,7 @@
     for (    BinaryRule br : bg.ruleListByParent(v.goal)) {
       Vertex lChild=new Vertex(br.leftChild,v.start,split);
       Vertex rChild=new Vertex(br.rightChild,split,v.end);
-      List<Vertex> tails=new ArrayList<>();
+      List<Vertex> tails=new ArrayList<Vertex>();
       tails.add(lChild);
       tails.add(rChild);
       Arc arc=new Arc(tails,v,br.score);
@@ -19,7 +19,7 @@
   }
   for (  UnaryRule ur : ug.rulesByParent(v.goal)) {
     Vertex child=new Vertex(ur.child,v.start,v.end);
-    List<Vertex> tails=new ArrayList<>();
+    List<Vertex> tails=new ArrayList<Vertex>();
     tails.add(child);
     Arc arc=new Arc(tails,v,ur.score);
     bs.add(arc);

@@ -1,0 +1,24 @@
+{
+  String nounGender=cInfo.get(loc).getString(CoreAnnotations.MorphoGenAnnotation.class);
+  String nounNum=cInfo.get(loc).getString(CoreAnnotations.MorphoNumAnnotation.class);
+  String nounCase=cInfo.get(loc).getString(CoreAnnotations.MorphoCaseAnnotation.class);
+  String thisTag=cInfo.get(loc - offset).getString(CoreAnnotations.PartOfSpeechAnnotation.class);
+  String thisWord=cInfo.get(loc - offset).getString(CoreAnnotations.TextAnnotation.class);
+  Matcher m=verbTagStem.matcher(thisTag);
+  if (m.lookingAt() && !kanSisters.contains(thisWord) && !innaSisters.contains(thisWord)) {
+    if (flags.useSVO && (loc - offset > 0) && isSVO(cInfo,loc - offset))     return Boolean.toString(false);
+    if (nounCase.startsWith("GEN"))     return Boolean.toString(false) + "-" + nounCase;
+    String verbGender=cInfo.get(loc - offset).getString(CoreAnnotations.MorphoGenAnnotation.class);
+    String verbNum=cInfo.get(loc - offset).getString(CoreAnnotations.MorphoNumAnnotation.class);
+    String verbPers=cInfo.get(loc - offset).getString(CoreAnnotations.MorphoPersAnnotation.class);
+    String pTag=cInfo.get(loc - offset - 1).getString(CoreAnnotations.PartOfSpeechAnnotation.class);
+    boolean verbInitialClause=(pTag.equals(flags.backgroundSymbol) || pTag.equals("CC") || pTag.equals("RP")|| pTag.equals("IN"));
+    if (verbGender.equals(nounGender) && verbNum.equals(nounNum))     return Boolean.toString(verbInitialClause) + "-STRONG";
+ else     if (verbGender.equals(nounGender))     return Boolean.toString(verbInitialClause) + "-WEAK";
+ else     if ((nounNum.startsWith("PL") || nounGender.startsWith("FEM")) && (verbNum.equals("SG") && verbGender.equals("MASC") && verbPers.equals("3")))     return Boolean.toString(verbInitialClause) + "-S-STRONG-PL";
+ else     if ((nounNum.startsWith("PL") || nounGender.startsWith("FEM")) && (verbNum.equals("SG") && verbGender.equals("MASC")))     return Boolean.toString(verbInitialClause) + "-STRONG-PL";
+ else     if ((nounNum.startsWith("PL") || nounGender.startsWith("FEM")) && (verbNum.equals("SG")))     return Boolean.toString(verbInitialClause) + "-WEAK-PL";
+ else     return Boolean.toString(false);
+  }
+  return "";
+}

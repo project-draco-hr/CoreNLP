@@ -1,20 +1,19 @@
 {
   makeAnswerArraysAndTagIndex(data);
-  Index<String> origFeatIndex=new HashIndex<>(featureIndex.objectsList());
+  Index<String> origFeatIndex=new HashIndex<String>(featureIndex.objectsList());
   int size=0;
   for (  List<IN> doc : data) {
     size+=doc.size();
   }
-  System.err.print("Making Dataset ... ");
-  System.err.flush();
-  Dataset<String,String> train=new Dataset<>(size,featureIndex,classIndex);
+  System.err.println("Making Dataset...");
+  Dataset<String,String> train=new Dataset<String,String>(size,featureIndex,classIndex);
   for (  List<IN> doc : data) {
     if (flags.useReverse) {
       Collections.reverse(doc);
     }
     for (int i=0, dsize=doc.size(); i < dsize; i++) {
-      Datum<String,String> d=makeDatum(doc,i,featureFactories);
-      Collection<String> newFeats=new ArrayList<>();
+      Datum<String,String> d=makeDatum(doc,i,featureFactory);
+      Collection<String> newFeats=new ArrayList<String>();
       for (      String f : d.asFeatures()) {
         if (!origFeatIndex.contains(f)) {
           newFeats.add(f);

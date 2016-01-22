@@ -1,0 +1,12 @@
+{
+  used.add(curr);
+  List<SemanticGraphEdge> edges=outgoingEdgeList(curr);
+  Collections.sort(edges);
+  for (  SemanticGraphEdge edge : edges) {
+    IndexedWord target=edge.getTarget();
+    sb.append(space(2 * offset)).append("-> ").append(target).append(" (").append(edge.getRelation()).append(")\n");
+    if (!used.contains(target)) {
+      recToString(target,sb,offset + 1,used);
+    }
+  }
+}

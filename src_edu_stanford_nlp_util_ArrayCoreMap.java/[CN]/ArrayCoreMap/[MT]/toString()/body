@@ -1,6 +1,10 @@
 {
   IdentityHashSet<CoreMap> calledSet=toStringCalled.get();
-  boolean createdCalledSet=calledSet.isEmpty();
+  boolean createdCalledSet=(calledSet == null);
+  if (createdCalledSet) {
+    calledSet=new IdentityHashSet<CoreMap>();
+    toStringCalled.set(calledSet);
+  }
   if (calledSet.contains(this)) {
     return "[...]";
   }
@@ -16,7 +20,7 @@
   }
   s.append(']');
   if (createdCalledSet) {
-    toStringCalled.remove();
+    toStringCalled.set(null);
   }
  else {
     calledSet.remove(this);

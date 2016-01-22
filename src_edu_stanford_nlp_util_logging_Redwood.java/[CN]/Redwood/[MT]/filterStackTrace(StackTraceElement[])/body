@@ -1,0 +1,22 @@
+{
+  List<StackTraceElement> filteredStack=new ArrayList<StackTraceElement>();
+  int i=2;
+  while (i < stack.length) {
+    boolean isLoggingClass=false;
+    for (    String loggingClass : loggingClasses) {
+      String className=stack[i].getClassName();
+      if (className.startsWith(loggingClass)) {
+        isLoggingClass=true;
+        break;
+      }
+    }
+    if (!isLoggingClass) {
+      filteredStack.add(stack[i]);
+    }
+    i+=1;
+  }
+  if (filteredStack.size() == 0) {
+    return Arrays.asList(stack);
+  }
+  return filteredStack;
+}

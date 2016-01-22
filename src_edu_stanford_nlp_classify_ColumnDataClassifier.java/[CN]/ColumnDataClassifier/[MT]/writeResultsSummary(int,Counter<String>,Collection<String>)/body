@@ -1,11 +1,13 @@
 {
-  logger.info("");
-  String message="";
-  message+=num + " examples";
+  System.err.println();
+  NumberFormat nf=NumberFormat.getNumberInstance();
+  nf.setMinimumFractionDigits(3);
+  nf.setMaximumFractionDigits(3);
+  System.err.print(num + " examples");
   if (globalFlags.groupingColumn >= 0 && globalFlags.rankingAccuracyClass != null) {
-    message+=" and " + numGroups + " ranking groups";
+    System.err.print(" and " + numGroups + " ranking groups");
   }
-  logger.info(message + " in test set");
+  System.err.println(" in test set");
   int numClasses=0;
   double microAccuracy=0.0;
   double macroF1=0.0;
@@ -15,13 +17,13 @@
     int fn=(int)contingency.getCount(key + "|FN");
     int fp=(int)contingency.getCount(key + "|FP");
     int tn=(int)contingency.getCount(key + "|TN");
-    double p=(tp + fp == 0) ? 1.0 : ((double)tp) / (tp + fp);
-    double r=(tp + fn == 0) ? 1.0 : ((double)tp) / (tp + fn);
+    double p=(tp == 0) ? 0.0 : ((double)tp) / (tp + fp);
+    double r=(tp == 0) ? 0.0 : ((double)tp) / (tp + fn);
     double f=(p == 0.0 && r == 0.0) ? 0.0 : 2 * p * r / (p + r);
     double acc=((double)tp + tn) / num;
     macroF1+=f;
     microAccuracy+=tp;
-    logger.info("Cls " + key + ": TP="+ tp+ " FN="+ fn+ " FP="+ fp+ " TN="+ tn+ "; Acc "+ nf.format(acc)+ " P "+ nf.format(p)+ " R "+ nf.format(r)+ " F1 "+ nf.format(f));
+    System.err.println("Cls " + key + ": TP="+ tp+ " FN="+ fn+ " FP="+ fp+ " TN="+ tn+ "; Acc "+ nf.format(acc)+ " P "+ nf.format(p)+ " R "+ nf.format(r)+ " F1 "+ nf.format(f));
   }
   if (globalFlags.groupingColumn >= 0 && globalFlags.rankingAccuracyClass != null) {
     double cor=(int)contingency.getCount("Ranking|Correct");
@@ -34,21 +36,21 @@
     if (coverr > 0.5) {
       double ce=(int)(contingency.getCount("Ranking|Error") - contingency.getCount("Ranking|Uncovered"));
       double crankacc=(cor + ce == 0) ? 0 : cor / (cor + ce);
-      logger.info(" (on " + nf.format(covacc) + " of groups with correct answer: "+ nf.format(crankacc)+ ')');
+      System.err.println(" (on " + nf.format(covacc) + " of groups with correct answer: "+ nf.format(crankacc)+ ')');
     }
  else {
-      logger.info("");
+      System.err.println();
     }
     if (globalFlags.rankingScoreColumn >= 0) {
       double totalSim=contingency.getCount("Ranking|Score");
       double ranksim=(cor + err == 0) ? 0 : totalSim / (cor + err);
-      logger.info("Ranking average score: " + nf.format(ranksim));
+      System.err.println("Ranking average score: " + nf.format(ranksim));
     }
   }
   microAccuracy=microAccuracy / num;
   macroF1=macroF1 / numClasses;
-  NumberFormat nf2=new DecimalFormat("0.00000");
-  logger.info("Accuracy/micro-averaged F1: " + nf2.format(microAccuracy));
-  logger.info("Macro-averaged F1: " + nf2.format(macroF1));
-  return new Pair<>(microAccuracy,macroF1);
+  nf.setMinimumFractionDigits(5);
+  nf.setMaximumFractionDigits(5);
+  System.err.println("Micro-averaged accuracy/F1: " + nf.format(microAccuracy));
+  System.err.println("Macro-averaged F1: " + nf.format(macroF1));
 }

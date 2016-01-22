@@ -1,0 +1,48 @@
+{
+  Triple<int[][][],int[],double[][][]> p=documentToDataAndLabels(sentence);
+  List<IN> newDocument=sentence;
+  if (flags.useReverse) {
+    newDocument=new ArrayList<IN>(sentence);
+    Collections.reverse(newDocument);
+  }
+  CRFCliqueTree<String> cliqueTree=getCliqueTree(p);
+  SequenceModel model=cliqueTree;
+  SequenceListener listener=cliqueTree;
+  model=new FactoredSequenceModel(model,priorModel,model1Wt,model2Wt);
+  listener=new FactoredSequenceListener(listener,priorListener);
+  SequenceGibbsSampler sampler=new SequenceGibbsSampler(0,0,listener);
+  int[] sequence=new int[cliqueTree.length()];
+  if (flags.initViterbi) {
+    TestSequenceModel testSequenceModel=new TestSequenceModel(cliqueTree);
+    ExactBestSequenceFinder tagInference=new ExactBestSequenceFinder();
+    int[] bestSequence=tagInference.bestSequence(testSequenceModel);
+    System.arraycopy(bestSequence,windowSize - 1,sequence,0,sequence.length);
+  }
+ else {
+    int[] initialSequence=SequenceGibbsSampler.getRandomSequence(model);
+    System.arraycopy(initialSequence,0,sequence,0,sequence.length);
+  }
+  SequenceGibbsSampler.verbose=0;
+  if (flags.annealingType.equalsIgnoreCase("linear")) {
+    sequence=sampler.findBestUsingAnnealing(model,CoolingSchedule.getLinearSchedule(1.0,flags.numSamples),sequence);
+  }
+ else   if (flags.annealingType.equalsIgnoreCase("exp") || flags.annealingType.equalsIgnoreCase("exponential")) {
+    sequence=sampler.findBestUsingAnnealing(model,CoolingSchedule.getExponentialSchedule(1.0,flags.annealingRate,flags.numSamples),sequence);
+  }
+ else {
+    throw new RuntimeException("No annealing type specified");
+  }
+  if (flags.useReverse) {
+    Collections.reverse(sentence);
+  }
+  for (int j=0, dsize=newDocument.size(); j < dsize; j++) {
+    IN wi=sentence.get(j);
+    if (wi == null)     throw new RuntimeException("");
+    if (classIndex == null)     throw new RuntimeException("");
+    wi.set(CoreAnnotations.AnswerAnnotation.class,classIndex.get(sequence[j]));
+  }
+  if (flags.useReverse) {
+    Collections.reverse(sentence);
+  }
+  return sentence;
+}

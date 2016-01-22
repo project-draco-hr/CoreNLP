@@ -1,19 +1,12 @@
 {
   classifier=(LinearClassifier<String,String>)ois.readObject();
   flags=(SeqClassifierFlags)ois.readObject();
-  Object featureFactory=ois.readObject();
-  if (featureFactory instanceof List) {
-    featureFactories=ErasureUtils.uncheckedCast(featureFactory);
-  }
- else   if (featureFactory instanceof FeatureFactory) {
-    featureFactories=Generics.newArrayList();
-    featureFactories.add((FeatureFactory)featureFactory);
-  }
+  featureFactory=(FeatureFactory)ois.readObject();
   if (props != null) {
     flags.setProperties(props);
   }
   reinit();
   classIndex=(Index<String>)ois.readObject();
   answerArrays=(Set<List<String>>)ois.readObject();
-  knownLCWords=(MaxSizeConcurrentHashSet<String>)ois.readObject();
+  knownLCWords=(Set<String>)ois.readObject();
 }

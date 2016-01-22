@@ -1,9 +1,9 @@
 {
   List<CoreMap> sentences=conllDoc.getAnnotation().get(CoreAnnotations.SentencesAnnotation.class);
-  List<List<Mention>> allGoldMentions=new ArrayList<>();
+  List<List<Mention>> allGoldMentions=new ArrayList<List<Mention>>();
   CollectionValuedMap<String,CoreMap> corefChainMap=conllDoc.getCorefChainMap();
   for (int i=0; i < sentences.size(); i++) {
-    allGoldMentions.add(new ArrayList<>());
+    allGoldMentions.add(new ArrayList<Mention>());
   }
   int maxCorefClusterId=-1;
   for (  String corefIdStr : corefChainMap.keySet()) {
@@ -35,7 +35,7 @@
       mention.startIndex=m.get(CoreAnnotations.TokenBeginAnnotation.class) - sent.get(CoreAnnotations.TokenBeginAnnotation.class);
       mention.endIndex=m.get(CoreAnnotations.TokenEndAnnotation.class) - sent.get(CoreAnnotations.TokenBeginAnnotation.class);
       mention.originalSpan=m.get(CoreAnnotations.TokensAnnotation.class);
-      mention.dependency=sentences.get(sentIndex).get(SemanticGraphCoreAnnotations.AlternativeDependenciesAnnotation.class);
+      mention.dependency=sentences.get(sentIndex).get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class);
       allGoldMentions.get(sentIndex).add(mention);
     }
   }

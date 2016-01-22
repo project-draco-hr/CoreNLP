@@ -1,0 +1,302 @@
+{
+  if (pool == null) {
+    pool=new AnnotatorPool();
+  }
+  pool.register(STANFORD_TOKENIZE,new AnnotatorFactory(inputProps){
+    private static final long serialVersionUID=1L;
+    @Override public Annotator create(){
+      if (Boolean.valueOf(properties.getProperty("tokenize.whitespace","false"))) {
+        return new WhitespaceTokenizerAnnotator(properties);
+      }
+ else {
+        String options=properties.getProperty("tokenize.options",PTBTokenizerAnnotator.DEFAULT_OPTIONS);
+        boolean keepNewline=Boolean.valueOf(properties.getProperty(NEWLINE_SPLITTER_PROPERTY,"false"));
+        if (keepNewline) {
+          options="tokenizeNLs," + options;
+        }
+        return new PTBTokenizerAnnotator(false,options);
+      }
+    }
+    @Override public String signature(){
+      StringBuilder os=new StringBuilder();
+      os.append("tokenize.whitespace:" + properties.getProperty("tokenize.whitespace","false"));
+      if (Boolean.valueOf(properties.getProperty("tokenize.whitespace","false"))) {
+        os.append(WhitespaceTokenizerAnnotator.EOL_PROPERTY + ":" + properties.getProperty(WhitespaceTokenizerAnnotator.EOL_PROPERTY,"false"));
+        os.append(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY + ":" + properties.getProperty(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY,"false"));
+        return os.toString();
+      }
+ else {
+        os.append(NEWLINE_SPLITTER_PROPERTY + ":" + Boolean.valueOf(properties.getProperty(NEWLINE_SPLITTER_PROPERTY,"false")));
+      }
+      return os.toString();
+    }
+  }
+);
+  pool.register(STANFORD_CLEAN_XML,new AnnotatorFactory(inputProps){
+    private static final long serialVersionUID=1L;
+    @Override public Annotator create(){
+      String xmlTags=properties.getProperty("clean.xmltags",CleanXmlAnnotator.DEFAULT_XML_TAGS);
+      String sentenceEndingTags=properties.getProperty("clean.sentenceendingtags",CleanXmlAnnotator.DEFAULT_SENTENCE_ENDERS);
+      String allowFlawedString=properties.getProperty("clean.allowflawedxml");
+      boolean allowFlawed=CleanXmlAnnotator.DEFAULT_ALLOW_FLAWS;
+      if (allowFlawedString != null)       allowFlawed=Boolean.valueOf(allowFlawedString);
+      String dateTags=properties.getProperty("clean.datetags",CleanXmlAnnotator.DEFAULT_DATE_TAGS);
+      return new CleanXmlAnnotator(xmlTags,sentenceEndingTags,dateTags,allowFlawed);
+    }
+    @Override public String signature(){
+      return "clean.xmltags:" + properties.getProperty("clean.xmltags",CleanXmlAnnotator.DEFAULT_XML_TAGS) + "clean.sentenceendingtags:"+ properties.getProperty("clean.sentenceendingtags",CleanXmlAnnotator.DEFAULT_SENTENCE_ENDERS)+ "clean.allowflawedxml:"+ properties.getProperty("clean.allowflawedxml","")+ "clean.datetags:"+ properties.getProperty("clean.datetags",CleanXmlAnnotator.DEFAULT_DATE_TAGS);
+    }
+  }
+);
+  pool.register(STANFORD_SSPLIT,new AnnotatorFactory(inputProps){
+    private static final long serialVersionUID=1L;
+    @Override public Annotator create(){
+      boolean nlSplitting=Boolean.valueOf(properties.getProperty(NEWLINE_SPLITTER_PROPERTY,"false"));
+      if (nlSplitting) {
+        boolean whitespaceTokenization=Boolean.valueOf(properties.getProperty("tokenize.whitespace","false"));
+        WordsToSentencesAnnotator wts;
+        if (whitespaceTokenization) {
+          if (System.getProperty("line.separator").equals("\n")) {
+            wts=WordsToSentencesAnnotator.newlineSplitter(false,"\n");
+          }
+ else {
+            wts=WordsToSentencesAnnotator.newlineSplitter(false,System.getProperty("line.separator"),"\n");
+          }
+        }
+ else {
+          wts=WordsToSentencesAnnotator.newlineSplitter(false,PTBTokenizer.getNewlineToken());
+        }
+        return wts;
+      }
+ else {
+        WordsToSentencesAnnotator wts;
+        String boundaryTokenRegex=properties.getProperty("ssplit.boundaryTokenRegex");
+        if (boundaryTokenRegex != null) {
+          wts=new WordsToSentencesAnnotator(false,boundaryTokenRegex);
+        }
+ else {
+          wts=new WordsToSentencesAnnotator();
+        }
+        String bounds=properties.getProperty("ssplit.boundariesToDiscard");
+        if (bounds != null) {
+          String[] toks=bounds.split(",");
+          wts.setSentenceBoundaryToDiscard(Generics.newHashSet(Arrays.asList(toks)));
+        }
+        bounds=properties.getProperty("ssplit.htmlBoundariesToDiscard");
+        if (bounds != null) {
+          String[] toks=bounds.split(",");
+          wts.addHtmlSentenceBoundaryToDiscard(Generics.newHashSet(Arrays.asList(toks)));
+        }
+        String isOneSentence=properties.getProperty("ssplit.isOneSentence");
+        if (isOneSentence != null) {
+          wts.setOneSentence(Boolean.parseBoolean(isOneSentence));
+        }
+        return wts;
+      }
+    }
+    @Override public String signature(){
+      StringBuilder os=new StringBuilder();
+      os.append(NEWLINE_SPLITTER_PROPERTY + ":" + properties.getProperty(NEWLINE_SPLITTER_PROPERTY,"false"));
+      if (Boolean.valueOf(properties.getProperty(NEWLINE_SPLITTER_PROPERTY,"false"))) {
+        os.append("tokenize.whitespace:" + properties.getProperty("tokenize.whitespace","false"));
+      }
+ else {
+        os.append("ssplit.boundariesToDiscard:" + properties.getProperty("ssplit.boundariesToDiscard",""));
+        os.append("ssplit.htmlBoundariesToDiscard:" + properties.getProperty("ssplit.htmlBoundariesToDiscard",""));
+        os.append("ssplit.isOneSentence:" + properties.getProperty("ssplit.isOneSentence",""));
+      }
+      return os.toString();
+    }
+  }
+);
+  pool.register(STANFORD_POS,new AnnotatorFactory(inputProps){
+    private static final long serialVersionUID=1L;
+    @Override public Annotator create(){
+      try {
+        return new POSTaggerAnnotator("pos",properties);
+      }
+ catch (      Exception e) {
+        throw new RuntimeException(e);
+      }
+    }
+    @Override public String signature(){
+      return ("pos.maxlen:" + properties.getProperty("pos.maxlen","") + "pos.model:"+ properties.getProperty("pos.model",DefaultPaths.DEFAULT_POS_MODEL)+ "pos.nthreads:"+ properties.getProperty("pos.nthreads",properties.getProperty("nthreads","")));
+    }
+  }
+);
+  pool.register(STANFORD_LEMMA,new AnnotatorFactory(inputProps){
+    private static final long serialVersionUID=1L;
+    @Override public Annotator create(){
+      return new MorphaAnnotator(false);
+    }
+    @Override public String signature(){
+      return "";
+    }
+  }
+);
+  pool.register(STANFORD_NER,new AnnotatorFactory(inputProps){
+    private static final long serialVersionUID=1L;
+    @Override public Annotator create(){
+      List<String> models=new ArrayList<String>();
+      String modelNames=properties.getProperty("ner.model");
+      if (modelNames == null) {
+        modelNames=DefaultPaths.DEFAULT_NER_THREECLASS_MODEL + "," + DefaultPaths.DEFAULT_NER_MUC_MODEL+ ","+ DefaultPaths.DEFAULT_NER_CONLL_MODEL;
+      }
+      if (modelNames.length() > 0) {
+        models.addAll(Arrays.asList(modelNames.split(",")));
+      }
+      if (models.isEmpty()) {
+        System.err.println("WARNING: no NER models specified");
+      }
+      NERClassifierCombiner nerCombiner;
+      try {
+        boolean applyNumericClassifiers=PropertiesUtils.getBool(properties,NERClassifierCombiner.APPLY_NUMERIC_CLASSIFIERS_PROPERTY,NERClassifierCombiner.APPLY_NUMERIC_CLASSIFIERS_DEFAULT);
+        boolean useSUTime=PropertiesUtils.getBool(properties,NumberSequenceClassifier.USE_SUTIME_PROPERTY,NumberSequenceClassifier.USE_SUTIME_DEFAULT);
+        nerCombiner=new NERClassifierCombiner(applyNumericClassifiers,useSUTime,properties,models.toArray(new String[models.size()]));
+      }
+ catch (      FileNotFoundException e) {
+        throw new RuntimeIOException(e);
+      }
+      return new NERCombinerAnnotator(nerCombiner,false);
+    }
+    @Override public String signature(){
+      return "ner.model:" + properties.getProperty("ner.model","") + "ner.model.3class:"+ properties.getProperty("ner.model.3class",DefaultPaths.DEFAULT_NER_THREECLASS_MODEL)+ "ner.model.7class:"+ properties.getProperty("ner.model.7class",DefaultPaths.DEFAULT_NER_MUC_MODEL)+ "ner.model.MISCclass:"+ properties.getProperty("ner.model.MISCclass",DefaultPaths.DEFAULT_NER_CONLL_MODEL)+ NERClassifierCombiner.APPLY_NUMERIC_CLASSIFIERS_PROPERTY+ ":"+ properties.getProperty(NERClassifierCombiner.APPLY_NUMERIC_CLASSIFIERS_PROPERTY,Boolean.toString(NERClassifierCombiner.APPLY_NUMERIC_CLASSIFIERS_DEFAULT))+ NumberSequenceClassifier.USE_SUTIME_PROPERTY+ ":"+ properties.getProperty(NumberSequenceClassifier.USE_SUTIME_PROPERTY,Boolean.toString(NumberSequenceClassifier.USE_SUTIME_DEFAULT));
+    }
+  }
+);
+  pool.register(STANFORD_REGEXNER,new AnnotatorFactory(inputProps){
+    private static final long serialVersionUID=1L;
+    @Override public Annotator create(){
+      String mapping=properties.getProperty("regexner.mapping",DefaultPaths.DEFAULT_REGEXNER_RULES);
+      String ignoreCase=properties.getProperty("regexner.ignorecase","false");
+      String validPosPattern=properties.getProperty("regexner.validpospattern",RegexNERSequenceClassifier.DEFAULT_VALID_POS);
+      return new RegexNERAnnotator(mapping,Boolean.valueOf(ignoreCase),validPosPattern);
+    }
+    @Override public String signature(){
+      return "regexner.mapping:" + properties.getProperty("regexner.mapping",DefaultPaths.DEFAULT_REGEXNER_RULES) + "regexner.ignorecase:"+ properties.getProperty("regexner.ignorecase","false")+ "regexner.validpospattern:"+ properties.getProperty("regexner.validpospattern",RegexNERSequenceClassifier.DEFAULT_VALID_POS);
+    }
+  }
+);
+  pool.register(STANFORD_GENDER,new AnnotatorFactory(inputProps){
+    private static final long serialVersionUID=1L;
+    @Override public Annotator create(){
+      return new GenderAnnotator(false,properties.getProperty("gender.firstnames",DefaultPaths.DEFAULT_GENDER_FIRST_NAMES));
+    }
+    @Override public String signature(){
+      return "gender.firstnames:" + properties.getProperty("gender.firstnames",DefaultPaths.DEFAULT_GENDER_FIRST_NAMES);
+    }
+  }
+);
+  pool.register(STANFORD_TRUECASE,new AnnotatorFactory(inputProps){
+    private static final long serialVersionUID=1L;
+    @Override public Annotator create(){
+      String model=properties.getProperty("truecase.model",DefaultPaths.DEFAULT_TRUECASE_MODEL);
+      String bias=properties.getProperty("truecase.bias",TrueCaseAnnotator.DEFAULT_MODEL_BIAS);
+      String mixed=properties.getProperty("truecase.mixedcasefile",DefaultPaths.DEFAULT_TRUECASE_DISAMBIGUATION_LIST);
+      return new TrueCaseAnnotator(model,bias,mixed,false);
+    }
+    @Override public String signature(){
+      return "truecase.model:" + properties.getProperty("truecase.model",DefaultPaths.DEFAULT_TRUECASE_MODEL) + "truecase.bias:"+ properties.getProperty("truecase.bias",TrueCaseAnnotator.DEFAULT_MODEL_BIAS)+ "truecase.mixedcasefile:"+ properties.getProperty("truecase.mixedcasefile",DefaultPaths.DEFAULT_TRUECASE_DISAMBIGUATION_LIST);
+    }
+  }
+);
+  pool.register(STANFORD_NFL_TOKENIZE,new AnnotatorFactory(inputProps){
+    private static final long serialVersionUID=1L;
+    @Override public Annotator create(){
+      final String className="edu.stanford.nlp.pipeline.NFLTokenizerAnnotator";
+      return ReflectionLoading.loadByReflection(className);
+    }
+    @Override public String signature(){
+      return "";
+    }
+  }
+);
+  pool.register(STANFORD_NFL,new AnnotatorFactory(inputProps){
+    private static final long serialVersionUID=1L;
+    @Override public Annotator create(){
+      final String className="edu.stanford.nlp.pipeline.NFLAnnotator";
+      return ReflectionLoading.loadByReflection(className,properties);
+    }
+    @Override public String signature(){
+      return "nfl.verbose:" + properties.getProperty("nfl.verbose","false") + "nfl.relations.use.max.recall:"+ properties.getProperty("nfl.relations.use.max.recall","false")+ "nfl.relations.use.model.merging:"+ properties.getProperty("nfl.relations.use.model.merging","false")+ "nfl.relations.use.basic.inference:"+ properties.getProperty("nfl.relations.use.basic.inference","true")+ "nfl.gazetteer:"+ properties.getProperty("nfl.gazetteer",DefaultPaths.DEFAULT_NFL_GAZETTEER)+ "nfl.entity.model:"+ properties.getProperty("nfl.entity.model",DefaultPaths.DEFAULT_NFL_ENTITY_MODEL)+ "nfl.relation.model:"+ properties.getProperty("nfl.relation.model",DefaultPaths.DEFAULT_NFL_RELATION_MODEL);
+    }
+  }
+);
+  pool.register(STANFORD_PARSE,new AnnotatorFactory(inputProps){
+    private static final long serialVersionUID=1L;
+    @Override public Annotator create(){
+      String parserType=properties.getProperty("parse.type","stanford");
+      String maxLenStr=properties.getProperty("parse.maxlen");
+      if (parserType.equalsIgnoreCase("stanford")) {
+        ParserAnnotator anno=new ParserAnnotator("parse",properties);
+        return anno;
+      }
+ else       if (parserType.equalsIgnoreCase("charniak")) {
+        String model=properties.getProperty("parse.model");
+        String parserExecutable=properties.getProperty("parse.executable");
+        if (model == null || parserExecutable == null) {
+          throw new RuntimeException("Both parse.model and parse.executable properties must be specified if parse.type=charniak");
+        }
+        int maxLen=399;
+        if (maxLenStr != null) {
+          maxLen=Integer.parseInt(maxLenStr);
+        }
+        CharniakParserAnnotator anno=new CharniakParserAnnotator(model,parserExecutable,false,maxLen);
+        return anno;
+      }
+ else {
+        throw new RuntimeException("Unknown parser type: " + parserType + " (currently supported: stanford and charniak)");
+      }
+    }
+    @Override public String signature(){
+      String type=properties.getProperty("parse.type","stanford");
+      if (type.equalsIgnoreCase("stanford")) {
+        return ParserAnnotator.signature("parser",properties);
+      }
+ else       if (type.equalsIgnoreCase("charniak")) {
+        return "parse.model:" + properties.getProperty("parse.model","") + "parse.executable:"+ properties.getProperty("parse.executable","")+ "parse.maxlen:"+ properties.getProperty("parse.maxlen","");
+      }
+ else {
+        throw new RuntimeException("Unknown parser type: " + type + " (currently supported: stanford and charniak)");
+      }
+    }
+  }
+);
+  pool.register(STANFORD_DETERMINISTIC_COREF,new AnnotatorFactory(inputProps){
+    private static final long serialVersionUID=1L;
+    @Override public Annotator create(){
+      return new DeterministicCorefAnnotator(properties);
+    }
+    @Override public String signature(){
+      return DeterministicCorefAnnotator.signature(properties);
+    }
+  }
+);
+  for (  Object propertyKey : inputProps.keySet()) {
+    if (!(propertyKey instanceof String))     continue;
+    String property=(String)propertyKey;
+    if (property.startsWith(CUSTOM_ANNOTATOR_PREFIX)) {
+      final String customName=property.substring(CUSTOM_ANNOTATOR_PREFIX.length());
+      final String customClassName=inputProps.getProperty(property);
+      System.err.println("Registering annotator " + customName + " with class "+ customClassName);
+      pool.register(customName,new AnnotatorFactory(inputProps){
+        private static final long serialVersionUID=1L;
+        private final String name=customName;
+        private final String className=customClassName;
+        @Override public Annotator create(){
+          return ReflectionLoading.loadByReflection(className,name,properties);
+        }
+        @Override public String signature(){
+          StringBuilder os=new StringBuilder();
+          for (          Object key : properties.keySet()) {
+            String skey=(String)key;
+            os.append(skey + ":" + properties.getProperty(skey));
+          }
+          return os.toString();
+        }
+      }
+);
+    }
+  }
+  return pool;
+}

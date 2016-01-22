@@ -1,0 +1,83 @@
+{
+  CoreLabel c=cInfo.get(loc);
+  CoreLabel n=(loc + 1 < cInfo.size()) ? cInfo.get(loc + 1) : null;
+  CoreLabel p=(loc - 1 >= 0) ? cInfo.get(loc - 1) : null;
+  String nWord=(n != null) ? n.getString(CoreAnnotations.TextAnnotation.class) : null;
+  String cWord=(c != null) ? c.getString(CoreAnnotations.TextAnnotation.class) : null;
+  String pWord=(p != null) ? p.getString(CoreAnnotations.TextAnnotation.class) : null;
+  Collection<String> featuresC=new ArrayList<String>();
+  if (flags.useWord)   featuresC.add(cWord + "-WORD");
+  if (flags.useWord1 && p != null)   featuresC.add(pWord + "-pWORD");
+  if (flags.useWordn && n != null)   featuresC.add(nWord + "-nWORD");
+  if (flags.useClassFeature)   featuresC.add("#C#");
+  if (flags.useTags) {
+    addTags(featuresC,cInfo,loc,flags.numTags);
+  }
+  if (flags.useLastNgram) {
+    if (cWord != null) {
+      if (cWord.length() >= 5)       featuresC.add(cWord.substring(cWord.length() - 2,cWord.length()) + "-cL2GRAM");
+      if (cWord.length() >= 3)       featuresC.add(cWord.substring(cWord.length() - 1,cWord.length()) + "-cL1GRAM");
+    }
+    if (pWord != null) {
+      if (pWord.length() >= 5)       featuresC.add(pWord.substring(pWord.length() - 2,pWord.length()) + "-pL2GRAM");
+      if (pWord.length() >= 3)       featuresC.add(pWord.substring(pWord.length() - 1,pWord.length()) + "-pL1GRAM");
+    }
+  }
+  if (flags.useAccCase) {
+    String cWordPrefix="";
+    String cWordSuffix="";
+    if (cWord.length() >= 2) {
+      cWordPrefix=cWord.substring(0,2);
+      cWordSuffix=cWord.substring(cWord.length() - 1,cWord.length());
+    }
+    String cTag=c.getString(CoreAnnotations.PartOfSpeechAnnotation.class);
+    Matcher m=nounTagStem.matcher(cTag);
+    if ((m.find() || cTag.contains(adjTagStem)) && !cWordPrefix.equals("????") && cWordSuffix.equals("??")) {
+      featuresC.add(cTag + "-cACASE");
+    }
+  }
+  if (flags.useVB) {
+    String cTag=c.getString(CoreAnnotations.PartOfSpeechAnnotation.class);
+    String stem=c.getString(CoreAnnotations.StemAnnotation.class);
+    if (!stem.equals("NA") && !stem.equals(flags.backgroundSymbol))     featuresC.add(cTag + "-true" + "-USEVB");
+ else     featuresC.add(cTag + "-false" + "-USEVB");
+    Matcher m=verbTagStem.matcher(cTag);
+    if (m.matches() && pWord != null && pWord.equals("??"))     featuresC.add(cTag + "-USE_FUT_VB");
+  }
+  if (flags.useTemporalNN) {
+    if (temporalNouns.contains(cWord))     featuresC.add(cWord + "-CTEMPORAL_NN");
+  }
+  if (flags.usePath) {
+    String cTag=c.getString(CoreAnnotations.PartOfSpeechAnnotation.class).trim();
+    if (cTag.contains("NN") || cTag.startsWith("PRP") || cTag.equals("IN"))     addPath(featuresC,cInfo,loc);
+  }
+  if (flags.useAgreement) {
+    boolean canAgree=true;
+    if (flags.useAuxPairs && pWord != null) {
+      if (kanSisters.contains(pWord)) {
+        featuresC.add(pWord + "-pAUXVERB");
+        canAgree=false;
+      }
+    }
+    if (canAgree) {
+      String cTag=c.getString(CoreAnnotations.PartOfSpeechAnnotation.class);
+      Matcher m=nounTagStem.matcher(cTag);
+      if (m.find()) {
+        for (int offset=1; offset <= 5 && (loc - offset) >= 0; offset++) {
+          String pTagi=cInfo.get(loc - offset).getString(CoreAnnotations.PartOfSpeechAnnotation.class);
+          if (pTagi.contains("NN")) {
+            break;
+          }
+ else {
+            String agr=agreement(cInfo,loc,offset);
+            if (!agr.equals("")) {
+              featuresC.add(agr + "-AGREE");
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+  return featuresC;
+}

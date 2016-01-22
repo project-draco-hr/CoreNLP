@@ -1,9 +1,9 @@
 {
-  Minimizer<DiffFunction> minimizer=getMinimizer();
-  LogConditionalObjectiveFunction<L,F> objective=new LogConditionalObjectiveFunction<>(labeledDataset,new LogPrior(LogPrior.LogPriorType.NULL));
-  GeneralizedExpectationObjectiveFunction<L,F> geObjective=new GeneralizedExpectationObjectiveFunction<>(labeledDataset,unlabeledDataList,GEFeatures);
+  Minimizer<DiffFunction> minimizer=minimizerCreator.create();
+  LogConditionalObjectiveFunction<L,F> objective=new LogConditionalObjectiveFunction<L,F>(labeledDataset,new LogPrior(LogPrior.LogPriorType.NULL));
+  GeneralizedExpectationObjectiveFunction<L,F> geObjective=new GeneralizedExpectationObjectiveFunction<L,F>(labeledDataset,unlabeledDataList,GEFeatures);
   SemiSupervisedLogConditionalObjectiveFunction semiSupObjective=new SemiSupervisedLogConditionalObjectiveFunction(objective,geObjective,null,convexComboCoeff);
   double[] initial=objective.initial();
   double[] weights=minimizer.minimize(semiSupObjective,TOL,initial);
-  return new LinearClassifier<>(objective.to2D(weights),labeledDataset.featureIndex(),labeledDataset.labelIndex());
+  return new LinearClassifier<L,F>(objective.to2D(weights),labeledDataset.featureIndex(),labeledDataset.labelIndex());
 }

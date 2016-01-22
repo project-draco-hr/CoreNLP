@@ -1,23 +1,10 @@
 {
   StringBuilder sb=new StringBuilder();
-  int prevEndIndex=-1;
-  for (  CoreMap cm : tokens) {
-    Object obj=cm.get(tokenTextKey);
-    boolean includeDelimiter=sb.length() > 0;
-    if (cm.containsKey(CoreAnnotations.CharacterOffsetBeginAnnotation.class) && cm.containsKey(CoreAnnotations.CharacterOffsetEndAnnotation.class)) {
-      int beginIndex=cm.get(CoreAnnotations.CharacterOffsetBeginAnnotation.class);
-      int endIndex=cm.get(CoreAnnotations.CharacterOffsetEndAnnotation.class);
-      if (prevEndIndex == beginIndex) {
-        includeDelimiter=false;
-      }
-      prevEndIndex=endIndex;
+  for (  CoreMap t : tokens) {
+    if (sb.length() != 0) {
+      sb.append(delimiter);
     }
-    if (obj != null) {
-      if (includeDelimiter) {
-        sb.append(delimiter);
-      }
-      sb.append(obj);
-    }
+    sb.append(t.get(tokenTextKey));
   }
   return sb.toString();
 }

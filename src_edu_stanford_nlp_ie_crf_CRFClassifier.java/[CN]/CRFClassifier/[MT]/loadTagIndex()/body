@@ -1,13 +1,13 @@
 {
-  if (tagIndex == null) {
-    tagIndex=new HashIndex<>();
-    for (    String tag : classIndex.objectsList()) {
-      String[] parts=tag.split("-");
-      tagIndex.add(parts[parts.length - 1]);
-    }
-    tagIndex.add(flags.backgroundSymbol);
-  }
   if (flags.useNERPriorBIO) {
-    if (entityMatrices == null)     entityMatrices=readEntityMatrices(flags.entityMatrix,tagIndex);
+    if (tagIndex == null) {
+      tagIndex=new HashIndex<String>();
+      for (      String tag : classIndex.objectsList()) {
+        String[] parts=tag.split("-");
+        if (parts.length > 1)         tagIndex.add(parts[parts.length - 1]);
+      }
+      tagIndex.add(flags.backgroundSymbol);
+    }
+    if (entityMatrices == null)     entityMatrices=BisequenceEmpiricalNERPrior.readEntityMatrices(flags.entityMatrix,tagIndex);
   }
 }

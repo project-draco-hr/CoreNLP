@@ -1,2 +1,153 @@
 {
+  Class<?> clazz=null;
+  Type[] params=null;
+  if (type instanceof Class) {
+    clazz=(Class<?>)type;
+  }
+ else   if (type instanceof ParameterizedType) {
+    ParameterizedType pt=(ParameterizedType)type;
+    params=pt.getActualTypeArguments();
+    clazz=(Class<?>)pt.getRawType();
+  }
+ else {
+    clazz=type2class(type);
+    throw new IllegalArgumentException("Cannot cast to type (unhandled type): " + type);
+  }
+  if (String.class.isAssignableFrom(clazz)) {
+    return (E)value;
+  }
+ else   if (Boolean.class.isAssignableFrom(clazz) || boolean.class.isAssignableFrom(clazz)) {
+    if ("1".equals(value)) {
+      return (E)new Boolean(true);
+    }
+    return (E)new Boolean(Boolean.parseBoolean(value));
+  }
+ else   if (Integer.class.isAssignableFrom(clazz) || int.class.isAssignableFrom(clazz)) {
+    try {
+      return (E)new Integer(Integer.parseInt(value));
+    }
+ catch (    NumberFormatException e) {
+      return (E)new Integer((int)Double.parseDouble(value));
+    }
+  }
+ else   if (Long.class.isAssignableFrom(clazz) || long.class.isAssignableFrom(clazz)) {
+    try {
+      return (E)new Long(Long.parseLong(value));
+    }
+ catch (    NumberFormatException e) {
+      return (E)new Long((long)Double.parseDouble(value));
+    }
+  }
+ else   if (Float.class.isAssignableFrom(clazz) || float.class.isAssignableFrom(clazz)) {
+    if (value == null) {
+      return (E)new Float(Float.NaN);
+    }
+    return (E)new Float(Float.parseFloat(value));
+  }
+ else   if (Double.class.isAssignableFrom(clazz) || double.class.isAssignableFrom(clazz)) {
+    if (value == null) {
+      return (E)new Double(Double.NaN);
+    }
+    return (E)new Double(Double.parseDouble(value));
+  }
+ else   if (Short.class.isAssignableFrom(clazz) || short.class.isAssignableFrom(clazz)) {
+    try {
+      return (E)new Short(Short.parseShort(value));
+    }
+ catch (    NumberFormatException e) {
+      return (E)new Short((short)Double.parseDouble(value));
+    }
+  }
+ else   if (Byte.class.isAssignableFrom(clazz) || byte.class.isAssignableFrom(clazz)) {
+    try {
+      return (E)new Byte(Byte.parseByte(value));
+    }
+ catch (    NumberFormatException e) {
+      return (E)new Byte((byte)Double.parseDouble(value));
+    }
+  }
+ else   if (Character.class.isAssignableFrom(clazz) || char.class.isAssignableFrom(clazz)) {
+    return (E)new Character((char)Integer.parseInt(value));
+  }
+ else   if (java.util.Date.class.isAssignableFrom(clazz)) {
+    try {
+      return (E)new Date(Long.parseLong(value));
+    }
+ catch (    NumberFormatException e) {
+      return null;
+    }
+  }
+ else   if (java.util.Calendar.class.isAssignableFrom(clazz)) {
+    try {
+      Date d=new Date(Long.parseLong(value));
+      GregorianCalendar cal=new GregorianCalendar();
+      cal.setTime(d);
+      return (E)cal;
+    }
+ catch (    NumberFormatException e) {
+      return null;
+    }
+  }
+ else   if (File.class.isAssignableFrom(clazz)) {
+    return (E)new File(value);
+  }
+ else   if (Class.class.isAssignableFrom(clazz)) {
+    try {
+      return (E)Class.forName(value);
+    }
+ catch (    ClassNotFoundException e) {
+      return null;
+    }
+  }
+ else   if (clazz.isArray()) {
+    if (value == null) {
+      return null;
+    }
+    Class<?> subType=clazz.getComponentType();
+    String[] strings=decodeArray(value);
+    Object[] array=(Object[])Array.newInstance(clazz.getComponentType(),strings.length);
+    for (int i=0; i < strings.length; i++) {
+      array[i]=cast(strings[i],subType);
+    }
+    return (E)array;
+  }
+ else   if (clazz.isEnum()) {
+    Class c=(Class)clazz;
+    if (value == null) {
+      return null;
+    }
+    if (value.charAt(0) == '"')     value=value.substring(1);
+    if (value.charAt(value.length() - 1) == '"')     value=value.substring(0,value.length() - 1);
+    try {
+      return (E)Enum.valueOf(c,value);
+    }
+ catch (    Exception e) {
+      try {
+        return (E)Enum.valueOf(c,value.toLowerCase());
+      }
+ catch (      Exception e2) {
+        try {
+          return (E)Enum.valueOf(c,value.toUpperCase());
+        }
+ catch (        Exception e3) {
+          return (E)Enum.valueOf(c,(Character.isUpperCase(value.charAt(0)) ? Character.toLowerCase(value.charAt(0)) : Character.toUpperCase(value.charAt(0))) + value.substring(1));
+        }
+      }
+    }
+  }
+ else {
+    try {
+      Method decode=clazz.getMethod("fromString",String.class);
+      return (E)decode.invoke(MetaClass.create(clazz),value);
+    }
+ catch (    NoSuchMethodException e) {
+    }
+catch (    InvocationTargetException e) {
+    }
+catch (    IllegalAccessException e) {
+    }
+catch (    ClassCastException e) {
+    }
+    return null;
+  }
 }

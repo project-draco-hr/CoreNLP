@@ -1,6 +1,6 @@
 {
-  Collection<TypedDependency> newTypedDeps=new ArrayList<>();
-  Map<IndexedWord,Set<TypedDependency>> map=Generics.newHashMap();
+  Collection<TypedDependency> newTypedDeps=new ArrayList<TypedDependency>();
+  Map<TreeGraphNode,Set<TypedDependency>> map=Generics.newHashMap();
   for (  TypedDependency typedDep : list) {
     if (!map.containsKey(typedDep.gov())) {
       map.put(typedDep.gov(),Generics.<TypedDependency>newHashSet());
@@ -9,15 +9,15 @@
   }
   for (  TypedDependency td1 : list) {
     if (td1.reln() != GrammaticalRelation.KILL) {
-      IndexedWord td1Dep=td1.dep();
-      String td1DepPOS=td1Dep.tag();
+      TreeGraphNode td1Dep=td1.dep();
+      String td1DepPOS=td1Dep.parent().value();
       Set<TypedDependency> possibles=map.get(td1Dep);
       if (possibles != null) {
         for (        TypedDependency td2 : possibles) {
           if (td1.reln() == DEPENDENT && td2.reln() == DEPENDENT && td1DepPOS.equals("P")) {
             GrammaticalRelation td3reln=ChineseGrammaticalRelations.valueOf(td1Dep.value());
             if (td3reln == null) {
-              td3reln=GrammaticalRelation.valueOf(Language.Chinese,td1Dep.value());
+              td3reln=GrammaticalRelation.valueOf(GrammaticalRelation.Language.Chinese,td1Dep.value());
             }
             TypedDependency td3=new TypedDependency(td3reln,td1.gov(),td2.dep());
             newTypedDeps.add(td3);

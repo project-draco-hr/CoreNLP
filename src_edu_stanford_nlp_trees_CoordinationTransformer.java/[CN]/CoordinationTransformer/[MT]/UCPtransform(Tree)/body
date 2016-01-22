@@ -2,5 +2,17 @@
   if (t == null) {
     return null;
   }
-  return Tsurgeon.processPattern(ucpRenameTregex,ucpRenameTsurgeon,t);
+  Tree firstChild=t.firstChild();
+  if (firstChild != null) {
+    List<Pair<TregexPattern,TsurgeonPattern>> ops=Generics.newArrayList();
+    for (int i=0; i < operations.length; i++) {
+      for (      TregexPattern pattern : matchPatterns[i]) {
+        ops.add(Generics.newPair(pattern,operations[i]));
+      }
+    }
+    return Tsurgeon.processPatternsOnTree(ops,t);
+  }
+ else {
+    return t;
+  }
 }

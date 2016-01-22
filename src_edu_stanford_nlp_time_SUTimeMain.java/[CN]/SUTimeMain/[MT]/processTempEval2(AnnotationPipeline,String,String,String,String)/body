@@ -10,17 +10,7 @@
   }
   processTempEval2Tab(pipeline,in,out,docDates);
   if (eval != null) {
-    List<String> command=new ArrayList<>();
-    if (PYTHON != null) {
-      command.add(PYTHON);
-    }
-    command.add(eval);
-    command.add(in + "/base-segmentation.tab");
-    command.add(in + "/timex-extents.tab");
-    command.add(out + "/timex-extents.res.tab");
-    command.add(in + "/timex-attributes.tab");
-    command.add(out + "/timex-attrs.res.tab");
-    ProcessBuilder pb=new ProcessBuilder(command);
+    ProcessBuilder pb=new ProcessBuilder(eval,in + "/base-segmentation.tab",in + "/timex-extents.tab",out + "/timex-extents.res.tab",in + "/timex-attributes.tab",out + "/timex-attrs.res.tab");
     FileOutputStream evalFileOutput=new FileOutputStream(out + "/scores.txt");
     Writer output=new OutputStreamWriter(new TeeStream(System.out,evalFileOutput));
     SystemUtils.run(pb,output,null);

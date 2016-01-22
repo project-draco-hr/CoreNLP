@@ -3,11 +3,33 @@
   ObjectOutputStream oos=null;
   try {
     oos=IOUtils.writeStreamFromString(serializePath);
-    serializeClassifier(oos);
+    oos.writeObject(labelIndices);
+    oos.writeObject(classIndex);
+    oos.writeObject(featureIndex);
+    oos.writeObject(flags);
+    if (flags.useEmbedding)     oos.writeObject(embeddings);
+    if (flags.nonLinearCRF) {
+      oos.writeObject(nodeFeatureIndicesMap);
+      oos.writeObject(edgeFeatureIndicesMap);
+      if (flags.secondOrderNonLinear) {
+        oos.writeObject(inputLayerWeights4Edge);
+        oos.writeObject(outputLayerWeights4Edge);
+      }
+ else {
+        oos.writeObject(linearWeights);
+      }
+      oos.writeObject(inputLayerWeights);
+      oos.writeObject(outputLayerWeights);
+    }
+    oos.writeObject(featureFactory);
+    oos.writeInt(windowSize);
+    oos.writeObject(weights);
+    oos.writeObject(knownLCWords);
     System.err.println("done.");
   }
  catch (  Exception e) {
-    throw new RuntimeIOException("Failed to save classifier",e);
+    System.err.println("Failed");
+    e.printStackTrace();
   }
  finally {
     IOUtils.closeIgnoringExceptions(oos);

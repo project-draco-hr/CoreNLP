@@ -1,8 +1,11 @@
 {
-  if (add) {
-    return addToIndex(o);
+  int index=backingIndex.indexOf(o,false);
+  if (index >= 0) {
+    return index;
   }
- else {
-    return indexOf(o);
+  index=spilloverIndex.indexOf(o,add && !locked);
+  if (index >= 0) {
+    return index + backingIndexSize;
   }
+  return index;
 }

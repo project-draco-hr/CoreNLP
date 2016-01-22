@@ -4,18 +4,12 @@
   double sentLevel=sentAvg / sentNum;
   double sentEx=100.0 * sentExact / sentNum;
   if (verbose) {
-    Map<Double,List<CoreLabel>> avgMap=new TreeMap<>();
-    for (    Map.Entry<List<CoreLabel>,Double> entry : catAvg.entrySet()) {
-      double avg=entry.getValue() / catNum.get(entry.getKey());
-      if (Double.isNaN(avg)) {
-        avg=-1.0;
-      }
-      if (avgMap.containsKey(avg)) {
-        avgMap.put(avg + (rand.nextDouble() / 10000.0),entry.getKey());
-      }
- else {
-        avgMap.put(avg,entry.getKey());
-      }
+    Map<Double,List<CoreLabel>> avgMap=new TreeMap<Double,List<CoreLabel>>();
+    for (    List<CoreLabel> lineage : catAvg.keySet()) {
+      double avg=catAvg.get(lineage) / catNum.get(lineage);
+      if (new Double(avg).equals(Double.NaN))       avg=-1.0;
+      if (avgMap.containsKey(avg))       avgMap.put(avg + (rand.nextDouble() / 10000.0),lineage);
+ else       avgMap.put(avg,lineage);
     }
     pw.println("============================================================");
     pw.println("Leaf Ancestor Metric" + "(" + name + ") -- final statistics");
@@ -32,7 +26,7 @@
     for (    List<CoreLabel> lineage : avgMap.values()) {
       if (catNum.get(lineage) < 30.0)       continue;
       double avg=catAvg.get(lineage) / catNum.get(lineage);
-      pw.printf(" %.3f\t%d\t%s%n",avg,(int)((double)catNum.get(lineage)),toString(lineage));
+      pw.printf(" %.3f\t%d\t%s\n",avg,(int)((double)catNum.get(lineage)),toString(lineage));
     }
     pw.println("============================================================");
   }

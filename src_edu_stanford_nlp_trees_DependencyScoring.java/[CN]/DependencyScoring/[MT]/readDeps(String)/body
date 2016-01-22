@@ -1,18 +1,18 @@
 {
   LineNumberReader breader=new LineNumberReader(new FileReader(filename));
-  List<Collection<TypedDependency>> readDeps=new ArrayList<>();
-  Collection<TypedDependency> deps=new ArrayList<>();
+  List<Collection<TypedDependency>> readDeps=new ArrayList<Collection<TypedDependency>>();
+  Collection<TypedDependency> deps=new ArrayList<TypedDependency>();
   for (String line=breader.readLine(); line != null; line=breader.readLine()) {
     if (line.equals("null(-0,-0)") || line.equals("null(-1,-1)")) {
       readDeps.add(deps);
-      deps=new ArrayList<>();
+      deps=new ArrayList<TypedDependency>();
       continue;
     }
     try {
       if (line.equals("")) {
         if (deps.size() != 0) {
           readDeps.add(deps);
-          deps=new ArrayList<>();
+          deps=new ArrayList<TypedDependency>();
         }
         continue;
       }
@@ -37,13 +37,9 @@
       if (grel == null) {
         throw new RuntimeException("Unknown grammatical relation '" + depName + "'");
       }
-      IndexedWord govWord=new IndexedWord();
-      govWord.setValue(normalizeNumbers(govName));
-      govWord.setWord(govWord.value());
-      IndexedWord childWord=new IndexedWord();
-      childWord.setValue(normalizeNumbers(childName));
-      childWord.setWord(childWord.value());
-      TypedDependency dep=new TypedDependencyStringEquality(grel,govWord,childWord);
+      Word govWord=new Word(normalizeNumbers(govName));
+      Word childWord=new Word(normalizeNumbers(childName));
+      TypedDependency dep=new TypedDependencyStringEquality(grel,new TreeGraphNode(govWord),new TreeGraphNode(childWord));
       deps.add(dep);
     }
  catch (    Exception e) {

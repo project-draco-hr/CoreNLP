@@ -13,9 +13,6 @@
   TagSeq initSeq=new TagSeq();
   newBeam.add(initSeq);
   for (int pos=0; pos < padLength; pos++) {
-    if (Thread.interrupted()) {
-      throw new RuntimeInterruptedException();
-    }
     Beam oldBeam=newBeam;
     if (pos < leftWindow + rightWindow && exhaustiveStart) {
       newBeam=new Beam(100000,ScoredComparator.ASCENDING_COMPARATOR);
@@ -23,11 +20,10 @@
  else {
       newBeam=new Beam(beamSize,ScoredComparator.ASCENDING_COMPARATOR);
     }
-    for (    Object anOldBeam : oldBeam) {
-      if (Thread.interrupted()) {
-        throw new RuntimeInterruptedException();
-      }
-      TagSeq tagSeq=(TagSeq)anOldBeam;
+    for (Iterator beamI=oldBeam.iterator(); beamI.hasNext(); ) {
+      System.out.print("#");
+      System.out.flush();
+      TagSeq tagSeq=(TagSeq)beamI.next();
       for (int nextTagNum=0; nextTagNum < tagNum[pos]; nextTagNum++) {
         TagSeq nextSeq=tagSeq.tclone();
         if (pos >= leftWindow + rightWindow) {
@@ -39,16 +35,17 @@
         newBeam.add(nextSeq);
       }
     }
+    System.out.println(" done");
     if (recenter) {
       double max=Double.NEGATIVE_INFINITY;
-      for (      Object aNewBeam1 : newBeam) {
-        TagSeq tagSeq=(TagSeq)aNewBeam1;
+      for (Iterator beamI=newBeam.iterator(); beamI.hasNext(); ) {
+        TagSeq tagSeq=(TagSeq)beamI.next();
         if (tagSeq.score > max) {
           max=tagSeq.score;
         }
       }
-      for (      Object aNewBeam : newBeam) {
-        TagSeq tagSeq=(TagSeq)aNewBeam;
+      for (Iterator beamI=newBeam.iterator(); beamI.hasNext(); ) {
+        TagSeq tagSeq=(TagSeq)beamI.next();
         tagSeq.score-=max;
       }
     }

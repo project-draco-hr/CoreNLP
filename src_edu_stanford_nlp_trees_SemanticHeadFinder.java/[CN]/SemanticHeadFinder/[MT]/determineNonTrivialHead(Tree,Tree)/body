@@ -3,24 +3,6 @@
   if (DEBUG) {
     System.err.println("At " + motherCat + ", my parent is "+ parent);
   }
-  if (motherCat.equals("CONJP")) {
-    for (    TregexPattern pattern : headOfConjpTregex) {
-      TregexMatcher matcher=pattern.matcher(t);
-      if (matcher.matchesAt(t)) {
-        return matcher.getNode("head");
-      }
-    }
-  }
-  if (motherCat.equals("SBARQ") || motherCat.equals("SINV")) {
-    if (!makeCopulaHead) {
-      for (      TregexPattern pattern : headOfCopulaTregex) {
-        TregexMatcher matcher=pattern.matcher(t);
-        if (matcher.matchesAt(t)) {
-          return matcher.getNode("head");
-        }
-      }
-    }
-  }
   if ((motherCat.equals("VP") || motherCat.equals("SQ") || motherCat.equals("SINV"))) {
     Tree[] kids=t.children();
     if (DEBUG) {
@@ -28,27 +10,19 @@
       System.err.println("Class is " + t.getClass().getName());
       t.pennPrint(System.err);
     }
-    Tree[] tmpFilteredChildren=null;
-    if (hasVerbalAuxiliary(kids,verbalAuxiliaries,true) || hasPassiveProgressiveAuxiliary(kids)) {
-      String[] how;
-      if (hasVerbalAuxiliary(kids,copulars,true)) {
-        how=new String[]{"left","VP","ADJP"};
-      }
- else {
-        how=new String[]{"left","VP"};
-      }
-      if (tmpFilteredChildren == null) {
-        tmpFilteredChildren=ArrayUtils.filter(kids,REMOVE_TMP_AND_ADV);
-      }
-      Tree pti=traverseLocate(tmpFilteredChildren,how,false);
+    if (hasVerbalAuxiliary(kids,verbalAuxiliaries) || hasPassiveProgressiveAuxiliary(kids,passiveAuxiliaries)) {
+      String[] how={"left","VP","ADJP"};
+      Tree pti=traverseLocate(kids,how,false);
       if (DEBUG) {
         System.err.println("Determined head (case 1) for " + t.value() + " is: "+ pti);
       }
       if (pti != null) {
         return pti;
       }
+ else {
+      }
     }
-    if (hasVerbalAuxiliary(kids,copulars,false) && !isExistential(t,parent) && !isWHQ(t,parent)) {
+    if (hasVerbalAuxiliary(kids,copulars) && !isExistential(t,parent) && !isWHQ(t,parent)) {
       String[] how;
       if (motherCat.equals("SQ")) {
         how=new String[]{"right","VP","ADJP","NP","WHADJP","WHNP"};
@@ -56,10 +30,10 @@
  else {
         how=new String[]{"left","VP","ADJP","NP","WHADJP","WHNP"};
       }
-      if (tmpFilteredChildren == null) {
-        tmpFilteredChildren=ArrayUtils.filter(kids,REMOVE_TMP_AND_ADV);
+      Tree pti=traverseLocate(kids,how,false);
+      if (pti != null && pti.label() != null && pti.label().value().contains("-TMP")) {
+        pti=null;
       }
-      Tree pti=traverseLocate(tmpFilteredChildren,how,false);
       if (motherCat.equals("SQ") && pti != null && pti.label() != null && pti.label().value().startsWith("NP")) {
         boolean foundAnotherNp=false;
         for (        Tree kid : kids) {
@@ -92,6 +66,24 @@
     }
   }
   Tree hd=super.determineNonTrivialHead(t,parent);
+  Tree[] hdChildren=hd.children();
+  if (hdChildren != null && hdChildren.length > 0 && hdChildren[0].isLeaf()) {
+    if (tlp.isPunctuationWord(hdChildren[0].label().value())) {
+      Tree[] tChildren=t.children();
+      if (DEBUG) {
+        System.err.printf("head is punct: %s\n",hdChildren[0].label());
+      }
+      for (int i=tChildren.length - 1; i >= 0; i--) {
+        if (!tlp.isPunctuationWord(tChildren[i].children()[0].label().value())) {
+          hd=tChildren[i];
+          if (DEBUG) {
+            System.err.printf("New head: %s %s",hd.label(),hd.children()[0].label());
+          }
+          break;
+        }
+      }
+    }
+  }
   if (DEBUG) {
     System.err.println("Determined head (case 3) for " + t.value() + " is: "+ hd);
   }

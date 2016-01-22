@@ -1,0 +1,20 @@
+{
+  LineNumberReader reader=new LineNumberReader(new FileReader(fileName));
+  List<GrammaticalStructure> gsList=new LinkedList<GrammaticalStructure>();
+  List<List<String>> tokenFields=new ArrayList<List<String>>();
+  for (String inline=reader.readLine(); inline != null; inline=reader.readLine()) {
+    if (!"".equals(inline)) {
+      List<String> fields=Arrays.asList(inline.split("\t"));
+      if (fields.size() != CoNLLX_FieldCount) {
+        throw new RuntimeException(String.format("Error (line %d): 10 fields expected but %d are present",reader.getLineNumber(),fields.size()));
+      }
+      tokenFields.add(fields);
+    }
+ else {
+      if (tokenFields.isEmpty())       continue;
+      gsList.add(buildCoNNLXGrammaticStructure(tokenFields,shortNameToGRel,factory));
+      tokenFields=new ArrayList<List<String>>();
+    }
+  }
+  return gsList;
+}

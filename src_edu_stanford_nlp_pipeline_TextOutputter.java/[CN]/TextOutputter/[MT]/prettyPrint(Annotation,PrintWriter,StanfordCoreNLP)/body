@@ -1,8 +1,70 @@
 {
-  try {
-    TextOutputter.print(annotation,pw,getOptions(pipeline));
+  double beam=pipeline.getBeamPrintingOption();
+  List<CoreMap> sentences=annotation.get(CoreAnnotations.SentencesAnnotation.class);
+  String docId=annotation.get(CoreAnnotations.DocIDAnnotation.class);
+  if (docId != null) {
+    List<CoreLabel> tokens=annotation.get(CoreAnnotations.TokensAnnotation.class);
+    int nSentences=(sentences != null) ? sentences.size() : 0;
+    int nTokens=(tokens != null) ? tokens.size() : 0;
+    os.printf("Document: ID=%s (%d sentences, %d tokens)\n",docId,nSentences,nTokens);
   }
- catch (  IOException e) {
-    throw new RuntimeIOException(e);
+  if (sentences != null) {
+    for (int i=0, sz=sentences.size(); i < sz; i++) {
+      CoreMap sentence=sentences.get(i);
+      List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
+      os.printf("Sentence #%d (%d tokens):\n",(i + 1),tokens.size());
+      String text=sentence.get(CoreAnnotations.TextAnnotation.class);
+      os.println(text);
+      String[] tokenAnnotations={"Text","PartOfSpeech","Lemma","Answer","NamedEntityTag","CharacterOffsetBegin","CharacterOffsetEnd","NormalizedNamedEntityTag","Timex","TrueCase","TrueCaseText"};
+      for (      CoreLabel token : tokens) {
+        os.print(token.toShorterString(tokenAnnotations));
+        os.print(' ');
+      }
+      os.println();
+      Tree tree=sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+      if (tree != null) {
+        pipeline.getConstituentTreePrinter().printTree(tree,os);
+        if (sentence.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class) != null) {
+          pipeline.getDependencyTreePrinter().printTree(tree,os);
+        }
+      }
+      List<EntityMention> entities=sentence.get(MachineReadingAnnotations.EntityMentionsAnnotation.class);
+      if (entities != null) {
+        System.err.println("Extracted the following MachineReading entity mentions:");
+        for (        EntityMention e : entities) {
+          System.err.println("\t" + e);
+        }
+      }
+      List<RelationMention> relations=sentence.get(MachineReadingAnnotations.RelationMentionsAnnotation.class);
+      if (relations != null) {
+        System.err.println("Extracted the following MachineReading relation mentions:");
+        for (        RelationMention r : relations) {
+          if (r.printableObject(beam)) {
+            System.err.println(r);
+          }
+        }
+      }
+    }
   }
+  Map<Integer,CorefChain> corefChains=annotation.get(CorefCoreAnnotations.CorefChainAnnotation.class);
+  if (corefChains != null && sentences != null) {
+    List<List<CoreLabel>> sents=new ArrayList<List<CoreLabel>>();
+    for (    CoreMap sentence : sentences) {
+      List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
+      sents.add(tokens);
+    }
+    for (    CorefChain chain : corefChains.values()) {
+      CorefChain.CorefMention representative=chain.getRepresentativeMention();
+      boolean outputHeading=false;
+      for (      CorefChain.CorefMention mention : chain.getMentionsInTextualOrder()) {
+        if (mention == representative)         continue;
+        if (!outputHeading) {
+          outputHeading=true;
+          os.println("Coreference set:");
+        }
+        os.println("\t(" + mention.sentNum + ","+ mention.headIndex+ ",["+ mention.startIndex+ ","+ mention.endIndex+ ")) -> ("+ representative.sentNum+ ","+ representative.headIndex+ ",["+ representative.startIndex+ ","+ representative.endIndex+ ")), that is: \""+ mention.mentionSpan+ "\" -> \""+ representative.mentionSpan+ "\"");
+      }
+    }
+  }
+  os.flush();
 }

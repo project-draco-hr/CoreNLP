@@ -1,19 +1,8 @@
 {
-  if (inputReader == null) {
-    return;
-  }
-  nextSent=Generics.newArrayList(nextSentCarryover);
+  nextSent=new ArrayList<HasWord>(nextSentCarryover);
   nextSentCarryover.clear();
   boolean seenBoundary=false;
-  if (!tokenizer.hasNext()) {
-    IOUtils.closeIgnoringExceptions(inputReader);
-    inputReader=null;
-    if (nextSent.isEmpty()) {
-      nextSent=null;
-    }
-    return;
-  }
-  do {
+  while (tokenizer.hasNext()) {
     HasWord token=tokenizer.next();
     if (splitTag != null) {
       String[] toks=splitTag.apply(token.word());
@@ -35,8 +24,8 @@
     if (!(wsPattern.matcher(token.word()).matches() || token.word().equals(PTBLexer.NEWLINE_TOKEN))) {
       nextSent.add(token);
     }
-    if (seenBoundary && delimFollowers.isEmpty()) {
-      if (!nextSent.isEmpty() || keepEmptySentences) {
+    if (seenBoundary && delimFollowers.size() == 0) {
+      if (nextSent.size() > 0) {
         break;
       }
  else {
@@ -44,8 +33,7 @@
       }
     }
   }
- while (tokenizer.hasNext());
-  if (nextSent.isEmpty() && nextSentCarryover.isEmpty() && !keepEmptySentences) {
+  if (nextSent.size() == 0 && nextSentCarryover.size() == 0) {
     IOUtils.closeIgnoringExceptions(inputReader);
     inputReader=null;
     nextSent=null;

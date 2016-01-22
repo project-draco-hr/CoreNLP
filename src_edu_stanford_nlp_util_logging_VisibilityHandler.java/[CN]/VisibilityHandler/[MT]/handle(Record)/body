@@ -14,26 +14,23 @@ case HIDE_ALL:
       }
     break;
 case SHOW_ALL:
-  if (!this.deltaPool.isEmpty()) {
-    boolean somethingSeen=false;
-    for (    Object tag : record.channels()) {
-      if (this.deltaPool.contains(tag)) {
-        somethingSeen=true;
-        break;
-      }
-    }
-    isPrinting=!somethingSeen;
+  boolean somethingSeen=false;
+for (Object tag : record.channels()) {
+  if (this.deltaPool.contains(tag)) {
+    somethingSeen=true;
+    break;
   }
- else {
-    isPrinting=true;
-  }
+}
+isPrinting=!somethingSeen;
 break;
 default :
 throw new IllegalStateException("Unknown default state setting: " + this.defaultState);
 }
 }
 if (isPrinting) {
-return Collections.singletonList(record);
+ArrayList<Record> retVal=new ArrayList<Record>();
+retVal.add(record);
+return retVal;
 }
  else {
 return EMPTY;

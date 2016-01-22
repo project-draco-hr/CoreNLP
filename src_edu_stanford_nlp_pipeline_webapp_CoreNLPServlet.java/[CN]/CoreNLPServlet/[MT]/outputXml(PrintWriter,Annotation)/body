@@ -1,2 +1,18 @@
 {
+  StringWriter xmlOutput=new StringWriter();
+  pipeline.xmlPrint(annotation,xmlOutput);
+  xmlOutput.flush();
+  String escapedXml=StringEscapeUtils.escapeHtml(xmlOutput.toString());
+  String[] lines=escapedXml.split("\n");
+  out.print("<div>");
+  for (  String line : lines) {
+    int numSpaces=0;
+    while (numSpaces < line.length() && line.charAt(numSpaces) == ' ') {
+      out.print("&nbsp;");
+      ++numSpaces;
+    }
+    out.print(line.substring(numSpaces));
+    out.print("<br>\n");
+  }
+  out.print("</div>");
 }

@@ -6,13 +6,13 @@
     writer.write("<?xml version=\"1.0\" encoding=\"" + config.getEncoding() + "\"?>\n");
     writer.write("<pos>\n");
   }
-  PlainTextDocumentReaderAndWriter<CoreLabel> readerAndWriter=new PlainTextDocumentReaderAndWriter<>();
-  ObjectBank<List<CoreLabel>> ob=new ObjectBank<>(new ReaderIteratorFactory(reader),readerAndWriter);
+  PlainTextDocumentReaderAndWriter<CoreLabel> readerAndWriter=new PlainTextDocumentReaderAndWriter<CoreLabel>();
+  ObjectBank<List<CoreLabel>> ob=new ObjectBank<List<CoreLabel>>(new ReaderIteratorFactory(reader),readerAndWriter);
   PrintWriter pw=new PrintWriter(writer);
   for (  List<CoreLabel> sentence : ob) {
-    List<CoreLabel> s=Generics.newArrayList();
+    ArrayList<CoreLabel> s=new ArrayList<CoreLabel>(sentence);
     numWords+=s.size();
-    List<TaggedWord> taggedSentence=tagSentence(s,false);
+    ArrayList<TaggedWord> taggedSentence=tagSentence(s,false);
     Iterator<CoreLabel> origIter=sentence.iterator();
     for (    TaggedWord tw : taggedSentence) {
       CoreLabel cl=origIter.next();

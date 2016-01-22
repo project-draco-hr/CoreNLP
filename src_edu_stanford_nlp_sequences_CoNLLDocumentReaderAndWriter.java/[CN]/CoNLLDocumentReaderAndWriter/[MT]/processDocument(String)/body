@@ -1,11 +1,11 @@
 {
-  List<CoreLabel> list=new ArrayList<>();
+  List<CoreLabel> lis=new ArrayList<CoreLabel>();
   String[] lines=doc.split("\n");
   for (  String line : lines) {
     if (!flags.deleteBlankLines || !white.matcher(line).matches()) {
-      list.add(makeCoreLabel(line));
+      lis.add(makeCoreLabel(line));
     }
   }
-  IOBUtils.entitySubclassify(list,CoreAnnotations.AnswerAnnotation.class,flags.backgroundSymbol,flags.entitySubclassification,flags.intern);
-  return list;
+  entitySubclassify(lis,flags.entitySubclassification);
+  return lis;
 }

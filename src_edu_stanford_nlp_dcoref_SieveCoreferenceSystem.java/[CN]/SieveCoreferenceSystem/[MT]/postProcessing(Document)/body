@@ -1,12 +1,12 @@
 {
-  Set<Mention> removeSet=Generics.newHashSet();
+  Set<IntTuple> removeSet=Generics.newHashSet();
   Set<Integer> removeClusterSet=Generics.newHashSet();
   for (  CorefCluster c : document.corefClusters.values()) {
     Set<Mention> removeMentions=Generics.newHashSet();
     for (    Mention m : c.getCorefMentions()) {
       if (Constants.REMOVE_APPOSITION_PREDICATENOMINATIVES && ((m.appositions != null && m.appositions.size() > 0) || (m.predicateNominatives != null && m.predicateNominatives.size() > 0) || (m.relativePronouns != null && m.relativePronouns.size() > 0))) {
         removeMentions.add(m);
-        removeSet.add(m);
+        removeSet.add(document.positions.get(m));
         m.corefClusterID=m.mentionID;
       }
     }
@@ -18,7 +18,7 @@
   for (  int removeId : removeClusterSet) {
     document.corefClusters.remove(removeId);
   }
-  for (  Mention m : removeSet) {
-    document.positions.remove(m);
+  for (  IntTuple pos : removeSet) {
+    document.positions.remove(pos);
   }
 }

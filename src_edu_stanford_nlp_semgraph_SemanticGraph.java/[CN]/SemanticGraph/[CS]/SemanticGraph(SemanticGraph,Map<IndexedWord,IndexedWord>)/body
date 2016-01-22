@@ -1,17 +1,15 @@
 {
-  graph=new DirectedMultiGraph<>(outerMapFactory,innerMapFactory);
-  if (prevToNewMap == null) {
-    prevToNewMap=wordMapFactory.newMap();
-  }
+  graph=new DirectedMultiGraph<IndexedWord,SemanticGraphEdge>();
+  Collection<IndexedWord> oldRoots=new ArrayList<IndexedWord>(g.getRoots());
+  if (prevToNewMap == null)   prevToNewMap=Generics.newHashMap();
   Set<IndexedWord> vertexes=g.vertexSet();
   for (  IndexedWord vertex : vertexes) {
     IndexedWord newVertex=new IndexedWord(vertex);
-    newVertex.setCopyCount(vertex.copyCount());
     addVertex(newVertex);
     prevToNewMap.put(vertex,newVertex);
   }
-  roots=wordMapFactory.newSet();
-  for (  IndexedWord oldRoot : g.getRoots()) {
+  roots=Generics.newHashSet();
+  for (  IndexedWord oldRoot : oldRoots) {
     roots.add(prevToNewMap.get(oldRoot));
   }
   for (  SemanticGraphEdge edge : g.edgeIterable()) {

@@ -3,11 +3,12 @@
   for (int i=0; i <= MAX_LEXICON_LENGTH; i++) {
     dict[i]=Generics.newHashSet();
   }
+  System.err.print("loading dictionaries from " + serializePath + "...");
   try {
     dict=IOUtils.readObjectFromURLOrClasspathOrFileSystem(serializePath);
   }
  catch (  Exception e) {
-    logger.error("Failed to load Chinese dictionary " + serializePath,e);
+    System.err.println("Failed to load Chinese dictionary " + serializePath);
     throw new RuntimeException(e);
   }
   return dict;

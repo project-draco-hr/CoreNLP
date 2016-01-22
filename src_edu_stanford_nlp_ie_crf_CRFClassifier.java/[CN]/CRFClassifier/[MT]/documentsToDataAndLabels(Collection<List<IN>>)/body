@@ -1,10 +1,10 @@
 {
-  List<int[][][]> data=new ArrayList<>();
-  List<double[][][]> featureVal=new ArrayList<>();
-  List<int[]> labels=new ArrayList<>();
+  List<int[][][]> data=new ArrayList<int[][][]>();
+  List<double[][][]> featureVal=new ArrayList<double[][][]>();
+  List<int[]> labels=new ArrayList<int[]>();
   int numDatums=0;
   for (  List<IN> doc : documents) {
-    Triple<int[][][],int[],double[][][]> docTriple=documentToDataAndLabels(doc);
+    Triple<int[][][],int[],double[][][]> docTriple=documentToDataAndLabels(doc,true);
     data.add(docTriple.first());
     labels.add(docTriple.second());
     if (flags.useEmbedding)     featureVal.add(docTriple.third());
@@ -17,5 +17,5 @@
   printFeatures();
   double[][][][] featureValArr=null;
   if (flags.useEmbedding)   featureValArr=featureVal.toArray(new double[data.size()][][][]);
-  return new Triple<>(data.toArray(new int[data.size()][][][]),labels.toArray(new int[labels.size()][]),featureValArr);
+  return new Triple<int[][][][],int[][],double[][][][]>(data.toArray(new int[data.size()][][][]),labels.toArray(new int[labels.size()][]),featureValArr);
 }

@@ -1,0 +1,55 @@
+{
+  if (mentionType == MentionType.PRONOMINAL) {
+    if (dict.pluralPronouns.contains(headString)) {
+      number=Number.PLURAL;
+    }
+ else     if (dict.singularPronouns.contains(headString)) {
+      number=Number.SINGULAR;
+    }
+ else {
+      number=Number.UNKNOWN;
+    }
+  }
+ else   if (!nerString.equals("O") && mentionType != MentionType.NOMINAL) {
+    if (!(nerString.equals("ORGANIZATION") || nerString.startsWith("ORG"))) {
+      number=Number.SINGULAR;
+    }
+ else {
+      number=Number.UNKNOWN;
+    }
+  }
+ else {
+    String tag=headWord.get(CoreAnnotations.PartOfSpeechAnnotation.class);
+    if (tag.startsWith("N") && tag.endsWith("S")) {
+      number=Number.PLURAL;
+    }
+ else     if (tag.startsWith("N")) {
+      number=Number.SINGULAR;
+    }
+ else {
+      number=Number.UNKNOWN;
+    }
+  }
+  if (mentionType != MentionType.PRONOMINAL) {
+    if (Constants.USE_NUMBER_LIST) {
+      if (number == Number.UNKNOWN) {
+        if (dict.singularWords.contains(headString)) {
+          number=Number.SINGULAR;
+          SieveCoreferenceSystem.logger.finest("[Bergsma] Number set to:\tSINGULAR:\t" + headString);
+        }
+ else         if (dict.pluralWords.contains(headString)) {
+          number=Number.PLURAL;
+          SieveCoreferenceSystem.logger.finest("[Bergsma] Number set to:\tPLURAL:\t" + headString);
+        }
+      }
+    }
+    final String enumerationPattern="NP < (NP=tmp $.. (/,|CC/ $.. NP))";
+    TregexPattern tgrepPattern=TregexPattern.compile(enumerationPattern);
+    TregexMatcher m=tgrepPattern.matcher(this.mentionSubTree);
+    while (m.find()) {
+      if (this.mentionSubTree == m.getNode("tmp") && this.spanToString().toLowerCase().contains(" and ")) {
+        number=Number.PLURAL;
+      }
+    }
+  }
+}

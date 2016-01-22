@@ -1,5 +1,5 @@
 {
-  DeltaIndex<String> deltaWordIndex=new DeltaIndex<>(wordIndex);
+  DeltaIndex<String> deltaWordIndex=new DeltaIndex<String>(wordIndex);
   int length=s.length();
   double[][] scores=new double[length][length + 1];
   int[][] splitBacktrace=new int[length][length + 1];
@@ -15,7 +15,8 @@
         wordBuf.append(s.charAt(pos));
       }
       String word=wordBuf.toString();
-      for (      String tag : POSes) {
+      for (Iterator<String> iter=POSes.iterator(); iter.hasNext(); ) {
+        String tag=iter.next();
         IntTaggedWord itw=new IntTaggedWord(word,tag,deltaWordIndex,tagIndex);
         double newScore=lex.score(itw,0,word,null) + Math.log(lex.getPOSDistribution().probabilityOf(tag));
         if (newScore > scores[start][end]) {
@@ -41,7 +42,7 @@
       }
     }
   }
-  List<TaggedWord> words=new ArrayList<>();
+  List<TaggedWord> words=new ArrayList<TaggedWord>();
   int start=0;
   while (start < length) {
     int end=splitBacktrace[start][length];
@@ -54,5 +55,5 @@
     words.add(new TaggedWord(word,tag));
     start=end;
   }
-  return new ArrayList<>(words);
+  return new ArrayList<TaggedWord>(words);
 }

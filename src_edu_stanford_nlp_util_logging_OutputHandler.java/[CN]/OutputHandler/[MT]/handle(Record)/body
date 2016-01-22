@@ -1,8 +1,8 @@
 {
-  StringBuilder b=new StringBuilder(1024);
+  StringBuilder b=new StringBuilder();
   String[] content;
   if (record.content instanceof Throwable) {
-    List<String> lines=new ArrayList<>();
+    List<String> lines=new ArrayList<String>();
     StackTraceElement[] trace=null;
     StackTraceElement topTraceElement=null;
     Throwable exception=(Throwable)record.content;
@@ -34,19 +34,7 @@
     content=new String[]{"null"};
   }
  else {
-    String toStr;
-    if (record.content instanceof Supplier) {
-      toStr=((Supplier<Object>)record.content).get().toString();
-    }
- else {
-      toStr=record.content.toString();
-    }
-    if (toStr == null) {
-      content=new String[]{"<null toString()>"};
-    }
- else {
-      content=toStr.split("\n");
-    }
+    content=record.content.toString().split("\n");
   }
   updateTracks(record.depth);
   if (this.missingOpenBracket) {
@@ -57,7 +45,7 @@
   int contentLinesPrinted=0;
   Color color=Color.NONE;
   Style style=Style.NONE;
-  ArrayList<Object> printableChannels=new ArrayList<>();
+  ArrayList<Object> printableChannels=new ArrayList<Object>();
   for (  Object chan : record.channels()) {
     if (chan instanceof Color) {
       color=(Color)chan;
@@ -132,7 +120,7 @@
   if (info != null) {
     info.numElementsPrinted+=1;
   }
-  ArrayList<Record> rtn=new ArrayList<>();
+  ArrayList<Record> rtn=new ArrayList<Record>();
   rtn.add(record);
   return rtn;
 }

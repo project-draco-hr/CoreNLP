@@ -3,7 +3,6 @@
   System.setErr(new PrintStream(System.err,true,"utf-8"));
   int port=DEFAULT_PORT;
   String model=LexicalizedParser.DEFAULT_PARSER_LOC;
-  String tagger=null;
   for (int i=0; i < args.length; i+=2) {
     if (i + 1 >= args.length) {
       System.err.println("Unspecified argument " + args[i]);
@@ -22,15 +21,8 @@
  else     if (arg.equalsIgnoreCase("port")) {
       port=Integer.valueOf(args[i + 1]);
     }
- else     if (arg.equalsIgnoreCase("tagger")) {
-      tagger=args[i + 1];
-    }
- else     if (arg.equalsIgnoreCase("help")) {
-      help();
-      System.exit(0);
-    }
   }
-  LexicalizedParserServer server=new LexicalizedParserServer(port,model,tagger);
+  LexicalizedParserServer server=new LexicalizedParserServer(port,model);
   System.err.println("Server ready!");
   server.listen();
 }

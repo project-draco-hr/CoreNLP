@@ -1,4 +1,14 @@
 {
-  WordToSentenceProcessor<CoreLabel> wts=new WordToSentenceProcessor<>(ArrayUtils.asImmutableSet(nlToken));
-  return new WordsToSentencesAnnotator(verbose,true,wts);
+  WordToSentenceProcessor<CoreLabel> wts;
+  if (nlToken.length == 0) {
+    wts=new WordToSentenceProcessor<CoreLabel>("",Collections.<String>emptySet(),Collections.<String>emptySet());
+  }
+ else   if (nlToken.length == 1) {
+    wts=new WordToSentenceProcessor<CoreLabel>("",Collections.<String>emptySet(),Collections.singleton(nlToken[0]));
+  }
+ else {
+    Set<String> nlTokens=Generics.newHashSet(Arrays.asList(nlToken));
+    wts=new WordToSentenceProcessor<CoreLabel>("",Collections.<String>emptySet(),nlTokens);
+  }
+  return new WordsToSentencesAnnotator(wts,verbose);
 }

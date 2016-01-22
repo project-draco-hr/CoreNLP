@@ -15,10 +15,6 @@
     zzAction=-1;
     zzCurrentPosL=zzCurrentPos=zzStartRead=zzMarkedPosL;
     zzState=ZZ_LEXSTATE[zzLexicalState];
-    int zzAttributes=zzAttrL[zzState];
-    if ((zzAttributes & 1) == 1) {
-      zzAction=zzState;
-    }
     zzForAction: {
       while (true) {
         if (zzCurrentPosL < zzEndReadL)         zzInput=zzBufferL[zzCurrentPosL++];
@@ -45,7 +41,7 @@
         int zzNext=zzTransL[zzRowMapL[zzState] + zzCMapL[zzInput]];
         if (zzNext == -1)         break zzForAction;
         zzState=zzNext;
-        zzAttributes=zzAttrL[zzState];
+        int zzAttributes=zzAttrL[zzState];
         if ((zzAttributes & 1) == 1) {
           zzAction=zzState;
           zzMarkedPosL=zzCurrentPosL;
@@ -55,263 +51,170 @@
     }
     zzMarkedPos=zzMarkedPosL;
 switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
-case 1:
+case 35:
 {
-        String str=yytext();
-        int first=str.charAt(0);
-        String msg=String.format("Untokenizable: %s (U+%s, decimal: %s)",yytext(),Integer.toHexString(first).toUpperCase(),Integer.toString(first));
-switch (untokenizable) {
-case NONE_DELETE:
-          if (invertible) {
-            prevWordAfter.append(str);
-          }
-        break;
-case FIRST_DELETE:
-      if (invertible) {
-        prevWordAfter.append(str);
+        String txt=yytext();
+        if (escapeForwardSlashAsterisk) {
+          txt=delimit(txt,'/');
+        }
+        if (normalizeSpace) {
+          txt=txt.replace(' ','\u00A0');
+        }
+        return getNext(txt,yytext());
       }
-    if (!this.seenUntokenizableCharacter) {
-      LOGGER.warning(msg);
-      this.seenUntokenizableCharacter=true;
+case 50:
+    break;
+case 8:
+{
+    if (ptb3Dashes) {
+      return getNext(ptbmdash,yytext());
     }
-  break;
-case ALL_DELETE:
-if (invertible) {
-  prevWordAfter.append(str);
-}
-LOGGER.warning(msg);
-this.seenUntokenizableCharacter=true;
+ else {
+      return getNext();
+    }
+  }
+case 51:
 break;
-case NONE_KEEP:
-return getNext();
-case FIRST_KEEP:
-if (!this.seenUntokenizableCharacter) {
-LOGGER.warning(msg);
-this.seenUntokenizableCharacter=true;
+case 19:
+{
+if (escapeForwardSlashAsterisk) {
+  return getNext(delimit(yytext(),'*'),yytext());
 }
-return getNext();
-case ALL_KEEP:
-LOGGER.warning(msg);
-this.seenUntokenizableCharacter=true;
-return getNext();
+ else {
+  return getNext();
 }
+}
+case 52:
+break;
+case 47:
+{
+int zzFState=7;
+int zzFPos=zzStartRead;
+if (zzFin.length <= zzBufferL.length) {
+zzFin=new boolean[zzBufferL.length + 1];
+}
+boolean zzFinL[]=zzFin;
+while (zzFState != -1 && zzFPos < zzMarkedPos) {
+if ((zzAttrL[zzFState] & 1) == 1) {
+zzFinL[zzFPos]=true;
+}
+zzInput=zzBufferL[zzFPos++];
+zzFState=zzTransL[zzRowMapL[zzFState] + zzCMapL[zzInput]];
+}
+if (zzFState != -1 && (zzAttrL[zzFState] & 1) == 1) {
+zzFinL[zzFPos]=true;
+}
+zzFState=8;
+zzFPos=zzMarkedPos;
+while (!zzFinL[zzFPos] || (zzAttrL[zzFState] & 1) != 1) {
+zzInput=zzBufferL[--zzFPos];
+zzFState=zzTransL[zzRowMapL[zzFState] + zzCMapL[zzInput]];
+}
+;
+zzMarkedPos=zzFPos;
+}
+{
+String s;
+while (yylength() > 0) {
+char last=yycharat(yylength() - 1);
+if (last == ' ' || last == '\t' || (last >= '\n' && last <= '\r' || last == '\u0085')) {
+yypushback(1);
+}
+ else {
+break;
+}
+}
+if (strictTreebank3 && !"U.S.".equals(yytext())) {
+yypushback(1);
+s=yytext();
+}
+ else {
+s=yytext();
+yypushback(1);
+}
+return getNext(s,yytext());
+}
+case 53:
+break;
+case 15:
+{
+return handleQuotes(yytext(),false);
+}
+case 54:
+break;
+case 32:
+yypushback(1);
+{
+return handleQuotes(yytext(),false);
+}
+case 55:
+break;
+case 24:
+{
+String txt=yytext();
+String origText=txt;
+if (normalizeParentheses) {
+txt=LEFT_PAREN_PATTERN.matcher(txt).replaceAll(openparen);
+txt=RIGHT_PAREN_PATTERN.matcher(txt).replaceAll(closeparen);
+}
+return getNext(txt,origText);
+}
+case 56:
+break;
+case 30:
+yypushback(1);
+{
+String txt=yytext();
+String origText=txt;
+if (normalizeParentheses) {
+txt=LEFT_PAREN_PATTERN.matcher(txt).replaceAll(openparen);
+txt=RIGHT_PAREN_PATTERN.matcher(txt).replaceAll(closeparen);
+}
+return getNext(txt,origText);
+}
+case 57:
+break;
+case 44:
+yypushback(1);
+{
+return getNormalizedAmpNext();
+}
+case 58:
+break;
+case 31:
+{
+return getNormalizedAmpNext();
+}
+case 59:
+break;
+case 34:
+{
+String txt=yytext();
+if (escapeForwardSlashAsterisk) {
+txt=delimit(txt,'/');
+}
+if (normalizeSpace) {
+txt=txt.replace(' ','\u00A0');
+}
+return getNext(txt,yytext());
 }
 case 60:
 break;
-case 2:
+case 48:
+zzMarkedPos=zzStartRead + 4;
 {
-return getNext("<",yytext());
+return getNext();
 }
 case 61:
 break;
-case 3:
+case 40:
+yypushback(2);
 {
 return getNext();
 }
 case 62:
 break;
-case 4:
-{
-if (yylength() >= 3 && yylength() <= 4 && ptb3Dashes) {
-return getNext(ptbmdash,yytext());
-}
- else {
-return getNext();
-}
-}
-case 63:
-break;
-case 5:
-{
-if (tokenizeNLs) {
-return getNext(NEWLINE_TOKEN,yytext());
-}
- else if (invertible) {
-prevWordAfter.append(yytext());
-}
-}
-case 64:
-break;
-case 6:
-{
-final String origTxt=yytext();
-String tmp=removeSoftHyphens(origTxt);
-if (americanize) {
-tmp=Americanize.americanize(tmp);
-}
-return getNext(tmp,origTxt);
-}
-case 65:
-break;
-case 7:
-{
-if (invertible) {
-prevWordAfter.append(yytext());
-}
-}
-case 66:
-break;
-case 8:
-{
-return handleQuotes(yytext(),false);
-}
-case 67:
-break;
-case 9:
-{
-if (escapeForwardSlashAsterisk) {
-return getNext(delimit(yytext(),'/'),yytext());
-}
- else {
-return getNext();
-}
-}
-case 68:
-break;
-case 10:
-{
-return getNext(">",yytext());
-}
-case 69:
-break;
-case 11:
-{
-if (ptb3Dashes) {
-return getNext(ptbmdash,yytext());
-}
- else {
-return getNext();
-}
-}
-case 70:
-break;
-case 12:
-{
-return getNext(removeSoftHyphens(yytext()),yytext());
-}
-case 71:
-break;
-case 13:
-{
-return handleEllipsis(yytext());
-}
-case 72:
-break;
-case 14:
-{
-return normalizeFractions(yytext());
-}
-case 73:
-break;
-case 15:
-{
-if (normalizeCurrency) {
-return getNext(normalizeCurrency(yytext()),yytext());
-}
- else {
-return getNext();
-}
-}
-case 74:
-break;
-case 16:
-{
-if (normalizeOtherBrackets) {
-return getNext(closebrace,yytext());
-}
- else {
-return getNext();
-}
-}
-case 75:
-break;
-case 17:
-{
-if (normalizeParentheses) {
-return getNext(openparen,yytext());
-}
- else {
-return getNext();
-}
-}
-case 76:
-break;
-case 18:
-{
-if (normalizeParentheses) {
-return getNext(closeparen,yytext());
-}
- else {
-return getNext();
-}
-}
-case 77:
-break;
-case 19:
-{
-if (escapeForwardSlashAsterisk) {
-return getNext(delimit(yytext(),'*'),yytext());
-}
- else {
-return getNext();
-}
-}
-case 78:
-break;
-case 20:
-{
-if (normalizeOtherBrackets) {
-return getNext(openbrace,yytext());
-}
- else {
-return getNext();
-}
-}
-case 79:
-break;
-case 21:
-{
-if (normalizeOtherBrackets) {
-return getNext("-RSB-",yytext());
-}
- else {
-return getNext();
-}
-}
-case 80:
-break;
-case 22:
-{
-if (normalizeOtherBrackets) {
-return getNext("-LSB-",yytext());
-}
- else {
-return getNext();
-}
-}
-case 81:
-break;
-case 23:
-{
-if (invertible) {
-prevWordAfter.append(yytext());
-}
-}
-case 82:
-break;
-case 24:
-{
-return getNext("\u2022",yytext());
-}
-case 83:
-break;
-case 25:
-{
-return getNext("\u2122",yytext());
-}
-case 84:
-break;
-case 26:
+case 38:
 {
 int zzFState=13;
 int zzFPos=zzStartRead;
@@ -320,17 +223,16 @@ zzFin=new boolean[zzBufferL.length + 1];
 }
 boolean zzFinL[]=zzFin;
 while (zzFState != -1 && zzFPos < zzMarkedPos) {
-zzFinL[zzFPos]=((zzAttrL[zzFState] & 1) == 1);
+if ((zzAttrL[zzFState] & 1) == 1) {
+zzFinL[zzFPos]=true;
+}
 zzInput=zzBufferL[zzFPos++];
 zzFState=zzTransL[zzRowMapL[zzFState] + zzCMapL[zzInput]];
 }
-if (zzFState != -1) {
-zzFinL[zzFPos++]=((zzAttrL[zzFState] & 1) == 1);
+if (zzFState != -1 && (zzAttrL[zzFState] & 1) == 1) {
+zzFinL[zzFPos]=true;
 }
-while (zzFPos <= zzMarkedPos) {
-zzFinL[zzFPos++]=false;
-}
-zzFState=14;
+zzFState=12;
 zzFPos=zzMarkedPos;
 while (!zzFinL[zzFPos] || (zzAttrL[zzFState] & 1) != 1) {
 zzInput=zzBufferL[--zzFPos];
@@ -342,23 +244,64 @@ zzMarkedPos=zzFPos;
 {
 return getNext();
 }
-case 85:
+case 63:
 break;
-case 27:
+case 37:
+{
+int zzFState=11;
+int zzFPos=zzStartRead;
+if (zzFin.length <= zzBufferL.length) {
+zzFin=new boolean[zzBufferL.length + 1];
+}
+boolean zzFinL[]=zzFin;
+while (zzFState != -1 && zzFPos < zzMarkedPos) {
+if ((zzAttrL[zzFState] & 1) == 1) {
+zzFinL[zzFPos]=true;
+}
+zzInput=zzBufferL[zzFPos++];
+zzFState=zzTransL[zzRowMapL[zzFState] + zzCMapL[zzInput]];
+}
+if (zzFState != -1 && (zzAttrL[zzFState] & 1) == 1) {
+zzFinL[zzFPos]=true;
+}
+zzFState=12;
+zzFPos=zzMarkedPos;
+while (!zzFinL[zzFPos] || (zzAttrL[zzFState] & 1) != 1) {
+zzInput=zzBufferL[--zzFPos];
+zzFState=zzTransL[zzRowMapL[zzFState] + zzCMapL[zzInput]];
+}
+;
+zzMarkedPos=zzFPos;
+}
+{
+return getNext();
+}
+case 64:
+break;
+case 4:
+{
+return getNext();
+}
+case 65:
+break;
+case 21:
 yypushback(1);
 {
 return getNext();
 }
-case 86:
+case 66:
 break;
-case 28:
-yypushback(1);
+case 46:
 {
-return handleQuotes(yytext(),true);
+String txt=yytext();
+if (escapeForwardSlashAsterisk) {
+txt=delimit(txt,'/');
 }
-case 87:
+return getNext(txt,yytext());
+}
+case 67:
 break;
-case 29:
+case 23:
 {
 final String origTxt=yytext();
 String txt=origTxt;
@@ -367,27 +310,31 @@ txt=txt.replace(' ','\u00A0');
 }
 return getNext(txt,origTxt);
 }
-case 88:
+case 68:
 break;
-case 30:
+case 6:
 {
-String txt=yytext();
-String origText=txt;
-if (normalizeParentheses) {
-txt=LEFT_PAREN_PATTERN.matcher(txt).replaceAll(openparen);
-txt=RIGHT_PAREN_PATTERN.matcher(txt).replaceAll(closeparen);
+if (normalizeOtherBrackets) {
+return getNext(closeparen,yytext());
 }
-return getNext(txt,origText);
+ else {
+return getNext();
 }
-case 89:
+}
+case 69:
 break;
-case 31:
+case 7:
 {
-return getNext(removeSoftHyphens(yytext()),yytext());
+final String origTxt=yytext();
+String tmp=removeSoftHyphens(origTxt);
+if (americanize) {
+tmp=Americanize.americanize(tmp);
 }
-case 90:
+return getNext(tmp,origTxt);
+}
+case 70:
 break;
-case 32:
+case 28:
 {
 int zzFState=3;
 int zzFPos=zzStartRead;
@@ -396,15 +343,14 @@ zzFin=new boolean[zzBufferL.length + 1];
 }
 boolean zzFinL[]=zzFin;
 while (zzFState != -1 && zzFPos < zzMarkedPos) {
-zzFinL[zzFPos]=((zzAttrL[zzFState] & 1) == 1);
+if ((zzAttrL[zzFState] & 1) == 1) {
+zzFinL[zzFPos]=true;
+}
 zzInput=zzBufferL[zzFPos++];
 zzFState=zzTransL[zzRowMapL[zzFState] + zzCMapL[zzInput]];
 }
-if (zzFState != -1) {
-zzFinL[zzFPos++]=((zzAttrL[zzFState] & 1) == 1);
-}
-while (zzFPos <= zzMarkedPos) {
-zzFinL[zzFPos++]=false;
+if (zzFState != -1 && (zzAttrL[zzFState] & 1) == 1) {
+zzFinL[zzFPos]=true;
 }
 zzFState=4;
 zzFPos=zzMarkedPos;
@@ -423,9 +369,27 @@ tmp=Americanize.americanize(tmp);
 }
 return getNext(tmp,origTxt);
 }
-case 91:
+case 71:
 break;
-case 33:
+case 16:
+{
+if (normalizeOtherBrackets) {
+return getNext(closebrace,yytext());
+}
+ else {
+return getNext();
+}
+}
+case 72:
+break;
+case 43:
+{
+yypushback(2);
+return getNext();
+}
+case 73:
+break;
+case 25:
 {
 if (escapeForwardSlashAsterisk) {
 return getNext(delimit(yytext(),'/'),yytext());
@@ -434,90 +398,59 @@ return getNext(delimit(yytext(),'/'),yytext());
 return getNext();
 }
 }
-case 92:
+case 74:
 break;
-case 34:
-yypushback(1);
+case 18:
 {
-return getNext(removeSoftHyphens(yytext()),yytext());
-}
-case 93:
-break;
-case 35:
-{
-String s;
-if (strictTreebank3 && !"U.S.".equals(yytext())) {
-yypushback(1);
-s=yytext();
+if (normalizeParentheses) {
+return getNext(closeparen,yytext());
 }
  else {
-s=yytext();
-yypushback(1);
+return getNext();
 }
-return getNext(s,yytext());
 }
-case 94:
+case 75:
 break;
-case 36:
-yypushback(1);
+case 49:
 {
 String txt=yytext();
-String origText=txt;
+if (normalizeSpace) {
+txt=txt.replace(' ','\u00A0');
+}
 if (normalizeParentheses) {
 txt=LEFT_PAREN_PATTERN.matcher(txt).replaceAll(openparen);
 txt=RIGHT_PAREN_PATTERN.matcher(txt).replaceAll(closeparen);
 }
-return getNext(txt,origText);
+return getNext(txt,yytext());
 }
-case 95:
+case 76:
 break;
-case 37:
-zzMarkedPos=zzStartRead + 1;
+case 45:
+{
+yypushback(3);
+return getNext();
+}
+case 77:
+break;
+case 22:
+yypushback(1);
 {
 return handleQuotes(yytext(),true);
 }
-case 96:
+case 78:
 break;
-case 38:
-yypushback(1);
+case 2:
 {
-return handleQuotes(yytext(),false);
+if (normalizeOtherBrackets) {
+return getNext(openparen,yytext());
 }
-case 97:
+ else {
+return getNext();
+}
+}
+case 79:
 break;
-case 39:
-{
-return getNormalizedAmpNext();
-}
-case 98:
-break;
-case 40:
-{
-String txt=yytext();
-if (escapeForwardSlashAsterisk) {
-txt=delimit(txt,'/');
-}
-if (normalizeSpace) {
-txt=txt.replace(' ','\u00A0');
-}
-return getNext(txt,yytext());
-}
-case 99:
-break;
-case 41:
-{
-String txt=yytext();
-if (escapeForwardSlashAsterisk) {
-txt=delimit(txt,'/');
-}
-if (normalizeSpace) {
-txt=txt.replace(' ','\u00A0');
-}
-return getNext(txt,yytext());
-}
-case 100:
-break;
-case 42:
+case 36:
 {
 int zzFState=5;
 int zzFPos=zzStartRead;
@@ -526,15 +459,14 @@ zzFin=new boolean[zzBufferL.length + 1];
 }
 boolean zzFinL[]=zzFin;
 while (zzFState != -1 && zzFPos < zzMarkedPos) {
-zzFinL[zzFPos]=((zzAttrL[zzFState] & 1) == 1);
+if ((zzAttrL[zzFState] & 1) == 1) {
+zzFinL[zzFPos]=true;
+}
 zzInput=zzBufferL[zzFPos++];
 zzFState=zzTransL[zzRowMapL[zzFState] + zzCMapL[zzInput]];
 }
-if (zzFState != -1) {
-zzFinL[zzFPos++]=((zzAttrL[zzFState] & 1) == 1);
-}
-while (zzFPos <= zzMarkedPos) {
-zzFinL[zzFPos++]=false;
+if (zzFState != -1 && (zzAttrL[zzFState] & 1) == 1) {
+zzFinL[zzFPos]=true;
 }
 zzFState=6;
 zzFPos=zzMarkedPos;
@@ -549,87 +481,61 @@ zzMarkedPos=zzFPos;
 final String txt=yytext();
 return getNext(removeSoftHyphens(txt),txt);
 }
-case 101:
+case 80:
 break;
-case 43:
+case 20:
 {
-int zzFState=16;
-int zzFPos=zzStartRead;
-if (zzFin.length <= zzBufferL.length) {
-zzFin=new boolean[zzBufferL.length + 1];
-}
-boolean zzFinL[]=zzFin;
-while (zzFState != -1 && zzFPos < zzMarkedPos) {
-zzFinL[zzFPos]=((zzAttrL[zzFState] & 1) == 1);
-zzInput=zzBufferL[zzFPos++];
-zzFState=zzTransL[zzRowMapL[zzFState] + zzCMapL[zzInput]];
-}
-if (zzFState != -1) {
-zzFinL[zzFPos++]=((zzAttrL[zzFState] & 1) == 1);
-}
-while (zzFPos <= zzMarkedPos) {
-zzFinL[zzFPos++]=false;
-}
-zzFState=17;
-zzFPos=zzMarkedPos;
-while (!zzFinL[zzFPos] || (zzAttrL[zzFState] & 1) != 1) {
-zzInput=zzBufferL[--zzFPos];
-zzFState=zzTransL[zzRowMapL[zzFState] + zzCMapL[zzInput]];
-}
-;
-zzMarkedPos=zzFPos;
-}
-{
-return getNext();
-}
-case 102:
-break;
-case 44:
-{
-if (splitAssimilations) {
-yypushback(2);
-return getNext();
+if (normalizeOtherBrackets) {
+return getNext(openbrace,yytext());
 }
  else {
 return getNext();
 }
 }
-case 103:
+case 81:
 break;
-case 45:
+case 17:
 {
-int zzFState=15;
-int zzFPos=zzStartRead;
-if (zzFin.length <= zzBufferL.length) {
-zzFin=new boolean[zzBufferL.length + 1];
+if (normalizeParentheses) {
+return getNext(openparen,yytext());
 }
-boolean zzFinL[]=zzFin;
-while (zzFState != -1 && zzFPos < zzMarkedPos) {
-zzFinL[zzFPos]=((zzAttrL[zzFState] & 1) == 1);
-zzInput=zzBufferL[zzFPos++];
-zzFState=zzTransL[zzRowMapL[zzFState] + zzCMapL[zzInput]];
-}
-if (zzFState != -1) {
-zzFinL[zzFPos++]=((zzAttrL[zzFState] & 1) == 1);
-}
-while (zzFPos <= zzMarkedPos) {
-zzFinL[zzFPos++]=false;
-}
-zzFState=14;
-zzFPos=zzMarkedPos;
-while (!zzFinL[zzFPos] || (zzAttrL[zzFState] & 1) != 1) {
-zzInput=zzBufferL[--zzFPos];
-zzFState=zzTransL[zzRowMapL[zzFState] + zzCMapL[zzInput]];
-}
-;
-zzMarkedPos=zzFPos;
-}
-{
+ else {
 return getNext();
 }
-case 104:
+}
+case 82:
 break;
-case 46:
+case 11:
+{
+return handleEllipsis(yytext());
+}
+case 83:
+break;
+case 33:
+zzMarkedPos=zzStartRead + 1;
+{
+return handleQuotes(yytext(),true);
+}
+case 84:
+break;
+case 13:
+{
+return normalizeFractions(yytext());
+}
+case 85:
+break;
+case 14:
+{
+if (normalizeCurrency) {
+return getNext(normalizeCurrency(yytext()),yytext());
+}
+ else {
+return getNext();
+}
+}
+case 86:
+break;
+case 41:
 {
 int zzFState=9;
 int zzFPos=zzStartRead;
@@ -638,172 +544,16 @@ zzFin=new boolean[zzBufferL.length + 1];
 }
 boolean zzFinL[]=zzFin;
 while (zzFState != -1 && zzFPos < zzMarkedPos) {
-zzFinL[zzFPos]=((zzAttrL[zzFState] & 1) == 1);
+if ((zzAttrL[zzFState] & 1) == 1) {
+zzFinL[zzFPos]=true;
+}
 zzInput=zzBufferL[zzFPos++];
 zzFState=zzTransL[zzRowMapL[zzFState] + zzCMapL[zzInput]];
 }
-if (zzFState != -1) {
-zzFinL[zzFPos++]=((zzAttrL[zzFState] & 1) == 1);
-}
-while (zzFPos <= zzMarkedPos) {
-zzFinL[zzFPos++]=false;
+if (zzFState != -1 && (zzAttrL[zzFState] & 1) == 1) {
+zzFinL[zzFPos]=true;
 }
 zzFState=10;
-zzFPos=zzMarkedPos;
-while (!zzFinL[zzFPos] || (zzAttrL[zzFState] & 1) != 1) {
-zzInput=zzBufferL[--zzFPos];
-zzFState=zzTransL[zzRowMapL[zzFState] + zzCMapL[zzInput]];
-}
-;
-zzMarkedPos=zzFPos;
-}
-{
-while (yylength() > 0) {
-char last=yycharat(yylength() - 1);
-if (last == ' ' || last == '\t' || (last >= '\n' && last <= '\r' || last == '\u0085')) {
-yypushback(1);
-}
- else {
-break;
-}
-}
-return getNext();
-}
-case 105:
-break;
-case 47:
-{
-int zzFState=18;
-int zzFPos=zzStartRead;
-if (zzFin.length <= zzBufferL.length) {
-zzFin=new boolean[zzBufferL.length + 1];
-}
-boolean zzFinL[]=zzFin;
-while (zzFState != -1 && zzFPos < zzMarkedPos) {
-zzFinL[zzFPos]=((zzAttrL[zzFState] & 1) == 1);
-zzInput=zzBufferL[zzFPos++];
-zzFState=zzTransL[zzRowMapL[zzFState] + zzCMapL[zzInput]];
-}
-if (zzFState != -1) {
-zzFinL[zzFPos++]=((zzAttrL[zzFState] & 1) == 1);
-}
-while (zzFPos <= zzMarkedPos) {
-zzFinL[zzFPos++]=false;
-}
-zzFState=19;
-zzFPos=zzMarkedPos;
-while (!zzFinL[zzFPos] || (zzAttrL[zzFState] & 1) != 1) {
-zzInput=zzBufferL[--zzFPos];
-zzFState=zzTransL[zzRowMapL[zzFState] + zzCMapL[zzInput]];
-}
-;
-zzMarkedPos=zzFPos;
-}
-{
-return handleEllipsis(yytext());
-}
-case 106:
-break;
-case 48:
-{
-String txt=yytext();
-if (escapeForwardSlashAsterisk) {
-txt=delimit(txt,'/');
-txt=delimit(txt,'*');
-}
-return getNext(txt,yytext());
-}
-case 107:
-break;
-case 49:
-yypushback(1);
-{
-return getNext(removeSoftHyphens(yytext()),yytext());
-}
-case 108:
-break;
-case 50:
-{
-int zzFState=7;
-int zzFPos=zzStartRead;
-if (zzFin.length <= zzBufferL.length) {
-zzFin=new boolean[zzBufferL.length + 1];
-}
-boolean zzFinL[]=zzFin;
-while (zzFState != -1 && zzFPos < zzMarkedPos) {
-zzFinL[zzFPos]=((zzAttrL[zzFState] & 1) == 1);
-zzInput=zzBufferL[zzFPos++];
-zzFState=zzTransL[zzRowMapL[zzFState] + zzCMapL[zzInput]];
-}
-if (zzFState != -1) {
-zzFinL[zzFPos++]=((zzAttrL[zzFState] & 1) == 1);
-}
-while (zzFPos <= zzMarkedPos) {
-zzFinL[zzFPos++]=false;
-}
-zzFState=8;
-zzFPos=zzMarkedPos;
-while (!zzFinL[zzFPos] || (zzAttrL[zzFState] & 1) != 1) {
-zzInput=zzBufferL[--zzFPos];
-zzFState=zzTransL[zzRowMapL[zzFState] + zzCMapL[zzInput]];
-}
-;
-zzMarkedPos=zzFPos;
-}
-{
-while (yylength() > 0) {
-char last=yycharat(yylength() - 1);
-if (last == ' ' || last == '\t' || (last >= '\n' && last <= '\r' || last == '\u0085')) {
-yypushback(1);
-}
- else {
-break;
-}
-}
-String s;
-if (yylength() == 2) {
-yypushback(1);
-s=yytext();
-}
- else if (strictTreebank3 && !"U.S.".equals(yytext())) {
-yypushback(1);
-s=yytext();
-}
- else {
-s=yytext();
-yypushback(1);
-}
-return getNext(s,yytext());
-}
-case 109:
-break;
-case 51:
-yypushback(2);
-{
-return getNext();
-}
-case 110:
-break;
-case 52:
-{
-int zzFState=11;
-int zzFPos=zzStartRead;
-if (zzFin.length <= zzBufferL.length) {
-zzFin=new boolean[zzBufferL.length + 1];
-}
-boolean zzFinL[]=zzFin;
-while (zzFState != -1 && zzFPos < zzMarkedPos) {
-zzFinL[zzFPos]=((zzAttrL[zzFState] & 1) == 1);
-zzInput=zzBufferL[zzFPos++];
-zzFState=zzTransL[zzRowMapL[zzFState] + zzCMapL[zzInput]];
-}
-if (zzFState != -1) {
-zzFinL[zzFPos++]=((zzAttrL[zzFState] & 1) == 1);
-}
-while (zzFPos <= zzMarkedPos) {
-zzFinL[zzFPos++]=false;
-}
-zzFState=12;
 zzFPos=zzMarkedPos;
 while (!zzFinL[zzFPos] || (zzAttrL[zzFState] & 1) != 1) {
 zzInput=zzBufferL[--zzFPos];
@@ -824,97 +574,143 @@ yypushback(1);
 }
 return getNext(s,yytext());
 }
-case 111:
+case 87:
 break;
-case 53:
+case 10:
 {
-if (splitAssimilations) {
-yypushback(3);
-return getNext();
+if (invertible) {
+prevWordAfter.append(yytext());
+}
+}
+case 88:
+break;
+case 3:
+{
+if (escapeForwardSlashAsterisk) {
+return getNext(delimit(yytext(),'/'),yytext());
 }
  else {
 return getNext();
 }
 }
-case 112:
+case 89:
 break;
-case 54:
+case 42:
 yypushback(1);
 {
-return getNormalizedAmpNext();
+return getNext(removeSoftHyphens(yytext()),yytext());
 }
-case 113:
+case 90:
 break;
-case 55:
+case 12:
+{
+if (yylength() >= 3 && yylength() <= 4 && ptb3Dashes) {
+return getNext(ptbmdash,yytext());
+}
+ else {
+return getNext();
+}
+}
+case 91:
+break;
+case 27:
+{
+return getNext(removeSoftHyphens(yytext()),yytext());
+}
+case 92:
+break;
+case 9:
+{
+return getNext(removeSoftHyphens(yytext()),yytext());
+}
+case 93:
+break;
+case 29:
+yypushback(1);
+{
+return getNext(removeSoftHyphens(yytext()),yytext());
+}
+case 94:
+break;
+case 26:
+{
+String s;
+if (strictTreebank3 && !"U.S.".equals(yytext())) {
+yypushback(1);
+s=yytext();
+}
+ else {
+s=yytext();
+yypushback(1);
+}
+return getNext(s,yytext());
+}
+case 95:
+break;
+case 1:
+{
+String str=yytext();
+int first=str.charAt(0);
+String msg=String.format("Untokenizable: %s (U+%s, decimal: %s)",yytext(),Integer.toHexString(first).toUpperCase(),Integer.toString(first));
+switch (untokenizable) {
+case NONE_DELETE:
+if (invertible) {
+prevWordAfter.append(str);
+}
+break;
+case FIRST_DELETE:
+if (invertible) {
+prevWordAfter.append(str);
+}
+if (!this.seenUntokenizableCharacter) {
+LOGGER.warning(msg);
+this.seenUntokenizableCharacter=true;
+}
+break;
+case ALL_DELETE:
+if (invertible) {
+prevWordAfter.append(str);
+}
+LOGGER.warning(msg);
+this.seenUntokenizableCharacter=true;
+break;
+case NONE_KEEP:
+return getNext();
+case FIRST_KEEP:
+if (!this.seenUntokenizableCharacter) {
+LOGGER.warning(msg);
+this.seenUntokenizableCharacter=true;
+}
+return getNext();
+case ALL_KEEP:
+LOGGER.warning(msg);
+this.seenUntokenizableCharacter=true;
+return getNext();
+}
+}
+case 96:
+break;
+case 39:
 {
 String txt=yytext();
 if (escapeForwardSlashAsterisk) {
 txt=delimit(txt,'/');
+txt=delimit(txt,'*');
 }
 return getNext(txt,yytext());
 }
-case 114:
+case 97:
 break;
-case 56:
-yypushback(4);
+case 5:
 {
-return getNext();
+if (tokenizeNLs) {
+return getNext(NEWLINE_TOKEN,yytext());
 }
-case 115:
-break;
-case 57:
-{
-String txt=yytext();
-if (normalizeSpace) {
-txt=txt.replace(' ','\u00A0');
+ else if (invertible) {
+prevWordAfter.append(yytext());
 }
-if (normalizeParentheses) {
-txt=LEFT_PAREN_PATTERN.matcher(txt).replaceAll(openparen);
-txt=RIGHT_PAREN_PATTERN.matcher(txt).replaceAll(closeparen);
 }
-return getNext(txt,yytext());
-}
-case 116:
-break;
-case 58:
-{
-int zzFState=20;
-int zzFPos=zzStartRead;
-if (zzFin.length <= zzBufferL.length) {
-zzFin=new boolean[zzBufferL.length + 1];
-}
-boolean zzFinL[]=zzFin;
-while (zzFState != -1 && zzFPos < zzMarkedPos) {
-zzFinL[zzFPos]=((zzAttrL[zzFState] & 1) == 1);
-zzInput=zzBufferL[zzFPos++];
-zzFState=zzTransL[zzRowMapL[zzFState] + zzCMapL[zzInput]];
-}
-if (zzFState != -1) {
-zzFinL[zzFPos++]=((zzAttrL[zzFState] & 1) == 1);
-}
-while (zzFPos <= zzMarkedPos) {
-zzFinL[zzFPos++]=false;
-}
-zzFState=21;
-zzFPos=zzMarkedPos;
-while (!zzFinL[zzFPos] || (zzAttrL[zzFState] & 1) != 1) {
-zzInput=zzBufferL[--zzFPos];
-zzFState=zzTransL[zzRowMapL[zzFState] + zzCMapL[zzInput]];
-}
-;
-zzMarkedPos=zzFPos;
-}
-{
-return handleEllipsis(yytext());
-}
-case 117:
-break;
-case 59:
-zzMarkedPos=zzStartRead + 3;
-{
-return getNext();
-}
-case 118:
+case 98:
 break;
 default :
 if (zzInput == YYEOF && zzStartRead == zzCurrentPos) {

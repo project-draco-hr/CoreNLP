@@ -1,14 +1,14 @@
 {
   System.err.println("Loading tagged words from " + reader.filename());
-  ArrayList<String> words=new ArrayList<>();
-  ArrayList<String> tags=new ArrayList<>();
+  ArrayList<String> words=new ArrayList<String>();
+  ArrayList<String> tags=new ArrayList<String>();
   int numSentences=0;
   int numWords=0;
   int maxLen=Integer.MIN_VALUE;
   int minLen=Integer.MAX_VALUE;
   for (  List<TaggedWord> sentence : reader) {
     if (maxentTagger.wordFunction != null) {
-      List<TaggedWord> newSentence=new ArrayList<>(sentence.size());
+      List<TaggedWord> newSentence=new ArrayList<TaggedWord>(sentence.size());
       for (      TaggedWord word : sentence) {
         TaggedWord newWord=new TaggedWord(maxentTagger.wordFunction.apply(word.word()),word.tag());
         newSentence.add(newWord);
@@ -27,20 +27,20 @@
     }
     maxLen=(sentence.size() > maxLen ? sentence.size() : maxLen);
     minLen=(sentence.size() < minLen ? sentence.size() : minLen);
-    words.add(Tagger.EOS_WORD);
-    tags.add(Tagger.EOS_TAG);
+    words.add(TaggerConstants.EOS_WORD);
+    tags.add(TaggerConstants.EOS_TAG);
     numElements=numElements + sentence.size() + 1;
     for (int i=0; i < sentence.size() + 1; i++) {
       History h=new History(totalWords + totalSentences,totalWords + totalSentences + sentence.size(),totalWords + totalSentences + i,pairs,maxentTagger.extractors);
       String tag=tags.get(i);
       String word=words.get(i);
       pairs.add(new WordTag(word,tag));
-      int y=maxentTagger.addTag(tag);
-      DataWordTag dat=new DataWordTag(h,y,tag);
+      int y=maxentTagger.tags.add(tag);
+      DataWordTag dat=new DataWordTag(h,y,maxentTagger.tags);
       v.add(dat);
       IntCounter<String> tagCounts=wordTagCounts.get(word);
       if (tagCounts == null) {
-        tagCounts=new IntCounter<>();
+        tagCounts=new IntCounter<String>();
         wordTagCounts.put(word,tagCounts);
       }
       tagCounts.incrementCount(tag,1);

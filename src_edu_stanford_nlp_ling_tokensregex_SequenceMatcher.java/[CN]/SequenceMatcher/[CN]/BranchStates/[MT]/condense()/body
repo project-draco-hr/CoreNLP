@@ -1,35 +1,30 @@
 {
-  BitSet keepBidStates=new BitSet();
+  Set<Integer> curBidSet=Generics.newHashSet();
+  Set<Integer> keepBidStates=Generics.newHashSet();
   for (  MatchedStates ms : activeMatchedStates) {
     List<State> states=ms.states;
-    if (logger.isLoggable(Level.FINEST)) {
-      logger.finest("Condense matched state: curPosition=" + ms.curPosition + ", totalTokens="+ ms.matcher.elements.size()+ ", nStates="+ states.size());
-    }
+    logger.finest("Condense matched state: curPosition=" + ms.curPosition + ", totalTokens="+ ms.matcher.elements.size()+ ", nStates="+ states.size());
     for (    State state : states) {
-      keepBidStates.set(state.bid);
+      curBidSet.add(state.bid);
+      keepBidStates.add(state.bid);
     }
   }
-  for (  MatchedStates ms : activeMatchedStates) {
-    for (    State state : (List<State>)ms.states) {
-      int bid=state.bid;
-      BranchState bs=getBranchState(bid);
-      if (bs != null) {
-        keepBidStates.set(bs.bid);
-        bs.updateKeepBids(keepBidStates);
-        if (bs.bidsToCollapse != null) {
-          mergeBranchStates(bs);
-        }
+  for (  int bid : curBidSet) {
+    BranchState bs=getBranchState(bid);
+    if (bs != null) {
+      keepBidStates.add(bs.bid);
+      bs.updateKeepBids(keepBidStates);
+      if (bs.bidsToCollapse != null) {
+        mergeBranchStates(bs);
       }
     }
   }
-  Iterator<Integer> iter=branchStates.keySet().iterator();
-  while (iter.hasNext()) {
-    int bid=iter.next();
-    if (!keepBidStates.get(bid)) {
-      if (logger.isLoggable(Level.FINEST)) {
-        logger.finest("Remove state for bid=" + bid);
-      }
-      iter.remove();
+  Collection<Integer> curBidStates=new ArrayList<Integer>(branchStates.keySet());
+  for (  int bid : curBidStates) {
+    if (!keepBidStates.contains(bid)) {
+      logger.finest("Remove state for bid=" + bid);
+      branchStates.remove(bid);
     }
   }
+  logger.finest("Condense matched state: oldBidStates=" + curBidStates.size() + ", newBidStates="+ branchStates.size()+ ", curBidSet="+ curBidSet.size());
 }

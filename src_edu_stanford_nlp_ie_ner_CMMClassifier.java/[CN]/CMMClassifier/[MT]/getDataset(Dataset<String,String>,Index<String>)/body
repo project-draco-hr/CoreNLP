@@ -16,22 +16,22 @@
   for (int i=0; i < oldDataArray.length; i++) {
     int[] data=oldDataArray[i];
     size=0;
-    for (    int oldF : data) {
-      if (oldToNewFeatureMap[oldF] > 0) {
+    for (int j=0; j < data.length; j++) {
+      if (oldToNewFeatureMap[data[j]] > 0) {
         size++;
       }
     }
     int[] newData=new int[size];
     int index=0;
-    for (    int oldF : data) {
-      int f=oldToNewFeatureMap[oldF];
+    for (int j=0; j < data.length; j++) {
+      int f=oldToNewFeatureMap[data[j]];
       if (f > 0) {
         newData[index++]=f;
       }
     }
     newDataArray[i]=newData;
   }
-  Dataset<String,String> train=new Dataset<>(oldData.labelIndex,oldLabelArray,goodFeatures,newDataArray,newDataArray.length);
+  Dataset<String,String> train=new Dataset<String,String>(oldData.labelIndex,oldLabelArray,goodFeatures,newDataArray,newDataArray.length);
   System.err.println("done.");
   if (flags.featThreshFile != null) {
     System.err.println("applying thresholds...");

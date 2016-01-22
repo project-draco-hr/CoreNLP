@@ -1,55 +1,71 @@
 {
-  Pair<GeneralDataset<String,String>,List<String[]>> dataInfo=readAndReturnTrainingExamples(Flags.trainFile);
-  GeneralDataset<String,String> train=dataInfo.first();
-  List<String[]> lineInfos=dataInfo.second();
-  if (globalFlags.shuffleTrainingData) {
-    long seed;
-    if (globalFlags.shuffleSeed != 0) {
-      seed=globalFlags.shuffleSeed;
-    }
- else {
-      seed=System.nanoTime();
-    }
-    train.shuffleWithSideInformation(seed,lineInfos);
+  String trainFile=Flags.trainFile;
+  String testFile=globalFlags.testFile;
+  String serializeTo=Flags.serializeTo;
+  if ((testFile == null && serializeTo == null) || trainFile == null) {
+    System.err.println("usage: java edu.stanford.nlp.classify.ColumnDataClassifier -prop propFile");
+    System.err.println("  and/or: -trainFile trainFile -testFile testFile|-serializeTo modelFile [-useNGrams|-sigma sigma|...]");
+    return false;
   }
+  GeneralDataset<String,String> train=readTrainingExamples(trainFile);
   for (int i=0; i < flags.length; i++) {
     if (flags[i] != null && flags[i].binnedValuesCounter != null) {
-      logger.info("BinnedValuesStatistics for column " + i);
-      logger.info(flags[i].binnedValuesCounter.toString());
+      System.err.println("BinnedValuesStatistics for column " + i);
+      System.err.println(flags[i].binnedValuesCounter.toString());
     }
   }
   for (int i=0; i < flags.length; i++) {
     if (flags[i] != null && flags[i].binnedLengthsCounter != null) {
-      logger.info("BinnedLengthsStatistics for column " + i);
-      logger.info(flags[i].binnedLengthsCounter.toString());
+      System.err.println("BinnedLengthsStatistics for column " + i);
+      System.err.println(flags[i].binnedLengthsCounter.toString());
     }
   }
   if (Flags.printSVMLightFormatTo != null) {
-    PrintWriter pw=IOUtils.getPrintWriter(Flags.printSVMLightFormatTo,Flags.encoding);
+    PrintWriter pw=new PrintWriter(IOUtils.getPrintWriter(Flags.printSVMLightFormatTo,Flags.encoding));
     train.printSVMLightFormat(pw);
     IOUtils.closeIgnoringExceptions(pw);
     train.featureIndex().saveToFilename(Flags.printSVMLightFormatTo + ".featureIndex");
     train.labelIndex().saveToFilename(Flags.printSVMLightFormatTo + ".labelIndex");
   }
-  if (globalFlags.crossValidationFolds > 1) {
-    crossValidate(train,lineInfos);
-  }
   if (globalFlags.exitAfterTrainingFeaturization) {
     return false;
   }
   classifier=makeClassifier(train);
-  printClassifier(classifier);
-  String serializeTo=Flags.serializeTo;
+  String classString=null;
+  if (classifier instanceof LinearClassifier<?,?>) {
+    classString=((LinearClassifier<?,?>)classifier).toString(globalFlags.printClassifier,globalFlags.printClassifierParam);
+  }
+ else   if (classifier instanceof LogisticClassifier<?,?>) {
+    classString=classifier.toString();
+  }
+  if (Flags.printTo != null) {
+    PrintWriter fw=null;
+    try {
+      fw=IOUtils.getPrintWriter(Flags.printTo,Flags.encoding);
+      fw.write(classString);
+      fw.println();
+    }
+ catch (    IOException ioe) {
+      ioe.printStackTrace();
+    }
+ finally {
+      IOUtils.closeIgnoringExceptions(fw);
+    }
+    System.err.println("Built classifier described in file " + Flags.printTo);
+  }
+ else {
+    System.err.print("Built this classifier: ");
+    System.err.println(classString);
+  }
   if (serializeTo != null) {
-    logger.info("Serializing classifier to " + serializeTo + "...");
-    ObjectOutputStream oos=IOUtils.writeStreamFromString(serializeTo);
+    System.err.println("Serializing classifier to " + serializeTo + "...");
+    ObjectOutputStream oos=new ObjectOutputStream(new BufferedOutputStream(IOUtils.getFileOutputStream(serializeTo)));
     oos.writeObject(classifier);
-    String testFile=globalFlags.testFile;
     globalFlags.testFile=null;
     oos.writeObject(flags);
     globalFlags.testFile=testFile;
     oos.close();
-    logger.info("Done.");
+    System.err.println("Done.");
   }
   return true;
 }

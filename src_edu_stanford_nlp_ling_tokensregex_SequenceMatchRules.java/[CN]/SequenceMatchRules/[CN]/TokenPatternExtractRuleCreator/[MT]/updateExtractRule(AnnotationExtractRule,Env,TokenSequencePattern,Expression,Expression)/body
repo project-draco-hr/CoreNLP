@@ -1,2 +1,12 @@
 {
+  MatchedExpression.SingleAnnotationExtractor valueExtractor=createAnnotationExtractor(env,r);
+  if (r.annotationField != null && r.annotationField != CoreMap.class) {
+    valueExtractor.valueExtractor=new CoreMapFunctionApplier<List<? extends CoreMap>,Value>(r.annotationField,new SequencePatternExtractRule<CoreMap,Value>(pattern,new SequenceMatchResultExtractor<CoreMap>(env,action,result),r.matchFindType,r.matchWithResults));
+    r.extractRule=new CoreMapExtractRule<List<? extends CoreMap>,MatchedExpression>(r.annotationField,new SequencePatternExtractRule<CoreMap,MatchedExpression>(pattern,new SequenceMatchedExpressionExtractor(valueExtractor,r.matchedExpressionGroup),r.matchFindType,r.matchWithResults));
+  }
+ else {
+    valueExtractor.valueExtractor=new CoreMapToListFunctionApplier<Value>(new SequencePatternExtractRule<CoreMap,Value>(pattern,new SequenceMatchResultExtractor<CoreMap>(env,action,result),r.matchFindType,r.matchWithResults));
+    r.extractRule=new CoreMapToListExtractRule<MatchedExpression>(new SequencePatternExtractRule<CoreMap,MatchedExpression>(pattern,new SequenceMatchedExpressionExtractor(valueExtractor,r.matchedExpressionGroup),r.matchFindType,r.matchWithResults));
+  }
+  r.filterRule=new AnnotationMatchedFilter(valueExtractor);
 }

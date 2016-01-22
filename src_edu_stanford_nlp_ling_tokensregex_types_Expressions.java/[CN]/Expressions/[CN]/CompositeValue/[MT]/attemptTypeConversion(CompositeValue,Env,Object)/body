@@ -15,18 +15,14 @@
                 Value v=cv.value.get(s).evaluate(env,args);
                 try {
                   Field f=c.getField(s);
-                  Object objVal=toCompatibleObject(f,v.get());
-                  f.set(obj,objVal);
+                  f.set(obj,v.get());
                 }
  catch (                NoSuchFieldException ex) {
-                  throw new RuntimeException("Unknown field " + s + " for type "+ typeName+ ", trying to set to "+ v,ex);
-                }
-catch (                IllegalArgumentException ex) {
-                  throw new RuntimeException("Incompatible type " + s + " for type "+ typeName+ ", trying to set to "+ v,ex);
+                  throw new RuntimeException("Unknown field " + s + " for type "+ typeName,ex);
                 }
               }
             }
-            return new PrimitiveValue<>(typeName,obj);
+            return new PrimitiveValue<Object>(typeName,obj);
           }
  catch (          InstantiationException ex) {
             throw new RuntimeException("Cannot instantiate " + c,ex);
@@ -41,7 +37,7 @@ catch (          IllegalAccessException ex) {
             Method m=c.getMethod("create",CompositeValue.class);
             CompositeValue evaluatedCv=cv.evaluateNoTypeConversion(env,args);
             try {
-              return new PrimitiveValue<>(typeName,m.invoke(typeValue.get(),evaluatedCv));
+              return new PrimitiveValue<Object>(typeName,m.invoke(typeValue.get(),evaluatedCv));
             }
  catch (            InvocationTargetException ex) {
               throw new RuntimeException("Cannot instantiate " + c,ex);
@@ -59,19 +55,16 @@ catch (            IllegalAccessException ex) {
       String typeName=(String)typeValue.get();
       Expression valueField=cv.value.get("value");
       Value value=valueField.evaluate(env,args);
-switch (typeName) {
-case TYPE_ANNOTATION_KEY:
-{
-          String className=(String)value.get();
-          try {
-            return new PrimitiveValue<Class>(TYPE_ANNOTATION_KEY,Class.forName(className));
-          }
- catch (          ClassNotFoundException ex) {
-            throw new RuntimeException("Unknown class " + className,ex);
-          }
+      if (TYPE_ANNOTATION_KEY.equals(typeName)) {
+        String className=(String)value.get();
+        try {
+          return new PrimitiveValue<Class>(TYPE_ANNOTATION_KEY,Class.forName(className));
         }
-case TYPE_CLASS:
-{
+ catch (        ClassNotFoundException ex) {
+          throw new RuntimeException("Unknown class " + className,ex);
+        }
+      }
+ else       if (TYPE_CLASS.equals(typeName)) {
         String className=(String)value.get();
         try {
           return new PrimitiveValue<Class>(TYPE_CLASS,Class.forName(className));
@@ -80,30 +73,33 @@ case TYPE_CLASS:
           throw new RuntimeException("Unknown class " + className,ex);
         }
       }
-case TYPE_STRING:
-    return new PrimitiveValue<>(TYPE_STRING,(String)value.get());
-case TYPE_REGEX:
-  return new RegexValue((String)value.get());
-case TYPE_NUMBER:
-if (value.get() instanceof Number) {
-  return new PrimitiveValue<>(TYPE_NUMBER,(Number)value.get());
-}
- else if (value.get() instanceof String) {
-  String str=(String)value.get();
-  if (str.contains(".")) {
-    return new PrimitiveValue<Number>(TYPE_NUMBER,Double.valueOf(str));
-  }
+ else       if (TYPE_STRING.equals(typeName)) {
+        return new PrimitiveValue<String>(TYPE_STRING,(String)value.get());
+      }
+ else       if (TYPE_REGEX.equals(typeName)) {
+        return new RegexValue((String)value.get());
+      }
+ else       if (TYPE_NUMBER.equals(typeName)) {
+        if (value.get() instanceof Number) {
+          return new PrimitiveValue<Number>(TYPE_NUMBER,(Number)value.get());
+        }
+ else         if (value.get() instanceof String) {
+          String str=(String)value.get();
+          if (str.contains(".")) {
+            return new PrimitiveValue<Number>(TYPE_NUMBER,Double.valueOf(str));
+          }
  else {
-    return new PrimitiveValue<Number>(TYPE_NUMBER,Long.valueOf(str));
-  }
-}
+            return new PrimitiveValue<Number>(TYPE_NUMBER,Long.valueOf(str));
+          }
+        }
  else {
-  throw new IllegalArgumentException("Invalid value " + value + " for type "+ typeName);
-}
-default :
-return new PrimitiveValue(typeName,value.get());
-}
-}
-}
-return null;
+          throw new IllegalArgumentException("Invalid value " + value + " for type "+ typeName);
+        }
+      }
+ else {
+        return new PrimitiveValue(typeName,value.get());
+      }
+    }
+  }
+  return null;
 }

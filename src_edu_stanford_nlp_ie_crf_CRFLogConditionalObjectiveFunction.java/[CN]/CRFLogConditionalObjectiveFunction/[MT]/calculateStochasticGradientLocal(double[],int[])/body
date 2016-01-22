@@ -1,0 +1,23 @@
+{
+  double prob=0.0;
+  double[][] weights=to2D(x);
+  double batchScale=((double)batch.length) / ((double)this.dataDimension());
+  double[][] E=empty2D();
+  for (  int ind : batch) {
+    prob+=expectedCountsAndValueForADoc(weights,E,ind);
+  }
+  if (Double.isNaN(prob)) {
+    throw new RuntimeException("Got NaN for prob in CRFLogConditionalObjectiveFunction.calculate()");
+  }
+  value=-prob;
+  int index=0;
+  for (int i=0; i < E.length; i++) {
+    for (int j=0; j < E[i].length; j++) {
+      derivative[index++]=(E[i][j] - batchScale * Ehat[i][j]);
+      if (VERBOSE) {
+        System.err.println("deriv(" + i + ","+ j+ ") = "+ E[i][j]+ " - "+ Ehat[i][j]+ " = "+ derivative[index - 1]);
+      }
+    }
+  }
+  applyPrior(x,batchScale);
+}

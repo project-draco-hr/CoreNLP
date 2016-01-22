@@ -9,15 +9,8 @@
   err.close();
   String summary=outSos.toString();
   String errStr=errSos.toString();
-  if (!errStr.isEmpty()) {
+  if (errStr.length() > 0) {
     summary+="\nERROR: " + errStr;
-  }
-  Pattern pattern=Pattern.compile("\\d+\\.\\d\\d\\d+");
-  DecimalFormat df=new DecimalFormat("#.##");
-  Matcher matcher=pattern.matcher(summary);
-  while (matcher.find()) {
-    String number=matcher.group();
-    summary=summary.replaceFirst(number,df.format(Double.parseDouble(number)));
   }
   return summary;
 }

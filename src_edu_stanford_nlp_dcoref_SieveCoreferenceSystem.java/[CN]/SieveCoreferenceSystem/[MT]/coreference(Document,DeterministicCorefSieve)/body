@@ -1,5 +1,4 @@
 {
-  logger.finer("Coreference: sieve " + sieve.getClass().getSimpleName());
   List<List<Mention>> orderedMentionsBySentence=document.getOrderedMentions();
   Map<Integer,CorefCluster> corefClusters=document.corefClusters;
   Set<Mention> roleSet=document.roleSet;
@@ -29,7 +28,7 @@
           }
         }
         for (        Mention m2 : l) {
-          if (m1.isSingleton && m1.mentionType != MentionType.PROPER && m2.isSingleton && m2.mentionType != MentionType.PROPER)           continue;
+          if (m1.isSingleton && m2.isSingleton)           continue;
           if (m1.corefClusterID == m2.corefClusterID)           continue;
           CorefCluster c1=corefClusters.get(m1.corefClusterID);
           CorefCluster c2=corefClusters.get(m2.corefClusterID);
@@ -53,8 +52,6 @@
             }
             int removeID=c1.clusterID;
             CorefCluster.mergeClusters(c2,c1);
-            document.mergeIncompatibles(c2,c1);
-            document.mergeAcronymCache(c2,c1);
             corefClusters.remove(removeID);
             break LOOP;
           }
@@ -67,7 +64,7 @@
     scoreBcubed.get(currentSieve).calculateScore(document);
     scorePairwise.get(currentSieve).calculateScore(document);
     if (currentSieve == 0) {
-      scoreSingleDoc=new ArrayList<>();
+      scoreSingleDoc=new ArrayList<CorefScorer>();
       scoreSingleDoc.add(new ScorerPairwise());
       scoreSingleDoc.get(currentSieve).calculateScore(document);
       additionalCorrectLinksCount=(int)scoreSingleDoc.get(currentSieve).precisionNumSum;

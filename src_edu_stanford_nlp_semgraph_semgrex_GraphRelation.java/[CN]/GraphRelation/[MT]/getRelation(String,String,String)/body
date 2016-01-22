@@ -3,30 +3,10 @@
   if (!isKnownRelation(reln)) {
     throw new ParseException("Unknown relation " + reln);
   }
-switch (reln) {
-case ">":
-    return new GOVERNER(type,name);
-case "<":
-  return new DEPENDENT(type,name);
-case ">>":
-return new GRANDPARENT(type,name);
-case "<<":
-return new GRANDKID(type,name);
-case "==":
-return new EQUALS(type,name);
-case "$+":
-return new RIGHT_IMMEDIATE_SIBLING(type,name);
-case "$-":
-return new LEFT_IMMEDIATE_SIBLING(type,name);
-case "$++":
-return new RIGHT_SIBLING(type,name);
-case "$--":
-return new LEFT_SIBLING(type,name);
-case ".":
-return new ADJACENT_NODE(type,name);
-case "@":
-return new ALIGNMENT();
-default :
-throw new ParseException("Relation " + reln + " not handled by getRelation");
-}
+  if (reln.equals(">"))   return new GOVERNER(type,name);
+ else   if (reln.equals("<"))   return new DEPENDENT(type,name);
+ else   if (reln.equals(">>"))   return new GRANDPARENT(type,name);
+ else   if (reln.equals("<<"))   return new GRANDKID(type,name);
+ else   if (reln.equals("@"))   return new ALIGNMENT();
+ else   throw new ParseException("Relation " + reln + " not handled by getRelation");
 }

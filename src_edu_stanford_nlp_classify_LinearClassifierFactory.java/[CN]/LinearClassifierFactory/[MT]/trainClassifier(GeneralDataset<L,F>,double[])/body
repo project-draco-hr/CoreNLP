@@ -1,13 +1,6 @@
 {
   if (dataset instanceof RVFDataset)   ((RVFDataset<L,F>)dataset).ensureRealValues();
-  if (initial != null) {
-    for (    double weight : initial) {
-      if (Double.isNaN(weight) || Double.isInfinite(weight)) {
-        throw new IllegalArgumentException("Initial weights are invalid!");
-      }
-    }
-  }
   double[][] weights=trainWeights(dataset,initial,false);
-  LinearClassifier<L,F> classifier=new LinearClassifier<>(weights,dataset.featureIndex(),dataset.labelIndex());
+  LinearClassifier<L,F> classifier=new LinearClassifier<L,F>(weights,dataset.featureIndex(),dataset.labelIndex());
   return classifier;
 }

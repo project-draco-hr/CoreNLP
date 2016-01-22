@@ -1,19 +1,11 @@
 {
   System.err.println("Testing on treebank");
-  Timing treebankTotalTimer=new Timing();
+  Timing treebankTotalTtimer=new Timing();
   TreePrint treePrint=op.testOptions.treePrint(op.tlpParams);
   TreebankLangParserParams tlpParams=op.tlpParams;
   TreebankLanguagePack tlp=op.langpack();
-  PrintWriter pwOut, pwErr;
-  if (op.testOptions.quietEvaluation) {
-    NullOutputStream quiet=new NullOutputStream();
-    pwOut=tlpParams.pw(quiet);
-    pwErr=tlpParams.pw(quiet);
-  }
- else {
-    pwOut=tlpParams.pw();
-    pwErr=tlpParams.pw(System.err);
-  }
+  PrintWriter pwOut=tlpParams.pw();
+  PrintWriter pwErr=tlpParams.pw(System.err);
   if (op.testOptions.verbose) {
     pwErr.print("Testing ");
     pwErr.println(testTreebank.textualSummary(tlp));
@@ -41,8 +33,8 @@
     }
   }
   if (op.testOptions.testingThreads != 1) {
-    MulticoreWrapper<List<? extends HasWord>,ParserQuery> wrapper=new MulticoreWrapper<>(op.testOptions.testingThreads,new ParsingThreadsafeProcessor(pqFactory,pwErr));
-    LinkedList<Tree> goldTrees=new LinkedList<>();
+    MulticoreWrapper<List<? extends HasWord>,ParserQuery> wrapper=new MulticoreWrapper<List<? extends HasWord>,ParserQuery>(op.testOptions.testingThreads,new ParsingThreadsafeProcessor(pqFactory,pwErr));
+    LinkedList<Tree> goldTrees=new LinkedList<Tree>();
     for (    Tree goldTree : testTreebank) {
       List<? extends HasWord> sentence=getInputSentence(goldTree);
       goldTrees.add(goldTree);
@@ -70,10 +62,7 @@
       processResults(pq,goldTree,pwErr,pwOut,pwFileOut,pwStats,treePrint);
     }
   }
-  treebankTotalTimer.done("Testing on treebank");
-  if (op.testOptions.quietEvaluation) {
-    pwErr=tlpParams.pw(System.err);
-  }
+  treebankTotalTtimer.done("Testing on treebank");
   if (saidMemMessage) {
     ParserUtils.printOutOfMemory(pwErr);
   }
@@ -81,7 +70,7 @@
     EvalbFormatWriter.closeEVALBfiles();
   }
   if (numSkippedEvals != 0) {
-    pwErr.printf("Unable to evaluate %d parser hypotheses due to yield mismatch\n",numSkippedEvals);
+    pwOut.printf("Unable to evaluate %d parser hypotheses due to yield mismatch\n",numSkippedEvals);
   }
   ParserQuery pq=pqFactory.parserQuery();
   if (summary) {
@@ -103,9 +92,6 @@
     if (factTA != null)     factTA.display(false,pwErr);
     if (factLL != null && pq.getFactoredParser() != null)     factLL.display(false,pwErr);
     if (pcfgCatE != null)     pcfgCatE.display(false,pwErr);
-    for (    Eval eval : evals) {
-      eval.display(false,pwErr);
-    }
     for (    BestOfTopKEval eval : topKEvals) {
       eval.display(false,pwErr);
     }
@@ -136,10 +122,5 @@
   }
   if (pwFileOut != null)   pwFileOut.close();
   if (pwStats != null)   pwStats.close();
-  if (parserQueryEvals != null) {
-    for (    ParserQueryEval parserQueryEval : parserQueryEvals) {
-      parserQueryEval.display(false,pwErr);
-    }
-  }
   return f1;
 }

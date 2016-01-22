@@ -12,17 +12,16 @@
   this.tlp=tlp;
   boolean includePunctuationDependencies;
   includePunctuationDependencies=propertyToBoolean(this.options,"includePunctuationDependencies");
-  boolean generateOriginalDependencies=tlp.generateOriginalDependencies();
-  Predicate<String> puncFilter;
+  Filter<String> puncWordFilter;
   if (includePunctuationDependencies) {
     dependencyFilter=Filters.acceptFilter();
     dependencyWordFilter=Filters.acceptFilter();
-    puncFilter=Filters.acceptFilter();
+    puncWordFilter=Filters.acceptFilter();
   }
  else {
-    dependencyFilter=new Dependencies.DependentPuncTagRejectFilter<>(tlp.punctuationTagRejectFilter());
-    dependencyWordFilter=new Dependencies.DependentPuncWordRejectFilter<>(tlp.punctuationWordRejectFilter());
-    puncFilter=generateOriginalDependencies ? tlp.punctuationWordRejectFilter() : tlp.punctuationTagRejectFilter();
+    dependencyFilter=new Dependencies.DependentPuncTagRejectFilter<Label,Label,Object>(tlp.punctuationTagRejectFilter());
+    dependencyWordFilter=new Dependencies.DependentPuncWordRejectFilter<Label,Label,Object>(tlp.punctuationWordRejectFilter());
+    puncWordFilter=tlp.punctuationWordRejectFilter();
   }
   if (propertyToBoolean(this.options,"stem")) {
     stemmer=new WordStemmer();
@@ -30,8 +29,8 @@
  else {
     stemmer=null;
   }
-  if (formats.containsKey("typedDependenciesCollapsed") || formats.containsKey("typedDependencies") || (formats.containsKey("conll2007") && tlp.supportsGrammaticalStructures())) {
-    gsf=tlp.grammaticalStructureFactory(puncFilter,typedDependencyHF);
+  if (formats.containsKey("typedDependenciesCollapsed") || formats.containsKey("typedDependencies")) {
+    gsf=tlp.grammaticalStructureFactory(puncWordFilter,typedDependencyHF);
   }
  else {
     gsf=null;
@@ -46,7 +45,6 @@
   nonCollapsedDependencies=propertyToBoolean(this.options,"nonCollapsedDependencies");
   nonCollapsedDependenciesSeparated=propertyToBoolean(this.options,"nonCollapsedDependenciesSeparated");
   treeDependencies=propertyToBoolean(this.options,"treeDependencies");
-  includeTags=propertyToBoolean(this.options,"includeTags");
   if (!basicDependencies && !collapsedDependencies && !nonCollapsedDependencies&& !nonCollapsedDependenciesSeparated&& !treeDependencies) {
     CCPropagatedDependencies=true;
   }

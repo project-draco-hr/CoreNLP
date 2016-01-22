@@ -15,12 +15,12 @@
     lc=new NBLinearClassifierFactory<String,String>(sigma,globalFlags.useClassFeature).trainClassifier(train);
   }
  else   if (globalFlags.useBinary) {
-    LogisticClassifierFactory<String,String> lcf=new LogisticClassifierFactory<>();
+    LogisticClassifierFactory<String,String> lcf=new LogisticClassifierFactory<String,String>();
     LogPrior prior=new LogPrior(globalFlags.prior,globalFlags.sigma,globalFlags.epsilon);
     lc=lcf.trainClassifier(train,globalFlags.l1reg,globalFlags.tolerance,prior,globalFlags.biased);
   }
  else   if (globalFlags.biased) {
-    LogisticClassifierFactory<String,String> lcf=new LogisticClassifierFactory<>();
+    LogisticClassifierFactory<String,String> lcf=new LogisticClassifierFactory<String,String>();
     LogPrior prior=new LogPrior(globalFlags.prior,globalFlags.sigma,globalFlags.epsilon);
     lc=lcf.trainClassifier(train,prior,true);
   }
@@ -31,10 +31,10 @@
     LinearClassifierFactory<String,String> lcf;
     if (globalFlags.l1reg > 0.0) {
       Minimizer<DiffFunction> minim=ReflectionLoading.loadByReflection("edu.stanford.nlp.optimization.OWLQNMinimizer",globalFlags.l1reg);
-      lcf=new LinearClassifierFactory<>(minim,globalFlags.tolerance,globalFlags.useSum,globalFlags.prior,globalFlags.sigma,globalFlags.epsilon);
+      lcf=new LinearClassifierFactory<String,String>(minim,globalFlags.tolerance,globalFlags.useSum,globalFlags.prior,globalFlags.sigma,globalFlags.epsilon);
     }
  else {
-      lcf=new LinearClassifierFactory<>(globalFlags.tolerance,globalFlags.useSum,globalFlags.prior,globalFlags.sigma,globalFlags.epsilon,globalFlags.QNsize);
+      lcf=new LinearClassifierFactory<String,String>(globalFlags.tolerance,globalFlags.useSum,globalFlags.prior,globalFlags.sigma,globalFlags.epsilon,globalFlags.QNsize);
     }
     if (!globalFlags.useQN) {
       lcf.useConjugateGradientAscent();

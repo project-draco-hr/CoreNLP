@@ -7,8 +7,8 @@
   int correctUnlabeledAttachment=0;
   int labelCnt=0;
   int labelCorrect=0;
-  ClassicCounter<String> unlabeledErrorCounts=new ClassicCounter<>();
-  ClassicCounter<String> labeledErrorCounts=new ClassicCounter<>();
+  ClassicCounter<String> unlabeledErrorCounts=new ClassicCounter<String>();
+  ClassicCounter<String> labeledErrorCounts=new ClassicCounter<String>();
   for (int i=0; i < system.size(); i++) {
     List<Set<TypedDependency>> l=toSets(system.get(i));
     if (ignorePunc) {
@@ -31,24 +31,24 @@
     Map<String,String> childCorrectWithLabel=Generics.newHashMap();
     Map<String,String> childCorrectWithOutLabel=Generics.newHashMap();
     for (    TypedDependency goldDep : goldDeps.get(i)) {
-      String sChild=goldDep.dep().toString().replaceFirst("-[^-]*$","");
+      String sChild=goldDep.dep().label().toString().replaceFirst("-[^-]*$","");
       String prefixLabeled="";
       String prefixUnlabeled="";
       if (childCorrectWithLabel.containsKey(sChild)) {
         prefixLabeled=childCorrectWithLabel.get(sChild) + ", ";
         prefixUnlabeled=childCorrectWithOutLabel.get(sChild) + ", ";
       }
-      childCorrectWithLabel.put(sChild,prefixLabeled + goldDep.reln() + "("+ goldDep.gov().toString().replaceFirst("-[^-]*$","")+ ", "+ sChild+ ")");
-      childCorrectWithOutLabel.put(sChild,prefixUnlabeled + "dep(" + goldDep.gov().toString().replaceFirst("-[^-]*$","")+ ", "+ sChild+ ")");
+      childCorrectWithLabel.put(sChild,prefixLabeled + goldDep.reln() + "("+ goldDep.gov().label().toString().replaceFirst("-[^-]*$","")+ ", "+ sChild+ ")");
+      childCorrectWithOutLabel.put(sChild,prefixUnlabeled + "dep(" + goldDep.gov().label().toString().replaceFirst("-[^-]*$","")+ ", "+ sChild+ ")");
     }
     for (    TypedDependency labeledError : errl.get(0)) {
-      String sChild=labeledError.dep().toString().replaceFirst("-[^-]*$","");
-      String sGov=labeledError.gov().toString().replaceFirst("-[^-]*$","");
+      String sChild=labeledError.dep().label().toString().replaceFirst("-[^-]*$","");
+      String sGov=labeledError.gov().label().toString().replaceFirst("-[^-]*$","");
       labeledErrorCounts.incrementCount(labeledError.reln().toString() + "(" + sGov+ ", "+ sChild+ ") <= "+ childCorrectWithLabel.get(sChild));
     }
     for (    TypedDependency unlabeledError : errl.get(1)) {
-      String sChild=unlabeledError.dep().toString().replaceFirst("-[^-]*$","");
-      String sGov=unlabeledError.gov().toString().replaceFirst("-[^-]*$","");
+      String sChild=unlabeledError.dep().label().toString().replaceFirst("-[^-]*$","");
+      String sGov=unlabeledError.gov().label().toString().replaceFirst("-[^-]*$","");
       unlabeledErrorCounts.incrementCount("dep(" + sGov + ", "+ sChild+ ") <= "+ childCorrectWithOutLabel.get(sChild));
     }
   }

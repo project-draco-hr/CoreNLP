@@ -4,14 +4,14 @@
     System.exit(-1);
   }
   final File treeFile=new File(args[0]);
-  TwoDimensionalCounter<String,String> labelTerm=new TwoDimensionalCounter<>();
-  TwoDimensionalCounter<String,String> termLabel=new TwoDimensionalCounter<>();
-  TwoDimensionalCounter<String,String> labelPreterm=new TwoDimensionalCounter<>();
-  TwoDimensionalCounter<String,String> pretermLabel=new TwoDimensionalCounter<>();
-  TwoDimensionalCounter<String,String> unigramTagger=new TwoDimensionalCounter<>();
+  TwoDimensionalCounter<String,String> labelTerm=new TwoDimensionalCounter<String,String>();
+  TwoDimensionalCounter<String,String> termLabel=new TwoDimensionalCounter<String,String>();
+  TwoDimensionalCounter<String,String> labelPreterm=new TwoDimensionalCounter<String,String>();
+  TwoDimensionalCounter<String,String> pretermLabel=new TwoDimensionalCounter<String,String>();
+  TwoDimensionalCounter<String,String> unigramTagger=new TwoDimensionalCounter<String,String>();
   try {
     BufferedReader br=new BufferedReader(new InputStreamReader(new FileInputStream(treeFile),"UTF-8"));
-    TreeReaderFactory trf=new FrenchTreeReaderFactory();
+    TreeReaderFactory trf=new FrenchTreeReaderFactory(true);
     TreeReader tr=trf.newTreeReader(br);
     for (Tree t; (t=tr.readTree()) != null; ) {
       countMWEStatistics(t,unigramTagger,labelPreterm,pretermLabel,labelTerm,termLabel);

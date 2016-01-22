@@ -5,8 +5,10 @@
   }
  else {
     Index<CRFLabel>[] indexArray=(Index<CRFLabel>[])o;
-    labelIndices=new ArrayList<>(indexArray.length);
-    Collections.addAll(labelIndices,indexArray);
+    labelIndices=new ArrayList<Index<CRFLabel>>(indexArray.length);
+    for (int i=0; i < indexArray.length; ++i) {
+      labelIndices.add(indexArray[i]);
+    }
   }
   classIndex=(Index<String>)ois.readObject();
   featureIndex=(Index<String>)ois.readObject();
@@ -14,41 +16,27 @@
   if (flags.useEmbedding) {
     embeddings=(Map<String,double[]>)ois.readObject();
   }
-  Object featureFactory=ois.readObject();
-  if (featureFactory instanceof List) {
-    featureFactories=ErasureUtils.uncheckedCast(featureFactories);
-  }
- else   if (featureFactory instanceof FeatureFactory) {
-    featureFactories=Generics.newArrayList();
-    featureFactories.add((FeatureFactory)featureFactory);
-  }
- else   if (featureFactory instanceof Integer) {
-    int size=(Integer)featureFactory;
-    featureFactories=Generics.newArrayList(size);
-    for (int i=0; i < size; ++i) {
-      featureFactory=ois.readObject();
-      if (!(featureFactory instanceof FeatureFactory)) {
-        throw new RuntimeIOException("Should have FeatureFactory but got " + featureFactory.getClass());
-      }
-      featureFactories.add((FeatureFactory)featureFactory);
+  if (flags.nonLinearCRF) {
+    nodeFeatureIndicesMap=(Index<Integer>)ois.readObject();
+    edgeFeatureIndicesMap=(Index<Integer>)ois.readObject();
+    if (flags.secondOrderNonLinear) {
+      inputLayerWeights4Edge=(double[][])ois.readObject();
+      outputLayerWeights4Edge=(double[][])ois.readObject();
     }
+ else {
+      linearWeights=(double[][])ois.readObject();
+    }
+    inputLayerWeights=(double[][])ois.readObject();
+    outputLayerWeights=(double[][])ois.readObject();
   }
+  featureFactory=(edu.stanford.nlp.sequences.FeatureFactory)ois.readObject();
   if (props != null) {
     flags.setProperties(props,false);
   }
+  reinit();
   windowSize=ois.readInt();
   weights=(double[][])ois.readObject();
-  Set<String> lcWords=(Set<String>)ois.readObject();
-  if (lcWords instanceof MaxSizeConcurrentHashSet) {
-    knownLCWords=(MaxSizeConcurrentHashSet<String>)lcWords;
-  }
- else {
-    knownLCWords=new MaxSizeConcurrentHashSet<>(lcWords);
-  }
-  reinit();
-  if (flags.labelDictionaryCutoff > 0) {
-    labelDictionary=(LabelDictionary)ois.readObject();
-  }
+  knownLCWords=(Set<String>)ois.readObject();
   if (VERBOSE) {
     System.err.println("windowSize=" + windowSize);
     System.err.println("flags=\n" + flags);
