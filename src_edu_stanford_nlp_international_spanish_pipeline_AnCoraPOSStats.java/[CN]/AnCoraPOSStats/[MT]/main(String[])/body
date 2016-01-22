@@ -1,0 +1,18 @@
+{
+  if (args.length < 1) {
+    System.err.println(usage);
+    System.exit(1);
+  }
+  Properties options=StringUtils.argsToProperties(args,argOptionDefs);
+  String outputPath=options.getProperty("o");
+  if (outputPath == null)   throw new IllegalArgumentException("-o argument (output path for built tagger) is required");
+  String[] remainingArgs=options.getProperty("").split(" ");
+  List<File> fileList=new ArrayList<>();
+  for (  String arg : remainingArgs)   fileList.add(new File(arg));
+  AnCoraPOSStats stats=new AnCoraPOSStats(fileList,outputPath);
+  stats.process();
+  ObjectOutputStream oos=new ObjectOutputStream(new FileOutputStream(outputPath));
+  TwoDimensionalCounter<String,String> tagger=stats.getUnigramTagger();
+  oos.writeObject(tagger);
+  System.out.printf("Wrote tagger to %s%n",outputPath);
+}

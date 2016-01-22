@@ -1,0 +1,36 @@
+{
+  final int dim=500000;
+  final double maxVar=5;
+  final double[] var=new double[dim];
+  double[] init=new double[dim];
+  for (int i=0; i < dim; i++) {
+    init[i]=((i + 1) / (double)dim - 0.5);
+    var[i]=maxVar * (i + 1) / dim;
+  }
+  final double[] grads=new double[dim];
+  final DiffFunction f=new DiffFunction(){
+    @Override public double[] derivativeAt(    double[] x){
+      double val=Math.PI * valuePow(x,Math.PI - 1);
+      for (int i=0; i < dim; i++) {
+        grads[i]=x[i] * var[i] * val;
+      }
+      return grads;
+    }
+    @Override public double valueAt(    double[] x){
+      return 1.0 + valuePow(x,Math.PI);
+    }
+    private double valuePow(    double[] x,    double pow){
+      double val=0.0;
+      for (int i=0; i < dim; i++) {
+        val+=x[i] * x[i] * var[i];
+      }
+      return Math.pow(val * 0.5,pow);
+    }
+    @Override public int domainDimension(){
+      return dim;
+    }
+  }
+;
+  InefficientSGDMinimizer<DiffFunction> min=new InefficientSGDMinimizer<>();
+  min.minimize(f,1.0E-4,init);
+}

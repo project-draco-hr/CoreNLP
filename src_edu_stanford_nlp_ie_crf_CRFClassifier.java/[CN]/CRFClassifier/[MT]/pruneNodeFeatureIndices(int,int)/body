@@ -4,18 +4,18 @@
   int endIndex=Math.min((int)(numOfNodeFeatures / (totalNumOfFeatureSlices + 0.0) * numOfFeatureSlices),numOfNodeFeatures);
   List<Integer> nodeFeatureOriginalIndices=nodeFeatureIndicesMap.objectsList();
   List<Integer> edgeFeatureOriginalIndices=edgeFeatureIndicesMap.objectsList();
-  Index<Integer> newNodeFeatureIndex=new HashIndex<Integer>();
-  Index<Integer> newEdgeFeatureIndex=new HashIndex<Integer>();
-  Index<String> newFeatureIndex=new HashIndex<String>();
+  Index<Integer> newNodeFeatureIndex=new HashIndex<>();
+  Index<Integer> newEdgeFeatureIndex=new HashIndex<>();
+  Index<String> newFeatureIndex=new HashIndex<>();
   for (int i=beginIndex; i < endIndex; i++) {
     int oldIndex=nodeFeatureOriginalIndices.get(i);
     String f=featureIndex.get(oldIndex);
-    int index=newFeatureIndex.indexOf(f,true);
+    int index=newFeatureIndex.addToIndex(f);
     newNodeFeatureIndex.add(index);
   }
   for (  Integer edgeFIndex : edgeFeatureOriginalIndices) {
     String f=featureIndex.get(edgeFIndex);
-    int index=newFeatureIndex.indexOf(f,true);
+    int index=newFeatureIndex.addToIndex(f);
     newEdgeFeatureIndex.add(index);
   }
   nodeFeatureIndicesMap=newNodeFeatureIndex;

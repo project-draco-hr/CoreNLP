@@ -34,7 +34,7 @@
   env.bind("::MONTH",new MatchedExpressionValueTypeMatchNodePattern("MONTH_OF_YEAR"));
   env.bind("::DAYOFWEEK",new MatchedExpressionValueTypeMatchNodePattern("DAY_OF_WEEK"));
   for (  SUTime.TemporalOp t : SUTime.TemporalOp.values()) {
-    env.bind(t.name(),new Expressions.PrimitiveValue<SUTime.TemporalOp>("TemporalOp",t));
+    env.bind(t.name(),new Expressions.PrimitiveValue<>("TemporalOp",t));
   }
   for (  SUTime.TimeUnit t : SUTime.TimeUnit.values()) {
     if (!t.equals(SUTime.TimeUnit.UNKNOWN)) {
@@ -42,7 +42,7 @@
     }
   }
   for (  SUTime.StandardTemporalType t : SUTime.StandardTemporalType.values()) {
-    env.bind(t.name(),new Expressions.PrimitiveValue<SUTime.StandardTemporalType>("TemporalType",t));
+    env.bind(t.name(),new Expressions.PrimitiveValue<>("TemporalType",t));
   }
   env.bind("Duration",new Expressions.PrimitiveValue<ValueFunction>(Expressions.TYPE_FUNCTION,new ValueFunctions.NamedValueFunction("Duration"){
     private SUTime.Temporal addEndPoints(    SUTime.Duration d,    SUTime.Time beginTime,    SUTime.Time endTime){
@@ -221,7 +221,7 @@
           }
         }
         SUTime.Duration period=temporal.getPeriod();
-        if (period != null & scale != 1) {
+        if (period != null && scale != 1) {
           period=period.multiplyBy(scale);
         }
         return new Expressions.PrimitiveValue("PeriodicTemporalSet",new SUTime.PeriodicTemporalSet(temporal,period,quant,null));

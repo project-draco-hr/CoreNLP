@@ -1,0 +1,29 @@
+{
+  List<File> allFiles=new ArrayList<>();
+  for (  String tokfile : file.split("[,;]")) {
+    File filef=new File(tokfile);
+    if (filef.isDirectory()) {
+      Redwood.log(Redwood.DBG,"Will read from directory " + filef);
+      String path=".*";
+      File dir=filef;
+      for (      File f : IOUtils.iterFilesRecursive(dir,java.util.regex.Pattern.compile(path))) {
+        Redwood.log(ConstantsAndVariables.extremedebug,"Will read from file " + f);
+        allFiles.add(f);
+      }
+    }
+ else {
+      if (filef.exists()) {
+        Redwood.log(Redwood.DBG,"Will read from file " + filef);
+        allFiles.add(filef);
+      }
+ else {
+        Redwood.log(Redwood.DBG,"trying to read from file " + filef);
+        RegExFileFilter fileFilter=new RegExFileFilter(java.util.regex.Pattern.compile(filef.getName()));
+        File dir=new File(tokfile.substring(0,tokfile.lastIndexOf("/")));
+        File[] files=dir.listFiles(fileFilter);
+        allFiles.addAll(Arrays.asList(files));
+      }
+    }
+  }
+  return allFiles;
+}

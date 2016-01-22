@@ -1,0 +1,10 @@
+{
+  if (ph.length() < minLen)   return new Pair<>(ph,editDistMax);
+  Set<CandidatePhrase> words=new HashSet<>(seedLabelDictionary.get(label));
+  words.addAll(getLearnedWords(label).keySet());
+  Pair<String,Double> minD=getEditDist(words,ph);
+  double minDtotal=minD.second();
+  String minPh=minD.first();
+  assert(!minPh.isEmpty());
+  return new Pair<>(minPh,minDtotal);
+}

@@ -1,0 +1,11 @@
+{
+  List<Tree> ret=new ArrayList<>();
+  MultiWordTreeExpander expander=new MultiWordTreeExpander();
+  for (  Tree t : coll) {
+    MultiWordPreprocessor.traverseAndFix(t,null,AnCoraProcessor.this.unigramTagger,ner);
+    t=expander.expandPhrases(t,tn,tf);
+    t=tn.normalizeWholeTree(t,tf);
+    ret.add(t);
+  }
+  return ret;
+}

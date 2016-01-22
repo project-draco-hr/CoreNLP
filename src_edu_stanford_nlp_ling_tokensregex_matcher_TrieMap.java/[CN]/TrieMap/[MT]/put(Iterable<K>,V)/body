@@ -1,0 +1,17 @@
+{
+  if (value == null)   throw new IllegalArgumentException("Value cannot be null");
+  TrieMap<K,V> curTrie=this;
+  for (  K element : key) {
+    if (curTrie.children == null) {
+      curTrie.children=new ConcurrentHashMap<>();
+    }
+    TrieMap<K,V> parent=curTrie;
+    curTrie=curTrie.children.get(element);
+    if (curTrie == null) {
+      parent.children.put(element,curTrie=new TrieMap<>());
+    }
+  }
+  V oldValue=curTrie.value;
+  curTrie.value=value;
+  return oldValue;
+}

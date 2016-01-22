@@ -1,0 +1,21 @@
+{
+  Set<IndexedWord> foundWordsParents=new HashSet<>();
+  SemgrexMatcher m=pattern.matcher(g,lowercase);
+  while (m.find()) {
+    IndexedWord w=m.getNode("node");
+    IndexedWord parent=m.getNode("parent");
+    boolean ifSatisfiedMaxDepth=checkIfSatisfiedMaxDepth(g,parent,w,new IntPair(maxDepth,0));
+    if (ifSatisfiedMaxDepth == false)     continue;
+    if (DEBUG > 3) {
+      List<Pair<String,SemanticGraph>> matchedGraphs=matchedGraphsForPattern.get(pattern);
+      if (matchedGraphs == null)       matchedGraphs=new ArrayList<>();
+      matchedGraphs.add(new Pair<>(StringUtils.join(tokens," "),g));
+      matchedGraphsForPattern.put(pattern,matchedGraphs);
+    }
+    foundWordsParents.add(parent);
+    ArrayList<IndexedWord> seenNodes=new ArrayList<>();
+    List<String> cutoffrelations=new ArrayList<>();
+    printSubGraph(g,w,cutoffrelations,tokens,outputNodes,outputIndices,seenNodes,new ArrayList<>(),findSubTrees,extractedPhrases,pattern,acceptWord);
+  }
+  return foundWordsParents;
+}

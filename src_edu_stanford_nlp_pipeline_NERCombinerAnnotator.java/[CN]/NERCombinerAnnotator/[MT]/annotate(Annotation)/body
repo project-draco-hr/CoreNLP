@@ -1,11 +1,10 @@
 {
-  timerStart("Adding NER Combiner annotation...");
-  if (annotation.containsKey(CoreAnnotations.SentencesAnnotation.class)) {
-    for (    CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
-      doOneSentence(annotation,sentence);
-    }
+  if (VERBOSE) {
+    System.err.print("Adding NER Combiner annotation ... ");
   }
- else {
-    throw new RuntimeException("unable to find sentences in: " + annotation);
+  super.annotate(annotation);
+  this.ner.finalizeAnnotation(annotation);
+  if (VERBOSE) {
+    System.err.println("done.");
   }
 }

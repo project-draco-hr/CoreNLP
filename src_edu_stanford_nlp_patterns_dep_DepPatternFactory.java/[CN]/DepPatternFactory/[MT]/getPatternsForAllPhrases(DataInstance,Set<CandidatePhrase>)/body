@@ -1,0 +1,19 @@
+{
+  SemanticGraph graph=((DataInstanceDep)sent).getGraph();
+  Map<Integer,Set<DepPattern>> pats4Sent=new HashMap<>();
+  if (graph == null || graph.isEmpty()) {
+    System.out.println("graph is empty or null!");
+    return null;
+  }
+  Set<IndexedWord> allNodes;
+  try {
+    allNodes=graph.getLeafVertices();
+  }
+ catch (  IllegalArgumentException i) {
+    return null;
+  }
+  for (  IndexedWord w : allNodes) {
+    pats4Sent.put(w.index() - 1,getContext(w,graph,commonWords,sent));
+  }
+  return pats4Sent;
+}

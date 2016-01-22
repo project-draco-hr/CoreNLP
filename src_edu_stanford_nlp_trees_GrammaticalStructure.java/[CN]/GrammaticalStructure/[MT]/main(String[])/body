@@ -1,5 +1,5 @@
 {
-  MemoryTreebank tb=new MemoryTreebank(new TreeNormalizer());
+  MemoryTreebank tb=new MemoryTreebank(new NPTmpRetainingTreeNormalizer(0,false,1,false));
   Iterable<Tree> trees=tb;
   Iterable<GrammaticalStructure> gsBank=null;
   Properties props=StringUtils.argsToProperties(args);
@@ -18,8 +18,12 @@
   String altDepReaderFilename=props.getProperty("altreaderfile");
   String filter=props.getProperty("filter");
   boolean makeCopulaHead=props.getProperty("makeCopulaHead") != null;
+  boolean generateOriginalDependencies=props.getProperty("originalDependencies") != null;
   String tLPP=props.getProperty("tLPP","edu.stanford.nlp.parser.lexparser.EnglishTreebankParserParams");
   TreebankLangParserParams params=ReflectionLoading.loadByReflection(tLPP);
+  if (generateOriginalDependencies) {
+    params.setGenerateOriginalDependencies(true);
+  }
   if (makeCopulaHead) {
     String[] options={"-makeCopulaHead"};
     params.setOptionFlag(options,0);
@@ -27,7 +31,7 @@
   if (sentFileName == null && (altDepReaderName == null || altDepReaderFilename == null) && treeFileName == null && conllXFileName == null && filter == null) {
     try {
       System.err.println("Usage: java GrammaticalStructure [options]* [-sentFile|-treeFile|-conllxFile file] [-testGraph]");
-      System.err.println("  options: -basic, -collapsed, -CCprocessed [the default], -collapsedTree, -parseTree, -test, -parserFile file, -conllx, -keepPunct, -altprinter -altreader -altreaderfile");
+      System.err.println("  options: -basic, -collapsed, -CCprocessed [the default], -collapsedTree, -parseTree, -test, -parserFile file, -conllx, -keepPunct, -altprinter -altreader -altreaderfile -originalDependencies");
       TreeReader tr=new PennTreeReader(new StringReader("((S (NP (NNP Sam)) (VP (VBD died) (NP-TMP (NN today)))))"));
       tb.add(tr.readTree());
     }
@@ -50,7 +54,7 @@
     tb.loadPath(treeFileName);
   }
  else   if (filter != null) {
-    tb.load(new BufferedReader(new InputStreamReader(System.in)));
+    tb.load(IOUtils.readerFromStdin());
   }
  else   if (conllXFileName != null) {
     try {
@@ -78,7 +82,7 @@
   boolean basic=props.getProperty("basic") != null;
   boolean collapsed=props.getProperty("collapsed") != null;
   boolean CCprocessed=props.getProperty("CCprocessed") != null;
-  boolean tree=props.getProperty("collapsedTree") != null;
+  boolean collapsedTree=props.getProperty("collapsedTree") != null;
   boolean nonCollapsed=props.getProperty("nonCollapsed") != null;
   boolean extraSep=props.getProperty("extraSep") != null;
   boolean parseTree=props.getProperty("parseTree") != null;
@@ -98,7 +102,7 @@
   if (test) {
     try {
       Class sgf=Class.forName("edu.stanford.nlp.semgraph.SemanticGraphFactory");
-      m=sgf.getDeclaredMethod("makeFromTree",GrammaticalStructure.class,boolean.class,boolean.class,boolean.class,boolean.class,boolean.class,boolean.class,Filter.class,String.class,int.class);
+      m=sgf.getDeclaredMethod("makeFromTree",GrammaticalStructure.class,boolean.class,boolean.class,boolean.class,boolean.class,boolean.class,boolean.class,Predicate.class,String.class,int.class);
     }
  catch (    Exception e) {
       System.err.println("Test cannot check for cycles in tree format (classes not available)");
@@ -108,34 +112,56 @@
     gsBank=new TreeBankGrammaticalStructureWrapper(trees,keepPunct,params);
   }
   for (  GrammaticalStructure gs : gsBank) {
-    Tree t;
+    Tree tree;
     if (gsBank instanceof TreeBankGrammaticalStructureWrapper) {
-      t=((TreeBankGrammaticalStructureWrapper)gsBank).getOriginalTree(gs);
+      tree=((TreeBankGrammaticalStructureWrapper)gsBank).getOriginalTree(gs);
     }
  else {
-      t=gs.root();
+      tree=gs.root();
     }
     if (test) {
       System.out.println("============= parse tree =======================");
-      t.pennPrint();
+      tree.pennPrint();
       System.out.println();
       System.out.println("------------- GrammaticalStructure -------------");
       System.out.println(gs);
+      boolean allConnected=true;
+      boolean connected;
+      Collection<TypedDependency> bungRoots=null;
       System.out.println("------------- basic dependencies ---------------");
-      System.out.println(StringUtils.join(gs.typedDependencies(false),"\n"));
+      List<TypedDependency> gsb=gs.typedDependencies(Extras.NONE);
+      System.out.println(StringUtils.join(gsb,"\n"));
+      connected=GrammaticalStructure.isConnected(gsb);
+      if (!connected && bungRoots == null) {
+        bungRoots=GrammaticalStructure.getRoots(gsb);
+      }
+      allConnected=connected && allConnected;
       System.out.println("------------- non-collapsed dependencies (basic + extra) ---------------");
-      System.out.println(StringUtils.join(gs.typedDependencies(true),"\n"));
+      List<TypedDependency> gse=gs.typedDependencies(Extras.MAXIMAL);
+      System.out.println(StringUtils.join(gse,"\n"));
+      connected=GrammaticalStructure.isConnected(gse);
+      if (!connected && bungRoots == null) {
+        bungRoots=GrammaticalStructure.getRoots(gse);
+      }
+      allConnected=connected && allConnected;
       System.out.println("------------- collapsed dependencies -----------");
-      System.out.println(StringUtils.join(gs.typedDependenciesCollapsed(true),"\n"));
+      System.out.println(StringUtils.join(gs.typedDependenciesCollapsed(Extras.MAXIMAL),"\n"));
       System.out.println("------------- collapsed dependencies tree -----------");
       System.out.println(StringUtils.join(gs.typedDependenciesCollapsedTree(),"\n"));
       System.out.println("------------- CCprocessed dependencies --------");
-      System.out.println(StringUtils.join(gs.typedDependenciesCCprocessed(true),"\n"));
+      List<TypedDependency> gscc=gs.typedDependenciesCollapsed(Extras.MAXIMAL);
+      System.out.println(StringUtils.join(gscc,"\n"));
       System.out.println("-----------------------------------------------");
-      boolean connected=GrammaticalStructure.isConnected(gs.typedDependenciesCollapsed(true));
-      System.out.println("collapsed dependencies form a connected graph: " + connected);
-      if (!connected) {
-        System.out.println("possible offending nodes: " + GrammaticalStructure.getRoots(gs.typedDependenciesCollapsed(true)));
+      connected=GrammaticalStructure.isConnected(gscc);
+      if (!connected && bungRoots == null) {
+        bungRoots=GrammaticalStructure.getRoots(gscc);
+      }
+      allConnected=connected && allConnected;
+      if (allConnected) {
+        System.out.println("dependencies form connected graphs.");
+      }
+ else {
+        System.out.println("dependency graph NOT connected! possible offending nodes: " + bungRoots);
       }
       if (m != null) {
         try {
@@ -153,54 +179,54 @@
  else {
       if (parseTree) {
         System.out.println("============= parse tree =======================");
-        t.pennPrint();
+        tree.pennPrint();
         System.out.println();
       }
       if (basic) {
-        if (collapsed || CCprocessed || tree|| nonCollapsed) {
+        if (collapsed || CCprocessed || collapsedTree|| nonCollapsed) {
           System.out.println("------------- basic dependencies ---------------");
         }
         if (altDepPrinter == null) {
-          printDependencies(gs,gs.typedDependencies(false),t,conllx,false);
+          printDependencies(gs,gs.typedDependencies(Extras.NONE),tree,conllx,false);
         }
  else {
-          System.out.println(altDepPrinter.dependenciesToString(gs,gs.typedDependencies(false),t));
+          System.out.println(altDepPrinter.dependenciesToString(gs,gs.typedDependencies(Extras.NONE),tree));
         }
       }
       if (nonCollapsed) {
-        if (basic || CCprocessed || collapsed|| tree) {
+        if (basic || CCprocessed || collapsed|| collapsedTree) {
           System.out.println("----------- non-collapsed dependencies (basic + extra) -----------");
         }
-        printDependencies(gs,gs.allTypedDependencies(),t,conllx,extraSep);
+        printDependencies(gs,gs.allTypedDependencies(),tree,conllx,extraSep);
       }
       if (collapsed) {
-        if (basic || CCprocessed || tree|| nonCollapsed) {
+        if (basic || CCprocessed || collapsedTree|| nonCollapsed) {
           System.out.println("----------- collapsed dependencies -----------");
         }
-        printDependencies(gs,gs.typedDependenciesCollapsed(true),t,conllx,false);
+        printDependencies(gs,gs.typedDependenciesCollapsed(Extras.MAXIMAL),tree,conllx,false);
       }
       if (CCprocessed) {
-        if (basic || collapsed || tree|| nonCollapsed) {
+        if (basic || collapsed || collapsedTree|| nonCollapsed) {
           System.out.println("---------- CCprocessed dependencies ----------");
         }
-        List<TypedDependency> deps=gs.typedDependenciesCCprocessed(true);
+        List<TypedDependency> deps=gs.typedDependenciesCCprocessed(Extras.MAXIMAL);
         if (checkConnected) {
           if (!GrammaticalStructure.isConnected(deps)) {
             System.err.println("Graph is not connected for:");
-            System.err.println(t);
+            System.err.println(tree);
             System.err.println("possible offending nodes: " + GrammaticalStructure.getRoots(deps));
           }
         }
-        printDependencies(gs,deps,t,conllx,false);
+        printDependencies(gs,deps,tree,conllx,false);
       }
-      if (tree) {
+      if (collapsedTree) {
         if (basic || CCprocessed || collapsed|| nonCollapsed) {
           System.out.println("----------- collapsed dependencies tree -----------");
         }
-        printDependencies(gs,gs.typedDependenciesCollapsedTree(),t,conllx,false);
+        printDependencies(gs,gs.typedDependenciesCollapsedTree(),tree,conllx,false);
       }
-      if (!basic && !collapsed && !CCprocessed&& !tree&& !nonCollapsed) {
-        printDependencies(gs,gs.typedDependenciesCCprocessed(true),t,conllx,false);
+      if (!basic && !collapsed && !CCprocessed&& !collapsedTree&& !nonCollapsed) {
+        printDependencies(gs,gs.typedDependenciesCCprocessed(Extras.MAXIMAL),tree,conllx,false);
       }
     }
     if (portray) {

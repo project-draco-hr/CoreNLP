@@ -1,15 +1,14 @@
 {
   if (numInGroup > 0) {
+    String message="";
     if (globalFlags.justify) {
-      NumberFormat nf=NumberFormat.getNumberInstance();
-      nf.setMinimumFractionDigits(3);
-      nf.setMaximumFractionDigits(3);
-      System.err.print("Previous group of " + numInGroup + ": ");
+      message+="Previous group of " + numInGroup + ": ";
       if (!foundAnswerInGroup) {
-        System.err.print("no correct answer; ");
+        message+="no correct answer; ";
       }
-      System.err.print("highest ranked guess was: " + ((currentHighestProbCorrect ? "correct" : "incorrect")));
-      System.err.println(" (sim. = " + nf.format(sim) + ')');
+      message+="highest ranked guess was: " + ((currentHighestProbCorrect ? "correct" : "incorrect"));
+      logger.info(message);
+      logger.info(" (sim. = " + nf.format(sim) + ')');
     }
     if (currentHighestProbCorrect) {
       contingency.incrementCount("Ranking|Correct");

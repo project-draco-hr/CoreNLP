@@ -3,7 +3,7 @@
     System.err.print("[" + num + "]");
   }
   num++;
-  List<CoreLabel> words=new ArrayList<CoreLabel>();
+  List<CoreLabel> words=new ArrayList<>();
   String[] lines=doc.split("\n");
   for (  String line : lines) {
     ++lineCount;
@@ -14,6 +14,9 @@
     CoreLabel wi;
     try {
       wi=new CoreLabel(map,info);
+      if (!wi.containsKey(CoreAnnotations.GoldAnswerAnnotation.class) && wi.containsKey(CoreAnnotations.AnswerAnnotation.class)) {
+        wi.set(CoreAnnotations.GoldAnswerAnnotation.class,wi.get(CoreAnnotations.AnswerAnnotation.class));
+      }
     }
  catch (    RuntimeException e) {
       System.err.println("Error on line " + lineCount + ": "+ line);

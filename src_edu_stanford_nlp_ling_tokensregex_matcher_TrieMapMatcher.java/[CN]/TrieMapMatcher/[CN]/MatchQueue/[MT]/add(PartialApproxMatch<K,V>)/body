@@ -1,0 +1,11 @@
+{
+  List<Match<K,V>> multiMatchesWithoutOffsets=null;
+  if (pam.multimatches != null) {
+    multiMatchesWithoutOffsets=new ArrayList<>(pam.multimatches.size());
+    for (    Match<K,V> m : pam.multimatches) {
+      multiMatchesWithoutOffsets.add(new Match<>(m.matched,m.value,0,0));
+    }
+  }
+  Match<K,V> m=new MultiMatch<>(pam.matched,pam.value,pam.begin,pam.end,multiMatchesWithoutOffsets);
+  queue.put(m,pam);
+}

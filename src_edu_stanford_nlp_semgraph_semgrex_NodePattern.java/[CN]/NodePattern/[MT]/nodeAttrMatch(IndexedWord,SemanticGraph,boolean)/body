@@ -1,20 +1,32 @@
 {
   if (isRoot)   return (negDesc ? !sg.getRoots().contains(node) : sg.getRoots().contains(node));
   if (isEmpty)   return (negDesc ? !node.equals(IndexedWord.NO_WORD) : node.equals(IndexedWord.NO_WORD));
-  for (  Map.Entry<String,Pattern> attr : attributes.entrySet()) {
+  for (  Map.Entry<String,Pair<Object,Object>> attr : attributes.entrySet()) {
     String key=attr.getKey();
     String nodeValue;
-    Object value=node.get(AnnotationLookup.getCoreKey(key).coreKey);
+    Class c=Env.lookupAnnotationKey(env,key);
+    Object value=node.get(c);
     if (value == null)     nodeValue=null;
  else     nodeValue=value.toString();
     if (nodeValue == null)     return negDesc;
-    Pattern valuePattern=attr.getValue();
-    boolean matches=false;
-    if (ignoreCase == true) {
-      if (Pattern.compile(valuePattern.pattern(),Pattern.CASE_INSENSITIVE).matcher(nodeValue).matches())       matches=true;
+    Object toMatch=ignoreCase ? attr.getValue().second : attr.getValue().first;
+    boolean matches;
+    if (toMatch instanceof Boolean) {
+      matches=((Boolean)toMatch);
+    }
+ else     if (toMatch instanceof String) {
+      if (ignoreCase) {
+        matches=nodeValue.equalsIgnoreCase(toMatch.toString());
+      }
+ else {
+        matches=nodeValue.equals(toMatch.toString());
+      }
+    }
+ else     if (toMatch instanceof Pattern) {
+      matches=((Pattern)toMatch).matcher(nodeValue).matches();
     }
  else {
-      if (nodeValue.matches(valuePattern.pattern()))       matches=true;
+      throw new IllegalStateException("Unknown matcher type: " + toMatch + " (of class + "+ toMatch.getClass()+ ")");
     }
     if (!matches) {
       return negDesc;

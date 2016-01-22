@@ -1,11 +1,10 @@
 {
   if (normalizationTableFile != null) {
-    normalizationTable=new ArrayList<Pair<String,String>>();
+    normalizationTable=new ArrayList<>();
     for (    String line : ObjectBank.getLineIterator(new File(normalizationTableFile),encoding)) {
-      Pattern pairPattern=Pattern.compile("([^\\s]+)\\s+([^\\s]+)");
-      Matcher pairMatcher=pairPattern.matcher(line);
+      Matcher pairMatcher=PAIR_PATTERN.matcher(line);
       if (pairMatcher.find()) {
-        normalizationTable.add(new Pair<String,String>(pairMatcher.group(1),pairMatcher.group(2)));
+        normalizationTable.add(new Pair<>(pairMatcher.group(1),pairMatcher.group(2)));
       }
  else {
         System.err.println("Didn't match: " + line);

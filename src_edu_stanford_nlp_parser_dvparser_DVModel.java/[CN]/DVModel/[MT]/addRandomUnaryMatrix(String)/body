@@ -1,0 +1,19 @@
+{
+  if (unaryTransform.get(childBasic) != null) {
+    return;
+  }
+  ++numUnaryMatrices;
+  SimpleMatrix score=SimpleMatrix.random(1,numCols,-1.0 / Math.sqrt((double)numCols),1.0 / Math.sqrt((double)numCols),rand);
+  unaryScore.put(childBasic,score.scale(op.trainOptions.scalingForInit));
+  SimpleMatrix transform;
+  if (op.trainOptions.useContextWords) {
+    transform=new SimpleMatrix(numRows,numCols * 3 + 1);
+    transform.insertIntoThis(0,numCols + 1,randomContextMatrix());
+  }
+ else {
+    transform=new SimpleMatrix(numRows,numCols + 1);
+  }
+  SimpleMatrix unary=randomTransformMatrix();
+  transform.insertIntoThis(0,0,unary);
+  unaryTransform.put(childBasic,transform.scale(op.trainOptions.scalingForInit));
+}

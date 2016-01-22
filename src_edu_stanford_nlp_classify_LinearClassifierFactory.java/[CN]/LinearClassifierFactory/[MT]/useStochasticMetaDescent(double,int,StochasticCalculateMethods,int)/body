@@ -1,7 +1,12 @@
 {
   this.minimizerCreator=new Factory<Minimizer<DiffFunction>>(){
-    public Minimizer<DiffFunction> create(){
-      return new SMDMinimizer<DiffFunction>(initialSMDGain,stochasticBatchSize,stochasticMethod,passes);
+    private static final long serialVersionUID=6860437108371914482L;
+    @Override public Minimizer<DiffFunction> create(){
+      SMDMinimizer<DiffFunction> smdMinimizer=new SMDMinimizer<>(initialSMDGain,stochasticBatchSize,stochasticMethod,passes);
+      if (!verbose) {
+        smdMinimizer.shutUp();
+      }
+      return smdMinimizer;
     }
   }
 ;

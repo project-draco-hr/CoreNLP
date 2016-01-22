@@ -1,0 +1,18 @@
+{
+  IntTaggedWord iTW=new IntTaggedWord(tw.word(),tw.tag(),wordIndex,tagIndex);
+  IntTaggedWord iT=new IntTaggedWord(nullWord,iTW.tag);
+  IntTaggedWord iW=new IntTaggedWord(iTW.word,nullTag);
+  seenCounter.incrementCount(iW,weight);
+  IntTaggedWord i=NULL_ITW;
+  if (treesRead > indexToStartUnkCounting) {
+    if (seenCounter.getCount(iW) < 2) {
+      int s=model.getSignatureIndex(iTW.word,loc,wordIndex.get(iTW.word));
+      IntTaggedWord iTS=new IntTaggedWord(s,iTW.tag);
+      IntTaggedWord iS=new IntTaggedWord(s,nullTag);
+      unSeenCounter.incrementCount(iTS,weight);
+      unSeenCounter.incrementCount(iT,weight);
+      unSeenCounter.incrementCount(iS,weight);
+      unSeenCounter.incrementCount(i,weight);
+    }
+  }
+}

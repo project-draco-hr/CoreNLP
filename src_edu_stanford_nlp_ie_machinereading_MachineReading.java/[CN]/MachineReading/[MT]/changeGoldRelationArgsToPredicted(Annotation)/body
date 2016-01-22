@@ -1,0 +1,19 @@
+{
+  for (  CoreMap sent : dataset.get(CoreAnnotations.SentencesAnnotation.class)) {
+    List<EntityMention> entityMentions=sent.get(MachineReadingAnnotations.EntityMentionsAnnotation.class);
+    List<RelationMention> relationMentions=sent.get(MachineReadingAnnotations.RelationMentionsAnnotation.class);
+    List<RelationMention> newRels=new ArrayList<>();
+    for (    RelationMention rm : relationMentions) {
+      rm.setSentence(sent);
+      if (rm.replaceGoldArgsWithPredicted(entityMentions)) {
+        MachineReadingProperties.logger.info("Successfully mapped all arguments in relation mention: " + rm);
+        newRels.add(rm);
+      }
+ else {
+        MachineReadingProperties.logger.info("Dropped relation mention due to failed argument mapping: " + rm);
+      }
+    }
+    sent.set(MachineReadingAnnotations.RelationMentionsAnnotation.class,newRels);
+    sent.set(MachineReadingAnnotations.EntityMentionsAnnotation.class,entityMentions);
+  }
+}

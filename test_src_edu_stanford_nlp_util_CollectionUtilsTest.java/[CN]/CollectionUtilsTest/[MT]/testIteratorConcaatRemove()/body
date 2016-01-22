@@ -1,0 +1,45 @@
+{
+  ArrayList<String> a=new ArrayList<String>(){
+{
+      add("foo");
+    }
+  }
+;
+  ArrayList<String> b=new ArrayList<String>(){
+{
+    }
+  }
+;
+  ArrayList<String> c=new ArrayList<String>(){
+{
+      add("bar");
+      add("baz");
+    }
+  }
+;
+  Iterator<String> iter=CollectionUtils.concatIterators(a.iterator(),b.iterator(),c.iterator());
+  assertTrue(iter.hasNext());
+  assertEquals("foo",iter.next());
+  assertTrue(iter.hasNext());
+  assertEquals("bar",iter.next());
+  iter.remove();
+  assertTrue(iter.hasNext());
+  assertEquals("baz",iter.next());
+  assertEquals(new ArrayList<String>(){
+{
+      add("foo");
+    }
+  }
+,a);
+  assertEquals(new ArrayList<String>(){
+{
+    }
+  }
+,b);
+  assertEquals(new ArrayList<String>(){
+{
+      add("baz");
+    }
+  }
+,c);
+}

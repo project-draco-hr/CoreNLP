@@ -1,8 +1,12 @@
 {
-  System.err.print("Output format: ");
-  if (globalFlags.displayedColumn >= 0) {
-    System.err.printf("dataColumn%d ",globalFlags.displayedColumn);
+  if (globalFlags.printFeatures != null) {
+    newFeaturePrinter(globalFlags.printFeatures,"test",Flags.encoding);
   }
-  System.err.println("goldAnswer classifierAnswer P(classifierAnswer)");
-  readAndTestExamples(classifier,testFile);
+  Pair<GeneralDataset<String,String>,List<String[]>> testInfo=readTestExamples(testFile);
+  GeneralDataset<String,String> test=testInfo.first();
+  List<String[]> lineInfos=testInfo.second();
+  testExamples(classifier,test,lineInfos);
+  if (globalFlags.printFeatures != null) {
+    closeFeaturePrinter();
+  }
 }

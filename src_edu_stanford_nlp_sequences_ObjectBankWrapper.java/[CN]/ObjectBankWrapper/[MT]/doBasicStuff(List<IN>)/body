@@ -7,11 +7,8 @@
       if (flags.wordFunction != null) {
         word=flags.wordFunction.apply(word);
       }
-      if (word.length() > 0) {
-        char ch=word.charAt(0);
-        if (Character.isLowerCase(ch)) {
-          knownLCWords.add(word);
-        }
+      if (!word.isEmpty() && Character.isLowerCase(word.codePointAt(0))) {
+        knownLCWords.add(word);
       }
       String s=intern(WordShapeClassifier.wordShape(word,flags.wordShape,knownLCWords));
       fl.set(CoreAnnotations.ShapeAnnotation.class,s);
@@ -21,7 +18,9 @@
     }
  else {
       fl.set(CoreAnnotations.TextAnnotation.class,intern(fix(fl.get(CoreAnnotations.TextAnnotation.class))));
-      fl.set(CoreAnnotations.GoldAnswerAnnotation.class,fl.get(CoreAnnotations.AnswerAnnotation.class));
+      if (fl.get(CoreAnnotations.AnswerAnnotation.class) == null) {
+        fl.set(CoreAnnotations.GoldAnswerAnnotation.class,fl.get(CoreAnnotations.AnswerAnnotation.class));
+      }
     }
   }
 }

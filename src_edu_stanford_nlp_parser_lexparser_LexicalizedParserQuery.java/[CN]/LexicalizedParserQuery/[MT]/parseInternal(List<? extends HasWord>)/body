@@ -5,20 +5,44 @@
   parseSkipped=false;
   parseFallback=false;
   whatFailed=null;
+  addedPunct=false;
   originalSentence=sentence;
   int length=sentence.size();
   if (length == 0) {
     parseSkipped=true;
     throw new UnsupportedOperationException("Can't parse a zero-length sentence!");
   }
-  for (  HasWord word : sentence) {
-    if (op.wordFunction != null) {
+  List<HasWord> sentenceB;
+  if (op.wordFunction != null) {
+    sentenceB=Generics.newArrayList();
+    for (    HasWord word : originalSentence) {
+      if (word instanceof Label) {
+        Label label=(Label)word;
+        Label newLabel=label.labelFactory().newLabel(label);
+        if (newLabel instanceof HasWord) {
+          sentenceB.add((HasWord)newLabel);
+        }
+ else {
+          throw new AssertionError("This should have been a HasWord");
+        }
+      }
+ else       if (word instanceof HasTag) {
+        TaggedWord tw=new TaggedWord(word.word(),((HasTag)word).tag());
+        sentenceB.add(tw);
+      }
+ else {
+        sentenceB.add(new Word(word.word()));
+      }
+    }
+    for (    HasWord word : sentenceB) {
       word.setWord(op.wordFunction.apply(word.word()));
     }
   }
-  List<HasWord> sentenceB=new ArrayList<HasWord>(sentence);
+ else {
+    sentenceB=new ArrayList<>(sentence);
+  }
   if (op.testOptions.addMissingFinalPunctuation) {
-    addSentenceFinalPunctIfNeeded(sentenceB,length);
+    addedPunct=addSentenceFinalPunctIfNeeded(sentenceB,length);
   }
   if (length > op.testOptions.maxLength) {
     parseSkipped=true;
@@ -42,7 +66,6 @@
   }
   if (op.doPCFG) {
     if (!pparser.parse(sentenceB)) {
-      restoreOriginalWords(sentence);
       return parseSucceeded;
     }
     if (op.testOptions.verbose) {
@@ -55,7 +78,6 @@
   }
   if (op.doDep && !op.testOptions.useFastFactored) {
     if (!dparser.parse(sentenceB)) {
-      restoreOriginalWords(sentence);
       return parseSucceeded;
     }
     if (op.testOptions.verbose) {
@@ -68,13 +90,11 @@
   }
   if (op.doPCFG && op.doDep) {
     if (!bparser.parse(sentenceB)) {
-      restoreOriginalWords(sentence);
       return parseSucceeded;
     }
  else {
       parseSucceeded=true;
     }
   }
-  restoreOriginalWords(sentence);
   return true;
 }

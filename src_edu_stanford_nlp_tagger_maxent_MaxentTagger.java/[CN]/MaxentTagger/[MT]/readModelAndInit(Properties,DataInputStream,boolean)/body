@@ -18,7 +18,6 @@
     init(taggerConfig);
     xSize=rf.readInt();
     ySize=rf.readInt();
-    dict=new Dictionary();
     dict.read(rf);
     if (VERBOSE) {
       System.err.println(" dictionary read ");
@@ -26,13 +25,13 @@
     tags.read(rf);
     readExtractors(rf);
     dict.setAmbClasses(ambClasses,veryCommonWordThresh,tags);
-    int[] numFA=new int[extractors.getSize() + extractorsRare.getSize()];
+    int[] numFA=new int[extractors.size() + extractorsRare.size()];
     int sizeAssoc=rf.readInt();
-    fAssociations=new ArrayList<Map<String,int[]>>();
-    for (int i=0; i < extractors.getSize() + extractorsRare.getSize(); ++i) {
+    fAssociations=Generics.newArrayList();
+    for (int i=0; i < extractors.size() + extractorsRare.size(); ++i) {
       fAssociations.add(Generics.<String,int[]>newHashMap());
     }
-    if (VERBOSE)     System.err.printf("Reading %d feature keys...\n",sizeAssoc);
+    if (VERBOSE)     System.err.printf("Reading %d feature keys...%n",sizeAssoc);
     PrintFile pfVP=null;
     if (VERBOSE) {
       pfVP=new PrintFile("pairs.txt");
@@ -54,7 +53,7 @@
       fTagAssociations[tags.getIndex(fK.tag)]=numF;
     }
     if (VERBOSE) {
-      pfVP.close();
+      IOUtils.closeIgnoringExceptions(pfVP);
     }
     if (VERBOSE) {
       for (int k=0; k < numFA.length; k++) {
@@ -67,10 +66,7 @@
     }
     if (printLoading)     t.done();
   }
- catch (  IOException e) {
-    throw new RuntimeIOException("Unrecoverable error while loading a tagger model",e);
-  }
-catch (  ClassNotFoundException e) {
-    throw new RuntimeIOException("Unrecoverable error while loading a tagger model",e);
+ catch (  IOException|ClassNotFoundException e) {
+    throw new RuntimeIOException("Error while loading a tagger model (probably missing model file)",e);
   }
 }

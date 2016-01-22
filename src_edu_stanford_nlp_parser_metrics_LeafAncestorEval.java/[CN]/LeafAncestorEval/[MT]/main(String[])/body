@@ -1,9 +1,9 @@
 {
   if (!validateCommandLine(args)) {
-    System.err.println(usage);
+    System.err.println(USAGE);
     System.exit(-1);
   }
-  final TreebankLangParserParams tlpp=Languages.getLanguageParams(LANGUAGE);
+  final TreebankLangParserParams tlpp=LANGUAGE.params;
   final PrintWriter pwOut=tlpp.pw();
   final Treebank guessTreebank=tlpp.diskTreebank();
   guessTreebank.loadPath(guessFile);
@@ -44,7 +44,7 @@
     System.err.printf("Guess/gold files do not have equal lengths (guess: %d gold: %d)%n.",guessLineId,goldLineId);
   }
   pwOut.println("================================================================================");
-  if (skippedGuessTrees != 0)   pwOut.printf("%s %d guess trees\n","Unable to evaluate",skippedGuessTrees);
+  if (skippedGuessTrees != 0)   pwOut.printf("%s %d guess trees%n","Unable to evaluate",skippedGuessTrees);
   metric.display(true,pwOut);
   pwOut.close();
 }

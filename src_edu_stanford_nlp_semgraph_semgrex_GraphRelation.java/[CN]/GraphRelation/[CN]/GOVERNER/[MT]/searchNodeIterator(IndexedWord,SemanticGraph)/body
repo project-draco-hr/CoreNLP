@@ -1,23 +1,24 @@
 {
   return new SearchNodeIterator(){
-    int nextNum;
+    Iterator<SemanticGraphEdge> iterator;
     @Override public void advance(){
       if (node.equals(IndexedWord.NO_WORD)) {
         next=null;
         return;
       }
-      List<Pair<GrammaticalRelation,IndexedWord>> deps=sg.childPairs(node);
-      while (nextNum < deps.size() && !deps.get(nextNum).first().toString().matches(type)) {
-        nextNum++;
+      if (iterator == null) {
+        iterator=sg.outgoingEdgeIterator(node);
       }
-      if (nextNum < deps.size()) {
-        next=deps.get(nextNum).second();
-        relation=deps.get(nextNum).first().toString();
-        nextNum++;
+      while (iterator.hasNext()) {
+        SemanticGraphEdge edge=iterator.next();
+        relation=edge.getRelation().toString();
+        if (!type.test(relation)) {
+          continue;
+        }
+        this.next=edge.getTarget();
+        return;
       }
- else {
-        next=null;
-      }
+      this.next=null;
     }
   }
 ;

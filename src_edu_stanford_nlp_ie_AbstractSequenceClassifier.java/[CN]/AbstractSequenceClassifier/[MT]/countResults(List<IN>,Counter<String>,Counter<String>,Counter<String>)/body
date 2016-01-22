@@ -1,14 +1,7 @@
 {
   String bg=(flags.evaluateBackground ? null : flags.backgroundSymbol);
-  if (flags.entitySubclassification.equalsIgnoreCase("iob2")) {
-    bg=flags.backgroundSymbol;
-    return countResultsIOB2(doc,entityTP,entityFP,entityFN,bg);
+  if (flags.sighanPostProcessing) {
+    return countResultsSegmenter(doc,entityTP,entityFP,entityFN);
   }
- else   if (flags.iobTags) {
-    bg=flags.backgroundSymbol;
-    return countResultsIOB(doc,entityTP,entityFP,entityFN,bg);
-  }
- else {
-    return countResults(doc,entityTP,entityFP,entityFN,bg);
-  }
+  return IOBUtils.countEntityResults(doc,entityTP,entityFP,entityFN,bg);
 }

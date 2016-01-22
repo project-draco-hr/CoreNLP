@@ -8,7 +8,7 @@
   String pDS=p.getString(CoreAnnotations.DistSimAnnotation.class);
   String cShape=c.getString(CoreAnnotations.ShapeAnnotation.class);
   String pShape=p.getString(CoreAnnotations.ShapeAnnotation.class);
-  Collection<String> featuresCpC=new ArrayList<String>();
+  Collection<String> featuresCpC=new ArrayList<>();
   if (flags.noEdgeFeature)   return featuresCpC;
   if (flags.transitionEdgeOnly) {
     featuresCpC.add("PSEQ");
@@ -63,15 +63,23 @@
       if (flags.useSequences && flags.usePrevSequences) {
         featuresCpC.add("PSEQ");
         featuresCpC.add(cWord + "-PSEQW");
-        featuresCpC.add(pWord + '-' + cWord+ "-PSEQW2");
-        featuresCpC.add(pWord + "-PSEQpW");
-        featuresCpC.add(pDS + "-PSEQpDS");
-        featuresCpC.add(cDS + "-PSEQcDS");
-        featuresCpC.add(pDS + '-' + cDS+ "-PSEQpcDS");
+        if (!flags.strictGoodCoNLL) {
+          featuresCpC.add(pWord + '-' + cWord+ "-PSEQW2");
+          featuresCpC.add(pWord + "-PSEQpW");
+        }
+        if (flags.useDistSim) {
+          featuresCpC.add(pDS + "-PSEQpDS");
+          featuresCpC.add(cDS + "-PSEQcDS");
+          featuresCpC.add(pDS + '-' + cDS+ "-PSEQpcDS");
+        }
         if (((flags.wordShape > WordShapeClassifier.NOWORDSHAPE) || flags.useShapeStrings)) {
-          featuresCpC.add(pShape + "-PSEQpS");
-          featuresCpC.add(cShape + "-PSEQcS");
-          featuresCpC.add(pShape + '-' + cShape+ "-PSEQpcS");
+          if (!flags.strictGoodCoNLL) {
+            featuresCpC.add(pShape + "-PSEQpS");
+            featuresCpC.add(cShape + "-PSEQcS");
+          }
+          if (flags.strictGoodCoNLL && !flags.removeStrictGoodCoNLLDuplicates) {
+            featuresCpC.add(pShape + '-' + cShape+ "-PSEQpcS");
+          }
         }
       }
     }

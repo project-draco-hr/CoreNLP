@@ -1,0 +1,33 @@
+{
+  connect();
+  List<Pair<String,Long>> counts=new ArrayList<>();
+  String query="";
+  for (  String str : strs) {
+    str=str.trim();
+    int ngram=str.split("\\s+").length;
+    String table=tablenamePrefix + ngram;
+    if (!existsTable(table)) {
+      counts.add(new Pair(str,(long)-1));
+      continue;
+    }
+    String phrase=escapeString(str);
+    query+="select count from " + table + " where phrase='"+ phrase+ "';";
+  }
+  if (query.isEmpty())   return counts;
+  PreparedStatement stmt=connection.prepareStatement(query);
+  boolean isresult=stmt.execute();
+  ResultSet rs;
+  Iterator<String> iter=strs.iterator();
+  do {
+    rs=stmt.getResultSet();
+    String ph=iter.next();
+    if (rs.next()) {
+      counts.add(new Pair(ph,rs.getLong("count")));
+    }
+ else     counts.add(new Pair(ph,(long)-1));
+    isresult=stmt.getMoreResults();
+  }
+ while (isresult);
+  assert(counts.size() == strs.size());
+  return counts;
+}

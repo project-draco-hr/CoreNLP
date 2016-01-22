@@ -1,0 +1,14 @@
+{
+  String s="";
+  Field[] fields=o.getClass().getDeclaredFields();
+  for (  Field field : fields) {
+    try {
+      field.setAccessible(true);
+      s+=field.getName() + " = " + field.get(o)+ "\n";
+    }
+ catch (    Exception e) {
+      throw new RuntimeException("Error getting field value for " + field.getName(),e);
+    }
+  }
+  return s;
+}

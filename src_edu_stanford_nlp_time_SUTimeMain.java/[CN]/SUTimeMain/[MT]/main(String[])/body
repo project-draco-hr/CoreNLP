@@ -4,8 +4,9 @@
   String date=props.getProperty("date");
   String dct=props.getProperty("tempeval2.dct");
   String out=props.getProperty("o");
-  String inputTypeStr=props.getProperty("in.type",TIMEBANK_CSV.name());
+  String inputTypeStr=props.getProperty("in.type",InputType.TEXT.name());
   String eval=props.getProperty("eval");
+  PYTHON=props.getProperty("python",PYTHON);
   InputType inputType=InputType.valueOf(inputTypeStr);
   AnnotationPipeline pipeline;
 switch (inputType) {
@@ -26,6 +27,10 @@ case TEMPEVAL2:
 configLogger(out);
 pipeline=getPipeline(props,false);
 processTempEval2(pipeline,in,out,eval,dct);
+break;
+case TEMPEVAL3:
+pipeline=getPipeline(props,true);
+processTempEval3(pipeline,in,out,eval);
 break;
 }
 }

@@ -1,0 +1,24 @@
+{
+  SemanticGraph gr=SemanticGraph.valueOf("[ate subj>Bill dobj>[muffins compound>blueberry]]");
+  verifyTopologicalSort(gr);
+  List<IndexedWord> vertices=gr.vertexListSorted();
+  gr.addEdge(vertices.get(1),vertices.get(2),UniversalEnglishGrammaticalRelations.DIRECT_OBJECT,1.0,false);
+  verifyTopologicalSort(gr);
+  gr=SemanticGraph.valueOf("[ate subj>Bill dobj>[muffins compound>blueberry]]");
+  vertices=gr.vertexListSorted();
+  gr.addEdge(vertices.get(2),vertices.get(1),UniversalEnglishGrammaticalRelations.DIRECT_OBJECT,1.0,false);
+  verifyTopologicalSort(gr);
+  gr=SemanticGraph.valueOf("[ate subj>Bill dobj>[muffins compound>blueberry]]");
+  vertices=gr.vertexListSorted();
+  gr.addEdge(vertices.get(1),vertices.get(3),UniversalEnglishGrammaticalRelations.DIRECT_OBJECT,1.0,false);
+  verifyTopologicalSort(gr);
+  gr=SemanticGraph.valueOf("[ate subj>Bill dobj>[muffins compound>blueberry]]");
+  vertices=gr.vertexListSorted();
+  gr.addEdge(vertices.get(3),vertices.get(0),UniversalEnglishGrammaticalRelations.DIRECT_OBJECT,1.0,false);
+  try {
+    verifyTopologicalSort(gr);
+    throw new RuntimeException("Expected to fail");
+  }
+ catch (  IllegalStateException e) {
+  }
+}

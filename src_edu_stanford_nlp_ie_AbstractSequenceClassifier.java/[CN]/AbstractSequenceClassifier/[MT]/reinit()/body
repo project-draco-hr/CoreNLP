@@ -1,12 +1,20 @@
 {
   pad.set(CoreAnnotations.AnswerAnnotation.class,flags.backgroundSymbol);
   pad.set(CoreAnnotations.GoldAnswerAnnotation.class,flags.backgroundSymbol);
-  featureFactory.init(flags);
+  for (  FeatureFactory featureFactory : featureFactories) {
+    featureFactory.init(flags);
+  }
   defaultReaderAndWriter=makeReaderAndWriter();
   if (flags.readerAndWriter != null && flags.readerAndWriter.equals(flags.plainTextDocumentReaderAndWriter)) {
     plainTextReaderAndWriter=defaultReaderAndWriter;
   }
  else {
     plainTextReaderAndWriter=makePlainTextReaderAndWriter();
+  }
+  if (knownLCWords == null || knownLCWords.isEmpty()) {
+    knownLCWords=new MaxSizeConcurrentHashSet<>(flags.maxAdditionalKnownLCWords);
+  }
+ else {
+    knownLCWords.setMaxSize(knownLCWords.size() + flags.maxAdditionalKnownLCWords);
   }
 }

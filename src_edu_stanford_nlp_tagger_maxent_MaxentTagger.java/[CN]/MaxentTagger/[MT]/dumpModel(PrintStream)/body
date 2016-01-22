@@ -1,14 +1,17 @@
 {
+  out.println("Features: template featureValue tag: lambda");
+  NumberFormat nf=new DecimalFormat(" 0.000000;-0.000000");
   for (int i=0; i < fAssociations.size(); ++i) {
     Map<String,int[]> fValueAssociations=fAssociations.get(i);
-    for (    Map.Entry<String,int[]> item : fValueAssociations.entrySet()) {
-      String featureValue=item.getKey();
-      int[] fTagAssociations=item.getValue();
+    List<String> features=Generics.newArrayList();
+    Collections.sort(features);
+    for (    String featureValue : features) {
+      int[] fTagAssociations=fValueAssociations.get(featureValue);
       for (int j=0; j < fTagAssociations.length; ++j) {
         int association=fTagAssociations[j];
         if (association >= 0) {
           FeatureKey fk=new FeatureKey(i,featureValue,tags.getTag(j));
-          out.println(fk + ": " + association);
+          out.println((fk.num < extractors.size() ? extractors.get(fk.num) : extractorsRare.get(fk.num - extractors.size())) + " " + fk.val+ " "+ fk.tag+ ": "+ nf.format(getLambdaSolve().lambda[association]));
         }
       }
     }

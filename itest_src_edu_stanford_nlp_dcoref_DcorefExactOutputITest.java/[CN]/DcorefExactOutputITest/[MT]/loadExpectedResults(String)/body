@@ -1,0 +1,30 @@
+{
+  Map<Integer,List<ExpectedMention>> results=Generics.newHashMap();
+  int id=-1;
+  List<String> mentionLines=new ArrayList<String>();
+  for (  String line : IOUtils.readLines(filename)) {
+    if (line.trim().isEmpty()) {
+      if (mentionLines.isEmpty()) {
+        if (id != -1) {
+          throw new RuntimeException("Found coref chain without any mentions, id " + id);
+        }
+        continue;
+      }
+      List<ExpectedMention> mentions=new ArrayList<ExpectedMention>();
+      for (      String mentionLine : mentionLines) {
+        mentions.add(new ExpectedMention(mentionLine));
+      }
+      results.put(id,mentions);
+      id=-1;
+      mentionLines.clear();
+      continue;
+    }
+    if (id == -1) {
+      id=Integer.valueOf(line);
+    }
+ else {
+      mentionLines.add(line.trim());
+    }
+  }
+  return results;
+}

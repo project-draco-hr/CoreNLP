@@ -1,10 +1,10 @@
 {
   if (args.length != 4) {
-    System.err.println("Usage: MnistConverter dataFile labelFile outFile propsFile");
+    logger.info("Usage: MnistConverter dataFile labelFile outFile propsFile");
     return;
   }
-  DataInputStream xStream=new DataInputStream(new FileInputStream(args[0]));
-  DataInputStream yStream=new DataInputStream(new FileInputStream(args[1]));
+  DataInputStream xStream=IOUtils.getDataInputStream(args[0]);
+  DataInputStream yStream=IOUtils.getDataInputStream(args[1]);
   PrintWriter oStream=new PrintWriter(new FileWriter(args[2]));
   PrintWriter pStream=new PrintWriter(new FileWriter(args[3]));
   int xMagic=xStream.readInt();
@@ -14,7 +14,7 @@
   int xNumImages=xStream.readInt();
   int yNumLabels=yStream.readInt();
   if (xNumImages != yNumLabels)   throw new RuntimeException("x and y sizes don't match");
-  System.err.println("Images and label file both contain " + xNumImages + " entries.");
+  logger.info("Images and label file both contain " + xNumImages + " entries.");
   int xRows=xStream.readInt();
   int xColumns=xStream.readInt();
   for (int i=0; i < xNumImages; i++) {
@@ -30,7 +30,7 @@
     }
     oStream.println();
   }
-  System.err.println("Converted.");
+  logger.info("Converted.");
   xStream.close();
   yStream.close();
   oStream.close();

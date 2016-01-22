@@ -1,0 +1,30 @@
+{
+  boolean agent=false;
+  String preposition=pc.dep().value().toLowerCase();
+  if (preposition.equals("by")) {
+    Set<TypedDependency> aux_pass_poss=map.get(topPrep.gov());
+    if (aux_pass_poss != null) {
+      for (      TypedDependency td_pass : aux_pass_poss) {
+        if (td_pass.reln() == AUX_PASSIVE_MODIFIER) {
+          agent=true;
+        }
+      }
+    }
+    if (!vmod.isEmpty() && vmod.contains(topPrep.gov())) {
+      agent=true;
+    }
+  }
+  GrammaticalRelation reln;
+  if (agent) {
+    reln=AGENT;
+  }
+ else {
+    if (pobj) {
+      reln=EnglishGrammaticalRelations.getPrep(preposition);
+    }
+ else {
+      reln=EnglishGrammaticalRelations.getPrepC(preposition);
+    }
+  }
+  return reln;
+}

@@ -1,6 +1,6 @@
 {
-  List<List<CoreLabel>> allWords=new ArrayList<List<CoreLabel>>();
-  List<Tree> allTrees=new ArrayList<Tree>();
+  List<List<CoreLabel>> allWords=new ArrayList<>();
+  List<Tree> allTrees=new ArrayList<>();
   CoNLL2011DocumentReader.Document conllDoc=reader.getNextDocument();
   if (conllDoc == null) {
     return null;
@@ -13,11 +13,15 @@
     }
  else {
       Tree tree=sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+      if (LEMMATIZE) {
+        treeLemmatizer.transformTree(tree);
+      }
       try {
-        SemanticGraph deps=SemanticGraphFactory.makeFromTree(tree,collapse,ccProcess,includeExtras,lemmatize,threadSafe);
-        SemanticGraph basicDeps=SemanticGraphFactory.makeFromTree(tree,!collapse,ccProcess,includeExtras,lemmatize,threadSafe);
+        SemanticGraph deps=SemanticGraphFactory.makeFromTree(tree,SemanticGraphFactory.Mode.COLLAPSED,includeExtras ? GrammaticalStructure.Extras.MAXIMAL : GrammaticalStructure.Extras.NONE,threadSafe,null,true);
+        SemanticGraph basicDeps=SemanticGraphFactory.makeFromTree(tree,SemanticGraphFactory.Mode.BASIC,includeExtras ? GrammaticalStructure.Extras.MAXIMAL : GrammaticalStructure.Extras.NONE,threadSafe,null,true);
         sentence.set(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class,basicDeps);
         sentence.set(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class,deps);
+        sentence.set(SemanticGraphCoreAnnotations.AlternativeDependenciesAnnotation.class,deps);
       }
  catch (      Exception e) {
         logger.log(Level.WARNING,"Exception caught during extraction of Stanford dependencies. Will ignore and continue...",e);

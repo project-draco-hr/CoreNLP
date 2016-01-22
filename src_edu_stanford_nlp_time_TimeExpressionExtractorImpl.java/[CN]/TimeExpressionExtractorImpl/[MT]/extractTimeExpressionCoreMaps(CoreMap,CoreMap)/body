@@ -1,0 +1,38 @@
+{
+  SUTime.TimeIndex timeIndex;
+  String docDate=null;
+  if (docAnnotation != null) {
+    timeIndex=docAnnotation.get(TimeExpression.TimeIndexAnnotation.class);
+    if (timeIndex == null) {
+      docAnnotation.set(TimeExpression.TimeIndexAnnotation.class,timeIndex=new SUTime.TimeIndex());
+    }
+    docDate=docAnnotation.get(CoreAnnotations.DocDateAnnotation.class);
+    if (docDate == null) {
+      Calendar cal=docAnnotation.get(CoreAnnotations.CalendarAnnotation.class);
+      if (cal == null) {
+        logger.log(Level.WARNING,"No document date specified");
+      }
+ else {
+        SimpleDateFormat dateFormat=new SimpleDateFormat("yyyy-MM-dd:hh:mm:ss");
+        docDate=dateFormat.format(cal.getTime());
+      }
+    }
+  }
+ else {
+    timeIndex=new SUTime.TimeIndex();
+  }
+  if ("".equals(docDate)) {
+    docDate=null;
+  }
+  if (timeIndex.docDate == null && docDate != null) {
+    try {
+      timeIndex.docDate=SUTime.parseDateTime(docDate,true);
+    }
+ catch (    Exception e) {
+      throw new RuntimeException("Could not parse date string: [" + docDate + "]",e);
+    }
+  }
+  String sectionDate=annotation.get(CoreAnnotations.SectionDateAnnotation.class);
+  String refDate=(sectionDate != null) ? sectionDate : docDate;
+  return extractTimeExpressionCoreMaps(annotation,refDate,timeIndex);
+}

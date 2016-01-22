@@ -1,0 +1,14 @@
+{
+  List<Mention> orderedAntecedents=new ArrayList<>();
+  if (antecedentSentence == m.sentNum) {
+    orderedAntecedents.addAll(orderedMentionsBySentence.get(m.sentNum).subList(0,mPosition));
+    if (dict.relativePronouns.contains(m.spanToString()))     Collections.reverse(orderedAntecedents);
+ else {
+      orderedAntecedents=sortMentionsByClause(orderedAntecedents,m);
+    }
+  }
+ else {
+    orderedAntecedents.addAll(orderedMentionsBySentence.get(antecedentSentence));
+  }
+  return orderedAntecedents;
+}

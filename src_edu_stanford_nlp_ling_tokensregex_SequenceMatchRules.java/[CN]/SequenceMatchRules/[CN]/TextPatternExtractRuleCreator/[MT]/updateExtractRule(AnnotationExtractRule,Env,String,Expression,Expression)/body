@@ -1,7 +1,13 @@
 {
-  final MatchedExpression.SingleAnnotationExtractor valueExtractor=createAnnotationExtractor(env,r);
+  final MatchedExpression.SingleAnnotationExtractor annotationExtractor=createAnnotationExtractor(env,r);
   Pattern pattern=env.getStringPattern(expr);
-  valueExtractor.valueExtractor=new CoreMapFunctionApplier<String,Value>(r.annotationField,new StringPatternExtractRule<Value>(pattern,new StringMatchResultExtractor(env,action,result)));
-  r.extractRule=new CoreMapExtractRule<String,MatchedExpression>(r.annotationField,new StringPatternExtractRule<MatchedExpression>(pattern,new StringMatchedExpressionExtractor(valueExtractor,r.matchedExpressionGroup)));
-  r.filterRule=new AnnotationMatchedFilter(valueExtractor);
+  StringMatchResultExtractor valueExtractor=new StringMatchResultExtractor(env,action,result);
+  StringPatternExtractRule<Value> valueExtractRule=new StringPatternExtractRule<>(pattern,valueExtractor);
+  StringMatchedExpressionExtractor exprExtractor=new StringMatchedExpressionExtractor(annotationExtractor,r.matchedExpressionGroup);
+  StringPatternExtractRule<MatchedExpression> exprExtractRule=new StringPatternExtractRule<>(pattern,exprExtractor);
+  annotationExtractor.valueExtractor=new CoreMapFunctionApplier<>(env,r.annotationField,valueExtractRule);
+  r.extractRule=new CoreMapExtractRule<>(env,r.annotationField,exprExtractRule);
+  r.filterRule=new AnnotationMatchedFilter(annotationExtractor);
+  r.pattern=pattern;
+  r.result=result;
 }

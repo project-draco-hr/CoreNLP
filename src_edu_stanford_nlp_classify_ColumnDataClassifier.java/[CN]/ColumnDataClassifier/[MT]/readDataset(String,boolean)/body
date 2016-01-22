@@ -1,10 +1,12 @@
 {
+  Timing tim=new Timing();
+  logger.info("Reading dataset from " + filename + " ... ");
   GeneralDataset<String,String> dataset;
   List<String[]> lineInfos=null;
   if ((inTestPhase && Flags.testFromSVMLight) || (!inTestPhase && Flags.trainFromSVMLight)) {
     List<String> lines=null;
     if (inTestPhase) {
-      lines=new ArrayList<String>();
+      lines=new ArrayList<>();
     }
     if (globalFlags.usesRealValues) {
       dataset=RVFDataset.readSVMLightFormat(filename,lines);
@@ -19,30 +21,59 @@
  else {
     try {
       if (inTestPhase) {
-        lineInfos=new ArrayList<String[]>();
+        lineInfos=new ArrayList<>();
       }
       if (globalFlags.usesRealValues) {
-        dataset=new RVFDataset<String,String>();
+        dataset=new RVFDataset<>();
       }
  else {
-        dataset=new Dataset<String,String>();
+        dataset=new Dataset<>();
       }
       int lineNo=0;
+      int minColumns=Integer.MAX_VALUE;
+      int maxColumns=0;
       for (      String line : ObjectBank.getLineIterator(new File(filename),Flags.encoding)) {
         lineNo++;
+        if (Flags.inputFormat == InputFormat.HEADER) {
+          if (lineNo == 1) {
+            if (storedHeader == null) {
+              storedHeader=line;
+            }
+            continue;
+          }
+        }
+ else         if (Flags.inputFormat == InputFormat.COMMENTS) {
+          if (line.matches("\\s#.*")) {
+            continue;
+          }
+        }
+        String[] strings=splitLineToFields(line);
+        if (strings.length < 2) {
+          throw new RuntimeException("Line format error at line " + lineNo + ": "+ line);
+        }
+        if (strings.length < minColumns) {
+          minColumns=strings.length;
+        }
+        if (strings.length > maxColumns) {
+          maxColumns=strings.length;
+        }
         if (inTestPhase) {
-          String[] wi=makeSimpleLineInfo(line,lineNo);
-          lineInfos.add(wi);
+          lineInfos.add(strings);
         }
-        Datum<String,String> d=makeDatumFromLine(line,lineNo);
-        if (d != null) {
-          dataset.add(d);
+        if (strings.length < flags.length) {
+          throw new RuntimeException("Error: Line has too few tab-separated columns (" + maxColumns + ") for "+ flags.length+ " columns required by specified properties: "+ line);
         }
+        dataset.add(makeDatumFromStrings(strings));
+      }
+      if (lineNo > 0 && minColumns != maxColumns) {
+        logger.info("");
+        logger.info("WARNING: Number of tab-separated columns in " + filename + " varies between "+ minColumns+ " and "+ maxColumns);
       }
     }
  catch (    Exception e) {
-      throw new RuntimeException("Training dataset could not be processed",e);
+      throw new RuntimeException("Dataset could not be loaded",e);
     }
   }
-  return new Pair<GeneralDataset<String,String>,List<String[]>>(dataset,lineInfos);
+  logger.info("done [" + tim.toSecondsString() + "s, "+ dataset.size()+ " items].");
+  return new Pair<>(dataset,lineInfos);
 }

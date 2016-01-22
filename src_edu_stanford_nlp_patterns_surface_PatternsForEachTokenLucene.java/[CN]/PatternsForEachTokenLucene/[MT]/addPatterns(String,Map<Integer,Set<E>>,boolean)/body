@@ -1,0 +1,15 @@
+{
+  try {
+    setIndexWriter();
+    Document doc=new Document();
+    doc.add(new StringField("sentid",id,Field.Store.YES));
+    doc.add(new Field("patterns",getBytes(p),LuceneFieldType.NOT_INDEXED));
+    indexWriter.addDocument(doc);
+    if (commit) {
+      indexWriter.commit();
+    }
+  }
+ catch (  IOException e) {
+    throw new RuntimeException(e);
+  }
+}

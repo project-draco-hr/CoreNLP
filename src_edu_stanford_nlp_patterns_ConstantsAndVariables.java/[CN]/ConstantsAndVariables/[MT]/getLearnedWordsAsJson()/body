@@ -1,0 +1,10 @@
+{
+  JsonObjectBuilder obj=Json.createObjectBuilder();
+  for (  String label : getLabels()) {
+    Counter<CandidatePhrase> learnedWords=getLearnedWords(label);
+    JsonArrayBuilder arr=Json.createArrayBuilder();
+    for (    CandidatePhrase k : learnedWords.keySet())     arr.add(k.getPhrase());
+    obj.add(label,arr);
+  }
+  return obj.build().toString();
+}

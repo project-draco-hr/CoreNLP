@@ -1,0 +1,27 @@
+{
+  logger.info("Extractor 0 annotating dataset.");
+  extractors[0].annotate(dataset);
+  List<Set<RelationMention>> allRelationMentions=new ArrayList<>();
+  for (  CoreMap sentence : dataset.get(CoreAnnotations.SentencesAnnotation.class)) {
+    List<RelationMention> relationMentions=sentence.get(MachineReadingAnnotations.RelationMentionsAnnotation.class);
+    Set<RelationMention> uniqueRelationMentions=new HashSet<>(relationMentions);
+    allRelationMentions.add(uniqueRelationMentions);
+  }
+  for (int extractorIndex=1; extractorIndex < extractors.length; extractorIndex++) {
+    logger.info("Extractor " + extractorIndex + " annotating dataset.");
+    Extractor extractor=extractors[extractorIndex];
+    extractor.annotate(dataset);
+    int sentenceIndex=0;
+    for (    CoreMap sentence : dataset.get(CoreAnnotations.SentencesAnnotation.class)) {
+      List<RelationMention> relationMentions=sentence.get(MachineReadingAnnotations.RelationMentionsAnnotation.class);
+      allRelationMentions.get(sentenceIndex).addAll(relationMentions);
+    }
+  }
+  int sentenceIndex=0;
+  for (  CoreMap sentence : dataset.get(CoreAnnotations.SentencesAnnotation.class)) {
+    Set<RelationMention> uniqueRelationMentions=allRelationMentions.get(sentenceIndex);
+    List<RelationMention> relationMentions=new ArrayList<>(uniqueRelationMentions);
+    sentence.set(MachineReadingAnnotations.RelationMentionsAnnotation.class,relationMentions);
+    sentenceIndex++;
+  }
+}

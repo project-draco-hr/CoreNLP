@@ -1,6 +1,6 @@
 {
   if (JodaTimeUtils.hasField(base,DateTimeFieldType.year()) && JodaTimeUtils.hasField(base,DateTimeFieldType.monthOfYear()) && JodaTimeUtils.hasField(base,DateTimeFieldType.dayOfWeek())) {
-    List<Temporal> list=new ArrayList<Temporal>();
+    List<Temporal> list=new ArrayList<>();
     Partial pt=new Partial();
     pt=JodaTimeUtils.setField(pt,DateTimeFieldType.year(),base.get(DateTimeFieldType.year()));
     pt=JodaTimeUtils.setField(pt,DateTimeFieldType.monthOfYear(),base.get(DateTimeFieldType.monthOfYear()));
@@ -13,10 +13,14 @@
         return null;
       }
     }
-    while (candidate.get(DateTimeFieldType.monthOfYear()) == base.get(DateTimeFieldType.monthOfYear())) {
-      list.add(new PartialTime(this,candidate));
-      pt=JodaTimeUtils.setField(pt,DateTimeFieldType.dayOfMonth(),pt.get(DateTimeFieldType.dayOfMonth()) + 7);
-      candidate=JodaTimeUtils.resolveDowToDay(base,pt);
+    try {
+      while (candidate.get(DateTimeFieldType.monthOfYear()) == base.get(DateTimeFieldType.monthOfYear())) {
+        list.add(new PartialTime(this,candidate));
+        pt=JodaTimeUtils.setField(pt,DateTimeFieldType.dayOfMonth(),pt.get(DateTimeFieldType.dayOfMonth()) + 7);
+        candidate=JodaTimeUtils.resolveDowToDay(base,pt);
+      }
+    }
+ catch (    IllegalFieldValueException ex) {
     }
     return list;
   }

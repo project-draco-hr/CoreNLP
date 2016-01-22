@@ -16,6 +16,11 @@
         p=new PartialTime(p,p2);
         unsupported=unsupported.withMonths(0);
       }
+      if (JodaTimeUtils.hasField(unsupported,DurationFieldType.months()) && unsupported.getMonths() % 6 == 0 && JodaTimeUtils.hasField(p.base,JodaTimeUtils.HalfYearOfYear)) {
+        Partial p2=p.base.withFieldAddWrapped(JodaTimeUtils.HalfYears,unsupported.getMonths() / 6);
+        p=new PartialTime(p,p2);
+        unsupported=unsupported.withMonths(0);
+      }
       if (JodaTimeUtils.hasField(unsupported,DurationFieldType.years()) && unsupported.getYears() % 10 == 0 && JodaTimeUtils.hasField(p.base,JodaTimeUtils.DecadeOfCentury)) {
         Partial p2=p.base.withFieldAddWrapped(JodaTimeUtils.Decades,unsupported.getYears() / 10);
         p=new PartialTime(p,p2);
@@ -25,11 +30,6 @@
         Partial p2=p.base.withField(DateTimeFieldType.centuryOfEra(),p.base.get(DateTimeFieldType.centuryOfEra()) + unsupported.getYears() / 100);
         p=new PartialTime(p,p2);
         unsupported=unsupported.withYears(0);
-      }
-      if (unsupported.getDays() > 0 && !JodaTimeUtils.hasField(p.base,DateTimeFieldType.dayOfYear()) && !JodaTimeUtils.hasField(p.base,DateTimeFieldType.dayOfMonth()) && !JodaTimeUtils.hasField(p.base,DateTimeFieldType.dayOfWeek()) && JodaTimeUtils.hasField(p.base,DateTimeFieldType.monthOfYear())) {
-        Partial p2=p.base.with(DateTimeFieldType.dayOfMonth(),unsupported.getDays());
-        p=new PartialTime(p,p2);
-        unsupported=unsupported.withDays(0);
       }
       if (!unsupported.equals(Period.ZERO)) {
         t=new RelativeTime(p,new DurationWithFields(unsupported));

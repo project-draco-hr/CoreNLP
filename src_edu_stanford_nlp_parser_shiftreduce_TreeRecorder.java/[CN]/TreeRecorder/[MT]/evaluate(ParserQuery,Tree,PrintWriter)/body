@@ -1,0 +1,22 @@
+{
+  if (!(query instanceof ShiftReduceParserQuery)) {
+    throw new IllegalArgumentException("This evaluator only works for the ShiftReduceParser");
+  }
+  ShiftReduceParserQuery srquery=(ShiftReduceParserQuery)query;
+  try {
+switch (mode) {
+case BINARIZED:
+      out.write(srquery.getBestBinarizedParse().toString());
+    break;
+case DEBINARIZED:
+  out.write(srquery.debinarized.toString());
+break;
+default :
+throw new IllegalArgumentException("Unknown mode " + mode);
+}
+out.newLine();
+}
+ catch (IOException e) {
+throw new RuntimeIOException(e);
+}
+}

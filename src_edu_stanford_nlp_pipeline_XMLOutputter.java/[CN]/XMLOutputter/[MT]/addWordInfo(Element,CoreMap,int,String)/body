@@ -15,6 +15,9 @@
   if (token.containsKey(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class)) {
     setSingleElement(wordInfo,"NormalizedNER",curNS,token.get(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class));
   }
+  if (token.containsKey(CoreAnnotations.SpeakerAnnotation.class)) {
+    setSingleElement(wordInfo,"Speaker",curNS,token.get(CoreAnnotations.SpeakerAnnotation.class));
+  }
   if (token.containsKey(TimeAnnotations.TimexAnnotation.class)) {
     Timex timex=token.get(TimeAnnotations.TimexAnnotation.class);
     Element timexElem=new Element("Timex",curNS);
@@ -31,6 +34,11 @@
   if (token.containsKey(CoreAnnotations.TrueCaseTextAnnotation.class)) {
     Element cur=new Element("TrueCaseText",curNS);
     cur.appendChild(token.get(CoreAnnotations.TrueCaseTextAnnotation.class));
+    wordInfo.appendChild(cur);
+  }
+  if (token.containsKey(SentimentCoreAnnotations.SentimentClass.class)) {
+    Element cur=new Element("sentiment",curNS);
+    cur.appendChild(token.get(SentimentCoreAnnotations.SentimentClass.class));
     wordInfo.appendChild(cur);
   }
 }

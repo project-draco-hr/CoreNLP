@@ -11,13 +11,13 @@
       }
       searchStack=Generics.newArrayList();
       for (int i=0; i <= endDepth; ++i) {
-        searchStack.add(new Stack<Pair<GrammaticalRelation,IndexedWord>>());
+        searchStack.add(new Stack<>());
       }
-      seenNodes=new ArrayList<Set<IndexedWord>>();
+      seenNodes=new ArrayList<>();
       for (int i=0; i <= endDepth; ++i) {
-        seenNodes.add(Generics.<IndexedWord>newHashSet());
+        seenNodes.add(Generics.<IndexedWord>newIdentityHashSet());
       }
-      returnedNodes=Generics.newHashSet();
+      returnedNodes=Generics.newIdentityHashSet();
       currentDepth=1;
       List<Pair<GrammaticalRelation,IndexedWord>> children=sg.childPairs(node);
       for (int i=children.size() - 1; i >= 0; i--) {
@@ -56,7 +56,7 @@
           for (int i=children.size() - 1; i >= 0; i--) {
             if (nextSeen != null && !nextSeen.contains(children.get(i).second()))             nextStack.push(children.get(i));
           }
-          if (currentDepth >= startDepth && nextPair.first().toString().matches(type) && !returnedNodes.contains(nextPair.second())) {
+          if (currentDepth >= startDepth && type.test(nextPair.first().toString()) && !returnedNodes.contains(nextPair.second())) {
             next=nextPair.second();
             relation=nextPair.first().toString();
             returnedNodes.add(nextPair.second());

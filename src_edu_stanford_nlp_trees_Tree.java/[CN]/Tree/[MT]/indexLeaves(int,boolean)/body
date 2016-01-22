@@ -1,14 +1,16 @@
 {
   if (isLeaf()) {
-    CoreLabel afl=(CoreLabel)label();
-    Integer oldIndex=afl.get(CoreAnnotations.IndexAnnotation.class);
-    if (!overWrite && oldIndex != null && oldIndex >= 0) {
-      startIndex=oldIndex;
-    }
+    if (label() instanceof HasIndex) {
+      HasIndex hi=(HasIndex)label();
+      int oldIndex=hi.index();
+      if (!overWrite && oldIndex >= 0) {
+        startIndex=oldIndex;
+      }
  else {
-      afl.set(CoreAnnotations.IndexAnnotation.class,startIndex);
+        hi.setIndex(startIndex);
+      }
+      startIndex++;
     }
-    startIndex++;
   }
  else {
     for (    Tree kid : children()) {

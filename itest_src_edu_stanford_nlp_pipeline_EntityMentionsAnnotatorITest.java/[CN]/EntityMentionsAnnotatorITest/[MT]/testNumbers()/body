@@ -1,0 +1,8 @@
+{
+  Annotation doc=createDocument("one two three four five");
+  EntityMentionsAnnotator annotator=getMentionsAnnotator();
+  annotator.annotate(doc);
+  List<CoreMap> mentions=doc.get(CoreAnnotations.MentionsAnnotation.class);
+  String[] expectedMentions={"[Text=one CharacterOffsetBegin=0 CharacterOffsetEnd=3 Tokens=[one-1] TokenBegin=0 TokenEnd=1 NamedEntityTag=NUMBER NormalizedNamedEntityTag=1.0 EntityType=NUMBER SentenceIndex=0]","[Text=two CharacterOffsetBegin=4 CharacterOffsetEnd=7 Tokens=[two-2] TokenBegin=1 TokenEnd=2 NamedEntityTag=NUMBER NormalizedNamedEntityTag=2.0 EntityType=NUMBER SentenceIndex=0]","[Text=three CharacterOffsetBegin=8 CharacterOffsetEnd=13 Tokens=[three-3] TokenBegin=2 TokenEnd=3 NamedEntityTag=NUMBER NormalizedNamedEntityTag=3.0 EntityType=NUMBER SentenceIndex=0]","[Text=four CharacterOffsetBegin=14 CharacterOffsetEnd=18 Tokens=[four-4] TokenBegin=3 TokenEnd=4 NamedEntityTag=NUMBER NormalizedNamedEntityTag=4.0 EntityType=NUMBER SentenceIndex=0]","[Text=five CharacterOffsetBegin=19 CharacterOffsetEnd=23 Tokens=[five-5] TokenBegin=4 TokenEnd=5 NamedEntityTag=NUMBER NormalizedNamedEntityTag=5.0 EntityType=NUMBER SentenceIndex=0]"};
+  compareMentions("testNumbers",expectedMentions,mentions);
+}

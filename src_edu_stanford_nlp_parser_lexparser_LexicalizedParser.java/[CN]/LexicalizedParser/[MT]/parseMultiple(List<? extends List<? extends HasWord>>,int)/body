@@ -1,14 +1,14 @@
 {
-  MulticoreWrapper<List<? extends HasWord>,Tree> wrapper=new MulticoreWrapper<List<? extends HasWord>,Tree>(nthreads,new ThreadsafeProcessor<List<? extends HasWord>,Tree>(){
-    public Tree process(    List<? extends HasWord> sentence){
+  MulticoreWrapper<List<? extends HasWord>,Tree> wrapper=new MulticoreWrapper<>(nthreads,new ThreadsafeProcessor<List<? extends HasWord>,Tree>(){
+    @Override public Tree process(    List<? extends HasWord> sentence){
       return parse(sentence);
     }
-    public ThreadsafeProcessor<List<? extends HasWord>,Tree> newInstance(){
+    @Override public ThreadsafeProcessor<List<? extends HasWord>,Tree> newInstance(){
       return this;
     }
   }
 );
-  List<Tree> trees=new ArrayList<Tree>();
+  List<Tree> trees=new ArrayList<>();
   for (  List<? extends HasWord> sentence : sentences) {
     wrapper.put(sentence);
     while (wrapper.peek()) {

@@ -1,0 +1,27 @@
+{
+  for (int si=0; si < sentences.length; si++) {
+    String sentence=sentences[si];
+    Annotation annotation=createDocument(sentence);
+    List<MatchedExpression> matchedExpressions=extractor.extract(annotation);
+    if (expected == null) {
+      for (int i=0; i < matchedExpressions.size(); i++) {
+        String text=matchedExpressions.get(i).getText();
+        Object value=matchedExpressions.get(i).getValue();
+        System.out.println(prefix + ": Got expression " + text+ " with value "+ value);
+      }
+      assertTrue(prefix + ": No expected provided",false);
+    }
+ else {
+      int minMatchable=Math.min(expected[si].length,matchedExpressions.size());
+      for (int i=0; i < minMatchable; i++) {
+        ExpectedQuantity expectedQuantity=expected[si][i];
+        MatchedExpression matched=matchedExpressions.get(i);
+        SimpleQuantifiableEntity actualQuantity=(SimpleQuantifiableEntity)matched.getValue().get();
+        assertEquals(prefix + ".matched." + si+ "."+ i+ ".text",expectedQuantity.text,matched.getText());
+        assertEquals(prefix + ".matched." + si+ "."+ i+ ".normalizedValue",expectedQuantity.normalizedValue,actualQuantity.toString());
+        assertEquals(prefix + ".matched." + si+ "."+ i+ ".type",expectedQuantity.type,actualQuantity.getUnit().type);
+      }
+      assertEquals(prefix + ".length." + si,expected[si].length,matchedExpressions.size());
+    }
+  }
+}

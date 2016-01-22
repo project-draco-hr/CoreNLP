@@ -1,0 +1,51 @@
+{
+  if (tree.isLeaf()) {
+  }
+ else   if (tree.isPreTerminal()) {
+    transitions.add(new ShiftTransition());
+  }
+ else   if (tree.children().length == 1) {
+    boolean isRoot=rootOnlyStates.contains(tree.label().value());
+    if (compoundUnary) {
+      List<String> labels=Generics.newArrayList();
+      while (tree.children().length == 1 && !tree.isPreTerminal()) {
+        labels.add(tree.label().value());
+        tree=tree.children()[0];
+      }
+      createTransitionSequenceHelper(transitions,tree,compoundUnary,rootOnlyStates);
+      transitions.add(new CompoundUnaryTransition(labels,isRoot));
+    }
+ else {
+      createTransitionSequenceHelper(transitions,tree.children()[0],compoundUnary,rootOnlyStates);
+      transitions.add(new UnaryTransition(tree.label().value(),isRoot));
+    }
+  }
+ else   if (tree.children().length == 2) {
+    createTransitionSequenceHelper(transitions,tree.children()[0],compoundUnary,rootOnlyStates);
+    createTransitionSequenceHelper(transitions,tree.children()[1],compoundUnary,rootOnlyStates);
+    if (!(tree.label() instanceof CoreLabel) || !(tree.children()[0].label() instanceof CoreLabel) || !(tree.children()[1].label() instanceof CoreLabel)) {
+      throw new IllegalArgumentException("Expected tree labels to be CoreLabel");
+    }
+    CoreLabel label=(CoreLabel)tree.label();
+    CoreLabel leftLabel=(CoreLabel)tree.children()[0].label();
+    CoreLabel rightLabel=(CoreLabel)tree.children()[1].label();
+    CoreLabel head=label.get(TreeCoreAnnotations.HeadWordLabelAnnotation.class);
+    CoreLabel leftHead=leftLabel.get(TreeCoreAnnotations.HeadWordLabelAnnotation.class);
+    CoreLabel rightHead=rightLabel.get(TreeCoreAnnotations.HeadWordLabelAnnotation.class);
+    if (head == null || leftHead == null || rightHead == null) {
+      throw new IllegalArgumentException("Expected tree labels to have their heads assigned");
+    }
+    if (head == leftHead) {
+      transitions.add(new BinaryTransition(tree.label().value(),BinaryTransition.Side.LEFT));
+    }
+ else     if (head == rightHead) {
+      transitions.add(new BinaryTransition(tree.label().value(),BinaryTransition.Side.RIGHT));
+    }
+ else {
+      throw new IllegalArgumentException("Heads were incorrectly assigned: tree's head is not matched to either the right or left head");
+    }
+  }
+ else {
+    throw new IllegalArgumentException("Expected a binarized tree");
+  }
+}

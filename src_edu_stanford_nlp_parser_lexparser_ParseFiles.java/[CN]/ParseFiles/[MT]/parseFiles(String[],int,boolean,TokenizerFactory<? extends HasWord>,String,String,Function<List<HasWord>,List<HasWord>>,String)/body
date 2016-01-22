@@ -10,7 +10,7 @@
     final DocumentPreprocessor documentPreprocessor;
     if (filename.equals("-")) {
       try {
-        documentPreprocessor=new DocumentPreprocessor(new BufferedReader(new InputStreamReader(System.in,op.tlpParams.getInputEncoding())),docType);
+        documentPreprocessor=new DocumentPreprocessor(IOUtils.readerFromStdin(op.tlpParams.getInputEncoding()),docType);
       }
  catch (      IOException e) {
         throw new RuntimeIOException(e);
@@ -30,7 +30,7 @@
     if (op.testOptions.writeOutputFiles) {
       String normalizedName=filename;
       try {
-        URL url=new URL(normalizedName);
+        new URL(normalizedName);
         normalizedName=normalizedName.replaceAll("/","_");
       }
  catch (      MalformedURLException e) {
@@ -39,7 +39,7 @@
       String fname=normalizedName + '.' + ext;
       if (op.testOptions.outputFilesDirectory != null && !op.testOptions.outputFilesDirectory.equals("")) {
         String fseparator=System.getProperty("file.separator");
-        if (fseparator == null || "".equals(fseparator)) {
+        if (fseparator == null || fseparator.isEmpty()) {
           fseparator="/";
         }
         File fnameFile=new File(fname);
@@ -57,7 +57,7 @@
     int num=0;
     int numProcessed=0;
     if (op.testOptions.testingThreads != 1) {
-      MulticoreWrapper<List<? extends HasWord>,ParserQuery> wrapper=new MulticoreWrapper<List<? extends HasWord>,ParserQuery>(op.testOptions.testingThreads,new ParsingThreadsafeProcessor(pqFactory,pwErr));
+      MulticoreWrapper<List<? extends HasWord>,ParserQuery> wrapper=new MulticoreWrapper<>(op.testOptions.testingThreads,new ParsingThreadsafeProcessor(pqFactory,pwErr));
       for (      List<HasWord> sentence : documentPreprocessor) {
         num++;
         numSents++;

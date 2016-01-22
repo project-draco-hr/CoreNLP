@@ -1,0 +1,11 @@
+{
+  if (existingTablenames == null) {
+    existingTablenames=new HashSet<>();
+    DatabaseMetaData md=connection.getMetaData();
+    ResultSet rs=md.getTables(null,null,"%",null);
+    while (rs.next()) {
+      existingTablenames.add(rs.getString(3).toLowerCase());
+    }
+  }
+  return (existingTablenames.contains(tablename.toLowerCase()));
+}

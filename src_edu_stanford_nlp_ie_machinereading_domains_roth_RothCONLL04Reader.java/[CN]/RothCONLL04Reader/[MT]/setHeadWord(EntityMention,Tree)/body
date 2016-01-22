@@ -1,0 +1,33 @@
+{
+  List<Tree> leaves=tree.getLeaves();
+  Tree argRoot=tree.joinNode(leaves.get(entity.getExtentTokenStart()),leaves.get(entity.getExtentTokenEnd()));
+  Tree headWordNode=argRoot.headTerminal(headFinder);
+  int headWordIndex=getIndexByObjectEquality(leaves,headWordNode);
+  if (StringUtils.isPunct(leaves.get(entity.getExtentTokenEnd()).label().value().trim()) && (headWordIndex >= entity.getExtentTokenEnd() || headWordIndex < entity.getExtentTokenStart())) {
+    argRoot=tree.joinNode(leaves.get(entity.getExtentTokenStart()),leaves.get(entity.getExtentTokenEnd() - 1));
+    headWordNode=argRoot.headTerminal(headFinder);
+    headWordIndex=getIndexByObjectEquality(leaves,headWordNode);
+    if (headWordIndex >= entity.getExtentTokenStart() && headWordIndex <= entity.getExtentTokenEnd() - 1) {
+      entity.setHeadTokenPosition(headWordIndex);
+      entity.setHeadTokenSpan(new Span(headWordIndex,headWordIndex + 1));
+    }
+  }
+  if (headWordIndex >= entity.getExtentTokenStart() && headWordIndex <= entity.getExtentTokenEnd()) {
+    entity.setHeadTokenPosition(headWordIndex);
+    entity.setHeadTokenSpan(new Span(headWordIndex,headWordIndex + 1));
+  }
+ else {
+    List<String> argWords=new ArrayList<>();
+    for (int i=entity.getExtentTokenStart(); i <= entity.getExtentTokenEnd(); i++) {
+      argWords.add(leaves.get(i).label().value());
+    }
+    if (StringUtils.isPunct(argWords.get(argWords.size() - 1))) {
+      argWords.remove(argWords.size() - 1);
+    }
+    Tree argTree=parseStrings(argWords);
+    headWordNode=argTree.headTerminal(headFinder);
+    headWordIndex=getIndexByObjectEquality(argTree.getLeaves(),headWordNode) + entity.getExtentTokenStart();
+    entity.setHeadTokenPosition(headWordIndex);
+    entity.setHeadTokenSpan(new Span(headWordIndex,headWordIndex + 1));
+  }
+}

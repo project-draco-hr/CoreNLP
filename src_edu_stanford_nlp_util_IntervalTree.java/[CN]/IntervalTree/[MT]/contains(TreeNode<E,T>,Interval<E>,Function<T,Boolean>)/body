@@ -1,0 +1,22 @@
+{
+  Stack<TreeNode<E,T>> todo=new Stack<>();
+  todo.push(node);
+  while (!todo.isEmpty()) {
+    TreeNode<E,T> n=todo.pop();
+    if (n == null || n.isEmpty())     continue;
+    if (target.first.compareTo(n.maxEnd) > 0) {
+      continue;
+    }
+    if (containsTargetFunction.apply(n.value))     return true;
+    if (n.left != null) {
+      todo.push(n.left);
+    }
+    if (target.second.compareTo(n.value.getInterval().first()) <= 0) {
+      continue;
+    }
+    if (n.right != null) {
+      todo.push(n.right);
+    }
+  }
+  return false;
+}

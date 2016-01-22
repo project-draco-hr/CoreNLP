@@ -1,26 +1,19 @@
 {
-  double prob=0.0;
-  double[][] weights=to2D(x,xscale);
-  if (eHat4Update == null) {
-    eHat4Update=empty2D();
-    e4Update=new double[eHat4Update.length][];
-    for (int i=0; i < e4Update.length; i++)     e4Update[i]=new double[eHat4Update[i].length];
+  to2D(x,xScale,weights);
+  setWeights(weights);
+  List<Integer> docIDs=new ArrayList<>(batch.length);
+  for (  int item : batch) {
+    docIDs.add(item);
   }
- else {
-    clearUpdateEs();
-  }
-  for (  int ind : batch) {
-    empiricalCountsForADoc(eHat4Update,ind);
-    prob+=expectedCountsAndValueForADoc(weights,e4Update,ind);
-  }
+  double prob=multiThreadGradient(docIDs,true);
   if (Double.isNaN(prob)) {
     throw new RuntimeException("Got NaN for prob in CRFLogConditionalObjectiveFunction.calculate()");
   }
   value=-prob;
   int index=0;
-  for (int i=0; i < e4Update.length; i++) {
-    for (int j=0; j < e4Update[i].length; j++) {
-      x[index++]+=(eHat4Update[i][j] - e4Update[i][j]) * gscale;
+  for (int i=0; i < E.length; i++) {
+    for (int j=0; j < E[i].length; j++) {
+      x[index++]+=(Ehat[i][j] - E[i][j]) * gScale;
     }
   }
   return value;

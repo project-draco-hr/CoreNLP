@@ -1,0 +1,20 @@
+{
+  Tree[] kids=children();
+  List<Tree> l=new ArrayList<>();
+  for (  Tree kid : kids) {
+    l.addAll(kid.spliceOutHelper(nodeFilter,tf));
+  }
+  if (nodeFilter.test(this)) {
+    Tree t;
+    if (!l.isEmpty()) {
+      t=tf.newTreeNode(label(),l);
+    }
+ else {
+      t=tf.newLeaf(label());
+    }
+    l=new ArrayList<>(1);
+    l.add(t);
+    return l;
+  }
+  return l;
+}

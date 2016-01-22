@@ -1,0 +1,19 @@
+{
+  for (  TimeExpression te : timeExpressions) {
+    SUTime.Temporal t=te.getTemporal();
+    if (t instanceof SUTime.Time) {
+      if (t.isGrounded()) {
+        return t.getTime();
+      }
+ else       if (t instanceof SUTime.PartialTime) {
+        if (JodaTimeUtils.hasYYYYMMDD(t.getTime().getJodaTimePartial())) {
+          return t.getTime();
+        }
+ else         if (JodaTimeUtils.hasYYMMDD(t.getTime().getJodaTimePartial())) {
+          return t.getTime().resolve(SUTime.getCurrentTime()).getTime();
+        }
+      }
+    }
+  }
+  return null;
+}

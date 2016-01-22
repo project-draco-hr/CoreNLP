@@ -1,0 +1,14 @@
+{
+  TsurgeonPattern tsurgeon=Tsurgeon.parseOperation("adjoin (FOO (BAR@)) foo");
+  TregexPattern tregex=TregexPattern.compile("B=foo");
+  runTest(tregex,tsurgeon,"(A (B 1 2))","(A (FOO (BAR 1 2)))");
+  runTest(tregex,tsurgeon,"(A (C 1 2))","(A (C 1 2))");
+  runTest(tregex,tsurgeon,"(A (B (B 1 2)))","(A (FOO (BAR (FOO (BAR 1 2)))))");
+  Tree tree=treeFromString("(A (B 1 2))");
+  TregexMatcher matcher=tregex.matcher(tree);
+  assertTrue(matcher.find());
+  assertEquals("(B 1 2)",matcher.getNode("foo").toString());
+  Tree updated=tsurgeon.matcher().evaluate(tree,matcher);
+  assertEquals("(A (FOO (BAR 1 2)))",updated.toString());
+  assertFalse(matcher.find());
+}

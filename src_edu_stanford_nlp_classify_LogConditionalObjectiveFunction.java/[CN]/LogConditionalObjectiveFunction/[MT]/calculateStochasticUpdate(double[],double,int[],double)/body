@@ -1,47 +1,81 @@
 {
   value=0.0;
-  int batchSize=batch.length;
-  double[] sums=new double[numClasses];
-  double[] probs=new double[numClasses];
-  for (int d=0; d < batchSize; d++) {
-    int m=batch[d];
-    int[] features=data[m];
-    Arrays.fill(sums,0.0);
-    for (int c=0; c < numClasses; c++) {
-      for (int f=0; f < features.length; f++) {
-        int i=indexOf(features[f],c);
-        if (values != null) {
-          sums[c]+=x[i] * xscale * values[m][f];
-        }
+  if (parallelGradientCalculation && threads > 1) {
+    int examplesPerProcessor=50;
+    if (batch.length <= Runtime.getRuntime().availableProcessors() * examplesPerProcessor) {
+      System.err.println("\n\n***************");
+      System.err.println("CONFIGURATION ERROR: YOUR BATCH SIZE DOESN'T MEET PARALLEL MINIMUM SIZE FOR PERFORMANCE");
+      System.err.println("Batch size: " + batch.length);
+      System.err.println("CPUS: " + Runtime.getRuntime().availableProcessors());
+      System.err.println("Minimum batch size per CPU: " + examplesPerProcessor);
+      System.err.println("MINIMIM BATCH SIZE ON THIS MACHINE: " + (Runtime.getRuntime().availableProcessors() * examplesPerProcessor));
+      System.err.println("TURNING OFF PARALLEL GRADIENT COMPUTATION");
+      System.err.println("***************\n");
+      parallelGradientCalculation=false;
+    }
+  }
+  if (parallelGradientCalculation && threads > 1) {
+    @SuppressWarnings("unchecked") CLBatchDerivativeCalculation[] runnables=(CLBatchDerivativeCalculation[])Array.newInstance(CLBatchDerivativeCalculation.class,threads);
+    CountDownLatch latch=new CountDownLatch(threads);
+    for (int i=0; i < threads; i++) {
+      runnables[i]=new CLBatchDerivativeCalculation(threads,i,batch,x,x.length,latch);
+      new Thread(runnables[i]).start();
+    }
+    try {
+      latch.await();
+    }
+ catch (    InterruptedException e) {
+      e.printStackTrace();
+    }
+    for (int i=0; i < threads; i++) {
+      value+=runnables[i].localValue;
+      for (int j=0; j < x.length; j++) {
+        x[j]+=runnables[i].localDerivative[j] * xscale * gain;
+      }
+    }
+  }
  else {
-          sums[c]+=x[i] * xscale;
+    double[] sums=new double[numClasses];
+    double[] probs=new double[numClasses];
+    for (    int m : batch) {
+      int[] features=data[m];
+      Arrays.fill(sums,0.0);
+      for (int c=0; c < numClasses; c++) {
+        for (int f=0; f < features.length; f++) {
+          int i=indexOf(features[f],c);
+          if (values != null) {
+            sums[c]+=x[i] * xscale * values[m][f];
+          }
+ else {
+            sums[c]+=x[i] * xscale;
+          }
         }
       }
-    }
-    for (int f=0; f < features.length; f++) {
-      int i=indexOf(features[f],labels[m]);
-      double v=(values != null) ? values[m][f] : 1;
-      double delta=(dataweights != null) ? dataweights[m] * v : v;
-      x[i]+=delta * gain;
-    }
-    double total=ArrayMath.logSum(sums);
-    for (int c=0; c < numClasses; c++) {
-      probs[c]=Math.exp(sums[c] - total);
-      if (dataweights != null) {
-        probs[c]*=dataweights[m];
-      }
       for (int f=0; f < features.length; f++) {
-        int i=indexOf(features[f],c);
+        int i=indexOf(features[f],labels[m]);
         double v=(values != null) ? values[m][f] : 1;
-        double delta=probs[c] * v;
-        x[i]-=delta * gain;
+        double delta=(dataWeights != null) ? dataWeights[m] * v : v;
+        x[i]+=delta * gain;
       }
+      double total=ArrayMath.logSum(sums);
+      for (int c=0; c < numClasses; c++) {
+        probs[c]=Math.exp(sums[c] - total);
+        if (dataWeights != null) {
+          probs[c]*=dataWeights[m];
+        }
+        for (int f=0; f < features.length; f++) {
+          int i=indexOf(features[f],c);
+          double v=(values != null) ? values[m][f] : 1;
+          double delta=probs[c] * v;
+          x[i]-=delta * gain;
+        }
+      }
+      double dV=sums[labels[m]] - total;
+      if (dataWeights != null) {
+        dV*=dataWeights[m];
+      }
+      value-=dV;
     }
-    double dV=sums[labels[m]] - total;
-    if (dataweights != null) {
-      dV*=dataweights[m];
-    }
-    value-=dV;
   }
   return value;
 }

@@ -1,0 +1,16 @@
+{
+  if (expectedMentions == null) {
+    for (int i=0; i < mentions.size(); i++) {
+      String actual=mentions.get(i).toShorterString();
+      System.out.println(prefix + ": Got mention." + i+ " "+ actual);
+    }
+    assertTrue(prefix + ": No expected mentions provided",false);
+  }
+  int minMatchable=Math.min(expectedMentions.length,mentions.size());
+  for (int i=0; i < minMatchable; i++) {
+    String expected=expectedMentions[i];
+    String actual=mentions.get(i).toShorterString();
+    assertEquals(prefix + ".mention." + i,expected,actual);
+  }
+  assertEquals(prefix + ".length",mentions.size(),expectedMentions.length);
+}

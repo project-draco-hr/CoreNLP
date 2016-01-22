@@ -1,0 +1,70 @@
+{
+  List<PhraseMatch> matched=new ArrayList<>();
+  Stack<StackEntry> todoStack=new Stack<>();
+  todoStack.push(new StackEntry(rootTree,tokenStart,tokenStart,tokenEnd,findAll ? tokenStart + 1 : -1));
+  while (!todoStack.isEmpty()) {
+    StackEntry cur=todoStack.pop();
+    Map<String,Object> tree=cur.tree;
+    for (int i=cur.tokenNext; i <= cur.tokenEnd; i++) {
+      if (tree.containsKey(PHRASE_END)) {
+        Phrase phrase=(Phrase)tree.get(PHRASE_END);
+        if (acceptablePhrases == null || acceptablePhrases.contains(phrase)) {
+          int matchedTokenEnd=checkWordListMatch(phrase,tokens,cur.tokenStart,cur.tokenEnd,i,matchEnd);
+          if (matchedTokenEnd >= 0) {
+            matched.add(new PhraseMatch(phrase,cur.tokenStart,matchedTokenEnd));
+          }
+        }
+      }
+      if (i == cur.tokenEnd)       break;
+      String word=tokens.getWord(i);
+      Object node=tree.get(word);
+      if (node == null) {
+        break;
+      }
+ else       if (node instanceof Phrase) {
+        Phrase phrase=(Phrase)node;
+        if (acceptablePhrases == null || acceptablePhrases.contains(phrase)) {
+          int matchedTokenEnd=checkWordListMatch(phrase,tokens,cur.tokenStart,cur.tokenEnd,i + 1,matchEnd);
+          if (matchedTokenEnd >= 0) {
+            matched.add(new PhraseMatch(phrase,cur.tokenStart,matchedTokenEnd));
+          }
+        }
+        break;
+      }
+ else       if (node instanceof Map) {
+        tree=(Map<String,Object>)node;
+      }
+ else       if (node instanceof List) {
+        List lookupList=(List)node;
+        for (        Object obj : lookupList) {
+          if (obj instanceof Phrase) {
+            Phrase phrase=(Phrase)obj;
+            if (acceptablePhrases == null || acceptablePhrases.contains(phrase)) {
+              int matchedTokenEnd=checkWordListMatch(phrase,tokens,cur.tokenStart,cur.tokenEnd,i + 1,matchEnd);
+              if (matchedTokenEnd >= 0) {
+                matched.add(new PhraseMatch(phrase,cur.tokenStart,matchedTokenEnd));
+              }
+            }
+          }
+ else           if (obj instanceof Map) {
+            todoStack.push(new StackEntry((Map<String,Object>)obj,cur.tokenStart,i + 1,cur.tokenEnd,-1));
+          }
+ else {
+            throw new RuntimeException("Unexpected class in list " + obj.getClass() + " while looking up "+ word);
+          }
+        }
+        break;
+      }
+ else {
+        throw new RuntimeException("Unexpected class " + node.getClass() + " while looking up "+ word);
+      }
+    }
+    if (cur.continueAt >= 0) {
+      int newStart=(cur.continueAt > cur.tokenStart) ? cur.continueAt : cur.tokenStart + 1;
+      if (newStart < cur.tokenEnd) {
+        todoStack.push(new StackEntry(cur.tree,newStart,newStart,cur.tokenEnd,newStart + 1));
+      }
+    }
+  }
+  return matched;
+}

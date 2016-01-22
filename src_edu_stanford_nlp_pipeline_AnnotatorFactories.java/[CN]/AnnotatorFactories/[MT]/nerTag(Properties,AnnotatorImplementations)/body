@@ -1,0 +1,25 @@
+{
+  return new AnnotatorFactory(properties,annotatorImplementation){
+    private static final long serialVersionUID=1L;
+    @Override public Annotator create(){
+      try {
+        return annotatorImplementation.ner(properties);
+      }
+ catch (      IOException e) {
+        throw new RuntimeIOException(e);
+      }
+    }
+    @Override public String additionalSignature(){
+      boolean useSUTime=Boolean.parseBoolean(properties.getProperty(NumberSequenceClassifier.USE_SUTIME_PROPERTY,Boolean.toString(NumberSequenceClassifier.USE_SUTIME_DEFAULT)));
+      String nerSig="ner.model:" + properties.getProperty("ner.model","") + NERClassifierCombiner.APPLY_NUMERIC_CLASSIFIERS_PROPERTY+ ':'+ properties.getProperty(NERClassifierCombiner.APPLY_NUMERIC_CLASSIFIERS_PROPERTY,Boolean.toString(NERClassifierCombiner.APPLY_NUMERIC_CLASSIFIERS_DEFAULT))+ NumberSequenceClassifier.USE_SUTIME_PROPERTY+ ':'+ properties.getProperty(NumberSequenceClassifier.USE_SUTIME_PROPERTY,Boolean.toString(NumberSequenceClassifier.USE_SUTIME_DEFAULT));
+      if (useSUTime) {
+        String sutimeSig=PropertiesUtils.getSignature(NumberSequenceClassifier.SUTIME_PROPERTY,properties);
+        if (!sutimeSig.isEmpty()) {
+          nerSig=nerSig + sutimeSig;
+        }
+      }
+      return nerSig;
+    }
+  }
+;
+}

@@ -4,20 +4,12 @@
       probConds[x][y]=1.0 / probConds[x].length;
     }
   }
-  if (VERBOSE) {
-    System.err.println(" pcond initialized ");
-  }
   for (int x=0; x < p.data.xSize; x++) {
     zlambda[x]=probConds[x].length;
-  }
-  if (VERBOSE) {
-    System.err.println(" zlambda initialized ");
   }
   for (int i=0; i < p.fSize; i++) {
     ftildeArr[i]=p.functions.get(i).ftilde();
     p.functions.get(i).setSum();
-    if (ftildeArr[i] == 0) {
-    }
     if (smooth) {
       double alfa=.015;
       for (int j=0; j < p.fSize; j++) {
@@ -42,6 +34,6 @@
     }
   }
   if (VERBOSE) {
-    System.err.println(" ftildeArr initialized " + (fixedFnumXY ? "fixed sum " : ""));
+    System.err.println(" pcond, zlamda, ftildeArr " + (fixedFnumXY ? "(fixed sum) " : "") + "initialized ");
   }
 }

@@ -1,0 +1,22 @@
+{
+  CoreLabel l=(CoreLabel)tree.label();
+  if (l != null && l.has(CoreAnnotations.BeginIndexAnnotation.class) && l.has(CoreAnnotations.EndIndexAnnotation.class)) {
+    int myStart=l.get(CoreAnnotations.BeginIndexAnnotation.class);
+    int myEnd=l.get(CoreAnnotations.EndIndexAnnotation.class);
+    if (start == myStart && end == myEnd) {
+      return tree;
+    }
+ else     if (end < myStart) {
+      return null;
+    }
+ else     if (start >= myEnd) {
+      return null;
+    }
+  }
+  for (  Tree kid : tree.children()) {
+    if (kid == null)     continue;
+    Tree ret=findTreeWithSpan(kid,start,end);
+    if (ret != null)     return ret;
+  }
+  return null;
+}

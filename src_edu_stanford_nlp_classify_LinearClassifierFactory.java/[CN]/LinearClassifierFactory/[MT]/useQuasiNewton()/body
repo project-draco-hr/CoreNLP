@@ -1,7 +1,12 @@
 {
   this.minimizerCreator=new Factory<Minimizer<DiffFunction>>(){
-    public Minimizer<DiffFunction> create(){
-      return new QNMinimizer(LinearClassifierFactory.this.mem);
+    private static final long serialVersionUID=9028306475652690036L;
+    @Override public Minimizer<DiffFunction> create(){
+      QNMinimizer qnMinimizer=new QNMinimizer(LinearClassifierFactory.this.mem);
+      if (!verbose) {
+        qnMinimizer.shutUp();
+      }
+      return qnMinimizer;
     }
   }
 ;

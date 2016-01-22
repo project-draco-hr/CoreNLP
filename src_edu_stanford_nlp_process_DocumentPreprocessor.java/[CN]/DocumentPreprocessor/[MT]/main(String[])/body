@@ -1,61 +1,60 @@
 {
-  if (args.length < 1) {
-    System.err.println("usage: DocumentPreprocessor OPT* filename");
-    System.err.println("    OPT = -xml|-encoding ENC|-tokenizerOptions opts|-tag delim|...");
+  final Properties options=StringUtils.argsToProperties(args,argOptionDefs());
+  if (options.containsKey("help")) {
+    System.err.println(usage());
     return;
   }
-  String encoding="utf-8";
-  boolean printSentenceLengths=false;
-  DocType docType=DocType.Plain;
-  String xmlElementDelimiter=null;
-  TokenizerFactory<? extends HasWord> tf=PTBTokenizer.factory(new CoreLabelTokenFactory(),"");
-  String sentenceDelimiter=null;
-  String tagDelimiter=null;
-  boolean printOriginalText=false;
-  int i=0;
-  for (; i < args.length; i++) {
-    if (args[i].length() == 0 || !args[i].startsWith("-")) {
-      break;
-    }
-    if (args[i].equals("-xml")) {
-      docType=DocType.XML;
-      i++;
-      xmlElementDelimiter=args[i];
-    }
- else     if (args[i].equals("-encoding") && i + 1 < args.length) {
-      i++;
-      encoding=args[i];
-    }
- else     if (args[i].equals("-printSentenceLengths")) {
-      printSentenceLengths=true;
-    }
- else     if (args[i].equals("-suppressEscaping")) {
-      tf=PTBTokenizer.factory(new CoreLabelTokenFactory(),"ptb3Escaping=false");
-    }
- else     if (args[i].equals("-tokenizerOptions") && i + 1 < args.length) {
-      i++;
-      tf=PTBTokenizer.factory(new CoreLabelTokenFactory(),args[i]);
-    }
- else     if (args[i].equals("-noTokenization")) {
-      tf=null;
-      sentenceDelimiter=System.getProperty("line.separator");
-    }
- else     if (args[i].equals("-tag")) {
-      i++;
-      tagDelimiter=args[i];
-    }
- else     if (args[i].equals("-printOriginalText")) {
-      printOriginalText=true;
-      tf=PTBTokenizer.factory(new CoreLabelTokenFactory(),"invertible=true");
-    }
- else {
-      System.err.println("Unknown option: " + args[i]);
-    }
+  String encoding=options.getProperty("encoding","utf-8");
+  boolean printSentenceLengths=PropertiesUtils.getBool(options,"printSentenceLengths",false);
+  String xmlElementDelimiter=options.getProperty("xml",null);
+  DocType docType=xmlElementDelimiter == null ? DocType.Plain : DocType.XML;
+  String sentenceDelimiter=options.containsKey("noTokenization") ? System.getProperty("line.separator") : null;
+  String tagDelimiter=options.getProperty("tag",null);
+  String[] sentenceDelims=null;
+  int numFactoryFlags=0;
+  boolean suppressEscaping=options.containsKey("suppressEscaping");
+  if (suppressEscaping)   numFactoryFlags+=1;
+  boolean customTokenizer=options.containsKey("tokenizerOptions");
+  if (customTokenizer)   numFactoryFlags+=1;
+  boolean printOriginalText=options.containsKey("printOriginalText");
+  if (printOriginalText)   numFactoryFlags+=1;
+  boolean whitespaceTokenization=options.containsKey("whitespaceTokenization");
+  if (whitespaceTokenization)   numFactoryFlags+=1;
+  if (numFactoryFlags > 1) {
+    System.err.println("Only one tokenizer flag allowed at a time: ");
+    System.err.println("  -suppressEscaping, -tokenizerOptions, -printOriginalText, -whitespaceTokenization");
+    return;
   }
+  TokenizerFactory<? extends HasWord> tf=null;
+  if (suppressEscaping) {
+    tf=PTBTokenizer.factory(new CoreLabelTokenFactory(),"ptb3Escaping=false");
+  }
+ else   if (customTokenizer) {
+    tf=PTBTokenizer.factory(new CoreLabelTokenFactory(),options.getProperty("tokenizerOptions"));
+  }
+ else   if (printOriginalText) {
+    tf=PTBTokenizer.factory(new CoreLabelTokenFactory(),"invertible=true");
+  }
+ else   if (whitespaceTokenization) {
+    List<String> whitespaceDelims=new ArrayList<>(Arrays.asList(DocumentPreprocessor.DEFAULT_SENTENCE_DELIMS));
+    whitespaceDelims.add(WhitespaceLexer.NEWLINE);
+    sentenceDelims=whitespaceDelims.toArray(new String[whitespaceDelims.size()]);
+  }
+ else {
+    tf=PTBTokenizer.factory(new CoreLabelTokenFactory(),"");
+  }
+  String fileList=options.getProperty("",null);
+  String[] files=fileList == null ? new String[1] : fileList.split("\\s+");
   int numSents=0;
   PrintWriter pw=new PrintWriter(new OutputStreamWriter(System.out,encoding),true);
-  for (; i < args.length; i++) {
-    DocumentPreprocessor docPreprocessor=new DocumentPreprocessor(args[i],docType,encoding);
+  for (  String file : files) {
+    DocumentPreprocessor docPreprocessor;
+    if (file == null || file.isEmpty()) {
+      docPreprocessor=new DocumentPreprocessor(new InputStreamReader(System.in,encoding));
+    }
+ else {
+      docPreprocessor=new DocumentPreprocessor(file,docType,encoding);
+    }
     if (docType == DocType.XML) {
       docPreprocessor.setElementDelimiter(xmlElementDelimiter);
     }
@@ -64,12 +63,15 @@
       docPreprocessor.setSentenceDelimiter(sentenceDelimiter);
     }
     if (tagDelimiter != null) {
-      docPreprocessor.setTagDelimiter(args[++i]);
+      docPreprocessor.setTagDelimiter(tagDelimiter);
+    }
+    if (sentenceDelims != null) {
+      docPreprocessor.setSentenceFinalPuncWords(sentenceDelims);
     }
     for (    List<HasWord> sentence : docPreprocessor) {
       numSents++;
       if (printSentenceLengths) {
-        System.err.println("Length:\t" + sentence.size());
+        System.err.printf("Length: %d%n",sentence.size());
       }
       boolean printSpace=false;
       for (      HasWord word : sentence) {
@@ -92,5 +94,5 @@
     }
   }
   pw.close();
-  System.err.println("Read in " + numSents + " sentences.");
+  System.err.printf("Read in %d sentences.%n",numSents);
 }

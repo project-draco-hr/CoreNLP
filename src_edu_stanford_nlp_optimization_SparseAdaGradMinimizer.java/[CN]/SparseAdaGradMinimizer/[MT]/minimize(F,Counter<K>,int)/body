@@ -1,0 +1,46 @@
+{
+  sayln("       Batch size of: " + batchSize);
+  sayln("       Data dimension of: " + function.dataSize());
+  int numBatches=(function.dataSize() - 1) / this.batchSize + 1;
+  sayln("       Batches per pass through data:  " + numBatches);
+  sayln("       Number of passes is = " + numPasses);
+  sayln("       Max iterations is = " + maxIterations);
+  Counter<K> lastUpdated=new ClassicCounter<>();
+  int timeStep=0;
+  Timing total=new Timing();
+  total.start();
+  for (int iter=0; iter < numPasses; iter++) {
+    double totalObjValue=0;
+    for (int j=0; j < numBatches; j++) {
+      int[] selectedData=getSample(function,this.batchSize);
+      Counter<K> gradient=function.derivativeAt(x,selectedData);
+      totalObjValue=totalObjValue + function.valueAt(x,selectedData);
+      for (      K feature : gradient.keySet()) {
+        double gradf=gradient.getCount(feature);
+        double prevrate=eta / (Math.sqrt(sumGradSquare.getCount(feature)) + soften);
+        double sgsValue=sumGradSquare.incrementCount(feature,gradf * gradf);
+        double currentrate=eta / (Math.sqrt(sgsValue) + soften);
+        double testupdate=x.getCount(feature) - (currentrate * gradient.getCount(feature));
+        double lastUpdateTimeStep=lastUpdated.getCount(feature);
+        double idleinterval=timeStep - lastUpdateTimeStep - 1;
+        lastUpdated.setCount(feature,(double)timeStep);
+        double trunc=Math.max(0.0,(Math.abs(testupdate) - (currentrate + prevrate * idleinterval) * this.lambdaL1));
+        double trunc2=trunc * Math.pow(1 - this.lambdaL2,currentrate + prevrate * idleinterval);
+        double realupdate=Math.signum(testupdate) * trunc2;
+        if (realupdate < EPS) {
+          x.remove(feature);
+        }
+ else {
+          x.setCount(feature,realupdate);
+        }
+        timeStep++;
+        if (timeStep > maxIterations) {
+          sayln("Stochastic Optimization complete.  Stopped after max iterations");
+          break;
+        }
+        sayln(System.out.format("Iter %d \t batch: %d \t time=%.2f \t obj=%.4f",iter,timeStep,total.report() / 1000.0,totalObjValue).toString());
+      }
+    }
+  }
+  return x;
+}

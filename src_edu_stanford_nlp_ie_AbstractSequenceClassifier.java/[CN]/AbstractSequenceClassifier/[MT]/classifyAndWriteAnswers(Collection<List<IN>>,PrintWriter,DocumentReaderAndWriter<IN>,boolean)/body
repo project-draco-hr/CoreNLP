@@ -1,0 +1,61 @@
+{
+  if (flags.exportFeatures != null) {
+    dumpFeatures(documents);
+  }
+  Timing timer=new Timing();
+  Counter<String> entityTP=new ClassicCounter<>();
+  Counter<String> entityFP=new ClassicCounter<>();
+  Counter<String> entityFN=new ClassicCounter<>();
+  boolean resultsCounted=outputScores;
+  int numWords=0;
+  int numDocs=0;
+  final AtomicInteger threadCompletionCounter=new AtomicInteger(0);
+  ThreadsafeProcessor<List<IN>,List<IN>> threadProcessor=new ThreadsafeProcessor<List<IN>,List<IN>>(){
+    @Override public List<IN> process(    List<IN> doc){
+      doc=classify(doc);
+      int completedNo=threadCompletionCounter.incrementAndGet();
+      if (flags.verboseMode)       System.err.println(completedNo + " examples completed");
+      return doc;
+    }
+    @Override public ThreadsafeProcessor<List<IN>,List<IN>> newInstance(){
+      return this;
+    }
+  }
+;
+  MulticoreWrapper<List<IN>,List<IN>> wrapper=null;
+  if (flags.multiThreadClassifier != 0) {
+    wrapper=new MulticoreWrapper<>(flags.multiThreadClassifier,threadProcessor);
+  }
+  for (  List<IN> doc : documents) {
+    numWords+=doc.size();
+    numDocs++;
+    if (wrapper != null) {
+      wrapper.put(doc);
+      while (wrapper.peek()) {
+        List<IN> results=wrapper.poll();
+        writeAnswers(results,printWriter,readerWriter);
+        resultsCounted=resultsCounted && countResults(results,entityTP,entityFP,entityFN);
+      }
+    }
+ else {
+      List<IN> results=threadProcessor.process(doc);
+      writeAnswers(results,printWriter,readerWriter);
+      resultsCounted=resultsCounted && countResults(results,entityTP,entityFP,entityFN);
+    }
+  }
+  if (wrapper != null) {
+    wrapper.join();
+    while (wrapper.peek()) {
+      List<IN> results=wrapper.poll();
+      writeAnswers(results,printWriter,readerWriter);
+      resultsCounted=resultsCounted && countResults(results,entityTP,entityFP,entityFN);
+    }
+  }
+  long millis=timer.stop();
+  double wordspersec=numWords / (((double)millis) / 1000);
+  NumberFormat nf=new DecimalFormat("0.00");
+  System.err.println(StringUtils.getShortClassName(this) + " tagged " + numWords+ " words in "+ numDocs+ " documents at "+ nf.format(wordspersec)+ " words per second.");
+  if (resultsCounted) {
+    printResults(entityTP,entityFP,entityFN);
+  }
+}

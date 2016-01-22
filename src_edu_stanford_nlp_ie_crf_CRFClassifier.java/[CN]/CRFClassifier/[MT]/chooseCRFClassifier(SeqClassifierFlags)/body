@@ -1,0 +1,22 @@
+{
+  CRFClassifier<CoreLabel> crf;
+  if (flags.useFloat) {
+    crf=new CRFClassifierFloat<>(flags);
+  }
+ else   if (flags.nonLinearCRF) {
+    crf=new CRFClassifierNonlinear<>(flags);
+  }
+ else   if (flags.numLopExpert > 1) {
+    crf=new CRFClassifierWithLOP<>(flags);
+  }
+ else   if (flags.priorType.equals("DROPOUT")) {
+    crf=new CRFClassifierWithDropout<>(flags);
+  }
+ else   if (flags.useNoisyLabel) {
+    crf=new CRFClassifierNoisyLabel<>(flags);
+  }
+ else {
+    crf=new CRFClassifier<>(flags);
+  }
+  return crf;
+}

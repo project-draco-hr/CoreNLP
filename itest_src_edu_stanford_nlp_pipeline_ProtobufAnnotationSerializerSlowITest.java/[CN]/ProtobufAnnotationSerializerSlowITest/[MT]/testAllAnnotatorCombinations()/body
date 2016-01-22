@@ -1,0 +1,46 @@
+{
+  String[] possibleAnnotators=possibleAnnotators();
+  for (int i=1; i < (0x1 << (possibleAnnotators.length)); ++i) {
+    Set<String> annotatorsToConsider=new LinkedHashSet<>();
+    for (int k=0; k < possibleAnnotators.length; ++k) {
+      int mask=(0x1 << k);
+      if ((i & mask) != 0) {
+        annotatorsToConsider.add(possibleAnnotators[k]);
+      }
+    }
+    new StanfordCoreNLP();
+    List<String> annotators=new ArrayList<>();
+    Set<String> annotatorsAdded=new LinkedHashSet<>();
+    boolean wasChanged=true;
+    while (wasChanged) {
+      wasChanged=false;
+      Iterator<String> iter=annotatorsToConsider.iterator();
+      while (iter.hasNext()) {
+        String annotator=iter.next();
+        boolean valid=true;
+        try {
+          for (          Class<? extends CoreAnnotation> requirement : StanfordCoreNLP.getExistingAnnotator(annotator).requires()) {
+            if (!annotatorsAdded.contains(requirement.toString())) {
+              valid=false;
+            }
+          }
+        }
+ catch (        NullPointerException ignored) {
+        }
+        if (valid) {
+          annotators.add(annotator);
+          annotatorsAdded.add(annotator);
+          iter.remove();
+          wasChanged=true;
+        }
+      }
+    }
+    if (!annotatorsToConsider.isEmpty()) {
+      continue;
+    }
+    if (!annotators.contains("dcoref") && !annotators.contains("entitymentions")) {
+      System.err.println(">>TESTING " + StringUtils.join(annotators,","));
+      testAnnotators(StringUtils.join(annotators,","));
+    }
+  }
+}

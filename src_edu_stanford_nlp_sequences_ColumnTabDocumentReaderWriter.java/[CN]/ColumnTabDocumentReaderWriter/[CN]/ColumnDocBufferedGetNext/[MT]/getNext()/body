@@ -10,7 +10,7 @@
     List<IN> words=null;
     List<IntPair> boundaries=null;
     if (keepBoundaries) {
-      boundaries=new ArrayList<IntPair>();
+      boundaries=new ArrayList<>();
     }
     while ((line=br.readLine()) != null) {
       lineCnt++;
@@ -39,11 +39,17 @@
         }
  else {
           if (words == null) {
-            words=new ArrayList<IN>();
+            words=new ArrayList<>();
             docId=newDocId;
             itemCnt++;
           }
-          IN wi=tokenFactory.makeToken(map,info);
+          IN wi;
+          if (info.length == map.length) {
+            wi=tokenFactory.makeToken(map,info);
+          }
+ else {
+            wi=tokenFactory.makeToken(map,Arrays.asList(info).subList(0,map.length).toArray(new String[map.length]));
+          }
           words.add(wi);
         }
       }

@@ -1,0 +1,16 @@
+{
+  if (operatorsInNarrowingScopeOrder.isEmpty()) {
+    for (byte i=0; i < projectionFunction.length; ++i) {
+      projectionFunction[i]=i;
+    }
+  }
+ else {
+    for (int rel=0; rel < 7; ++rel) {
+      NaturalLogicRelation relation=NaturalLogicRelation.byFixedIndex(rel);
+      for (int op=operatorsInNarrowingScopeOrder.size() - 1; op >= 0; --op) {
+        relation=project(relation,operatorsInNarrowingScopeOrder.get(op).first,operatorsInNarrowingScopeOrder.get(op).second);
+      }
+      projectionFunction[rel]=(byte)relation.fixedIndex;
+    }
+  }
+}

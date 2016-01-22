@@ -3,7 +3,7 @@
   int maxIters=limit;
   int iters=0;
   while (!done) {
-    List<T> newExprs=new ArrayList<T>();
+    List<T> newExprs=new ArrayList<>();
     boolean extracted=compositeExtractRule.extract(merged,newExprs);
     if (extracted) {
       annotateExpressions(merged,newExprs);
@@ -22,10 +22,10 @@
     }
     done=!extracted;
     iters++;
-    if (iters >= maxIters) {
+    if (maxIters > 0 && iters >= maxIters) {
       logger.warning("Aborting application of composite rules: Maximum iteration " + maxIters + " reached");
       break;
     }
   }
-  return new Pair<List<? extends CoreMap>,List<T>>(merged,matchedExpressions);
+  return new Pair<>(merged,matchedExpressions);
 }

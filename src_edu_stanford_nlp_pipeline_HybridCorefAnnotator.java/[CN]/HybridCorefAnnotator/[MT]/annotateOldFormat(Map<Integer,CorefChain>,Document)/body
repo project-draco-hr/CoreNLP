@@ -1,0 +1,37 @@
+{
+  List<Pair<IntTuple,IntTuple>> links=getLinks(result);
+  Annotation annotation=corefDoc.annotation;
+  if (VERBOSE) {
+    System.err.printf("Found %d coreference links:%n",links.size());
+    for (    Pair<IntTuple,IntTuple> link : links) {
+      System.err.printf("LINK (%d, %d) -> (%d, %d)%n",link.first.get(0),link.first.get(1),link.second.get(0),link.second.get(1));
+    }
+  }
+  List<Pair<IntTuple,IntTuple>> graph=new ArrayList<>();
+  for (  Pair<IntTuple,IntTuple> link : links) {
+    int srcSent=link.first.get(0);
+    int srcTok=corefDoc.getOrderedMentions().get(srcSent - 1).get(link.first.get(1) - 1).headIndex + 1;
+    int dstSent=link.second.get(0);
+    int dstTok=corefDoc.getOrderedMentions().get(dstSent - 1).get(link.second.get(1) - 1).headIndex + 1;
+    IntTuple dst=new IntTuple(2);
+    dst.set(0,dstSent);
+    dst.set(1,dstTok);
+    IntTuple src=new IntTuple(2);
+    src.set(0,srcSent);
+    src.set(1,srcTok);
+    graph.add(new Pair<>(src,dst));
+  }
+  annotation.set(CorefCoreAnnotations.CorefGraphAnnotation.class,graph);
+  for (  CorefChain corefChain : result.values()) {
+    if (corefChain.getMentionsInTextualOrder().size() < 2)     continue;
+    Set<CoreLabel> coreferentTokens=Generics.newHashSet();
+    for (    CorefMention mention : corefChain.getMentionsInTextualOrder()) {
+      CoreMap sentence=annotation.get(CoreAnnotations.SentencesAnnotation.class).get(mention.sentNum - 1);
+      CoreLabel token=sentence.get(CoreAnnotations.TokensAnnotation.class).get(mention.headIndex - 1);
+      coreferentTokens.add(token);
+    }
+    for (    CoreLabel token : coreferentTokens) {
+      token.set(CorefCoreAnnotations.CorefClusterAnnotation.class,coreferentTokens);
+    }
+  }
+}

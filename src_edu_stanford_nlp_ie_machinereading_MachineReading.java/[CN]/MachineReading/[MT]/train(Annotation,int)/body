@@ -1,0 +1,125 @@
+{
+  if (MachineReadingProperties.extractEntities) {
+    MachineReadingProperties.logger.info("Training entity extraction model(s)");
+    if (partition != -1)     MachineReadingProperties.logger.info("In partition #" + partition);
+    String modelName=MachineReadingProperties.serializedEntityExtractorPath;
+    if (partition != -1)     modelName+="." + partition;
+    File modelFile=new File(modelName);
+    MachineReadingProperties.logger.fine("forceRetraining = " + this.forceRetraining + ", modelFile.exists = "+ modelFile.exists());
+    if (!this.forceRetraining && modelFile.exists()) {
+      MachineReadingProperties.logger.info("Loading entity extraction model from " + modelName + " ...");
+      entityExtractor=BasicEntityExtractor.load(modelName,MachineReadingProperties.entityClassifier,false);
+    }
+ else {
+      MachineReadingProperties.logger.info("Training entity extraction model...");
+      entityExtractor=makeEntityExtractor(MachineReadingProperties.entityClassifier,MachineReadingProperties.entityGazetteerPath);
+      entityExtractor.train(training);
+      MachineReadingProperties.logger.info("Serializing entity extraction model to " + modelName + " ...");
+      entityExtractor.save(modelName);
+    }
+  }
+  if (MachineReadingProperties.extractRelations) {
+    MachineReadingProperties.logger.info("Training relation extraction model(s)");
+    if (partition != -1)     MachineReadingProperties.logger.info("In partition #" + partition);
+    String modelName=MachineReadingProperties.serializedRelationExtractorPath;
+    if (partition != -1)     modelName+="." + partition;
+    Annotation predicted=null;
+    if (MachineReadingProperties.useRelationExtractionModelMerging) {
+      String[] modelNames=MachineReadingProperties.serializedRelationExtractorPath.split(",");
+      if (partition != -1) {
+        for (int i=0; i < modelNames.length; i++) {
+          modelNames[i]+="." + partition;
+        }
+      }
+      relationExtractor=ExtractorMerger.buildRelationExtractorMerger(modelNames);
+    }
+ else     if (!this.forceRetraining && new File(modelName).exists()) {
+      MachineReadingProperties.logger.info("Loading relation extraction model from " + modelName + " ...");
+      relationExtractor=BasicRelationExtractor.load(modelName);
+    }
+ else {
+      RelationFeatureFactory rff=makeRelationFeatureFactory(MachineReadingProperties.relationFeatureFactoryClass,MachineReadingProperties.relationFeatures,MachineReadingProperties.doNotLexicalizeFirstArg);
+      Execution.fillOptions(rff,args);
+      if (MachineReadingProperties.trainRelationsUsingPredictedEntities) {
+        assert(entityExtractor != null);
+        predicted=AnnotationUtils.deepMentionCopy(training);
+        entityExtractor.annotate(predicted);
+        for (        ResultsPrinter rp : entityResultsPrinterSet) {
+          String msg=rp.printResults(training,predicted);
+          MachineReadingProperties.logger.info("Training relation extraction using predicted entitities: entity scores using printer " + rp.getClass() + ":\n"+ msg);
+        }
+        try {
+          changeGoldRelationArgsToPredicted(predicted);
+        }
+ catch (        Exception e) {
+          throw new RuntimeException(e);
+        }
+      }
+      Annotation dataset;
+      if (MachineReadingProperties.trainRelationsUsingPredictedEntities) {
+        dataset=predicted;
+      }
+ else {
+        dataset=training;
+      }
+      Set<String> relationsToSkip=new HashSet<>(StringUtils.split(MachineReadingProperties.relationsToSkipDuringTraining,","));
+      List<List<RelationMention>> backedUpRelations=new ArrayList<>();
+      if (relationsToSkip.size() > 0) {
+        for (        CoreMap sent : dataset.get(CoreAnnotations.SentencesAnnotation.class)) {
+          List<RelationMention> relationMentions=sent.get(MachineReadingAnnotations.RelationMentionsAnnotation.class);
+          backedUpRelations.add(relationMentions);
+        }
+        removeSkippableRelations(dataset,relationsToSkip);
+      }
+      relationExtractor=makeRelationExtractor(MachineReadingProperties.relationClassifier,rff,MachineReadingProperties.createUnrelatedRelations,makeRelationMentionFactory(MachineReadingProperties.relationMentionFactoryClass));
+      Execution.fillOptions(relationExtractor,args);
+      MachineReadingProperties.logger.info("Training relation extraction model...");
+      relationExtractor.train(dataset);
+      MachineReadingProperties.logger.info("Serializing relation extraction model to " + modelName + " ...");
+      relationExtractor.save(modelName);
+      if (relationsToSkip.size() > 0) {
+        int sentenceIndex=0;
+        for (        CoreMap sentence : dataset.get(CoreAnnotations.SentencesAnnotation.class)) {
+          List<RelationMention> relationMentions=backedUpRelations.get(sentenceIndex);
+          sentence.set(MachineReadingAnnotations.RelationMentionsAnnotation.class,relationMentions);
+          sentenceIndex++;
+        }
+      }
+    }
+  }
+  if (MachineReadingProperties.extractEvents) {
+    MachineReadingProperties.logger.info("Training event extraction model(s)");
+    if (partition != -1)     MachineReadingProperties.logger.info("In partition #" + partition);
+    String modelName=MachineReadingProperties.serializedEventExtractorPath;
+    if (partition != -1)     modelName+="." + partition;
+    File modelFile=new File(modelName);
+    Annotation predicted=null;
+    if (!this.forceRetraining && modelFile.exists()) {
+      MachineReadingProperties.logger.info("Loading event extraction model from " + modelName + " ...");
+      Method mstLoader=(Class.forName("MSTBasedEventExtractor")).getMethod("load",String.class);
+      eventExtractor=(Extractor)mstLoader.invoke(null,modelName);
+    }
+ else {
+      if (MachineReadingProperties.trainEventsUsingPredictedEntities) {
+        assert(entityExtractor != null);
+        predicted=AnnotationUtils.deepMentionCopy(training);
+        entityExtractor.annotate(predicted);
+        for (        ResultsPrinter rp : entityResultsPrinterSet) {
+          String msg=rp.printResults(training,predicted);
+          MachineReadingProperties.logger.info("Training event extraction using predicted entitities: entity scores using printer " + rp.getClass() + ":\n"+ msg);
+        }
+      }
+      Constructor<?> mstConstructor=(Class.forName("edu.stanford.nlp.ie.machinereading.MSTBasedEventExtractor")).getConstructor(boolean.class);
+      eventExtractor=(Extractor)mstConstructor.newInstance(MachineReadingProperties.trainEventsUsingPredictedEntities);
+      MachineReadingProperties.logger.info("Training event extraction model...");
+      if (MachineReadingProperties.trainRelationsUsingPredictedEntities) {
+        eventExtractor.train(predicted);
+      }
+ else {
+        eventExtractor.train(training);
+      }
+      MachineReadingProperties.logger.info("Serializing event extraction model to " + modelName + " ...");
+      eventExtractor.save(modelName);
+    }
+  }
+}

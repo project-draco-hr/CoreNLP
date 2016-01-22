@@ -1,12 +1,9 @@
 {
   try {
-    TsurgeonParser parser=new TsurgeonParser(new StringReader(operationString + "\n"));
-    return new TsurgeonPatternRoot(new TsurgeonPattern[]{parser.Root()});
+    TsurgeonParser parser=new TsurgeonParser(new StringReader(operationString + '\n'));
+    return parser.Root();
   }
- catch (  ParseException e) {
-    throw new TsurgeonParseException("Error parsing Tsurgeon expression: " + operationString,e);
-  }
-catch (  TokenMgrError e) {
+ catch (  ParseException|TokenMgrError e) {
     throw new TsurgeonParseException("Error parsing Tsurgeon expression: " + operationString,e);
   }
 }

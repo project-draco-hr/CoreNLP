@@ -1,0 +1,34 @@
+{
+  this.op=op;
+  rand=new Random(op.trainOptions.randomSeed);
+  readWordVectors();
+  numRows=op.lexOptions.numHid;
+  numCols=op.lexOptions.numHid;
+  binaryTransform=TwoDimensionalMap.treeMap();
+  unaryTransform=Generics.newTreeMap();
+  binaryScore=TwoDimensionalMap.treeMap();
+  unaryScore=Generics.newTreeMap();
+  numBinaryMatrices=0;
+  numUnaryMatrices=0;
+  binaryTransformSize=numRows * (numCols * 2 + 1);
+  unaryTransformSize=numRows * (numCols + 1);
+  binaryScoreSize=numCols;
+  unaryScoreSize=numCols;
+  if (op.trainOptions.useContextWords) {
+    binaryTransformSize+=numRows * numCols * 2;
+    unaryTransformSize+=numRows * numCols * 2;
+  }
+  identity=SimpleMatrix.identity(numRows);
+  for (  UnaryRule unaryRule : unaryGrammar) {
+    String childState=stateIndex.get(unaryRule.child);
+    String childBasic=basicCategory(childState);
+    addRandomUnaryMatrix(childBasic);
+  }
+  for (  BinaryRule binaryRule : binaryGrammar) {
+    String leftState=stateIndex.get(binaryRule.leftChild);
+    String leftBasic=basicCategory(leftState);
+    String rightState=stateIndex.get(binaryRule.rightChild);
+    String rightBasic=basicCategory(rightState);
+    addRandomBinaryMatrix(leftBasic,rightBasic);
+  }
+}

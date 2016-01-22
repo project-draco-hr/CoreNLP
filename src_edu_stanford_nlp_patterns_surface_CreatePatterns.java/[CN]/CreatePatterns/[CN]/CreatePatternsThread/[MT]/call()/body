@@ -1,0 +1,21 @@
+{
+  Map<String,Map<Integer,Set<E>>> tempPatternsForTokens=new HashMap<>();
+  int numSentencesInOneCommit=0;
+  for (  String id : sentIds) {
+    DataInstance sent=sents.get(id);
+    if (!constVars.storePatsForEachToken.equals(ConstantsAndVariables.PatternForEachTokenWay.MEMORY))     tempPatternsForTokens.put(id,new HashMap<>());
+    Map<Integer,Set<E>> p=(Map)PatternFactory.getPatternsAroundTokens(constVars.patternType,sent,constVars.getStopWords());
+    if (!constVars.storePatsForEachToken.equals(ConstantsAndVariables.PatternForEachTokenWay.MEMORY)) {
+      tempPatternsForTokens.put(id,p);
+      numSentencesInOneCommit++;
+      if (numSentencesInOneCommit % 1000 == 0) {
+        patsForEach.addPatterns(tempPatternsForTokens);
+        tempPatternsForTokens.clear();
+        numSentencesInOneCommit=0;
+      }
+    }
+ else     patsForEach.addPatterns(id,p);
+  }
+  if (!constVars.storePatsForEachToken.equals(ConstantsAndVariables.PatternForEachTokenWay.MEMORY))   patsForEach.addPatterns(tempPatternsForTokens);
+  return true;
+}

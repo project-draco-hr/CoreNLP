@@ -1,0 +1,60 @@
+{
+  List<Pair<IntTuple,IntTuple>> links=new ArrayList<>();
+  Map<Integer,IntTuple> positions=Generics.newHashMap();
+  Map<Integer,List<IntTuple>> antecedents=Generics.newHashMap();
+  for (int i=0; i < goldMentions.size(); i++) {
+    for (int j=0; j < goldMentions.get(i).size(); j++) {
+      Mention m=goldMentions.get(i).get(j);
+      int id=m.mentionID;
+      IntTuple pos=new IntTuple(2);
+      pos.set(0,i);
+      pos.set(1,j);
+      positions.put(id,pos);
+      antecedents.put(id,new ArrayList<>());
+    }
+  }
+  for (  List<Mention> mentions : goldMentions) {
+    for (    Mention m : mentions) {
+      int id=m.mentionID;
+      IntTuple src=positions.get(id);
+      assert(src != null);
+      if (m.originalRef >= 0) {
+        IntTuple dst=positions.get(m.originalRef);
+        if (dst == null) {
+          throw new RuntimeException("Cannot find gold mention with ID=" + m.originalRef);
+        }
+        while (dst.get(0) > src.get(0) || (dst.get(0) == src.get(0) && dst.get(1) > src.get(1))) {
+          Mention dstMention=goldMentions.get(dst.get(0)).get(dst.get(1));
+          m.originalRef=dstMention.originalRef;
+          dstMention.originalRef=id;
+          if (m.originalRef < 0)           break;
+          dst=positions.get(m.originalRef);
+        }
+        if (m.originalRef < 0)         continue;
+        for (int k=dst.get(0); k <= src.get(0); k++) {
+          for (int l=0; l < goldMentions.get(k).size(); l++) {
+            if (k == dst.get(0) && l < dst.get(1))             continue;
+            if (k == src.get(0) && l > src.get(1))             break;
+            IntTuple missed=new IntTuple(2);
+            missed.set(0,k);
+            missed.set(1,l);
+            if (links.contains(new Pair<>(missed,dst))) {
+              antecedents.get(id).add(missed);
+              links.add(new Pair<>(src,missed));
+            }
+          }
+        }
+        links.add(new Pair<>(src,dst));
+        assert(antecedents.get(id) != null);
+        antecedents.get(id).add(dst);
+        List<IntTuple> ants=antecedents.get(m.originalRef);
+        assert(ants != null);
+        for (        IntTuple ant : ants) {
+          antecedents.get(id).add(ant);
+          links.add(new Pair<>(src,ant));
+        }
+      }
+    }
+  }
+  goldLinks=links;
+}

@@ -1,0 +1,26 @@
+{
+  TwoDimensionalCounter<String,String> tagger=new TwoDimensionalCounter<>();
+  try {
+    Reader in=new BufferedReader(new InputStreamReader(new FileInputStream(file),encoding));
+    TreeReader tr=trf.newTreeReader(file.getPath(),in);
+    List<Tree> trees=new ArrayList<>();
+    Tree t, splitPoint;
+    while ((t=tr.readTree()) != null) {
+      do {
+        splitPoint=findSplitPoint(t);
+        Pair<Tree,Tree> split=split(t,splitPoint);
+        Tree toAdd=split.first();
+        t=split.second();
+        trees.add(toAdd);
+        updateTagger(tagger,toAdd);
+      }
+ while (splitPoint != null);
+    }
+    tr.close();
+    return new Pair<>(tagger,trees);
+  }
+ catch (  IOException e) {
+    e.printStackTrace();
+    return null;
+  }
+}

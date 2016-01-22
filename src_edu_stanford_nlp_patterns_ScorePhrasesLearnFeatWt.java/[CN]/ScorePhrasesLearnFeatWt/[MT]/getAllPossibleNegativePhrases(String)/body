@@ -1,0 +1,17 @@
+{
+  Map<String,Collection<CandidatePhrase>> allPossiblePhrases=new HashMap<>();
+  Collection<CandidatePhrase> negPhrases=new HashSet<>();
+  negPhrases.addAll(constVars.getStopWords());
+  negPhrases.addAll(CandidatePhrase.convertStringPhrases(constVars.functionWords));
+  negPhrases.addAll(CandidatePhrase.convertStringPhrases(constVars.getEnglishWords()));
+  allPossiblePhrases.put("NEGATIVE",negPhrases);
+  for (  String label : constVars.getLabels()) {
+    if (!label.equals(answerLabel)) {
+      allPossiblePhrases.put(label,new HashSet<>());
+      if (constVars.getLearnedWordsEachIter().containsKey(label))       allPossiblePhrases.get(label).addAll(constVars.getLearnedWords(label).keySet());
+      allPossiblePhrases.get(label).addAll(constVars.getSeedLabelDictionary().get(label));
+    }
+  }
+  allPossiblePhrases.put("OTHERSEM",constVars.getOtherSemanticClassesWords());
+  return allPossiblePhrases;
+}

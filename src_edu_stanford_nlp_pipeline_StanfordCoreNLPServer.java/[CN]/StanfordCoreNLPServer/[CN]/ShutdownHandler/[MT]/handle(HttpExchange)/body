@@ -1,0 +1,16 @@
+{
+  Map<String,String> urlParams=getURLParams(httpExchange.getRequestURI());
+  httpExchange.getResponseHeaders().set("Content-Type","text/plain");
+  boolean doExit=false;
+  String response="Invalid shutdown key\n";
+  if (urlParams.containsKey("key") && urlParams.get("key").equals(shutdownKey)) {
+    response="Shutdown successful!\n";
+    doExit=true;
+  }
+  httpExchange.sendResponseHeaders(HTTP_OK,response.getBytes().length);
+  httpExchange.getResponseBody().write(response.getBytes());
+  httpExchange.close();
+  if (doExit) {
+    System.exit(0);
+  }
+}

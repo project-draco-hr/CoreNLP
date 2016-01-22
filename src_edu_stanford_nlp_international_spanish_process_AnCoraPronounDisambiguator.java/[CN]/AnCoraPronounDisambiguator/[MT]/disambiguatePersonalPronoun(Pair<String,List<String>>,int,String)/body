@@ -1,0 +1,13 @@
+{
+  List<String> pronouns=splitVerb.second();
+  String pronoun=pronouns.get(pronounIdx).toLowerCase();
+  if (!ambiguousPersonalPronouns.contains(pronoun))   throw new IllegalArgumentException("We don't support disambiguating pronoun '" + pronoun + "'");
+  if (pronouns.size() == 1 && pronoun.equalsIgnoreCase("se"))   return PersonalPronounType.REFLEXIVE;
+  String verb=splitVerb.first();
+  if (alwaysReflexiveVerbs.contains(verb))   return PersonalPronounType.REFLEXIVE;
+ else   if (neverReflexiveVerbs.contains(verb))   return PersonalPronounType.OBJECT;
+  Pair<String,String> bruteForceKey=new Pair<>(verb,clauseYield);
+  if (bruteForceDecisions.containsKey(bruteForceKey))   return bruteForceDecisions.get(bruteForceKey);
+  System.err.println("DISAMB " + splitVerb.first() + "\nDISAMB\t"+ clauseYield);
+  return PersonalPronounType.UNKNOWN;
+}

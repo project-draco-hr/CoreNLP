@@ -1,3 +1,14 @@
 {
-  return new JobResult<O>(processor.process(item),itemId,processorId);
+  try {
+    O result=processor.process(item);
+    QueueItem<O> output=new QueueItem<>(result,itemId);
+    callback.call(output,processorId);
+    return itemId;
+  }
+ catch (  Exception e) {
+    e.printStackTrace();
+    QueueItem<O> output=new QueueItem<>(null,itemId);
+    callback.call(output,processorId);
+    return itemId;
+  }
 }

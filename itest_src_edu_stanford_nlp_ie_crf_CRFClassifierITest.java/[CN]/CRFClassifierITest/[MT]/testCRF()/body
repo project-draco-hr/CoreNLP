@@ -1,6 +1,8 @@
 {
-  CRFClassifier crf=CRFClassifier.getClassifierNoExceptions(System.getProperty("ner.model",nerPath));
+  CRFClassifier<CoreLabel> crf=CRFClassifier.getClassifierNoExceptions(System.getProperty("ner.model",nerPath));
   runCRFTest(crf);
-  crf=CRFClassifier.getJarClassifier(nerJarPath,null);
+  crf=CRFClassifier.getDefaultClassifier();
   runCRFTest(crf);
+  String txt1="Jenny Finkel works for Mixpanel in San Francisco .";
+  runKBestTest(crf,txt1,false);
 }

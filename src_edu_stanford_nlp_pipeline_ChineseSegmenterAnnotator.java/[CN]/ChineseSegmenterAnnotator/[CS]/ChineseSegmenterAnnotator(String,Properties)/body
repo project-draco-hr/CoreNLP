@@ -1,9 +1,10 @@
 {
   String model=null;
   Properties modelProps=new Properties();
+  String desiredKey=name + '.';
   for (  String key : props.stringPropertyNames()) {
-    if (key.startsWith(name + ".")) {
-      String modelKey=key.substring(name.length() + 1);
+    if (key.startsWith(desiredKey)) {
+      String modelKey=key.substring(desiredKey.length());
       if (modelKey.equals("model")) {
         model=props.getProperty(key);
       }
@@ -12,7 +13,7 @@
       }
     }
   }
-  this.VERBOSE=PropertiesUtils.getBool(props,name + ".verbose",true);
+  this.VERBOSE=PropertiesUtils.getBool(props,name + ".verbose",false);
   if (model == null) {
     throw new RuntimeException("Expected a property " + name + ".model");
   }

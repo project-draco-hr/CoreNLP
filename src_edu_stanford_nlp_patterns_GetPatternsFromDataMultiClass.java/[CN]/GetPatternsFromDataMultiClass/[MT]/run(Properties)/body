@@ -1,0 +1,18 @@
+{
+  Map<String,Set<CandidatePhrase>> seedWords=readSeedWords(props);
+  Map<String,Class> answerClasses=new HashMap<>();
+  String ansClasses=props.getProperty("answerClasses");
+  if (ansClasses != null) {
+    for (    String l : ansClasses.split(";")) {
+      String[] t=l.split(",");
+      String label=t[0];
+      String cl=t[1];
+      Class answerClass=ClassLoader.getSystemClassLoader().loadClass(cl);
+      answerClasses.put(label,answerClass);
+    }
+  }
+  Pair<Map<String,DataInstance>,Map<String,DataInstance>> sentsPair=processSents(props,seedWords.keySet());
+  boolean labelUsingSeedSets=Boolean.parseBoolean(props.getProperty("labelUsingSeedSets","true"));
+  GetPatternsFromDataMultiClass<E> model=new GetPatternsFromDataMultiClass<>(props,sentsPair.first(),seedWords,labelUsingSeedSets);
+  return runNineYards(model,props,sentsPair.second());
+}

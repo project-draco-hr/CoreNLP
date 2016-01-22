@@ -1,0 +1,31 @@
+{
+  double[] lambda=getLambdaSolve().lambda;
+  int[] map=new int[lambda.length];
+  int current=0;
+  for (int index=0; index < lambda.length; ++index) {
+    if (lambda[index] == 0.0) {
+      map[index]=-1;
+    }
+ else {
+      map[index]=current;
+      current++;
+    }
+  }
+  double[] condensedLambda=new double[current];
+  for (int i=0; i < lambda.length; ++i) {
+    if (map[i] != -1) {
+      condensedLambda[map[i]]=lambda[i];
+    }
+  }
+  for (  Map<String,int[]> featureMap : fAssociations) {
+    for (    Map.Entry<String,int[]> entry : featureMap.entrySet()) {
+      int[] fAssociations=entry.getValue();
+      for (int index=0; index < ySize; ++index) {
+        if (fAssociations[index] >= 0) {
+          fAssociations[index]=map[fAssociations[index]];
+        }
+      }
+    }
+  }
+  prob=new LambdaSolveTagger(condensedLambda);
+}

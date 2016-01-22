@@ -1,0 +1,69 @@
+{
+  Set<Class> foundAnnotations=new HashSet<>();
+  if (annotationPatterns == null) {
+    return foundAnnotations;
+  }
+  if (toAnnotate == null) {
+    toAnnotate=annotationPatterns.keySet();
+  }
+  for (  Class key : toAnnotate) {
+    for (    Pair<Pattern,Pattern> pattern : annotationPatterns.get(key)) {
+      Pattern tagPattern=pattern.first;
+      Pattern attrPattern=pattern.second;
+      if (tagPattern.matcher(tag.name).matches()) {
+        boolean matched=false;
+        if (attrPattern != null) {
+          if (tag.attributes != null) {
+            for (            Map.Entry<String,String> entry : tag.attributes.entrySet()) {
+              if (attrPattern.matcher(entry.getKey()).matches()) {
+                if (savedTokenAnnotations != null) {
+                  Stack<Pair<String,String>> stack=savedTokenAnnotations.get(key);
+                  if (stack == null) {
+                    savedTokenAnnotations.put(key,stack=new Stack<>());
+                  }
+                  stack.push(Pair.makePair(tag.name,entry.getValue()));
+                }
+                cm.set(key,entry.getValue());
+                foundAnnotations.add(key);
+                matched=true;
+                break;
+              }
+            }
+          }
+          if (savedTokenAnnotations != null) {
+            if (tag.isEndTag) {
+              Stack<Pair<String,String>> stack=savedTokenAnnotations.get(key);
+              if (stack != null && !stack.isEmpty()) {
+                Pair<String,String> p=stack.peek();
+                if (p.first.equalsIgnoreCase(tag.name)) {
+                  stack.pop();
+                  if (!stack.isEmpty()) {
+                    cm.set(key,stack.peek().second);
+                  }
+ else {
+                    cm.remove(key);
+                  }
+                }
+              }
+            }
+          }
+        }
+ else         if (savedTokens != null) {
+          if (tag.isEndTag && !tag.isSingleTag) {
+            List<CoreLabel> saved=savedTokens.remove(key);
+            if (saved != null && saved.size() > 0) {
+              cm.set(key,tokensToString(annotation,saved));
+              foundAnnotations.add(key);
+              matched=true;
+            }
+          }
+ else {
+            savedTokens.put(key,new ArrayList<>());
+          }
+        }
+        if (matched)         break;
+      }
+    }
+  }
+  return foundAnnotations;
+}

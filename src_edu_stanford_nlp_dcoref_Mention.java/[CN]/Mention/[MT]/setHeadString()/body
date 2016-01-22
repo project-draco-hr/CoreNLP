@@ -1,18 +1,21 @@
 {
   this.headString=headWord.get(CoreAnnotations.TextAnnotation.class).toLowerCase();
-  if (headWord.has(CoreAnnotations.NamedEntityTagAnnotation.class)) {
+  String ner=headWord.get(CoreAnnotations.NamedEntityTagAnnotation.class);
+  if (ner != null && !ner.equals("O")) {
     int start=headIndex - startIndex;
-    if (start >= originalSpan.size()) {
+    if (originalSpan.size() > 0 && start >= originalSpan.size()) {
       throw new RuntimeException("Invalid start index " + start + "="+ headIndex+ "-"+ startIndex+ ": originalSpan=["+ StringUtils.joinWords(originalSpan," ")+ "], head="+ headWord);
     }
     while (start >= 0) {
-      String head=originalSpan.get(start).get(CoreAnnotations.TextAnnotation.class).toLowerCase();
-      if (knownSuffix(head) == false) {
-        this.headString=head;
-        break;
+      String head=originalSpan.size() > 0 ? originalSpan.get(start).get(CoreAnnotations.TextAnnotation.class).toLowerCase() : "";
+      if (knownSuffix(head)) {
+        start--;
       }
  else {
-        start--;
+        this.headString=head;
+        this.headWord=originalSpan.get(start);
+        this.headIndex=startIndex + start;
+        break;
       }
     }
   }

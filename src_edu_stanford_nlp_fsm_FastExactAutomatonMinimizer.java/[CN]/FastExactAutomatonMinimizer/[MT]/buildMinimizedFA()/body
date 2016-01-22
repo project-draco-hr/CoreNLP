@@ -1,8 +1,7 @@
 {
   TransducerGraph minimizedFA=new TransducerGraph();
   TransducerGraph unminimizedFA=getUnminimizedFA();
-  for (Iterator arcI=unminimizedFA.getArcs().iterator(); arcI.hasNext(); ) {
-    TransducerGraph.Arc arc=(TransducerGraph.Arc)arcI.next();
+  for (  TransducerGraph.Arc arc : unminimizedFA.getArcs()) {
     Object source=projectNode(arc.getSourceNode());
     Object target=projectNode(arc.getTargetNode());
     try {
@@ -14,8 +13,7 @@
     }
   }
   minimizedFA.setStartNode(projectNode(unminimizedFA.getStartNode()));
-  for (Iterator endIter=unminimizedFA.getEndNodes().iterator(); endIter.hasNext(); ) {
-    Object o=endIter.next();
+  for (  Object o : unminimizedFA.getEndNodes()) {
     minimizedFA.setEndNode(projectNode(o));
   }
   return minimizedFA;

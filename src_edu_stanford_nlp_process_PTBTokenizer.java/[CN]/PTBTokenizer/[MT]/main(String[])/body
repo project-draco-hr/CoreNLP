@@ -25,19 +25,19 @@
   Pattern parseInsidePattern=null;
   if (parseInsideKey != null) {
     try {
-      parseInsidePattern=Pattern.compile("<(/?)(?:" + parseInsideKey + ")(?:\\s[^>]*?)?>");
+      parseInsidePattern=Pattern.compile("<(/?)(?:" + parseInsideKey + ")(?:(?:\\s|\u00A0)[^>]*?)?>");
     }
  catch (    PatternSyntaxException e) {
     }
   }
   String parsedArgStr=options.getProperty("",null);
   String[] parsedArgs=(parsedArgStr == null) ? null : parsedArgStr.split("\\s+");
-  ArrayList<String> inputFileList=new ArrayList<String>();
+  ArrayList<String> inputFileList=new ArrayList<>();
   ArrayList<String> outputFileList=null;
   if (inputOutputFileList && parsedArgs != null) {
-    outputFileList=new ArrayList<String>();
+    outputFileList=new ArrayList<>();
     for (    String fileName : parsedArgs) {
-      BufferedReader r=new BufferedReader(new InputStreamReader(new FileInputStream(fileName),charset));
+      BufferedReader r=IOUtils.readerFromString(fileName,charset);
       for (String inLine; (inLine=r.readLine()) != null; ) {
         String[] fields=inLine.split("\\s+");
         inputFileList.add(fields[0]);

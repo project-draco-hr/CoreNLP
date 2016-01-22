@@ -1,0 +1,94 @@
+{
+  Map<String,List<Pair<Integer,Integer>>> quotesMap=new HashMap<>();
+  int start=-1;
+  int end=-1;
+  String quote=null;
+  int directed=0;
+  for (int i=0; i < text.length(); i++) {
+    String c=text.substring(i,i + 1);
+    if (c.equals("`") && i < text.length() - 1 && text.charAt(i + 1) == '`') {
+      c+=text.charAt(i + 1);
+    }
+ else     if (c.equals("'") && (quote != null && (quote.equals("``") || quote.equals("`")))) {
+      int curr=i;
+      while (curr < text.length() && text.charAt(curr) == '\'') {
+        curr++;
+      }
+      if (i == curr - quote.length() || (directed > 0 && i == curr - (directed * quote.length()))) {
+        for (int a=i + 1; a < i + quote.length(); a++) {
+          c+=text.charAt(a);
+        }
+      }
+ else {
+        continue;
+      }
+    }
+    if (DIRECTED_QUOTES.containsKey(quote) && DIRECTED_QUOTES.get(quote).equals(c)) {
+      directed--;
+    }
+    if ((start < 0) && !matchesPrevQuote(c,prevQuote) && (((isSingleQuoteWithUse(c) || c.equals("`")) && isSingleQuoteStart(text,i)) || (c.equals("\"") || DIRECTED_QUOTES.containsKey(c)))) {
+      start=i;
+      quote=c;
+    }
+ else     if ((start >= 0 && end < 0) && ((c.equals(quote) && (((c.equals("'") || c.equals("`")) && isSingleQuoteEnd(text,i)) || (c.equals("\"") && isDoubleQuoteEnd(text,i)))) || (c.equals("'") && quote.equals("`") && isSingleQuoteEnd(text,i)) || (DIRECTED_QUOTES.containsKey(quote) && DIRECTED_QUOTES.get(quote).equals(c) && directed == 0))) {
+      end=i + c.length();
+    }
+    if (DIRECTED_QUOTES.containsKey(c) && c.equals(quote)) {
+      directed++;
+    }
+    if (start >= 0 && end > 0) {
+      if (!quotesMap.containsKey(quote)) {
+        quotesMap.put(quote,new ArrayList<>());
+      }
+      quotesMap.get(quote).add(new Pair(start,end));
+      start=-1;
+      end=-1;
+      quote=null;
+    }
+    if (c.length() > 1) {
+      i+=c.length() - 1;
+    }
+    if (MAX_LENGTH > 0 && start >= 0 && i - start > MAX_LENGTH) {
+      i=start + quote.length();
+      start=-1;
+      end=-1;
+      quote=null;
+    }
+  }
+  if (start >= 0 && start < text.length() - 3) {
+    String warning=text;
+    if (text.length() > 150) {
+      warning=text.substring(0,150) + "...";
+    }
+    System.err.println("WARNING: unmatched quote of type " + quote + " found at index "+ start+ " in text segment: "+ warning);
+  }
+  List<Pair<Integer,Integer>> quotes=Generics.newArrayList();
+  if (quotesMap.isEmpty() && start >= 0 && start < text.length() - 3) {
+    String toPass=text.substring(start + quote.length(),text.length());
+    List<Pair<Integer,Integer>> embedded=recursiveQuotes(toPass,offset,null);
+    for (    Pair<Integer,Integer> e : embedded) {
+      quotes.add(new Pair(e.first() + start + quote.length(),e.second() + start + 1));
+    }
+  }
+ else {
+    for (    String qKind : quotesMap.keySet()) {
+      for (      Pair<Integer,Integer> q : quotesMap.get(qKind)) {
+        if (q.second() - q.first() >= qKind.length() * 2) {
+          String toPass=text.substring(q.first() + qKind.length(),q.second() - qKind.length());
+          String qKindToPass=null;
+          if (!(DIRECTED_QUOTES.containsKey(qKind) || qKind.equals("`")) || !ALLOW_EMBEDDED_SAME) {
+            qKindToPass=qKind;
+          }
+          List<Pair<Integer,Integer>> embedded=recursiveQuotes(toPass,q.first() + qKind.length() + offset,qKindToPass);
+          for (          Pair<Integer,Integer> e : embedded) {
+            if (e.second() - e.first() > 2) {
+              quotes.add(new Pair(e.first(),e.second()));
+            }
+          }
+        }
+        quotes.add(new Pair(q.first() + offset,q.second() + offset));
+      }
+    }
+  }
+  return quotes;
+}

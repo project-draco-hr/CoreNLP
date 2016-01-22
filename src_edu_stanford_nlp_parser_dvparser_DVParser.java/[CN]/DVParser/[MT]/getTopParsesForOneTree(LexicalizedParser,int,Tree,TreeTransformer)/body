@@ -1,0 +1,22 @@
+{
+  ParserQuery pq=parser.parserQuery();
+  List<Word> sentence=tree.yieldWords();
+  if (sentence.size() <= 1) {
+    return null;
+  }
+  sentence=sentence.subList(0,sentence.size() - 1);
+  if (!pq.parse(sentence)) {
+    System.err.println("Failed to use the given parser to reparse sentence \"" + sentence + "\"");
+    return null;
+  }
+  List<Tree> parses=new ArrayList<>();
+  List<ScoredObject<Tree>> bestKParses=pq.getKBestPCFGParses(dvKBest);
+  for (  ScoredObject<Tree> so : bestKParses) {
+    Tree result=so.object();
+    if (transformer != null) {
+      result=transformer.transformTree(result);
+    }
+    parses.add(result);
+  }
+  return parses;
+}

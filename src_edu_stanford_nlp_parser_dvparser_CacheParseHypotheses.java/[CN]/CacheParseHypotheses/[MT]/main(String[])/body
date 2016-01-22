@@ -1,0 +1,81 @@
+{
+  String parserModel=null;
+  String output=null;
+  List<Pair<String,FileFilter>> treebanks=Generics.newArrayList();
+  int dvKBest=200;
+  int numThreads=1;
+  for (int argIndex=0; argIndex < args.length; ) {
+    if (args[argIndex].equalsIgnoreCase("-dvKBest")) {
+      dvKBest=Integer.valueOf(args[argIndex + 1]);
+      argIndex+=2;
+      continue;
+    }
+    if (args[argIndex].equalsIgnoreCase("-parser") || args[argIndex].equals("-model")) {
+      parserModel=args[argIndex + 1];
+      argIndex+=2;
+      continue;
+    }
+    if (args[argIndex].equalsIgnoreCase("-output")) {
+      output=args[argIndex + 1];
+      argIndex+=2;
+      continue;
+    }
+    if (args[argIndex].equalsIgnoreCase("-treebank")) {
+      Pair<String,FileFilter> treebankDescription=ArgUtils.getTreebankDescription(args,argIndex,"-treebank");
+      argIndex=argIndex + ArgUtils.numSubArgs(args,argIndex) + 1;
+      treebanks.add(treebankDescription);
+      continue;
+    }
+    if (args[argIndex].equalsIgnoreCase("-numThreads")) {
+      numThreads=Integer.valueOf(args[argIndex + 1]);
+      argIndex+=2;
+      continue;
+    }
+    throw new IllegalArgumentException("Unknown argument " + args[argIndex]);
+  }
+  if (parserModel == null) {
+    throw new IllegalArgumentException("Need to supply a parser model with -model");
+  }
+  if (output == null) {
+    throw new IllegalArgumentException("Need to supply an output filename with -output");
+  }
+  if (treebanks.size() == 0) {
+    throw new IllegalArgumentException("Need to supply a treebank with -treebank");
+  }
+  System.err.println("Writing output to " + output);
+  System.err.println("Loading parser model " + parserModel);
+  System.err.println("Writing " + dvKBest + " hypothesis trees for each tree");
+  LexicalizedParser parser=LexicalizedParser.loadModel(parserModel,"-dvKBest",Integer.toString(dvKBest));
+  CacheParseHypotheses cacher=new CacheParseHypotheses(parser);
+  TreeTransformer transformer=DVParser.buildTrainTransformer(parser.getOp());
+  List<Tree> sentences=new ArrayList<>();
+  for (  Pair<String,FileFilter> description : treebanks) {
+    System.err.println("Reading trees from " + description.first);
+    Treebank treebank=parser.getOp().tlpParams.memoryTreebank();
+    treebank.loadPath(description.first,description.second);
+    treebank=treebank.transform(transformer);
+    sentences.addAll(treebank);
+  }
+  System.err.println("Processing " + sentences.size() + " trees");
+  List<Pair<Tree,byte[]>> cache=Generics.newArrayList();
+  transformer=new SynchronizedTreeTransformer(transformer);
+  MulticoreWrapper<Tree,Pair<Tree,byte[]>> wrapper=new MulticoreWrapper<>(numThreads,new CacheProcessor(cacher,parser,dvKBest,transformer));
+  for (  Tree tree : sentences) {
+    wrapper.put(tree);
+    while (wrapper.peek()) {
+      cache.add(wrapper.poll());
+      if (cache.size() % 10 == 0) {
+        System.out.println("Processed " + cache.size() + " trees");
+      }
+    }
+  }
+  wrapper.join();
+  while (wrapper.peek()) {
+    cache.add(wrapper.poll());
+    if (cache.size() % 10 == 0) {
+      System.out.println("Processed " + cache.size() + " trees");
+    }
+  }
+  System.out.println("Finished processing " + cache.size() + " trees");
+  IOUtils.writeObjectToFile(cache,output);
+}

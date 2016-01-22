@@ -1,0 +1,21 @@
+{
+  StringBuffer sb=new StringBuffer();
+  boolean first=true;
+  if (features != null) {
+    List<String> sortedKeys=new ArrayList<>(features.keySet());
+    Collections.sort(sortedKeys,new FeatureNameComparator());
+    for (    String key : sortedKeys) {
+      if (!first) {
+        sb.append("|");
+      }
+ else {
+        first=false;
+      }
+      sb.append(key).append("=").append(features.get(key));
+    }
+  }
+  if (first) {
+    sb.append("_");
+  }
+  return sb.toString();
+}

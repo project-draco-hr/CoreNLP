@@ -13,8 +13,11 @@
       if (span.second > end)       end=span.second;
     }
   }
-  CoreLabel afl=(CoreLabel)label();
-  afl.set(CoreAnnotations.BeginIndexAnnotation.class,start);
-  afl.set(CoreAnnotations.EndIndexAnnotation.class,end);
-  return new Pair<Integer,Integer>(start,end);
+  Label label=label();
+  if (label instanceof CoreMap) {
+    CoreMap afl=(CoreMap)label();
+    afl.set(CoreAnnotations.BeginIndexAnnotation.class,start);
+    afl.set(CoreAnnotations.EndIndexAnnotation.class,end);
+  }
+  return new Pair<>(start,end);
 }

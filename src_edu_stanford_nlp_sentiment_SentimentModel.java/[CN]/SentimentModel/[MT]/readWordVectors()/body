@@ -1,0 +1,13 @@
+{
+  Embedding embedding=new Embedding(op.wordVectors,op.numHid);
+  this.wordVectors=Generics.newTreeMap();
+  for (  String word : embedding.keySet()) {
+    wordVectors.put(word,embedding.get(word));
+  }
+  String unkWord=op.unkWord;
+  SimpleMatrix unknownWordVector=wordVectors.get(unkWord);
+  wordVectors.put(UNKNOWN_WORD,unknownWordVector);
+  if (unknownWordVector == null) {
+    throw new RuntimeException("Unknown word vector not specified in the word vector file");
+  }
+}

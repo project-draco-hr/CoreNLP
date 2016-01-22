@@ -1,0 +1,37 @@
+{
+  if (args.length < 1) {
+    System.err.printf("Usage: java %s tree_file(s)%n%n",FrenchXMLTreeReader.class.getName());
+    System.exit(-1);
+  }
+  List<File> fileList=new ArrayList<>();
+  for (  String arg : args)   fileList.add(new File(arg));
+  TreeReaderFactory trf=new FrenchXMLTreeReaderFactory(false);
+  int totalTrees=0;
+  Set<String> morphAnalyses=Generics.newHashSet();
+  try {
+    for (    File file : fileList) {
+      TreeReader tr=trf.newTreeReader(new BufferedReader(new InputStreamReader(new FileInputStream(file),"UTF-8")));
+      Tree t;
+      int numTrees;
+      String canonicalFileName=file.getName().substring(0,file.getName().lastIndexOf('.'));
+      for (numTrees=0; (t=tr.readTree()) != null; numTrees++) {
+        String ftbID=((CoreLabel)t.label()).get(CoreAnnotations.SentenceIDAnnotation.class);
+        System.out.printf("%s-%s\t%s%n",canonicalFileName,ftbID,t.toString());
+        List<Label> leaves=t.yield();
+        for (        Label label : leaves) {
+          if (label instanceof CoreLabel)           morphAnalyses.add(((CoreLabel)label).originalText());
+        }
+      }
+      tr.close();
+      System.err.printf("%s: %d trees%n",file.getName(),numTrees);
+      totalTrees+=numTrees;
+    }
+    System.err.printf("%nRead %d trees%n",totalTrees);
+  }
+ catch (  FileNotFoundException e) {
+    e.printStackTrace();
+  }
+catch (  IOException e) {
+    e.printStackTrace();
+  }
+}

@@ -1,0 +1,69 @@
+{
+  RNNOptions op=new RNNOptions();
+  String trainPath="sentimentTreesDebug.txt";
+  String devPath=null;
+  boolean runGradientCheck=false;
+  boolean runTraining=false;
+  boolean filterUnknown=false;
+  String modelPath=null;
+  for (int argIndex=0; argIndex < args.length; ) {
+    if (args[argIndex].equalsIgnoreCase("-train")) {
+      runTraining=true;
+      argIndex++;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-gradientcheck")) {
+      runGradientCheck=true;
+      argIndex++;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-trainpath")) {
+      trainPath=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-devpath")) {
+      devPath=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-model")) {
+      modelPath=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-filterUnknown")) {
+      filterUnknown=true;
+      argIndex++;
+    }
+ else {
+      int newArgIndex=op.setOption(args,argIndex);
+      if (newArgIndex == argIndex) {
+        throw new IllegalArgumentException("Unknown argument " + args[argIndex]);
+      }
+      argIndex=newArgIndex;
+    }
+  }
+  List<Tree> trainingTrees=SentimentUtils.readTreesWithGoldLabels(trainPath);
+  System.err.println("Read in " + trainingTrees.size() + " training trees");
+  if (filterUnknown) {
+    trainingTrees=SentimentUtils.filterUnknownRoots(trainingTrees);
+    System.err.println("Filtered training trees: " + trainingTrees.size());
+  }
+  List<Tree> devTrees=null;
+  if (devPath != null) {
+    devTrees=SentimentUtils.readTreesWithGoldLabels(devPath);
+    System.err.println("Read in " + devTrees.size() + " dev trees");
+    if (filterUnknown) {
+      devTrees=SentimentUtils.filterUnknownRoots(devTrees);
+      System.err.println("Filtered dev trees: " + devTrees.size());
+    }
+  }
+  System.err.println("Sentiment model options:\n" + op);
+  SentimentModel model=new SentimentModel(op,trainingTrees);
+  if (op.trainOptions.initialMatrixLogPath != null) {
+    StringUtils.printToFile(new File(op.trainOptions.initialMatrixLogPath),model.toString(),false,false,"utf-8");
+  }
+  if (runGradientCheck) {
+    runGradientCheck(model,trainingTrees);
+  }
+  if (runTraining) {
+    train(model,modelPath,trainingTrees,devTrees);
+    model.saveSerialized(modelPath);
+  }
+}

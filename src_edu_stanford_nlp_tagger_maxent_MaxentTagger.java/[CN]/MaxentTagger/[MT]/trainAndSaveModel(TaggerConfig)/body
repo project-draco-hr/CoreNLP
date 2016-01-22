@@ -4,10 +4,12 @@
   maxentTagger.init(config);
   TaggerExperiments samples=new TaggerExperiments(config,maxentTagger);
   TaggerFeatures feats=samples.getTaggerFeatures();
+  byte[][] fnumArr=samples.getFnumArr();
   System.err.println("Samples from " + config.getFile());
   System.err.println("Number of features: " + feats.size());
+  System.err.println("Tag set: " + maxentTagger.tags.tagSet());
   Problem p=new Problem(samples,feats);
-  LambdaSolveTagger prob=new LambdaSolveTagger(p,0.0001,0.00001,maxentTagger.fnumArr);
+  LambdaSolveTagger prob=new LambdaSolveTagger(p,0.0001,fnumArr);
   maxentTagger.prob=prob;
   if (config.getSearch().equals("owlqn")) {
     CGRunner runner=new CGRunner(prob,config.getModel(),config.getSigmaSquared());
@@ -34,6 +36,8 @@
  else {
     System.err.println("Model is not correct");
   }
+  maxentTagger.removeDeadRules();
+  maxentTagger.simplifyLambda();
   maxentTagger.saveModel(modelName);
   System.err.println("Extractors list:");
   System.err.println(maxentTagger.extractors.toString() + "\nrare" + maxentTagger.extractorsRare.toString());

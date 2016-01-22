@@ -1,7 +1,12 @@
 {
   this.minimizerCreator=new Factory<Minimizer<DiffFunction>>(){
-    public Minimizer<DiffFunction> create(){
-      return new SQNMinimizer<DiffFunction>(LinearClassifierFactory.this.mem,initialSMDGain,stochasticBatchSize,false);
+    private static final long serialVersionUID=-7760753348350678588L;
+    @Override public Minimizer<DiffFunction> create(){
+      SQNMinimizer<DiffFunction> sqnMinimizer=new SQNMinimizer<>(LinearClassifierFactory.this.mem,initialSMDGain,stochasticBatchSize,false);
+      if (!verbose) {
+        sqnMinimizer.shutUp();
+      }
+      return sqnMinimizer;
     }
   }
 ;

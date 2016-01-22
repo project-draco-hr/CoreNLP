@@ -1,6 +1,5 @@
 {
   if (verbose) {
-    timer.start();
     Redwood.log(Redwood.DBG,"Adding TokensRegexAnnotator annotation...");
   }
   if (options.setTokenOffsets) {
@@ -8,7 +7,7 @@
   }
   List<CoreMap> allMatched;
   if (annotation.containsKey(CoreAnnotations.SentencesAnnotation.class)) {
-    allMatched=new ArrayList<CoreMap>();
+    allMatched=new ArrayList<>();
     List<CoreMap> sentences=annotation.get(CoreAnnotations.SentencesAnnotation.class);
     for (    CoreMap sentence : sentences) {
       List<CoreMap> matched=extract(sentence);
@@ -27,5 +26,7 @@
   if (options.matchedExpressionsAnnotationKey != null) {
     annotation.set(options.matchedExpressionsAnnotationKey,allMatched);
   }
-  if (verbose)   timer.stop("done.");
+  if (verbose) {
+    Redwood.log(Redwood.DBG,"done.");
+  }
 }

@@ -1,0 +1,13 @@
+{
+  if (!op.combineClassification || !op.simplifiedModel) {
+    throw new IllegalArgumentException("Can only create a model using this method if combineClassification and simplifiedModel are turned on");
+  }
+  TwoDimensionalMap<String,String,SimpleMatrix> binaryTransform=TwoDimensionalMap.treeMap();
+  binaryTransform.put("","",W);
+  TwoDimensionalMap<String,String,SimpleTensor> binaryTensors=TwoDimensionalMap.treeMap();
+  binaryTensors.put("","",Wt);
+  TwoDimensionalMap<String,String,SimpleMatrix> binaryClassification=TwoDimensionalMap.treeMap();
+  Map<String,SimpleMatrix> unaryClassification=Generics.newTreeMap();
+  unaryClassification.put("",Wcat);
+  return new SentimentModel(binaryTransform,binaryTensors,binaryClassification,unaryClassification,wordVectors,op);
+}

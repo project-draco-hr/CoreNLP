@@ -1,8 +1,23 @@
 {
   List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
-  List<TaggedWord> tagged=pos.apply(tokens);
-  for (int i=0; i < tokens.size(); ++i) {
-    tokens.get(i).set(CoreAnnotations.PartOfSpeechAnnotation.class,tagged.get(i).tag());
+  List<TaggedWord> tagged=null;
+  if (tokens.size() <= maxSentenceLength) {
+    try {
+      tagged=pos.tagSentence(tokens,this.reuseTags);
+    }
+ catch (    OutOfMemoryError e) {
+      System.err.println("WARNING: Tagging of sentence ran out of memory. " + "Will ignore and continue: " + Sentence.listToString(tokens));
+    }
+  }
+  if (tagged != null) {
+    for (int i=0, sz=tokens.size(); i < sz; i++) {
+      tokens.get(i).set(CoreAnnotations.PartOfSpeechAnnotation.class,tagged.get(i).tag());
+    }
+  }
+ else {
+    for (    CoreLabel token : tokens) {
+      token.set(CoreAnnotations.PartOfSpeechAnnotation.class,"X");
+    }
   }
   return sentence;
 }

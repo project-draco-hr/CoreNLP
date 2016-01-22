@@ -14,8 +14,9 @@
     PrintWriter pw=new PrintWriter(new FileWriter(dataFile));
     dataset.printSVMLightFormat(pw);
     pw.close();
-    String cmd=(multiclass ? svmStructLearn : svmLightLearn) + " -v " + svmLightVerbosity+ " -m 400 ";
+    String cmd=(multiclass ? svmStructLearn : (useSVMPerf ? svmPerfLearn : svmLightLearn)) + " -v " + svmLightVerbosity+ " -m 400 ";
     if (C > 0.0)     cmd=cmd + " -c " + C+ " ";
+ else     if (useSVMPerf)     cmd=cmd + " -c " + 0.01+ " ";
     if (useAlphaFile) {
       File newAlphaFile=File.createTempFile("svm-",".alphas");
       if (deleteTempFilesOnExit) {
@@ -28,26 +29,26 @@
       alphaFile=newAlphaFile;
     }
     cmd=cmd + " " + dataFile.getAbsolutePath()+ " "+ modelFile.getAbsolutePath();
-    if (verbose)     System.err.println("<< " + cmd + " >>");
+    if (verbose)     logger.info("<< " + cmd + " >>");
     SystemUtils.run(new ProcessBuilder(whitespacePattern.split(cmd)),new PrintWriter(System.err),new PrintWriter(System.err));
     if (doEval) {
       File predictFile=File.createTempFile("svm-",".pred");
       if (deleteTempFilesOnExit) {
         predictFile.deleteOnExit();
       }
-      String evalCmd=(multiclass ? svmStructClassify : svmLightClassify) + " " + dataFile.getAbsolutePath()+ " "+ modelFile.getAbsolutePath()+ " "+ predictFile.getAbsolutePath();
-      if (verbose)       System.err.println("<< " + evalCmd + " >>");
+      String evalCmd=(multiclass ? svmStructClassify : (useSVMPerf ? svmPerfClassify : svmLightClassify)) + " " + dataFile.getAbsolutePath()+ " "+ modelFile.getAbsolutePath()+ " "+ predictFile.getAbsolutePath();
+      if (verbose)       logger.info("<< " + evalCmd + " >>");
       SystemUtils.run(new ProcessBuilder(whitespacePattern.split(evalCmd)),new PrintWriter(System.err),new PrintWriter(System.err));
     }
     Pair<Double,ClassicCounter<Integer>> weightsAndThresh=readModel(modelFile,multiclass);
     double threshold=weightsAndThresh.first();
     ClassicCounter<Pair<F,L>> weights=convertWeights(weightsAndThresh.second(),featureIndex,labelIndex,multiclass);
-    ClassicCounter<L> thresholds=new ClassicCounter<L>();
+    ClassicCounter<L> thresholds=new ClassicCounter<>();
     if (!multiclass) {
       thresholds.setCount(labelIndex.get(0),-threshold);
       thresholds.setCount(labelIndex.get(1),threshold);
     }
-    SVMLightClassifier<L,F> classifier=new SVMLightClassifier<L,F>(weights,thresholds);
+    SVMLightClassifier<L,F> classifier=new SVMLightClassifier<>(weights,thresholds);
     if (doEval) {
       File predictFile=File.createTempFile("svm-",".pred2");
       if (deleteTempFilesOnExit) {

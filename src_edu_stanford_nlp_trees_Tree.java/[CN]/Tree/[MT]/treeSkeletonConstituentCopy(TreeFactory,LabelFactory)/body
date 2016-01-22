@@ -1,0 +1,14 @@
+{
+  if (isLeaf()) {
+    Tree newLeaf=tf.newLeaf(label());
+    newLeaf.setLabel(label());
+    return newLeaf;
+  }
+  Label label=lf.newLabel(label());
+  Tree[] kids=children();
+  List<Tree> newKids=new ArrayList<>(kids.length);
+  for (  Tree kid : kids) {
+    newKids.add(kid.treeSkeletonConstituentCopy(tf,lf));
+  }
+  return tf.newTreeNode(label,newKids);
+}

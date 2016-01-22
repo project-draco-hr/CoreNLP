@@ -1,46 +1,20 @@
 {
-  Triple<int[][][],int[],double[][][]> p=documentDataAndLabels;
   List<IN> newDocument=document;
   if (flags.useReverse) {
     Collections.reverse(document);
-    newDocument=new ArrayList<IN>(document);
+    newDocument=new ArrayList<>(document);
     Collections.reverse(document);
   }
-  CRFCliqueTree<? extends CharSequence> cliqueTree=getCliqueTree(p);
-  SequenceModel model=cliqueTree;
-  SequenceListener listener=cliqueTree;
-  SequenceModel priorModel=null;
-  SequenceListener priorListener=null;
-  if (flags.useNERPrior) {
-    EntityCachingAbstractSequencePrior<IN> prior=new EmpiricalNERPrior<IN>(flags.backgroundSymbol,classIndex,newDocument);
-    priorModel=prior;
-    priorListener=prior;
-  }
- else   if (flags.useNERPriorBIO) {
-    EntityCachingAbstractSequencePriorBIO<IN> prior=new EmpiricalNERPriorBIO<IN>(flags.backgroundSymbol,classIndex,tagIndex,newDocument,entityMatrices,flags);
-    priorModel=prior;
-    priorListener=prior;
-  }
- else   if (flags.useAcqPrior) {
-    EntityCachingAbstractSequencePrior<IN> prior=new AcquisitionsPrior<IN>(flags.backgroundSymbol,classIndex,newDocument);
-    priorModel=prior;
-    priorListener=prior;
-  }
- else   if (flags.useSemPrior) {
-    EntityCachingAbstractSequencePrior<IN> prior=new SeminarsPrior<IN>(flags.backgroundSymbol,classIndex,newDocument);
-    priorModel=prior;
-    priorListener=prior;
-  }
- else   if (flags.useUniformPrior) {
-    UniformPrior<IN> uniPrior=new UniformPrior<IN>(flags.backgroundSymbol,classIndex,newDocument);
-    priorModel=uniPrior;
-    priorListener=uniPrior;
+  CRFCliqueTree<? extends CharSequence> cliqueTree=getCliqueTree(documentDataAndLabels);
+  PriorModelFactory<IN> pmf=(PriorModelFactory<IN>)Class.forName(flags.priorModelFactory).newInstance();
+  ListeningSequenceModel prior=pmf.getInstance(flags.backgroundSymbol,classIndex,tagIndex,newDocument,entityMatrices,flags);
+  if (flags.useUniformPrior) {
   }
  else {
     throw new RuntimeException("no prior specified");
   }
-  model=new FactoredSequenceModel(model,priorModel);
-  listener=new FactoredSequenceListener(listener,priorListener);
+  SequenceModel model=new FactoredSequenceModel(cliqueTree,prior);
+  SequenceListener listener=new FactoredSequenceListener(cliqueTree,prior);
   SequenceGibbsSampler sampler=new SequenceGibbsSampler(0,0,listener);
   int[] sequence=new int[cliqueTree.length()];
   if (flags.initViterbi) {

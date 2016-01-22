@@ -1,0 +1,28 @@
+{
+  double minScore=Double.MAX_VALUE, maxScore=Double.MIN_VALUE;
+  Counter<E> newscores=new ClassicCounter<>();
+  if (softmax) {
+    for (    Entry<E,Double> en : scores.entrySet()) {
+      Double score=null;
+      if (oneMinusSoftMax)       score=(1 / (1 + Math.exp(Math.min(7,en.getValue()))));
+ else       score=(1 / (1 + Math.exp(-1 * Math.min(7,en.getValue()))));
+      if (score < minScore)       minScore=score;
+      if (score > maxScore)       maxScore=score;
+      newscores.setCount(en.getKey(),score);
+    }
+  }
+ else {
+    newscores.addAll(scores);
+    minScore=Counters.min(newscores);
+    maxScore=Counters.max(newscores);
+  }
+  if (minMaxNorm) {
+    for (    Entry<E,Double> en : newscores.entrySet()) {
+      double score;
+      if (minScore == maxScore)       score=minScore;
+ else       score=(en.getValue() - minScore + 1e-10) / (maxScore - minScore);
+      newscores.setCount(en.getKey(),score);
+    }
+  }
+  return newscores;
+}

@@ -4,7 +4,7 @@
   arch=arch.replaceAll("generic","words(-1,1),order(2),biwords(-1,0),wordTag(0,-1)");
   arch=arch.replaceAll("bidirectional5words","words(-2,2),order(-2,2),twoTags(-1,1),wordTag(0,-1),wordTag(0,1),biwords(-1,1)");
   arch=arch.replaceAll("bidirectional","words(-1,1),order(-2,2),twoTags(-1,1),wordTag(0,-1),wordTag(0,1),biwords(-1,1)");
-  ArrayList<Extractor> extrs=new ArrayList<Extractor>();
+  ArrayList<Extractor> extrs=new ArrayList<>();
   List<String> args=StringUtils.valueSplit(arch,"[a-zA-Z0-9]*(?:\\([^)]*\\))?","\\s*,\\s*");
   for (  String arg : args) {
     if (arg.equals("sighan2005")) {
@@ -124,7 +124,11 @@
       int rWindow=Extractor.getParenthesizedNum(arg,2);
       extrs.add(new ExtractorWordShapeConjunction(lWindow,rWindow,"chris4"));
     }
- else     if (arg.equalsIgnoreCase("naacl2003unknowns") || arg.equalsIgnoreCase("lnaacl2003unknowns") || arg.equalsIgnoreCase("caselessnaacl2003unknowns")|| arg.equalsIgnoreCase("naacl2003conjunctions")|| arg.equalsIgnoreCase("frenchunknowns")|| arg.startsWith("wordshapes(")|| arg.startsWith("wordshapeconjunction(")|| arg.equalsIgnoreCase("motleyUnknown")|| arg.startsWith("suffix(")|| arg.startsWith("prefix(")|| arg.startsWith("prefixsuffix")|| arg.startsWith("capitalizationsuffix(")|| arg.startsWith("distsim(")|| arg.startsWith("distsimconjunction(")|| arg.equalsIgnoreCase("lctagfeatures")|| arg.startsWith("unicodeshapes(")|| arg.startsWith("chinesedictionaryfeatures(")|| arg.startsWith("unicodeshapeconjunction(")) {
+ else     if (arg.equalsIgnoreCase("spanishauxiliaries")) {
+      extrs.add(new ExtractorSpanishAuxiliaryTag());
+      extrs.add(new ExtractorSpanishSemiauxiliaryTag());
+    }
+ else     if (arg.equalsIgnoreCase("naacl2003unknowns") || arg.equalsIgnoreCase("lnaacl2003unknowns") || arg.equalsIgnoreCase("caselessnaacl2003unknowns")|| arg.equalsIgnoreCase("naacl2003conjunctions")|| arg.equalsIgnoreCase("frenchunknowns")|| arg.equalsIgnoreCase("spanishunknowns")|| arg.startsWith("wordshapes(")|| arg.startsWith("wordshapeconjunction(")|| arg.equalsIgnoreCase("motleyUnknown")|| arg.startsWith("suffix(")|| arg.startsWith("prefix(")|| arg.startsWith("prefixsuffix")|| arg.startsWith("capitalizationsuffix(")|| arg.startsWith("distsim(")|| arg.startsWith("distsimconjunction(")|| arg.equalsIgnoreCase("lctagfeatures")|| arg.startsWith("unicodeshapes(")|| arg.startsWith("chinesedictionaryfeatures(")|| arg.startsWith("unicodeshapeconjunction(")) {
     }
  else {
       System.err.println("Unrecognized ExtractorFrames identifier (ignored): " + arg);

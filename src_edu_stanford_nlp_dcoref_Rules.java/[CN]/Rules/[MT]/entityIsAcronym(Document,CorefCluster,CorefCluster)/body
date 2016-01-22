@@ -1,0 +1,15 @@
+{
+  int minId=Math.min(mentionCluster.clusterID,potentialAntecedent.clusterID);
+  int maxId=Math.max(mentionCluster.clusterID,potentialAntecedent.clusterID);
+  if (!document.acronymCache.contains(minId,maxId)) {
+    boolean isAcronym=false;
+    for (    Mention m : mentionCluster.corefMentions) {
+      if (m.isPronominal())       continue;
+      for (      Mention ant : potentialAntecedent.corefMentions) {
+        if (isAcronym(m.originalSpan,ant.originalSpan))         isAcronym=true;
+      }
+    }
+    document.acronymCache.put(minId,maxId,isAcronym);
+  }
+  return document.acronymCache.get(minId,maxId);
+}

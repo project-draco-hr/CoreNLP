@@ -1,9 +1,9 @@
 {
   edgesNb=0;
   len=s.length();
-  states=new ArrayList<DFSAState<Word,Integer>>();
-  lattice=new DFSA<Word,Integer>("wordLattice");
-  for (int i=0; i <= s.length(); ++i)   states.add(new DFSAState<Word,Integer>(i,lattice));
+  states=new ArrayList<>();
+  lattice=new DFSA<>("wordLattice");
+  for (int i=0; i <= s.length(); ++i)   states.add(new DFSAState<>(i,lattice));
   lattice.setInitialState(states.get(0));
   states.get(len).setAccepting(true);
   for (int start=0; start < len; ++start) {
@@ -14,7 +14,7 @@
       boolean isInDict=words.contains(str);
       if (isInDict || isOneChar) {
         double cost=isInDict ? 1 : 100;
-        DFSATransition<Word,Integer> trans=new DFSATransition<Word,Integer>(null,states.get(start),states.get(end),new Word(str),null,cost);
+        DFSATransition<Word,Integer> trans=new DFSATransition<>(null,states.get(start),states.get(end),new Word(str),null,cost);
         states.get(start).addTransition(trans);
         ++edgesNb;
       }

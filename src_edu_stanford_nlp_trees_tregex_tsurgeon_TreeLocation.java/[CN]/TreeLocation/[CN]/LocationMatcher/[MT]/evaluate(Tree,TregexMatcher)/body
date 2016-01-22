@@ -1,0 +1,28 @@
+{
+  int newIndex=-1;
+  Tree parent=null;
+  Tree relativeNode=childMatcher.evaluate(tree,tregex);
+  Matcher m=daughterPattern.matcher(relation);
+  if (m.matches()) {
+    newIndex=Integer.parseInt(m.group(1)) - 1;
+    parent=relativeNode;
+    if (relation.charAt(1) == '-')     newIndex=parent.children().length - newIndex;
+  }
+ else {
+    parent=relativeNode.parent(tree);
+    if (parent == null) {
+      throw new RuntimeException("Error: looking for a non-existent parent in tree " + tree + " for \""+ toString()+ "\"");
+    }
+    int index=parent.objectIndexOf(relativeNode);
+    if (relation.equals("$+")) {
+      newIndex=index;
+    }
+ else     if (relation.equals("$-")) {
+      newIndex=index + 1;
+    }
+ else {
+      throw new RuntimeException("Error: Haven't dealt with relation " + relation + " yet.");
+    }
+  }
+  return new Pair<>(parent,newIndex);
+}

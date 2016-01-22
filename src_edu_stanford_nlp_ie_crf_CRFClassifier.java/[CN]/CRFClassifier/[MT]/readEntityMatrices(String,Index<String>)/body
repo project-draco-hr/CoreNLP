@@ -1,0 +1,29 @@
+{
+  int numTags=tagIndex.size();
+  int matrixSize=numTags - 1;
+  String[] matrixLines=new String[matrixSize];
+  String[] subMatrixLines=new String[matrixSize];
+  try {
+    BufferedReader br=IOUtils.readerFromString(fileName);
+    int lineCount=0;
+    for (String line; (line=br.readLine()) != null; ) {
+      line=line.trim();
+      if (lineCount < matrixSize)       matrixLines[lineCount]=line;
+ else       subMatrixLines[lineCount - matrixSize]=line;
+      lineCount++;
+    }
+  }
+ catch (  Exception ex) {
+    throw new RuntimeIOException(ex);
+  }
+  double[][] matrix=parseMatrix(matrixLines,tagIndex,matrixSize,true);
+  double[][] subMatrix=parseMatrix(subMatrixLines,tagIndex,matrixSize,true);
+  for (int i=0; i < matrix.length; i++) {
+    for (int j=0; j < matrix[i].length; j++)     matrix[i][j]=matrix[i][j] / 2;
+  }
+  System.err.println("Matrix: ");
+  System.err.println(ArrayUtils.toString(matrix));
+  System.err.println("SubMatrix: ");
+  System.err.println(ArrayUtils.toString(subMatrix));
+  return new Pair<>(matrix,subMatrix);
+}

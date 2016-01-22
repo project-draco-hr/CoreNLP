@@ -1,0 +1,70 @@
+{
+  CollapseUnaryTransformer transformer=new CollapseUnaryTransformer();
+  String parserModel="edu/stanford/nlp/models/lexparser/englishPCFG.ser.gz";
+  String inputPath=null;
+  String sentimentModelPath=null;
+  SentimentModel sentimentModel=null;
+  for (int argIndex=0; argIndex < args.length; ) {
+    if (args[argIndex].equalsIgnoreCase("-input")) {
+      inputPath=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-parserModel")) {
+      parserModel=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-sentimentModel")) {
+      sentimentModelPath=args[argIndex + 1];
+      argIndex+=2;
+    }
+ else {
+      System.err.println("Unknown argument " + args[argIndex]);
+      System.exit(2);
+    }
+  }
+  if (inputPath == null) {
+    throw new IllegalArgumentException("Must specify input file with -input");
+  }
+  LexicalizedParser parser=LexicalizedParser.loadModel(parserModel);
+  TreeBinarizer binarizer=TreeBinarizer.simpleTreeBinarizer(parser.getTLPParams().headFinder(),parser.treebankLanguagePack());
+  if (sentimentModelPath != null) {
+    sentimentModel=SentimentModel.loadSerialized(sentimentModelPath);
+  }
+  String text=IOUtils.slurpFileNoExceptions(inputPath);
+  String[] chunks=text.split("\\n\\s*\\n+");
+  for (  String chunk : chunks) {
+    if (chunk.trim().isEmpty()) {
+      continue;
+    }
+    String[] lines=chunk.trim().split("\\n");
+    String sentence=lines[0];
+    StringReader sin=new StringReader(sentence);
+    DocumentPreprocessor document=new DocumentPreprocessor(sin);
+    document.setSentenceFinalPuncWords(new String[]{"\n"});
+    List<HasWord> tokens=document.iterator().next();
+    Integer mainLabel=new Integer(tokens.get(0).word());
+    tokens=tokens.subList(1,tokens.size());
+    Map<Pair<Integer,Integer>,String> spanToLabels=Generics.newHashMap();
+    for (int i=1; i < lines.length; ++i) {
+      extractLabels(spanToLabels,tokens,lines[i]);
+    }
+    Tree tree=parser.apply(tokens);
+    Tree binarized=binarizer.transformTree(tree);
+    Tree collapsedUnary=transformer.transformTree(binarized);
+    if (sentimentModel != null) {
+      Trees.convertToCoreLabels(collapsedUnary);
+      SentimentCostAndGradient scorer=new SentimentCostAndGradient(sentimentModel,null);
+      scorer.forwardPropagateTree(collapsedUnary);
+      setPredictedLabels(collapsedUnary);
+    }
+ else {
+      setUnknownLabels(collapsedUnary,mainLabel);
+    }
+    Trees.convertToCoreLabels(collapsedUnary);
+    collapsedUnary.indexSpans();
+    for (    Map.Entry<Pair<Integer,Integer>,String> pairStringEntry : spanToLabels.entrySet()) {
+      setSpanLabel(collapsedUnary,pairStringEntry.getKey(),pairStringEntry.getValue());
+    }
+    System.out.println(collapsedUnary);
+  }
+}

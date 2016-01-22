@@ -1,0 +1,36 @@
+{
+  for (  Entry<String,Class<? extends Key<String>>> anscl : constVars.getAnswerClass().entrySet()) {
+    String label=anscl.getKey();
+    Counter<String> entityTP=new ClassicCounter<>();
+    Counter<String> entityFP=new ClassicCounter<>();
+    Counter<String> entityFN=new ClassicCounter<>();
+    Counter<String> wordTP=new ClassicCounter<>();
+    Counter<String> wordTN=new ClassicCounter<>();
+    Counter<String> wordFP=new ClassicCounter<>();
+    Counter<String> wordFN=new ClassicCounter<>();
+    for (    Entry<String,DataInstance> docEn : testSentences.entrySet()) {
+      DataInstance doc=docEn.getValue();
+      List<CoreLabel> doceval=new ArrayList<>();
+      for (      CoreLabel l : doc.getTokens()) {
+        CoreLabel l2=new CoreLabel();
+        l2.setWord(l.word());
+        if (l.get(anscl.getValue()).equals(label)) {
+          l2.set(CoreAnnotations.AnswerAnnotation.class,label);
+        }
+ else         l2.set(CoreAnnotations.AnswerAnnotation.class,constVars.backgroundSymbol);
+        if (!l.get(CoreAnnotations.GoldAnswerAnnotation.class).equals(label)) {
+          l2.set(CoreAnnotations.GoldAnswerAnnotation.class,constVars.backgroundSymbol);
+        }
+ else         l2.set(CoreAnnotations.GoldAnswerAnnotation.class,label);
+        doceval.add(l2);
+      }
+      countResults(doceval,entityTP,entityFP,entityFN,constVars.backgroundSymbol,wordTP,wordTN,wordFP,wordFN,CoreAnnotations.AnswerAnnotation.class,evalPerEntity);
+    }
+    System.out.println("False Positives: " + Counters.toSortedString(wordFP,wordFP.size(),"%s:%.2f",";"));
+    System.out.println("False Negatives: " + Counters.toSortedString(wordFN,wordFN.size(),"%s:%.2f",";"));
+    Redwood.log(Redwood.DBG,"\nFor label " + label + " True Positives: "+ entityTP+ "\tFalse Positives: "+ entityFP+ "\tFalse Negatives: "+ entityFN);
+    Counter<String> precision=Counters.division(entityTP,Counters.add(entityTP,entityFP));
+    Counter<String> recall=Counters.division(entityTP,Counters.add(entityTP,entityFN));
+    Redwood.log(ConstantsAndVariables.minimaldebug,"\nFor label " + label + " Precision: "+ precision+ ", Recall: "+ recall+ ", F1 score:  "+ FScore(precision,recall,1));
+  }
+}

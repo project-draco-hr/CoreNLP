@@ -10,10 +10,24 @@
   if (w.equals(IndexedWord.NO_WORD)) {
     return 1;
   }
+  if (!Double.isNaN(w.pseudoPosition) || !Double.isNaN(this.pseudoPosition)) {
+    double val=this.pseudoPosition() - w.pseudoPosition();
+    if (val < 0) {
+      return -1;
+    }
+    if (val > 0) {
+      return 1;
+    }
+ else {
+      return 0;
+    }
+  }
   String docID=this.getString(CoreAnnotations.DocIDAnnotation.class);
   int docComp=docID.compareTo(w.getString(CoreAnnotations.DocIDAnnotation.class));
   if (docComp != 0)   return docComp;
   int sentComp=sentIndex() - w.sentIndex();
   if (sentComp != 0)   return sentComp;
-  return index() - w.index();
+  int indexComp=index() - w.index();
+  if (indexComp != 0)   return indexComp;
+  return copyCount() - w.copyCount();
 }

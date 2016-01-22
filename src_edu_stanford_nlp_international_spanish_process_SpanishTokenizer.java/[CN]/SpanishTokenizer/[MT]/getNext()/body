@@ -1,0 +1,21 @@
+{
+  try {
+    T nextToken;
+    do {
+      nextToken=(splitAny && !compoundBuffer.isEmpty()) ? (T)compoundBuffer.remove(0) : (T)lexer.next();
+    }
+ while (nextToken != null && nextToken.word().isEmpty());
+    if (splitAny && nextToken instanceof CoreLabel) {
+      CoreLabel cl=(CoreLabel)nextToken;
+      if (cl.containsKey(ParentAnnotation.class)) {
+        if (splitCompounds && cl.get(ParentAnnotation.class).equals(SpanishLexer.COMPOUND_ANNOTATION))         nextToken=(T)processCompound(cl);
+ else         if (splitVerbs && cl.get(ParentAnnotation.class).equals(SpanishLexer.VB_PRON_ANNOTATION))         nextToken=(T)processVerb(cl);
+ else         if (splitContractions && cl.get(ParentAnnotation.class).equals(SpanishLexer.CONTR_ANNOTATION))         nextToken=(T)processContraction(cl);
+      }
+    }
+    return nextToken;
+  }
+ catch (  IOException e) {
+    throw new RuntimeIOException(e);
+  }
+}

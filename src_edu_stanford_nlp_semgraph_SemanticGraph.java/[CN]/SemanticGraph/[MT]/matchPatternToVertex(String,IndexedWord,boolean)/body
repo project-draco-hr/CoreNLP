@@ -1,5 +1,5 @@
 {
-  if (!vertexSet().contains(vertex)) {
+  if (!containsVertex(vertex)) {
     throw new IllegalArgumentException();
   }
   String pat=pattern.replaceAll("<",",<");
@@ -12,9 +12,8 @@
     String word=s.substring(1);
     char dir=s.charAt(0);
     if (dir == '<') {
-      List<IndexedWord> parents=getParentList(vertex);
       boolean match=false;
-      for (      IndexedWord parent : parents) {
+      for (      IndexedWord parent : getParents(vertex)) {
         String lemma=parent.get(CoreAnnotations.LemmaAnnotation.class);
         if (lemma.equals(word)) {
           match=true;
@@ -27,7 +26,8 @@
     }
  else     if (dir == '>') {
       if (det) {
-        List<IndexedWord> children=getChildrenWithReln(vertex,EnglishGrammaticalRelations.DETERMINER);
+        Set<IndexedWord> children=wordMapFactory.newSet();
+        children.addAll(getChildrenWithReln(vertex,EnglishGrammaticalRelations.DETERMINER));
         children.addAll(getChildrenWithReln(vertex,EnglishGrammaticalRelations.PREDETERMINER));
         boolean match=false;
         for (        IndexedWord child : children) {

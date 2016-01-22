@@ -3,9 +3,10 @@
   for (  String filename : filenames) {
     try {
       System.err.println("Reading TokensRegex rules from " + filename);
-      BufferedReader br=IOUtils.getBufferedReaderFromClasspathOrFileSystem(filename);
+      BufferedReader br=IOUtils.readerFromString(filename);
       TokenSequenceParser parser=new TokenSequenceParser();
       parser.updateExpressionExtractor(extractor,br);
+      IOUtils.closeIgnoringExceptions(br);
     }
  catch (    Exception ex) {
       throw new RuntimeException("Error parsing file: " + filename,ex);

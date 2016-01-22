@@ -2,8 +2,11 @@
   if (keepPunct) {
     puncFilter=Filters.acceptFilter();
   }
+ else   if (params.generateOriginalDependencies()) {
+    puncFilter=params.treebankLanguagePack().punctuationWordRejectFilter();
+  }
  else {
-    puncFilter=new PennTreebankLanguagePack().punctuationWordRejectFilter();
+    puncFilter=params.treebankLanguagePack().punctuationTagRejectFilter();
   }
   hf=params.typedDependencyHeadFinder();
   primeGs();

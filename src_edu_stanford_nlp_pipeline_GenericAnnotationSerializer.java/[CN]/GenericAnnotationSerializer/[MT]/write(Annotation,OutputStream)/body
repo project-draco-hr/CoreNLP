@@ -1,0 +1,16 @@
+{
+  if (os instanceof AppendingObjectOutputStream) {
+    ((AppendingObjectOutputStream)os).writeObject(corpus);
+    return os;
+  }
+ else   if (os instanceof ObjectOutputStream) {
+    ObjectOutputStream objectOutput=new AppendingObjectOutputStream(compress ? new GZIPOutputStream(os) : os);
+    objectOutput.writeObject(corpus);
+    return objectOutput;
+  }
+ else {
+    ObjectOutputStream objectOutput=new ObjectOutputStream(compress ? new GZIPOutputStream(os) : os);
+    objectOutput.writeObject(corpus);
+    return objectOutput;
+  }
+}

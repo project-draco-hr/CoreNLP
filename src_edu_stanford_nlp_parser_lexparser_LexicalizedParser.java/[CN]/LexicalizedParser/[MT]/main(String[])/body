@@ -32,25 +32,22 @@
     return;
   }
   Options op=new Options();
-  List<String> optionArgs=new ArrayList<String>();
+  List<String> optionArgs=new ArrayList<>();
   String encoding=null;
   while (argIndex < args.length && args[argIndex].charAt(0) == '-') {
     if (args[argIndex].equalsIgnoreCase("-train") || args[argIndex].equalsIgnoreCase("-trainTreebank")) {
       train=true;
-      Pair<String,FileFilter> treebankDescription=ArgUtils.getTreebankDescription(args,argIndex,"-test");
+      Pair<String,FileFilter> treebankDescription=ArgUtils.getTreebankDescription(args,argIndex,"-train");
       argIndex=argIndex + ArgUtils.numSubArgs(args,argIndex) + 1;
       treebankPath=treebankDescription.first();
       trainFilter=treebankDescription.second();
     }
  else     if (args[argIndex].equalsIgnoreCase("-train2")) {
-      int numSubArgs=ArgUtils.numSubArgs(args,argIndex);
-      argIndex++;
-      if (numSubArgs < 2) {
-        throw new RuntimeException("Error: -train2 <treebankPath> [<ranges>] <weight>.");
-      }
-      secondaryTreebankPath=args[argIndex++];
-      secondaryTrainFilter=(numSubArgs == 3) ? new NumberRangesFileFilter(args[argIndex++],true) : null;
-      secondaryTreebankWeight=Double.parseDouble(args[argIndex++]);
+      Triple<String,FileFilter,Double> treebankDescription=ArgUtils.getWeightedTreebankDescription(args,argIndex,"-train2");
+      argIndex=argIndex + ArgUtils.numSubArgs(args,argIndex) + 1;
+      secondaryTreebankPath=treebankDescription.first();
+      secondaryTrainFilter=treebankDescription.second();
+      secondaryTreebankWeight=treebankDescription.third();
     }
  else     if (args[argIndex].equalsIgnoreCase("-tLPP") && (argIndex + 1 < args.length)) {
       try {
@@ -158,44 +155,7 @@ catch (      IllegalAccessException e) {
  else {
       int oldIndex=argIndex;
       argIndex=op.setOptionOrWarn(args,argIndex);
-      for (int i=oldIndex; i < argIndex; i++) {
-        optionArgs.add(args[i]);
-      }
-    }
-  }
-  if (tokenizerFactoryClass != null || tokenizerOptions != null) {
-    try {
-      if (tokenizerFactoryClass != null) {
-        Class<TokenizerFactory<? extends HasWord>> clazz=ErasureUtils.uncheckedCast(Class.forName(tokenizerFactoryClass));
-        Method factoryMethod;
-        if (tokenizerOptions != null) {
-          factoryMethod=clazz.getMethod(tokenizerMethod != null ? tokenizerMethod : "newWordTokenizerFactory",String.class);
-          tokenizerFactory=ErasureUtils.uncheckedCast(factoryMethod.invoke(null,tokenizerOptions));
-        }
- else {
-          factoryMethod=clazz.getMethod(tokenizerMethod != null ? tokenizerMethod : "newTokenizerFactory");
-          tokenizerFactory=ErasureUtils.uncheckedCast(factoryMethod.invoke(null));
-        }
-      }
- else {
-        tokenizerFactory=PTBTokenizer.PTBTokenizerFactory.newWordTokenizerFactory(tokenizerOptions);
-      }
-    }
- catch (    IllegalAccessException e) {
-      System.err.println("Couldn't instantiate TokenizerFactory " + tokenizerFactoryClass + " with options "+ tokenizerOptions);
-      throw new RuntimeException(e);
-    }
-catch (    NoSuchMethodException e) {
-      System.err.println("Couldn't instantiate TokenizerFactory " + tokenizerFactoryClass + " with options "+ tokenizerOptions);
-      throw new RuntimeException(e);
-    }
-catch (    ClassNotFoundException e) {
-      System.err.println("Couldn't instantiate TokenizerFactory " + tokenizerFactoryClass + " with options "+ tokenizerOptions);
-      throw new RuntimeException(e);
-    }
-catch (    InvocationTargetException e) {
-      System.err.println("Couldn't instantiate TokenizerFactory " + tokenizerFactoryClass + " with options "+ tokenizerOptions);
-      throw new RuntimeException(e);
+      optionArgs.addAll(Arrays.asList(args).subList(oldIndex,argIndex));
     }
   }
   if (tuneFilter != null || tunePath != null) {
@@ -228,7 +188,7 @@ catch (    InvocationTargetException e) {
     }
     List<List<TaggedWord>> extraTaggedWords=null;
     if (op.trainOptions.taggedFiles != null) {
-      extraTaggedWords=new ArrayList<List<TaggedWord>>();
+      extraTaggedWords=new ArrayList<>();
       List<TaggedFileRecord> fileRecords=TaggedFileRecord.createRecords(new Properties(),op.trainOptions.taggedFiles);
       for (      TaggedFileRecord record : fileRecords) {
         for (        List<TaggedWord> sentence : record.reader()) {
@@ -259,6 +219,30 @@ catch (    InvocationTargetException e) {
  catch (    IllegalArgumentException e) {
       System.err.println("Error loading parser, exiting...");
       throw e;
+    }
+  }
+  if (tokenizerFactoryClass != null || tokenizerOptions != null) {
+    try {
+      if (tokenizerFactoryClass != null) {
+        Class<TokenizerFactory<? extends HasWord>> clazz=ErasureUtils.uncheckedCast(Class.forName(tokenizerFactoryClass));
+        Method factoryMethod;
+        if (tokenizerOptions != null) {
+          factoryMethod=clazz.getMethod(tokenizerMethod != null ? tokenizerMethod : "newWordTokenizerFactory",String.class);
+          tokenizerFactory=ErasureUtils.uncheckedCast(factoryMethod.invoke(null,tokenizerOptions));
+        }
+ else {
+          factoryMethod=clazz.getMethod(tokenizerMethod != null ? tokenizerMethod : "newTokenizerFactory");
+          tokenizerFactory=ErasureUtils.uncheckedCast(factoryMethod.invoke(null));
+        }
+      }
+ else {
+        tokenizerFactory=lp.op.langpack().getTokenizerFactory();
+        tokenizerFactory.setOptions(tokenizerOptions);
+      }
+    }
+ catch (    IllegalAccessException|InvocationTargetException|ClassNotFoundException|NoSuchMethodException e) {
+      System.err.println("Couldn't instantiate TokenizerFactory " + tokenizerFactoryClass + " with options "+ tokenizerOptions);
+      throw new RuntimeException(e);
     }
   }
   if (encoding != null) {

@@ -1,0 +1,18 @@
+{
+  TreebankLangParserParams tlpParams=op.tlpParams;
+  TreebankLanguagePack tlp=tlpParams.treebankLanguagePack();
+  CompositeTreeTransformer trainTransformer=new CompositeTreeTransformer();
+  if (op.trainOptions.preTransformer != null) {
+    trainTransformer.addTransformer(op.trainOptions.preTransformer);
+  }
+  if (op.trainOptions.collinsPunc) {
+    CollinsPuncTransformer collinsPuncTransformer=new CollinsPuncTransformer(tlp);
+    trainTransformer.addTransformer(collinsPuncTransformer);
+  }
+  trainTransformer.addTransformer(binarizer);
+  if (op.wordFunction != null) {
+    TreeTransformer wordFunctionTransformer=new TreeLeafLabelTransformer(op.wordFunction);
+    trainTransformer.addTransformer(wordFunctionTransformer);
+  }
+  return trainTransformer;
+}

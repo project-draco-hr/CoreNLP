@@ -1,16 +1,14 @@
 {
   Map symbolToTarget=new HashMap();
-  for (Iterator memberI=block.getMembers().iterator(); memberI.hasNext(); ) {
-    Object member=memberI.next();
-    for (Iterator symbolI=getInverseArcs(member).iterator(); symbolI.hasNext(); ) {
-      TransducerGraph.Arc arc=(TransducerGraph.Arc)symbolI.next();
+  for (  Object member : block.getMembers()) {
+    for (    Object o : getInverseArcs(member)) {
+      TransducerGraph.Arc arc=(TransducerGraph.Arc)o;
       Object symbol=arc.getInput();
       Object target=arc.getTargetNode();
       Maps.putIntoValueArrayList(symbolToTarget,symbol,target);
     }
   }
-  for (Iterator symbolI=symbolToTarget.keySet().iterator(); symbolI.hasNext(); ) {
-    Object symbol=symbolI.next();
+  for (  Object symbol : symbolToTarget.keySet()) {
     addSplit(new Split((List)symbolToTarget.get(symbol),symbol,block));
   }
 }

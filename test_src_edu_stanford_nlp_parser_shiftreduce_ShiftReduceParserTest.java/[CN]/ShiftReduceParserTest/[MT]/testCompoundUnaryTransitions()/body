@@ -1,0 +1,11 @@
+{
+  for (  String treeText : treeStrings) {
+    Tree tree=convertTree(treeText);
+    List<Transition> transitions=CreateTransitionSequence.createTransitionSequence(tree,true,Collections.singleton("ROOT"),Collections.singleton("ROOT"));
+    State state=ShiftReduceParser.initialStateFromGoldTagTree(tree);
+    for (    Transition transition : transitions) {
+      state=transition.apply(state);
+    }
+    assertEquals(tree,state.stack.peek());
+  }
+}

@@ -9,27 +9,30 @@
   }
   if (conllx) {
     List<Tree> leaves=tree.getLeaves();
-    List<String> words=new ArrayList<String>(leaves.size());
-    List<String> pos=new ArrayList<String>(leaves.size());
-    String[] relns=new String[leaves.size()];
-    int[] govs=new int[leaves.size()];
+    Tree uposTree=UniversalPOSMapper.mapTree(tree);
+    List<Label> uposLabels=uposTree.preTerminalYield();
+    int index=0;
+    CoreMap sentence=new CoreLabel();
+    List<CoreLabel> tokens=new ArrayList<>(leaves.size());
     for (    Tree leaf : leaves) {
-      words.add(leaf.value());
-      pos.add(leaf.parent(tree).value());
+      index++;
+      if (!indexToPos.containsKey(index)) {
+        continue;
+      }
+      CoreLabel token=new CoreLabel();
+      token.setIndex(index);
+      token.setValue(leaf.value());
+      token.setWord(leaf.value());
+      token.setTag(leaf.parent(tree).value());
+      token.set(CoreAnnotations.CoarseTagAnnotation.class,uposLabels.get(index - 1).value());
+      tokens.add(token);
     }
-    for (    TypedDependency dep : deps) {
-      int depPos=indexToPos.get(dep.dep().index()) - 1;
-      govs[depPos]=indexToPos.get(dep.gov().index());
-      relns[depPos]=dep.reln().toString();
-    }
-    for (int i=0; i < relns.length; i++) {
-      String out=String.format("%d\t%s\t_\t%s\t%s\t_\t%d\t%s\t_\t_\n",i + 1,words.get(i),pos.get(i),pos.get(i),govs[i],(relns[i] != null ? relns[i] : "erased"));
-      bf.append(out);
-    }
+    sentence.set(CoreAnnotations.TokensAnnotation.class,tokens);
+    bf.append(dependenciesToCoNLLXString(deps,sentence));
   }
  else {
     if (extraSep) {
-      List<TypedDependency> extraDeps=new ArrayList<TypedDependency>();
+      List<TypedDependency> extraDeps=new ArrayList<>();
       for (      TypedDependency dep : deps) {
         if (dep.extra()) {
           extraDeps.add(dep);

@@ -1,7 +1,6 @@
 {
   boolean matchAll=true;
-  int branchLimit=2;
-  Stack<MatchedStates> todo=new Stack<MatchedStates>();
+  Stack<MatchedStates> todo=new Stack<>();
   MatchedStates cStates=getStartStates();
   cStates.curPosition=start - 1;
   todo.push(cStates);
@@ -9,6 +8,9 @@
     cStates=todo.pop();
     int s=cStates.curPosition + 1;
     for (int i=s; i < regionEnd; i++) {
+      if (Thread.interrupted()) {
+        throw new RuntimeInterruptedException();
+      }
       boolean match=cStates.match(i);
       if (cStates == null || cStates.size() == 0) {
         break;

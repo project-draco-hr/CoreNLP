@@ -4,6 +4,7 @@
     int parsesExpected=0;
     int sentenceId=lastSentenceId;
     ScoredObject<Tree> curParse=null;
+    Double score=null;
     List<ScoredObject<Tree>> curParses=null;
     while ((line=br.readLine()) != null) {
       line=line.trim();
@@ -27,16 +28,17 @@
             }
           }
           lastSentenceId=sentenceId;
-          curParses=new ArrayList<ScoredObject<Tree>>(parsesExpected);
+          curParses=new ArrayList<>(parsesExpected);
         }
  else {
-          if (curParse == null) {
-            double score=Double.parseDouble(line);
-            curParses.add(curParse=new ScoredObject<Tree>(null,score));
+          if (score == null) {
+            score=Double.parseDouble(line);
           }
  else {
-            curParse.setObject(Trees.readTree(line));
+            curParse=new ScoredObject<>(Trees.readTree(line),score);
+            curParses.add(curParse);
             curParse=null;
+            score=null;
             parsesExpected--;
             if (parsesExpected == 0) {
               return curParses;

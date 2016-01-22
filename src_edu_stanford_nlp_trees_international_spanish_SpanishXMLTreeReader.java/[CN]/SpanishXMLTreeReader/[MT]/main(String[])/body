@@ -1,0 +1,43 @@
+{
+  final Properties options=StringUtils.argsToProperties(args,argOptionDefs());
+  if (args.length < 1 || options.containsKey("help")) {
+    System.err.println(usage());
+    return;
+  }
+  final Pattern posPattern=options.containsKey("searchPos") ? Pattern.compile(options.getProperty("searchPos")) : null;
+  final Pattern wordPattern=options.containsKey("searchWord") ? Pattern.compile(options.getProperty("searchWord")) : null;
+  final boolean plainPrint=PropertiesUtils.getBool(options,"plain",false);
+  final boolean ner=PropertiesUtils.getBool(options,"ner",false);
+  final boolean detailedAnnotations=PropertiesUtils.getBool(options,"detailedAnnotations",false);
+  String[] remainingArgs=options.getProperty("").split(" ");
+  List<File> fileList=new ArrayList<>();
+  for (  String remainingArg : remainingArgs)   fileList.add(new File(remainingArg));
+  final SpanishXMLTreeReaderFactory trf=new SpanishXMLTreeReaderFactory(true,true,ner,detailedAnnotations);
+  ExecutorService pool=Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+  for (  final File file : fileList) {
+    pool.execute(new Runnable(){
+      public void run(){
+        try {
+          Reader in=new BufferedReader(new InputStreamReader(new FileInputStream(file),"ISO-8859-1"));
+          TreeReader tr=trf.newTreeReader(file.getPath(),in);
+          process(file,tr,posPattern,wordPattern,plainPrint);
+          tr.close();
+        }
+ catch (        FileNotFoundException e) {
+          e.printStackTrace();
+        }
+catch (        IOException e) {
+          e.printStackTrace();
+        }
+      }
+    }
+);
+  }
+  pool.shutdown();
+  try {
+    pool.awaitTermination(Long.MAX_VALUE,TimeUnit.NANOSECONDS);
+  }
+ catch (  InterruptedException e) {
+    e.printStackTrace();
+  }
+}

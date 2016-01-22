@@ -1,0 +1,25 @@
+{
+  assertEquals("Unexpected difference in number of chains",expected.size(),chains.size());
+  for (  Map.Entry<Integer,List<ExpectedMention>> mapEntry : expected.entrySet()) {
+    boolean found=false;
+    List<ExpectedMention> expectedChain=mapEntry.getValue();
+    for (    CorefChain chain : chains.values()) {
+      if (compareChain(expectedChain,chain)) {
+        found=true;
+        break;
+      }
+    }
+    assertTrue("Could not find expected coref chain " + mapEntry.getKey() + " "+ expectedChain+ " in the results",found);
+  }
+  for (  Map.Entry<Integer,CorefChain> integerCorefChainEntry : chains.entrySet()) {
+    boolean found=false;
+    CorefChain chain=integerCorefChainEntry.getValue();
+    for (    List<ExpectedMention> expectedChain : expected.values()) {
+      if (compareChain(expectedChain,chain)) {
+        found=true;
+        break;
+      }
+    }
+    assertTrue("Dcoref produced chain " + chain + " which was not in the expected results",found);
+  }
+}

@@ -1,0 +1,14 @@
+{
+  Map<Integer,Set> p=new HashMap<>();
+  List<CoreLabel> tokens=sent.getTokens();
+  for (int i=0; i < tokens.size(); i++) {
+    p.put(i,new HashSet<SurfacePattern>());
+    CoreLabel token=tokens.get(i);
+    if (PatternFactory.doNotUse(token.word(),stopWords)) {
+      continue;
+    }
+    Set<SurfacePattern> pat=getContext(sent.getTokens(),i,stopWords);
+    p.put(i,pat);
+  }
+  return p;
+}

@@ -1,12 +1,12 @@
 {
-  RVFDataset<L,L> plattDataset=new RVFDataset<L,L>();
+  RVFDataset<L,L> plattDataset=new RVFDataset<>();
   for (int i=0; i < dataset.size(); i++) {
     RVFDatum<L,F> d=dataset.getRVFDatum(i);
     Counter<L> scores=classifier.scoresOf((Datum<L,F>)d);
     scores.incrementCount(null);
-    plattDataset.add(new RVFDatum<L,L>(scores,d.label()));
+    plattDataset.add(new RVFDatum<>(scores,d.label()));
   }
-  LinearClassifierFactory<L,L> factory=new LinearClassifierFactory<L,L>();
+  LinearClassifierFactory<L,L> factory=new LinearClassifierFactory<>();
   factory.setPrior(new LogPrior(LogPrior.LogPriorType.NULL));
   return factory.trainClassifier(plattDataset);
 }

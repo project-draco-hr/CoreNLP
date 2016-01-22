@@ -2,6 +2,21 @@
 synchronized (NERCombinerAnnotatorITest.class) {
     if (nerAnnotator == null) {
       nerAnnotator=new NERCombinerAnnotator(false,NER_3CLASS,NER_7CLASS,NER_MISCCLASS);
+      Properties props=new Properties();
+      props.setProperty("ner.applyNumericClassifiers","false");
+      props.setProperty("ner.useSUTime","false");
+      props.setProperty("ner.model",NER_3CLASS);
+      NERClassifierCombiner ner=NERClassifierCombiner.createNERClassifierCombiner("ner",props);
+      NERCombinerAnnotator threaded4Annotator=new NERCombinerAnnotator(ner,false,4,-1);
+      threaded4Pipeline=new AnnotationPipeline();
+      threaded4Pipeline.addAnnotator(new TokenizerAnnotator(false,"en"));
+      threaded4Pipeline.addAnnotator(new WordsToSentencesAnnotator(false));
+      threaded4Pipeline.addAnnotator(threaded4Annotator);
+      NERCombinerAnnotator unthreadedAnnotator=new NERCombinerAnnotator(ner,false,1,-1);
+      unthreadedPipeline=new AnnotationPipeline();
+      unthreadedPipeline.addAnnotator(new TokenizerAnnotator(false,"en"));
+      unthreadedPipeline.addAnnotator(new WordsToSentencesAnnotator(false));
+      unthreadedPipeline.addAnnotator(unthreadedAnnotator);
     }
   }
 }

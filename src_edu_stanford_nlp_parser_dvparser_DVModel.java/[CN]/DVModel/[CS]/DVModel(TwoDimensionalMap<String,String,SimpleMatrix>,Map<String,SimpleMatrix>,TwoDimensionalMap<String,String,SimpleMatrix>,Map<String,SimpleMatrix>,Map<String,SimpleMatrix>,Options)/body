@@ -1,0 +1,30 @@
+{
+  this.op=op;
+  this.binaryTransform=binaryTransform;
+  this.unaryTransform=unaryTransform;
+  this.binaryScore=binaryScore;
+  this.unaryScore=unaryScore;
+  this.wordVectors=wordVectors;
+  this.numBinaryMatrices=binaryTransform.size();
+  this.numUnaryMatrices=unaryTransform.size();
+  if (numBinaryMatrices > 0) {
+    this.binaryTransformSize=binaryTransform.iterator().next().getValue().getNumElements();
+    this.binaryScoreSize=binaryScore.iterator().next().getValue().getNumElements();
+  }
+ else {
+    this.binaryTransformSize=0;
+    this.binaryScoreSize=0;
+  }
+  if (numUnaryMatrices > 0) {
+    this.unaryTransformSize=unaryTransform.values().iterator().next().getNumElements();
+    this.unaryScoreSize=unaryScore.values().iterator().next().getNumElements();
+  }
+ else {
+    this.unaryTransformSize=0;
+    this.unaryScoreSize=0;
+  }
+  this.numRows=op.lexOptions.numHid;
+  this.numCols=op.lexOptions.numHid;
+  this.identity=SimpleMatrix.identity(numRows);
+  this.rand=new Random(op.trainOptions.randomSeed);
+}

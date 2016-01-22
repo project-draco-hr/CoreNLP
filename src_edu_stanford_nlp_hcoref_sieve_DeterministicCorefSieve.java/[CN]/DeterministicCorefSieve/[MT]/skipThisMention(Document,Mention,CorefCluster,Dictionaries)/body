@@ -1,0 +1,19 @@
+{
+  boolean skip=false;
+  if (!flags.USE_ROLEAPPOSITION && !flags.USE_PREDICATENOMINATIVES && !flags.USE_ACRONYM&& !flags.USE_APPOSITION&& !flags.USE_RELATIVEPRONOUN&& !c.getFirstMention().equals(m1)) {
+    return true;
+  }
+  if (m1.appositions == null && m1.predicateNominatives == null && (m1.lowercaseNormalizedSpanString().startsWith("a ") || m1.lowercaseNormalizedSpanString().startsWith("an ")) && !flags.USE_EXACTSTRINGMATCH) {
+    skip=true;
+  }
+  if (dict.indefinitePronouns.contains(m1.lowercaseNormalizedSpanString())) {
+    skip=true;
+  }
+  for (  String indef : dict.indefinitePronouns) {
+    if (m1.lowercaseNormalizedSpanString().startsWith(indef + " ")) {
+      skip=true;
+      break;
+    }
+  }
+  return skip;
+}

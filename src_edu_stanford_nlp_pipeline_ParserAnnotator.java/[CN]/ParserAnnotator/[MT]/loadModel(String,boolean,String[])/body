@@ -1,7 +1,14 @@
 {
   if (verbose) {
     System.err.println("Loading Parser Model [" + parserLoc + "] ...");
+    System.err.print("  Flags:");
+    for (    String flag : flags) {
+      System.err.print("  " + flag);
+    }
+    System.err.println();
   }
-  LexicalizedParser result=LexicalizedParser.loadModel(parserLoc,flags);
+  ParserGrammar result=ParserGrammar.loadModel(parserLoc);
+  result.setOptionFlags(result.defaultCoreNLPFlags());
+  result.setOptionFlags(flags);
   return result;
 }

@@ -1,0 +1,47 @@
+{
+  NumberFormat nf=new DecimalFormat("0.00");
+  System.out.println("======================================================");
+  System.out.println(">>> " + corpusName);
+  System.out.println(" trees:\t\t" + numTrees);
+  System.out.println(" words:\t\t" + words.keySet().size());
+  System.out.println(" tokens:\t" + (int)words.totalCount());
+  System.out.println(" tags:\t\t" + posTags.size());
+  System.out.println(" phrasal types:\t" + phrasalBranchingNum2.keySet().size());
+  System.out.println(" phrasal nodes:\t" + (int)phrasalBranchingNum2.totalCount());
+  System.out.println(" OOV rate:\t" + nf.format(OOVRate * 100.0) + "%");
+  System.out.println("======================================================");
+  System.out.println(">>> Per tree means");
+  System.out.printf(" depth:\t\t%s\t{min:%d\tmax:%d}\t\ts: %s\n",nf.format(meanDepth),minDepth,maxDepth,nf.format(stddevDepth));
+  System.out.printf(" breadth:\t%s\t{min:%d\tmax:%d}\ts: %s\n",nf.format(meanBreadth),minBreadth,maxBreadth,nf.format(stddevBreadth));
+  System.out.printf(" length:\t%s\t{min:%d\tmax:%d}\ts: %s\n",nf.format(meanLength),minLength,maxLength,nf.format(stddevLength));
+  System.out.println(" branching:\t" + nf.format(meanBranchingFactor));
+  System.out.println(" constituents:\t" + nf.format(meanConstituents));
+  System.out.println("======================================================");
+  System.out.println(">>> Branching factor means by phrasal tag:");
+  List<String> sortedKeys=new ArrayList<>(meanBranchingByLabel.keySet());
+  Collections.sort(sortedKeys,Counters.toComparator(phrasalBranchingNum2,false,true));
+  for (  String label : sortedKeys)   System.out.printf(" %s:\t\t%s  /  %d instances\n",label,nf.format(meanBranchingByLabel.getCount(label)),(int)phrasalBranchingNum2.getCount(label));
+  System.out.println("======================================================");
+  System.out.println(">>> Phrasal tag counts");
+  sortedKeys=new ArrayList<>(phrasalBranchingNum2.keySet());
+  Collections.sort(sortedKeys,Counters.toComparator(phrasalBranchingNum2,false,true));
+  for (  String label : sortedKeys)   System.out.println(" " + label + ":\t\t"+ (int)phrasalBranchingNum2.getCount(label));
+  System.out.println("======================================================");
+  System.out.println(">>> POS tag counts");
+  sortedKeys=new ArrayList<>(posTags.keySet());
+  Collections.sort(sortedKeys,Counters.toComparator(posTags,false,true));
+  for (  String posTag : sortedKeys)   System.out.println(" " + posTag + ":\t\t"+ (int)posTags.getCount(posTag));
+  System.out.println("======================================================");
+  if (displayWords) {
+    System.out.println(">>> Word counts");
+    sortedKeys=new ArrayList<>(words.keySet());
+    Collections.sort(sortedKeys,Counters.toComparator(words,false,true));
+    for (    String word : sortedKeys)     System.out.println(" " + word + ":\t\t"+ (int)words.getCount(word));
+    System.out.println("======================================================");
+  }
+  if (displayOOV) {
+    System.out.println(">>> OOV word types");
+    for (    String word : oovWords)     System.out.println(" " + word);
+    System.out.println("======================================================");
+  }
+}

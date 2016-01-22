@@ -11,7 +11,7 @@
   String cShape=c.getString(CoreAnnotations.ShapeAnnotation.class);
   String pShape=p.getString(CoreAnnotations.ShapeAnnotation.class);
   String nShape=n.getString(CoreAnnotations.ShapeAnnotation.class);
-  Collection<String> featuresC=new ArrayList<String>();
+  Collection<String> featuresC=new ArrayList<>();
   if (flags.useDistSim) {
     distSimAnnotate(cInfo);
   }
@@ -30,6 +30,17 @@
     Matcher m=titlePattern.matcher(cWord);
     if (m.matches()) {
       featuresC.add("IS_TITLE");
+    }
+  }
+ else   if (flags.useTitle2) {
+    Matcher m=titlePattern2.matcher(cWord);
+    if (m.matches()) {
+      featuresC.add("IS_TITLE");
+    }
+  }
+  if (flags.slashHyphenTreatment != SeqClassifierFlags.SlashHyphenEnum.NONE) {
+    if (flags.useWord) {
+      generateSlashHyphenFeatures(cWord,featuresC,"-WFRAG","-WORD");
     }
   }
   if (flags.useInternal && flags.useExternal) {
@@ -254,25 +265,28 @@
     if (flags.useSymWordPairs) {
       featuresC.add(pWord + '-' + nWord+ "-SWORDS");
     }
+    String pGazAnnotation=(flags.useGazFeatures || flags.useMoreGazFeatures) ? p.get(CoreAnnotations.GazAnnotation.class) : null;
+    String nGazAnnotation=(flags.useGazFeatures || flags.useMoreGazFeatures) ? n.get(CoreAnnotations.GazAnnotation.class) : null;
+    String cGazAnnotation=(flags.useGazFeatures || flags.useMoreGazFeatures) ? c.get(CoreAnnotations.GazAnnotation.class) : null;
     if (flags.useGazFeatures) {
-      if (!c.get(CoreAnnotations.GazAnnotation.class).equals(flags.dropGaz)) {
-        featuresC.add(c.get(CoreAnnotations.GazAnnotation.class) + "-GAZ");
+      if (cGazAnnotation != null && !cGazAnnotation.equals(flags.dropGaz)) {
+        featuresC.add(cGazAnnotation + "-GAZ");
       }
-      if (!n.get(CoreAnnotations.GazAnnotation.class).equals(flags.dropGaz)) {
-        featuresC.add(n.get(CoreAnnotations.GazAnnotation.class) + "-NGAZ");
+      if (nGazAnnotation != null && !nGazAnnotation.equals(flags.dropGaz)) {
+        featuresC.add(nGazAnnotation + "-NGAZ");
       }
-      if (!p.get(CoreAnnotations.GazAnnotation.class).equals(flags.dropGaz)) {
-        featuresC.add(p.get(CoreAnnotations.GazAnnotation.class) + "-PGAZ");
+      if (pGazAnnotation != null && !pGazAnnotation.equals(flags.dropGaz)) {
+        featuresC.add(pGazAnnotation + "-PGAZ");
       }
     }
     if (flags.useMoreGazFeatures) {
-      if (!c.get(CoreAnnotations.GazAnnotation.class).equals(flags.dropGaz)) {
-        featuresC.add(c.get(CoreAnnotations.GazAnnotation.class) + '-' + cWord+ "-CG-CW-GAZ");
-        if (!n.get(CoreAnnotations.GazAnnotation.class).equals(flags.dropGaz)) {
-          featuresC.add(c.get(CoreAnnotations.GazAnnotation.class) + '-' + n.get(CoreAnnotations.GazAnnotation.class)+ "-CNGAZ");
+      if (cGazAnnotation != null && !cGazAnnotation.equals(flags.dropGaz)) {
+        featuresC.add(cGazAnnotation + '-' + cWord+ "-CG-CW-GAZ");
+        if (nGazAnnotation != null && !nGazAnnotation.equals(flags.dropGaz)) {
+          featuresC.add(cGazAnnotation + '-' + nGazAnnotation+ "-CNGAZ");
         }
-        if (!p.get(CoreAnnotations.GazAnnotation.class).equals(flags.dropGaz)) {
-          featuresC.add(p.get(CoreAnnotations.GazAnnotation.class) + '-' + c.get(CoreAnnotations.GazAnnotation.class)+ "-PCGAZ");
+        if (pGazAnnotation != null && !pGazAnnotation.equals(flags.dropGaz)) {
+          featuresC.add(pGazAnnotation + '-' + cGazAnnotation+ "-PCGAZ");
         }
       }
     }
@@ -358,12 +372,12 @@
       featuresC.add(cWord + '-' + n.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ "-W-NT");
     }
     if (flags.useNPHead) {
-      featuresC.add(c.get(TreeCoreAnnotations.HeadWordAnnotation.class) + "-HW");
+      featuresC.add(c.get(CoreAnnotations.HeadWordStringAnnotation.class) + "-HW");
       if (flags.useTags) {
-        featuresC.add(c.get(TreeCoreAnnotations.HeadWordAnnotation.class) + "-" + c.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ "-HW-T");
+        featuresC.add(c.get(CoreAnnotations.HeadWordStringAnnotation.class) + "-" + c.getString(CoreAnnotations.PartOfSpeechAnnotation.class)+ "-HW-T");
       }
       if (flags.useDistSim) {
-        featuresC.add(c.get(TreeCoreAnnotations.HeadWordAnnotation.class) + "-" + c.get(CoreAnnotations.DistSimAnnotation.class)+ "-HW-DISTSIM");
+        featuresC.add(c.get(CoreAnnotations.HeadWordStringAnnotation.class) + "-" + c.get(CoreAnnotations.DistSimAnnotation.class)+ "-HW-DISTSIM");
       }
     }
     if (flags.useNPGovernor) {
@@ -376,7 +390,7 @@
       }
     }
     if (flags.useHeadGov) {
-      featuresC.add(c.get(TreeCoreAnnotations.HeadWordAnnotation.class) + "-" + c.get(CoreAnnotations.GovernorAnnotation.class)+ "-HW_GW");
+      featuresC.add(c.get(CoreAnnotations.HeadWordStringAnnotation.class) + "-" + c.get(CoreAnnotations.GovernorAnnotation.class)+ "-HW_GW");
     }
     if (flags.useClassFeature) {
       featuresC.add("###");
@@ -391,7 +405,7 @@
         subs=wordToSubstrings.get(cWord);
       }
       if (subs == null) {
-        subs=new ArrayList<String>();
+        subs=new ArrayList<>();
         String word='<' + cWord + '>';
         if (flags.lowercaseNGrams) {
           word=word.toLowerCase();
@@ -496,6 +510,14 @@
         }
       }
     }
+    if (flags.useUndirectedDisjunctive) {
+      for (int i=1; i <= flags.disjunctionWidth; i++) {
+        CoreLabel dn=cInfo.get(loc + i);
+        CoreLabel dp=cInfo.get(loc - i);
+        featuresC.add(getWord(dn) + "-DISJ");
+        featuresC.add(getWord(dp) + "-DISJ");
+      }
+    }
     if (flags.useWideDisjunctive) {
       for (int i=1; i <= flags.wideDisjunctionWidth; i++) {
         featuresC.add(getWord(cInfo.get(loc + i)) + "-DISJWN");
@@ -539,7 +561,7 @@
     if (flags.useNGrams) {
       Collection<String> subs=wordToSubstrings.get(cWord);
       if (subs == null) {
-        subs=new ArrayList<String>();
+        subs=new ArrayList<>();
         String word='<' + cWord + '>';
         if (flags.lowercaseNGrams) {
           word=word.toLowerCase();
@@ -666,9 +688,13 @@
     }
     for (    Class key : genericAnnotationKeys) {
       if (c.get(key) != null && c.get(key) instanceof Collection) {
-        for (        Object ob : (Collection)c.get(key))         featuresC.add(ob + "-" + CoreLabel.genericValues.get(key));
+        for (        Object ob : (Collection)c.get(key)) {
+          featuresC.add(ob + "-" + CoreLabel.genericValues.get(key));
+        }
       }
- else       featuresC.add(c.get(key) + "-" + CoreLabel.genericValues.get(key));
+ else {
+        featuresC.add(c.get(key) + "-" + CoreLabel.genericValues.get(key));
+      }
     }
   }
   if (flags.useTopics) {

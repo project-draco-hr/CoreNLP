@@ -1,0 +1,32 @@
+{
+  List<String> sents=Generics.newArrayList();
+  try {
+    DocumentBuilderFactory dbf=DocumentBuilderFactory.newInstance();
+    DocumentBuilder db=dbf.newDocumentBuilder();
+    Document doc=db.parse(f);
+    doc.getDocumentElement().normalize();
+    NodeList nodeList=doc.getElementsByTagName(tag);
+    for (int i=0; i < nodeList.getLength(); i++) {
+      Element element=(Element)nodeList.item(i);
+      String raw=element.getTextContent();
+      StringBuilder builtUp=new StringBuilder();
+      boolean inTag=false;
+      for (int j=0; j < raw.length(); j++) {
+        if (raw.charAt(j) == '<') {
+          inTag=true;
+        }
+        if (!inTag) {
+          builtUp.append(raw.charAt(j));
+        }
+        if (raw.charAt(j) == '>') {
+          inTag=false;
+        }
+      }
+      sents.add(builtUp.toString());
+    }
+  }
+ catch (  IOException|ParserConfigurationException e) {
+    System.err.println(e);
+  }
+  return sents;
+}

@@ -1,9 +1,10 @@
 {
-  Collection<TypedDependency> newTypedDeps=new ArrayList<TypedDependency>();
+  Collection<TypedDependency> newTypedDeps=new ArrayList<>();
   for (  String[] mwp : THREEWORD_PREPS) {
-    TreeGraphNode mwp0=null;
-    TreeGraphNode mwp1=null;
-    TreeGraphNode mwp2=null;
+    newTypedDeps.clear();
+    IndexedWord mwp0=null;
+    IndexedWord mwp1=null;
+    IndexedWord mwp2=null;
     TypedDependency dep1=null;
     TypedDependency dep2=null;
     for (    TypedDependency td : list) {
@@ -14,16 +15,16 @@
       }
     }
     for (    TypedDependency td : list) {
-      if (td.gov() == mwp1 && td.dep().value().equalsIgnoreCase(mwp[2]) && Math.abs(td.gov().index() - td.dep().index()) == 1) {
+      if (td.gov().equals(mwp1) && td.dep().value().equalsIgnoreCase(mwp[2]) && Math.abs(td.gov().index() - td.dep().index()) == 1) {
         mwp2=td.dep();
         dep2=td;
       }
     }
     if (dep1 != null && dep2 != null) {
-      TreeGraphNode governor=null;
+      IndexedWord governor=null;
       TypedDependency prep=null;
       for (      TypedDependency td1 : list) {
-        if (td1.dep() == mwp0 && td1.reln() == PREPOSITIONAL_MODIFIER) {
+        if (td1.reln() == PREPOSITIONAL_MODIFIER && td1.dep().equals(mwp0)) {
           prep=td1;
           governor=prep.gov();
         }
@@ -31,14 +32,14 @@
       TypedDependency pobj=null;
       TypedDependency newtd=null;
       for (      TypedDependency td2 : list) {
-        if (td2.gov() == mwp2 && td2.reln() == PREPOSITIONAL_OBJECT) {
+        if (td2.reln() == PREPOSITIONAL_OBJECT && td2.gov().equals(mwp2)) {
           pobj=td2;
           GrammaticalRelation gr=EnglishGrammaticalRelations.getPrep(mwp[0] + '_' + mwp[1]+ '_'+ mwp[2]);
           if (governor != null) {
             newtd=new TypedDependency(gr,governor,pobj.dep());
           }
         }
-        if (td2.gov() == mwp2 && td2.reln() == PREPOSITIONAL_COMPLEMENT) {
+        if (td2.reln() == PREPOSITIONAL_COMPLEMENT && td2.gov().equals(mwp2)) {
           pobj=td2;
           GrammaticalRelation gr=EnglishGrammaticalRelations.getPrepC(mwp[0] + '_' + mwp[1]+ '_'+ mwp[2]);
           if (governor != null) {
@@ -54,7 +55,7 @@
         newTypedDeps.add(newtd);
         for (        TypedDependency td1 : list) {
           if (td1.reln() != KILL) {
-            if (td1.gov() == mwp0 || td1.gov() == mwp1 || td1.gov() == mwp2) {
+            if (td1.gov().equals(mwp0) || td1.gov().equals(mwp1) || td1.gov().equals(mwp2)) {
               td1.setGov(governor);
             }
             if (!newTypedDeps.contains(td1)) {
@@ -68,9 +69,10 @@
     }
   }
   for (  String[] mwp : THREEWORD_PREPS) {
-    TreeGraphNode mwp0=null;
-    TreeGraphNode mwp1=null;
-    TreeGraphNode mwp2=null;
+    newTypedDeps.clear();
+    IndexedWord mwp0=null;
+    IndexedWord mwp1=null;
+    IndexedWord mwp2=null;
     TypedDependency dep1=null;
     TypedDependency dep2=null;
     for (    TypedDependency td : list) {
@@ -81,16 +83,16 @@
       }
     }
     for (    TypedDependency td : list) {
-      if (td.gov() == mwp0 && td.dep().value().equalsIgnoreCase(mwp[2]) && Math.abs(td.gov().index() - td.dep().index()) == 2) {
+      if (td.gov().equals(mwp0) && td.dep().value().equalsIgnoreCase(mwp[2]) && Math.abs(td.gov().index() - td.dep().index()) == 2) {
         mwp2=td.dep();
         dep2=td;
       }
     }
     if (dep1 != null && dep2 != null) {
-      TreeGraphNode governor=null;
+      IndexedWord governor=null;
       TypedDependency prep=null;
       for (      TypedDependency td1 : list) {
-        if (td1.dep() == mwp0 && td1.reln() == PREPOSITIONAL_MODIFIER) {
+        if (td1.dep().equals(mwp0) && td1.reln() == PREPOSITIONAL_MODIFIER) {
           prep=td1;
           governor=prep.gov();
         }
@@ -98,14 +100,14 @@
       TypedDependency pobj=null;
       TypedDependency newtd=null;
       for (      TypedDependency td2 : list) {
-        if (td2.gov() == mwp0 && td2.reln() == PREPOSITIONAL_OBJECT) {
+        if (td2.gov().equals(mwp0) && td2.reln() == PREPOSITIONAL_OBJECT) {
           pobj=td2;
           GrammaticalRelation gr=EnglishGrammaticalRelations.getPrep(mwp[0] + '_' + mwp[1]+ '_'+ mwp[2]);
           if (governor != null) {
             newtd=new TypedDependency(gr,governor,pobj.dep());
           }
         }
-        if (td2.gov() == mwp0 && td2.reln() == PREPOSITIONAL_COMPLEMENT) {
+        if (td2.gov().equals(mwp0) && td2.reln() == PREPOSITIONAL_COMPLEMENT) {
           pobj=td2;
           GrammaticalRelation gr=EnglishGrammaticalRelations.getPrepC(mwp[0] + '_' + mwp[1]+ '_'+ mwp[2]);
           if (governor != null) {
@@ -121,7 +123,7 @@
         newTypedDeps.add(newtd);
         for (        TypedDependency td1 : list) {
           if (td1.reln() != KILL) {
-            if (td1.gov() == mwp0 || td1.gov() == mwp1 || td1.gov() == mwp2) {
+            if (td1.gov().equals(mwp0) || td1.gov().equals(mwp1) || td1.gov().equals(mwp2)) {
               td1.setGov(governor);
             }
             if (!newTypedDeps.contains(td1)) {

@@ -1,0 +1,15 @@
+{
+  if (!this.wordShapesForLabels.containsKey(label)) {
+    this.wordShapesForLabels.put(label,new ClassicCounter<>());
+  }
+  for (  CandidatePhrase wc : words) {
+    String w=wc.getPhrase();
+    String ws=null;
+    if (wordShapeCache.containsKey(w))     ws=wordShapeCache.get(w);
+ else {
+      ws=WordShapeClassifier.wordShape(w,wordShaper);
+      wordShapeCache.put(w,ws);
+    }
+    wordShapesForLabels.get(label).incrementCount(ws);
+  }
+}

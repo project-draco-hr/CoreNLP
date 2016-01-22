@@ -1,0 +1,23 @@
+{
+  TwoDimensionalMap<String,String,SimpleMatrix> averages=TwoDimensionalMap.treeMap();
+  for (  Pair<String,String> binary : getBinaryMatrixNames(maps)) {
+    int count=0;
+    SimpleMatrix matrix=null;
+    for (    TwoDimensionalMap<String,String,SimpleMatrix> map : maps) {
+      if (!map.contains(binary.first(),binary.second())) {
+        continue;
+      }
+      SimpleMatrix original=map.get(binary.first(),binary.second());
+      ++count;
+      if (matrix == null) {
+        matrix=original;
+      }
+ else {
+        matrix=matrix.plus(original);
+      }
+    }
+    matrix=matrix.divide(count);
+    averages.put(binary.first(),binary.second(),matrix);
+  }
+  return averages;
+}

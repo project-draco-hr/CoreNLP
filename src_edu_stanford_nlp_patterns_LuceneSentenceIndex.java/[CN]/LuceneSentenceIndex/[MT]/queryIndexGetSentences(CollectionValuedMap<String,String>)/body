@@ -1,0 +1,24 @@
+{
+  setIndexReaderSearcher();
+  BooleanQuery query=new BooleanQuery();
+  String pkey=Token.getKeyForClass(PatternsAnnotations.ProcessedTextAnnotation.class);
+  for (  Map.Entry<String,Collection<String>> en : words.entrySet()) {
+    boolean processedKey=en.getKey().equals(pkey);
+    for (    String en2 : en.getValue()) {
+      if (!processedKey || !stopWords.contains(en2.toLowerCase()))       query.add(new BooleanClause(new TermQuery(new Term(en.getKey(),en2)),BooleanClause.Occur.MUST));
+    }
+  }
+  TopDocs tp=searcher.search(query,Integer.MAX_VALUE);
+  Set<String> sentids=new HashSet<>();
+  if (tp.totalHits > 0) {
+    for (    ScoreDoc s : tp.scoreDocs) {
+      int docId=s.doc;
+      Document d=searcher.doc(docId);
+      sentids.add(d.get("sentid"));
+    }
+  }
+ else {
+    throw new RuntimeException("how come no documents for " + words + ". Query formed is "+ query);
+  }
+  return sentids;
+}
