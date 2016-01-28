@@ -8,13 +8,27 @@
     String key=entry.getKey();
     String value=entry.getValue();
     if (value.equals("__")) {
-      attributes.put(key,Pair.makePair(Pattern.compile(".*"),Pattern.compile(".*",Pattern.CASE_INSENSITIVE)));
+      attributes.put(key,Pair.makePair(true,true));
     }
  else     if (value.matches("/.*/")) {
-      attributes.put(key,Pair.makePair(Pattern.compile(value.substring(1,value.length() - 1)),Pattern.compile(value.substring(1,value.length() - 1),Pattern.CASE_INSENSITIVE)));
+      boolean isRegexp=false;
+      for (int i=1; i < value.length() - 1; ++i) {
+        char chr=value.charAt(i);
+        if (!((chr >= 'A' && chr <= 'Z') || (chr >= 'a' && chr <= 'z') || (chr >= '0' && chr <= '9'))) {
+          isRegexp=true;
+          break;
+        }
+      }
+      String patternContent=value.substring(1,value.length() - 1);
+      if (isRegexp) {
+        attributes.put(key,Pair.makePair(Pattern.compile(patternContent),Pattern.compile(patternContent,Pattern.CASE_INSENSITIVE)));
+      }
+ else {
+        attributes.put(key,Pair.makePair(patternContent,patternContent));
+      }
     }
  else {
-      attributes.put(key,Pair.makePair(Pattern.compile("^(" + value + ")$"),Pattern.compile("^(" + value + ")$",Pattern.CASE_INSENSITIVE)));
+      attributes.put(key,Pair.makePair(value,value));
     }
     descString+=(key + ':' + value);
   }

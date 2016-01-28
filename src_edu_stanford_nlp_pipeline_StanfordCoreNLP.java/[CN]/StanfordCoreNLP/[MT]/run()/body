@@ -13,8 +13,11 @@
   }
   long setupTime=tim.report();
   log("");
-  if (properties.containsKey("file")) {
+  if (properties.containsKey("file") || properties.containsKey("textFile")) {
     String fileName=properties.getProperty("file");
+    if (fileName == null) {
+      fileName=properties.getProperty("textFile");
+    }
     Collection<File> files=new FileSequentialCollection(new File(fileName),properties.getProperty("extension"),true);
     this.processFiles(null,files,numThreads);
   }
