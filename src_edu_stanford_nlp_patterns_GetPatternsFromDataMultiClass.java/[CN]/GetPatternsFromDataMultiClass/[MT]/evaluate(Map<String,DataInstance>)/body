@@ -1,0 +1,15 @@
+{
+  if (constVars.goldEntitiesEvalFiles != null) {
+    for (    String label : constVars.getLabels()) {
+      if (constVars.goldEntities.containsKey(label)) {
+        Pair<Double,Double> pr=getPrecisionRecall(label,constVars.goldEntities.get(label));
+        Redwood.log(ConstantsAndVariables.minimaldebug,"\nFor label " + label + ": Number of gold entities is "+ constVars.goldEntities.get(label).size()+ ", Precision is "+ df.format(pr.first() * 100)+ ", Recall is "+ df.format(pr.second() * 100)+ ", F1 is "+ df.format(FScore(pr.first(),pr.second(),1.0) * 100)+ "\n\n");
+      }
+    }
+  }
+  if (evalsents.size() > 0) {
+    boolean evalPerEntity=Boolean.parseBoolean(props.getProperty("evalPerEntity","true"));
+    evaluate(evalsents,evalPerEntity);
+  }
+  if (evalsents.size() == 0 && constVars.goldEntitiesEvalFiles == null)   System.err.println("No eval sentences or list of gold entities provided to evaluate! Make sure evalFileWithGoldLabels or goldEntitiesEvalFiles is set, or turn off the evaluate flag");
+}
