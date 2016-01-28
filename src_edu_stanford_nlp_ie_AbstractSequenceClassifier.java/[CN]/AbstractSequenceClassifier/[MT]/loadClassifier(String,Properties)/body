@@ -1,12 +1,7 @@
 {
-  InputStream is;
-  if ((is=loadStreamFromClasspath(loadPath)) != null) {
-    Timing.startDoing("Loading classifier from " + loadPath);
-    loadClassifier(is,props);
-    is.close();
-    Timing.endDoing();
-  }
- else {
-    loadClassifier(new File(loadPath),props);
-  }
+  InputStream is=IOUtils.getInputStreamFromURLOrClasspathOrFileSystem(loadPath);
+  Timing.startDoing("Loading classifier from " + loadPath);
+  loadClassifier(is,props);
+  is.close();
+  Timing.endDoing();
 }

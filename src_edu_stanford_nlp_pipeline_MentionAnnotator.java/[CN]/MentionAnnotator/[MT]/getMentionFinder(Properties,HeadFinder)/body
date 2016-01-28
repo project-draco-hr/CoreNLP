@@ -1,17 +1,19 @@
 {
 switch (CorefProperties.getMDType(props)) {
-case RULE:
-    mentionAnnotatorRequirements=new ArraySet<>(DEPENDENCY_REQUIREMENT,PARSE_REQUIREMENT);
-  mdName="rule";
-return new RuleBasedCorefMentionFinder(headFinder,props);
+case DEPENDENCY:
+    mdName="dependency";
+  mentionAnnotatorRequirements.add(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class);
+mentionAnnotatorRequirements.add(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class);
+mentionAnnotatorRequirements.add(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class);
+return new DependencyCorefMentionFinder(props);
 case HYBRID:
 mdName="hybrid";
-mentionAnnotatorRequirements=new ArraySet<>(DEPENDENCY_REQUIREMENT,PARSE_REQUIREMENT);
+mentionAnnotatorRequirements.add(TreeCoreAnnotations.TreeAnnotation.class);
 return new HybridCorefMentionFinder(headFinder,props);
-case DEPENDENCY:
+case RULE:
 default :
-mdName="dependency";
-mentionAnnotatorRequirements=new ArraySet<>(DEPENDENCY_REQUIREMENT);
-return new DependencyCorefMentionFinder(props);
+mentionAnnotatorRequirements.add(TreeCoreAnnotations.TreeAnnotation.class);
+mdName="rule";
+return new RuleBasedCorefMentionFinder(headFinder,props);
 }
 }

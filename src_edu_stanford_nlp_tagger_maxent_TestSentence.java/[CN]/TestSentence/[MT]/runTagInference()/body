@@ -1,10 +1,16 @@
 {
   this.initializeScorer();
+  if (Thread.interrupted()) {
+    throw new RuntimeInterruptedException();
+  }
   BestSequenceFinder ti=new ExactBestSequenceFinder();
   int[] bestTags=ti.bestSequence(this);
   finalTags=new String[bestTags.length];
   for (int j=0; j < size; j++) {
     finalTags[j]=maxentTagger.tags.getTag(bestTags[j + leftWindow()]);
+  }
+  if (Thread.interrupted()) {
+    throw new RuntimeInterruptedException();
   }
   cleanUpScorer();
 }

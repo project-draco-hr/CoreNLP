@@ -19,12 +19,13 @@
     endIdx=((CoreLabel)mLeaves.get(mLeaves.size() - 1).label()).get(CoreAnnotations.IndexAnnotation.class);
     spanToMentionSubTree.put(new IntPair(beginIdx,endIdx),m2);
   }
-  for (  IntPair mSpan : spanToMentionSubTree.keySet()) {
-    if (!mentionSpanSet.contains(mSpan) && !insideNE(mSpan,namedEntitySpanSet)) {
+  for (  Map.Entry<IntPair,Tree> spanMention : spanToMentionSubTree.entrySet()) {
+    IntPair span=spanMention.getKey();
+    if (!mentionSpanSet.contains(span) && !insideNE(span,namedEntitySpanSet)) {
       int dummyMentionId=-1;
-      Mention m=new Mention(dummyMentionId,mSpan.get(0),mSpan.get(1),sent,basicDependency,collapsedDependency,new ArrayList<>(sent.subList(mSpan.get(0),mSpan.get(1))),spanToMentionSubTree.get(mSpan));
+      Mention m=new Mention(dummyMentionId,span.get(0),span.get(1),sent,basicDependency,collapsedDependency,new ArrayList<>(sent.subList(span.get(0),span.get(1))),spanMention.getValue());
       mentions.add(m);
-      mentionSpanSet.add(mSpan);
+      mentionSpanSet.add(span);
     }
   }
 }
