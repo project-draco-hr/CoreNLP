@@ -1,6 +1,6 @@
 {
   String annoText=annotation.get(CoreAnnotations.TextAnnotation.class);
-  List<CoreMap> chunks=new ArrayList<>(charOffsets.size());
+  List<CoreMap> chunks=new ArrayList<CoreMap>(charOffsets.size());
   List<CoreLabel> annoTokens=annotation.get(CoreAnnotations.TokensAnnotation.class);
   Integer annoCharBegin=annotation.get(CoreAnnotations.CharacterOffsetBeginAnnotation.class);
   if (annoCharBegin == null) {
@@ -47,7 +47,7 @@
       }
     }
     int tokenEnd=j;
-    List<CoreLabel> chunkTokens=new ArrayList<>(annoTokens.subList(tokenBegin,tokenEnd));
+    List<CoreLabel> chunkTokens=new ArrayList<CoreLabel>(annoTokens.subList(tokenBegin,tokenEnd));
     String chunkText=annoText.substring(beginRelCharOffset,endRelCharOffset);
     Annotation chunk=new Annotation(chunkText);
     chunk.set(CoreAnnotations.CharacterOffsetBeginAnnotation.class,beginCharOffset);

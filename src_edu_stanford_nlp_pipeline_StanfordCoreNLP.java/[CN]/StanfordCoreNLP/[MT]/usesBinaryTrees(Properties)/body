@@ -1,4 +1,10 @@
 {
-  Set<String> annoNames=Generics.newHashSet(Arrays.asList(props.getProperty("annotators","").split("[, \t]+")));
-  return annoNames.contains(STANFORD_SENTIMENT);
+  String annotators=props.getProperty("annotators");
+  Set<String> annoNames=Generics.newHashSet(Arrays.asList(getRequiredProperty(props,"annotators").split("[, \t]+")));
+  if (annoNames.contains(STANFORD_SENTIMENT)) {
+    return true;
+  }
+ else {
+    return false;
+  }
 }

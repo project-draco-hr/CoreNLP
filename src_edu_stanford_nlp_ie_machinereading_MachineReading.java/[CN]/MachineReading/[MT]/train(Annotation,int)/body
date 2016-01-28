@@ -39,7 +39,7 @@
     }
  else {
       RelationFeatureFactory rff=makeRelationFeatureFactory(MachineReadingProperties.relationFeatureFactoryClass,MachineReadingProperties.relationFeatures,MachineReadingProperties.doNotLexicalizeFirstArg);
-      ArgumentParser.fillOptions(rff,args);
+      Execution.fillOptions(rff,args);
       if (MachineReadingProperties.trainRelationsUsingPredictedEntities) {
         assert(entityExtractor != null);
         predicted=AnnotationUtils.deepMentionCopy(training);
@@ -62,8 +62,8 @@
  else {
         dataset=training;
       }
-      Set<String> relationsToSkip=new HashSet<>(StringUtils.split(MachineReadingProperties.relationsToSkipDuringTraining,","));
-      List<List<RelationMention>> backedUpRelations=new ArrayList<>();
+      Set<String> relationsToSkip=new HashSet<String>(StringUtils.split(MachineReadingProperties.relationsToSkipDuringTraining,","));
+      List<List<RelationMention>> backedUpRelations=new ArrayList<List<RelationMention>>();
       if (relationsToSkip.size() > 0) {
         for (        CoreMap sent : dataset.get(CoreAnnotations.SentencesAnnotation.class)) {
           List<RelationMention> relationMentions=sent.get(MachineReadingAnnotations.RelationMentionsAnnotation.class);
@@ -72,7 +72,7 @@
         removeSkippableRelations(dataset,relationsToSkip);
       }
       relationExtractor=makeRelationExtractor(MachineReadingProperties.relationClassifier,rff,MachineReadingProperties.createUnrelatedRelations,makeRelationMentionFactory(MachineReadingProperties.relationMentionFactoryClass));
-      ArgumentParser.fillOptions(relationExtractor,args);
+      Execution.fillOptions(relationExtractor,args);
       MachineReadingProperties.logger.info("Training relation extraction model...");
       relationExtractor.train(dataset);
       MachineReadingProperties.logger.info("Serializing relation extraction model to " + modelName + " ...");

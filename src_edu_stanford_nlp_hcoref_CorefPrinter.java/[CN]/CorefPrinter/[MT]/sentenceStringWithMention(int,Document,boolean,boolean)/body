@@ -20,13 +20,13 @@
     tokens[c.index() - 1]=c.word();
   }
   previousOffset=t.get(t.size() - 1).get(CoreAnnotations.CharacterOffsetEndAnnotation.class);
-  Counter<Integer> startCounts=new ClassicCounter<>();
-  Counter<Integer> endCounts=new ClassicCounter<>();
+  Counter<Integer> startCounts=new ClassicCounter<Integer>();
+  Counter<Integer> endCounts=new ClassicCounter<Integer>();
   Map<Integer,Deque<Mention>> endMentions=Generics.newHashMap();
   for (  Mention m : mentions) {
     startCounts.incrementCount(m.startIndex);
     endCounts.incrementCount(m.endIndex);
-    if (!endMentions.containsKey(m.endIndex))     endMentions.put(m.endIndex,new ArrayDeque<>());
+    if (!endMentions.containsKey(m.endIndex))     endMentions.put(m.endIndex,new ArrayDeque<Mention>());
     endMentions.get(m.endIndex).push(m);
   }
   for (int j=0; j < tokens.length; j++) {

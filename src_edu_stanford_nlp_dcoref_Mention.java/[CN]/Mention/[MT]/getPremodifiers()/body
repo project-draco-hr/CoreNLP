@@ -1,10 +1,10 @@
 {
-  ArrayList<ArrayList<IndexedWord>> premod=new ArrayList<>();
+  ArrayList<ArrayList<IndexedWord>> premod=new ArrayList<ArrayList<IndexedWord>>();
   if (headIndexedWord == null)   return premod;
   for (  Pair<GrammaticalRelation,IndexedWord> child : dependency.childPairs(headIndexedWord)) {
     String function=child.first().getShortName();
     if (child.second().index() < headWord.index() && !child.second.tag().equals("DT") && !child.second.tag().equals("WRB") && !function.endsWith("det") && !function.equals("num") && !function.equals("rcmod") && !function.equals("infmod") && !function.equals("partmod") && !function.equals("punct")) {
-      ArrayList<IndexedWord> phrase=new ArrayList<>(dependency.descendants(child.second()));
+      ArrayList<IndexedWord> phrase=new ArrayList<IndexedWord>(dependency.descendants(child.second()));
       Collections.sort(phrase);
       premod.add(phrase);
     }

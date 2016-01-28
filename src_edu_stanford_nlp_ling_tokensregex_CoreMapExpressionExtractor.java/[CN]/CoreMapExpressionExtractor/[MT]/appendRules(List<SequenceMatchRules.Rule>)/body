@@ -1,9 +1,4 @@
 {
-  logger.log(Level.INFO,"Read " + rules.size() + " rules");
-  if (collapseExtractionRules) {
-    rules=collapse(rules);
-    logger.log(Level.INFO,"Collapsing into " + rules.size() + " rules");
-  }
   for (  SequenceMatchRules.Rule r : rules) {
     if (r instanceof SequenceMatchRules.AssignmentRule) {
       ((SequenceMatchRules.AssignmentRule)r).evaluate(env);
@@ -12,7 +7,7 @@
       SequenceMatchRules.AnnotationExtractRule aer=(SequenceMatchRules.AnnotationExtractRule)r;
       Stage<T> stage=stages.get(aer.stage);
       if (stage == null) {
-        stages.put(aer.stage,stage=new Stage<>());
+        stages.put(aer.stage,stage=new Stage<T>());
         stage.stageId=aer.stage;
         Boolean clearMatched=(Boolean)env.getDefaults().get("stage.clearMatched");
         if (clearMatched != null) {

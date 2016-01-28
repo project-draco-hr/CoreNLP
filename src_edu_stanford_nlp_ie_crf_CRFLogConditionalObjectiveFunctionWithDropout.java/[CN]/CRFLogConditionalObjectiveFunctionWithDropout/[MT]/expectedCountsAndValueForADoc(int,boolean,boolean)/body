@@ -41,7 +41,7 @@
   Map<Integer,double[]> EForADoc=sparseE(activeFeatures);
   List<Map<Integer,double[]>> EForADocPos=null;
   if (dropoutApprox) {
-    EForADocPos=new ArrayList<>(docData.length);
+    EForADocPos=new ArrayList<Map<Integer,double[]>>(docData.length);
   }
   if (!skipExpectedCountCalc) {
     if (TIMED)     timer.start();
@@ -100,5 +100,5 @@
       System.err.println("Dropout took: " + Timing.toMilliSecondsString(elapsedMs) + " ms");
     }
   }
-  return new Quadruple<>(docIndex,prob,EForADoc,dropoutPriorGrad);
+  return new Quadruple<Integer,Double,Map<Integer,double[]>,Map<Integer,double[]>>(docIndex,prob,EForADoc,dropoutPriorGrad);
 }

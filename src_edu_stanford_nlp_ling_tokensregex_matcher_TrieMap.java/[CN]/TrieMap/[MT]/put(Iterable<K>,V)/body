@@ -3,12 +3,12 @@
   TrieMap<K,V> curTrie=this;
   for (  K element : key) {
     if (curTrie.children == null) {
-      curTrie.children=new ConcurrentHashMap<>();
+      curTrie.children=new ConcurrentHashMap<K,TrieMap<K,V>>();
     }
     TrieMap<K,V> parent=curTrie;
     curTrie=curTrie.children.get(element);
     if (curTrie == null) {
-      parent.children.put(element,curTrie=new TrieMap<>());
+      parent.children.put(element,curTrie=new TrieMap<K,V>());
     }
   }
   V oldValue=curTrie.value;

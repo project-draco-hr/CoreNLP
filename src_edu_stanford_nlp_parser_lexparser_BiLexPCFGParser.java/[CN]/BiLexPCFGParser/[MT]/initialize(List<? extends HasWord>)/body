@@ -1,11 +1,12 @@
 {
   length=words.size();
   interner=new Interner();
-  agenda=new ArrayHeap<>(ScoredComparator.DESCENDING_COMPARATOR);
+  agenda=new ArrayHeap<Item>(ScoredComparator.DESCENDING_COMPARATOR);
   chart=new HookChart();
   setGoal(length);
   List<Item> initialItems=makeInitialItems(words);
-  for (  Item item : initialItems) {
+  for (int i=0, iiSize=initialItems.size(); i < iiSize; i++) {
+    Item item=initialItems.get(i);
     item=(Item)interner.intern(item);
     discoverItem(item);
   }

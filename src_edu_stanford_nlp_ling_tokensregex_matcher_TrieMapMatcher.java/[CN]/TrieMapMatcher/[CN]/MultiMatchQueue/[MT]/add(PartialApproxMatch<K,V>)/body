@@ -1,10 +1,10 @@
 {
-  Match<K,V> m=new MultiMatch<>(pam.matched,pam.value,pam.begin,pam.end,pam.multimatches);
+  Match<K,V> m=new MultiMatch<K,V>(pam.matched,pam.value,pam.begin,pam.end,pam.multimatches);
   Integer key=(pam.multimatches != null) ? pam.multimatches.size() : 0;
   if (pam.value == null)   key=key + 1;
   BoundedCostOrderedMap<Match<K,V>,PartialApproxMatch<K,V>> mq=multimatchQueues.get(key);
   if (mq == null) {
-    multimatchQueues.put(key,mq=new BoundedCostOrderedMap<>(MATCH_COST_FUNCTION,maxSize,maxCost));
+    multimatchQueues.put(key,mq=new BoundedCostOrderedMap<Match<K,V>,PartialApproxMatch<K,V>>(MATCH_COST_FUNCTION,maxSize,maxCost));
   }
   mq.put(m,pam);
 }

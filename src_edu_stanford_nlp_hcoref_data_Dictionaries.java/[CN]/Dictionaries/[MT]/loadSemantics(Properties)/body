@@ -3,21 +3,23 @@
   if (CorefProperties.loadWordEmbedding(props)) {
     System.err.println("LOAD: WordVectors");
     String wordvectorFile=CorefProperties.getPathSerializedWordVectors(props);
-    String word2vecFile=CorefProperties.getPathWord2Vec(props);
-    try {
-      vectors=VectorMap.deserialize(wordvectorFile);
+    if (new File(wordvectorFile).exists()) {
+      vectors=IOUtils.readObjectFromFile(wordvectorFile);
+      dimVector=vectors.entrySet().iterator().next().getValue().length;
     }
- catch (    IOException e) {
-      if (new File(word2vecFile).exists()) {
-        vectors=VectorMap.readWord2Vec(word2vecFile);
-        if (wordvectorFile != null && !wordvectorFile.startsWith("edu")) {
-          vectors.serialize(wordvectorFile);
-        }
-      }
  else {
-        throw new RuntimeIOException(e);
+      for (      String line : IOUtils.readLines(CorefProperties.getPathWord2Vec(props))) {
+        String[] split=line.toLowerCase().split("\\s+");
+        if (split.length < 100)         continue;
+        float[] vector=new float[split.length - 1];
+        for (int i=1; i < split.length; i++) {
+          vector[i - 1]=Float.parseFloat(split[i]);
+        }
+        ArrayMath.L2normalize(vector);
+        vectors.put(split[0],vector);
+        dimVector=vector.length;
       }
+      if (wordvectorFile != null)       IOUtils.writeObjectToFile(vectors,wordvectorFile);
     }
-    dimVector=vectors.entrySet().iterator().next().getValue().length;
   }
 }

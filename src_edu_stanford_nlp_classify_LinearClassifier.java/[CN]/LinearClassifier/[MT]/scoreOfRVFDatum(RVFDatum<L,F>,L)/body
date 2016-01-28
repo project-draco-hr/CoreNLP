@@ -2,8 +2,8 @@
   int iLabel=labelIndex.indexOf(label);
   double score=0.0;
   Counter<F> features=example.asFeaturesCounter();
-  for (  Map.Entry<F,Double> entry : features.entrySet()) {
-    score+=weight(entry.getKey(),iLabel) * entry.getValue();
+  for (  F f : features.keySet()) {
+    score+=weight(f,iLabel) * features.getCount(f);
   }
   return score + thresholds[iLabel];
 }

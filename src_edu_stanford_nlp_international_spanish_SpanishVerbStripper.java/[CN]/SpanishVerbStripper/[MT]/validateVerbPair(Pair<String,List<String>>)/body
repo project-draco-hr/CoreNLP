@@ -3,13 +3,16 @@
   String firstPron=pair.second().get(0).toLowerCase();
   String pos=dict.get(stripped);
   if (pos != null) {
-    return !(pos.equals("VMM02P0") && firstPron.equalsIgnoreCase("os"));
+    if (pos.equals("VMM02P0") && firstPron.equalsIgnoreCase("os")) {
+      return false;
+    }
+    return true;
   }
   if (firstPron.equalsIgnoreCase("os") && dict.containsKey(stripped + 'd')) {
     pair.setFirst(pair.first() + getCase(pair.first(),'d'));
     return true;
   }
-  if (nosse.matcher(firstPron).matches() && dict.containsKey(stripped + 's')) {
+  if (firstPron.matches("nos|se") && dict.containsKey(stripped + 's')) {
     pair.setFirst(pair.first() + getCase(pair.first(),'s'));
     return true;
   }

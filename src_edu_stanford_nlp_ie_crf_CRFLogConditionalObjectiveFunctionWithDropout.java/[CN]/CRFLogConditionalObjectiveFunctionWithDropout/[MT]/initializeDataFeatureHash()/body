@@ -3,16 +3,16 @@
   int macroCondensedTotalCount=0;
   int macroDocPosCount=0;
   System.err.println("initializing data feature hash, sup-data size: " + data.length + ", unsup data size: "+ (totalData.length - data.length));
-  dataFeatureHash=new ArrayList<>(totalData.length);
-  condensedMap=new ArrayList<>(totalData.length);
+  dataFeatureHash=new ArrayList<List<Set<Integer>>>(totalData.length);
+  condensedMap=new ArrayList<Map<Integer,List<Integer>>>(totalData.length);
   dataFeatureHashByDoc=new int[totalData.length][];
   for (int m=0; m < totalData.length; m++) {
-    Map<Integer,Integer> occurPos=new HashMap<>();
+    Map<Integer,Integer> occurPos=new HashMap<Integer,Integer>();
     int[][][] aDoc=totalData[m];
-    List<Set<Integer>> aList=new ArrayList<>(aDoc.length);
-    Set<Integer> setOfFeatures=new HashSet<>();
+    List<Set<Integer>> aList=new ArrayList<Set<Integer>>(aDoc.length);
+    Set<Integer> setOfFeatures=new HashSet<Integer>();
     for (int i=0; i < aDoc.length; i++) {
-      Set<Integer> aSet=new HashSet<>();
+      Set<Integer> aSet=new HashSet<Integer>();
       int[][] dataI=aDoc[i];
       for (int j=0; j < dataI.length; j++) {
         int[] dataJ=dataI[j];
@@ -31,7 +31,7 @@
     macroActiveFeatureTotalCount+=setOfFeatures.size();
     if (CONDENSE) {
       if (DEBUG3)       System.err.println("Before condense, activeFeatures = " + setOfFeatures.size());
-      Map<Integer,List<Integer>> condensedFeaturesMap=new HashMap<>();
+      Map<Integer,List<Integer>> condensedFeaturesMap=new HashMap<Integer,List<Integer>>();
       int[] representFeatures=new int[aDoc.length];
       Arrays.fill(representFeatures,-1);
       for (      Map.Entry<Integer,Integer> entry : occurPos.entrySet()) {
@@ -40,7 +40,7 @@
         if (pos != -1) {
           if (representFeatures[pos] == -1) {
             representFeatures[pos]=key;
-            condensedFeaturesMap.put(key,new ArrayList<>());
+            condensedFeaturesMap.put(key,new ArrayList<Integer>());
           }
  else {
             int rep=representFeatures[pos];

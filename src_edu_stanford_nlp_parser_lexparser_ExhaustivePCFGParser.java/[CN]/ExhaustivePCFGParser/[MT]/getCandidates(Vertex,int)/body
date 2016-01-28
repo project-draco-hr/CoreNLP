@@ -1,12 +1,12 @@
 {
   PriorityQueue<Derivation> candV=cand.get(v);
   if (candV == null) {
-    candV=new BinaryHeapPriorityQueue<>();
+    candV=new BinaryHeapPriorityQueue<Derivation>();
     List<Arc> bsV=getBackwardsStar(v);
     for (    Arc arc : bsV) {
       int size=arc.size();
       double score=arc.ruleScore;
-      List<Double> childrenScores=new ArrayList<>();
+      List<Double> childrenScores=new ArrayList<Double>();
       for (int i=0; i < size; i++) {
         Vertex child=arc.tails.get(i);
         double s=iScore[child.start][child.end][child.goal];
@@ -16,14 +16,14 @@
       if (score == Double.NEGATIVE_INFINITY) {
         continue;
       }
-      List<Integer> j=new ArrayList<>();
+      List<Integer> j=new ArrayList<Integer>();
       for (int i=0; i < size; i++) {
         j.add(1);
       }
       Derivation d=new Derivation(arc,j,score,childrenScores);
       candV.add(d,score);
     }
-    PriorityQueue<Derivation> tmp=new BinaryHeapPriorityQueue<>();
+    PriorityQueue<Derivation> tmp=new BinaryHeapPriorityQueue<Derivation>();
     for (int i=0; i < k; i++) {
       if (candV.isEmpty()) {
         break;

@@ -1,10 +1,8 @@
 {
   Collection<SequencePattern<T>> triggered=getTriggeredPatterns(elements);
-  List<Iterable<SequenceMatchResult<T>>> allMatches=new ArrayList<>(elements.size());
+  List<Iterable<SequenceMatchResult<T>>> allMatches=new ArrayList<Iterable<SequenceMatchResult<T>>>(elements.size());
   for (  SequencePattern<T> p : triggered) {
-    SequenceMatcher<T> m=p.getMatcher(elements);
-    m.setMatchWithResult(matchWithResult);
-    Iterable<SequenceMatchResult<T>> matches=m.findAllNonOverlapping();
+    Iterable<SequenceMatchResult<T>> matches=p.getMatcher(elements).findAllNonOverlapping();
     allMatches.add(matches);
   }
   return Iterables.chain(allMatches);

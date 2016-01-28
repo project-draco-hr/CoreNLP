@@ -1,7 +1,7 @@
 {
-  List<PatternExpr> opts=new ArrayList<>(patterns.size());
-  Map<Pair<Class,Boolean>,Pair<Collection<PatternExpr>,Set<String>>> stringPatterns=new HashMap<>();
-  Map<Pair<Class,Boolean>,Pair<Collection<PatternExpr>,Set<List<String>>>> stringSeqPatterns=new HashMap<>();
+  List<PatternExpr> opts=new ArrayList<PatternExpr>(patterns.size());
+  Map<Pair<Class,Boolean>,Pair<Collection<PatternExpr>,Set<String>>> stringPatterns=new HashMap<Pair<Class,Boolean>,Pair<Collection<PatternExpr>,Set<String>>>();
+  Map<Pair<Class,Boolean>,Pair<Collection<PatternExpr>,Set<List<String>>>> stringSeqPatterns=new HashMap<Pair<Class,Boolean>,Pair<Collection<PatternExpr>,Set<List<String>>>>();
   for (  PatternExpr p : patterns) {
     PatternExpr opt=p.optimize();
     opts.add(opt);
@@ -13,7 +13,7 @@
         Pair<Class,Boolean> key=Pair.makePair(pair.first,ignoreCase);
         Pair<Collection<PatternExpr>,Set<String>> saved=stringPatterns.get(key);
         if (saved == null) {
-          saved=new Pair<>(new ArrayList<>(),new HashSet<>());
+          saved=new Pair<Collection<PatternExpr>,Set<String>>(new ArrayList<PatternExpr>(),new HashSet<String>());
           stringPatterns.put(key,saved);
         }
         saved.first.add(opt);
@@ -39,7 +39,7 @@
             }
  else {
               key=Pair.makePair(pair.first,pair.second.ignoreCase());
-              strings=new ArrayList<>();
+              strings=new ArrayList<String>();
             }
             strings.add(pair.second.target);
           }
@@ -51,7 +51,7 @@
         if (isStringSeq) {
           Pair<Collection<PatternExpr>,Set<List<String>>> saved=stringSeqPatterns.get(key);
           if (saved == null) {
-            saved=new Pair<>(new ArrayList<>(),new HashSet<>());
+            saved=new Pair<Collection<PatternExpr>,Set<List<String>>>(new ArrayList<PatternExpr>(),new HashSet<List<String>>());
             stringSeqPatterns.put(key,saved);
           }
           saved.first.add(opt);
@@ -60,8 +60,8 @@
       }
     }
   }
-  Map<PatternExpr,Boolean> alreadyOptimized=new IdentityHashMap<>();
-  List<PatternExpr> finalOptimizedPatterns=new ArrayList<>(patterns.size());
+  Map<PatternExpr,Boolean> alreadyOptimized=new IdentityHashMap<PatternExpr,Boolean>();
+  List<PatternExpr> finalOptimizedPatterns=new ArrayList<PatternExpr>(patterns.size());
   for (  Map.Entry<Pair<Class,Boolean>,Pair<Collection<PatternExpr>,Set<String>>> entry : stringPatterns.entrySet()) {
     Pair<Collection<PatternExpr>,Set<String>> saved=entry.getValue();
     Set<String> set=saved.second;

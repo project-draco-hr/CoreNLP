@@ -29,7 +29,7 @@
     writerBeforeCoref=new PrintWriter(new FileOutputStream(beforeCorefOutput));
     writerAfterCoref=new PrintWriter(new FileOutputStream(afterCorefOutput));
   }
-  MulticoreWrapper<Pair<Document,CorefSystem>,StringBuilder[]> wrapper=new MulticoreWrapper<>(nThreads,new ThreadsafeProcessor<Pair<Document,CorefSystem>,StringBuilder[]>(){
+  MulticoreWrapper<Pair<Document,CorefSystem>,StringBuilder[]> wrapper=new MulticoreWrapper<Pair<Document,CorefSystem>,StringBuilder[]>(nThreads,new ThreadsafeProcessor<Pair<Document,CorefSystem>,StringBuilder[]>(){
     @Override public StringBuilder[] process(    Pair<Document,CorefSystem> input){
       try {
         Document document=input.first;
@@ -61,9 +61,9 @@
   }
   wrapper.join();
   docCnt=logOutput(wrapper,writerGold,writerBeforeCoref,writerAfterCoref,docCnt);
-  IOUtils.closeIgnoringExceptions(writerGold);
-  IOUtils.closeIgnoringExceptions(writerBeforeCoref);
-  IOUtils.closeIgnoringExceptions(writerAfterCoref);
+  writerGold.close();
+  writerBeforeCoref.close();
+  writerAfterCoref.close();
   if (CorefProperties.checkTime(props)) {
     System.err.printf("END-TO-END COREF Elapsed time: %.3f seconds\n",(((new Date()).getTime() - startTime.getTime()) / 1000F));
   }

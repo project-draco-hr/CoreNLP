@@ -7,15 +7,13 @@
   int[][] trainData=new int[trainSize][];
   double[][] trainValues=new double[trainSize][];
   int[] trainLabels=new int[trainSize];
-synchronized (System.class) {
-    System.arraycopy(data,0,devData,0,devSize);
-    System.arraycopy(values,0,devValues,0,devSize);
-    System.arraycopy(labels,0,devLabels,0,devSize);
-    System.arraycopy(data,devSize,trainData,0,trainSize);
-    System.arraycopy(values,devSize,trainValues,0,trainSize);
-    System.arraycopy(labels,devSize,trainLabels,0,trainSize);
-  }
-  RVFDataset<L,F> dev=new RVFDataset<>(labelIndex,devLabels,featureIndex,devData,devValues);
-  RVFDataset<L,F> train=new RVFDataset<>(labelIndex,trainLabels,featureIndex,trainData,trainValues);
-  return new Pair<>(train,dev);
+  System.arraycopy(data,0,devData,0,devSize);
+  System.arraycopy(values,0,devValues,0,devSize);
+  System.arraycopy(labels,0,devLabels,0,devSize);
+  System.arraycopy(data,devSize,trainData,0,trainSize);
+  System.arraycopy(values,devSize,trainValues,0,trainSize);
+  System.arraycopy(labels,devSize,trainLabels,0,trainSize);
+  RVFDataset<L,F> dev=new RVFDataset<L,F>(labelIndex,devLabels,featureIndex,devData,devValues);
+  RVFDataset<L,F> train=new RVFDataset<L,F>(labelIndex,trainLabels,featureIndex,trainData,trainValues);
+  return new Pair<GeneralDataset<L,F>,GeneralDataset<L,F>>(train,dev);
 }

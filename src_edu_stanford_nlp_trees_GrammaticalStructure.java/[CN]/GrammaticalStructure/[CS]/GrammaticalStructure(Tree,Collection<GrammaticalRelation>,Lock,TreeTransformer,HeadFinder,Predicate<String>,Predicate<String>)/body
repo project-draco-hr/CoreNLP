@@ -1,16 +1,16 @@
 {
-  TreeGraphNode treeGraph=new TreeGraphNode(t,(TreeGraphNode)null);
-  Trees.setLeafLabels(treeGraph,t.yield());
-  Trees.setLeafTagsIfUnset(treeGraph);
+  TreeGraphNode treegraph=new TreeGraphNode(t,(TreeGraphNode)null);
+  Trees.setLeafLabels(treegraph,t.yield());
+  Trees.setLeafTagsIfUnset(treegraph);
   if (transformer != null) {
-    Tree transformed=transformer.transformTree(treeGraph);
+    Tree transformed=transformer.transformTree(treegraph);
     if (!(transformed instanceof TreeGraphNode)) {
       throw new RuntimeException("Transformer did not change TreeGraphNode into another TreeGraphNode: " + transformer);
     }
     this.root=(TreeGraphNode)transformed;
   }
  else {
-    this.root=treeGraph;
+    this.root=treegraph;
   }
   indexNodes(this.root);
   if (hf == null) {
@@ -23,8 +23,8 @@
   this.puncFilter=puncFilter;
   this.tagFilter=tagFilter;
   NoPunctTypedDependencyFilter puncTypedDepFilter=new NoPunctTypedDependencyFilter(puncFilter,tagFilter);
-  DirectedMultiGraph<TreeGraphNode,GrammaticalRelation> basicGraph=new DirectedMultiGraph<>();
-  DirectedMultiGraph<TreeGraphNode,GrammaticalRelation> completeGraph=new DirectedMultiGraph<>();
+  DirectedMultiGraph<TreeGraphNode,GrammaticalRelation> basicGraph=new DirectedMultiGraph<TreeGraphNode,GrammaticalRelation>();
+  DirectedMultiGraph<TreeGraphNode,GrammaticalRelation> completeGraph=new DirectedMultiGraph<TreeGraphNode,GrammaticalRelation>();
   if (relationsLock != null) {
     relationsLock.lock();
   }

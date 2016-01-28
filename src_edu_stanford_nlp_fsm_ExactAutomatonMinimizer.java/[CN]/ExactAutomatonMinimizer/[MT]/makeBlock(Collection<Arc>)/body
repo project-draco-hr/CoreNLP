@@ -1,12 +1,12 @@
 {
-  ExactBlock<Arc> block=new ExactBlock<>(Generics.newHashSet(members));
+  ExactBlock<Arc> block=new ExactBlock<Arc>(Generics.newHashSet(members));
   for (  Arc member : block.getMembers()) {
     if (member != SINK_NODE) {
       memberToBlock.put(member,block);
     }
   }
-  for (  Object o : getSymbols()) {
-    Arc symbol=(Arc)o;
-    addActivePair(new Pair<>(block,symbol));
+  for (Iterator symbolI=getSymbols().iterator(); symbolI.hasNext(); ) {
+    Arc symbol=(Arc)symbolI.next();
+    addActivePair(new Pair<ExactBlock<Arc>,Arc>(block,symbol));
   }
 }

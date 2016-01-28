@@ -7,7 +7,7 @@
   for (int i=0; i < W1.length; ++i)   for (int j=0; j < W1[i].length; ++j)   W1[i][j]=random.nextDouble() * 2 * config.initRange - config.initRange;
   for (int i=0; i < b1.length; ++i)   b1[i]=random.nextDouble() * 2 * config.initRange - config.initRange;
   for (int i=0; i < W2.length; ++i)   for (int j=0; j < W2[i].length; ++j)   W2[i][j]=random.nextDouble() * 2 * config.initRange - config.initRange;
-  Map<String,Integer> embedID=new HashMap<>();
+  Map<String,Integer> embedID=new HashMap<String,Integer>();
   double[][] embeddings=readEmbedFile(embedFile,embedID);
   int foundEmbed=0;
   for (int i=0; i < E.length; ++i) {
@@ -19,7 +19,7 @@
     }
     if (index >= 0) {
       ++foundEmbed;
-      System.arraycopy(embeddings[index],0,E[i],0,E[i].length);
+      for (int j=0; j < E[i].length; ++j)       E[i][j]=embeddings[index][j];
     }
  else {
       for (int j=0; j < E[i].length; ++j)       E[i][j]=random.nextDouble() * 0.02 - 0.01;

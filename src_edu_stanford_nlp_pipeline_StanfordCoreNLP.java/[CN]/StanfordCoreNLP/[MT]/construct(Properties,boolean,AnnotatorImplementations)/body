@@ -1,5 +1,4 @@
 {
-  Timing tim=new Timing();
   this.numWords=0;
   this.constituentTreePrinter=new TreePrint("penn");
   this.dependencyTreePrinter=new TreePrint("typedDependenciesCollapsed");
@@ -13,29 +12,22 @@
   }
   this.properties=props;
   AnnotatorPool pool=getDefaultAnnotatorPool(props,annotatorImplementations);
-  if (this.properties.containsKey("threads")) {
-    ArgumentParser.threads=PropertiesUtils.getInt(this.properties,"threads");
-    this.availableProcessors=new Semaphore(ArgumentParser.threads);
-  }
- else {
-    this.availableProcessors=new Semaphore(1);
-  }
   List<String> annoNames=Arrays.asList(getRequiredProperty(props,"annotators").split("[, \t]+"));
   Set<String> alreadyAddedAnnoNames=Generics.newHashSet();
-  Set<Class<? extends CoreAnnotation>> requirementsSatisfied=Generics.newHashSet();
+  Set<Requirement> requirementsSatisfied=Generics.newHashSet();
   for (  String name : annoNames) {
     name=name.trim();
     if (name.isEmpty()) {
       continue;
     }
-    logger.info("Adding annotator " + name);
+    System.err.println("Adding annotator " + name);
     Annotator an=pool.get(name);
     this.addAnnotator(an);
     if (enforceRequirements) {
-      Set<Class<? extends CoreAnnotation>> allRequirements=an.requires();
-      for (      Class<? extends CoreAnnotation> requirement : allRequirements) {
+      Set<Requirement> allRequirements=an.requires();
+      for (      Requirement requirement : allRequirements) {
         if (!requirementsSatisfied.contains(requirement)) {
-          String fmt="annotator \"%s\" requires annotation \"%s\"";
+          String fmt="annotator \"%s\" requires annotator \"%s\"";
           throw new IllegalArgumentException(String.format(fmt,name,requirement));
         }
       }
@@ -46,5 +38,4 @@
   if (!alreadyAddedAnnoNames.contains(STANFORD_SSPLIT)) {
     System.setProperty(NEWLINE_SPLITTER_PROPERTY,"false");
   }
-  this.pipelineSetupTime=tim.report();
 }
