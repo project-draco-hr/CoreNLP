@@ -1,10 +1,10 @@
 {
-  Collection<TypedDependency> newTypedDeps=new ArrayList<TypedDependency>();
+  Collection<TypedDependency> newTypedDeps=new ArrayList<>();
   Map<IndexedWord,SortedSet<TypedDependency>> map=Generics.newHashMap();
   List<IndexedWord> vmod=Generics.newArrayList();
   for (  TypedDependency typedDep : list) {
     if (!map.containsKey(typedDep.gov())) {
-      map.put(typedDep.gov(),new TreeSet<TypedDependency>());
+      map.put(typedDep.gov(),new TreeSet<>());
     }
     map.get(typedDep.gov()).add(typedDep);
     if (typedDep.reln() == VERBAL_MODIFIER) {
@@ -35,8 +35,8 @@
     }
     Pair<TypedDependency,Boolean> prepDep=null;
     TypedDependency ccDep=null;
-    List<Triple<TypedDependency,TypedDependency,Boolean>> conjs=new ArrayList<Triple<TypedDependency,TypedDependency,Boolean>>();
-    Set<TypedDependency> otherDtrs=new TreeSet<TypedDependency>();
+    List<Triple<TypedDependency,TypedDependency,Boolean>> conjs=new ArrayList<>();
+    Set<TypedDependency> otherDtrs=new TreeSet<>();
     boolean samePrepositionInEachConjunct=true;
     int conjIndex=-1;
     for (    TypedDependency td2 : possibles) {
@@ -66,7 +66,7 @@
           if (conjIndex < td2Dep.index()) {
             conjIndex=td2Dep.index();
           }
-          conjs.add(new Triple<TypedDependency,TypedDependency,Boolean>(td2,prepOtherDep,pobj));
+          conjs.add(new Triple<>(td2,prepOtherDep,pobj));
         }
       }
     }
@@ -82,7 +82,7 @@
         IndexedWord td2Dep=td2.dep();
         String td2DepPOS=td2Dep.tag();
         if ((td2.reln() == DEPENDENT || td2.reln() == PREPOSITIONAL_OBJECT || td2.reln() == PREPOSITIONAL_COMPLEMENT) && (td1DepPOS.equals("IN") || td1DepPOS.equals("TO") || td1DepPOS.equals("VBG")) && prepDep == null && (!(td2DepPOS.equals("RB") || td2DepPOS.equals("IN") || td2DepPOS.equals("TO")))) {
-          prepDep=new Pair<TypedDependency,Boolean>(td2,td2.reln() != PREPOSITIONAL_COMPLEMENT);
+          prepDep=new Pair<>(td2,td2.reln() != PREPOSITIONAL_COMPLEMENT);
         }
  else         if (!inConjDeps(td2,conjs)) {
           otherDtrs.add(td2);

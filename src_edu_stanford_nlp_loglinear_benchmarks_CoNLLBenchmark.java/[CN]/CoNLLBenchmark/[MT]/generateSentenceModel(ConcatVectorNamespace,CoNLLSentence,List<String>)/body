@@ -1,0 +1,17 @@
+{
+  GraphicalModel model=new GraphicalModel();
+  for (int i=0; i < sentence.token.size(); i++) {
+    Map<String,String> metadata=model.getVariableMetaDataByReference(i);
+    metadata.put(LogLikelihoodDifferentiableFunction.VARIABLE_TRAINING_VALUE,"" + tags.indexOf(sentence.ner.get(i)));
+    metadata.put("TOKEN","" + sentence.token.get(i));
+    metadata.put("POS","" + sentence.pos.get(i));
+    metadata.put("CHUNK","" + sentence.npchunk.get(i));
+    metadata.put("TAG","" + sentence.ner.get(i));
+  }
+  CoNLLFeaturizer.annotate(model,tags,namespace,embeddings);
+  assert(model.factors != null);
+  for (  GraphicalModel.Factor f : model.factors) {
+    assert(f != null);
+  }
+  return model;
+}

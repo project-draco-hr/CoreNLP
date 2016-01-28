@@ -3,9 +3,9 @@
   if (dataset instanceof RVFDataset) {
     ((RVFDataset<L,F>)dataset).ensureRealValues();
   }
-  LogConditionalObjectiveFunction<L,F> objective=new LogConditionalObjectiveFunction<L,F>(dataset,dataWeights,prior);
+  LogConditionalObjectiveFunction<L,F> objective=new LogConditionalObjectiveFunction<>(dataset,dataWeights,prior);
   double[] initial=objective.initial();
   double[] weights=minimizer.minimize(objective,TOL,initial);
-  LinearClassifier<L,F> classifier=new LinearClassifier<L,F>(objective.to2D(weights),dataset.featureIndex(),dataset.labelIndex());
+  LinearClassifier<L,F> classifier=new LinearClassifier<>(objective.to2D(weights),dataset.featureIndex(),dataset.labelIndex());
   return classifier;
 }

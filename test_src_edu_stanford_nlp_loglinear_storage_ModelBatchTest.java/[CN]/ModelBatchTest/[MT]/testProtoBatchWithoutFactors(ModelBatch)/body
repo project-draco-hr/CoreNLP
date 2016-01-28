@@ -1,0 +1,17 @@
+{
+  ByteArrayOutputStream byteArrayOutputStream=new ByteArrayOutputStream();
+  batch.writeToStreamWithoutFactors(byteArrayOutputStream);
+  byteArrayOutputStream.close();
+  byte[] bytes=byteArrayOutputStream.toByteArray();
+  ByteArrayInputStream byteArrayInputStream=new ByteArrayInputStream(bytes);
+  ModelBatch recovered=new ModelBatch(byteArrayInputStream);
+  byteArrayInputStream.close();
+  assertEquals(batch.size(),recovered.size());
+  for (int i=0; i < batch.size(); i++) {
+    assertEquals(0,recovered.get(i).factors.size());
+    assertTrue(batch.get(i).getModelMetaDataByReference().equals(recovered.get(i).getModelMetaDataByReference()));
+    for (int j=0; j < batch.get(i).getVariableSizes().length; j++) {
+      assertTrue(batch.get(i).getVariableMetaDataByReference(j).equals(recovered.get(i).getVariableMetaDataByReference(j)));
+    }
+  }
+}

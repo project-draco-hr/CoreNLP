@@ -12,7 +12,7 @@
       }
     }
   }
-  MulticoreWrapper<Pair<Integer,List<Integer>>,Pair<Integer,Double>> wrapper=new MulticoreWrapper<Pair<Integer,List<Integer>>,Pair<Integer,Double>>(multiThreadGrad,(calculateEmpirical ? expectedAndEmpiricalThreadProcessor : expectedThreadProcessor));
+  MulticoreWrapper<Pair<Integer,List<Integer>>,Pair<Integer,Double>> wrapper=new MulticoreWrapper<>(multiThreadGrad,(calculateEmpirical ? expectedAndEmpiricalThreadProcessor : expectedThreadProcessor));
   int totalLen=docIDs.size();
   int partLen=totalLen / multiThreadGrad;
   int currIndex=0;
@@ -20,7 +20,7 @@
     int endIndex=currIndex + partLen;
     if (part == multiThreadGrad - 1)     endIndex=totalLen;
     List<Integer> subList=docIDs.subList(currIndex,endIndex);
-    wrapper.put(new Pair<Integer,List<Integer>>(part,subList));
+    wrapper.put(new Pair<>(part,subList));
     currIndex=endIndex;
   }
   wrapper.join();

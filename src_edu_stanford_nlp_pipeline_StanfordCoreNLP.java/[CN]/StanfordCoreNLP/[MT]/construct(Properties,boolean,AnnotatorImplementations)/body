@@ -1,4 +1,5 @@
 {
+  Timing tim=new Timing();
   this.numWords=0;
   this.constituentTreePrinter=new TreePrint("penn");
   this.dependencyTreePrinter=new TreePrint("typedDependenciesCollapsed");
@@ -27,7 +28,7 @@
     if (name.isEmpty()) {
       continue;
     }
-    System.err.println("Adding annotator " + name);
+    logger.info("Adding annotator " + name);
     Annotator an=pool.get(name);
     this.addAnnotator(an);
     if (enforceRequirements) {
@@ -45,4 +46,5 @@
   if (!alreadyAddedAnnoNames.contains(STANFORD_SSPLIT)) {
     System.setProperty(NEWLINE_SPLITTER_PROPERTY,"false");
   }
+  this.pipelineSetupTime=tim.report();
 }

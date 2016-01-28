@@ -48,7 +48,7 @@
   LexicalizedParser parser=LexicalizedParser.loadModel(parserModel,"-dvKBest",Integer.toString(dvKBest));
   CacheParseHypotheses cacher=new CacheParseHypotheses(parser);
   TreeTransformer transformer=DVParser.buildTrainTransformer(parser.getOp());
-  List<Tree> sentences=new ArrayList<Tree>();
+  List<Tree> sentences=new ArrayList<>();
   for (  Pair<String,FileFilter> description : treebanks) {
     System.err.println("Reading trees from " + description.first);
     Treebank treebank=parser.getOp().tlpParams.memoryTreebank();
@@ -59,7 +59,7 @@
   System.err.println("Processing " + sentences.size() + " trees");
   List<Pair<Tree,byte[]>> cache=Generics.newArrayList();
   transformer=new SynchronizedTreeTransformer(transformer);
-  MulticoreWrapper<Tree,Pair<Tree,byte[]>> wrapper=new MulticoreWrapper<Tree,Pair<Tree,byte[]>>(numThreads,new CacheProcessor(cacher,parser,dvKBest,transformer));
+  MulticoreWrapper<Tree,Pair<Tree,byte[]>> wrapper=new MulticoreWrapper<>(numThreads,new CacheProcessor(cacher,parser,dvKBest,transformer));
   for (  Tree tree : sentences) {
     wrapper.put(tree);
     while (wrapper.peek()) {

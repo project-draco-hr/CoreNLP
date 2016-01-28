@@ -1,0 +1,82 @@
+{
+  long randomSeed=10101L;
+  ConcatVectorConstructionRecord[] randomSizedRecords=new ConcatVectorConstructionRecord[100000];
+  Random r=new Random(randomSeed);
+  for (int i=0; i < randomSizedRecords.length; i++) {
+    randomSizedRecords[i]=new ConcatVectorConstructionRecord(r);
+  }
+  int[] sizes=ConcatVectorConstructionRecord.getRandomSizes(r);
+  ConcatVectorConstructionRecord[] sameSizedRecords=new ConcatVectorConstructionRecord[100000];
+  for (int i=0; i < sameSizedRecords.length; i++) {
+    sameSizedRecords[i]=new ConcatVectorConstructionRecord(r,sizes);
+  }
+  ConcatVectorConstructionRecord toClone=new ConcatVectorConstructionRecord(r);
+  System.out.println("Warming up");
+  for (int i=0; i < 10; i++) {
+    System.out.println(i);
+    System.out.println("Serialize");
+    protoSerializationBenchmark(randomSizedRecords);
+  }
+  for (int i=0; i < 10; i++) {
+    System.out.println(i);
+    System.out.println("Clone");
+    cloneBenchmark(toClone.create());
+  }
+  for (int i=0; i < 100; i++) {
+    System.out.println(i);
+    System.out.println("Construction");
+    constructionBenchmark(randomSizedRecords);
+  }
+  for (int i=0; i < 100; i++) {
+    System.out.println(i);
+    System.out.println("Inner Product");
+    dotProductBenchmark(sameSizedRecords);
+  }
+  for (int i=0; i < 100; i++) {
+    System.out.println(i);
+    System.out.println("Addition");
+    addBenchmark(sameSizedRecords);
+  }
+  System.out.println("Done warmup");
+  long cloneRuntime=0;
+  long constructionRuntime=0;
+  long dotProductRuntime=0;
+  long addRuntime=0;
+  long protoSerializeRuntime=0;
+  long protoSerializeSize=0;
+  for (int i=0; i < 10; i++) {
+    System.out.println(i);
+    System.out.println("Serialize");
+    SerializationReport sr=protoSerializationBenchmark(randomSizedRecords);
+    protoSerializeRuntime+=sr.time;
+    if (protoSerializeSize == 0) {
+      protoSerializeSize=sr.size;
+    }
+  }
+  for (int i=0; i < 10; i++) {
+    System.out.println(i);
+    System.out.println("Clone");
+    cloneRuntime+=cloneBenchmark(toClone.create());
+  }
+  for (int i=0; i < 100; i++) {
+    System.out.println(i);
+    System.out.println("Construction");
+    constructionRuntime+=constructionBenchmark(randomSizedRecords);
+  }
+  for (int i=0; i < 100; i++) {
+    System.out.println(i);
+    System.out.println("Inner Product");
+    dotProductRuntime+=dotProductBenchmark(sameSizedRecords);
+  }
+  for (int i=0; i < 100; i++) {
+    System.out.println(i);
+    System.out.println("Addition");
+    addRuntime+=addBenchmark(sameSizedRecords);
+  }
+  System.out.println("Clone Runtime: " + cloneRuntime);
+  System.out.println("Construction Runtime: " + constructionRuntime);
+  System.out.println("Dot Product Runtimes: " + dotProductRuntime);
+  System.out.println("Add Runtimes: " + addRuntime);
+  System.out.println("Proto Serialize Runtimes: " + protoSerializeRuntime);
+  System.out.println("Proto Serialize Size: " + protoSerializeSize);
+}

@@ -1,12 +1,12 @@
 {
-  List<CoreMap> sentences=new ArrayList<CoreMap>(document.sentenceWordLists.size());
+  List<CoreMap> sentences=new ArrayList<>(document.sentenceWordLists.size());
   for (  List<String[]> sentWords : document.sentenceWordLists) {
     sentences.add(wordsToSentence(sentWords));
   }
   Annotation docAnnotation=sentencesToDocument(document.documentIdPart,sentences);
   document.setAnnotation(docAnnotation);
-  CollectionValuedMap<String,CoreMap> corefChainMap=new CollectionValuedMap<String,CoreMap>(CollectionFactory.<CoreMap>arrayListFactory());
-  List<CoreMap> nerChunks=new ArrayList<CoreMap>();
+  CollectionValuedMap<String,CoreMap> corefChainMap=new CollectionValuedMap<>(CollectionFactory.<CoreMap>arrayListFactory());
+  List<CoreMap> nerChunks=new ArrayList<>();
   for (int i=0; i < sentences.size(); i++) {
     CoreMap sentence=sentences.get(i);
     Tree tree=sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
