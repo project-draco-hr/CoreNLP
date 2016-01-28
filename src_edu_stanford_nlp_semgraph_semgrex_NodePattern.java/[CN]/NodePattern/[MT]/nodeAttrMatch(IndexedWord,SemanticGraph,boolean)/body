@@ -1,7 +1,7 @@
 {
   if (isRoot)   return (negDesc ? !sg.getRoots().contains(node) : sg.getRoots().contains(node));
   if (isEmpty)   return (negDesc ? !node.equals(IndexedWord.NO_WORD) : node.equals(IndexedWord.NO_WORD));
-  for (  Map.Entry<String,Pattern> attr : attributes.entrySet()) {
+  for (  Map.Entry<String,Pair<Pattern,Pattern>> attr : attributes.entrySet()) {
     String key=attr.getKey();
     String nodeValue;
     Class c=Env.lookupAnnotationKey(env,key);
@@ -9,13 +9,10 @@
     if (value == null)     nodeValue=null;
  else     nodeValue=value.toString();
     if (nodeValue == null)     return negDesc;
-    Pattern valuePattern=attr.getValue();
+    Pattern valuePattern=ignoreCase ? attr.getValue().second : attr.getValue().first;
     boolean matches=false;
-    if (ignoreCase) {
-      if (Pattern.compile(valuePattern.pattern(),Pattern.CASE_INSENSITIVE).matcher(nodeValue).matches())       matches=true;
-    }
- else {
-      if (nodeValue.matches(valuePattern.pattern()))       matches=true;
+    if (valuePattern.matcher(nodeValue).matches()) {
+      matches=true;
     }
     if (!matches) {
       return negDesc;

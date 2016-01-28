@@ -1,21 +1,22 @@
 {
   Properties prop=StringUtils.argsToProperties(args);
   double l1reg=Double.parseDouble(prop.getProperty("l1reg","0.0"));
-  Dataset<String,String> ds=new Dataset<String,String>();
+  Dataset<String,String> ds=new Dataset<>();
   for (  String line : ObjectBank.getLineIterator(new File(prop.getProperty("trainFile")))) {
     String[] bits=line.split("\\s+");
-    Collection<String> f=new LinkedList<String>(Arrays.asList(bits).subList(1,bits.length));
+    Collection<String> f=new LinkedList<>(Arrays.asList(bits).subList(1,bits.length));
     String l=bits[0];
     ds.add(f,l);
   }
   ds.summaryStatistics();
   boolean biased=prop.getProperty("biased","false").equals("true");
-  LogisticClassifierFactory<String,String> factory=new LogisticClassifierFactory<String,String>();
+  LogisticClassifierFactory<String,String> factory=new LogisticClassifierFactory<>();
   LogisticClassifier<String,String> lc=factory.trainClassifier(ds,l1reg,1e-4,biased);
   for (  String line : ObjectBank.getLineIterator(new File(prop.getProperty("testFile")))) {
     String[] bits=line.split("\\s+");
-    Collection<String> f=new LinkedList<String>(Arrays.asList(bits).subList(1,bits.length));
+    Collection<String> f=new LinkedList<>(Arrays.asList(bits).subList(1,bits.length));
     String g=lc.classOf(f);
-    System.out.println(g + '\t' + line);
+    double prob=lc.probabilityOf(f,g);
+    System.out.printf("%4.3f\t%s\t%s%n",prob,g,line);
   }
 }
