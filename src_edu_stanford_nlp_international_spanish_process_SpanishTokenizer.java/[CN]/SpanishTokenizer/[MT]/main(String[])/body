@@ -7,11 +7,11 @@
   final TokenizerFactory<CoreLabel> tf=SpanishTokenizer.coreLabelFactory();
   String orthoOptions=options.containsKey("ancora") ? ANCORA_OPTIONS : "";
   if (options.containsKey("options")) {
-    orthoOptions=orthoOptions.length() == 0 ? options.getProperty("options") : orthoOptions + "," + options;
+    orthoOptions=orthoOptions.isEmpty() ? options.getProperty("options") : orthoOptions + ',' + options;
   }
   final boolean tokens=PropertiesUtils.getBool(options,"tokens",false);
   if (!tokens) {
-    orthoOptions=orthoOptions.length() == 0 ? "tokenizeNLs" : orthoOptions + ",tokenizeNLs";
+    orthoOptions=orthoOptions.isEmpty() ? "tokenizeNLs" : orthoOptions + ",tokenizeNLs";
   }
   tf.setOptions(orthoOptions);
   final String encoding=options.getProperty("encoding","UTF-8");
@@ -40,7 +40,7 @@
     }
   }
  catch (  UnsupportedEncodingException e) {
-    e.printStackTrace();
+    throw new RuntimeIOException("Bad character encoding",e);
   }
   long elapsedTime=System.nanoTime() - startTime;
   double linesPerSec=(double)nLines / (elapsedTime / 1e9);

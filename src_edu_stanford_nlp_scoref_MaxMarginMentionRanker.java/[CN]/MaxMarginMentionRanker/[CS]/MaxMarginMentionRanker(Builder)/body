@@ -1,0 +1,11 @@
+{
+  super(builder);
+  costs=builder.costs;
+  multiplicativeCost=builder.multiplicativeCost;
+  if (multiplicativeCost) {
+    for (    ErrorType et : ErrorType.values()) {
+      losses[et.id]=SimpleLinearClassifier.maxMargin(builder.costs[et.id]);
+    }
+  }
+  loss=SimpleLinearClassifier.maxMargin(1.0);
+}

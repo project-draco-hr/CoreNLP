@@ -1,10 +1,11 @@
 {
   pw.println(cid + " " + countMentions(cluster));
   Map<IntPair,Set<CorefChain.CorefMention>> mentionMap=cluster.getMentionMap();
-  for (  IntPair mid : mentionMap.keySet()) {
-    Set<CorefChain.CorefMention> mentions=mentionMap.get(mid);
+  for (  Map.Entry<IntPair,Set<CorefChain.CorefMention>> intPairSetEntry : mentionMap.entrySet()) {
+    IntPair mentionIndices=intPairSetEntry.getKey();
+    Set<CorefChain.CorefMention> mentions=intPairSetEntry.getValue();
     for (    CorefChain.CorefMention mention : mentions) {
-      pw.print(mid.getSource() + " " + mid.getTarget());
+      pw.print(mentionIndices.getSource() + " " + mentionIndices.getTarget());
       if (mention == cluster.getRepresentativeMention())       pw.print(" " + 1);
  else       pw.print(" " + 0);
       pw.print(" " + mention.mentionType);

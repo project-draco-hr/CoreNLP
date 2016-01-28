@@ -3,11 +3,18 @@
   for (  HasWord word : list) {
     CoreLabel cl=(CoreLabel)word;
     if (printBeforeBeforeStart) {
-      s.append(cl.get(CoreAnnotations.BeforeAnnotation.class));
+      if (cl.get(CoreAnnotations.BeforeAnnotation.class) != null) {
+        s.append(cl.get(CoreAnnotations.BeforeAnnotation.class));
+      }
       printBeforeBeforeStart=false;
     }
     s.append(cl.get(CoreAnnotations.OriginalTextAnnotation.class));
-    s.append(cl.get(CoreAnnotations.AfterAnnotation.class));
+    if (cl.get(CoreAnnotations.AfterAnnotation.class) != null) {
+      s.append(cl.get(CoreAnnotations.AfterAnnotation.class));
+    }
+ else {
+      s.append(" ");
+    }
   }
   return s.toString();
 }

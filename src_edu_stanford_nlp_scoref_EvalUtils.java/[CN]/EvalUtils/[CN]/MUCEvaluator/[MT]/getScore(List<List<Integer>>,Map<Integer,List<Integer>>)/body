@@ -1,0 +1,20 @@
+{
+  int tp=0;
+  int predictedPositive=0;
+  for (  List<Integer> c : clusters) {
+    predictedPositive+=c.size() - 1;
+    tp+=c.size();
+    Set<List<Integer>> linked=new HashSet<>();
+    for (    int m : c) {
+      List<Integer> g=mentionToGold.get(m);
+      if (g == null) {
+        tp-=1;
+      }
+ else {
+        linked.add(g);
+      }
+    }
+    tp-=linked.size();
+  }
+  return new Pair<>((double)tp,(double)predictedPositive);
+}

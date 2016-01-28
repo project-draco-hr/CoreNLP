@@ -3,7 +3,13 @@
   this.windowSize=crf.windowSize;
   this.featureFactories=crf.featureFactories;
   this.pad=crf.pad;
-  this.knownLCWords=(crf.knownLCWords != null) ? Generics.<String>newHashSet(crf.knownLCWords) : null;
+  if (crf.knownLCWords != null) {
+    this.knownLCWords=new MaxSizeConcurrentHashSet<>(crf.flags.maxAdditionalKnownLCWords);
+  }
+ else {
+    this.knownLCWords=new MaxSizeConcurrentHashSet<>(crf.knownLCWords);
+    this.knownLCWords.setMaxSize(this.knownLCWords.size() + crf.flags.maxAdditionalKnownLCWords);
+  }
   this.featureIndex=(crf.featureIndex != null) ? new HashIndex<String>(crf.featureIndex.objectsList()) : null;
   this.classIndex=(crf.classIndex != null) ? new HashIndex<String>(crf.classIndex.objectsList()) : null;
   if (crf.labelIndices != null) {

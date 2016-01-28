@@ -1,0 +1,17 @@
+{
+  HashMap<String,String> features=new HashMap<String,String>();
+  String wordPos=word.toLowerCase() + "_" + pos;
+  if (wordPosFeatureMap.containsKey(wordPos)) {
+    features.putAll(wordPosFeatureMap.get(wordPos));
+  }
+ else   if (posFeatureMap.containsKey(pos)) {
+    features.putAll(posFeatureMap.get(pos));
+  }
+  if (isOrdinal(word,pos)) {
+    features.put("NumType","Ord");
+  }
+  if (isMultiplicative(word,pos)) {
+    features.put("NumType","Mult");
+  }
+  return features;
+}

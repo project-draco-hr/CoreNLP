@@ -1,7 +1,18 @@
 {
-  Set<Integer> paramRange=initializeParamRange(func,x);
-  for (  int i : paramRange) {
-    if (x[i] * orthant[i] <= 0)     x[i]=0;
+  if (func instanceof HasRegularizerParamRange) {
+    Set<Integer> paramRange=((HasRegularizerParamRange)func).getRegularizerParamRange(x);
+    for (    int i : paramRange) {
+      if (x[i] * orthant[i] <= 0.0) {
+        x[i]=0.0;
+      }
+    }
+  }
+ else {
+    for (int i=0; i < x.length; i++) {
+      if (x[i] * orthant[i] <= 0.0) {
+        x[i]=0.0;
+      }
+    }
   }
   return x;
 }

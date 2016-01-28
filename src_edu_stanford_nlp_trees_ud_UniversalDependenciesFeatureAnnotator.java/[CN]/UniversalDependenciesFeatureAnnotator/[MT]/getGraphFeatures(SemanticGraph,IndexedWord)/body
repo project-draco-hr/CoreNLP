@@ -1,0 +1,38 @@
+{
+  HashMap<String,String> features=new HashMap<String,String>();
+  if (word.tag().equals("PRP") && (word.value().equalsIgnoreCase("you") || word.value().equalsIgnoreCase("it"))) {
+    features.put("Case",pronounCase(sg,word));
+  }
+  if (word.tag().equals("VBD") && word.value().equalsIgnoreCase("was")) {
+    String person=wasPerson(sg,word);
+    if (person != null) {
+      features.put("Person",person);
+    }
+  }
+  features.putAll(getRelAndIntPronFeatures(sg,word));
+  if (word.tag().equals("VBG")) {
+    if (hasBeAux(sg,word)) {
+      features.put("VerbForm","Part");
+      features.put("Tense","Pres");
+    }
+ else {
+      features.put("VerbForm","Ger");
+    }
+  }
+  if (word.value().matches(SELF_REGEX) && word.tag().equals("PRP")) {
+    IndexedWord parent=sg.getParent(word);
+    if (parent != null) {
+      SemanticGraphEdge edge=sg.getEdge(parent,word);
+      if (edge.getRelation() != UniversalEnglishGrammaticalRelations.NP_ADVERBIAL_MODIFIER) {
+        features.put("Case","Acc");
+        features.put("Reflex","Yes");
+      }
+    }
+  }
+  if (word.tag().equals("VBN")) {
+    if (sg.hasChildWithReln(word,UniversalEnglishGrammaticalRelations.AUX_PASSIVE_MODIFIER)) {
+      features.put("Voice","Pass");
+    }
+  }
+  return features;
+}

@@ -1,0 +1,28 @@
+{
+  if (isMerge) {
+    if (c2.size() > c1.size()) {
+      Cluster tmp=c1;
+      c1=c2;
+      c2=tmp;
+    }
+    hash^=7 * c1.hash;
+    hash^=7 * c2.hash;
+    c1.merge(c2);
+    for (    int m : c2.mentions) {
+      mentionToCluster.put(m,c1);
+    }
+    clusters.remove(c2);
+    hash^=7 * c1.hash;
+  }
+  currentIndex++;
+  if (!isComplete()) {
+    setClusters();
+  }
+  while (c1 == c2) {
+    currentIndex++;
+    if (isComplete()) {
+      break;
+    }
+    setClusters();
+  }
+}

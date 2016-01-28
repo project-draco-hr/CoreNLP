@@ -1,0 +1,9 @@
+{
+  ByteArrayOutputStream byteArrayOutputStream=new ByteArrayOutputStream();
+  graphicalModel.writeToStream(byteArrayOutputStream);
+  byteArrayOutputStream.close();
+  byte[] bytes=byteArrayOutputStream.toByteArray();
+  ByteArrayInputStream byteArrayInputStream=new ByteArrayInputStream(bytes);
+  GraphicalModel recovered=GraphicalModel.readFromStream(byteArrayInputStream);
+  assertTrue(graphicalModel.valueEquals(recovered,1.0e-5));
+}

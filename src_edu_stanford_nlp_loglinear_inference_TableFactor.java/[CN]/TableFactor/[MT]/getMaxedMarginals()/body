@@ -1,0 +1,23 @@
+{
+  double[][] maxValues=new double[neighborIndices.length][];
+  for (int i=0; i < neighborIndices.length; i++) {
+    maxValues[i]=new double[getDimensions()[i]];
+    for (int j=0; j < maxValues[i].length; j++)     maxValues[i][j]=Double.NEGATIVE_INFINITY;
+  }
+  Iterator<int[]> fastPassByReferenceIterator=fastPassByReferenceIterator();
+  int[] assignment=fastPassByReferenceIterator.next();
+  while (true) {
+    double v=getAssignmentLogValue(assignment);
+    for (int i=0; i < neighborIndices.length; i++) {
+      if (maxValues[i][assignment[i]] < v)       maxValues[i][assignment[i]]=v;
+    }
+    if (fastPassByReferenceIterator.hasNext()) {
+      fastPassByReferenceIterator.next();
+    }
+ else     break;
+  }
+  for (int i=0; i < neighborIndices.length; i++) {
+    normalizeLogArr(maxValues[i]);
+  }
+  return maxValues;
+}

@@ -1,25 +1,15 @@
 {
-  boolean match=false;
-  matched=false;
-  matchingCompleted=false;
-  if (matchStart) {
-    match=findMatchStart(start,false);
-  }
+  boolean done=false;
+  while (!done) {
+    boolean res=find0(start,matchStart);
+    if (res) {
+      boolean empty=this.group().isEmpty();
+      if (!empty || includeEmptyMatches)       return res;
  else {
-    for (int i=start; i < regionEnd; i++) {
-      match=findMatchStart(i,false);
-      if (match) {
-        break;
+        start=start + 1;
       }
     }
+    done=!res;
   }
-  matched=match;
-  matchingCompleted=true;
-  if (matched) {
-    nextMatchStart=(findType == FindType.FIND_NONOVERLAPPING) ? end() : start() + 1;
-  }
- else {
-    nextMatchStart=-1;
-  }
-  return match;
+  return false;
 }
