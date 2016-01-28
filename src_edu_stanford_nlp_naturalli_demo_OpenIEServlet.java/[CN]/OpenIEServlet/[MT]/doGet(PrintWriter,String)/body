@@ -9,16 +9,11 @@
   }
   Annotation ann=new Annotation(q);
   try {
-    annotate(ann);
-    List<String> entailments=new ArrayList<>();
+    Set<String> entailments=new HashSet<>();
     Set<String> triples=new LinkedHashSet<>();
-    for (    CoreMap sentence : ann.get(CoreAnnotations.SentencesAnnotation.class)) {
-      for (      SentenceFragment fragment : sentence.get(NaturalLogicAnnotations.EntailedSentencesAnnotation.class)) {
-        entailments.add(quote(fragment.toString()));
-      }
-      for (      RelationTriple fragment : sentence.get(NaturalLogicAnnotations.RelationTriplesAnnotation.class)) {
-        triples.add("[ " + quote(fragment.subjectLemmaGloss()) + ", "+ quote(fragment.relationLemmaGloss())+ ", "+ quote(fragment.objectLemmaGloss())+ " ]");
-      }
+    runWithPipeline(pipeline,ann,triples,entailments);
+    if (triples.size() == 0) {
+      runWithPipeline(backoff,ann,triples,entailments);
     }
     out.println("{ " + "\"ok\":true, " + "\"entailments\": [" + StringUtils.join(entailments,",") + "], "+ "\"triples\": ["+ StringUtils.join(triples,",")+ "], "+ "\"msg\": \"\""+ " }");
   }

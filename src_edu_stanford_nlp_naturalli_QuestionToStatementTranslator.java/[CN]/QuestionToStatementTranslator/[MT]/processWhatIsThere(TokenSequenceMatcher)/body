@@ -1,0 +1,14 @@
+{
+  List<CoreLabel> optSpan;
+  List<CoreLabel> sentence=(List<CoreLabel>)matcher.groupNodes("$there");
+  sentence.addAll((List<CoreLabel>)matcher.groupNodes("$be"));
+  if ((optSpan=(List<CoreLabel>)matcher.groupNodes("$adjmod")) != null) {
+    sentence.addAll(optSpan);
+  }
+  sentence.add(WORD_MISSING);
+  if ((optSpan=(List<CoreLabel>)matcher.groupNodes("$to_verb")) != null) {
+    sentence.addAll(optSpan);
+  }
+  sentence.addAll((Collection<CoreLabel>)matcher.groupNodes("$statement_body"));
+  return sentence;
+}

@@ -1,0 +1,22 @@
+{
+  List<CoreLabel> sentence=(List<CoreLabel>)matcher.groupNodes("$statement_body");
+  List<CoreLabel> be=(List<CoreLabel>)matcher.groupNodes("$be");
+  sentence.addAll(be);
+  List<CoreLabel> verb=(List<CoreLabel>)matcher.groupNodes("$final_verb");
+  if (verb != null) {
+    sentence.addAll(verb);
+  }
+  verb=(List<CoreLabel>)matcher.groupNodes("$initial_verb");
+  if (verb != null) {
+    sentence.addAll(verb);
+  }
+  List<CoreLabel> at=(List<CoreLabel>)matcher.groupNodes("$at");
+  if (at != null && at.size() > 0) {
+    sentence.addAll(at);
+  }
+ else {
+    sentence.add(WORD_AT);
+  }
+  sentence.add(WORD_MISSING_LOCATION);
+  return sentence;
+}
