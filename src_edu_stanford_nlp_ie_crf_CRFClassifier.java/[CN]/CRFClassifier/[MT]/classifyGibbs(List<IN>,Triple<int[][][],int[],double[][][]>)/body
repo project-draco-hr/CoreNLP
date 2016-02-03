@@ -8,9 +8,7 @@
   CRFCliqueTree<? extends CharSequence> cliqueTree=getCliqueTree(documentDataAndLabels);
   PriorModelFactory<IN> pmf=(PriorModelFactory<IN>)Class.forName(flags.priorModelFactory).newInstance();
   ListeningSequenceModel prior=pmf.getInstance(flags.backgroundSymbol,classIndex,tagIndex,newDocument,entityMatrices,flags);
-  if (flags.useUniformPrior) {
-  }
- else {
+  if (!flags.useUniformPrior) {
     throw new RuntimeException("no prior specified");
   }
   SequenceModel model=new FactoredSequenceModel(cliqueTree,prior);
