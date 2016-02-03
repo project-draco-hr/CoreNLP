@@ -1,11 +1,11 @@
 {
-  int size=memoizedSize;
+  int size=memoizedSerializedSize;
   if (size != -1)   return size;
   size=0;
 {
     int dataSize=0;
     for (int i=0; i < key_.size(); i++) {
-      dataSize+=computeStringSizeNoTag(key_.getRaw(i));
+      dataSize+=com.google.protobuf.CodedOutputStream.computeBytesSizeNoTag(key_.getByteString(i));
     }
     size+=dataSize;
     size+=1 * getKeyList().size();
@@ -13,12 +13,12 @@
 {
     int dataSize=0;
     for (int i=0; i < value_.size(); i++) {
-      dataSize+=computeStringSizeNoTag(value_.getRaw(i));
+      dataSize+=com.google.protobuf.CodedOutputStream.computeBytesSizeNoTag(value_.getByteString(i));
     }
     size+=dataSize;
     size+=1 * getValueList().size();
   }
-  size+=unknownFields.getSerializedSize();
-  memoizedSize=size;
+  size+=getUnknownFields().getSerializedSize();
+  memoizedSerializedSize=size;
   return size;
 }
