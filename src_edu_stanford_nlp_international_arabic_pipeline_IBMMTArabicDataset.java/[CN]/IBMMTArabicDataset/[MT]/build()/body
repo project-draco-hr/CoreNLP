@@ -8,7 +8,7 @@
       infile=new LineNumberReader(new BufferedReader(new InputStreamReader(new FileInputStream(path),"UTF-8")));
       currentInfile=path.getPath();
       while (infile.ready()) {
-        ArrayList<Word> sent=Sentence.toUntaggedList(infile.readLine().split("\\s+"));
+        ArrayList<Word> sent=SentenceUtils.toUntaggedList(infile.readLine().split("\\s+"));
         for (        Word token : sent) {
           Matcher hasArabic=utf8ArabicChart.matcher(token.word());
           if (hasArabic.find()) {
@@ -16,7 +16,7 @@
             token.setWord(lexMapper.map(null,token.word()));
           }
         }
-        outfile.println(Sentence.listToString(sent));
+        outfile.println(SentenceUtils.listToString(sent));
       }
       toStringBuffer.append(String.format(" Read %d input lines from %s",infile.getLineNumber(),path.getPath()));
     }

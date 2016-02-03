@@ -1,5 +1,5 @@
 {
-  int size=memoizedSerializedSize;
+  int size=memoizedSize;
   if (size != -1)   return size;
   size=0;
 {
@@ -13,12 +13,12 @@
 {
     int dataSize=0;
     for (int i=0; i < value_.size(); i++) {
-      dataSize+=com.google.protobuf.CodedOutputStream.computeBytesSizeNoTag(value_.getByteString(i));
+      dataSize+=computeStringSizeNoTag(value_.getRaw(i));
     }
     size+=dataSize;
     size+=1 * getValueList().size();
   }
-  size+=getUnknownFields().getSerializedSize();
-  memoizedSerializedSize=size;
+  size+=unknownFields.getSerializedSize();
+  memoizedSize=size;
   return size;
 }
