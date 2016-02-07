@@ -2,7 +2,6 @@
   Timing timing=new Timing();
   long maxTrainTimeMillis=model.op.trainOptions.maxTrainTimeSeconds * 1000;
   int debugCycle=0;
-  double bestAccuracy=0.0;
   double[] sumGradSquare=new double[model.totalParamSize()];
   Arrays.fill(sumGradSquare,model.op.trainOptions.initialAdagradWeight);
   int numBatches=trainingTrees.size() / model.op.trainOptions.batchSize + 1;
@@ -42,7 +41,7 @@
           score=eval.exactNodeAccuracy() * 100.0;
         }
         if (modelPath != null) {
-          String tempPath=modelPath;
+          String tempPath;
           if (modelPath.endsWith(".ser.gz")) {
             tempPath=modelPath.substring(0,modelPath.length() - 7) + "-" + FILENAME.format(debugCycle)+ "-"+ NF.format(score)+ ".ser.gz";
           }
