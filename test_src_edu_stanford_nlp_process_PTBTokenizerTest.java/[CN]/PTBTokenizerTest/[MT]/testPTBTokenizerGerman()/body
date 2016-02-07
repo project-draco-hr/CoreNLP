@@ -1,12 +1,7 @@
 {
-  String sample="Das TV-Duell von Kanzlerin Merkel und SPD-Herausforderer Steinbr??ck war eher lahm - k??nnen es die Spitzenleute der kleinen Parteien besser? " + "Die erquickende Sicherheit und Festigkeit in der Bewegung, den Vorrat von Kraft, kann ja die Versammlung nicht f??hlen, h??ren will sie sie nicht, also mu?? sie sie sehen; und die sehe man einmal in einem Paar spitzen Schultern, zylindrischen Schenkeln, oder leeren ??rmeln, oder lattenf??rmigen Beinen.";
-  String[] tokenized={"Das","TV-Duell","von","Kanzlerin","Merkel","und","SPD-Herausforderer","Steinbr??ck","war","eher","lahm","-","k??nnen","es","die","Spitzenleute","der","kleinen","Parteien","besser","?","Die","erquickende","Sicherheit","und","Festigkeit","in","der","Bewegung",",","den","Vorrat","von","Kraft",",","kann","ja","die","Versammlung","nicht","f??hlen",",","h??ren","will","sie","sie","nicht",",","also","mu??","sie","sie","sehen",";","und","die","sehe","man","einmal","in","einem","Paar","spitzen","Schultern",",","zylindrischen","Schenkeln",",","oder","leeren","??rmeln",",","oder","lattenf??rmigen","Beinen","."};
+  String[] sample={"Das TV-Duell von Kanzlerin Merkel und SPD-Herausforderer Steinbr??ck war eher lahm - k??nnen es die Spitzenleute der kleinen Parteien besser? ","Die erquickende Sicherheit und Festigkeit in der Bewegung, den Vorrat von Kraft, kann ja die Versammlung nicht f??hlen, h??ren will sie sie nicht, also mu?? sie sie sehen; und die sehe man einmal in einem Paar spitzen Schultern, zylindrischen Schenkeln, oder leeren ??rmeln, oder lattenf??rmigen Beinen."};
+  String[][] tokenized={{"Das","TV-Duell","von","Kanzlerin","Merkel","und","SPD-Herausforderer","Steinbr??ck","war","eher","lahm","-","k??nnen","es","die","Spitzenleute","der","kleinen","Parteien","besser","?"},{"Die","erquickende","Sicherheit","und","Festigkeit","in","der","Bewegung",",","den","Vorrat","von","Kraft",",","kann","ja","die","Versammlung","nicht","f??hlen",",","h??ren","will","sie","sie","nicht",",","also","mu??","sie","sie","sehen",";","und","die","sehe","man","einmal","in","einem","Paar","spitzen","Schultern",",","zylindrischen","Schenkeln",",","oder","leeren","??rmeln",",","oder","lattenf??rmigen","Beinen","."}};
   TreebankLanguagePack tlp=new NegraPennLanguagePack();
-  Tokenizer<? extends HasWord> toke=tlp.getTokenizerFactory().getTokenizer(new StringReader(sample));
-  List<? extends HasWord> tokens=toke.tokenize();
-  List<? extends HasWord> goldTokens=SentenceUtils.toWordList(tokenized);
-  assertEquals("Tokenization length mismatch",goldTokens.size(),tokens.size());
-  for (int i=0, sz=goldTokens.size(); i < sz; i++) {
-    assertEquals("Bad tokenization",goldTokens.get(i).word(),tokens.get(i).word());
-  }
+  TokenizerFactory tokFactory=tlp.getTokenizerFactory();
+  runOnTwoArrays(tokFactory,sample,tokenized);
 }
