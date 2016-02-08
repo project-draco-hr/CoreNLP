@@ -2,28 +2,9 @@
   if (pool == null) {
     pool=new AnnotatorPool();
   }
-  pool.register(STANFORD_TOKENIZE,AnnotatorFactories.tokenize(properties,annotatorImplementation));
-  pool.register(STANFORD_CLEAN_XML,AnnotatorFactories.cleanXML(properties,annotatorImplementation));
-  pool.register(STANFORD_SSPLIT,AnnotatorFactories.sentenceSplit(properties,annotatorImplementation));
-  pool.register(STANFORD_POS,AnnotatorFactories.posTag(properties,annotatorImplementation));
-  pool.register(STANFORD_LEMMA,AnnotatorFactories.lemma(properties,annotatorImplementation));
-  pool.register(STANFORD_NER,AnnotatorFactories.nerTag(properties,annotatorImplementation));
-  pool.register(STANFORD_REGEXNER,AnnotatorFactories.regexNER(properties,annotatorImplementation));
-  pool.register(STANFORD_ENTITY_MENTIONS,AnnotatorFactories.entityMentions(properties,annotatorImplementation));
-  pool.register(STANFORD_GENDER,AnnotatorFactories.gender(properties,annotatorImplementation));
-  pool.register(STANFORD_TRUECASE,AnnotatorFactories.truecase(properties,annotatorImplementation));
-  pool.register(STANFORD_PARSE,AnnotatorFactories.parse(properties,annotatorImplementation));
-  pool.register(STANFORD_MENTION,AnnotatorFactories.mention(properties,annotatorImplementation));
-  pool.register(STANFORD_DETERMINISTIC_COREF,AnnotatorFactories.dcoref(properties,annotatorImplementation));
-  pool.register(STANFORD_COREF,AnnotatorFactories.coref(properties,annotatorImplementation));
-  pool.register(STANFORD_RELATION,AnnotatorFactories.relation(properties,annotatorImplementation));
-  pool.register(STANFORD_SENTIMENT,AnnotatorFactories.sentiment(properties,annotatorImplementation));
-  pool.register(STANFORD_COLUMN_DATA_CLASSIFIER,AnnotatorFactories.columnDataClassifier(properties,annotatorImplementation));
-  pool.register(STANFORD_DEPENDENCIES,AnnotatorFactories.dependencies(properties,annotatorImplementation));
-  pool.register(STANFORD_NATLOG,AnnotatorFactories.natlog(properties,annotatorImplementation));
-  pool.register(STANFORD_OPENIE,AnnotatorFactories.openie(properties,annotatorImplementation));
-  pool.register(STANFORD_QUOTE,AnnotatorFactories.quote(properties,annotatorImplementation));
-  pool.register(STANFORD_UD_FEATURES,AnnotatorFactories.udfeats(properties,annotatorImplementation));
+  for (  Map.Entry<String,BiFunction<Properties,AnnotatorImplementations,AnnotatorFactory>> entry : getNamedAnnotators().entrySet()) {
+    pool.register(entry.getKey(),entry.getValue().apply(properties,annotatorImplementation));
+  }
   for (  String property : inputProps.stringPropertyNames()) {
     if (property.startsWith(CUSTOM_ANNOTATOR_PREFIX)) {
       final String customName=property.substring(CUSTOM_ANNOTATOR_PREFIX.length());

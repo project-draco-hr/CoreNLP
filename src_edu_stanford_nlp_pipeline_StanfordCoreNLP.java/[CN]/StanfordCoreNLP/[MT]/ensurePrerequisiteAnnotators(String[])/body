@@ -1,13 +1,23 @@
 {
   Set<String> unorderedAnnotators=new HashSet<>();
   for (  String annotator : annotators) {
-    if (!Annotator.REQUIREMENTS.containsKey(annotator.toLowerCase())) {
+    if (!getNamedAnnotators().containsKey(annotator.toLowerCase())) {
       throw new IllegalArgumentException("Unknown annotator: " + annotator);
     }
     unorderedAnnotators.add(annotator.toLowerCase());
-    Set<Requirement> requirements=Annotator.REQUIREMENTS.get(annotator.toLowerCase());
-    for (    Requirement prereq : requirements) {
-      unorderedAnnotators.add(prereq.name);
+    if (!Annotator.DEFAULT_REQUIREMENTS.containsKey(annotator.toLowerCase())) {
+      throw new IllegalArgumentException("Cannot infer requirements for annotator: " + annotator);
+    }
+    Queue<String> fringe=new LinkedList<>(Annotator.DEFAULT_REQUIREMENTS.get(annotator.toLowerCase()));
+    int ticks=0;
+    while (!fringe.isEmpty()) {
+      ticks+=1;
+      if (ticks == 1000000) {
+        throw new IllegalStateException("[INTERNAL ERROR] Annotators have a circular dependency.");
+      }
+      String prereq=fringe.poll();
+      unorderedAnnotators.add(prereq);
+      fringe.addAll(Annotator.DEFAULT_REQUIREMENTS.get(prereq.toLowerCase()));
     }
   }
   List<String> orderedAnnotators=new ArrayList<>();
@@ -17,8 +27,8 @@
     while (iter.hasNext()) {
       String candidate=iter.next();
       boolean canAdd=true;
-      for (      Requirement prereq : Annotator.REQUIREMENTS.get(candidate)) {
-        if (!orderedAnnotators.contains(prereq.name)) {
+      for (      String prereq : Annotator.DEFAULT_REQUIREMENTS.get(candidate.toLowerCase())) {
+        if (!orderedAnnotators.contains(prereq)) {
           canAdd=false;
           break;
         }
