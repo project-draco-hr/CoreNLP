@@ -25,7 +25,7 @@ catch (  IOException e) {
   logger.fine(props.toString());
   Constants.printConstants(logger);
   SieveCoreferenceSystem corefSystem=new SieveCoreferenceSystem(props);
-  MentionExtractor mentionExtractor;
+  MentionExtractor mentionExtractor=null;
   if (props.containsKey(Constants.MUC_PROP)) {
     mentionExtractor=new MUCMentionExtractor(corefSystem.dictionaries,props,corefSystem.semantics,corefSystem.singletonPredictor);
   }
@@ -35,7 +35,7 @@ catch (  IOException e) {
  else   if (props.containsKey(Constants.CONLL2011_PROP)) {
     mentionExtractor=new CoNLLMentionExtractor(corefSystem.dictionaries,props,corefSystem.semantics,corefSystem.singletonPredictor);
   }
- else {
+  if (mentionExtractor == null) {
     throw new RuntimeException("No input file specified!");
   }
   if (!Constants.USE_GOLD_MENTIONS) {
