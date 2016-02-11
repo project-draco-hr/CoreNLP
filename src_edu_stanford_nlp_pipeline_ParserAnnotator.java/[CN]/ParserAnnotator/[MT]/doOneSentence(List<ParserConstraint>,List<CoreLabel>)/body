@@ -4,23 +4,15 @@
   pq.parse(words);
   List<Tree> trees=Generics.newLinkedList();
   try {
-    if (this.kBest == 1) {
-      Tree t=pq.getBestParse();
-      double score=pq.getBestScore();
-      t.setScore(score % -10000.0);
-      trees.add(t);
+    List<ScoredObject<Tree>> scoredObjects=pq.getKBestPCFGParses(this.kBest);
+    if (scoredObjects == null || scoredObjects.size() < 1) {
+      System.err.println("WARNING: Parsing of sentence failed.  " + "Will ignore and continue: " + SentenceUtils.listToString(words));
     }
  else {
-      List<ScoredObject<Tree>> scoredObjects=pq.getKBestParses(this.kBest);
-      if (scoredObjects == null || scoredObjects.size() < 1) {
-        System.err.println("WARNING: Parsing of sentence failed.  " + "Will ignore and continue: " + SentenceUtils.listToString(words));
-      }
- else {
-        for (        ScoredObject<Tree> so : scoredObjects) {
-          Tree tree=so.object();
-          tree.setScore(so.score() % -10000.0);
-          trees.add(tree);
-        }
+      for (      ScoredObject<Tree> so : scoredObjects) {
+        Tree tree=so.object();
+        tree.setScore(so.score() % -10000.0);
+        trees.add(tree);
       }
     }
   }

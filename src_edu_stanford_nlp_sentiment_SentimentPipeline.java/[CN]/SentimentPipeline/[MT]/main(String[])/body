@@ -80,7 +80,7 @@
     tokenizerProps.setProperty("annotators","tokenize, ssplit");
   }
   if (stdin && tokenizerProps != null) {
-    tokenizerProps.setProperty(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY,"true");
+    tokenizerProps.setProperty("ssplit.eolonly","true");
   }
   int count=0;
   if (filename != null)   count++;
@@ -127,7 +127,7 @@
     BufferedReader reader=IOUtils.readerFromStdin("utf-8");
     for (String line; (line=reader.readLine()) != null; ) {
       line=line.trim();
-      if (!line.isEmpty()) {
+      if (line.length() > 0) {
         Annotation annotation=tokenizer.process(line);
         pipeline.annotate(annotation);
         for (        CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
@@ -135,7 +135,7 @@
         }
       }
  else {
-        System.out.println();
+        System.out.println("");
       }
     }
   }
