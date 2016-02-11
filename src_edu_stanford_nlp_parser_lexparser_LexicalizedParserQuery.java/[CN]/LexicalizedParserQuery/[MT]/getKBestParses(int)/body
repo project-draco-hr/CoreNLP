@@ -1,0 +1,34 @@
+{
+  if (parseSkipped) {
+    return null;
+  }
+  if (bparser != null && parseSucceeded) {
+    Tree binaryTree=bparser.getBestParse();
+    Tree tree=debinarizer.transformTree(binaryTree);
+    if (op.nodePrune) {
+      NodePruner np=new NodePruner(pparser,debinarizer);
+      tree=np.prune(tree);
+    }
+    tree=subcategoryStripper.transformTree(tree);
+    restoreOriginalWords(tree);
+    double score=dparser.getBestScore();
+    ScoredObject<Tree> so=new ScoredObject<>(tree,score);
+    List<ScoredObject<Tree>> trees=new ArrayList<>(1);
+    trees.add(so);
+    return trees;
+  }
+ else   if (pparser != null && pparser.hasParse() && fallbackToPCFG) {
+    return this.getKBestPCFGParses(k);
+  }
+ else   if (dparser != null && dparser.hasParse()) {
+    Tree tree=this.getBestDependencyParse(true);
+    double score=dparser.getBestScore();
+    ScoredObject<Tree> so=new ScoredObject<>(tree,score);
+    List<ScoredObject<Tree>> trees=new ArrayList<>(1);
+    trees.add(so);
+    return trees;
+  }
+ else {
+    throw new NoSuchParseException();
+  }
+}

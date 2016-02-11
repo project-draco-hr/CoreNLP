@@ -9,6 +9,10 @@
   List<ScoredObject<Tree>> trees=new ArrayList<>(k);
   for (  ScoredObject<Tree> tp : binaryTrees) {
     Tree t=debinarizer.transformTree(tp.object());
+    if (op.nodePrune) {
+      NodePruner np=new NodePruner(pparser,debinarizer);
+      t=np.prune(t);
+    }
     t=subcategoryStripper.transformTree(t);
     restoreOriginalWords(t);
     trees.add(new ScoredObject<>(t,tp.score()));
