@@ -2,7 +2,7 @@
   if ((this.mentionSubTree != null && isListLike()) || (this.mentionSubTree == null && isListLikeByDependency())) {
     mentionType=MentionType.LIST;
   }
- else   if (headWord.has(CoreAnnotations.EntityTypeAnnotation.class)) {
+ else   if (headWord.containsKey(CoreAnnotations.EntityTypeAnnotation.class)) {
     if (headWord.get(CoreAnnotations.EntityTypeAnnotation.class).equals("PRO")) {
       mentionType=MentionType.PRONOMINAL;
     }
@@ -14,7 +14,7 @@
     }
   }
  else {
-    if (!headWord.has(CoreAnnotations.NamedEntityTagAnnotation.class)) {
+    if (!headWord.containsKey(CoreAnnotations.NamedEntityTagAnnotation.class)) {
       mentionType=MentionType.NOMINAL;
     }
  else     if (headWord.tag().startsWith("PRP") || headWord.tag().startsWith("PN") || (originalSpan.size() == 1 && headWord.get(CoreAnnotations.NamedEntityTagAnnotation.class).equals("O") && (dict.allPronouns.contains(headString) || dict.relativePronouns.contains(headString)))) {
