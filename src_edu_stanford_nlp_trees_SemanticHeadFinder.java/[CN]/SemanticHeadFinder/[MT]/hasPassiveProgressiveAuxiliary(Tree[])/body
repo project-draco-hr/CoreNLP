@@ -1,12 +1,12 @@
 {
   if (DEBUG) {
-    System.err.println("Checking for passive/progressive auxiliary");
+    log.info("Checking for passive/progressive auxiliary");
   }
   boolean foundPassiveVP=false;
   boolean foundPassiveAux=false;
   for (  Tree kid : kids) {
     if (DEBUG) {
-      System.err.println("  checking in " + kid);
+      log.info("  checking in " + kid);
     }
     if (isVerbalAuxiliary(kid,passiveAuxiliaries,false)) {
       foundPassiveAux=true;
@@ -24,13 +24,13 @@
         continue;
       }
       if (DEBUG) {
-        System.err.println("hasPassiveProgressiveAuxiliary found VP");
+        log.info("hasPassiveProgressiveAuxiliary found VP");
       }
       Tree[] kidkids=kid.children();
       boolean foundParticipleInVp=false;
       for (      Tree kidkid : kidkids) {
         if (DEBUG) {
-          System.err.println("  hasPassiveProgressiveAuxiliary examining " + kidkid);
+          log.info("  hasPassiveProgressiveAuxiliary examining " + kidkid);
         }
         if (kidkid.isPreTerminal()) {
           Label kidkidLabel=kidkid.label();
@@ -44,14 +44,14 @@
           if ("VBN".equals(tag) || "VBG".equals(tag) || "VBD".equals(tag)) {
             foundPassiveVP=true;
             if (DEBUG) {
-              System.err.println("hasPassiveAuxiliary found VBN/VBG/VBD VP");
+              log.info("hasPassiveAuxiliary found VBN/VBG/VBD VP");
             }
             break;
           }
  else           if ("CC".equals(tag) && foundParticipleInVp) {
             foundPassiveVP=true;
             if (DEBUG) {
-              System.err.println("hasPassiveAuxiliary [coordination] found (VP (VP[VBN/VBG/VBD] CC");
+              log.info("hasPassiveAuxiliary [coordination] found (VP (VP[VBN/VBG/VBD] CC");
             }
             break;
           }
@@ -66,14 +66,14 @@
           }
           if ("VP".equals(catcat)) {
             if (DEBUG) {
-              System.err.println("hasPassiveAuxiliary found (VP (VP)), recursing");
+              log.info("hasPassiveAuxiliary found (VP (VP)), recursing");
             }
             foundParticipleInVp=vpContainsParticiple(kidkid);
           }
  else           if (("CONJP".equals(catcat) || "PRN".equals(catcat)) && foundParticipleInVp) {
             foundPassiveVP=true;
             if (DEBUG) {
-              System.err.println("hasPassiveAuxiliary [coordination] found (VP (VP[VBN/VBG/VBD] CONJP");
+              log.info("hasPassiveAuxiliary [coordination] found (VP (VP[VBN/VBG/VBD] CONJP");
             }
             break;
           }
@@ -85,7 +85,7 @@
     }
   }
   if (DEBUG) {
-    System.err.println("hasPassiveProgressiveAuxiliary returns " + (foundPassiveAux && foundPassiveVP));
+    log.info("hasPassiveProgressiveAuxiliary returns " + (foundPassiveAux && foundPassiveVP));
   }
   return foundPassiveAux && foundPassiveVP;
 }

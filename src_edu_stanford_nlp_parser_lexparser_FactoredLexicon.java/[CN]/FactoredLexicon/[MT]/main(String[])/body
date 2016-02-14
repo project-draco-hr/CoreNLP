@@ -65,7 +65,7 @@
       noRules=false;
       IntTaggedWord iTW=itr.next();
       if (iTW.tag() == event.tagId()) {
-        System.err.print("GOLD-");
+        log.info("GOLD-");
         goldTagId=iTW.tag();
       }
       float tagScore=lexicon.score(iTW,event.getLoc(),event.word(),event.featureStr());
@@ -84,11 +84,11 @@
         errors.incrementCount(goldTag);
       }
     }
-    System.err.println();
+    log.info();
   }
   double acc=(double)nCorrect / (double)tuningSet.size();
   System.err.printf("%n%nACCURACY: %.2f%n%n",acc * 100.0);
-  System.err.println("% of errors by type:");
+  log.info("% of errors by type:");
   List<String> biggestKeys=new ArrayList<>(errors.keySet());
   Collections.sort(biggestKeys,Counters.toComparator(errors,false,true));
   Counters.normalize(errors);

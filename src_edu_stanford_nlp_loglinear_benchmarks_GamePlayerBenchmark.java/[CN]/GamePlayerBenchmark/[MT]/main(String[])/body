@@ -12,13 +12,13 @@
   List<String> tags=new ArrayList<>();
   tags.addAll(tagsSet);
   coNLL.embeddings=coNLL.getEmbeddings(DATA_PATH + "google-300-trimmed.ser.gz",allData);
-  System.err.println("Making the training set...");
+  log.info("Making the training set...");
   ConcatVectorNamespace namespace=new ConcatVectorNamespace();
   int trainSize=train.size();
   GraphicalModel[] trainingSet=new GraphicalModel[trainSize];
   for (int i=0; i < trainSize; i++) {
     if (i % 10 == 0) {
-      System.err.println(i + "/" + trainSize);
+      log.info(i + "/" + trainSize);
     }
     trainingSet[i]=coNLL.generateSentenceModel(namespace,train.get(i),tags);
   }
@@ -47,17 +47,17 @@
     for (int j=0; j < dense.length; j++)     dense[j]=r.nextDouble();
     weights.setDenseComponent(i,dense);
   }
-  System.err.println("Warming up the JIT...");
+  log.info("Warming up the JIT...");
   for (int i=0; i < 10; i++) {
-    System.err.println(i);
+    log.info(i);
     gameplay(r,trainingSet[i],weights,humanFeatureVectors);
   }
-  System.err.println("Timing actual run...");
+  log.info("Timing actual run...");
   long start=System.currentTimeMillis();
   for (int i=0; i < 10; i++) {
-    System.err.println(i);
+    log.info(i);
     gameplay(r,trainingSet[i],weights,humanFeatureVectors);
   }
   long duration=System.currentTimeMillis() - start;
-  System.err.println("Duration: " + duration);
+  log.info("Duration: " + duration);
 }

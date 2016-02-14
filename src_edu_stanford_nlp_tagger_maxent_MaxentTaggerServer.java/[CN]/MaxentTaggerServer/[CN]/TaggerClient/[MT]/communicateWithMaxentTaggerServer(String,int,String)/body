@@ -3,7 +3,7 @@
     host="localhost";
   }
   BufferedReader stdIn=new BufferedReader(new InputStreamReader(System.in,charset));
-  System.err.println("Input some text and press RETURN to POS tag it, or just RETURN to finish.");
+  log.info("Input some text and press RETURN to POS tag it, or just RETURN to finish.");
   for (String userInput; (userInput=stdIn.readLine()) != null && !userInput.matches("\\n?"); ) {
     try {
       Socket socket=new Socket(host,port);
@@ -19,13 +19,13 @@
       socket.close();
     }
  catch (    UnknownHostException e) {
-      System.err.print("Cannot find host: ");
-      System.err.println(host);
+      log.info("Cannot find host: ");
+      log.info(host);
       return;
     }
 catch (    IOException e) {
-      System.err.print("I/O error in the connection to: ");
-      System.err.println(host);
+      log.info("I/O error in the connection to: ");
+      log.info(host);
       return;
     }
   }

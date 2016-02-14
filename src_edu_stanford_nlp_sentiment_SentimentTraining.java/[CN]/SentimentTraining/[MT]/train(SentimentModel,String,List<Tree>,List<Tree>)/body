@@ -5,13 +5,13 @@
   double[] sumGradSquare=new double[model.totalParamSize()];
   Arrays.fill(sumGradSquare,model.op.trainOptions.initialAdagradWeight);
   int numBatches=trainingTrees.size() / model.op.trainOptions.batchSize + 1;
-  System.err.println("Training on " + trainingTrees.size() + " trees in "+ numBatches+ " batches");
-  System.err.println("Times through each training batch: " + model.op.trainOptions.epochs);
+  log.info("Training on " + trainingTrees.size() + " trees in "+ numBatches+ " batches");
+  log.info("Times through each training batch: " + model.op.trainOptions.epochs);
   for (int epoch=0; epoch < model.op.trainOptions.epochs; ++epoch) {
-    System.err.println("======================================");
-    System.err.println("Starting epoch " + epoch);
+    log.info("======================================");
+    log.info("Starting epoch " + epoch);
     if (epoch > 0 && model.op.trainOptions.adagradResetFrequency > 0 && (epoch % model.op.trainOptions.adagradResetFrequency == 0)) {
-      System.err.println("Resetting adagrad weights to " + model.op.trainOptions.initialAdagradWeight);
+      log.info("Resetting adagrad weights to " + model.op.trainOptions.initialAdagradWeight);
       Arrays.fill(sumGradSquare,model.op.trainOptions.initialAdagradWeight);
     }
     List<Tree> shuffledSentences=Generics.newArrayList(trainingTrees);
@@ -19,8 +19,8 @@
       Collections.shuffle(shuffledSentences,model.rand);
     }
     for (int batch=0; batch < numBatches; ++batch) {
-      System.err.println("======================================");
-      System.err.println("Epoch " + epoch + " batch "+ batch);
+      log.info("======================================");
+      log.info("Epoch " + epoch + " batch "+ batch);
       int startTree=batch * model.op.trainOptions.batchSize;
       int endTree=(batch + 1) * model.op.trainOptions.batchSize;
       if (endTree + model.op.trainOptions.batchSize > shuffledSentences.size()) {
@@ -28,7 +28,7 @@
       }
       executeOneTrainingBatch(model,shuffledSentences.subList(startTree,endTree),sumGradSquare);
       long totalElapsed=timing.report();
-      System.err.println("Finished epoch " + epoch + " batch "+ batch+ "; total training time "+ totalElapsed+ " ms");
+      log.info("Finished epoch " + epoch + " batch "+ batch+ "; total training time "+ totalElapsed+ " ms");
       if (maxTrainTimeMillis > 0 && totalElapsed > maxTrainTimeMillis) {
         break;
       }
@@ -58,7 +58,7 @@
     }
     long totalElapsed=timing.report();
     if (maxTrainTimeMillis > 0 && totalElapsed > maxTrainTimeMillis) {
-      System.err.println("Max training time exceeded, exiting");
+      log.info("Max training time exceeded, exiting");
       break;
     }
   }

@@ -26,12 +26,12 @@
       }
       arraySize=length + 1;
       if (op.testOptions.verbose) {
-        System.err.println("Created dparser arrays of size " + arraySize);
+        log.info("Created dparser arrays of size " + arraySize);
       }
     }
   }
   if (op.testOptions.verbose) {
-    System.err.print("Initializing...");
+    log.info("Initializing...");
   }
   words=new int[length];
   int numTags=dg.numTagBins();
@@ -87,7 +87,7 @@
           iScoreHSum[start][dg.tagBin(tag)][start]=0.0f;
           iScoreHSum[start][dg.tagBin(tag)][start + 1]=0.0f;
         }
-        if (DEBUG)         System.err.println("DepParser accepted tagging: " + wordIndex.get(tagging.word) + "|"+ tagIndex.get(tagging.tag)+ ", got score "+ score);
+        if (DEBUG)         log.info("DepParser accepted tagging: " + wordIndex.get(tagging.word) + "|"+ tagIndex.get(tagging.tag)+ ", got score "+ score);
       }
     }
   }
@@ -139,7 +139,7 @@
             int binDist=binDistance[hWord][split];
             headScore[binDist][hWord][hTag][aWord][aTag]=(float)dg.scoreTB(words[hWord],hTag,words[aWord],aTag,leftHeaded,headDistance);
             if (DEBUG) {
-              System.err.println("Dep score head -> dep: " + wordIndex.get(words[hWord]) + "/"+ tagIndex.get(hTag)+ "["+ hWord+ "] -> "+ wordIndex.get(words[aWord])+ "/"+ tagIndex.get(aTag)+ "["+ aWord+ "] split ["+ split+ "] = "+ headScore[binDist][hWord][hTag][aWord][aTag]);
+              log.info("Dep score head -> dep: " + wordIndex.get(words[hWord]) + "/"+ tagIndex.get(hTag)+ "["+ hWord+ "] -> "+ wordIndex.get(words[aWord])+ "/"+ tagIndex.get(aTag)+ "["+ aWord+ "] split ["+ split+ "] = "+ headScore[binDist][hWord][hTag][aWord][aTag]);
             }
             while (split + 1 < end && binDistance[hWord][split + 1] == binDist) {
               split++;
@@ -151,13 +151,13 @@
   }
   if (op.testOptions.verbose) {
     Timing.tick("done.");
-    System.err.print("Starting insides...");
+    log.info("Starting insides...");
   }
   for (int diff=2; diff <= length; diff++) {
     if (Thread.interrupted()) {
       throw new RuntimeInterruptedException();
     }
-    if (DEBUG_MORE)     System.err.println("SPAN " + diff + ": score = headPrev + argLeft + argRight + dep + argLStop + argRStop");
+    if (DEBUG_MORE)     log.info("SPAN " + diff + ": score = headPrev + argLeft + argRight + dep + argLStop + argRStop");
     for (int start=0; start + diff <= length; start++) {
       int end=start + diff;
       int endHead=end - 1;
@@ -186,8 +186,8 @@
               }
               float score=iScoreH[endHead][endTag][split] + argLeftScore + iScoreH[argHead][argTag][split]+ depScore+ stopLeftScore+ headStop[argHead][argTag][split];
               if (DEBUG_MORE) {
-                System.err.println("Left extend " + wordIndex.get(words[endHead]) + "/"+ tagIndex.get(endTag)+ "["+ endHead+ "] -> "+ wordIndex.get(words[argHead])+ "/"+ tagIndex.get(argTag)+ "["+ argHead+ "]("+ start+ ","+ split+ ")");
-                System.err.println("  " + score + " = SUM "+ iScoreH[endHead][endTag][split]+ " "+ argLeftScore+ " "+ iScoreH[argHead][argTag][split]+ " "+ depScore+ " "+ headStop[argHead][argTag][start]+ " "+ headStop[argHead][argTag][split]);
+                log.info("Left extend " + wordIndex.get(words[endHead]) + "/"+ tagIndex.get(endTag)+ "["+ endHead+ "] -> "+ wordIndex.get(words[argHead])+ "/"+ tagIndex.get(argTag)+ "["+ argHead+ "]("+ start+ ","+ split+ ")");
+                log.info("  " + score + " = SUM "+ iScoreH[endHead][endTag][split]+ " "+ argLeftScore+ " "+ iScoreH[argHead][argTag][split]+ " "+ depScore+ " "+ headStop[argHead][argTag][start]+ " "+ headStop[argHead][argTag][split]);
               }
               if (score > bestScore) {
                 bestScore=score;
@@ -230,8 +230,8 @@
               }
               float score=iScoreH[startHead][startTag][split] + iScoreH[argHead][argTag][split] + argRightScore+ depScore+ stopRightScore+ headStop[argHead][argTag][split];
               if (DEBUG_MORE) {
-                System.err.println("Right extend " + wordIndex.get(words[startHead]) + "/"+ tagIndex.get(startTag)+ "["+ startHead+ "] -> "+ wordIndex.get(words[argHead])+ "/"+ tagIndex.get(argTag)+ "["+ argHead+ "]("+ split+ ","+ end+ ")");
-                System.err.println("  " + score + " = SUM "+ iScoreH[startHead][startTag][split]+ " "+ iScoreH[argHead][argTag][split]+ " "+ argRightScore+ " "+ depScore+ " "+ headStop[argHead][argTag][end]+ " "+ headStop[argHead][argTag][split]);
+                log.info("Right extend " + wordIndex.get(words[startHead]) + "/"+ tagIndex.get(startTag)+ "["+ startHead+ "] -> "+ wordIndex.get(words[argHead])+ "/"+ tagIndex.get(argTag)+ "["+ argHead+ "]("+ split+ ","+ end+ ")");
+                log.info("  " + score + " = SUM "+ iScoreH[startHead][startTag][split]+ " "+ iScoreH[argHead][argTag][split]+ " "+ argRightScore+ " "+ depScore+ " "+ headStop[argHead][argTag][end]+ " "+ headStop[argHead][argTag][split]);
               }
               if (score > bestScore) {
                 bestScore=score;
@@ -253,13 +253,13 @@
   int goalTag=dg.tagBin(tagIndex.indexOf(Lexicon.BOUNDARY_TAG));
   if (op.testOptions.verbose) {
     Timing.tick("done.");
-    System.err.println("Dep  parsing " + length + " words (incl. stop): insideScore "+ (iScoreH[length - 1][goalTag][0] + iScoreH[length - 1][goalTag][length]));
+    log.info("Dep  parsing " + length + " words (incl. stop): insideScore "+ (iScoreH[length - 1][goalTag][0] + iScoreH[length - 1][goalTag][length]));
   }
   if (!op.doPCFG) {
     return hasParse();
   }
   if (op.testOptions.verbose) {
-    System.err.print("Starting outsides...");
+    log.info("Starting outsides...");
   }
   oScoreH[length - 1][goalTag][0]=0.0f;
   oScoreH[length - 1][goalTag][length]=0.0f;
@@ -329,7 +329,7 @@
   }
   if (op.testOptions.verbose) {
     Timing.tick("done.");
-    System.err.print("Starting half-filters...");
+    log.info("Starting half-filters...");
   }
   for (int loc=0; loc <= length; loc++) {
     for (int head=0; head < length; head++) {

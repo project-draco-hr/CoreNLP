@@ -4,7 +4,7 @@
   Index<String> oldFeatureIndex=oldData.featureIndex;
   int[] oldToNewFeatureMap=new int[oldFeatureIndex.size()];
   int[][] newDataArray=new int[oldDataArray.length][];
-  System.err.print("Building reduced dataset...");
+  log.info("Building reduced dataset...");
   int size=oldFeatureIndex.size();
   int max=0;
   for (int i=0; i < size; i++) {
@@ -32,14 +32,14 @@
     newDataArray[i]=newData;
   }
   Dataset<String,String> train=new Dataset<>(oldData.labelIndex,oldLabelArray,goodFeatures,newDataArray,newDataArray.length);
-  System.err.println("done.");
+  log.info("done.");
   if (flags.featThreshFile != null) {
-    System.err.println("applying thresholds...");
+    log.info("applying thresholds...");
     List<Pair<Pattern,Integer>> thresh=getThresholds(flags.featThreshFile);
     train.applyFeatureCountThreshold(thresh);
   }
  else   if (flags.featureThreshold > 1) {
-    System.err.println("Removing Features with counts < " + flags.featureThreshold);
+    log.info("Removing Features with counts < " + flags.featureThreshold);
     train.applyFeatureCountThreshold(flags.featureThreshold);
   }
   train.summaryStatistics();

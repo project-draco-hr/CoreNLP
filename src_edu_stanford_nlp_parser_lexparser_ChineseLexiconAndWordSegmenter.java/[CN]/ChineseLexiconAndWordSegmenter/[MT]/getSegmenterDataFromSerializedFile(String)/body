@@ -1,7 +1,7 @@
 {
   ChineseLexiconAndWordSegmenter cs=null;
   try {
-    System.err.print("Loading segmenter from serialized file " + serializedFileOrUrl + " ...");
+    log.info("Loading segmenter from serialized file " + serializedFileOrUrl + " ...");
     ObjectInputStream in;
     InputStream is;
     if (serializedFileOrUrl.startsWith("http://")) {
@@ -20,21 +20,21 @@
     }
     cs=(ChineseLexiconAndWordSegmenter)in.readObject();
     in.close();
-    System.err.println(" done.");
+    log.info(" done.");
     return cs;
   }
  catch (  InvalidClassException ice) {
-    System.err.println();
+    log.info();
     throw new RuntimeException(ice);
   }
 catch (  FileNotFoundException fnfe) {
-    System.err.println();
+    log.info();
     throw new RuntimeException(fnfe);
   }
 catch (  StreamCorruptedException sce) {
   }
 catch (  Exception e) {
-    System.err.println();
+    log.info();
     e.printStackTrace();
   }
   return null;

@@ -3,8 +3,8 @@
   long time=System.currentTimeMillis();
   if (debug) {
     time=System.currentTimeMillis();
-    System.err.println("\nStarting on " + dfsa.dfsaID);
-    System.err.println(" -- " + states.size() + " states.");
+    log.info("\nStarting on " + dfsa.dfsaID);
+    log.info(" -- " + states.size() + " states.");
   }
   int numStates=states.size();
   int id=0;
@@ -23,7 +23,7 @@
     }
   }
   if (debug) {
-    System.err.println("Initialized: " + (System.currentTimeMillis() - time));
+    log.info("Initialized: " + (System.currentTimeMillis() - time));
     time=System.currentTimeMillis();
   }
   for (int i=0; i < numStates; i++) {
@@ -88,7 +88,7 @@
     }
   }
   if (debug) {
-    System.err.println("All pairs marked: " + (System.currentTimeMillis() - time));
+    log.info("All pairs marked: " + (System.currentTimeMillis() - time));
     time=System.currentTimeMillis();
   }
   DisjointSet<DFSAState<T,S>> stateClasses=new FastDisjointSet<>(states);
@@ -107,7 +107,7 @@
     stateToRep.put(state1,rep);
   }
   if (debug) {
-    System.err.println("Canonical states chosen: " + (System.currentTimeMillis() - time));
+    log.info("Canonical states chosen: " + (System.currentTimeMillis() - time));
     time=System.currentTimeMillis();
   }
   for (  DFSAState<T,S> state1 : states) {
@@ -120,6 +120,6 @@
   }
   dfsa.initialState=stateToRep.get(dfsa.initialState);
   if (debug) {
-    System.err.println("Done: " + (System.currentTimeMillis() - time));
+    log.info("Done: " + (System.currentTimeMillis() - time));
   }
 }
