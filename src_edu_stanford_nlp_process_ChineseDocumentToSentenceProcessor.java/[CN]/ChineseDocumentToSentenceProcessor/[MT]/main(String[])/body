@@ -3,12 +3,12 @@
   boolean alwaysAddS=props.containsKey("alwaysAddS");
   ChineseDocumentToSentenceProcessor cp;
   if (!props.containsKey("file")) {
-    log.info("usage: java ChineseDocumentToSentenceProcessor [-segmentIBM] -file filename [-encoding encoding]");
+    System.err.println("usage: java ChineseDocumentToSentenceProcessor [-segmentIBM] -file filename [-encoding encoding]");
     return;
   }
   cp=new ChineseDocumentToSentenceProcessor();
   if (props.containsKey("encoding")) {
-    log.info("WARNING: for now the default encoding is " + cp.encoding + ". It's not changeable for now");
+    System.err.println("WARNING: for now the default encoding is " + cp.encoding + ". It's not changeable for now");
   }
   String input=IOUtils.slurpFileNoExceptions(props.getProperty("file"),cp.encoding);
   if (props.containsKey("segmentIBM")) {
@@ -89,7 +89,7 @@
     }
     pw.flush();
     pw.close();
-    log.info("Split " + splitItems + " segments, adding "+ numAdded+ " sentences.");
+    System.err.println("Split " + splitItems + " segments, adding "+ numAdded+ " sentences.");
   }
  else {
     List<String> sent=cp.fromHTML(input);

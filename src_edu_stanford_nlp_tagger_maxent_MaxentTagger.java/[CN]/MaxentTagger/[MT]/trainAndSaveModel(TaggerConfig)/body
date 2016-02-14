@@ -5,9 +5,9 @@
   TaggerExperiments samples=new TaggerExperiments(config,maxentTagger);
   TaggerFeatures feats=samples.getTaggerFeatures();
   byte[][] fnumArr=samples.getFnumArr();
-  log.info("Samples from " + config.getFile());
-  log.info("Number of features: " + feats.size());
-  log.info("Tag set: " + maxentTagger.tags.tagSet());
+  System.err.println("Samples from " + config.getFile());
+  System.err.println("Number of features: " + feats.size());
+  System.err.println("Tag set: " + maxentTagger.tags.tagSet());
   Problem p=new Problem(samples,feats);
   LambdaSolveTagger prob=new LambdaSolveTagger(p,0.0001,fnumArr);
   maxentTagger.prob=prob;
@@ -31,14 +31,14 @@
     prob.improvedIterative(config.getIterations());
   }
   if (prob.checkCorrectness()) {
-    log.info("Model is correct [empirical expec = model expec]");
+    System.err.println("Model is correct [empirical expec = model expec]");
   }
  else {
-    log.info("Model is not correct");
+    System.err.println("Model is not correct");
   }
   maxentTagger.removeDeadRules();
   maxentTagger.simplifyLambda();
   maxentTagger.saveModel(modelName);
-  log.info("Extractors list:");
-  log.info(maxentTagger.extractors.toString() + "\nrare" + maxentTagger.extractorsRare.toString());
+  System.err.println("Extractors list:");
+  System.err.println(maxentTagger.extractors.toString() + "\nrare" + maxentTagger.extractorsRare.toString());
 }

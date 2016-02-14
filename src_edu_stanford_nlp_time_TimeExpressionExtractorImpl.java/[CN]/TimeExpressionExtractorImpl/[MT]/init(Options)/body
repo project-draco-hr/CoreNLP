@@ -1,5 +1,11 @@
 {
   this.options=options;
+  if (options.verbose) {
+    logger.setLevel(Level.FINE);
+  }
+ else {
+    logger.setLevel(Level.SEVERE);
+  }
   NumberNormalizer.setVerbose(options.verbose);
   if (options.grammarFilename == null) {
     options.grammarFilename=Options.DEFAULT_GRAMMAR_FILES;
@@ -7,4 +13,5 @@
   }
   timexPatterns=new GenericTimeExpressionPatterns(options);
   this.expressionExtractor=timexPatterns.createExtractor();
+  this.expressionExtractor.setLogger(logger);
 }

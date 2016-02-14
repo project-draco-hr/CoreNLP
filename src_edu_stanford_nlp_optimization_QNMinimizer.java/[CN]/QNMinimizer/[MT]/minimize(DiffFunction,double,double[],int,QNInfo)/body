@@ -137,7 +137,7 @@ value=newValue;
 System.arraycopy(newX,0,x,0,x.length);
 System.arraycopy(newGrad,0,grad,0,newGrad.length);
 if (quiet) {
-log.info(".");
+System.err.print(".");
 }
 if (fevals > maxFevals) {
 throw new MaxEvaluationsExceeded(" Exceeded in minimize() loop ");
@@ -164,7 +164,7 @@ qn.s.remove(0);
 qn.y.remove(0);
 qn.rho.remove(0);
 qn.mem=qn.s.size();
-log.info("Caught OutOfMemoryError, changing m = " + qn.mem);
+System.err.println("Caught OutOfMemoryError, changing m = " + qn.mem);
 }
  else {
 throw oome;
@@ -176,7 +176,7 @@ if (evaluateIters > 0) {
 double evalScore=(useEvalImprovement ? doEvaluation(rec.getBest()) : doEvaluation(x));
 sayln("final evalScore is: " + evalScore);
 }
-log.info();
+System.err.println();
 switch (state) {
 case TERMINATE_GRADNORM:
 System.err.println("QNMinimizer terminated due to numerically zero gradient: |g| < EPS  max(1,|x|) ");
@@ -200,7 +200,7 @@ success=true;
 x=rec.getBest();
 break;
 default :
-log.info("QNMinimizer terminated without converging");
+System.err.println("QNMinimizer terminated without converging");
 success=false;
 break;
 }

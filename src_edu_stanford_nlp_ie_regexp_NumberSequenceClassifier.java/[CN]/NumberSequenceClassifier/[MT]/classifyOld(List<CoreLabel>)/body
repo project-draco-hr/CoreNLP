@@ -8,13 +8,13 @@
     me.set(CoreAnnotations.AnswerAnnotation.class,flags.backgroundSymbol);
     if (CURRENCY_SYMBOL_PATTERN.matcher(me.word()).matches() && (prev.getString(CoreAnnotations.PartOfSpeechAnnotation.class).equals("CD") || next.getString(CoreAnnotations.PartOfSpeechAnnotation.class).equals("CD"))) {
       if (DEBUG) {
-        log.info("Found currency sign:" + me.word());
+        System.err.println("Found currency sign:" + me.word());
       }
       me.set(CoreAnnotations.AnswerAnnotation.class,"MONEY");
     }
  else     if (me.getString(CoreAnnotations.PartOfSpeechAnnotation.class).equals("CD")) {
       if (DEBUG) {
-        log.info("Tagging CD:" + me.word());
+        System.err.println("Tagging CD:" + me.word());
       }
       if (TIME_PATTERN.matcher(me.word()).matches()) {
         me.set(CoreAnnotations.AnswerAnnotation.class,"TIME");
@@ -45,7 +45,7 @@
       }
  else {
         if (DEBUG) {
-          log.info("Found number:" + me.word());
+          System.err.println("Found number:" + me.word());
         }
         if (prev.getString(CoreAnnotations.AnswerAnnotation.class).equals("MONEY")) {
           me.set(CoreAnnotations.AnswerAnnotation.class,"MONEY");
@@ -69,7 +69,7 @@
  else     if (me.getString(CoreAnnotations.PartOfSpeechAnnotation.class) != null && me.getString(CoreAnnotations.PartOfSpeechAnnotation.class).equals("CC")) {
       if (prev.tag() != null && prev.tag().equals("CD") && next.tag() != null && next.tag().equals("CD") && me.get(CoreAnnotations.TextAnnotation.class) != null && me.get(CoreAnnotations.TextAnnotation.class).equalsIgnoreCase("and")) {
         if (DEBUG) {
-          log.info("Found number and:" + me.word());
+          System.err.println("Found number and:" + me.word());
         }
         String wd=prev.word();
         if (wd.equalsIgnoreCase("hundred") || wd.equalsIgnoreCase("thousand") || wd.equalsIgnoreCase("million")|| wd.equalsIgnoreCase("billion")|| wd.equalsIgnoreCase("trillion")) {

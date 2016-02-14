@@ -9,7 +9,7 @@
     String curWord=(wi.get(CoreAnnotations.TextAnnotation.class) != null ? wi.get(CoreAnnotations.TextAnnotation.class) : "");
     String currNerTag=wi.get(CoreAnnotations.NamedEntityTagAnnotation.class);
     if (DEBUG) {
-      log.info("fixupNerBeforeNormalization: wi is " + wi);
+      System.err.println("fixupNerBeforeNormalization: wi is " + wi);
     }
     if (timex == null && numericType == null) {
       if ((i + 1) < sz && ",".equals(wi.get(CoreAnnotations.TextAnnotation.class)) && "DATE".equals(prevNerTag)) {
@@ -34,7 +34,7 @@
               wi.set(CoreAnnotations.NamedEntityTagAnnotation.class,"DATE");
               String dateStr=new ISODateInstance(new ISODateInstance(sides[0]),new ISODateInstance(sides[1])).getDateString();
               if (DEBUG) {
-                log.info("#5: Changing normalized NER from " + wi.get(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class) + " to "+ dateStr+ " at index "+ i);
+                System.err.println("#5: Changing normalized NER from " + wi.get(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class) + " to "+ dateStr+ " at index "+ i);
               }
               wi.set(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class,dateStr);
               continue;
