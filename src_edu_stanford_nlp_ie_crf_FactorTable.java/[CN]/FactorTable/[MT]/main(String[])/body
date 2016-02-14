@@ -11,7 +11,7 @@
       }
     }
   }
-  System.err.println(ft);
+  log.info(ft);
   double normalization=0.0;
   for (int i=0; i < numClasses; i++) {
     for (int j=0; j < numClasses; j++) {
@@ -20,8 +20,8 @@
       }
     }
   }
-  System.err.println("Normalization Z = " + normalization);
-  System.err.println(ft.sumOutFront());
+  log.info("Normalization Z = " + normalization);
+  log.info(ft.sumOutFront());
   FactorTable ft2=new FactorTable(numClasses,2);
   for (int i=0; i < numClasses; i++) {
     for (int j=0; j < numClasses; j++) {
@@ -29,7 +29,7 @@
       ft2.setValue(b,i * numClasses + j);
     }
   }
-  System.err.println(ft2);
+  log.info(ft2);
   for (int i=0; i < numClasses; i++) {
     for (int j=0; j < numClasses; j++) {
       int[] b={i,j};
@@ -38,10 +38,10 @@
         t+=Math.exp(ft.conditionalLogProbGivenPrevious(b,k));
         System.err.println(k + "|" + i+ ','+ j+ " : "+ Math.exp(ft.conditionalLogProbGivenPrevious(b,k)));
       }
-      System.err.println(t);
+      log.info(t);
     }
   }
-  System.err.println("conditionalLogProbGivenFirst");
+  log.info("conditionalLogProbGivenFirst");
   for (int j=0; j < numClasses; j++) {
     for (int k=0; k < numClasses; k++) {
       int[] b={j,k};
@@ -50,10 +50,10 @@
         t+=ft.unnormalizedConditionalLogProbGivenFirst(i,b);
         System.err.println(i + "|" + j+ ','+ k+ " : "+ ft.unnormalizedConditionalLogProbGivenFirst(i,b));
       }
-      System.err.println(t);
+      log.info(t);
     }
   }
-  System.err.println("conditionalLogProbGivenFirst");
+  log.info("conditionalLogProbGivenFirst");
   for (int i=0; i < numClasses; i++) {
     for (int j=0; j < numClasses; j++) {
       int[] b={i,j};
@@ -62,7 +62,7 @@
         t+=ft.conditionalLogProbGivenNext(b,k);
         System.err.println(i + "," + j+ '|'+ k+ " : "+ ft.conditionalLogProbGivenNext(b,k));
       }
-      System.err.println(t);
+      log.info(t);
     }
   }
   numClasses=2;
@@ -76,7 +76,7 @@
   ft3.setValue(new int[]{1,1,0},Math.log(1e-50));
   ft3.setValue(new int[]{1,1,1},Math.log(1e-50));
   FactorTable ft4=ft3.sumOutFront();
-  System.err.println(ft4.toNonLogString());
+  log.info(ft4.toNonLogString());
   FactorTable ft5=ft3.sumOutEnd();
-  System.err.println(ft5.toNonLogString());
+  log.info(ft5.toNonLogString());
 }

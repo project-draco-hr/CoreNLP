@@ -2,17 +2,17 @@
   Tree theHead=null;
   String motherCat=basicCategory(t.label().value());
   if (DEBUG) {
-    System.err.println("Looking for head of " + t.label() + "; value is |"+ t.label().value()+ "|, "+ " baseCat is |"+ motherCat+ "|");
+    log.info("Looking for head of " + t.label() + "; value is |"+ t.label().value()+ "|, "+ " baseCat is |"+ motherCat+ "|");
   }
   String[][] how=nonTerminalInfo.get(motherCat);
   if (how == null) {
     if (DEBUG) {
-      System.err.println("Warning: No rule found for " + motherCat + " (first char: "+ motherCat.charAt(0)+ ")");
-      System.err.println("Known nonterms are: " + nonTerminalInfo.keySet());
+      log.info("Warning: No rule found for " + motherCat + " (first char: "+ motherCat.charAt(0)+ ")");
+      log.info("Known nonterms are: " + nonTerminalInfo.keySet());
     }
     if (defaultRule != null) {
       if (DEBUG) {
-        System.err.println("  Using defaultRule");
+        log.info("  Using defaultRule");
       }
       return traverseLocate(t.children(),defaultRule,true);
     }
@@ -28,7 +28,7 @@
     }
   }
   if (DEBUG) {
-    System.err.println("  Chose " + theHead.label());
+    log.info("  Chose " + theHead.label());
   }
   return theHead;
 }

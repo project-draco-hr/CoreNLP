@@ -4,7 +4,7 @@
   if (!f.exists()) {
     trimmedSet=new HashMap<>();
     Map<String,double[]> massiveSet=loadEmbeddingsFromFile("../google-300.txt");
-    System.err.println("Got massive embedding set size " + massiveSet.size());
+    log.info("Got massive embedding set size " + massiveSet.size());
     for (    CoNLLSentence sentence : sentences) {
       for (      String token : sentence.token) {
         if (massiveSet.containsKey(token)) {
@@ -12,12 +12,12 @@
         }
       }
     }
-    System.err.println("Got trimmed embedding set size " + trimmedSet.size());
+    log.info("Got trimmed embedding set size " + trimmedSet.size());
     f.createNewFile();
     ObjectOutputStream oos=new ObjectOutputStream(new GZIPOutputStream(new FileOutputStream(cacheFilename)));
     oos.writeObject(trimmedSet);
     oos.close();
-    System.err.println("Wrote trimmed set to file");
+    log.info("Wrote trimmed set to file");
   }
  else {
     ObjectInputStream ois=new ObjectInputStream(new GZIPInputStream(new FileInputStream(cacheFilename)));

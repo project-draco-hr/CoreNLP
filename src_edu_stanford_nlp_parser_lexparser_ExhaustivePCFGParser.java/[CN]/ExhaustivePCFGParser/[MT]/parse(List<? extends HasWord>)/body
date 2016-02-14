@@ -16,7 +16,7 @@
   }
   int goal=stateIndex.indexOf(goalStr);
   if (op.testOptions.verbose) {
-    System.err.print("Initializing PCFG...");
+    log.info("Initializing PCFG...");
   }
   words=new int[length];
   beginOffsets=new int[length];
@@ -90,7 +90,7 @@
     Timing.tick("done.");
     unkWords.append(" ]");
     op.tlpParams.pw(System.err).println("Unknown words: " + unk + " "+ unkWords);
-    System.err.print("Starting filters...");
+    log.info("Starting filters...");
   }
   if (Thread.interrupted()) {
     throw new RuntimeInterruptedException();
@@ -101,7 +101,7 @@
   initializeChart(sentence);
   if (op.testOptions.verbose) {
     Timing.tick("done.");
-    System.err.print("Starting insides...");
+    log.info("Starting insides...");
   }
   doInsideScores();
   if (op.testOptions.verbose) {
@@ -118,7 +118,7 @@
     return succeeded;
   }
   if (op.testOptions.verbose) {
-    System.err.print("Starting outsides...");
+    log.info("Starting outsides...");
   }
   oScore[0][length][goal]=0.0f;
   doOutsideScores();

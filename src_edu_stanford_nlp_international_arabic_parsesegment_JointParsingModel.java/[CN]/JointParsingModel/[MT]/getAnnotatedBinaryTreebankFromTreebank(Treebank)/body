@@ -1,8 +1,8 @@
 {
   TreebankLangParserParams tlpParams=op.tlpParams;
   TreebankLanguagePack tlp=tlpParams.treebankLanguagePack();
-  if (VERBOSE)   System.err.println("\n\n" + trainTreebank.textualSummary(tlp));
-  System.err.print("Binarizing trees...");
+  if (VERBOSE)   log.info("\n\n" + trainTreebank.textualSummary(tlp));
+  log.info("Binarizing trees...");
   TreeAnnotatorAndBinarizer binarizer=new TreeAnnotatorAndBinarizer(tlpParams,op.forceCNF,!op.trainOptions.outsideFactor(),true,op);
   Timing.tick("done.");
   if (op.trainOptions.selectiveSplit) {
@@ -11,7 +11,7 @@
     if (op.testOptions.verbose) {
       List<String> list=new ArrayList<>(op.trainOptions.splitters);
       Collections.sort(list);
-      System.err.println("Parent split categories: " + list);
+      log.info("Parent split categories: " + list);
     }
   }
   if (op.trainOptions.hSelSplit) {

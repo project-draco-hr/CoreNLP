@@ -40,21 +40,21 @@
     }
   }
   List<Tree> trainingTrees=SentimentUtils.readTreesWithGoldLabels(trainPath);
-  System.err.println("Read in " + trainingTrees.size() + " training trees");
+  log.info("Read in " + trainingTrees.size() + " training trees");
   if (filterUnknown) {
     trainingTrees=SentimentUtils.filterUnknownRoots(trainingTrees);
-    System.err.println("Filtered training trees: " + trainingTrees.size());
+    log.info("Filtered training trees: " + trainingTrees.size());
   }
   List<Tree> devTrees=null;
   if (devPath != null) {
     devTrees=SentimentUtils.readTreesWithGoldLabels(devPath);
-    System.err.println("Read in " + devTrees.size() + " dev trees");
+    log.info("Read in " + devTrees.size() + " dev trees");
     if (filterUnknown) {
       devTrees=SentimentUtils.filterUnknownRoots(devTrees);
-      System.err.println("Filtered dev trees: " + devTrees.size());
+      log.info("Filtered dev trees: " + devTrees.size());
     }
   }
-  System.err.println("Sentiment model options:\n" + op);
+  log.info("Sentiment model options:\n" + op);
   SentimentModel model=new SentimentModel(op,trainingTrees);
   if (op.trainOptions.initialMatrixLogPath != null) {
     StringUtils.printToFile(new File(op.trainOptions.initialMatrixLogPath),model.toString(),false,false,"utf-8");

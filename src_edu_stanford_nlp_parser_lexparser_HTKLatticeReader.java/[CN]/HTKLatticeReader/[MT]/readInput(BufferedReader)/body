@@ -30,7 +30,7 @@
     }
     LatticeWord lw=new LatticeWord(word,startNode,endNode,lm,am,pronunciation,mergeType);
     if (DEBUG) {
-      System.err.println(lw);
+      log.info(lw);
     }
     latticeWords.add(lw);
     line=in.readLine();
@@ -38,7 +38,7 @@
   }
   numStates=Integer.parseInt(line.trim());
   if (DEBUG) {
-    System.err.println(numStates);
+    log.info(numStates);
   }
   nodeTimes=new int[numStates];
   Pattern nodeTimePattern=Pattern.compile("(\\d+)\\s+t=(\\d+)\\s*");
@@ -46,12 +46,12 @@
   for (int i=0; i < numStates; i++) {
     nodeTimeMatcher=nodeTimePattern.matcher(in.readLine());
     if (!nodeTimeMatcher.matches()) {
-      System.err.println("Input File Error");
+      log.info("Input File Error");
       System.exit(1);
     }
     nodeTimes[i]=Integer.parseInt(nodeTimeMatcher.group(2));
     if (DEBUG) {
-      System.err.println(i + "\tt=" + nodeTimes[i]);
+      log.info(i + "\tt=" + nodeTimes[i]);
     }
   }
 }

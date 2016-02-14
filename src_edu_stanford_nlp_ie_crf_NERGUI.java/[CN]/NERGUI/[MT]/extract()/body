@@ -1,5 +1,5 @@
 {
-  System.err.println("content type: " + editorPane.getContentType());
+  log.info("content type: " + editorPane.getContentType());
   if (!editorPane.getContentType().equals("text/html")) {
     DefaultStyledDocument doc=(DefaultStyledDocument)editorPane.getDocument();
     String text=null;
@@ -44,10 +44,10 @@
           ex.printStackTrace();
           System.exit(-1);
         }
-        System.err.println(tag + ": " + finalText.substring(start,end));
+        log.info(tag + ": " + finalText.substring(start,end));
       }
  else {
-        System.err.println("Couldn't find end pattern!");
+        log.info("Couldn't find end pattern!");
       }
       m=startPattern.matcher(finalText);
     }
@@ -85,7 +85,7 @@
       Matcher m1=endPattern.matcher(finalText);
       m1.find(m.end());
       String entity=finalText.substring(start,m1.start());
-      System.err.println(tag + ": " + entity);
+      log.info(tag + ": " + entity);
       finalText=m1.replaceFirst("</span>");
       m=startPattern.matcher(finalText);
     }
