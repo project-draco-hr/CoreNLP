@@ -1,11 +1,11 @@
 {
   boolean ret=false;
-  log.info("Making sure that the sum of stochastic gradients equals the full gradient");
+  System.err.println("Making sure that the sum of stochastic gradients equals the full gradient");
   AbstractStochasticCachingDiffFunction.SamplingMethod tmpSampleMethod=thisFunc.sampleMethod;
   StochasticCalculateMethods tmpMethod=thisFunc.method;
   thisFunc.sampleMethod=AbstractStochasticCachingDiffFunction.SamplingMethod.Ordered;
   if (thisFunc.method == StochasticCalculateMethods.NoneSpecified) {
-    log.info("No calculate method has been specified");
+    System.err.println("No calculate method has been specified");
   }
   approxValue=0;
   approxGrad=new double[x.length];
@@ -21,7 +21,7 @@
     double norm=ArrayMath.norm(approxGrad);
     System.err.printf("%5.1f percent complete  %6.2f \n",percent,norm);
   }
-  log.info("About to calculate the full derivative and value");
+  System.err.println("About to calculate the full derivative and value");
   System.arraycopy(thisFunc.derivativeAt(x),0,fullGrad,0,fullGrad.length);
   thisFunc.returnPreviousValues=true;
   fullValue=thisFunc.valueAt(x);

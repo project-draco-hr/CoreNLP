@@ -1,7 +1,7 @@
 {
   final Properties options=StringUtils.argsToProperties(args,argOptionDefs());
   if (options.containsKey("help")) {
-    log.info(usage());
+    System.err.println(usage());
     return;
   }
   String encoding=options.getProperty("encoding","utf-8");
@@ -21,8 +21,8 @@
   boolean whitespaceTokenization=options.containsKey("whitespaceTokenization");
   if (whitespaceTokenization)   numFactoryFlags+=1;
   if (numFactoryFlags > 1) {
-    log.info("Only one tokenizer flag allowed at a time: ");
-    log.info("  -suppressEscaping, -tokenizerOptions, -printOriginalText, -whitespaceTokenization");
+    System.err.println("Only one tokenizer flag allowed at a time: ");
+    System.err.println("  -suppressEscaping, -tokenizerOptions, -printOriginalText, -whitespaceTokenization");
     return;
   }
   TokenizerFactory<? extends HasWord> tf=null;

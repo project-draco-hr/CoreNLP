@@ -1,6 +1,6 @@
 {
   if (testOptions.verbose || DEBUG_LEXICON) {
-    log.info("Initializing lexicon scores ... ");
+    System.err.print("\nInitializing lexicon scores ... ");
   }
   int unkWord=wordIndex.addToIndex(UNKNOWN_WORD);
   int numWords=wordIndex.size();
@@ -15,12 +15,12 @@
     }
   }
   if (DEBUG_LEXICON) {
-    log.info("Lexicon initializing tags for UNKNOWN WORD (" + Lexicon.UNKNOWN_WORD + ", "+ unkWord+ ')');
+    System.err.println("Lexicon initializing tags for UNKNOWN WORD (" + Lexicon.UNKNOWN_WORD + ", "+ unkWord+ ')');
   }
-  if (DEBUG_LEXICON)   log.info("unSeenCounter is: " + uwModel.unSeenCounter());
-  if (DEBUG_LEXICON)   log.info("Train.openClassTypesThreshold is " + trainOptions.openClassTypesThreshold);
+  if (DEBUG_LEXICON)   System.err.println("unSeenCounter is: " + uwModel.unSeenCounter());
+  if (DEBUG_LEXICON)   System.err.println("Train.openClassTypesThreshold is " + trainOptions.openClassTypesThreshold);
   for (  IntTaggedWord iT : tags) {
-    if (DEBUG_LEXICON)     log.info("Entry for " + iT + " is "+ uwModel.unSeenCounter().getCount(iT));
+    if (DEBUG_LEXICON)     System.err.println("Entry for " + iT + " is "+ uwModel.unSeenCounter().getCount(iT));
     double types=uwModel.unSeenCounter().getCount(iT);
     if (types > trainOptions.openClassTypesThreshold) {
       IntTaggedWord iTW=new IntTaggedWord(unkWord,iT.tag);
@@ -28,18 +28,15 @@
     }
   }
   if (testOptions.verbose || DEBUG_LEXICON) {
-    StringBuilder sb=new StringBuilder();
-    sb.append("The ").append(rulesWithWord[unkWord].size()).append(" open class tags are: [");
+    System.err.print("The " + rulesWithWord[unkWord].size() + " open class tags are: [");
     for (    IntTaggedWord item : rulesWithWord[unkWord]) {
-      sb.append(' ').append(tagIndex.get(item.tag()));
+      System.err.print(" " + tagIndex.get(item.tag()));
       if (DEBUG_LEXICON) {
         IntTaggedWord iTprint=new IntTaggedWord(nullWord,item.tag);
-        sb.append(" (tag ").append(item.tag()).append(", type count is ");
-        sb.append(uwModel.unSeenCounter().getCount(iTprint)).append(')');
+        System.err.print(" (tag " + item.tag() + ", type count is "+ uwModel.unSeenCounter().getCount(iTprint)+ ')');
       }
     }
-    sb.append(" ]");
-    log.info(sb.toString());
+    System.err.println(" ] ");
   }
   for (  IntTaggedWord iTW : seenCounter.keySet()) {
     if (iTW.tag() != nullTag && iTW.word() != nullWord) {

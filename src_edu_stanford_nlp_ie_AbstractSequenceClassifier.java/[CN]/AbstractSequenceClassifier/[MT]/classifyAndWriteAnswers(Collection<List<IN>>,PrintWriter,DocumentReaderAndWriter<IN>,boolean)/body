@@ -14,7 +14,7 @@
     @Override public List<IN> process(    List<IN> doc){
       doc=classify(doc);
       int completedNo=threadCompletionCounter.incrementAndGet();
-      if (flags.verboseMode)       log.info(completedNo + " examples completed");
+      if (flags.verboseMode)       System.err.println(completedNo + " examples completed");
       return doc;
     }
     @Override public ThreadsafeProcessor<List<IN>,List<IN>> newInstance(){
@@ -54,7 +54,7 @@
   long millis=timer.stop();
   double wordspersec=numWords / (((double)millis) / 1000);
   NumberFormat nf=new DecimalFormat("0.00");
-  log.info(StringUtils.getShortClassName(this) + " tagged " + numWords+ " words in "+ numDocs+ " documents at "+ nf.format(wordspersec)+ " words per second.");
+  System.err.println(StringUtils.getShortClassName(this) + " tagged " + numWords+ " words in "+ numDocs+ " documents at "+ nf.format(wordspersec)+ " words per second.");
   if (resultsCounted) {
     printResults(entityTP,entityFP,entityFN);
   }

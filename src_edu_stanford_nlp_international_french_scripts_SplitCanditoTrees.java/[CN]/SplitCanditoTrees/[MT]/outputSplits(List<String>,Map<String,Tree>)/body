@@ -6,26 +6,26 @@
   final TreeTransformer tt=new FTBCorrector();
   int size=fSizeQueue.remove();
   String filename=fNameQueue.remove();
-  log.info("Outputing " + filename);
+  System.err.println("Outputing " + filename);
   PrintWriter writer=new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename),"UTF-8")));
   int outputCount=0;
   for (  String id : ids) {
     if (!treeMap.containsKey(id)) {
-      log.info("Missing id: " + id);
+      System.err.println("Missing id: " + id);
       continue;
     }
     Tree tree=treeMap.get(id);
     TregexMatcher m=pBadTree.matcher(tree);
     TregexMatcher m2=pBadTree2.matcher(tree);
     if (m.find() || m2.find()) {
-      log.info("Discarding tree: " + tree.toString());
+      System.err.println("Discarding tree: " + tree.toString());
       continue;
     }
     Tree backupCopy=tree.deepCopy();
     tree=tt.transformTree(tree);
     if (tree.firstChild().children().length == 0) {
-      log.info("Saving tree: " + tree.toString());
-      log.info("Backup: " + backupCopy.toString());
+      System.err.println("Saving tree: " + tree.toString());
+      System.err.println("Backup: " + backupCopy.toString());
       tree=backupCopy;
     }
     if (LEMMAS_AS_LEAVES || ADD_MORPHO_TO_LEAVES) {
@@ -45,7 +45,7 @@
       outputCount=0;
       size=fSizeQueue.remove();
       filename=fNameQueue.remove();
-      log.info("Outputing " + filename);
+      System.err.println("Outputing " + filename);
       writer.close();
       writer=new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename),"UTF-8")));
     }

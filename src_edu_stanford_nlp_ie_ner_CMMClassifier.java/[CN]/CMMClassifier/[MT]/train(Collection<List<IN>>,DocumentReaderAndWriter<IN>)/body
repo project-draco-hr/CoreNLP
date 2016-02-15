@@ -3,7 +3,7 @@
   train(train);
   for (int i=0; i < flags.numTimesPruneFeatures; i++) {
     Index<String> featuresAboveThreshold=getFeaturesAboveThreshold(train,flags.featureDiffThresh);
-    log.info("Removing features with weight below " + flags.featureDiffThresh + " and retraining...");
+    System.err.println("Removing features with weight below " + flags.featureDiffThresh + " and retraining...");
     train=getDataset(train,featuresAboveThreshold);
     int tmp=flags.QNsize;
     flags.QNsize=flags.QNsize2;
@@ -13,13 +13,13 @@
   if (flags.doAdaptation && flags.adaptFile != null) {
     adapt(flags.adaptFile,train,readerAndWriter);
   }
-  log.info("Built this classifier: ");
+  System.err.print("Built this classifier: ");
   if (classifier instanceof LinearClassifier) {
     String classString=((LinearClassifier<String,String>)classifier).toString(flags.printClassifier,flags.printClassifierParam);
-    log.info(classString);
+    System.err.println(classString);
   }
  else {
     String classString=classifier.toString();
-    log.info(classString);
+    System.err.println(classString);
   }
 }

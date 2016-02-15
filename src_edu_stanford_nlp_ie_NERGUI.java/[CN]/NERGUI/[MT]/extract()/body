@@ -1,5 +1,5 @@
 {
-  log.info("content type: " + editorPane.getContentType());
+  System.err.println("content type: " + editorPane.getContentType());
   if (!editorPane.getContentType().equals("text/html")) {
     DefaultStyledDocument doc=(DefaultStyledDocument)editorPane.getDocument();
     String text=null;
@@ -44,7 +44,7 @@
  catch (        Exception ex) {
           throw new RuntimeException(ex);
         }
-        log.info(tag + ": " + finalText.substring(start,end));
+        System.err.println(tag + ": " + finalText.substring(start,end));
       }
  else {
       }
@@ -81,7 +81,7 @@
       Matcher m1=endPattern.matcher(finalText);
       m1.find(m.end());
       String entity=finalText.substring(start,m1.start());
-      log.info(tag + ": " + entity);
+      System.err.println(tag + ": " + entity);
       finalText=m1.replaceFirst("</span>");
       m=startPattern.matcher(finalText);
     }
@@ -89,7 +89,7 @@
     editorPane.setText(finalText);
     editorPane.revalidate();
     editorPane.repaint();
-    log.info(finalText);
+    System.err.println(finalText);
   }
   saveTaggedAs.setEnabled(true);
 }

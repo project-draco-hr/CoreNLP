@@ -1,8 +1,19 @@
 {
-  Set<Class<? extends CoreAnnotation>> requirements=new HashSet<>(Arrays.asList(CoreAnnotations.TextAnnotation.class,CoreAnnotations.TokensAnnotation.class,CoreAnnotations.CharacterOffsetBeginAnnotation.class,CoreAnnotations.CharacterOffsetEndAnnotation.class,CoreAnnotations.IndexAnnotation.class,CoreAnnotations.ValueAnnotation.class,CoreAnnotations.SentencesAnnotation.class,CoreAnnotations.SentenceIndexAnnotation.class,CoreAnnotations.ParagraphAnnotation.class,CoreAnnotations.PartOfSpeechAnnotation.class,CoreAnnotations.LemmaAnnotation.class,CoreAnnotations.NamedEntityTagAnnotation.class,CorefCoreAnnotations.CorefMentionsAnnotation.class,CoreAnnotations.UtteranceAnnotation.class,CoreAnnotations.SpeakerAnnotation.class,SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class,SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class));
-  if (CorefProperties.getMDType(this.props) != CorefProperties.MentionDetectionType.DEPENDENCY) {
+  Set<Class<? extends CoreAnnotation>> requirements=new HashSet<>(Arrays.asList(CoreAnnotations.TokensAnnotation.class,CoreAnnotations.SentencesAnnotation.class,CoreAnnotations.PartOfSpeechAnnotation.class,CoreAnnotations.LemmaAnnotation.class,CoreAnnotations.NamedEntityTagAnnotation.class));
+switch (COREF_MODE) {
+case HYBRID_MODE:
     requirements.add(TreeCoreAnnotations.TreeAnnotation.class);
-    requirements.add(CoreAnnotations.CategoryAnnotation.class);
-  }
-  return Collections.unmodifiableSet(requirements);
+  requirements.add(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class);
+requirements.add(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class);
+requirements.add(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class);
+break;
+case STATISTICAL_MODE:
+requirements.add(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class);
+requirements.add(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class);
+requirements.add(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class);
+break;
+default :
+break;
+}
+return Collections.unmodifiableSet(requirements);
 }

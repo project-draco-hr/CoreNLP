@@ -42,12 +42,12 @@
     }
     if (sentenceRegionBeginPattern != null && !insideRegion) {
       if (DEBUG) {
-        log.info("  outside region; deleted");
+        System.err.println("  outside region; deleted");
       }
       if (sentenceRegionBeginPattern.matcher(word).matches()) {
         insideRegion=true;
         if (DEBUG) {
-          log.info("  entering region");
+          System.err.println("  entering region");
         }
       }
       lastTokenWasNewline=false;
@@ -56,7 +56,7 @@
     if (lastSentence != null && currentSentence.isEmpty() && sentenceBoundaryFollowers.contains(word)) {
       if (!discardToken)       lastSentence.add(o);
       if (DEBUG) {
-        log.info(discardToken ? "discarded" : "  added to last sentence");
+        System.err.println(discardToken ? "discarded" : "  added to last sentence");
       }
       lastTokenWasNewline=false;
       continue;
@@ -66,13 +66,13 @@
     if (inWaitForForcedEnd && !forcedEnd) {
       if (!discardToken)       currentSentence.add(o);
       if (DEBUG) {
-        log.info("  is in wait for forced end; " + debugText);
+        System.err.println("  is in wait for forced end; " + debugText);
       }
     }
  else     if (inMultiTokenExpr && !forcedEnd) {
       if (!discardToken)       currentSentence.add(o);
       if (DEBUG) {
-        log.info("  is in multi token expr; " + debugText);
+        System.err.println("  is in multi token expr; " + debugText);
       }
     }
  else     if (sentenceBoundaryToDiscard.contains(word)) {
@@ -86,7 +86,7 @@
       }
       lastTokenWasNewline=true;
       if (DEBUG) {
-        log.info("  discarded sentence boundary");
+        System.err.println("  discarded sentence boundary");
       }
     }
  else {
@@ -95,7 +95,7 @@
       if (xmlBreakElementsToDiscard != null && matchesXmlBreakElementToDiscard(word)) {
         newSent=true;
         if (DEBUG) {
-          log.info("  is XML break element; discarded");
+          System.err.println("  is XML break element; discarded");
         }
       }
  else       if (sentenceRegionEndPattern != null && sentenceRegionEndPattern.matcher(word).matches()) {
@@ -105,14 +105,14 @@
  else       if ((isSentenceBoundary != null) && ((isb=isSentenceBoundary.get(o)) != null) && isb) {
         if (!discardToken)         currentSentence.add(o);
         if (DEBUG) {
-          log.info("  is sentence boundary (matched multi-token pattern); " + debugText);
+          System.err.println("  is sentence boundary (matched multi-token pattern); " + debugText);
         }
         newSent=true;
       }
  else       if (sentenceBoundaryTokenPattern.matcher(word).matches()) {
         if (!discardToken)         currentSentence.add(o);
         if (DEBUG) {
-          log.info("  is sentence boundary; " + debugText);
+          System.err.println("  is sentence boundary; " + debugText);
         }
         newSent=true;
       }
@@ -121,19 +121,19 @@
         inWaitForForcedEnd=false;
         newSent=true;
         if (DEBUG) {
-          log.info("  annotated to be the end of a sentence; " + debugText);
+          System.err.println("  annotated to be the end of a sentence; " + debugText);
         }
       }
  else {
         if (!discardToken)         currentSentence.add(o);
         if (DEBUG) {
-          log.info("  " + debugText);
+          System.err.println("  " + debugText);
         }
       }
     }
     if (newSent && (!currentSentence.isEmpty() || allowEmptySentences)) {
       if (DEBUG) {
-        log.info("  beginning new sentence");
+        System.err.println("  beginning new sentence");
       }
       sentences.add(currentSentence);
       lastSentence=currentSentence;

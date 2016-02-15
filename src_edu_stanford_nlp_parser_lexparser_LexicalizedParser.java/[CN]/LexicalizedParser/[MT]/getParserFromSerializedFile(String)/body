@@ -5,22 +5,22 @@
     ObjectInputStream in=IOUtils.readStreamFromString(serializedFileOrUrl);
     LexicalizedParser pd=loadModel(in);
     in.close();
-    log.info(" done [" + tim.toSecondsString() + " sec].");
+    System.err.println(" done [" + tim.toSecondsString() + " sec].");
     return pd;
   }
  catch (  InvalidClassException ice) {
-    log.info();
+    System.err.println();
     throw new RuntimeException("Invalid class in file: " + serializedFileOrUrl,ice);
   }
 catch (  FileNotFoundException fnfe) {
-    log.info();
+    System.err.println();
     throw new RuntimeException("File not found: " + serializedFileOrUrl,fnfe);
   }
 catch (  StreamCorruptedException sce) {
-    log.info();
+    System.err.println();
   }
 catch (  Exception e) {
-    log.info();
+    System.err.println();
     e.printStackTrace();
   }
   return null;

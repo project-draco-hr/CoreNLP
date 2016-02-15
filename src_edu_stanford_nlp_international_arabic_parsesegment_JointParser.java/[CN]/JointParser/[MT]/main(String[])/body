@@ -1,6 +1,6 @@
 {
   if (args.length < MIN_ARGS) {
-    log.info(usage());
+    System.err.println(usage());
     System.exit(-1);
   }
   Properties options=StringUtils.argsToProperties(args,optionArgDefs());
@@ -10,14 +10,14 @@
   boolean SER_INPUT=PropertiesUtils.getBool(options,"o",false);
   String[] parsedArgs=options.getProperty("","").split("\\s+");
   if (parsedArgs.length != MIN_ARGS) {
-    log.info(usage());
+    System.err.println(usage());
     System.exit(-1);
   }
   File trainTreebank=new File(parsedArgs[0]);
   Date startTime=new Date();
-  log.info("###################################");
-  log.info("### Joint Segmentation / Parser ###");
-  log.info("###################################");
+  System.err.println("###################################");
+  System.err.println("### Joint Segmentation / Parser ###");
+  System.err.println("###################################");
   System.err.printf("Start time: %s\n",startTime);
   JointParsingModel parsingModel=new JointParsingModel();
   parsingModel.setVerbose(VERBOSE);
@@ -39,14 +39,14 @@ catch (  IOException e) {
     e.printStackTrace();
     System.exit(-1);
   }
-  if (!trainTreebank.exists())   log.info("Training treebank does not exist!\n  " + trainTreebank.getPath());
- else   if (testTreebank != null && !testTreebank.exists())   log.info("Test treebank does not exist!\n  " + testTreebank.getPath());
- else   if (parsingModel.run(trainTreebank,testTreebank,inputStream))   log.info("Successful shutdown!");
- else   log.error("Parsing model failure.");
+  if (!trainTreebank.exists())   System.err.println("Training treebank does not exist!\n  " + trainTreebank.getPath());
+ else   if (testTreebank != null && !testTreebank.exists())   System.err.println("Test treebank does not exist!\n  " + testTreebank.getPath());
+ else   if (parsingModel.run(trainTreebank,testTreebank,inputStream))   System.err.println("Successful shutdown!");
+ else   System.err.println("ERROR: Parsing model failure.");
   Date stopTime=new Date();
   long elapsedTime=stopTime.getTime() - startTime.getTime();
-  log.info();
-  log.info();
+  System.err.println();
+  System.err.println();
   System.err.printf("Completed processing at %s\n",stopTime);
   System.err.printf("Elapsed time: %d seconds\n",(int)(elapsedTime / 1000F));
 }

@@ -1,2 +1,30 @@
 {
+  for (  String pred : predictedRelations) {
+    if (goldRelations.contains(pred)) {
+      correctCount.incrementCount(pred);
+    }
+    predictedCount.incrementCount(pred);
+  }
+  for (  String gold : goldRelations) {
+    goldCount.incrementCount(gold);
+  }
+  HashSet<String> allRelations=new HashSet<String>(){
+{
+      addAll(predictedRelations);
+      addAll(goldRelations);
+    }
+  }
+;
+  for (  String rel : allRelations) {
+    totalCount.incrementCount(rel);
+  }
+  if (predictedRelations.size() == 1 && goldRelations.size() == 1) {
+    confusion.add(predictedRelations.iterator().next(),goldRelations.iterator().next());
+  }
+  if (predictedRelations.size() == 1 && goldRelations.size() == 0) {
+    confusion.add(predictedRelations.iterator().next(),"NR");
+  }
+  if (predictedRelations.size() == 0 && goldRelations.size() == 1) {
+    confusion.add("NR",goldRelations.iterator().next());
+  }
 }

@@ -7,7 +7,7 @@
     quotedWord=quotedWord.replaceAll("\n","\u1CF2");
   }
   String wordtag=quotedWord + '_' + tag;
-  if (DEBUG)   log.info("Trying to normalize |" + wordtag + "|");
+  if (DEBUG)   System.err.println("Trying to normalize |" + wordtag + "|");
   try {
     lexer.setOption(1,lowercase);
     lexer.yyreset(new StringReader(wordtag));
@@ -15,7 +15,7 @@
     String wordRes=lexer.next();
     lexer.next();
     if (wordHasForbiddenChar) {
-      if (DEBUG)       log.info("Restoring forbidden chars");
+      if (DEBUG)       System.err.println("Restoring forbidden chars");
       wordRes=wordRes.replaceAll("\u1CF0","_");
       wordRes=wordRes.replaceAll("\u1CF1"," ");
       wordRes=wordRes.replaceAll("\u1CF2","\n");

@@ -7,19 +7,19 @@
     String line=in.readLine();
     confirmBeginBlock(textFileOrUrl,line);
     op.readData(in);
-    log.info(".");
+    System.err.print(".");
     line=in.readLine();
     confirmBeginBlock(textFileOrUrl,line);
     Index<String> stateIndex=HashIndex.loadFromReader(in);
-    log.info(".");
+    System.err.print(".");
     line=in.readLine();
     confirmBeginBlock(textFileOrUrl,line);
     Index<String> wordIndex=HashIndex.loadFromReader(in);
-    log.info(".");
+    System.err.print(".");
     line=in.readLine();
     confirmBeginBlock(textFileOrUrl,line);
     Index<String> tagIndex=HashIndex.loadFromReader(in);
-    log.info(".");
+    System.err.print(".");
     line=in.readLine();
     confirmBeginBlock(textFileOrUrl,line);
     Lexicon lex=op.tlpParams.lex(op,wordIndex,tagIndex);
@@ -29,24 +29,24 @@
       lex.setUnknownWordModel(model);
     }
     lex.readData(in);
-    log.info(".");
+    System.err.print(".");
     line=in.readLine();
     confirmBeginBlock(textFileOrUrl,line);
     UnaryGrammar ug=new UnaryGrammar(stateIndex);
     ug.readData(in);
-    log.info(".");
+    System.err.print(".");
     line=in.readLine();
     confirmBeginBlock(textFileOrUrl,line);
     BinaryGrammar bg=new BinaryGrammar(stateIndex);
     bg.readData(in);
-    log.info(".");
+    System.err.print(".");
     line=in.readLine();
     confirmBeginBlock(textFileOrUrl,line);
     DependencyGrammar dg=new MLEDependencyGrammar(op.tlpParams,op.directional,op.distance,op.coarseDistance,op.trainOptions.basicCategoryTagsInDependencyGrammar,op,wordIndex,tagIndex);
     dg.readData(in);
-    log.info(".");
+    System.err.print(".");
     in.close();
-    log.info(" done [" + tim.toSecondsString() + " sec].");
+    System.err.println(" done [" + tim.toSecondsString() + " sec].");
     return new LexicalizedParser(lex,bg,ug,dg,stateIndex,wordIndex,tagIndex,op);
   }
  catch (  IOException e) {

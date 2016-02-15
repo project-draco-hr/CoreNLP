@@ -10,7 +10,7 @@
       pwErr.println(secondaryTreebank.textualSummary(tlp));
     }
   }
-  log.info("Binarizing trees...");
+  System.err.print("Binarizing trees...");
   TreeAnnotatorAndBinarizer binarizer=buildTrainBinarizer(op);
   CompositeTreeTransformer trainTransformer=buildTrainTransformer(op,binarizer);
   Treebank wholeTreebank;
@@ -26,7 +26,7 @@
     if (op.testOptions.verbose) {
       List<String> list=new ArrayList<>(op.trainOptions.splitters);
       Collections.sort(list);
-      log.info("Parent split categories: " + list);
+      System.err.println("Parent split categories: " + list);
     }
   }
   if (op.trainOptions.selectivePostSplit) {
@@ -34,7 +34,7 @@
     wholeTreebank=wholeTreebank.transform(myTransformer);
     op.trainOptions.postSplitters=ParentAnnotationStats.getSplitCategories(wholeTreebank,true,0,op.trainOptions.selectivePostSplitCutOff,op.trainOptions.tagSelectivePostSplitCutOff,tlp);
     if (op.testOptions.verbose) {
-      log.info("Parent post annotation split categories: " + op.trainOptions.postSplitters);
+      System.err.println("Parent post annotation split categories: " + op.trainOptions.postSplitters);
     }
   }
   if (op.trainOptions.hSelSplit) {
