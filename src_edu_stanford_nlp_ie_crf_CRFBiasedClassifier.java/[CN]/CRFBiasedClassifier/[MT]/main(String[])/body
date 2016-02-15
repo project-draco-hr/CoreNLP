@@ -1,9 +1,9 @@
 {
-  System.err.println("CRFBiasedClassifier invoked at " + new Date() + " with arguments:");
+  log.info("CRFBiasedClassifier invoked at " + new Date() + " with arguments:");
   for (  String arg : args) {
-    System.err.print(" " + arg);
+    log.info(" " + arg);
   }
-  System.err.println();
+  log.info();
   Properties props=StringUtils.argsToProperties(args);
   CRFBiasedClassifier<CoreLabel> crf=new CRFBiasedClassifier<>(props);
   String testFile=crf.flags.testFile;
@@ -24,7 +24,7 @@
       String cname=bias.nextToken();
       double w=Double.parseDouble(bias.nextToken());
       crf.setBiasWeight(cname,w);
-      System.err.println("Setting bias for class " + cname + " to "+ w);
+      log.info("Setting bias for class " + cname + " to "+ w);
     }
   }
   if (testFile != null) {

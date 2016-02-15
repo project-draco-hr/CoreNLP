@@ -1,5 +1,5 @@
 {
-  System.err.println("# Loading embedding ...\n  word file = " + wordFile + "\n  vector file = "+ vectorFile);
+  log.info("# Loading embedding ...\n  word file = " + wordFile + "\n  vector file = "+ vectorFile);
   boolean warned=false;
   int numWords=0;
   Iterator<String> wordIterator=IOUtils.readLines(wordFile,"utf-8").iterator();
@@ -18,12 +18,12 @@
     int dimOfWords=lineSplit.length;
     if (embeddingSize <= 0) {
       embeddingSize=dimOfWords;
-      System.err.println("  detected embedding size = " + dimOfWords);
+      log.info("  detected embedding size = " + dimOfWords);
     }
     if (dimOfWords > embeddingSize) {
       if (!warned) {
         warned=true;
-        System.err.println("WARNING: Dimensionality of numHid parameter and word vectors do not match, deleting word vector dimensions to fit!");
+        log.info("WARNING: Dimensionality of numHid parameter and word vectors do not match, deleting word vector dimensions to fit!");
       }
       dimOfWords=embeddingSize;
     }
@@ -38,5 +38,5 @@
     wordVectors.put(word,vector);
     numWords++;
   }
-  System.err.println("  num words = " + numWords);
+  log.info("  num words = " + numWords);
 }

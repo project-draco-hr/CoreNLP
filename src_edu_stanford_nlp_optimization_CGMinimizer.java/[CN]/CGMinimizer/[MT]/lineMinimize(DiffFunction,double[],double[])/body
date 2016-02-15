@@ -2,28 +2,28 @@
   OneDimDiffFunction oneDim=new OneDimDiffFunction(function,initial,direction);
   double guess=0.01;
   if (!silent) {
-    System.err.print("[");
+    log.info("[");
   }
   Triple bracketing=mnbrak(new Triple(0,guess,0),oneDim);
   if (!silent) {
-    System.err.print("]");
+    log.info("]");
   }
   double ax=bracketing.a;
   double xx=bracketing.b;
   double bx=bracketing.c;
   if (!(ax <= xx && xx <= bx) && !(bx <= xx && xx <= ax)) {
-    System.err.println("Bad bracket order!");
+    log.info("Bad bracket order!");
   }
   if (verbose) {
-    System.err.println("Bracketing found: " + ax + ' '+ xx+ ' '+ bx);
-    System.err.println("Bracketing found: " + oneDim.valueAt(ax) + ' '+ oneDim.valueAt(xx)+ ' '+ oneDim.valueAt(bx));
+    log.info("Bracketing found: " + ax + ' '+ xx+ ' '+ bx);
+    log.info("Bracketing found: " + oneDim.valueAt(ax) + ' '+ oneDim.valueAt(xx)+ ' '+ oneDim.valueAt(bx));
   }
   if (!silent) {
-    System.err.print("<");
+    log.info("<");
   }
   double xmin=dbrent(oneDim,ax,xx,bx);
   if (!silent) {
-    System.err.print(">");
+    log.info(">");
   }
   return oneDim.vectorOf(xmin);
 }

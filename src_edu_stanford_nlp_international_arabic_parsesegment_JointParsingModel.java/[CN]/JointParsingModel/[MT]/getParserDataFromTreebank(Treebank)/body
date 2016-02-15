@@ -1,9 +1,9 @@
 {
-  System.err.print("Binarizing training trees...");
+  log.info("Binarizing training trees...");
   List<Tree> binaryTrainTrees=getAnnotatedBinaryTreebankFromTreebank(trainTreebank);
   Timing.tick("done.");
   Index<String> stateIndex=new HashIndex<>();
-  System.err.print("Extracting PCFG...");
+  log.info("Extracting PCFG...");
   Extractor<Pair<UnaryGrammar,BinaryGrammar>> bgExtractor=new BinaryGrammarExtractor(op,stateIndex);
   Pair<UnaryGrammar,BinaryGrammar> bgug=bgExtractor.extract(binaryTrainTrees);
   BinaryGrammar bg=bgug.second;
@@ -11,7 +11,7 @@
   UnaryGrammar ug=bgug.first;
   ug.purgeRules();
   Timing.tick("done.");
-  System.err.print("Extracting Lexicon...");
+  log.info("Extracting Lexicon...");
   Index<String> wordIndex=new HashIndex<>();
   Index<String> tagIndex=new HashIndex<>();
   Lexicon lex=op.tlpParams.lex(op,wordIndex,tagIndex);
@@ -22,11 +22,11 @@
   Extractor<DependencyGrammar> dgExtractor=op.tlpParams.dependencyGrammarExtractor(op,wordIndex,tagIndex);
   DependencyGrammar dg=null;
   if (op.doDep) {
-    System.err.print("Extracting Dependencies...");
+    log.info("Extracting Dependencies...");
     dg=dgExtractor.extract(binaryTrainTrees);
     dg.setLexicon(lex);
     Timing.tick("done.");
   }
-  System.err.println("Done extracting grammars and lexicon.");
+  log.info("Done extracting grammars and lexicon.");
   return new LexicalizedParser(lex,bg,ug,dg,stateIndex,wordIndex,tagIndex,op);
 }

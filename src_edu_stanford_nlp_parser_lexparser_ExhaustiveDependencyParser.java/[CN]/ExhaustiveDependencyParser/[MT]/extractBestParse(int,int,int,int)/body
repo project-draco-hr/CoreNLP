@@ -1,6 +1,6 @@
 {
   if (DEBUG) {
-    System.err.println("Span " + start + " to "+ end+ " word "+ wordIndex.get(words[hWord])+ "/"+ hWord+ " tag "+ tagIndex.get(hTag)+ "/"+ hTag+ " score "+ iScore(start,end,hWord,hTag));
+    log.info("Span " + start + " to "+ end+ " word "+ wordIndex.get(words[hWord])+ "/"+ hWord+ " tag "+ tagIndex.get(hTag)+ "/"+ hTag+ " score "+ iScore(start,end,hWord,hTag));
   }
   String headWordStr=wordIndex.get(words[hWord]);
   String headTagStr=tagIndex.get(hTag);
@@ -21,7 +21,7 @@
             if (DEBUG) {
               String argWordStr=wordIndex.get(words[aWord]);
               String argTagStr=tagIndex.get(aTag);
-              System.err.println(headWordStr + "|" + headTagStr+ " -> "+ argWordStr+ "|"+ argTagStr+ " "+ bestScore);
+              log.info(headWordStr + "|" + headTagStr+ " -> "+ argWordStr+ "|"+ argTagStr+ " "+ bestScore);
             }
             children.add(extractBestParse(start,split,hWord,hTag));
             children.add(extractBestParse(split,end,aWord,aTag));
@@ -37,7 +37,7 @@
             if (DEBUG) {
               String argWordStr=wordIndex.get(words[aWord]);
               String argTagStr=tagIndex.get(aTag);
-              System.err.println(headWordStr + "|" + headTagStr+ " -> "+ argWordStr+ "|"+ argTagStr+ " "+ bestScore);
+              log.info(headWordStr + "|" + headTagStr+ " -> "+ argWordStr+ "|"+ argTagStr+ " "+ bestScore);
             }
             children.add(extractBestParse(start,split,aWord,aTag));
             children.add(extractBestParse(split,end,hWord,hTag));
@@ -47,6 +47,6 @@
       }
     }
   }
-  System.err.println("Problem in ExhaustiveDependencyParser::extractBestParse");
+  log.info("Problem in ExhaustiveDependencyParser::extractBestParse");
   return null;
 }

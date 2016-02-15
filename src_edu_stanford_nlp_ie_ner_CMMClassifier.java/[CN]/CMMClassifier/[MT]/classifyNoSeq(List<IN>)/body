@@ -3,7 +3,7 @@
     Collections.reverse(document);
   }
   if (flags.lowerNewgeneThreshold) {
-    System.err.println("Using NEWGENE threshold: " + flags.newgeneThreshold);
+    log.info("Using NEWGENE threshold: " + flags.newgeneThreshold);
     for (int i=0, docSize=document.size(); i < docSize; i++) {
       CoreLabel wordInfo=document.get(i);
       Datum<String,String> d=makeDatum(document,i,featureFactories);
@@ -12,7 +12,7 @@
       if ("NEWGENE".equals(wordInfo.get(CoreAnnotations.GazAnnotation.class))) {
         for (        String label : scores.keySet()) {
           if ("G".equals(label)) {
-            System.err.println(wordInfo.word() + ':' + scores.getCount(label));
+            log.info(wordInfo.word() + ':' + scores.getCount(label));
             if (scores.getCount(label) > flags.newgeneThreshold) {
               answer=label;
             }
@@ -32,8 +32,8 @@
       LinearClassifier<String,String> lc=(LinearClassifier<String,String>)classifier;
       for (int i=0, lsize=document.size(); i < lsize; i++) {
         CoreLabel lineInfo=document.get(i);
-        System.err.print("@@ Position " + i + ": ");
-        System.err.println(lineInfo.word() + " chose " + lineInfo.get(CoreAnnotations.AnswerAnnotation.class));
+        log.info("@@ Position " + i + ": ");
+        log.info(lineInfo.word() + " chose " + lineInfo.get(CoreAnnotations.AnswerAnnotation.class));
         lc.justificationOf(makeDatum(document,i,featureFactories));
       }
     }

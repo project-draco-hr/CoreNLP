@@ -1,7 +1,7 @@
 {
   String motherCat=tlp.basicCategory(t.label().value());
   if (DEBUG) {
-    System.err.println("At " + motherCat + ", my parent is "+ parent);
+    log.info("At " + motherCat + ", my parent is "+ parent);
   }
   if (motherCat.equals("CONJP")) {
     for (    TregexPattern pattern : headOfConjpTregex) {
@@ -24,8 +24,8 @@
   if ((motherCat.equals("VP") || motherCat.equals("SQ") || motherCat.equals("SINV"))) {
     Tree[] kids=t.children();
     if (DEBUG) {
-      System.err.println("Semantic head finder: at VP");
-      System.err.println("Class is " + t.getClass().getName());
+      log.info("Semantic head finder: at VP");
+      log.info("Class is " + t.getClass().getName());
       t.pennPrint(System.err);
     }
     Tree[] tmpFilteredChildren=null;
@@ -42,7 +42,7 @@
       }
       Tree pti=traverseLocate(tmpFilteredChildren,how,false);
       if (DEBUG) {
-        System.err.println("Determined head (case 1) for " + t.value() + " is: "+ pti);
+        log.info("Determined head (case 1) for " + t.value() + " is: "+ pti);
       }
       if (pti != null) {
         return pti;
@@ -76,24 +76,24 @@
         }
       }
       if (DEBUG) {
-        System.err.println("Determined head (case 2) for " + t.value() + " is: "+ pti);
+        log.info("Determined head (case 2) for " + t.value() + " is: "+ pti);
       }
       if (pti != null) {
         return pti;
       }
  else {
         if (DEBUG) {
-          System.err.println("------");
-          System.err.println("SemanticHeadFinder failed to reassign head for");
+          log.info("------");
+          log.info("SemanticHeadFinder failed to reassign head for");
           t.pennPrint(System.err);
-          System.err.println("------");
+          log.info("------");
         }
       }
     }
   }
   Tree hd=super.determineNonTrivialHead(t,parent);
   if (DEBUG) {
-    System.err.println("Determined head (case 3) for " + t.value() + " is: "+ hd);
+    log.info("Determined head (case 3) for " + t.value() + " is: "+ hd);
   }
   return hd;
 }

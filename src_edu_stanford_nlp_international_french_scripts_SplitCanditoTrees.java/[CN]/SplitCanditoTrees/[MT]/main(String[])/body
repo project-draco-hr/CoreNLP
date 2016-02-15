@@ -4,15 +4,15 @@
     System.exit(-1);
   }
   List<String> ids=readIds(args[0]);
-  System.err.println("Read " + ids.size() + " ids");
+  log.info("Read " + ids.size() + " ids");
   String[] newArgs=new String[args.length - 1];
   for (int i=1; i < args.length; ++i)   newArgs[i - 1]=args[i];
   Map<String,Tree> treeMap=readTrees(newArgs);
-  System.err.println("Read " + treeMap.size() + " trees");
+  log.info("Read " + treeMap.size() + " trees");
   preprocessMWEs(treeMap);
   outputSplits(ids,treeMap);
   if (nTokens != 0) {
-    System.err.println("CORPUS STATISTICS");
+    log.info("CORPUS STATISTICS");
     System.err.printf("#tokens:\t%d%n",nTokens);
     System.err.printf("#with morph:\t%d%n",nMorphAnalyses);
   }
