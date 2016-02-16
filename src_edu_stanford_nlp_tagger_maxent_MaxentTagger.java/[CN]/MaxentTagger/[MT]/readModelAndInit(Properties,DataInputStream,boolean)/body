@@ -1,15 +1,14 @@
 {
   try {
     Timing t=new Timing();
+    String source=null;
     if (printLoading) {
-      String source=null;
       if (config != null) {
         source=config.getProperty("model");
       }
       if (source == null) {
         source="data stream";
       }
-      t.doing("Reading POS tagger model from " + source);
     }
     TaggerConfig taggerConfig=TaggerConfig.readConfig(rf);
     if (config != null) {
@@ -20,7 +19,7 @@
     ySize=rf.readInt();
     dict.read(rf);
     if (VERBOSE) {
-      log.info(" dictionary read ");
+      log.info("Tagger dictionary read.");
     }
     tags.read(rf);
     readExtractors(rf);
@@ -57,14 +56,16 @@
     }
     if (VERBOSE) {
       for (int k=0; k < numFA.length; k++) {
-        log.info(" Number of features of kind " + k + ' '+ numFA[k]);
+        log.info("Number of features of kind " + k + ' '+ numFA[k]);
       }
     }
     prob=new LambdaSolveTagger(rf);
     if (VERBOSE) {
-      log.info(" prob read ");
+      log.info("prob read ");
     }
-    if (printLoading)     t.done();
+    if (printLoading) {
+      t.done(log,"Reading POS tagger model from " + source);
+    }
   }
  catch (  IOException|ClassNotFoundException e) {
     throw new RuntimeIOException("Error while loading a tagger model (probably missing model file)",e);
