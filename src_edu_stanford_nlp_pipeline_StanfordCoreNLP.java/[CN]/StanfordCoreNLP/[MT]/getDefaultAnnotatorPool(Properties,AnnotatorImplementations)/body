@@ -1,9 +1,10 @@
 {
-  if (pool == null) {
-    pool=new AnnotatorPool();
+  if (pool != null) {
+    return pool;
   }
+  pool=new AnnotatorPool();
   for (  Map.Entry<String,BiFunction<Properties,AnnotatorImplementations,AnnotatorFactory>> entry : getNamedAnnotators().entrySet()) {
-    pool.register(entry.getKey(),entry.getValue().apply(properties,annotatorImplementation));
+    pool.register(entry.getKey(),entry.getValue().apply(inputProps,annotatorImplementation));
   }
   for (  String property : inputProps.stringPropertyNames()) {
     if (property.startsWith(CUSTOM_ANNOTATOR_PREFIX)) {
