@@ -1,0 +1,107 @@
+{
+  casedNER.annotate(annotation);
+  caselessNER.annotate(annotation);
+  Document doc=new Document(serializer.toProto(annotation));
+  List<CoreMap> mentions=new ArrayList<>();
+  List<CoreMap> sentences=annotation.get(CoreAnnotations.SentencesAnnotation.class);
+  for (  CoreMap sentence : sentences) {
+    mentions.addAll(sentence.get(CoreAnnotations.MentionsAnnotation.class));
+  }
+  List<CoreMap> pronounMentions=annotatePronominalMentions(annotation);
+  mentions.addAll(pronounMentions);
+  Map<Pair<Integer,Integer>,CoreMap> mentionByStartIndex=new HashMap<>();
+  for (  CoreMap mention : mentions) {
+    for (    CoreLabel token : mention.get(CoreAnnotations.TokensAnnotation.class)) {
+      mentionByStartIndex.put(Pair.makePair(token.sentIndex(),token.index()),mention);
+    }
+  }
+  Map<CoreMap,Set<CoreMap>> mentionsMap=new HashMap<>();
+  for (  Map.Entry<Integer,CorefChain> chain : annotation.get(CorefCoreAnnotations.CorefChainAnnotation.class).entrySet()) {
+    CoreMap firstMention=null;
+    for (    CorefChain.CorefMention mention : chain.getValue().getMentionsInTextualOrder()) {
+      CoreMap kbpMention=null;
+      for (int i=mention.startIndex; i < mention.endIndex; ++i) {
+        if (mentionByStartIndex.containsKey(Pair.makePair(mention.sentNum - 1,i))) {
+          kbpMention=mentionByStartIndex.get(Pair.makePair(mention.sentNum - 1,i));
+          break;
+        }
+      }
+      if (firstMention == null) {
+        firstMention=kbpMention;
+      }
+      if (kbpMention != null) {
+        if (!mentionsMap.containsKey(firstMention)) {
+          mentionsMap.put(firstMention,new LinkedHashSet<>());
+        }
+        mentionsMap.get(firstMention).add(kbpMention);
+      }
+    }
+  }
+  acronymMatch(mentions,mentionsMap);
+  for (  CoreMap key : new HashSet<>(mentionsMap.keySet())) {
+    if (key.get(CoreAnnotations.NamedEntityTagAnnotation.class) == null) {
+      CoreMap newKey=null;
+      for (      CoreMap candidate : mentionsMap.get(key)) {
+        if (candidate.get(CoreAnnotations.NamedEntityTagAnnotation.class) != null) {
+          newKey=candidate;
+          break;
+        }
+      }
+      if (newKey != null) {
+        mentionsMap.put(newKey,mentionsMap.remove(key));
+      }
+ else {
+        mentionsMap.remove(key);
+      }
+    }
+  }
+  Map<CoreMap,CoreMap> mentionToCanonicalMention=new HashMap<>();
+  for (  Map.Entry<CoreMap,Set<CoreMap>> entry : mentionsMap.entrySet()) {
+    for (    CoreMap mention : entry.getValue()) {
+      mention.set(CoreAnnotations.NamedEntityTagAnnotation.class,entry.getKey().get(CoreAnnotations.NamedEntityTagAnnotation.class));
+      mentionToCanonicalMention.put(mention,entry.getKey());
+    }
+  }
+  for (  CoreMap mention : mentions) {
+    if (mentionToCanonicalMention.get(mention) == null) {
+      mentionToCanonicalMention.put(mention,mention);
+    }
+  }
+  @SuppressWarnings("unchecked") List<CoreMap>[] mentionsBySentence=new List[annotation.get(CoreAnnotations.SentencesAnnotation.class).size()];
+  for (int i=0; i < mentionsBySentence.length; ++i) {
+    mentionsBySentence[i]=new ArrayList<>();
+  }
+  for (  CoreMap mention : mentionToCanonicalMention.keySet()) {
+    mentionsBySentence[mention.get(CoreAnnotations.SentenceIndexAnnotation.class)].add(mention);
+  }
+  for (int sentenceI=0; sentenceI < mentionsBySentence.length; ++sentenceI) {
+    List<RelationTriple> triples=new ArrayList<>();
+    List<CoreMap> candidates=mentionsBySentence[sentenceI];
+    for (int subjI=0; subjI < candidates.size(); ++subjI) {
+      CoreMap subj=candidates.get(subjI);
+      int subjBegin=subj.get(CoreAnnotations.TokensAnnotation.class).get(0).index() - 1;
+      int subjEnd=subj.get(CoreAnnotations.TokensAnnotation.class).get(subj.get(CoreAnnotations.TokensAnnotation.class).size() - 1).index();
+      Optional<KBPRelationExtractor.NERTag> subjNER=KBPRelationExtractor.NERTag.fromString(subj.get(CoreAnnotations.NamedEntityTagAnnotation.class));
+      if (subjNER.isPresent()) {
+        for (int objI=0; objI < candidates.size(); ++objI) {
+          if (subjI == objI) {
+            continue;
+          }
+          CoreMap obj=candidates.get(objI);
+          int objBegin=obj.get(CoreAnnotations.TokensAnnotation.class).get(0).index() - 1;
+          int objEnd=obj.get(CoreAnnotations.TokensAnnotation.class).get(obj.get(CoreAnnotations.TokensAnnotation.class).size() - 1).index();
+          Optional<KBPRelationExtractor.NERTag> objNER=KBPRelationExtractor.NERTag.fromString(obj.get(CoreAnnotations.NamedEntityTagAnnotation.class));
+          if (objNER.isPresent() && KBPRelationExtractor.RelationType.plausiblyHasRelation(subjNER.get(),objNER.get())) {
+            KBPRelationExtractor.FeaturizerInput input=new KBPRelationExtractor.FeaturizerInput(new Span(subjBegin,subjEnd),new Span(objBegin,objEnd),subjNER.get(),objNER.get(),doc.sentence(sentenceI));
+            Pair<String,Double> prediction=extractor.classify(input);
+            if (!KBPRelationExtractor.NO_RELATION.equals(prediction.first)) {
+              RelationTriple triple=new RelationTriple(subj.get(CoreAnnotations.TokensAnnotation.class),mentionToCanonicalMention.get(subj).get(CoreAnnotations.TokensAnnotation.class),Collections.singletonList(new CoreLabel(new Word(prediction.first))),obj.get(CoreAnnotations.TokensAnnotation.class),mentionToCanonicalMention.get(obj).get(CoreAnnotations.TokensAnnotation.class),prediction.second);
+              triples.add(triple);
+            }
+          }
+        }
+      }
+    }
+    annotation.get(CoreAnnotations.SentencesAnnotation.class).get(sentenceI).set(CoreAnnotations.KBPTriplesAnnotation.class,triples);
+  }
+}
