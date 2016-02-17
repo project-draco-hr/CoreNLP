@@ -1,5 +1,5 @@
 {
-  Timing t=new Timing();
+  Timing.startDoing("Loading JAR-internal classifier " + modelName);
   try {
     InputStream is=getClass().getResourceAsStream(modelName);
     if (modelName.endsWith(".gz")) {
@@ -8,7 +8,7 @@
     is=new BufferedInputStream(is);
     loadClassifier(is,props);
     is.close();
-    t.done(log,"Loading CLASSPATH classifier " + modelName);
+    Timing.endDoing();
   }
  catch (  Exception e) {
     String msg="Error loading classifier from jar file (most likely you are not running this code from a jar file or the named classifier is not stored in the jar file)";
