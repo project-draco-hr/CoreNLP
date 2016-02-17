@@ -1,0 +1,11 @@
+{
+  this.threads=Integer.parseInt(props.getProperty("threads","1"));
+  try {
+    this.extractor=IOUtils.readObjectFromURLOrClasspathOrFileSystem(props.getProperty("kbp.model",DefaultPaths.DEFAULT_KBP_CLASSIFIER));
+    this.casedNER=new TokensRegexNERAnnotator(props.getProperty("kbp.regexner.cased",DefaultPaths.DEFAULT_KBP_REGEXNER_CASED),true);
+    this.caselessNER=new TokensRegexNERAnnotator(props.getProperty("kbp.regexner.caseless",DefaultPaths.DEFAULT_KBP_REGEXNER_CASELESS),false,"^(NN|JJ).*");
+  }
+ catch (  IOException|ClassNotFoundException e) {
+    throw new RuntimeIOException(e);
+  }
+}

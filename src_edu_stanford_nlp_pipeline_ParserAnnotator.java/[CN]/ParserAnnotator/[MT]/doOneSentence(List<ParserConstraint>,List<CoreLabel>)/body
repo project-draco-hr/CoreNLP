@@ -6,9 +6,14 @@
   try {
     if (this.kBest == 1) {
       Tree t=pq.getBestParse();
-      double score=pq.getBestScore();
-      t.setScore(score % -10000.0);
-      trees.add(t);
+      if (t == null) {
+        log.warn("Parsing of sentence failed.  " + "Will ignore and continue: " + SentenceUtils.listToString(words));
+      }
+ else {
+        double score=pq.getBestScore();
+        t.setScore(score % -10000.0);
+        trees.add(t);
+      }
     }
  else {
       List<ScoredObject<Tree>> scoredObjects=pq.getKBestParses(this.kBest);
