@@ -1,8 +1,15 @@
 {
+  classifier=new CRFClassifier<>(p);
   try {
-    classifier=CRFClassifier.getClassifier(filename,p);
+    classifier.loadClassifier(new File(filename),p);
   }
- catch (  ClassCastException|IOException|ClassNotFoundException e) {
-    throw new RuntimeIOException("Failed to load segmenter " + filename,e);
+ catch (  ClassCastException e) {
+    e.printStackTrace();
+  }
+catch (  IOException e) {
+    e.printStackTrace();
+  }
+catch (  ClassNotFoundException e) {
+    e.printStackTrace();
   }
 }
