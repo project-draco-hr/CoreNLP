@@ -1,0 +1,33 @@
+{
+  ArgumentParser.fillOptions(this,name,properties);
+  long startTime=System.currentTimeMillis();
+  log.info("Reading Wikidict from " + wikidictPath);
+  try {
+    int i=0;
+    String[] fields=new String[3];
+    for (    String line : IOUtils.readLines(wikidictPath,"UTF-8")) {
+      if (line.charAt(0) == '\t') {
+        continue;
+      }
+      StringUtils.splitOnChar(fields,line,'\t');
+      if (i % 1000000 == 0) {
+        log.info("Loaded " + i + " entries from Wikidict ["+ SystemUtils.getMemoryInUse()+ "MB memory used; "+ Redwood.formatTimeDifference(System.currentTimeMillis() - startTime)+ " elapsed]");
+      }
+      String surfaceForm=fields[0];
+      String link=fields[1].intern();
+      if (threshold > 0.0) {
+        double score=Double.parseDouble(fields[2]);
+        if (score < threshold) {
+          continue;
+        }
+      }
+      dictionary.put(surfaceForm,link);
+      i+=1;
+    }
+    log.info("Done reading Wikidict (" + dictionary.size() + " links read; "+ Redwood.formatTimeDifference(System.currentTimeMillis() - startTime)+ " elapsed)");
+  }
+ catch (  Throwable e) {
+    e.printStackTrace();
+    System.exit(1);
+  }
+}

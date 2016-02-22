@@ -1,0 +1,11 @@
+{
+  for (  CoreMap mention : sentence.get(CoreAnnotations.MentionsAnnotation.class)) {
+    Optional<String> canonicalName=link(mention);
+    if (canonicalName.isPresent()) {
+      mention.set(CoreAnnotations.WikipediaEntityAnnotation.class,canonicalName.get());
+      for (      CoreLabel token : mention.get(CoreAnnotations.TokensAnnotation.class)) {
+        token.set(CoreAnnotations.WikipediaEntityAnnotation.class,canonicalName.get());
+      }
+    }
+  }
+}
