@@ -1,0 +1,11 @@
+{
+  logger.log("Creating SemgrexRegexExtractor");
+  for (  RelationType rel : RelationType.values()) {
+    String filename=semgrexdir + File.separator + rel.canonicalName.replace("/","SLASH")+ ".rules";
+    if (IOUtils.existsInClasspathOrFileSystem(filename)) {
+      List<SemgrexPattern> rulesforrel=SemgrexBatchParser.compileStream(IOUtils.getInputStreamFromURLOrClasspathOrFileSystem(filename));
+      logger.log("Read " + rulesforrel.size() + " rules from "+ filename+ " for relation "+ rel);
+      rules.put(rel,rulesforrel);
+    }
+  }
+}

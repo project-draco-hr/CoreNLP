@@ -1,20 +1,23 @@
 {
-  this.threads=Integer.parseInt(props.getProperty("threads","1"));
+  ArgumentParser.fillOptions(this,name,props);
+  extractors=new ArrayList<>();
   try {
-    Object object=IOUtils.readObjectFromURLOrClasspathOrFileSystem(props.getProperty("kbp.model",DefaultPaths.DEFAULT_KBP_CLASSIFIER));
+    Object object=IOUtils.readObjectFromURLOrClasspathOrFileSystem(model);
     if (object instanceof LinearClassifier) {
-      this.extractor=new KBPRelationExtractor((Classifier<String,String>)object);
+      extractors.add(new KBPStatisticalExtractor((Classifier<String,String>)object));
     }
- else     if (object instanceof KBPRelationExtractor) {
-      this.extractor=(KBPRelationExtractor)object;
+ else     if (object instanceof KBPStatisticalExtractor) {
+      extractors.add((KBPStatisticalExtractor)object);
     }
  else {
-      throw new ClassCastException(object.getClass() + " cannot be cast into a " + KBPRelationExtractor.class);
+      throw new ClassCastException(object.getClass() + " cannot be cast into a " + KBPStatisticalExtractor.class);
     }
+    extractors.add(new KBPTokensregexExtractor(tokensregexdir));
+    extractors.add(new KBPSemgrexExtractor(semgrexdir));
   }
  catch (  IOException|ClassNotFoundException e) {
     throw new RuntimeIOException(e);
   }
-  this.casedNER=new TokensRegexNERAnnotator(props.getProperty("kbp.regexner.cased",DefaultPaths.DEFAULT_KBP_REGEXNER_CASED),false);
-  this.caselessNER=new TokensRegexNERAnnotator(props.getProperty("kbp.regexner.caseless",DefaultPaths.DEFAULT_KBP_REGEXNER_CASELESS),true,"^(NN|JJ).*");
+  this.casedNER=new TokensRegexNERAnnotator(regexnerCasedPath,false);
+  this.caselessNER=new TokensRegexNERAnnotator(regexnerCaselessPath,true,"^(NN|JJ).*");
 }
