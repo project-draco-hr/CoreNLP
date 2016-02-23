@@ -4,7 +4,7 @@
   Counters.expInPlace(scores);
   Counters.normalize(scores);
   String best=Counters.argmax(scores);
-  while (!NO_RELATION.equals(best) && !KBPRelationExtractor.RelationType.fromString(best).get().validNamedEntityLabels.contains(input.objectType)) {
+  while (!NO_RELATION.equals(best) && (KBPRelationExtractor.RelationType.fromString(best).get().validNamedEntityLabels.contains(input.objectType) || RelationType.fromString(best).get().entityType != input.subjectType)) {
     scores.remove(best);
     Counters.normalize(scores);
     best=Counters.argmax(scores);
