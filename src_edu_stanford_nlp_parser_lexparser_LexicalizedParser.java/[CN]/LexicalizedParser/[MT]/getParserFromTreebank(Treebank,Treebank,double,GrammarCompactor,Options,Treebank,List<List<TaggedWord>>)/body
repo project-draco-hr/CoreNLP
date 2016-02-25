@@ -21,7 +21,7 @@
   Lexicon lex;
   if (op.trainOptions.predictSplits) {
     SplittingGrammarExtractor extractor=new SplittingGrammarExtractor(op);
-    log.info("Extracting PCFG...");
+    System.err.print("Extracting PCFG...");
     if (secondaryTrainTreebank == null) {
       extractor.extract(trainTreebank);
     }
@@ -40,7 +40,7 @@
     wordIndex=new HashIndex<>();
     tagIndex=new HashIndex<>();
     BinaryGrammarExtractor bgExtractor=new BinaryGrammarExtractor(op,stateIndex);
-    log.info("Extracting PCFG...");
+    System.err.print("Extracting PCFG...");
     if (secondaryTrainTreebank == null) {
       bgug=bgExtractor.extract(trainTreebank);
     }
@@ -48,7 +48,7 @@
       bgug=bgExtractor.extract(trainTreebank,1.0,secondaryTrainTreebank,weight);
     }
     Timing.tick("done.");
-    log.info("Extracting Lexicon...");
+    System.err.print("Extracting Lexicon...");
     lex=op.tlpParams.lex(op,wordIndex,tagIndex);
     double trainSize=trainTreebank.size();
     if (secondaryTrainTreebank != null) {
@@ -71,20 +71,20 @@
     Timing.tick("done.");
   }
   if (op.trainOptions.ruleSmoothing) {
-    log.info("Smoothing PCFG...");
+    System.err.print("Smoothing PCFG...");
     Function<Pair<UnaryGrammar,BinaryGrammar>,Pair<UnaryGrammar,BinaryGrammar>> smoother=new LinearGrammarSmoother(op.trainOptions,stateIndex,tagIndex);
     bgug=smoother.apply(bgug);
     Timing.tick("done.");
   }
   if (compactor != null) {
-    log.info("Compacting grammar...");
+    System.err.print("Compacting grammar...");
     Triple<Index<String>,UnaryGrammar,BinaryGrammar> compacted=compactor.compactGrammar(bgug,stateIndex);
     stateIndex=compacted.first();
     bgug.setFirst(compacted.second());
     bgug.setSecond(compacted.third());
     Timing.tick("done.");
   }
-  log.info("Compiling grammar...");
+  System.err.print("Compiling grammar...");
   BinaryGrammar bg=bgug.second;
   bg.splitRules();
   UnaryGrammar ug=bgug.first;
@@ -92,7 +92,7 @@
   Timing.tick("done");
   DependencyGrammar dg=null;
   if (op.doDep) {
-    log.info("Extracting Dependencies...");
+    System.err.print("Extracting Dependencies...");
     AbstractTreeExtractor<DependencyGrammar> dgExtractor=new MLEDependencyGrammarExtractor(op,wordIndex,tagIndex);
     if (secondaryTrainTreebank == null) {
       dg=dgExtractor.extract(trainTreebank);
@@ -102,22 +102,22 @@
     }
     Timing.tick("done.");
     if (tuneTreebank != null) {
-      log.info("Tuning Dependency Model...");
+      System.err.print("Tuning Dependency Model...");
       dg.setLexicon(lex);
       dg.tune(tuneTreebank);
       Timing.tick("done.");
     }
   }
-  log.info("Done training parser.");
+  System.err.println("Done training parser.");
   if (op.trainOptions.trainTreeFile != null) {
     try {
-      log.info("Writing out binary trees to " + op.trainOptions.trainTreeFile + "...");
+      System.err.print("Writing out binary trees to " + op.trainOptions.trainTreeFile + "...");
       IOUtils.writeObjectToFile(trainTreebank,op.trainOptions.trainTreeFile);
       IOUtils.writeObjectToFile(secondaryTrainTreebank,op.trainOptions.trainTreeFile);
       Timing.tick("done.");
     }
  catch (    Exception e) {
-      log.info("Problem writing out binary trees.");
+      System.err.println("Problem writing out binary trees.");
     }
   }
   return new LexicalizedParser(lex,bg,ug,dg,stateIndex,wordIndex,tagIndex,op);

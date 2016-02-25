@@ -28,7 +28,7 @@
       int label=docLabels[i];
       double p=cliqueTree.condLogProbGivenPrevious(i,label,given);
       if (VERBOSE) {
-        log.info("P(" + label + "|"+ ArrayMath.toString(given)+ ")="+ p);
+        System.err.println("P(" + label + "|"+ ArrayMath.toString(given)+ ")="+ p);
       }
       prob+=p;
       System.arraycopy(given,1,given,0,given.length - 1);
@@ -70,7 +70,7 @@
   }
   value=-prob;
   if (VERBOSE) {
-    log.info("value is " + value);
+    System.err.println("value is " + value);
   }
   for (int lopIter=0; lopIter < numLopExpert; lopIter++) {
     double scale=scales[lopIter];
@@ -82,7 +82,7 @@
     double expected=eScales[lopIter];
     derivative[lopIter]=(expected - observed);
     if (VERBOSE) {
-      log.info("deriv(" + lopIter + ") = "+ expected+ " - "+ observed+ " = "+ derivative[lopIter]);
+      System.err.println("deriv(" + lopIter + ") = "+ expected+ " - "+ observed+ " = "+ derivative[lopIter]);
     }
   }
   if (backpropTraining) {
@@ -96,7 +96,7 @@
         for (int j=0; j < eOfExpert[fIndex].length; j++) {
           derivative[dIndex++]=scale * (eOfExpert[fIndex][j] - ehatOfExpert[fIndex][j]);
           if (VERBOSE) {
-            log.info("deriv[" + lopIter + "]("+ fIndex+ ","+ j+ ") = "+ scale+ " * ("+ eOfExpert[fIndex][j]+ " - "+ ehatOfExpert[fIndex][j]+ ") = "+ derivative[dIndex - 1]);
+            System.err.println("deriv[" + lopIter + "]("+ fIndex+ ","+ j+ ") = "+ scale+ " * ("+ eOfExpert[fIndex][j]+ " - "+ ehatOfExpert[fIndex][j]+ ") = "+ derivative[dIndex - 1]);
           }
         }
       }

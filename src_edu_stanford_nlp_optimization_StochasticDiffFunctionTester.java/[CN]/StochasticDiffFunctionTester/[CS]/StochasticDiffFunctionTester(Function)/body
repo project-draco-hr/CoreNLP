@@ -1,13 +1,13 @@
 {
   if (!(function instanceof AbstractStochasticCachingDiffFunction)) {
-    log.info("Attempt to test non stochastic function using StochasticDiffFunctionTester");
+    System.err.println("Attempt to test non stochastic function using StochasticDiffFunctionTester");
     throw new UnsupportedOperationException();
   }
   thisFunc=(AbstractStochasticCachingDiffFunction)function;
   generator=new Random(System.currentTimeMillis());
   testBatchSize=(int)getTestBatchSize(thisFunc.dataDimension());
   if (testBatchSize < 0 || testBatchSize > thisFunc.dataDimension() || (thisFunc.dataDimension() % testBatchSize != 0)) {
-    log.info("Invalid testBatchSize found, testing aborted.  Data size: " + thisFunc.dataDimension() + " batchSize: "+ testBatchSize);
+    System.err.println("Invalid testBatchSize found, testing aborted.  Data size: " + thisFunc.dataDimension() + " batchSize: "+ testBatchSize);
     System.exit(1);
   }
   numBatches=thisFunc.dataDimension() / testBatchSize;

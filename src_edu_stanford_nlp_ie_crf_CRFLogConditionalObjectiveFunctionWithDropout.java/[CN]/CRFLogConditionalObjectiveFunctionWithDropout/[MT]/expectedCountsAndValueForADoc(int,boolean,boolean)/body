@@ -27,7 +27,7 @@
       int label=docLabels[i];
       double p=cliqueTree.condLogProbGivenPrevious(i,label,given);
       if (VERBOSE) {
-        log.info("P(" + label + "|"+ ArrayMath.toString(given)+ ")="+ Math.exp(p));
+        System.err.println("P(" + label + "|"+ ArrayMath.toString(given)+ ")="+ Math.exp(p));
       }
       prob+=p;
       System.arraycopy(given,1,given,0,given.length - 1);
@@ -35,7 +35,7 @@
     }
     if (TIMED) {
       long elapsedMs=timer.stop();
-      log.info("Calculate objective took: " + Timing.toMilliSecondsString(elapsedMs) + " ms");
+      System.err.println("Calculate objective took: " + Timing.toMilliSecondsString(elapsedMs) + " ms");
     }
   }
   Map<Integer,double[]> EForADoc=sparseE(activeFeatures);
@@ -87,7 +87,7 @@
     }
     if (TIMED) {
       long elapsedMs=timer.stop();
-      log.info("Expected count took: " + Timing.toMilliSecondsString(elapsedMs) + " ms");
+      System.err.println("Expected count took: " + Timing.toMilliSecondsString(elapsedMs) + " ms");
     }
   }
   Map<Integer,double[]> dropoutPriorGrad=null;
@@ -97,7 +97,7 @@
     prob-=getDropoutPrior(cliqueTree,docData,EForADoc,docDataHash,activeFeatures,dropoutPriorGrad,condensedFeaturesMap,EForADocPos);
     if (TIMED) {
       long elapsedMs=timer.stop();
-      log.info("Dropout took: " + Timing.toMilliSecondsString(elapsedMs) + " ms");
+      System.err.println("Dropout took: " + Timing.toMilliSecondsString(elapsedMs) + " ms");
     }
   }
   return new Quadruple<>(docIndex,prob,EForADoc,dropoutPriorGrad);

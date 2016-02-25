@@ -9,8 +9,8 @@
   long time=System.currentTimeMillis();
   if (debug) {
     time=System.currentTimeMillis();
-    log.info("Starting on " + dfsa.dfsaID);
-    log.info(" -- " + states.size() + " states.");
+    System.err.println("Starting on " + dfsa.dfsaID);
+    System.err.println(" -- " + states.size() + " states.");
   }
   int numDone=0;
   for (  DFSAState<T,S> state1 : states) {
@@ -41,11 +41,11 @@
     }
     numDone++;
     if (numDone % 20 == 0) {
-      log.info("\r" + numDone + "  "+ ((double)collisions / (double)entries));
+      System.err.print("\r" + numDone + "  "+ ((double)collisions / (double)entries));
     }
   }
   if (debug) {
-    log.info("\nInitialized: " + (System.currentTimeMillis() - time));
+    System.err.println("\nInitialized: " + (System.currentTimeMillis() - time));
     time=System.currentTimeMillis();
   }
   for (  UnorderedPair<DFSAState<T,S>,DFSAState<T,S>> up : stateUPairToDistinguished.keySet()) {
@@ -106,7 +106,7 @@
     }
   }
   if (debug) {
-    log.info("All pairs marked: " + (System.currentTimeMillis() - time));
+    System.err.println("All pairs marked: " + (System.currentTimeMillis() - time));
     time=System.currentTimeMillis();
   }
   DisjointSet<DFSAState<T,S>> stateClasses=new FastDisjointSet<>(states);
@@ -123,7 +123,7 @@
     stateToRep.put(state,rep);
   }
   if (debug) {
-    log.info("Canonical states chosen: " + (System.currentTimeMillis() - time));
+    System.err.println("Canonical states chosen: " + (System.currentTimeMillis() - time));
     time=System.currentTimeMillis();
   }
   for (  DFSAState<T,S> state : states) {
@@ -136,6 +136,6 @@
   }
   dfsa.initialState=stateClasses.find(dfsa.initialState);
   if (debug) {
-    log.info("Done: " + (System.currentTimeMillis() - time));
+    System.err.println("Done: " + (System.currentTimeMillis() - time));
   }
 }

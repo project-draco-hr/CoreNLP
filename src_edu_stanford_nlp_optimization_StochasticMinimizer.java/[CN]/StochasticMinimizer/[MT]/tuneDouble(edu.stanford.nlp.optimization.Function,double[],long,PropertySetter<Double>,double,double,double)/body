@@ -25,8 +25,8 @@
       cur.first=0.5 * (low.first() + high.first());
     }
     ps.set(cur.first());
-    log.info("");
-    log.info("About to test with batch size:  " + bSize + "  gain: "+ gain+ " and  "+ ps.toString()+ " set to  "+ cur.first());
+    System.err.println("");
+    System.err.println("About to test with batch size:  " + bSize + "  gain: "+ gain+ " and  "+ ps.toString()+ " set to  "+ cur.first());
     xtest=this.minimize(function,1e-100,xtest);
     if (Double.isNaN(xtest[0])) {
       cur.second=Double.POSITIVE_INFINITY;
@@ -55,20 +55,20 @@
       toContinue=false;
     }
     res.add(new Pair<>(cur.first(),cur.second()));
-    log.info("");
-    log.info("Final value is: " + nf.format(cur.second()));
-    log.info("Optimal so far using " + ps.toString() + " is: "+ best.first());
+    System.err.println("");
+    System.err.println("Final value is: " + nf.format(cur.second()));
+    System.err.println("Optimal so far using " + ps.toString() + " is: "+ best.first());
   }
  while (toContinue);
-  log.info("-------------");
-  log.info(" RESULTS          ");
-  log.info(ps.getClass().toString());
-  log.info("-------------");
-  log.info("  val    ,    function after " + msPerTest + " ms");
+  System.err.println("-------------");
+  System.err.println(" RESULTS          ");
+  System.err.println(ps.getClass().toString());
+  System.err.println("-------------");
+  System.err.println("  val    ,    function after " + msPerTest + " ms");
   for (  Pair<Double,Double> re : res) {
-    log.info(re.first() + "    ,    " + re.second());
+    System.err.println(re.first() + "    ,    " + re.second());
   }
-  log.info("");
-  log.info("");
+  System.err.println("");
+  System.err.println("");
   return best.first();
 }

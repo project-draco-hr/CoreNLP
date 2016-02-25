@@ -1,6 +1,6 @@
 {
   if (args.length < MIN_ARGS) {
-    log.info(usage());
+    System.err.println(usage());
     System.exit(-1);
   }
   Properties options=StringUtils.argsToProperties(args,optArgDefs());
@@ -10,7 +10,7 @@
   boolean SHOW_OOV=PropertiesUtils.getBool(options,"o",false);
   String[] parsedArgs=options.getProperty("","").split("\\s+");
   if (parsedArgs.length != MIN_ARGS) {
-    log.info(usage());
+    System.err.println(usage());
     System.exit(-1);
   }
   Language language=Language.valueOf(parsedArgs[0]);
@@ -21,7 +21,7 @@
   TreebankLangParserParams tlpp=language.params;
   TreebankStats cs=new TreebankStats(language,corpusPaths,tlpp);
   if (splitPrefix != null) {
-    if (!cs.useSplit(splitPrefix))     log.info("Could not load split!");
+    if (!cs.useSplit(splitPrefix))     System.err.println("Could not load split!");
   }
   cs.run(pathsAreFiles,SHOW_WORDS,SHOW_OOV);
 }

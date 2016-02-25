@@ -1,6 +1,6 @@
 {
   if (verbose) {
-    log.info("Generating " + dependency);
+    System.err.println("Generating " + dependency);
   }
   boolean leftHeaded=dependency.leftHeaded && directional;
   int hW=dependency.head.word;
@@ -105,22 +105,22 @@
     nf.setMaximumFractionDigits(2);
     if (useSmoothTagProjection) {
       if (useUnigramWordSmoothing) {
-        log.info("  c_aW=" + c_aW + ", numWordTokens="+ numWordTokens+ ", p(aW)="+ nf.format(p_aW));
+        System.err.println("  c_aW=" + c_aW + ", numWordTokens="+ numWordTokens+ ", p(aW)="+ nf.format(p_aW));
       }
-      log.info("  c_aPTW_aPT=" + c_aPTW_aPT + ", c_aPT="+ c_aPT+ ", smooth_aPTW_aPT="+ smooth_aPTW_aPT+ ", p(aPTW|aPT)="+ nf.format(p_aPTW_aPT));
+      System.err.println("  c_aPTW_aPT=" + c_aPTW_aPT + ", c_aPT="+ c_aPT+ ", smooth_aPTW_aPT="+ smooth_aPTW_aPT+ ", p(aPTW|aPT)="+ nf.format(p_aPTW_aPT));
     }
-    log.info("  c_aTW=" + c_aTW + ", c_aT="+ c_aT+ ", smooth_aTW_aT="+ smooth_aTW_aT+ ", ## p(aTW|aT)="+ nf.format(p_aTW_aT));
+    System.err.println("  c_aTW=" + c_aTW + ", c_aT="+ c_aT+ ", smooth_aTW_aT="+ smooth_aTW_aT+ ", ## p(aTW|aT)="+ nf.format(p_aTW_aT));
     if (useSmoothTagProjection) {
-      log.info("  c_aPTW_hPTd=" + c_aPTW_hPTd + ", c_hPTd="+ c_hPTd+ ", p(aPTW|hPTd)="+ nf.format(p_aPTW_hPTd));
+      System.err.println("  c_aPTW_hPTd=" + c_aPTW_hPTd + ", c_hPTd="+ c_hPTd+ ", p(aPTW|hPTd)="+ nf.format(p_aPTW_hPTd));
     }
-    log.info("  c_aTW_hTd=" + c_aTW_hTd + ", c_hTd="+ c_hTd+ ", smooth_aTW_hTd="+ smooth_aTW_hTd+ ", p(aTW|hTd)="+ nf.format(p_aTW_hTd));
+    System.err.println("  c_aTW_hTd=" + c_aTW_hTd + ", c_hTd="+ c_hTd+ ", smooth_aTW_hTd="+ smooth_aTW_hTd+ ", p(aTW|hTd)="+ nf.format(p_aTW_hTd));
     if (useSmoothTagProjection) {
-      log.info("  c_aPT_hPTd=" + c_aPT_hPTd + ", c_hPTd="+ c_hPTd+ ", p(aPT|hPTd)="+ nf.format(p_aPT_hPTd));
+      System.err.println("  c_aPT_hPTd=" + c_aPT_hPTd + ", c_hPTd="+ c_hPTd+ ", p(aPT|hPTd)="+ nf.format(p_aPT_hPTd));
     }
-    log.info("  c_aT_hTd=" + c_aT_hTd + ", c_hTd="+ c_hTd+ ", smooth_aT_hTd="+ smooth_aT_hTd+ ", p(aT|hTd)="+ nf.format(p_aT_hTd));
-    log.info("  c_aTW_hTWd=" + c_aTW_hTWd + ", c_hTWd="+ c_hTWd+ ", smooth_aTW_hTWd="+ smooth_aTW_hTWd+ ", ## p(aTW|hTWd)="+ nf.format(pb_aTW_hTWd));
-    log.info("  c_aT_hTWd=" + c_aT_hTWd + ", c_hTWd="+ c_hTWd+ ", smooth_aT_hTWd="+ smooth_aT_hTWd+ ", ## p(aT|hTWd)="+ nf.format(pb_aT_hTWd));
-    log.info("  interp=" + interp + ", prescore="+ nf.format(interp * pb_aTW_hTWd + (1.0 - interp) * p_aTW_aT * pb_aT_hTWd)+ ", P(go|hTWds)="+ nf.format(pb_go_hTWds)+ ", score="+ nf.format(score));
+    System.err.println("  c_aT_hTd=" + c_aT_hTd + ", c_hTd="+ c_hTd+ ", smooth_aT_hTd="+ smooth_aT_hTd+ ", p(aT|hTd)="+ nf.format(p_aT_hTd));
+    System.err.println("  c_aTW_hTWd=" + c_aTW_hTWd + ", c_hTWd="+ c_hTWd+ ", smooth_aTW_hTWd="+ smooth_aTW_hTWd+ ", ## p(aTW|hTWd)="+ nf.format(pb_aTW_hTWd));
+    System.err.println("  c_aT_hTWd=" + c_aT_hTWd + ", c_hTWd="+ c_hTWd+ ", smooth_aT_hTWd="+ smooth_aT_hTWd+ ", ## p(aT|hTWd)="+ nf.format(pb_aT_hTWd));
+    System.err.println("  interp=" + interp + ", prescore="+ nf.format(interp * pb_aTW_hTWd + (1.0 - interp) * p_aTW_aT * pb_aT_hTWd)+ ", P(go|hTWds)="+ nf.format(pb_go_hTWds)+ ", score="+ nf.format(score));
   }
   if (op.testOptions.prunePunc && pruneTW(aTW)) {
     return 1.0;

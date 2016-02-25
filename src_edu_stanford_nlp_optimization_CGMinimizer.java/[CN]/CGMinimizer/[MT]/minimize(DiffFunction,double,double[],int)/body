@@ -2,12 +2,12 @@
   int dimension=dFunction.domainDimension();
   double fp=dFunction.valueAt(initial);
   if (verbose) {
-    log.info("Initial: " + fp);
+    System.err.println("Initial: " + fp);
   }
   double[] xi=copyArray(dFunction.derivativeAt(initial));
   if (verbose) {
-    log.info("Initial at: " + arrayToString(initial,numToPrint));
-    log.info("Initial deriv: " + arrayToString(xi,numToPrint));
+    System.err.println("Initial at: " + arrayToString(initial,numToPrint));
+    System.err.println("Initial deriv: " + arrayToString(xi,numToPrint));
   }
   double[] g=new double[dimension];
   double[] h=new double[dimension];
@@ -21,16 +21,16 @@
   boolean simpleGDStep=false;
   for (int iterations=1; iterations < maxIterations; iterations++) {
     if (!silent) {
-      log.info("Iter " + iterations + ' ');
+      System.err.print("Iter " + iterations + ' ');
     }
     if (verbose) {
-      log.info("Minimizing along " + arrayToString(xi,numToPrint));
+      System.err.println("Minimizing along " + arrayToString(xi,numToPrint));
     }
     double[] p2=lineMinimize(dFunction,p,xi);
     double fp2=dFunction.valueAt(p2);
     if (verbose) {
-      log.info("Result is " + fp2 + " after "+ iterations);
-      log.info("Result at " + arrayToString(p2,numToPrint));
+      System.err.println("Result is " + fp2 + " after "+ iterations);
+      System.err.println("Result at " + arrayToString(p2,numToPrint));
     }
     if (!silent) {
       System.err.printf(" %s (delta: %s)\n",nf.format(fp2),nf.format(fp - fp2));
@@ -91,6 +91,6 @@
       }
     }
   }
-  log.info("Warning: exiting minimize because ITER exceeded!");
+  System.err.println("Warning: exiting minimize because ITER exceeded!");
   return p;
 }

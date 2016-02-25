@@ -46,9 +46,9 @@
   }
   ShiftReduceParser parser=null;
   if (trainTreebankPath != null) {
-    log.info("Training ShiftReduceParser");
-    log.info("Initial arguments:");
-    log.info("   " + StringUtils.join(args));
+    System.err.println("Training ShiftReduceParser");
+    System.err.println("Initial arguments:");
+    System.err.println("   " + StringUtils.join(args));
     if (continueTraining != null) {
       parser=ShiftReduceParser.loadModel(continueTraining,ArrayUtils.concatenate(FORCE_TAGS,newArgs));
     }
@@ -63,10 +63,10 @@
     parser=ShiftReduceParser.loadModel(serializedPath,ArrayUtils.concatenate(FORCE_TAGS,newArgs));
   }
   if (testTreebankPath != null) {
-    log.info("Loading test trees from " + testTreebankPath.first());
+    System.err.println("Loading test trees from " + testTreebankPath.first());
     Treebank testTreebank=parser.op.tlpParams.memoryTreebank();
     testTreebank.loadPath(testTreebankPath.first(),testTreebankPath.second());
-    log.info("Loaded " + testTreebank.size() + " trees");
+    System.err.println("Loaded " + testTreebank.size() + " trees");
     EvaluateTreebank evaluator=new EvaluateTreebank(parser.op,null,parser);
     evaluator.testOnTreebank(testTreebank);
   }

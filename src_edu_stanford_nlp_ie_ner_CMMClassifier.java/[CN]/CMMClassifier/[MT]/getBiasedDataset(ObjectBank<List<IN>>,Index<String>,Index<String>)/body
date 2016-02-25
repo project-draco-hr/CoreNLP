@@ -5,7 +5,7 @@
   for (  List<IN> doc : data) {
     size+=doc.size();
   }
-  log.info("Making Dataset ... ");
+  System.err.print("Making Dataset ... ");
   System.err.flush();
   Dataset<String,String> train=new Dataset<>(size,featureIndex,classIndex);
   for (  List<IN> doc : data) {
@@ -26,14 +26,14 @@
       Collections.reverse(doc);
     }
   }
-  log.info("done.");
+  System.err.println("done.");
   if (flags.featThreshFile != null) {
-    log.info("applying thresholds...");
+    System.err.println("applying thresholds...");
     List<Pair<Pattern,Integer>> thresh=getThresholds(flags.featThreshFile);
     train.applyFeatureCountThreshold(thresh);
   }
  else   if (flags.featureThreshold > 1) {
-    log.info("Removing Features with counts < " + flags.featureThreshold);
+    System.err.println("Removing Features with counts < " + flags.featureThreshold);
     train.applyFeatureCountThreshold(flags.featureThreshold);
   }
   train.summaryStatistics();

@@ -1,7 +1,7 @@
 {
   BufferedReader reader=new BufferedReader(new InputStreamReader(clientSocket.getInputStream(),"utf-8"));
   String line=reader.readLine();
-  log.info(line);
+  System.err.println(line);
   if (line == null)   return;
   line=line.trim();
   String[] pieces=line.split(" ",2);
@@ -15,9 +15,9 @@
   if (pieces.length > 1) {
     arg=pieces[1];
   }
-  log.info("Got the command " + command);
+  System.err.println("Got the command " + command);
   if (arg != null) {
-    log.info(" ... with argument " + arg);
+    System.err.println(" ... with argument " + arg);
   }
 switch (command) {
 case "quit":
@@ -39,6 +39,6 @@ case "lemma":
 handleLemma(arg,clientSocket.getOutputStream());
 break;
 }
-log.info("Handled request");
+System.err.println("Handled request");
 clientSocket.close();
 }

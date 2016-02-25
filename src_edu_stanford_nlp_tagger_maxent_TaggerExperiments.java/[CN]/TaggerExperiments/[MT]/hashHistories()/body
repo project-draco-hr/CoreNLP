@@ -1,13 +1,13 @@
 {
   int fAll=maxentTagger.extractors.size() + maxentTagger.extractorsRare.size();
   int fGeneral=maxentTagger.extractors.size();
-  log.info("Hashing histories ...");
+  System.err.println("Hashing histories ...");
   for (int x=0; x < xSize; x++) {
     History h=tHistories.getHistory(x);
     if (x > 0 && x % 10000 == 0) {
       System.err.printf("%d ",x);
       if (x % 100000 == 0) {
-        log.info();
+        System.err.println();
       }
     }
     int fSize=(maxentTagger.isRare(ExtractorFrames.cWord.extract(h)) ? fAll : fGeneral);
@@ -15,15 +15,15 @@
       tFeature.addPrev(i,h);
     }
   }
-  log.info();
-  log.info("Hashed " + xSize + " histories.");
-  log.info("Hashing populated histories ...");
+  System.err.println();
+  System.err.println("Hashed " + xSize + " histories.");
+  System.err.println("Hashing populated histories ...");
   for (int x=0; x < xSize; x++) {
     History h=tHistories.getHistory(x);
     if (x > 0 && x % 10000 == 0) {
-      log.info(x + " ");
+      System.err.print(x + " ");
       if (x % 100000 == 0) {
-        log.info();
+        System.err.println();
       }
     }
     int fSize=(maxentTagger.isRare(ExtractorFrames.cWord.extract(h)) ? fAll : fGeneral);
@@ -31,6 +31,6 @@
       tFeature.add(i,h,x);
     }
   }
-  log.info();
-  log.info("Hashed populated histories.");
+  System.err.println();
+  System.err.println("Hashed populated histories.");
 }

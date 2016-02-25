@@ -1,7 +1,7 @@
 {
   this.sequence=sequence;
   if (sequence[position] == oldVal)   return;
-  if (VERBOSE)   log.info("changing position " + position + " from "+ classIndex.get(oldVal)+ " to "+ classIndex.get(sequence[position]));
+  if (VERBOSE)   System.err.println("changing position " + position + " from "+ classIndex.get(oldVal)+ " to "+ classIndex.get(sequence[position]));
   if (sequence[position] == backgroundSymbol) {
     String oldRawTag=classIndex.get(oldVal);
     String[] oldParts=oldRawTag.split("-");
@@ -14,7 +14,7 @@
     }
  else {
       if (entities[position] != null) {
-        if (VERBOSE)         log.info("splitting off prev entity");
+        if (VERBOSE)         System.err.println("splitting off prev entity");
         EntityBIO oldEntity=entities[position];
         int oldLen=oldEntity.words.size();
         int offset=position - oldEntity.startPosition;
@@ -27,7 +27,7 @@
         for (int i=0; i < oldLen - offset; i++) {
           entities[position + i]=null;
         }
-        if (VERBOSE && position > 0)         log.info("position:" + position + ", entities[position-1] = "+ entities[position - 1].toString(tagIndex));
+        if (VERBOSE && position > 0)         System.err.println("position:" + position + ", entities[position-1] = "+ entities[position - 1].toString(tagIndex));
       }
     }
   }
@@ -93,7 +93,7 @@
           if (position > 0) {
             if (entities[position - 1] != null) {
               String oldTag=tagIndex.get(entities[position - 1].type);
-              if (VERBOSE)               log.info("position:" + position + ", entities[position-1] = "+ entities[position - 1].toString(tagIndex));
+              if (VERBOSE)               System.err.println("position:" + position + ", entities[position-1] = "+ entities[position - 1].toString(tagIndex));
               EntityBIO entity=extractEntity(sequence,position - 1 - entities[position - 1].words.size() + 1,oldTag);
               addEntityToEntitiesArray(entity);
             }
