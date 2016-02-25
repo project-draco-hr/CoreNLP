@@ -2,8 +2,8 @@
 synchronized (this.impl) {
     if (impl.getCorefChainCount() == 0) {
       this.runLemma(props).runNER(props).runParse(props);
-      Annotator mention=props == EMPTY_PROPS ? defaultMention.get() : AnnotatorFactories.mention(props,backend).create();
-      Annotator coref=props == EMPTY_PROPS ? defaultCoref.get() : AnnotatorFactories.coref(props,backend).create();
+      Annotator mention=props == EMPTY_PROPS ? defaultMention.get() : getOrCreate(AnnotatorFactories.mention(props,backend));
+      Annotator coref=props == EMPTY_PROPS ? defaultCoref.get() : getOrCreate(AnnotatorFactories.coref(props,backend));
       Annotation ann=asAnnotation();
       mention.annotate(ann);
       coref.annotate(ann);

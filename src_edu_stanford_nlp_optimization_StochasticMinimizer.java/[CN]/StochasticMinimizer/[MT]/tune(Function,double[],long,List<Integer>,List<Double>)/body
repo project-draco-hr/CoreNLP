@@ -10,8 +10,8 @@
       System.arraycopy(initial,0,xtest,0,initial.length);
       bSize=batchSizes.get(b);
       gain=gains.get(g);
-      System.err.println("");
-      System.err.println("Testing with batch size: " + bSize + "    gain:  "+ nf.format(gain));
+      log.info("");
+      log.info("Testing with batch size: " + bSize + "    gain:  "+ nf.format(gain));
       this.quiet=true;
       this.minimize(function,1e-100,xtest);
       results[b][g]=function.valueAt(xtest);
@@ -20,9 +20,9 @@
         bOpt=bSize;
         gOpt=gain;
       }
-      System.err.println("");
-      System.err.println("Final value is: " + nf.format(results[b][g]));
-      System.err.println("Optimal so far is:  batch size: " + bOpt + "   gain:  "+ nf.format(gOpt));
+      log.info("");
+      log.info("Final value is: " + nf.format(results[b][g]));
+      log.info("Optimal so far is:  batch size: " + bOpt + "   gain:  "+ nf.format(gOpt));
     }
   }
   return new Pair<>(bOpt,gOpt);

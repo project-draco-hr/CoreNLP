@@ -21,7 +21,7 @@
     int[] docLabels=labels[m];
     double[][][] featureVal3DArr=null;
     if (featureVal != null)     featureVal3DArr=featureVal[m];
-    if (DEBUG)     System.err.println("processing doc " + m);
+    if (DEBUG)     log.info("processing doc " + m);
     NonLinearCliquePotentialFunction cliquePotentialFunction=new NonLinearCliquePotentialFunction(linearWeights,W,U,flags);
     CRFCliqueTree cliqueTree=CRFCliqueTree.getCalibratedCliqueTree(docData,labelIndices,numClasses,classIndex,backgroundSymbol,cliquePotentialFunction,featureVal3DArr);
     int[] given=new int[window - 1];
@@ -40,7 +40,7 @@
         int label=docLabels[i];
         double p=cliqueTree.condLogProbGivenPrevious(i,label,given);
         if (VERBOSE) {
-          System.err.println("P(" + label + "|"+ ArrayMath.toString(given)+ ")="+ p);
+          log.info("P(" + label + "|"+ ArrayMath.toString(given)+ ")="+ p);
         }
         prob+=p;
         System.arraycopy(given,1,given,0,given.length - 1);
@@ -57,7 +57,7 @@
         double[] fDeriv=null;
         double[][] yTimesA=null;
         double[] sumOfYTimesA=null;
-        if (DEBUG)         System.err.print("calculating Ehat[" + i + "]");
+        if (DEBUG)         log.info("calculating Ehat[" + i + "]");
         if (j == 0) {
           double[] featureValArr=null;
           if (featureVal3DArr != null)           featureValArr=featureVal3DArr[i][j];
@@ -183,8 +183,8 @@
             }
           }
         }
-        if (DEBUG)         System.err.println(" done!");
-        if (DEBUG)         System.err.print("calculating E[" + i + "]");
+        if (DEBUG)         log.info(" done!");
+        if (DEBUG)         log.info("calculating E[" + i + "]");
         for (int k=0; k < labelIndex.size(); k++) {
           int[] label=labelIndex.get(k).getLabel();
           double p=cliqueTree.prob(i,label);
@@ -267,7 +267,7 @@
             }
           }
         }
-        if (DEBUG)         System.err.println(" done!");
+        if (DEBUG)         log.info(" done!");
       }
     }
   }
@@ -276,15 +276,15 @@
   }
   value=-prob;
   if (VERBOSE) {
-    System.err.println("value is " + value);
+    log.info("value is " + value);
   }
-  if (DEBUG)   System.err.print("calculating derivative ");
+  if (DEBUG)   log.info("calculating derivative ");
   int index=0;
   for (int i=0; i < E.length; i++) {
     for (int j=0; j < E[i].length; j++) {
       derivative[index++]=(E[i][j] - Ehat[i][j]);
       if (VERBOSE) {
-        System.err.println("linearWeights deriv(" + i + ","+ j+ ") = "+ E[i][j]+ " - "+ Ehat[i][j]+ " = "+ derivative[index - 1]);
+        log.info("linearWeights deriv(" + i + ","+ j+ ") = "+ E[i][j]+ " - "+ Ehat[i][j]+ " = "+ derivative[index - 1]);
       }
     }
   }
@@ -293,7 +293,7 @@
     for (int j=0; j < eW[i].length; j++) {
       derivative[index++]=(eW[i][j] - What[i][j]);
       if (VERBOSE) {
-        System.err.println("inputLayerWeights deriv(" + i + ","+ j+ ") = "+ eW[i][j]+ " - "+ What[i][j]+ " = "+ derivative[index - 1]);
+        log.info("inputLayerWeights deriv(" + i + ","+ j+ ") = "+ eW[i][j]+ " - "+ What[i][j]+ " = "+ derivative[index - 1]);
       }
     }
   }
@@ -304,7 +304,7 @@
         if (flags.hardcodeSoftmaxOutputWeights)         derivative[index++]=0;
  else         derivative[index++]=(eU[i][j] - Uhat[i][j]);
         if (VERBOSE) {
-          System.err.println("outputLayerWeights deriv(" + i + ","+ j+ ") = "+ eU[i][j]+ " - "+ Uhat[i][j]+ " = "+ derivative[index - 1]);
+          log.info("outputLayerWeights deriv(" + i + ","+ j+ ") = "+ eU[i][j]+ " - "+ Uhat[i][j]+ " = "+ derivative[index - 1]);
         }
       }
     }
@@ -314,8 +314,8 @@
   if (flags.skipOutputRegularization || flags.softmaxOutputLayer || flags.hardcodeSoftmaxOutputWeights) {
     regSize=beforeOutputWeights;
   }
-  if (DEBUG)   System.err.println("done!");
-  if (DEBUG)   System.err.print("incorporating priors ...");
+  if (DEBUG)   log.info("done!");
+  if (DEBUG)   log.info("incorporating priors ...");
   if (prior == QUADRATIC_PRIOR) {
     double sigmaSq=sigma * sigma;
     double twoSigmaSq=2.0 * sigmaSq;
@@ -370,5 +370,5 @@
       }
     }
   }
-  if (DEBUG)   System.err.println("done!");
+  if (DEBUG)   log.info("done!");
 }

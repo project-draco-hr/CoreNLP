@@ -1,11 +1,11 @@
 {
-  System.err.println("Reading Embedding Files");
+  System.err.printf("Reading embedding files %s and %s.%n",flags.embeddingWords,flags.embeddingVectors);
   BufferedReader br=IOUtils.readerFromString(flags.embeddingWords);
   List<String> wordList=new ArrayList<>();
   for (String line; (line=br.readLine()) != null; ) {
     wordList.add(line.trim());
   }
-  System.err.println("Found a dictionary of size " + wordList.size());
+  log.info("Found a dictionary of size " + wordList.size());
   br.close();
   embeddings=Generics.newHashMap();
   int count=0;
@@ -19,11 +19,11 @@
     }
  else {
       if (vectorSize != vector.length && !warned) {
-        System.err.println("Inconsistent vector lengths: " + vectorSize + " vs. "+ vector.length);
+        log.info("Inconsistent vector lengths: " + vectorSize + " vs. "+ vector.length);
         warned=true;
       }
     }
     embeddings.put(wordList.get(count++),vector);
   }
-  System.err.println("Found " + count + " matching embeddings of dimension "+ vectorSize);
+  log.info("Found " + count + " matching embeddings of dimension "+ vectorSize);
 }

@@ -1,6 +1,6 @@
 {
   if (args.length != 2) {
-    System.err.println("usage: java TaggerDemo2 modelFile fileToTag");
+    log.info("usage: java TaggerDemo2 modelFile fileToTag");
     return;
   }
   MaxentTagger tagger=new MaxentTagger(args[0]);
@@ -11,9 +11,9 @@
   documentPreprocessor.setTokenizerFactory(ptbTokenizerFactory);
   for (  List<HasWord> sentence : documentPreprocessor) {
     List<TaggedWord> tSentence=tagger.tagSentence(sentence);
-    pw.println(Sentence.listToString(tSentence,false));
+    pw.println(SentenceUtils.listToString(tSentence,false));
   }
-  List<HasWord> sent=Sentence.toWordList("The","slimy","slug","crawled","over","the","long",",","green","grass",".");
+  List<HasWord> sent=SentenceUtils.toWordList("The","slimy","slug","crawled","over","the","long",",","green","grass",".");
   List<TaggedWord> taggedSent=tagger.tagSentence(sent);
   for (  TaggedWord tw : taggedSent) {
     if (tw.tag().startsWith("JJ")) {

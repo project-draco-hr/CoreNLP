@@ -6,7 +6,7 @@
     docs.add(doc);
   }
   if (flags.numOfSlices > 0) {
-    System.err.println("Taking " + flags.numOfSlices + " out of "+ flags.totalDataSlice+ " slices of data for training");
+    log.info("Taking " + flags.numOfSlices + " out of "+ flags.totalDataSlice+ " slices of data for training");
     List<List<IN>> docsToShuffle=new ArrayList<>();
     for (    List<IN> doc : docs) {
       docsToShuffle.add(doc);
@@ -18,12 +18,12 @@
   Collection<List<IN>> totalDocs=loadAuxiliaryData(docs,readerAndWriter);
   makeAnswerArraysAndTagIndex(totalDocs);
   long elapsedMs=timer.stop();
-  System.err.println("Time to convert docs to feature indices: " + Timing.toSecondsString(elapsedMs) + " seconds");
+  log.info("Time to convert docs to feature indices: " + Timing.toSecondsString(elapsedMs) + " seconds");
   if (flags.serializeClassIndexTo != null) {
     timer.start();
     serializeClassIndex(flags.serializeClassIndexTo);
     elapsedMs=timer.stop();
-    System.err.println("Time to export class index : " + Timing.toSecondsString(elapsedMs) + " seconds");
+    log.info("Time to export class index : " + Timing.toSecondsString(elapsedMs) + " seconds");
   }
   if (flags.exportFeatures != null) {
     dumpFeatures(docs);
@@ -32,7 +32,7 @@
     timer.start();
     Triple<int[][][][],int[][],double[][][][]> dataAndLabelsAndFeatureVals=documentsToDataAndLabels(docs);
     elapsedMs=timer.stop();
-    System.err.println("Time to convert docs to data/labels: " + Timing.toSecondsString(elapsedMs) + " seconds");
+    log.info("Time to convert docs to data/labels: " + Timing.toSecondsString(elapsedMs) + " seconds");
     Evaluator[] evaluators=null;
     if (flags.evaluateIters > 0 || flags.terminateOnEvalImprovement) {
       List<Evaluator> evaluatorList=new ArrayList<>();
@@ -83,7 +83,7 @@
     File featIndexFile=null;
     if (flags.saveFeatureIndexToDisk) {
       try {
-        System.err.println("Writing feature index to temporary file.");
+        log.info("Writing feature index to temporary file.");
         featIndexFile=IOUtils.writeObjectToTempFile(featureIndex,"featIndex" + i + ".tmp");
       }
  catch (      IOException e) {
@@ -114,8 +114,8 @@
     }
     if (flags.saveFeatureIndexToDisk) {
       try {
-        System.err.println("Reading temporary feature index file.");
-        featureIndex=(Index<String>)IOUtils.readObjectFromFile(featIndexFile);
+        log.info("Reading temporary feature index file.");
+        featureIndex=IOUtils.readObjectFromFile(featIndexFile);
       }
  catch (      Exception e) {
         throw new RuntimeException("Could not open temporary feature index file for reading.");
@@ -123,7 +123,7 @@
     }
     if (i != flags.numTimesPruneFeatures) {
       dropFeaturesBelowThreshold(flags.featureDiffThresh);
-      System.err.println("Removing features with weight below " + flags.featureDiffThresh + " and retraining...");
+      log.info("Removing features with weight below " + flags.featureDiffThresh + " and retraining...");
     }
   }
 }

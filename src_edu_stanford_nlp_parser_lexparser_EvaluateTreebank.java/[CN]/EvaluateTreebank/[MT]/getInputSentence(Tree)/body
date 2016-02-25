@@ -3,10 +3,10 @@
     if (op.testOptions.preTag) {
       List<TaggedWord> s=tagger.apply(t.yieldWords());
       if (op.testOptions.verbose) {
-        System.err.println("Guess tags: " + Arrays.toString(s.toArray()));
-        System.err.println("Gold tags: " + t.labeledYield().toString());
+        log.info("Guess tags: " + Arrays.toString(s.toArray()));
+        log.info("Gold tags: " + t.labeledYield().toString());
       }
-      return Sentence.toCoreLabelList(s);
+      return SentenceUtils.toCoreLabelList(s);
     }
  else     if (op.testOptions.noFunctionalForcing) {
       ArrayList<? extends HasWord> s=t.taggedYield();
@@ -15,13 +15,13 @@
         tag=tag.split("-")[0];
         ((HasTag)word).setTag(tag);
       }
-      return Sentence.toCoreLabelList(s);
+      return SentenceUtils.toCoreLabelList(s);
     }
  else {
-      return Sentence.toCoreLabelList(t.taggedYield());
+      return SentenceUtils.toCoreLabelList(t.taggedYield());
     }
   }
  else {
-    return Sentence.toCoreLabelList(t.yieldWords());
+    return SentenceUtils.toCoreLabelList(t.yieldWords());
   }
 }

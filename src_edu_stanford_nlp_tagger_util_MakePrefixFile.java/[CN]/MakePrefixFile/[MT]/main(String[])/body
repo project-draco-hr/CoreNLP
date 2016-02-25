@@ -1,15 +1,15 @@
 {
   Properties config=StringUtils.argsToProperties(args);
-  System.err.println(config);
+  log.info(config);
   boolean fullSentence=PropertiesUtils.getBool(config,"fullSentence",false);
   Random random=new Random();
   String tagSeparator=config.getProperty("tagSeparator",TaggerConfig.TAG_SEPARATOR);
   TaggedFileRecord record=TaggedFileRecord.createRecord(config,config.getProperty("input"));
   for (  List<TaggedWord> sentence : record.reader()) {
     int len=random.nextInt(sentence.size()) + 1;
-    System.out.println(Sentence.listToString(sentence.subList(0,len),false,tagSeparator));
+    System.out.println(SentenceUtils.listToString(sentence.subList(0,len),false,tagSeparator));
     if (fullSentence) {
-      System.out.println(Sentence.listToString(sentence,false,tagSeparator));
+      System.out.println(SentenceUtils.listToString(sentence,false,tagSeparator));
     }
   }
 }

@@ -1,3 +1,8 @@
 {
-  return Annotator.REQUIREMENTS.get(STANFORD_COREF);
+  Set<Class<? extends CoreAnnotation>> requirements=new HashSet<>(Arrays.asList(CoreAnnotations.TextAnnotation.class,CoreAnnotations.TokensAnnotation.class,CoreAnnotations.CharacterOffsetBeginAnnotation.class,CoreAnnotations.CharacterOffsetEndAnnotation.class,CoreAnnotations.IndexAnnotation.class,CoreAnnotations.ValueAnnotation.class,CoreAnnotations.SentencesAnnotation.class,CoreAnnotations.SentenceIndexAnnotation.class,CoreAnnotations.ParagraphAnnotation.class,CoreAnnotations.PartOfSpeechAnnotation.class,CoreAnnotations.LemmaAnnotation.class,CoreAnnotations.NamedEntityTagAnnotation.class,CorefCoreAnnotations.CorefMentionsAnnotation.class,CoreAnnotations.UtteranceAnnotation.class,CoreAnnotations.SpeakerAnnotation.class,SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class,SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class));
+  if (CorefProperties.getMDType(this.props) != CorefProperties.MentionDetectionType.DEPENDENCY) {
+    requirements.add(TreeCoreAnnotations.TreeAnnotation.class);
+    requirements.add(CoreAnnotations.CategoryAnnotation.class);
+  }
+  return Collections.unmodifiableSet(requirements);
 }

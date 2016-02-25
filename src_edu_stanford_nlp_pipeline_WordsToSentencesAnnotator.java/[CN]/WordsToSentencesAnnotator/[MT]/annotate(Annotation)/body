@@ -1,8 +1,8 @@
 {
   if (VERBOSE) {
-    System.err.print("Sentence splitting ...");
+    log.info("Sentence splitting ...");
   }
-  if (!annotation.has(CoreAnnotations.TokensAnnotation.class)) {
+  if (!annotation.containsKey(CoreAnnotations.TokensAnnotation.class)) {
     throw new IllegalArgumentException("WordsToSentencesAnnotator: unable to find words/tokens in: " + annotation);
   }
   String text=annotation.get(CoreAnnotations.TextAnnotation.class);
@@ -12,7 +12,7 @@
   int lineNumber=0;
   CoreMap sectionAnnotations=null;
   List<CoreMap> sentences=new ArrayList<>();
-  for (  List<CoreLabel> sentenceTokens : this.wts.process(tokens)) {
+  for (  List<CoreLabel> sentenceTokens : wts.process(tokens)) {
     if (countLineNumbers) {
       ++lineNumber;
     }

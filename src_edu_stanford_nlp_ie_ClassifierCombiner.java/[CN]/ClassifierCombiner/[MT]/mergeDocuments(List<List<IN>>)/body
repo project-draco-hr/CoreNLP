@@ -17,16 +17,16 @@
     baseLabels.add(labs);
   }
   if (DEBUG) {
-    for (int i=0; i < baseLabels.size(); i++)     System.err.println("mergeDocuments: Using classifier #" + i + " for "+ baseLabels.get(i));
-    System.err.println("mergeDocuments: Background symbol is " + background);
-    System.err.println("Base model outputs:");
+    for (int i=0; i < baseLabels.size(); i++)     log.info("mergeDocuments: Using classifier #" + i + " for "+ baseLabels.get(i));
+    log.info("mergeDocuments: Background symbol is " + background);
+    log.info("Base model outputs:");
     for (int i=0; i < baseDocuments.size(); i++) {
       System.err.printf("Output of model #%d:",i);
       for (      IN l : baseDocuments.get(i)) {
-        System.err.print(' ');
-        System.err.print(l.get(CoreAnnotations.AnswerAnnotation.class));
+        log.info(' ');
+        log.info(l.get(CoreAnnotations.AnswerAnnotation.class));
       }
-      System.err.println();
+      log.info();
     }
   }
   List<IN> mainDocument=baseDocuments.get(0);
@@ -34,13 +34,13 @@
     mergeTwoDocuments(mainDocument,baseDocuments.get(i),baseLabels.get(i),background);
   }
   if (DEBUG) {
-    System.err.print("Output of combined model:");
+    log.info("Output of combined model:");
     for (    IN l : mainDocument) {
-      System.err.print(' ');
-      System.err.print(l.get(CoreAnnotations.AnswerAnnotation.class));
+      log.info(' ');
+      log.info(l.get(CoreAnnotations.AnswerAnnotation.class));
     }
-    System.err.println();
-    System.err.println();
+    log.info();
+    log.info();
   }
   return mainDocument;
 }

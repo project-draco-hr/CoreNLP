@@ -1,7 +1,7 @@
 {
   MachineReading mr=new MachineReading(args);
-  Execution.fillOptions(MachineReadingProperties.class,args);
-  System.err.println("PERCENTAGE OF TRAIN: " + MachineReadingProperties.percentageOfTrain);
+  ArgumentParser.fillOptions(MachineReadingProperties.class,args);
+  log.info("PERCENTAGE OF TRAIN: " + MachineReadingProperties.percentageOfTrain);
   Properties props=StringUtils.argsToProperties(args);
   if (props == null) {
     throw new RuntimeException("ERROR: failed to find Properties in the given arguments!");
@@ -15,7 +15,7 @@
   if (auxReader != null) {
     auxReader.setLoggerLevel(readerLogLevel);
   }
-  System.err.println("The reader log level is set to " + readerLogLevel);
+  log.info("The reader log level is set to " + readerLogLevel);
   StanfordCoreNLP pipe=new StanfordCoreNLP(props,false);
   reader.setProcessor(pipe);
   if (auxReader != null) {

@@ -2,7 +2,7 @@
   int macroActiveFeatureTotalCount=0;
   int macroCondensedTotalCount=0;
   int macroDocPosCount=0;
-  System.err.println("initializing data feature hash, sup-data size: " + data.length + ", unsup data size: "+ (totalData.length - data.length));
+  log.info("initializing data feature hash, sup-data size: " + data.length + ", unsup data size: "+ (totalData.length - data.length));
   dataFeatureHash=new ArrayList<>(totalData.length);
   condensedMap=new ArrayList<>(totalData.length);
   dataFeatureHashByDoc=new int[totalData.length][];
@@ -30,7 +30,7 @@
     macroDocPosCount+=aDoc.length;
     macroActiveFeatureTotalCount+=setOfFeatures.size();
     if (CONDENSE) {
-      if (DEBUG3)       System.err.println("Before condense, activeFeatures = " + setOfFeatures.size());
+      if (DEBUG3)       log.info("Before condense, activeFeatures = " + setOfFeatures.size());
       Map<Integer,List<Integer>> condensedFeaturesMap=new HashMap<>();
       int[] representFeatures=new int[aDoc.length];
       Arrays.fill(representFeatures,-1);
@@ -59,11 +59,11 @@
  else {
           if (DEBUG3) {
             condensedCount+=entry.getValue().size();
-            for (            int cond : entry.getValue())             System.err.println("condense " + cond + " to "+ entry.getKey());
+            for (            int cond : entry.getValue())             log.info("condense " + cond + " to "+ entry.getKey());
           }
         }
       }
-      if (DEBUG3)       System.err.println("After condense, activeFeatures = " + setOfFeatures.size() + ", condensedCount = "+ condensedCount);
+      if (DEBUG3)       log.info("After condense, activeFeatures = " + setOfFeatures.size() + ", condensedCount = "+ condensedCount);
       macroCondensedTotalCount+=setOfFeatures.size();
       condensedMap.add(condensedFeaturesMap);
     }
@@ -73,7 +73,7 @@
     for (    Integer ind : setOfFeatures)     arrOfIndex[pos2++]=ind;
     dataFeatureHashByDoc[m]=arrOfIndex;
   }
-  System.err.println("Avg. active features per position: " + (macroActiveFeatureTotalCount / (macroDocPosCount + 0.0)));
-  System.err.println("Avg. condensed features per position: " + (macroCondensedTotalCount / (macroDocPosCount + 0.0)));
-  System.err.println("initializing data feature hash done!");
+  log.info("Avg. active features per position: " + (macroActiveFeatureTotalCount / (macroDocPosCount + 0.0)));
+  log.info("Avg. condensed features per position: " + (macroCondensedTotalCount / (macroDocPosCount + 0.0)));
+  log.info("initializing data feature hash done!");
 }

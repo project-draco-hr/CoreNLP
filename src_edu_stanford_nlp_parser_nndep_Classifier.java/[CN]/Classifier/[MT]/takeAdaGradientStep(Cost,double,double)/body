@@ -18,10 +18,12 @@
       W2[i][j]-=adaAlpha * gradW2[i][j] / Math.sqrt(eg2W2[i][j] + adaEps);
     }
   }
-  for (int i=0; i < E.length; ++i) {
-    for (int j=0; j < E[i].length; ++j) {
-      eg2E[i][j]+=gradE[i][j] * gradE[i][j];
-      E[i][j]-=adaAlpha * gradE[i][j] / Math.sqrt(eg2E[i][j] + adaEps);
+  if (config.doWordEmbeddingGradUpdate) {
+    for (int i=0; i < E.length; ++i) {
+      for (int j=0; j < E[i].length; ++j) {
+        eg2E[i][j]+=gradE[i][j] * gradE[i][j];
+        E[i][j]-=adaAlpha * gradE[i][j] / Math.sqrt(eg2E[i][j] + adaEps);
+      }
     }
   }
 }

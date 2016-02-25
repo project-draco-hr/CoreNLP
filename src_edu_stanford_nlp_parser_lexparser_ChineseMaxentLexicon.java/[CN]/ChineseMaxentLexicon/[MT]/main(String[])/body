@@ -3,17 +3,17 @@
   TreebankLanguagePack ctlp=tlpParams.treebankLanguagePack();
   Options op=new Options(tlpParams);
   TreeAnnotator ta=new TreeAnnotator(tlpParams.headFinder(),tlpParams,op);
-  System.err.println("Reading Trees...");
+  log.info("Reading Trees...");
   FileFilter trainFilter=new NumberRangesFileFilter(args[1],true);
   Treebank trainTreebank=tlpParams.memoryTreebank();
   trainTreebank.loadPath(args[0],trainFilter);
-  System.err.println("Annotating trees...");
+  log.info("Annotating trees...");
   Collection<Tree> trainTrees=new ArrayList<>();
   for (  Tree tree : trainTreebank) {
     trainTrees.add(ta.transformTree(tree));
   }
   trainTreebank=null;
-  System.err.println("Training lexicon...");
+  log.info("Training lexicon...");
   Index<String> wordIndex=new HashIndex<>();
   Index<String> tagIndex=new HashIndex<>();
   int featureLevel=DEFAULT_FEATURE_LEVEL;
@@ -24,7 +24,7 @@
   lex.initializeTraining(trainTrees.size());
   lex.train(trainTrees);
   lex.finishTraining();
-  System.err.print("Testing");
+  log.info("Testing");
   FileFilter testFilter=new NumberRangesFileFilter(args[2],true);
   Treebank testTreebank=tlpParams.memoryTreebank();
   testTreebank.loadPath(args[0],testFilter);
@@ -35,6 +35,6 @@
     }
   }
   int[] totalAndCorrect=lex.testOnTreebank(testWords);
-  System.err.println("done.");
+  log.info("done.");
   System.out.println(totalAndCorrect[1] + " correct out of " + totalAndCorrect[0]+ " -- ACC: "+ ((double)totalAndCorrect[1]) / totalAndCorrect[0]);
 }

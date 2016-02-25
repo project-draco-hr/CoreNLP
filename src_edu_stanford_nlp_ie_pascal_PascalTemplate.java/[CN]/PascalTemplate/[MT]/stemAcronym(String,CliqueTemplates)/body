@@ -4,7 +4,7 @@
   }
   Matcher matcher=acronymPattern.matcher(s);
   if (!matcher.matches() || s.equalsIgnoreCase("www")) {
-    System.err.println("Not a valid acronym: " + s);
+    log.info("Not a valid acronym: " + s);
     return "null";
   }
   String stemmed=matcher.group(1).toLowerCase();
@@ -12,7 +12,7 @@
     stemmed=stemmed.substring(0,stemmed.length() - 1);
   }
   ct.stemmedAcronymIndex.put(s,stemmed);
-  System.err.println("Stemmed: " + s + " to: "+ stemmed);
+  log.info("Stemmed: " + s + " to: "+ stemmed);
   if (ct.inverseAcronymMap.containsKey(stemmed)) {
     HashSet set=(HashSet)ct.inverseAcronymMap.get(stemmed);
     set.add(s);
