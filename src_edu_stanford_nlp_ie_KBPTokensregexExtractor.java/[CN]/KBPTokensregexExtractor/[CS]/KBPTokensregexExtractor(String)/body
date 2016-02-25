@@ -1,16 +1,2 @@
 {
-  logger.log("Creating TokensRegexExtractor");
-  for (  RelationType rel : RelationType.values()) {
-    String path=tokensregexDir + File.separator + rel.canonicalName.replaceAll("/","SLASH")+ ".rules";
-    if (IOUtils.existsInClasspathOrFileSystem(path)) {
-      List<String> listFiles=new ArrayList<>();
-      listFiles.add(tokensregexDir + File.separator + "defs.rules");
-      listFiles.add(path);
-      logger.log("Rule files for relation " + rel + " is "+ path);
-      Env env=TokenSequencePattern.getNewEnv();
-      env.bind("collapseExtractionRules",true);
-      CoreMapExpressionExtractor extr=CoreMapExpressionExtractor.createExtractorFromFiles(env,listFiles).keepTemporaryTags();
-      rules.put(rel,extr);
-    }
-  }
 }
