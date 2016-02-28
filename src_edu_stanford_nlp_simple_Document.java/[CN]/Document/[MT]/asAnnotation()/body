@@ -1,2 +1,18 @@
 {
+synchronized (annotationPool) {
+    Annotation candidate=annotationPool.get(this);
+    if (candidate == null) {
+synchronized (serializer) {
+        candidate=serializer.fromProto(serialize());
+      }
+      annotationPool.put(this,candidate);
+synchronized (annotationPoolKeys) {
+        annotationPoolKeys.addLast(this);
+        while (annotationPoolKeys.size() > MAX_ANNOTATION_POOL_SIZE) {
+          annotationPool.remove(annotationPoolKeys.removeFirst());
+        }
+      }
+    }
+    return candidate;
+  }
 }
