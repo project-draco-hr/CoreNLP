@@ -1,0 +1,35 @@
+{
+  double normGradInDir=ArrayMath.innerProduct(dir,grad);
+  sb.append('(').append(nf.format(normGradInDir)).append(')');
+  if (normGradInDir > 0) {
+    sayln("{WARNING--- direction of positive gradient chosen!}");
+  }
+  double step, c1;
+  if (its <= 2) {
+    step=0.1;
+    c1=0.1;
+  }
+ else {
+    step=1.0;
+    c1=0.1;
+  }
+  double c=0.01;
+  c=c * normGradInDir;
+  double[] newPoint=new double[3];
+  while ((newPoint[f]=func.valueAt((plusAndConstMult(x,dir,step,newX)))) > lastValue + c * step) {
+    fevals+=1;
+    if (newPoint[f] < lastValue) {
+      sb.append('!');
+    }
+ else {
+      sb.append('.');
+    }
+    step=c1 * step;
+  }
+  newPoint[a]=step;
+  fevals+=1;
+  if (fevals > maxFevals) {
+    throw new MaxEvaluationsExceeded("Exceeded during lineSearch() Function.");
+  }
+  return newPoint;
+}
