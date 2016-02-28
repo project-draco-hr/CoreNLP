@@ -1,0 +1,105 @@
+{
+  double xtrapf=4.0;
+  int info=0;
+  int infoc=1;
+  bracketed=false;
+  boolean stage1=true;
+  double width=aMax - aMin;
+  double width1=2 * width;
+  double g0=ArrayMath.innerProduct(grad,dir);
+  if (g0 >= 0) {
+    for (int i=0; i < x.length; i++) {
+      dir[i]=-grad[i];
+    }
+    g0=ArrayMath.innerProduct(grad,dir);
+  }
+  double gTest=ftol * g0;
+  double[] newPt=new double[3];
+  double[] bestPt=new double[3];
+  double[] endPt=new double[3];
+  newPt[a]=1.0;
+  if (its == 1 && noHistory) {
+    newPt[a]=1e-1;
+  }
+  bestPt[a]=0.0;
+  bestPt[f]=f0;
+  bestPt[g]=g0;
+  endPt[a]=0.0;
+  endPt[f]=f0;
+  endPt[g]=g0;
+  do {
+    double stpMin;
+    double stpMax;
+    if (bracketed) {
+      stpMin=Math.min(bestPt[a],endPt[a]);
+      stpMax=Math.max(bestPt[a],endPt[a]);
+    }
+ else {
+      stpMin=bestPt[a];
+      stpMax=newPt[a] + xtrapf * (newPt[a] - bestPt[a]);
+    }
+    newPt[a]=Math.max(newPt[a],aMin);
+    newPt[a]=Math.min(newPt[a],aMax);
+    if ((bracketed && (newPt[a] <= stpMin || newPt[a] >= stpMax)) || fevals >= maxFevals || infoc == 0 || (bracketed && stpMax - stpMin <= tol * stpMax)) {
+      plusAndConstMult(x,dir,bestPt[a],newX);
+      newPt[f]=bestPt[f];
+      newPt[a]=bestPt[a];
+    }
+    newPt[f]=dfunc.valueAt((plusAndConstMult(x,dir,newPt[a],newX)));
+    newPt[g]=ArrayMath.innerProduct(dfunc.derivativeAt(newX),dir);
+    double fTest=f0 + newPt[a] * gTest;
+    fevals+=1;
+    if ((bracketed && (newPt[a] <= stpMin || newPt[a] >= stpMax)) || infoc == 0) {
+      info=6;
+      sayln(" line search failure: bracketed but no feasible found ");
+    }
+    if (newPt[a] == aMax && newPt[f] <= fTest && newPt[g] <= gTest) {
+      info=5;
+      sayln(" line search failure: sufficient decrease, but gradient is more negative ");
+    }
+    if (newPt[a] == aMin && (newPt[f] > fTest || newPt[g] >= gTest)) {
+      info=4;
+      sayln(" line search failure: minimum step length reached ");
+    }
+    if (fevals >= maxFevals) {
+      throw new MaxEvaluationsExceeded("Exceeded during lineSearchMinPack() Function.");
+    }
+    if (bracketed && stpMax - stpMin <= tol * stpMax) {
+      info=2;
+      sayln(" line search failure: interval is too small ");
+    }
+    if (newPt[f] <= fTest && Math.abs(newPt[g]) <= -gtol * g0) {
+      info=1;
+    }
+    if (info != 0) {
+      return newPt;
+    }
+    if (stage1 && newPt[f] <= fTest && newPt[g] >= Math.min(ftol,gtol) * g0) {
+      stage1=false;
+    }
+    if (stage1 && newPt[f] <= bestPt[f] && newPt[f] > fTest) {
+      newPt[f]=newPt[f] - newPt[a] * gTest;
+      bestPt[f]=bestPt[f] - bestPt[a] * gTest;
+      endPt[f]=endPt[f] - endPt[a] * gTest;
+      newPt[g]=newPt[g] - gTest;
+      bestPt[g]=bestPt[g] - gTest;
+      endPt[g]=endPt[g] - gTest;
+      infoc=getStep(newPt,bestPt,endPt,stpMin,stpMax,sb);
+      bestPt[f]=bestPt[f] + bestPt[a] * gTest;
+      endPt[f]=endPt[f] + endPt[a] * gTest;
+      bestPt[g]=bestPt[g] + gTest;
+      endPt[g]=endPt[g] + gTest;
+    }
+ else {
+      infoc=getStep(newPt,bestPt,endPt,stpMin,stpMax,sb);
+    }
+    if (bracketed) {
+      if (Math.abs(endPt[a] - bestPt[a]) >= p66 * width1) {
+        newPt[a]=bestPt[a] + p5 * (endPt[a] - bestPt[a]);
+      }
+      width1=width;
+      width=Math.abs(endPt[a] - bestPt[a]);
+    }
+  }
+ while (true);
+}
