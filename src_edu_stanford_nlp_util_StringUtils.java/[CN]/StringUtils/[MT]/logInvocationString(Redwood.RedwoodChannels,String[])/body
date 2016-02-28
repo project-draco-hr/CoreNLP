@@ -1,9 +1,13 @@
 {
-  StringBuilder sb=new StringBuilder("Invoked on ");
-  sb.append(new Date());
-  sb.append(" with arguments:");
-  for (  String arg : args) {
-    sb.append(' ').append(arg);
+  if (log.channelNames.length > 0) {
+    if (log.channelNames[0] instanceof Class) {
+      log.info(toInvocationString(((Class)log.channelNames[0]).getSimpleName(),args));
+    }
+ else {
+      log.info(toInvocationString(log.channelNames[0].toString(),args));
+    }
   }
-  logger.info(sb.toString());
+ else {
+    log.info(toInvocationString("CoreNLP",args));
+  }
 }
