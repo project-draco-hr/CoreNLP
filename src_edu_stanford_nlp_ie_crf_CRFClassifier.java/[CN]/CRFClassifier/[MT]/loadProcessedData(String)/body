@@ -1,15 +1,11 @@
 {
-  ObjectInputStream ois=null;
-  List<List<CRFDatum<Collection<String>,String>>> result=Collections.emptyList();
+  List<List<CRFDatum<Collection<String>,String>>> result;
   try {
-    ois=new ObjectInputStream(new FileInputStream(filename));
-    result=(List<List<CRFDatum<Collection<String>,String>>>)ois.readObject();
+    result=IOUtils.readObjectFromURLOrClasspathOrFileSystem(filename);
   }
  catch (  Exception e) {
     e.printStackTrace();
-  }
- finally {
-    IOUtils.closeIgnoringExceptions(ois);
+    result=Collections.emptyList();
   }
   log.info("Loading processed data from serialized file ... done. Got " + result.size() + " datums.");
   return result;
