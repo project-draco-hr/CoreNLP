@@ -93,22 +93,22 @@
       continue;
     }
     if (DEBUG) {
-      log.info("!! Conj and prep case:");
-      log.info("  td1 (prep): " + td1);
-      log.info("  Kids of td1 are: " + possibles);
-      log.info("  prepDep: " + prepDep);
-      log.info("  ccDep: " + ccDep);
-      log.info("  conjs: " + conjs);
-      log.info("  samePrepositionInEachConjunct: " + samePrepositionInEachConjunct);
-      log.info("  otherDtrs: " + otherDtrs);
+      System.err.println("!! Conj and prep case:");
+      System.err.println("  td1 (prep): " + td1);
+      System.err.println("  Kids of td1 are: " + possibles);
+      System.err.println("  prepDep: " + prepDep);
+      System.err.println("  ccDep: " + ccDep);
+      System.err.println("  conjs: " + conjs);
+      System.err.println("  samePrepositionInEachConjunct: " + samePrepositionInEachConjunct);
+      System.err.println("  otherDtrs: " + otherDtrs);
     }
     if (samePrepositionInEachConjunct) {
       GrammaticalRelation reln=determinePrepRelation(map,vmod,td1,td1,prepDep.second());
       TypedDependency tdNew=new TypedDependency(reln,td1.gov(),prepDep.first().dep());
       newTypedDeps.add(tdNew);
       if (DEBUG) {
-        log.info("PrepPoss Conj branch (two parallel PPs) adding: " + tdNew);
-        log.info("  removing: " + td1 + "  "+ prepDep+ "  "+ ccDep);
+        System.err.println("PrepPoss Conj branch (two parallel PPs) adding: " + tdNew);
+        System.err.println("  removing: " + td1 + "  "+ prepDep+ "  "+ ccDep);
       }
       td1.setReln(KILL);
       prepDep.first().setReln(KILL);
@@ -118,8 +118,8 @@
         TypedDependency prepOtherDep=trip.second();
         if (prepOtherDep == null) {
           if (DEBUG) {
-            log.info("  apparent misparse: same P twice with only one NP object (prepOtherDep is null)");
-            log.info("  removing: " + conjDep);
+            System.err.println("  apparent misparse: same P twice with only one NP object (prepOtherDep is null)");
+            System.err.println("  removing: " + conjDep);
           }
           ccDep.setReln(KILL);
         }
@@ -127,8 +127,8 @@
           TypedDependency tdNew2=new TypedDependency(conjValue(ccDep.dep().value()),prepDep.first().dep(),prepOtherDep.dep());
           newTypedDeps.add(tdNew2);
           if (DEBUG) {
-            log.info("  adding: " + tdNew2);
-            log.info("  removing: " + conjDep + "  "+ prepOtherDep);
+            System.err.println("  adding: " + tdNew2);
+            System.err.println("  removing: " + conjDep + "  "+ prepOtherDep);
           }
           prepOtherDep.setReln(KILL);
         }
@@ -136,20 +136,20 @@
       }
       for (      TypedDependency otd : otherDtrs) {
         if (DEBUG) {
-          log.info("Changed " + otd);
+          System.err.print("Changed " + otd);
         }
         otd.setGov(td1.gov());
         if (DEBUG) {
-          log.info(" to " + otd);
+          System.err.println(" to " + otd);
         }
       }
       if (DEBUG) {
-        log.info("td1: " + td1 + "; possibles: "+ possibles);
+        System.err.println("td1: " + td1 + "; possibles: "+ possibles);
       }
       for (      TypedDependency td2 : possibles) {
         if (td2.reln() != KILL && td2.gov().equals(td1.dep())) {
           if (DEBUG) {
-            log.info("Changing " + td2 + " to have governor of "+ td1+ " [a]");
+            System.err.println("Changing " + td2 + " to have governor of "+ td1+ " [a]");
           }
           td2.setGov(td1.gov());
         }
@@ -172,8 +172,8 @@
     TypedDependency tdNew=new TypedDependency(reln,td1.gov(),prepDep.first().dep());
     newTypedDeps.add(tdNew);
     if (DEBUG) {
-      log.info("ConjPP (different preps) adding: " + tdNew);
-      log.info("  deleting: " + td1 + "  "+ prepDep.first()+ "  "+ ccDep);
+      System.err.println("ConjPP (different preps) adding: " + tdNew);
+      System.err.println("  deleting: " + td1 + "  "+ prepDep.first()+ "  "+ ccDep);
     }
     td1.setReln(KILL);
     prepDep.first().setReln(KILL);
@@ -192,8 +192,8 @@
       tdNew3=new TypedDependency(reln2,label,prepOtherDep.dep());
       newTypedDeps.add(tdNew3);
       if (DEBUG) {
-        log.info("  adding: " + tdNew2 + "  "+ tdNew3);
-        log.info("  deleting: " + conjDep + "  "+ prepOtherDep);
+        System.err.println("  adding: " + tdNew2 + "  "+ tdNew3);
+        System.err.println("  deleting: " + conjDep + "  "+ prepOtherDep);
       }
       conjDep.setReln(KILL);
       prepOtherDep.setReln(KILL);
@@ -207,7 +207,7 @@
     for (    TypedDependency td2 : possibles) {
       if (td2.reln() != KILL) {
         if (DEBUG) {
-          log.info("Changing " + td2 + " to have governor of "+ td1+ " [b]");
+          System.err.println("Changing " + td2 + " to have governor of "+ td1+ " [b]");
         }
         td2.setGov(td1.gov());
       }
@@ -235,7 +235,7 @@
           }
  else           if ((td2.reln() == PREPOSITIONAL_OBJECT || td2.reln() == PREPOSITIONAL_COMPLEMENT) && (td1DepPOS.equals("IN") || td1DepPOS.equals("TO") || td1DepPOS.equals("VBG")) && (!(td2DepPOS.equals("RB") || td2DepPOS.equals("IN") || td2DepPOS.equals("TO")))&& !isConjWithNoPrep(td2.gov(),possibles)) {
             if (DEBUG) {
-              log.info("(Single prep/poss base case collapsing " + td1 + " and "+ td2);
+              System.err.println("(Single prep/poss base case collapsing " + td1 + " and "+ td2);
             }
             if (td2.reln() == PREPOSITIONAL_COMPLEMENT) {
               pobj=false;
@@ -243,7 +243,7 @@
             GrammaticalRelation reln=determinePrepRelation(map,vmod,td1,td1,pobj);
             TypedDependency td3=new TypedDependency(reln,td1.gov(),td2.dep());
             if (DEBUG) {
-              log.info("PP adding: " + td3 + " deleting: "+ td1+ ' '+ td2);
+              System.err.println("PP adding: " + td3 + " deleting: "+ td1+ ' '+ td2);
             }
             map.get(td3.gov()).add(td3);
             newTypedDeps.add(td3);
@@ -257,7 +257,7 @@
       for (      TypedDependency td2 : possibles) {
         if (td2.reln() != KILL) {
           if (DEBUG) {
-            log.info("Changing " + td2 + " to have governor of "+ td1+ " [c]");
+            System.err.println("Changing " + td2 + " to have governor of "+ td1+ " [c]");
           }
           td2.setGov(td1.gov());
         }
@@ -268,7 +268,7 @@
     TypedDependency td=iter.next();
     if (td.reln() == KILL) {
       if (DEBUG) {
-        log.info("Removing dep killed in poss/prep (conj) collapse: " + td);
+        System.err.println("Removing dep killed in poss/prep (conj) collapse: " + td);
       }
       iter.remove();
     }

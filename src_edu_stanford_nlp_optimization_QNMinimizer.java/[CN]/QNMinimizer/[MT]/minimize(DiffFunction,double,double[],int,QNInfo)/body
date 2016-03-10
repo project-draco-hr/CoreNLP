@@ -1,9 +1,10 @@
 {
+  say("QNMinimizer called on double function of " + dFunction.domainDimension() + " variables,");
   if (mem > 0) {
-    sayln("QNMinimizer called on double function of " + dFunction.domainDimension() + " variables, using M = "+ mem+ '.');
+    sayln(" using M = " + mem + '.');
   }
  else {
-    sayln("QNMinimizer called on double function of " + dFunction.domainDimension() + " variables, using dynamic setting of M.");
+    sayln(" using dynamic setting of M.");
   }
   if (qn == null && presetInfo == null) {
     qn=new QNInfo(mem);
@@ -16,17 +17,18 @@
  else   if (qn != null) {
     noHistory=false;
   }
+  double[] x, newX, rawGrad, grad, newGrad, dir;
+  double value;
   its=0;
   fevals=0;
   success=false;
   qn.scaleOpt=scaleOpt;
-  double[] x=initial;
-  double[] rawGrad=new double[x.length];
-  double[] newGrad=new double[x.length];
-  double[] newX=new double[x.length];
-  double[] dir=new double[x.length];
-  double value=evaluateFunction(dFunction,x,rawGrad);
-  double[] grad;
+  x=initial;
+  rawGrad=new double[x.length];
+  newGrad=new double[x.length];
+  newX=new double[x.length];
+  dir=new double[x.length];
+  value=evaluateFunction(dFunction,x,rawGrad);
   if (useOWLQN) {
     double norm=l1NormOWL(x,dFunction);
     value+=norm * lambdaOWL;
@@ -39,7 +41,7 @@
   PrintWriter infoFile=null;
   if (outputToFile) {
     try {
-      String baseName="QN_m" + mem + '_'+ lsOpt.toString()+ '_'+ scaleOpt.toString();
+      String baseName="QN_m" + mem + "_"+ lsOpt.toString()+ "_"+ scaleOpt.toString();
       outFile=new PrintWriter(new FileOutputStream(baseName + ".output"),true);
       infoFile=new PrintWriter(new FileOutputStream(baseName + ".info"),true);
       infoFile.println(dFunction.domainDimension() + "; DomainDimension ");
@@ -49,7 +51,7 @@
       throw new RuntimeIOException("Caught IOException outputting QN data to file",e);
     }
   }
-  Record rec=new Record(monitor,functionTolerance,outFile);
+  Record rec=new Record(quiet,monitor,functionTolerance,outFile);
   rec.start(value,rawGrad,x);
   maxFevals=(maxFunctionEvaluations > 0) ? maxFunctionEvaluations : Integer.MAX_VALUE;
   sayln("               An explanation of the output:");
@@ -70,21 +72,16 @@
   sayln("EVALSCORE      The last available eval score");
   sayln();
   sayln("Iter ## evals ## <SCALING> [LINESEARCH] VALUE TIME |GNORM| {RELNORM} AVEIMPROVE EVALSCORE");
-  StringBuilder sb=new StringBuilder();
-  eState state=eState.CONTINUE;
   do {
     try {
-      if (!quiet) {
-        sayln(sb.toString());
-      }
-      sb=new StringBuilder();
+      sayln();
       boolean doEval=(its >= 0 && its >= startEvaluateIters && evaluateIters > 0 && its % evaluateIters == 0);
       its+=1;
       double newValue;
-      sb.append("Iter ").append(its).append(" evals ").append(fevals).append(' ');
-      sb.append('<');
-      computeDir(dir,grad,x,qn,dFunction,sb);
-      sb.append("> ");
+      say("Iter " + its + " evals "+ fevals+ ' ');
+      say("<");
+      computeDir(dir,grad,x,qn,dFunction);
+      say("> ");
       boolean hasNaNDir=false;
       boolean hasNaNGrad=false;
       for (int i=0; i < dir.length; i++) {
@@ -92,36 +89,36 @@
         if (grad[i] != grad[i])         hasNaNGrad=true;
       }
       if (hasNaNDir && !hasNaNGrad) {
-        sayln("(NaN dir likely due to Hessian approx - resetting) ");
+        say("(NaN dir likely due to Hessian approx - resetting) ");
         qn.clear();
-        sb.append('<');
-        computeDir(dir,grad,x,qn,dFunction,sb);
-        sb.append("> ");
+        say("<");
+        computeDir(dir,grad,x,qn,dFunction);
+        say("> ");
       }
-      sb.append('[');
+      say("[");
       double[] newPoint;
       if (useOWLQN) {
-        newPoint=lineSearchBacktrackOWL(dFunction,dir,x,newX,grad,value,sb);
-        sb.append('B');
+        newPoint=lineSearchBacktrackOWL(dFunction,dir,x,newX,grad,value);
+        say("B");
       }
  else {
 switch (lsOpt) {
 case BACKTRACK:
-          newPoint=lineSearchBacktrack(dFunction,dir,x,newX,grad,value,sb);
-        sb.append('B');
+          newPoint=lineSearchBacktrack(dFunction,dir,x,newX,grad,value);
+        say("B");
       break;
 case MINPACK:
-    newPoint=lineSearchMinPack(dFunction,dir,x,newX,grad,value,functionTolerance,sb);
-  sb.append('M');
+    newPoint=lineSearchMinPack(dFunction,dir,x,newX,grad,value,functionTolerance);
+  say("M");
 break;
 default :
 throw new IllegalArgumentException("Invalid line search option for QNMinimizer.");
 }
 }
 newValue=newPoint[f];
-sb.append(' ');
-sb.append(nf.format(newPoint[a]));
-sb.append("] ");
+say(" ");
+say(nf.format(newPoint[a]));
+say("] ");
 System.arraycopy(dFunction.derivativeAt(newX),0,newGrad,0,newGrad.length);
 qn.update(newX,x,newGrad,rawGrad,newPoint[a]);
 if (useOWLQN) {
@@ -132,22 +129,27 @@ double evalScore=Double.NEGATIVE_INFINITY;
 if (doEval) {
 evalScore=doEvaluation(newX);
 }
-rec.add(newValue,newGrad,newX,fevals,evalScore,sb);
+rec.add(newValue,newGrad,newX,fevals,evalScore);
 if (iterCallbackFunction != null) {
 iterCallbackFunction.callback(newX,its,newValue,newGrad);
 }
 value=newValue;
 System.arraycopy(newX,0,x,0,x.length);
 System.arraycopy(newGrad,0,grad,0,newGrad.length);
+if (quiet) {
+System.err.print(".");
+}
 if (fevals > maxFevals) {
-throw new MaxEvaluationsExceeded("Exceeded in minimize() loop.");
+throw new MaxEvaluationsExceeded(" Exceeded in minimize() loop ");
 }
 }
  catch (SurpriseConvergence s) {
+sayln();
 sayln("QNMinimizer aborted due to surprise convergence");
 break;
 }
 catch (MaxEvaluationsExceeded m) {
+sayln();
 sayln("QNMinimizer aborted due to maximum number of function evaluations");
 sayln(m.toString());
 sayln("** This is not an acceptable termination of QNMinimizer, consider");
@@ -156,52 +158,54 @@ sayln("** program by checking the QNMinimizer.wasSuccessful() method.");
 break;
 }
 catch (OutOfMemoryError oome) {
+sayln();
 if (!qn.s.isEmpty()) {
 qn.s.remove(0);
 qn.y.remove(0);
 qn.rho.remove(0);
-sb.append("{Caught OutOfMemory, changing m from ").append(qn.mem).append(" to ").append(qn.s.size()).append("}]");
 qn.mem=qn.s.size();
+System.err.println("Caught OutOfMemoryError, changing m = " + qn.mem);
 }
  else {
 throw oome;
 }
 }
 }
- while ((state=rec.toContinue(sb)) == eState.CONTINUE);
+ while ((state=rec.toContinue()) == eState.CONTINUE);
 if (evaluateIters > 0) {
 double evalScore=(useEvalImprovement ? doEvaluation(rec.getBest()) : doEvaluation(x));
 sayln("final evalScore is: " + evalScore);
 }
+System.err.println();
 switch (state) {
 case TERMINATE_GRADNORM:
-sayln("QNMinimizer terminated due to numerically zero gradient: |g| < EPS  max(1,|x|) ");
+System.err.println("QNMinimizer terminated due to numerically zero gradient: |g| < EPS  max(1,|x|) ");
 success=true;
 break;
 case TERMINATE_RELATIVENORM:
-sayln("QNMinimizer terminated due to sufficient decrease in gradient norms: |g|/|g0| < TOL ");
+System.err.println("QNMinimizer terminated due to sufficient decrease in gradient norms: |g|/|g0| < TOL ");
 success=true;
 break;
 case TERMINATE_AVERAGEIMPROVE:
-sayln("QNMinimizer terminated due to average improvement: | newest_val - previous_val | / |newestVal| < TOL ");
+System.err.println("QNMinimizer terminated due to average improvement: | newest_val - previous_val | / |newestVal| < TOL ");
 success=true;
 break;
 case TERMINATE_MAXITR:
-sayln("QNMinimizer terminated due to reached max iteration " + maxItr);
+System.err.println("QNMinimizer terminated due to reached max iteration " + maxItr);
 success=true;
 break;
 case TERMINATE_EVALIMPROVE:
-sayln("QNMinimizer terminated due to no improvement on eval ");
+System.err.println("QNMinimizer terminated due to no improvement on eval ");
 success=true;
 x=rec.getBest();
 break;
 default :
-log.warn("QNMinimizer terminated without converging");
+System.err.println("QNMinimizer terminated without converging");
 success=false;
 break;
 }
 double completionTime=rec.howLong();
-sayln("Total time spent in optimization: " + nfsec.format(completionTime) + 's');
+sayln("Total time spent in optimization: " + nfsec.format(completionTime) + "s");
 if (outputToFile) {
 infoFile.println(completionTime + "; Total Time ");
 infoFile.println(fevals + "; Total evaluations");

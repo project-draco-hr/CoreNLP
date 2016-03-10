@@ -1,16 +1,16 @@
 {
   if (++i % outputFreq == 0) {
-    log.info("Storing interim (float) weights to " + filename + " ... ");
+    System.err.print("Storing interim (float) weights to " + filename + " ... ");
     try {
       DataOutputStream dos=new DataOutputStream(new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(filename))));
       ConvertByteArray.saveFloatArr(dos,x);
       dos.close();
     }
  catch (    IOException e) {
-      log.error("!");
+      System.err.println("ERROR!");
       return 1;
     }
-    log.info("DONE.");
+    System.err.println("DONE.");
   }
   return 0;
 }

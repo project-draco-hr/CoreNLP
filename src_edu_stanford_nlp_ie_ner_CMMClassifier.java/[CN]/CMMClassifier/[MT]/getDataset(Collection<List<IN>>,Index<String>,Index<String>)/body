@@ -4,12 +4,12 @@
   for (  List<IN> doc : data) {
     size+=doc.size();
   }
-  log.info("Making Dataset ... ");
+  System.err.print("Making Dataset ... ");
   System.err.flush();
   Dataset<String,String> train;
   if (featureIndex != null && classIndex != null) {
-    log.info("  Using feature/class Index from existing Dataset...");
-    log.info("  (This is used when getting Dataset from adaptation set. We want to make the index consistent.)");
+    System.err.println("  Using feature/class Index from existing Dataset...");
+    System.err.println("  (This is used when getting Dataset from adaptation set. We want to make the index consistent.)");
     train=new Dataset<>(size,featureIndex,classIndex);
   }
  else {
@@ -27,14 +27,14 @@
       Collections.reverse(doc);
     }
   }
-  log.info("done.");
+  System.err.println("done.");
   if (flags.featThreshFile != null) {
-    log.info("applying thresholds...");
+    System.err.println("applying thresholds...");
     List<Pair<Pattern,Integer>> thresh=getThresholds(flags.featThreshFile);
     train.applyFeatureCountThreshold(thresh);
   }
  else   if (flags.featureThreshold > 1) {
-    log.info("Removing Features with counts < " + flags.featureThreshold);
+    System.err.println("Removing Features with counts < " + flags.featureThreshold);
     train.applyFeatureCountThreshold(flags.featureThreshold);
   }
   train.summaryStatistics();

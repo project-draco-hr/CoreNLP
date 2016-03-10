@@ -3,7 +3,7 @@
     throw new UnsupportedOperationException("Sorry, but parsers with rerankers cannot be saved to text file");
   }
   try {
-    log.info("Writing parser in text grammar format to file " + filename);
+    System.err.print("Writing parser in text grammar format to file " + filename);
     OutputStream os;
     if (filename.endsWith(".gz")) {
       os=new BufferedOutputStream(new GZIPOutputStream(new FileOutputStream(filename)));
@@ -16,44 +16,44 @@
     out.println(prefix + "OPTIONS");
     op.writeData(out);
     out.println();
-    log.info(".");
+    System.err.print(".");
     out.println(prefix + "STATE_INDEX");
     stateIndex.saveToWriter(out);
     out.println();
-    log.info(".");
+    System.err.print(".");
     out.println(prefix + "WORD_INDEX");
     wordIndex.saveToWriter(out);
     out.println();
-    log.info(".");
+    System.err.print(".");
     out.println(prefix + "TAG_INDEX");
     tagIndex.saveToWriter(out);
     out.println();
-    log.info(".");
+    System.err.print(".");
     String uwmClazz=((lex.getUnknownWordModel() == null) ? "null" : lex.getUnknownWordModel().getClass().getCanonicalName());
     out.println(prefix + "LEXICON " + uwmClazz);
     lex.writeData(out);
     out.println();
-    log.info(".");
+    System.err.print(".");
     out.println(prefix + "UNARY_GRAMMAR");
     ug.writeData(out);
     out.println();
-    log.info(".");
+    System.err.print(".");
     out.println(prefix + "BINARY_GRAMMAR");
     bg.writeData(out);
     out.println();
-    log.info(".");
+    System.err.print(".");
     out.println(prefix + "DEPENDENCY_GRAMMAR");
     if (dg != null) {
       dg.writeData(out);
     }
     out.println();
-    log.info(".");
+    System.err.print(".");
     out.flush();
     out.close();
-    log.info("done.");
+    System.err.println("done.");
   }
  catch (  IOException e) {
-    log.info("Trouble saving parser data to ASCII format.");
+    System.err.println("Trouble saving parser data to ASCII format.");
     throw new RuntimeIOException(e);
   }
 }

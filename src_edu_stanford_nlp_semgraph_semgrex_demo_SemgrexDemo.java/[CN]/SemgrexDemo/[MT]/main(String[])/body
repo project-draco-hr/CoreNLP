@@ -5,10 +5,10 @@
   TreebankLangParserParams params=new EnglishTreebankParserParams();
   GrammaticalStructureFactory gsf=params.treebankLanguagePack().grammaticalStructureFactory(params.treebankLanguagePack().punctuationWordRejectFilter(),params.typedDependencyHeadFinder());
   GrammaticalStructure gs=gsf.newGrammaticalStructure(tree);
-  log.info(graph);
+  System.err.println(graph);
   SemgrexPattern semgrex=SemgrexPattern.compile("{}=A <<nsubj {}=B");
   SemgrexMatcher matcher=semgrex.matcher(graph);
   while (matcher.find()) {
-    log.info(matcher.getNode("A") + " <<nsubj " + matcher.getNode("B"));
+    System.err.println(matcher.getNode("A") + " <<nsubj " + matcher.getNode("B"));
   }
 }

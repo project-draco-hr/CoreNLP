@@ -3,10 +3,12 @@
   String[] content;
   if (record.content instanceof Throwable) {
     List<String> lines=new ArrayList<>();
+    StackTraceElement[] trace=null;
+    StackTraceElement topTraceElement=null;
     Throwable exception=(Throwable)record.content;
     lines.add(record.content.toString());
-    StackTraceElement[] trace=exception.getStackTrace();
-    StackTraceElement topTraceElement=trace.length > 0 ? trace[0] : null;
+    trace=exception.getStackTrace();
+    topTraceElement=trace.length > 0 ? trace[0] : null;
     for (    StackTraceElement e : exception.getStackTrace()) {
       lines.add(tab + e.toString());
     }

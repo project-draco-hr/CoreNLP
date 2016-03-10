@@ -4,17 +4,26 @@
   final IndexedWord otherWord=(IndexedWord)o;
   Integer myInd=get(CoreAnnotations.IndexAnnotation.class);
   Integer otherInd=otherWord.get(CoreAnnotations.IndexAnnotation.class);
-  if (!Objects.equals(myInd,otherInd)) {
+  if (myInd == null) {
+    if (otherInd != null)     return false;
+  }
+ else   if (!myInd.equals(otherInd)) {
     return false;
   }
   Integer mySentInd=get(CoreAnnotations.SentenceIndexAnnotation.class);
   Integer otherSentInd=otherWord.get(CoreAnnotations.SentenceIndexAnnotation.class);
-  if (!Objects.equals(mySentInd,otherSentInd)) {
+  if (mySentInd == null) {
+    if (otherSentInd != null)     return false;
+  }
+ else   if (!mySentInd.equals(otherSentInd)) {
     return false;
   }
   String myDocID=getString(CoreAnnotations.DocIDAnnotation.class);
   String otherDocID=otherWord.getString(CoreAnnotations.DocIDAnnotation.class);
-  if (!Objects.equals(myDocID,otherDocID)) {
+  if (myDocID == null) {
+    if (otherDocID != null)     return false;
+  }
+ else   if (!myDocID.equals(otherDocID)) {
     return false;
   }
   if (copyCount() != otherWord.copyCount()) {

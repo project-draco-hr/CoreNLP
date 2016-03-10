@@ -1,12 +1,12 @@
 {
   if (args.length != 2) {
-    log.info("usage: java TaggerDemo modelFile fileToTag");
+    System.err.println("usage: java TaggerDemo modelFile fileToTag");
     return;
   }
   MaxentTagger tagger=new MaxentTagger(args[0]);
   List<List<HasWord>> sentences=MaxentTagger.tokenizeText(new BufferedReader(new FileReader(args[1])));
   for (  List<HasWord> sentence : sentences) {
     List<TaggedWord> tSentence=tagger.tagSentence(sentence);
-    System.out.println(SentenceUtils.listToString(tSentence,false));
+    System.out.println(Sentence.listToString(tSentence,false));
   }
 }

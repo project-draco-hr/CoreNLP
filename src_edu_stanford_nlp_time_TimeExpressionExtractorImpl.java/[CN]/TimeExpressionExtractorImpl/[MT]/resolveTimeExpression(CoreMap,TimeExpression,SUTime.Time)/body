@@ -5,7 +5,7 @@
       int flags=timexPatterns.determineRelFlags(annotation,te);
       SUTime.Temporal grounded=temporal.resolve(docDate,flags);
       if (grounded == null) {
-        logger.debug("Error resolving " + temporal + ", using docDate="+ docDate);
+        logger.warning("Error resolving " + temporal + ", using docDate="+ docDate);
       }
       if (grounded != temporal) {
         te.origTemporal=temporal;
@@ -13,10 +13,7 @@
       }
     }
  catch (    Exception ex) {
-      if (options.verbose) {
-        ex.printStackTrace();
-        logger.warn("Error resolving " + temporal,ex);
-      }
+      logger.log(Level.WARNING,"Error resolving " + temporal,ex);
     }
   }
 }

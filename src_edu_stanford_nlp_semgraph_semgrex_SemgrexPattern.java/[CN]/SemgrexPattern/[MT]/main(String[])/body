@@ -30,7 +30,7 @@
   List<SemanticGraph> graphs=Generics.newArrayList();
   if (argsMap.containsKey(TREE_FILE) && argsMap.get(TREE_FILE).length > 0) {
     for (    String treeFile : argsMap.get(TREE_FILE)) {
-      log.info("Loading file " + treeFile);
+      System.err.println("Loading file " + treeFile);
       MemoryTreebank treebank=new MemoryTreebank(new TreeNormalizer());
       treebank.loadPath(treeFile);
       for (      Tree tree : treebank) {
@@ -42,7 +42,7 @@
   if (argsMap.containsKey(CONLLU_FILE) && argsMap.get(CONLLU_FILE).length > 0) {
     CoNLLUDocumentReader reader=new CoNLLUDocumentReader();
     for (    String conlluFile : argsMap.get(CONLLU_FILE)) {
-      log.info("Loading file " + conlluFile);
+      System.err.println("Loading file " + conlluFile);
       Iterator<SemanticGraph> it=reader.getIterator(IOUtils.readerFromString(conlluFile));
       while (it.hasNext()) {
         SemanticGraph graph=it.next();
@@ -56,18 +56,18 @@
       continue;
     }
     if (outputFormat == OutputFormat.LIST) {
-      log.info("Matched graph:");
-      log.info(graph.toString(SemanticGraph.OutputFormat.LIST));
+      System.err.println("Matched graph:");
+      System.err.println(graph.toString(SemanticGraph.OutputFormat.LIST));
       boolean found=true;
       while (found) {
-        log.info("Matches at: " + matcher.getMatch().value() + "-"+ matcher.getMatch().index());
+        System.err.println("Matches at: " + matcher.getMatch().value() + "-"+ matcher.getMatch().index());
         List<String> nodeNames=Generics.newArrayList();
         nodeNames.addAll(matcher.getNodeNames());
         Collections.sort(nodeNames);
         for (        String name : nodeNames) {
-          log.info("  " + name + ": "+ matcher.getNode(name).value()+ "-"+ matcher.getNode(name).index());
+          System.err.println("  " + name + ": "+ matcher.getNode(name).value()+ "-"+ matcher.getNode(name).index());
         }
-        log.info();
+        System.err.println();
         found=matcher.find();
       }
     }

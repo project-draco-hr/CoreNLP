@@ -17,7 +17,7 @@
   Function<List<HasWord>,List<HasWord>> escaper=new ChineseEscaper();
   int argIndex=0;
   if (args.length < 1) {
-    log.info("usage: java edu.stanford.nlp.parser.lexparser." + "LexicalizedParser parserFileOrUrl filename*");
+    System.err.println("usage: java edu.stanford.nlp.parser.lexparser." + "LexicalizedParser parserFileOrUrl filename*");
     return;
   }
   Options op=new Options();
@@ -98,7 +98,7 @@
  else {
       int j=op.tlpParams.setOptionFlag(args,argIndex);
       if (j == argIndex) {
-        log.info("Unknown option ignored: " + args[argIndex]);
+        System.err.println("Unknown option ignored: " + args[argIndex]);
         j++;
       }
       argIndex=j;
@@ -144,7 +144,7 @@
       cs=new ChineseLexiconAndWordSegmenter(serializedInputFileOrUrl,op);
     }
  catch (    IllegalArgumentException e) {
-      log.info("Error loading segmenter, exiting...");
+      System.err.println("Error loading segmenter, exiting...");
       System.exit(0);
     }
   }
@@ -155,7 +155,7 @@
         throw new RuntimeException("No test treebank path specified...");
       }
  else {
-        log.info("No test treebank path specified.  Using train path: \"" + treebankPath + "\"");
+        System.err.println("No test treebank path specified.  Using train path: \"" + treebankPath + "\"");
         testPath=treebankPath;
       }
     }
@@ -164,7 +164,7 @@
   }
   op.trainOptions.sisterSplitters=Generics.newHashSet(Arrays.asList(tlpParams.sisterSplitters()));
   if (op.testOptions.verbose) {
-    log.info("Lexicon is " + cs.getClass().getName());
+    System.err.println("Lexicon is " + cs.getClass().getName());
   }
   PrintWriter pwOut=tlpParams.pw();
   PrintWriter pwErr=tlpParams.pw(System.err);
@@ -173,7 +173,7 @@
       saveSegmenterDataToText(cs,textOutputFileOrUrl);
     }
  else {
-      log.info("Usage: must specify a text segmenter data output path");
+      System.err.println("Usage: must specify a text segmenter data output path");
     }
   }
   if (saveToSerializedFile) {
@@ -185,7 +185,7 @@
       saveSegmenterDataToSerialized(cs,serializedOutputFileOrUrl);
     }
  else     if (textOutputFileOrUrl == null && testTreebank == null) {
-      log.info("usage: " + "java edu.stanford.nlp.parser.lexparser.ChineseLexiconAndWordSegmenter" + "-train trainFilesPath [start stop] serializedParserFilename");
+      System.err.println("usage: " + "java edu.stanford.nlp.parser.lexparser.ChineseLexiconAndWordSegmenter" + "-train trainFilesPath [start stop] serializedParserFilename");
     }
   }
   if (op.testOptions.verbose) {

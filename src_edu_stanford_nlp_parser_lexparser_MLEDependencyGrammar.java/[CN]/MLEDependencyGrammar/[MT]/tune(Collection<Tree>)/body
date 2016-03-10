@@ -8,7 +8,7 @@
   double bestSmooth_aTW_hTWd=0.0;
   double bestSmooth_aT_hTWd=0.0;
   double bestInterp=0.0;
-  log.info("Tuning smooth_stop...");
+  System.err.println("Tuning smooth_stop...");
   for (smooth_stop=1.0 / 100.0; smooth_stop < 100.0; smooth_stop*=1.25) {
     double totalScore=0.0;
     for (    IntDependency dep : deps) {
@@ -28,18 +28,18 @@
     }
   }
   smooth_stop=bestSmooth_stop;
-  log.info("Tuning selected smooth_stop: " + smooth_stop);
+  System.err.println("Tuning selected smooth_stop: " + smooth_stop);
   for (Iterator<IntDependency> iter=deps.iterator(); iter.hasNext(); ) {
     IntDependency dep=iter.next();
     if (dep.arg.equals(stopTW)) {
       iter.remove();
     }
   }
-  log.info("Tuning other parameters...");
+  System.err.println("Tuning other parameters...");
   if (!useSmoothTagProjection) {
     bestScore=Double.NEGATIVE_INFINITY;
     for (smooth_aTW_hTWd=0.5; smooth_aTW_hTWd < 100.0; smooth_aTW_hTWd*=1.25) {
-      log.info(".");
+      System.err.print(".");
       for (smooth_aT_hTWd=0.5; smooth_aT_hTWd < 100.0; smooth_aT_hTWd*=1.25) {
         for (interp=0.02; interp < 1.0; interp+=0.02) {
           double totalScore=0.0;
@@ -54,7 +54,7 @@
             bestInterp=interp;
             bestSmooth_aTW_hTWd=smooth_aTW_hTWd;
             bestSmooth_aT_hTWd=smooth_aT_hTWd;
-            log.info("Current best interp: " + interp + " with score "+ totalScore);
+            System.err.println("Current best interp: " + interp + " with score "+ totalScore);
           }
         }
       }
@@ -69,11 +69,11 @@
     double bestSmooth_aT_hTd=0.0;
     bestScore=Double.NEGATIVE_INFINITY;
     for (smooth_aTW_hTWd=1.125; smooth_aTW_hTWd < 100.0; smooth_aTW_hTWd*=1.5) {
-      log.info("#");
+      System.err.print("#");
       for (smooth_aT_hTWd=1.125; smooth_aT_hTWd < 100.0; smooth_aT_hTWd*=1.5) {
-        log.info(":");
+        System.err.print(":");
         for (smooth_aTW_aT=1.125; smooth_aTW_aT < 200.0; smooth_aTW_aT*=1.5) {
-          log.info(".");
+          System.err.print(".");
           for (smooth_aTW_hTd=1.125; smooth_aTW_hTd < 100.0; smooth_aTW_hTd*=1.5) {
             for (smooth_aT_hTd=1.125; smooth_aT_hTd < 100.0; smooth_aT_hTd*=1.5) {
               for (interp=0.2; interp <= 0.8; interp+=0.02) {
@@ -92,14 +92,14 @@
                   bestSmooth_aTW_aT=smooth_aTW_aT;
                   bestSmooth_aTW_hTd=smooth_aTW_hTd;
                   bestSmooth_aT_hTd=smooth_aT_hTd;
-                  log.info("Current best interp: " + interp + " with score "+ totalScore);
+                  System.err.println("Current best interp: " + interp + " with score "+ totalScore);
                 }
               }
             }
           }
         }
       }
-      log.info();
+      System.err.println();
     }
     smooth_aTW_hTWd=bestSmooth_aTW_hTWd;
     smooth_aT_hTWd=bestSmooth_aT_hTWd;
@@ -108,5 +108,5 @@
     smooth_aT_hTd=bestSmooth_aT_hTd;
     interp=bestInterp;
   }
-  log.info("\nTuning selected smooth_aTW_hTWd: " + smooth_aTW_hTWd + " smooth_aT_hTWd: "+ smooth_aT_hTWd+ " interp: "+ interp+ " smooth_aTW_aT: "+ smooth_aTW_aT+ " smooth_aTW_hTd: "+ smooth_aTW_hTd+ " smooth_aT_hTd: "+ smooth_aT_hTd);
+  System.err.println("\nTuning selected smooth_aTW_hTWd: " + smooth_aTW_hTWd + " smooth_aT_hTWd: "+ smooth_aT_hTWd+ " interp: "+ interp+ " smooth_aTW_aT: "+ smooth_aTW_aT+ " smooth_aTW_hTd: "+ smooth_aTW_hTd+ " smooth_aT_hTd: "+ smooth_aT_hTd);
 }

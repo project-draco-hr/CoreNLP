@@ -6,9 +6,13 @@
     pw.print(message);
   }
  catch (  Exception e) {
-    throw new RuntimeIOException("Exception in printToFile " + file.getAbsolutePath(),e);
+    System.err.println("Exception: in printToFile " + file.getAbsolutePath());
+    e.printStackTrace();
   }
  finally {
-    IOUtils.closeIgnoringExceptions(pw);
+    if (pw != null) {
+      pw.flush();
+      pw.close();
+    }
   }
 }

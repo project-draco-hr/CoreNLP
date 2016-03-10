@@ -18,19 +18,19 @@
   boolean seen=(c_W > 0.0);
   if (seen) {
     if (DEBUG_LEXICON_SCORE) {
-      log.info("Lexicon.score " + wordIndex.get(iTW.word) + "/"+ tagIndex.get(iTW.tag)+ " as known word.");
+      System.err.println("Lexicon.score " + wordIndex.get(iTW.word) + "/"+ tagIndex.get(iTW.tag)+ " as known word.");
     }
     double p_T_U;
     if (useSignatureForKnownSmoothing) {
       p_T_U=getUnknownWordModel().scoreProbTagGivenWordSignature(iTW,loc,smooth[0],word);
-      if (DEBUG_LEXICON_SCORE)       log.info("With useSignatureForKnownSmoothing, P(T|U) is " + p_T_U + " rather than "+ (c_Tunseen / totalUnseen));
+      if (DEBUG_LEXICON_SCORE)       System.err.println("With useSignatureForKnownSmoothing, P(T|U) is " + p_T_U + " rather than "+ (c_Tunseen / totalUnseen));
     }
  else {
       p_T_U=c_Tunseen / totalUnseen;
     }
     double pb_T_W;
     if (DEBUG_LEXICON_SCORE) {
-      log.info("c_W is " + c_W + " mle = "+ (c_TW / c_W)+ " smoothInUnknownsThresh is "+ smoothInUnknownsThreshold+ " base p_T_U is "+ c_Tunseen+ "/"+ totalUnseen+ " = "+ p_T_U);
+      System.err.println("c_W is " + c_W + " mle = "+ (c_TW / c_W)+ " smoothInUnknownsThresh is "+ smoothInUnknownsThreshold+ " base p_T_U is "+ c_Tunseen+ "/"+ totalUnseen+ " = "+ p_T_U);
     }
     if (c_W > smoothInUnknownsThreshold && c_TW > 0.0 && c_W > 0.0) {
       pb_T_W=c_TW / c_W;
@@ -51,7 +51,7 @@
         }
       }
       if (DEBUG_LEXICON_SCORE) {
-        log.info("c_TW = " + c_TW + " c_W = "+ c_W+ " p_T_U = "+ p_T_U);
+        System.err.println("c_TW = " + c_TW + " c_W = "+ c_W+ " p_T_U = "+ p_T_U);
       }
       pb_T_W=(c_TW + smooth[1] * p_T_U) / (c_W + smooth[1]);
     }

@@ -7,7 +7,7 @@
     copyFile(new File(testFileName),new File(testDirName + "/" + testFileName));
   }
  catch (  IOException e) {
-    log.info("Copy failed");
+    System.err.println("Copy failed");
     System.exit(-1);
   }
   try {
@@ -20,11 +20,11 @@
     }
   }
  catch (  IOException e) {
-    log.info("Tar command failed");
+    System.err.println("Tar command failed");
     System.exit(-1);
   }
 catch (  InterruptedException e) {
-    log.info("Tar command interrupted");
+    System.err.println("Tar command interrupted");
     e.printStackTrace();
     System.exit(-1);
   }
@@ -32,12 +32,12 @@ catch (  InterruptedException e) {
     gzipFile(new File(String.format(testDirName + ".tar")),new File(testDirName + ".tar.gz"));
   }
  catch (  IOException e) {
-    log.info("gzip command failed");
+    System.err.println("gzip command failed");
     System.exit(-1);
   }
   boolean deleteSuccess=deleteDir(new File(testDirName));
   if (!deleteSuccess) {
-    log.info("Could not delete directory");
+    System.err.println("Could not delete directory");
     System.exit(-1);
   }
   System.out.println("Success!");

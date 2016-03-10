@@ -1,7 +1,31 @@
 {
-  Pair<String,Redwood.Flag> pair=getSourceStringAndLevel(channel);
-  Logger impl=Logger.getLogger(pair.first());
-switch (pair.second()) {
+  Class source=null;
+  Object backupSource=null;
+  Redwood.Flag flag=Redwood.Flag.STDOUT;
+  for (  Object c : channel) {
+    if (c instanceof Class) {
+      source=(Class)c;
+    }
+ else     if (c instanceof Redwood.Flag) {
+      if (c != Redwood.Flag.FORCE) {
+        flag=(Redwood.Flag)c;
+      }
+    }
+ else {
+      backupSource=c;
+    }
+  }
+  Logger impl=null;
+  if (source != null) {
+    impl=Logger.getLogger(source.getName());
+  }
+ else   if (backupSource != null) {
+    impl=Logger.getLogger(backupSource.toString());
+  }
+ else {
+    impl=Logger.getLogger("CoreNLP");
+  }
+switch (flag) {
 case ERROR:
     impl.log(Level.SEVERE,line);
   break;
@@ -17,5 +41,7 @@ impl.info(line);
 break;
 case FORCE:
 throw new IllegalStateException("Should not reach this switch case");
+default :
+throw new IllegalStateException("Unknown Redwood flag for slf4j integration: " + flag);
 }
 }

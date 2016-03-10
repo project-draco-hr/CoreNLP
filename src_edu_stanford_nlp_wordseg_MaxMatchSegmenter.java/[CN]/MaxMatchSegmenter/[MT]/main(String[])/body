@@ -24,15 +24,15 @@
       String outputLine=null;
       if (props.getProperty("greedy") != null) {
         ArrayList<Word> sentence=seg.greedilySegmentWords(line);
-        outputLine=SentenceUtils.listToString(sentence);
+        outputLine=Sentence.listToString(sentence);
       }
  else       if (props.getProperty("maxwords") != null) {
         seg.buildSegmentationLattice(line);
-        outputLine=SentenceUtils.listToString(seg.segmentWords(MatchHeuristic.MAXWORDS));
+        outputLine=Sentence.listToString(seg.segmentWords(MatchHeuristic.MAXWORDS));
       }
  else {
         seg.buildSegmentationLattice(line);
-        outputLine=SentenceUtils.listToString(seg.maxMatchSegmentation());
+        outputLine=Sentence.listToString(seg.maxMatchSegmentation());
       }
       StringReader strR=new StringReader(outputLine);
       Iterator<List<CoreLabel>> itr=sighanRW.getIterator(strR);

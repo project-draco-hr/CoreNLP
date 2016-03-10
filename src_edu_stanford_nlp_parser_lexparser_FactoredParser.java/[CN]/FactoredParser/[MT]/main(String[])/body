@@ -1,6 +1,6 @@
 {
   Options op=new Options(new EnglishTreebankParserParams());
-  StringUtils.logInvocationString(log,args);
+  System.out.println(StringUtils.toInvocationString("FactoredParser",args));
   String path="/u/nlp/stuff/corpora/Treebank3/parsed/mrg/wsj";
   int trainLow=200, trainHigh=2199, testLow=2200, testHigh=2219;
   String serializeFile=null;
@@ -29,15 +29,15 @@
         op.tlpParams=(TreebankLangParserParams)Class.forName(args[i + 1]).newInstance();
       }
  catch (      ClassNotFoundException e) {
-        log.info("Class not found: " + args[i + 1]);
+        System.err.println("Class not found: " + args[i + 1]);
         throw new RuntimeException(e);
       }
 catch (      InstantiationException e) {
-        log.info("Couldn't instantiate: " + args[i + 1] + ": "+ e.toString());
+        System.err.println("Couldn't instantiate: " + args[i + 1] + ": "+ e.toString());
         throw new RuntimeException(e);
       }
 catch (      IllegalAccessException e) {
-        log.info("illegal access" + e);
+        System.err.println("illegal access" + e);
         throw new RuntimeException(e);
       }
       i+=2;
@@ -61,14 +61,14 @@ catch (      IllegalAccessException e) {
   Treebank trainTreebank=op.tlpParams.memoryTreebank();
   MemoryTreebank testTreebank=op.tlpParams.testMemoryTreebank();
   Timing.startTime();
-  log.info("Reading trees...");
+  System.err.print("Reading trees...");
   testTreebank.loadPath(path,new NumberRangeFileFilter(testLow,testHigh,true));
   if (op.testOptions.increasingLength) {
     Collections.sort(testTreebank,new TreeLengthComparator());
   }
   trainTreebank.loadPath(path,new NumberRangeFileFilter(trainLow,trainHigh,true));
   Timing.tick("done.");
-  log.info("Binarizing trees...");
+  System.err.print("Binarizing trees...");
   TreeAnnotatorAndBinarizer binarizer;
   if (!op.trainOptions.leftToRight) {
     binarizer=new TreeAnnotatorAndBinarizer(op.tlpParams,op.forceCNF,!op.trainOptions.outsideFactor(),true,op);
@@ -99,7 +99,7 @@ catch (      IllegalAccessException e) {
           }
         }
       }
-      log.info("Removed from vertical splitters: " + deleted);
+      System.err.println("Removed from vertical splitters: " + deleted);
     }
   }
   if (op.trainOptions.selectivePostSplit) {
@@ -143,7 +143,7 @@ catch (      IllegalAccessException e) {
   Index<String> stateIndex=new HashIndex<>();
   Extractor<Pair<UnaryGrammar,BinaryGrammar>> bgExtractor=new BinaryGrammarExtractor(op,stateIndex);
   if (op.doPCFG) {
-    log.info("Extracting PCFG...");
+    System.err.print("Extracting PCFG...");
     Pair<UnaryGrammar,BinaryGrammar> bgug=null;
     if (op.trainOptions.cheatPCFG) {
       List<Tree> allTrees=new ArrayList<>(binaryTrainTrees);
@@ -159,7 +159,7 @@ catch (      IllegalAccessException e) {
     ug.purgeRules();
     Timing.tick("done.");
   }
-  log.info("Extracting Lexicon...");
+  System.err.print("Extracting Lexicon...");
   Index<String> wordIndex=new HashIndex<>();
   Index<String> tagIndex=new HashIndex<>();
   lex=op.tlpParams.lex(op,wordIndex,tagIndex);
@@ -168,7 +168,7 @@ catch (      IllegalAccessException e) {
   lex.finishTraining();
   Timing.tick("done.");
   if (op.doDep) {
-    log.info("Extracting Dependencies...");
+    System.err.print("Extracting Dependencies...");
     binaryTrainTrees.clear();
     Extractor<DependencyGrammar> dgExtractor=new MLEDependencyGrammarExtractor(op,wordIndex,tagIndex);
     dg=dgExtractor.extract(binaryTrainTrees);
@@ -181,7 +181,7 @@ catch (      IllegalAccessException e) {
   UnaryGrammar boundUG=ug;
   GrammarProjection gp=new NullGrammarProjection(bg,ug);
   if (serializeFile != null) {
-    log.info("Serializing parser...");
+    System.err.print("Serializing parser...");
     LexicalizedParser parser=new LexicalizedParser(lex,bg,ug,dg,stateIndex,wordIndex,tagIndex,op);
     parser.saveParserToSerialized(serializeFile);
     Timing.tick("done.");
@@ -217,8 +217,8 @@ catch (      IllegalAccessException e) {
       tagger=(Function<List<? extends HasWord>,ArrayList<TaggedWord>>)Class.forName("edu.stanford.nlp.tagger.maxent.MaxentTagger").getConstructor(argsClass).newInstance(arguments);
     }
  catch (    Exception e) {
-      log.info(e);
-      log.info("Warning: No pretagging of sentences will be done.");
+      System.err.println(e);
+      System.err.println("Warning: No pretagging of sentences will be done.");
     }
   }
   for (int tNum=0, ttSize=testTreebank.size(); tNum < ttSize; tNum++) {
@@ -255,7 +255,7 @@ catch (      IllegalAccessException e) {
     }
     long timeMil2=System.currentTimeMillis();
     long elapsed=timeMil2 - timeMil1;
-    log.info("Time: " + ((int)(elapsed / 100)) / 10.00 + " sec.");
+    System.err.println("Time: " + ((int)(elapsed / 100)) / 10.00 + " sec.");
     Tree tree2b=null;
     Tree tree2=null;
     if (op.doPCFG) {
@@ -278,7 +278,7 @@ catch (      IllegalAccessException e) {
         }
       }
  catch (      NullPointerException e) {
-        log.info("Blocked, using PCFG parse!");
+        System.err.println("Blocked, using PCFG parse!");
         tree4=tree2b;
       }
     }

@@ -1,19 +1,19 @@
 {
-  log.info("Checking model correctness; x size " + p.data.xSize + ' '+ ", ysize "+ p.data.ySize);
+  System.err.println("Checking model correctness; x size " + p.data.xSize + ' '+ ", ysize "+ p.data.ySize);
   NumberFormat nf=NumberFormat.getNumberInstance();
   nf.setMaximumFractionDigits(4);
   boolean flag=true;
   for (int f=0; f < lambda.length; f++) {
     if (Math.abs(lambda[f]) > 100) {
-      log.info(" Lambda too big " + lambda[f]);
-      log.info(" empirical " + ftildeArr[f] + " expected "+ fExpected(p.functions.get(f)));
+      System.err.println(" Lambda too big " + lambda[f]);
+      System.err.println(" empirical " + ftildeArr[f] + " expected "+ fExpected(p.functions.get(f)));
     }
   }
   for (int i=0; i < ftildeArr.length; i++) {
     double exp=Math.abs(ftildeArr[i] - fExpected(p.functions.get(i)));
     if (exp > 0.001) {
       flag=false;
-      log.info("Constraint " + i + " not satisfied emp "+ nf.format(ftildeArr[i])+ " exp "+ nf.format(fExpected(p.functions.get(i)))+ " diff "+ nf.format(exp)+ " lambda "+ nf.format(lambda[i]));
+      System.err.println("Constraint " + i + " not satisfied emp "+ nf.format(ftildeArr[i])+ " exp "+ nf.format(fExpected(p.functions.get(i)))+ " diff "+ nf.format(exp)+ " lambda "+ nf.format(lambda[i]));
     }
   }
   for (int x=0; x < p.data.xSize; x++) {
@@ -23,9 +23,9 @@
     }
     if (Math.abs(s - 1) > 0.0001) {
       for (int y=0; y < p.data.ySize; y++) {
-        log.info(y + " : " + probConds[x][y]);
+        System.err.println(y + " : " + probConds[x][y]);
       }
-      log.info("probabilities do not sum to one " + x + ' '+ (float)s);
+      System.err.println("probabilities do not sum to one " + x + ' '+ (float)s);
     }
   }
   return flag;
