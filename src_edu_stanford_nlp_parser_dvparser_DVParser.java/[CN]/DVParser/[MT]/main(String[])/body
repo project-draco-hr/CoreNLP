@@ -3,11 +3,11 @@
     help();
     System.exit(2);
   }
-  System.err.println("Running DVParser with arguments:");
+  log.info("Running DVParser with arguments:");
   for (  String arg : args) {
-    System.err.print("  " + arg);
+    log.info("  " + arg);
   }
-  System.err.println();
+  log.info();
   String parserPath=null;
   String trainTreebankPath=null;
   FileFilter trainTreebankFilter=null;
@@ -107,7 +107,7 @@
         trainSentences.add(pair.first());
         trainCompressedParses.put(pair.first(),pair.second());
       }
-      System.err.println("Read in " + cache.size() + " trees from "+ path);
+      log.info("Read in " + cache.size() + " trees from "+ path);
     }
   }
   if (trainTreebankPath != null) {
@@ -116,38 +116,38 @@
     ;
     treebank.loadPath(trainTreebankPath,trainTreebankFilter);
     treebank=treebank.transform(transformer);
-    System.err.println("Read in " + treebank.size() + " trees from "+ trainTreebankPath);
+    log.info("Read in " + treebank.size() + " trees from "+ trainTreebankPath);
     CacheParseHypotheses cacher=new CacheParseHypotheses(dvparser.parser);
     CacheParseHypotheses.CacheProcessor processor=new CacheParseHypotheses.CacheProcessor(cacher,lexparser,dvparser.op.trainOptions.dvKBest,transformer);
     for (    Tree tree : treebank) {
       trainSentences.add(tree);
       trainCompressedParses.put(tree,processor.process(tree).second);
     }
-    System.err.println("Finished parsing " + treebank.size() + " trees, getting "+ dvparser.op.trainOptions.dvKBest+ " hypotheses each");
+    log.info("Finished parsing " + treebank.size() + " trees, getting "+ dvparser.op.trainOptions.dvKBest+ " hypotheses each");
   }
   if ((runTraining || runGradientCheck) && filter) {
-    System.err.println("Filtering rules for the given training set");
+    log.info("Filtering rules for the given training set");
     dvparser.dvModel.setRulesForTrainingSet(trainSentences,trainCompressedParses);
-    System.err.println("Done filtering rules; " + dvparser.dvModel.numBinaryMatrices + " binary matrices, "+ dvparser.dvModel.numUnaryMatrices+ " unary matrices, "+ dvparser.dvModel.wordVectors.size()+ " word vectors");
+    log.info("Done filtering rules; " + dvparser.dvModel.numBinaryMatrices + " binary matrices, "+ dvparser.dvModel.numUnaryMatrices+ " unary matrices, "+ dvparser.dvModel.wordVectors.size()+ " word vectors");
   }
   Treebank testTreebank=null;
   if (testTreebankPath != null) {
-    System.err.println("Reading in trees from " + testTreebankPath);
+    log.info("Reading in trees from " + testTreebankPath);
     if (testTreebankFilter != null) {
-      System.err.println("Filtering on " + testTreebankFilter);
+      log.info("Filtering on " + testTreebankFilter);
     }
     testTreebank=dvparser.getOp().tlpParams.memoryTreebank();
     ;
     testTreebank.loadPath(testTreebankPath,testTreebankFilter);
-    System.err.println("Read in " + testTreebank.size() + " trees for testing");
+    log.info("Read in " + testTreebank.size() + " trees for testing");
   }
   if (runGradientCheck) {
-    System.err.println("Running gradient check on " + trainSentences.size() + " trees");
+    log.info("Running gradient check on " + trainSentences.size() + " trees");
     dvparser.runGradientCheck(trainSentences,trainCompressedParses);
   }
   if (runTraining) {
-    System.err.println("Training the RNN parser");
-    System.err.println("Current train options: " + dvparser.getOp().trainOptions);
+    log.info("Training the RNN parser");
+    log.info("Current train options: " + dvparser.getOp().trainOptions);
     dvparser.train(trainSentences,trainCompressedParses,testTreebank,modelPath,resultsRecordPath);
     if (modelPath != null) {
       dvparser.saveModel(modelPath);
@@ -157,5 +157,5 @@
     EvaluateTreebank evaluator=new EvaluateTreebank(dvparser.attachModelToLexicalizedParser());
     evaluator.testOnTreebank(testTreebank);
   }
-  System.err.println("Successfully ran DVParser");
+  log.info("Successfully ran DVParser");
 }

@@ -18,7 +18,7 @@
     CollinsPuncTransformer collinsPuncTransformer=new CollinsPuncTransformer(tlp);
     trainTransformer.addTransformer(collinsPuncTransformer);
   }
-  System.err.print("Binarizing trees...");
+  log.info("Binarizing trees...");
   TreeAnnotatorAndBinarizer binarizer;
   if (!op.trainOptions.leftToRight) {
     binarizer=new TreeAnnotatorAndBinarizer(tlpParams,op.forceCNF,!op.trainOptions.outsideFactor(),!op.trainOptions.predictSplits,op);
@@ -44,7 +44,7 @@
     if (op.testOptions.verbose) {
       List<String> list=new ArrayList<>(op.trainOptions.splitters);
       Collections.sort(list);
-      System.err.println("Parent split categories: " + list);
+      log.info("Parent split categories: " + list);
     }
   }
   if (op.trainOptions.selectivePostSplit) {
@@ -52,7 +52,7 @@
     wholeTreebank=wholeTreebank.transform(myTransformer);
     op.trainOptions.postSplitters=ParentAnnotationStats.getSplitCategories(wholeTreebank,true,0,op.trainOptions.selectivePostSplitCutOff,op.trainOptions.tagSelectivePostSplitCutOff,tlp);
     if (op.testOptions.verbose) {
-      System.err.println("Parent post annotation split categories: " + op.trainOptions.postSplitters);
+      log.info("Parent post annotation split categories: " + op.trainOptions.postSplitters);
     }
   }
   if (op.trainOptions.hSelSplit) {

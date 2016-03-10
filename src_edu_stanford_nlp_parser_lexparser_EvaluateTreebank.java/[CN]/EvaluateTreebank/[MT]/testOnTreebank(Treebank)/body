@@ -1,5 +1,5 @@
 {
-  System.err.println("Testing on treebank");
+  log.info("Testing on treebank");
   Timing treebankTotalTimer=new Timing();
   TreePrint treePrint=op.testOptions.treePrint(op.tlpParams);
   TreebankLangParserParams tlpParams=op.tlpParams;
@@ -46,7 +46,7 @@
     for (    Tree goldTree : testTreebank) {
       List<? extends HasWord> sentence=getInputSentence(goldTree);
       goldTrees.add(goldTree);
-      pwErr.println("Parsing [len. " + sentence.size() + "]: "+ Sentence.listToString(sentence));
+      pwErr.println("Parsing [len. " + sentence.size() + "]: "+ SentenceUtils.listToString(sentence));
       wrapper.put(sentence);
       while (wrapper.peek()) {
         ParserQuery pq=wrapper.poll();
@@ -65,7 +65,7 @@
     ParserQuery pq=pqFactory.parserQuery();
     for (    Tree goldTree : testTreebank) {
       final List<CoreLabel> sentence=getInputSentence(goldTree);
-      pwErr.println("Parsing [len. " + sentence.size() + "]: "+ Sentence.listToString(sentence));
+      pwErr.println("Parsing [len. " + sentence.size() + "]: "+ SentenceUtils.listToString(sentence));
       pq.parseAndReport(sentence,pwErr);
       processResults(pq,goldTree,pwErr,pwOut,pwFileOut,pwStats,treePrint);
     }

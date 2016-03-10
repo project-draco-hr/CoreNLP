@@ -28,7 +28,7 @@
   String elementDelimiter=null;
   int argIndex=0;
   if (args.length < 1) {
-    System.err.println("Basic usage (see Javadoc for more): java edu.stanford.nlp.parser.lexparser.LexicalizedParser parserFileOrUrl filename*");
+    log.info("Basic usage (see Javadoc for more): java edu.stanford.nlp.parser.lexparser.LexicalizedParser parserFileOrUrl filename*");
     return;
   }
   Options op=new Options();
@@ -54,15 +54,15 @@
         op.tlpParams=(TreebankLangParserParams)Class.forName(args[argIndex + 1]).newInstance();
       }
  catch (      ClassNotFoundException e) {
-        System.err.println("Class not found: " + args[argIndex + 1]);
+        log.info("Class not found: " + args[argIndex + 1]);
         throw new RuntimeException(e);
       }
 catch (      InstantiationException e) {
-        System.err.println("Couldn't instantiate: " + args[argIndex + 1] + ": "+ e.toString());
+        log.info("Couldn't instantiate: " + args[argIndex + 1] + ": "+ e.toString());
         throw new RuntimeException(e);
       }
 catch (      IllegalAccessException e) {
-        System.err.println("Illegal access" + e);
+        log.info("Illegal access" + e);
         throw new RuntimeException(e);
       }
       argIndex+=2;
@@ -82,7 +82,7 @@ catch (      IllegalAccessException e) {
         escaper=ReflectionLoading.loadByReflection(args[argIndex + 1]);
       }
  catch (      Exception e) {
-        System.err.println("Couldn't instantiate escaper " + args[argIndex + 1] + ": "+ e);
+        log.info("Couldn't instantiate escaper " + args[argIndex + 1] + ": "+ e);
       }
       argIndex+=2;
     }
@@ -124,7 +124,7 @@ catch (      IllegalAccessException e) {
  else     if (args[argIndex].equalsIgnoreCase("-saveToSerializedFile")) {
       saveToSerializedFile=true;
       if (ArgUtils.numSubArgs(args,argIndex) < 1) {
-        System.err.println("Missing path: -saveToSerialized filename");
+        log.info("Missing path: -saveToSerialized filename");
       }
  else {
         serializedOutputFileOrUrl=args[argIndex + 1];
@@ -164,7 +164,7 @@ catch (      IllegalAccessException e) {
         throw new RuntimeException("No tune treebank path specified...");
       }
  else {
-        System.err.println("No tune treebank path specified.  Using train path: \"" + treebankPath + '\"');
+        log.info("No tune treebank path specified.  Using train path: \"" + treebankPath + '\"');
         tunePath=treebankPath;
       }
     }
@@ -207,7 +207,7 @@ catch (      IllegalAccessException e) {
       argIndex++;
     }
     if (serializedInputFileOrUrl == null) {
-      System.err.println("No grammar specified, exiting...");
+      log.info("No grammar specified, exiting...");
       return;
     }
     String[] extraArgs=new String[optionArgs.size()];
@@ -217,7 +217,7 @@ catch (      IllegalAccessException e) {
       op=lp.op;
     }
  catch (    IllegalArgumentException e) {
-      System.err.println("Error loading parser, exiting...");
+      log.info("Error loading parser, exiting...");
       throw e;
     }
   }
@@ -241,7 +241,7 @@ catch (      IllegalAccessException e) {
       }
     }
  catch (    IllegalAccessException|InvocationTargetException|ClassNotFoundException|NoSuchMethodException e) {
-      System.err.println("Couldn't instantiate TokenizerFactory " + tokenizerFactoryClass + " with options "+ tokenizerOptions);
+      log.info("Couldn't instantiate TokenizerFactory " + tokenizerFactoryClass + " with options "+ tokenizerOptions);
       throw new RuntimeException(e);
     }
   }
@@ -255,7 +255,7 @@ catch (      IllegalAccessException e) {
         throw new RuntimeException("No test treebank path specified...");
       }
  else {
-        System.err.println("No test treebank path specified.  Using train path: \"" + treebankPath + '\"');
+        log.info("No test treebank path specified.  Using train path: \"" + treebankPath + '\"');
         testPath=treebankPath;
       }
     }
@@ -268,7 +268,7 @@ catch (      IllegalAccessException e) {
       lp.saveParserToTextFile(textOutputFileOrUrl);
     }
  else {
-      System.err.println("Usage: must specify a text grammar output path");
+      log.info("Usage: must specify a text grammar output path");
     }
   }
   if (saveToSerializedFile) {
@@ -276,17 +276,17 @@ catch (      IllegalAccessException e) {
       lp.saveParserToSerialized(serializedOutputFileOrUrl);
     }
  else     if (textOutputFileOrUrl == null && testTreebank == null) {
-      System.err.println("usage: " + "java edu.stanford.nlp.parser.lexparser.LexicalizedParser " + "-train trainFilesPath [fileRange] -saveToSerializedFile serializedParserFilename");
+      log.info("usage: " + "java edu.stanford.nlp.parser.lexparser.LexicalizedParser " + "-train trainFilesPath [fileRange] -saveToSerializedFile serializedParserFilename");
     }
   }
   if (op.testOptions.verbose || train) {
     String lexNumRules=lp.lex != null ? Integer.toString(lp.lex.numRules()) : "";
-    System.err.println("Grammar\tStates\tTags\tWords\tUnaryR\tBinaryR\tTaggings");
-    System.err.println("Grammar\t" + lp.stateIndex.size() + '\t'+ lp.tagIndex.size()+ '\t'+ lp.wordIndex.size()+ '\t'+ (lp.ug != null ? lp.ug.numRules() : "")+ '\t'+ (lp.bg != null ? lp.bg.numRules() : "")+ '\t'+ lexNumRules);
-    System.err.println("ParserPack is " + op.tlpParams.getClass().getName());
-    System.err.println("Lexicon is " + lp.lex.getClass().getName());
+    log.info("Grammar\tStates\tTags\tWords\tUnaryR\tBinaryR\tTaggings");
+    log.info("Grammar\t" + lp.stateIndex.size() + '\t'+ lp.tagIndex.size()+ '\t'+ lp.wordIndex.size()+ '\t'+ (lp.ug != null ? lp.ug.numRules() : "")+ '\t'+ (lp.bg != null ? lp.bg.numRules() : "")+ '\t'+ lexNumRules);
+    log.info("ParserPack is " + op.tlpParams.getClass().getName());
+    log.info("Lexicon is " + lp.lex.getClass().getName());
     if (op.testOptions.verbose) {
-      System.err.println("Tags are: " + lp.tagIndex);
+      log.info("Tags are: " + lp.tagIndex);
     }
     printOptions(false,op);
   }

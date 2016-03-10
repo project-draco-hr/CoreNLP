@@ -1,17 +1,11 @@
 {
   this.options=options;
-  if (options.verbose) {
-    logger.setLevel(Level.FINE);
-  }
- else {
-    logger.setLevel(Level.SEVERE);
-  }
   NumberNormalizer.setVerbose(options.verbose);
+  CoreMapExpressionExtractor.setVerbose(options.verbose);
   if (options.grammarFilename == null) {
     options.grammarFilename=Options.DEFAULT_GRAMMAR_FILES;
     logger.warning("Time rules file is not specified: using default rules at " + options.grammarFilename);
   }
   timexPatterns=new GenericTimeExpressionPatterns(options);
   this.expressionExtractor=timexPatterns.createExtractor();
-  this.expressionExtractor.setLogger(logger);
 }

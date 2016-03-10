@@ -44,11 +44,11 @@
     }
   }
   if (outputFilename.equals("")) {
-    System.err.println("Must specify an output filename, -output");
+    log.info("Must specify an output filename, -output");
     System.exit(2);
   }
   if (inputFilenames.size() == 0) {
-    System.err.println("Must specify one or more input filenames");
+    log.info("Must specify one or more input filenames");
     System.exit(2);
   }
   FileOutputStream fos=new FileOutputStream(outputFilename);
@@ -66,7 +66,7 @@
     description=(TaggedFileRecord.ENCODING + "=" + inputEncoding+ ","+ description);
     TaggedFileRecord record=TaggedFileRecord.createRecord(props,description);
     for (    List<TaggedWord> sentence : record.reader()) {
-      String output=Sentence.listToString(sentence,noTags,tagSeparator);
+      String output=SentenceUtils.listToString(sentence,noTags,tagSeparator);
       if (noSpaces) {
         output=output.replaceAll(" ","");
       }

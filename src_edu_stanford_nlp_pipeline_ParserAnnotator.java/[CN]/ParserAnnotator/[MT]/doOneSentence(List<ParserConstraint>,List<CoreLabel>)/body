@@ -4,24 +4,37 @@
   pq.parse(words);
   List<Tree> trees=Generics.newLinkedList();
   try {
-    List<ScoredObject<Tree>> scoredObjects=pq.getKBestPCFGParses(this.kBest);
-    if (scoredObjects == null || scoredObjects.size() < 1) {
-      System.err.println("WARNING: Parsing of sentence failed.  " + "Will ignore and continue: " + Sentence.listToString(words));
+    if (this.kBest == 1) {
+      Tree t=pq.getBestParse();
+      if (t == null) {
+        log.warn("Parsing of sentence failed.  " + "Will ignore and continue: " + SentenceUtils.listToString(words));
+      }
+ else {
+        double score=pq.getBestScore();
+        t.setScore(score % -10000.0);
+        trees.add(t);
+      }
     }
  else {
-      for (      ScoredObject<Tree> so : scoredObjects) {
-        Tree tree=so.object();
-        tree.setScore(so.score() % -10000.0);
-        trees.add(tree);
+      List<ScoredObject<Tree>> scoredObjects=pq.getKBestParses(this.kBest);
+      if (scoredObjects == null || scoredObjects.size() < 1) {
+        log.info("WARNING: Parsing of sentence failed.  " + "Will ignore and continue: " + SentenceUtils.listToString(words));
+      }
+ else {
+        for (        ScoredObject<Tree> so : scoredObjects) {
+          Tree tree=so.object();
+          tree.setScore(so.score() % -10000.0);
+          trees.add(tree);
+        }
       }
     }
   }
  catch (  OutOfMemoryError e) {
     Runtime.getRuntime().gc();
-    System.err.println("WARNING: Parsing of sentence ran out of memory (length=" + words.size() + ").  "+ "Will ignore and continue.");
+    log.info("WARNING: Parsing of sentence ran out of memory (length=" + words.size() + ").  "+ "Will ignore and continue.");
   }
 catch (  NoSuchParseException e) {
-    System.err.println("WARNING: Parsing of sentence failed, possibly because of out of memory.  " + "Will ignore and continue: " + Sentence.listToString(words));
+    log.info("WARNING: Parsing of sentence failed, possibly because of out of memory.  " + "Will ignore and continue: " + SentenceUtils.listToString(words));
   }
   return trees;
 }

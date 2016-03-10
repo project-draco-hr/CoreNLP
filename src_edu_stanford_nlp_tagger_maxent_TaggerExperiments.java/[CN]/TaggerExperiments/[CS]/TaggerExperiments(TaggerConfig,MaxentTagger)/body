@@ -1,11 +1,11 @@
 {
   this(maxentTagger);
-  System.err.println("TaggerExperiments: adding word/tags");
+  log.info("TaggerExperiments: adding word/tags");
   PairsHolder pairs=new PairsHolder();
   ReadDataTagged c=new ReadDataTagged(config,maxentTagger,pairs);
   vArray=new int[c.getSize()][2];
   initTemplatesNew();
-  System.err.println("Featurizing tagged data tokens...");
+  log.info("Featurizing tagged data tokens...");
   for (int i=0, size=c.getSize(); i < size; i++) {
     DataWordTag d=c.get(i);
     String yS=d.getY();
@@ -19,17 +19,17 @@
     if (i > 0 && (i % 10000) == 0) {
       System.err.printf("%d ",i);
       if (i % 100000 == 0) {
-        System.err.println();
+        log.info();
       }
     }
   }
-  System.err.println();
-  System.err.println("Featurized " + c.getSize() + " data tokens [done].");
+  log.info();
+  log.info("Featurized " + c.getSize() + " data tokens [done].");
   c.release();
   ptilde();
   maxentTagger.xSize=xSize;
   maxentTagger.ySize=ySize;
-  System.err.println("xSize [num Phi templates] = " + xSize + "; ySize [num classes] = "+ ySize);
+  log.info("xSize [num Phi templates] = " + xSize + "; ySize [num classes] = "+ ySize);
   hashHistories();
   if (!maxentTagger.occurringTagsOnly && !maxentTagger.possibleTagsOnly) {
     tHistories.release();

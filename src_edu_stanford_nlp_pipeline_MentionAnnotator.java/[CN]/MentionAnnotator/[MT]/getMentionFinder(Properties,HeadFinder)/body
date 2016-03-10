@@ -2,17 +2,18 @@
 switch (CorefProperties.getMDType(props)) {
 case DEPENDENCY:
     mdName="dependency";
-  mentionAnnotatorRequirements.add(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class);
-mentionAnnotatorRequirements.add(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class);
-mentionAnnotatorRequirements.add(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class);
-return new DependencyCorefMentionFinder(props);
+  return new DependencyCorefMentionFinder(props);
 case HYBRID:
 mdName="hybrid";
 mentionAnnotatorRequirements.add(TreeCoreAnnotations.TreeAnnotation.class);
+mentionAnnotatorRequirements.add(CoreAnnotations.BeginIndexAnnotation.class);
+mentionAnnotatorRequirements.add(CoreAnnotations.EndIndexAnnotation.class);
 return new HybridCorefMentionFinder(headFinder,props);
 case RULE:
 default :
 mentionAnnotatorRequirements.add(TreeCoreAnnotations.TreeAnnotation.class);
+mentionAnnotatorRequirements.add(CoreAnnotations.BeginIndexAnnotation.class);
+mentionAnnotatorRequirements.add(CoreAnnotations.EndIndexAnnotation.class);
 mdName="rule";
 return new RuleBasedCorefMentionFinder(headFinder,props);
 }

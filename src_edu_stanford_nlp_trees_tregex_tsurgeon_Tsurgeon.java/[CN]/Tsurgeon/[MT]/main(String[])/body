@@ -6,7 +6,7 @@
   String encoding="UTF-8";
   String encodingOption="-encoding";
   if (args.length == 0) {
-    System.err.println("Usage: java edu.stanford.nlp.trees.tregex.tsurgeon.Tsurgeon [-s] -treeFile <file-with-trees> [-po <matching-pattern> <operation>] <operation-file-1> <operation-file-2> ... <operation-file-n>");
+    log.info("Usage: java edu.stanford.nlp.trees.tregex.tsurgeon.Tsurgeon [-s] -treeFile <file-with-trees> [-po <matching-pattern> <operation>] <operation-file-1> <operation-file-2> ... <operation-file-n>");
     System.exit(0);
   }
   String treePrintFormats;
@@ -50,7 +50,7 @@
     trees.loadPath(argsMap.get(treeFileOption)[0]);
   }
   if (trees.isEmpty()) {
-    System.err.println("Warning: No trees specified to operate on.  Use -treeFile path option.");
+    log.info("Warning: No trees specified to operate on.  Use -treeFile path option.");
   }
   TregexPatternCompiler compiler;
   if (headFinderClassName == null) {
@@ -78,7 +78,7 @@
       List<Pair<TregexPattern,TsurgeonPattern>> pairs=getOperationsFromFile(arg,encoding,compiler);
       for (      Pair<TregexPattern,TsurgeonPattern> pair : pairs) {
         if (verbose) {
-          System.err.println(pair.second());
+          log.info(pair.second());
         }
         ops.add(pair);
       }

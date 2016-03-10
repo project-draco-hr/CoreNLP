@@ -8,16 +8,16 @@
     result=get(CoreAnnotations.DocIDAnnotation.class).hashCode();
     sensible=true;
   }
-  if (has(CoreAnnotations.SentenceIndexAnnotation.class)) {
+  if (containsKey(CoreAnnotations.SentenceIndexAnnotation.class)) {
     result=29 * result + get(CoreAnnotations.SentenceIndexAnnotation.class).hashCode();
     sensible=true;
   }
-  if (has(CoreAnnotations.IndexAnnotation.class)) {
+  if (containsKey(CoreAnnotations.IndexAnnotation.class)) {
     result=29 * result + get(CoreAnnotations.IndexAnnotation.class).hashCode();
     sensible=true;
   }
   if (!sensible) {
-    System.err.println("WARNING!!!  You have hashed an IndexedWord with no docID, sentIndex or wordIndex. You will almost certainly lose");
+    log.info("WARNING!!!  You have hashed an IndexedWord with no docID, sentIndex or wordIndex. You will almost certainly lose");
   }
   cachedHashCode=result;
   return result;

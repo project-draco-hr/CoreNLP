@@ -25,10 +25,10 @@
       for (int j=0; j < E[i].length; ++j)       E[i][j]=random.nextDouble() * 0.02 - 0.01;
     }
   }
-  System.err.println("Found embeddings: " + foundEmbed + " / "+ knownWords.size());
+  log.info("Found embeddings: " + foundEmbed + " / "+ knownWords.size());
   if (preModel != null) {
     try {
-      System.err.println("Loading pre-trained model file: " + preModel + " ... ");
+      log.info("Loading pre-trained model file: " + preModel + " ... ");
       String s;
       BufferedReader input=IOUtils.readerFromString(preModel);
       s=input.readLine();
@@ -71,7 +71,7 @@
       }
       boolean copyLayer1=hSize == config.hiddenSize && config.embeddingSize == eSize && config.numTokens == nTokens;
       if (copyLayer1) {
-        System.err.println("Copying parameters W1 && b1...");
+        log.info("Copying parameters W1 && b1...");
       }
       for (int j=0; j < eSize * nTokens; ++j) {
         s=input.readLine();
@@ -86,7 +86,7 @@
         for (int i=0; i < hSize; ++i)         b1[i]=Double.parseDouble(splits[i]);
       }
       boolean copyLayer2=(nLabel * 2 - 1 == system.numTransitions()) && hSize == config.hiddenSize;
-      if (copyLayer2)       System.err.println("Copying parameters W2...");
+      if (copyLayer2)       log.info("Copying parameters W2...");
       for (int j=0; j < hSize; ++j) {
         s=input.readLine();
         if (copyLayer2) {

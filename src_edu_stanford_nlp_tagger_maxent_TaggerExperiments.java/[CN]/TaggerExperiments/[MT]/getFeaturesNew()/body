@@ -1,11 +1,11 @@
 {
   try {
-    System.err.println("TaggerExperiments.getFeaturesNew: initializing fnumArr.");
+    log.info("TaggerExperiments.getFeaturesNew: initializing fnumArr.");
     fnumArr=new byte[xSize][ySize];
     File hFile=File.createTempFile("temp",".x",new File("./"));
     RandomAccessFile hF=new RandomAccessFile(hFile,"rw");
-    System.err.println("  length of sTemplates keys: " + sTemplates.size());
-    System.err.println("getFeaturesNew adding features ...");
+    log.info("  length of sTemplates keys: " + sTemplates.size());
+    log.info("getFeaturesNew adding features ...");
     int current=0;
     int numFeats=0;
     final boolean VERBOSE=false;
@@ -15,7 +15,7 @@
       Pair<Integer,String> wT=new Pair<>(numF,fK.val);
       xValues=tFeature.getXValues(wT);
       if (xValues == null) {
-        System.err.println("  xValues is null: " + fK.toString());
+        log.info("  xValues is null: " + fK.toString());
         continue;
       }
       int numEvidence=0;
@@ -65,7 +65,7 @@
           current=current + numElements;
           feats.add(tF);
           if (VERBOSE) {
-            System.err.println("  added feature with key " + fK.toString() + " has support "+ numElements);
+            log.info("  added feature with key " + fK.toString() + " has support "+ numElements);
           }
         }
  else {
@@ -75,7 +75,7 @@
           TaggerFeature tF=new TaggerFeature(positions[0],positions[1],fK,maxentTagger.getTagIndex(fK.tag),this);
           feats.add(tF);
           if (VERBOSE) {
-            System.err.println("  added feature with key " + fK.toString() + " has support "+ xValues.length);
+            log.info("  added feature with key " + fK.toString() + " has support "+ xValues.length);
           }
         }
         if (maxentTagger.fAssociations.size() <= fK.num) {
@@ -104,7 +104,7 @@
       feats.xIndexed[current1]=hF.readInt();
       current1++;
     }
-    System.err.println("  total feats: " + sTemplates.size() + ", populated: "+ numFeats);
+    log.info("  total feats: " + sTemplates.size() + ", populated: "+ numFeats);
     hF.close();
     hFile.delete();
     int max=0;
@@ -127,11 +127,11 @@
         maxGt=numGt;
       }
     }
-    System.err.println("  Max features per x,y pair: " + max);
-    System.err.println("  Max non-zero y values for an x: " + maxGt);
-    System.err.println("  Number of non-zero feature x,y pairs: " + (xSize * ySize - numZeros));
-    System.err.println("  Number of zero feature x,y pairs: " + numZeros);
-    System.err.println("end getFeaturesNew.");
+    log.info("  Max features per x,y pair: " + max);
+    log.info("  Max non-zero y values for an x: " + maxGt);
+    log.info("  Number of non-zero feature x,y pairs: " + (xSize * ySize - numZeros));
+    log.info("  Number of zero feature x,y pairs: " + numZeros);
+    log.info("end getFeaturesNew.");
   }
  catch (  Exception e) {
     e.printStackTrace();

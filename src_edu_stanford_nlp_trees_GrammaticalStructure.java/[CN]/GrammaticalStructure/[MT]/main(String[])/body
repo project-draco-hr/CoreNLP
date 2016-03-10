@@ -30,13 +30,13 @@
   }
   if (sentFileName == null && (altDepReaderName == null || altDepReaderFilename == null) && treeFileName == null && conllXFileName == null && filter == null) {
     try {
-      System.err.println("Usage: java GrammaticalStructure [options]* [-sentFile|-treeFile|-conllxFile file] [-testGraph]");
-      System.err.println("  options: -basic, -collapsed, -CCprocessed [the default], -collapsedTree, -parseTree, -test, -parserFile file, -conllx, -keepPunct, -altprinter -altreader -altreaderfile -originalDependencies");
+      log.info("Usage: java GrammaticalStructure [options]* [-sentFile|-treeFile|-conllxFile file] [-testGraph]");
+      log.info("  options: -basic, -collapsed, -CCprocessed [the default], -collapsedTree, -parseTree, -test, -parserFile file, -conllx, -keepPunct, -altprinter -altreader -altreaderfile -originalDependencies");
       TreeReader tr=new PennTreeReader(new StringReader("((S (NP (NNP Sam)) (VP (VBD died) (NP-TMP (NN today)))))"));
       tb.add(tr.readTree());
     }
  catch (    Exception e) {
-      System.err.println("Horrible error: " + e);
+      log.info("Horrible error: " + e);
       e.printStackTrace();
     }
   }
@@ -46,7 +46,7 @@
       gsBank=altDepReader.readDependencies(altDepReaderFilename);
     }
  catch (    IOException e) {
-      System.err.println("Error reading " + altDepReaderFilename);
+      log.info("Error reading " + altDepReaderFilename);
       return;
     }
   }
@@ -61,7 +61,7 @@
       gsBank=params.readGrammaticalStructureFromFile(conllXFileName);
     }
  catch (    RuntimeIOException e) {
-      System.err.println("Error reading " + conllXFileName);
+      log.info("Error reading " + conllXFileName);
       return;
     }
   }
@@ -105,7 +105,7 @@
       m=sgf.getDeclaredMethod("makeFromTree",GrammaticalStructure.class,boolean.class,boolean.class,boolean.class,boolean.class,boolean.class,boolean.class,Predicate.class,String.class,int.class);
     }
  catch (    Exception e) {
-      System.err.println("Test cannot check for cycles in tree format (classes not available)");
+      log.info("Test cannot check for cycles in tree format (classes not available)");
     }
   }
   if (gsBank == null) {
@@ -212,9 +212,9 @@
         List<TypedDependency> deps=gs.typedDependenciesCCprocessed(Extras.MAXIMAL);
         if (checkConnected) {
           if (!GrammaticalStructure.isConnected(deps)) {
-            System.err.println("Graph is not connected for:");
-            System.err.println(tree);
-            System.err.println("possible offending nodes: " + GrammaticalStructure.getRoots(deps));
+            log.info("Graph is not connected for:");
+            log.info(tree);
+            log.info("possible offending nodes: " + GrammaticalStructure.getRoots(deps));
           }
         }
         printDependencies(gs,deps,tree,conllx,false);

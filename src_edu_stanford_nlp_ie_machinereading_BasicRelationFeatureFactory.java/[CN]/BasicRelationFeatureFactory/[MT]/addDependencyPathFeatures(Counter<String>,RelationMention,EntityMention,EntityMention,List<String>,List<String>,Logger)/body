@@ -8,16 +8,16 @@
   if (graph == null) {
     Tree tree=rel.getSentence().get(TreeAnnotation.class);
     if (tree == null) {
-      System.err.println("WARNING: found sentence without TreeAnnotation. Skipped dependency-path features.");
+      log.info("WARNING: found sentence without TreeAnnotation. Skipped dependency-path features.");
       return;
     }
     try {
       graph=SemanticGraphFactory.makeFromTree(tree,Mode.COLLAPSED,GrammaticalStructure.Extras.NONE,true,null,true);
     }
  catch (    Exception e) {
-      System.err.println("WARNING: failed to generate dependencies from tree " + tree.toString());
+      log.info("WARNING: failed to generate dependencies from tree " + tree.toString());
       e.printStackTrace();
-      System.err.println("Skipped dependency-path features.");
+      log.info("Skipped dependency-path features.");
       return;
     }
   }
