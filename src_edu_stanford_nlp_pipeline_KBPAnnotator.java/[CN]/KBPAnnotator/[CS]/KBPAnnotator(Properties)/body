@@ -1,20 +1,3 @@
 {
-  this.threads=Integer.parseInt(props.getProperty("threads","1"));
-  try {
-    Object object=IOUtils.readObjectFromURLOrClasspathOrFileSystem(props.getProperty("kbp.model",DefaultPaths.DEFAULT_KBP_CLASSIFIER));
-    if (object instanceof LinearClassifier) {
-      this.extractor=new KBPRelationExtractor((Classifier<String,String>)object);
-    }
- else     if (object instanceof KBPRelationExtractor) {
-      this.extractor=(KBPRelationExtractor)object;
-    }
- else {
-      throw new ClassCastException(object.getClass() + " cannot be cast into a " + KBPRelationExtractor.class);
-    }
-  }
- catch (  IOException|ClassNotFoundException e) {
-    throw new RuntimeIOException(e);
-  }
-  this.casedNER=new TokensRegexNERAnnotator(props.getProperty("kbp.regexner.cased",DefaultPaths.DEFAULT_KBP_REGEXNER_CASED),true);
-  this.caselessNER=new TokensRegexNERAnnotator(props.getProperty("kbp.regexner.caseless",DefaultPaths.DEFAULT_KBP_REGEXNER_CASELESS),false,"^(NN|JJ).*");
+  this(STANFORD_KBP,properties);
 }

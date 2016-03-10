@@ -1,0 +1,13 @@
+{
+  for (int base=-10; base < 10; ++base) {
+    if (base == 0) {
+      continue;
+    }
+    for (int exponent=-100; exponent < 100; ++exponent) {
+      double number=Math.pow(Math.PI * base,exponent);
+      Triple<Boolean,Long,Integer> parts=SloppyMath.segmentDouble(number);
+      double parsed=SloppyMath.parseDouble(parts.first,parts.second,parts.third);
+      assertEquals(number,parsed,Math.abs(parsed) / 1.0e5);
+    }
+  }
+}
