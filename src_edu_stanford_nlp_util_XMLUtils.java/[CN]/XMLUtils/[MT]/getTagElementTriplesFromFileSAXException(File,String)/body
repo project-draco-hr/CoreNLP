@@ -1,0 +1,33 @@
+{
+  List<Triple<String,Element,String>> sents=Generics.newArrayList();
+  try {
+    DocumentBuilderFactory dbf=DocumentBuilderFactory.newInstance();
+    DocumentBuilder db=dbf.newDocumentBuilder();
+    Document doc=db.parse(f);
+    doc.getDocumentElement().normalize();
+    NodeList nodeList=doc.getElementsByTagName(tag);
+    for (int i=0; i < nodeList.getLength(); i++) {
+      Node prevNode=nodeList.item(i).getPreviousSibling();
+      String prev="";
+      if (prevNode.getPreviousSibling() != null) {
+        prev+=prevNode.getPreviousSibling().getTextContent();
+      }
+      prev+=prevNode.getTextContent();
+      Node nextNode=nodeList.item(i).getNextSibling();
+      String next=nextNode.getTextContent();
+      if (nextNode.getNextSibling() != null) {
+        next+=nextNode.getNextSibling().getTextContent();
+      }
+      Element element=(Element)nodeList.item(i);
+      Triple t=new Triple(prev,element,next);
+      sents.add(t);
+    }
+  }
+ catch (  IOException e) {
+    System.err.println(e);
+  }
+catch (  ParserConfigurationException e) {
+    System.err.println(e);
+  }
+  return sents;
+}
