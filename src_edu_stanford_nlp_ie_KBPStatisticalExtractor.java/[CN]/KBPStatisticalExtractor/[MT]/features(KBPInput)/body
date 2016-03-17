@@ -1,2 +1,13 @@
 {
+  input.sentence.regexner(DefaultPaths.DEFAULT_KBP_REGEXNER_CASED,false);
+  input.sentence.regexner(DefaultPaths.DEFAULT_KBP_REGEXNER_CASELESS,true);
+  ClassicCounter<String> feats=new ClassicCounter<>();
+  if (Span.overlaps(input.subjectSpan,input.objectSpan) || input.subjectSpan.size() == 0 || input.objectSpan.size() == 0) {
+    return new ClassicCounter<>();
+  }
+  denseFeatures(input,input.sentence,feats);
+  surfaceFeatures(input,input.sentence,feats);
+  dependencyFeatures(input,input.sentence,feats);
+  relationSpecificFeatures(input,input.sentence,feats);
+  return feats;
 }
