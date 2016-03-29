@@ -1,7 +1,7 @@
 {
   if (sentences == null) {
-    Annotator tokenizer=props == EMPTY_PROPS ? defaultTokenize : AnnotatorFactories.tokenize(props,backend).create();
-    Annotator ssplit=props == EMPTY_PROPS ? defaultSSplit : AnnotatorFactories.sentenceSplit(props,backend).create();
+    Annotator tokenizer=(props == EMPTY_PROPS || props == SINGLE_SENTENCE_DOCUMENT) ? defaultTokenize : AnnotatorFactories.tokenize(props,backend).create();
+    Annotator ssplit=(props == EMPTY_PROPS || props == SINGLE_SENTENCE_DOCUMENT) ? defaultSSplit : AnnotatorFactories.sentenceSplit(props,backend).create();
     Annotation ann=new Annotation(this.impl.getText());
     tokenizer.annotate(ann);
     ssplit.annotate(ann);
