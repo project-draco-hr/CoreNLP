@@ -2,7 +2,7 @@
   if (this.sentences != null && this.sentences.size() > 0 && this.sentences.get(0).rawSentence().hasParseTree()) {
     return this;
   }
-  Annotator parse=((props == EMPTY_PROPS || props == SINGLE_SENTENCE_DOCUMENT) ? defaultParse : getOrCreate(AnnotatorFactories.parse(props,backend))).get();
+  Annotator parse=props == EMPTY_PROPS ? defaultParse.get() : getOrCreate(AnnotatorFactories.parse(props,backend));
   if (parse.requires().contains(CoreAnnotations.PartOfSpeechAnnotation.class)) {
     runPOS(props);
   }
