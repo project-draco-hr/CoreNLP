@@ -2,16 +2,11 @@
   return new AnnotatorFactory(ColumnDataClassifierAnnotator.class,properties){
     private static final long serialVersionUID=1L;
     @Override public Annotator create(){
-      if (properties.containsKey("classify.loadClassifier")) {
-        properties.setProperty("loadClassifier",properties.getProperty("classify.loadClassifier"));
-      }
-      if (!properties.containsKey("loadClassifier")) {
-        throw new RuntimeException("Must load a classifier when creating a column data classifier annotator");
-      }
+      if (!properties.containsKey("loadClassifier"))       throw new RuntimeException("Must load a classifier when creating a column data classifier annotator");
       return new ColumnDataClassifierAnnotator(properties);
     }
     @Override protected String additionalSignature(){
-      return "classifier=" + properties.getProperty("loadClassifier=" + properties.getProperty("loadClassifier"));
+      return "classifier=" + properties.get("loadClassifier=" + properties.get("loadClassifier"));
     }
   }
 ;
