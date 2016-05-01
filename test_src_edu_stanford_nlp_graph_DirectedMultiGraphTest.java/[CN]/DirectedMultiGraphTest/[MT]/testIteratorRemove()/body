@@ -12,6 +12,7 @@
   g.add(2,3,"2-3b");
   g.add(3,1,"3-1a");
   g.add(3,1,"3-1b");
+  checkGraphConsistency(g);
   for (  String edge : g.getAllEdges()) {
     int originalSize=g.getNumEdges();
     DirectedMultiGraph<Integer,String> gold=new DirectedMultiGraph<Integer,String>(g);
@@ -23,6 +24,7 @@
     while (iter.hasNext()) {
       if (iter.next().equals(edge)) {
         iter.remove();
+        checkGraphConsistency(g);
       }
     }
     assertEquals(gold,guess);
