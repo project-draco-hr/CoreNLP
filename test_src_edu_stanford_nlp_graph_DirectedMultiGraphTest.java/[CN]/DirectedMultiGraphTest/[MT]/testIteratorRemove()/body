@@ -21,12 +21,16 @@
     assertEquals(originalSize,g.getNumEdges());
     assertEquals(originalSize - 1,gold.getAllEdges().size());
     Iterator<String> iter=guess.edgeIterator();
+    int iterations=0;
     while (iter.hasNext()) {
+      ++iterations;
       if (iter.next().equals(edge)) {
         iter.remove();
-        checkGraphConsistency(g);
+        checkGraphConsistency(guess);
       }
     }
+    assertEquals(9,iterations);
+    checkGraphConsistency(guess);
     assertEquals(gold,guess);
   }
 }
