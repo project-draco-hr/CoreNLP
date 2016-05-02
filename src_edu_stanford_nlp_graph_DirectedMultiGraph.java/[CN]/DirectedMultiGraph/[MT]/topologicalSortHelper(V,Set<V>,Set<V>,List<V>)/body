@@ -1,0 +1,17 @@
+{
+  temporary.add(vertex);
+  Map<V,List<E>> neighborMap=outgoingEdges.get(vertex);
+  if (neighborMap != null) {
+    for (    V neighbor : neighborMap.keySet()) {
+      if (permanent.contains(neighbor)) {
+        continue;
+      }
+      if (temporary.contains(neighbor)) {
+        throw new IllegalStateException("This graph has cycles. Topological sort not possible: " + this.toString());
+      }
+      topologicalSortHelper(neighbor,temporary,permanent,result);
+    }
+  }
+  result.add(vertex);
+  permanent.add(vertex);
+}
