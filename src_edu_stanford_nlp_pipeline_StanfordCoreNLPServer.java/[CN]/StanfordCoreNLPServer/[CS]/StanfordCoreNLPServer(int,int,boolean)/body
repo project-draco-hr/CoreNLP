@@ -1,6 +1,16 @@
 {
-  this();
   this.serverPort=port;
   this.timeoutMilliseconds=timeout;
   this.strict=strict;
+  defaultProps=PropertiesUtils.asProperties("annotators","tokenize, ssplit, pos, lemma, ner, depparse, coref, natlog, openie","coref.md.type","dep","inputFormat","text","outputFormat","json","prettyPrint","false");
+  String tmpDir=System.getProperty("java.io.tmpdir");
+  File tmpFile=new File(tmpDir + File.separator + "corenlp.shutdown");
+  tmpFile.deleteOnExit();
+  if (tmpFile.exists()) {
+    if (!tmpFile.delete()) {
+      throw new IllegalStateException("Could not delete shutdown key file");
+    }
+  }
+  this.shutdownKey=new BigInteger(130,new Random()).toString(32);
+  IOUtils.writeStringToFile(shutdownKey,tmpFile.getPath(),"utf-8");
 }

@@ -1,10 +1,9 @@
 {
-  log("Adding SSL context to server");
   try {
     KeyStore ks=KeyStore.getInstance("JKS");
-    ks.load(IOUtils.getInputStreamFromURLOrClasspathOrFileSystem("edu/stanford/nlp/pipeline/corenlp.jks"),"corenlp".toCharArray());
+    ks.load(IOUtils.getInputStreamFromURLOrClasspathOrFileSystem("edu/stanford/nlp/pipeline/corenlp.jks"),"password".toCharArray());
     KeyManagerFactory kmf=KeyManagerFactory.getInstance("SunX509");
-    kmf.init(ks,"corenlp".toCharArray());
+    kmf.init(ks,"password".toCharArray());
     SSLContext sslContext=SSLContext.getInstance("TLS");
     sslContext.init(kmf.getKeyManagers(),null,null);
     server.setHttpsConfigurator(new HttpsConfigurator(sslContext){
