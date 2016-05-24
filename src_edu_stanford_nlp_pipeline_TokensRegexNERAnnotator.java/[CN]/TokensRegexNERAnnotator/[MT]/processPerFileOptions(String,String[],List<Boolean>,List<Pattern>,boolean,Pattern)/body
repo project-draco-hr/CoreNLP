@@ -1,0 +1,44 @@
+{
+  Integer numMappingFiles=mappings.length;
+  for (int index=0; index < numMappingFiles; index++) {
+    boolean ignoreCaseSet=false;
+    boolean validPosPatternSet=false;
+    String[] allOptions=COMMA_DELIMITERS_PATTERN.split(mappings[index].trim());
+    Integer numOptions=allOptions.length;
+    if (numOptions > 1) {
+      for (int i=0; i < numOptions - 1; i++) {
+        String[] optionAndValue=EQUALS_DELIMITERS_PATTERN.split(allOptions[i].trim());
+        if (optionAndValue.length != 2) {
+          throw new IllegalArgumentException("TokensRegexNERAnnotator " + annotatorName + " ERROR: Incorrectly specified options for mapping file "+ mappings[index].trim());
+        }
+ else {
+switch (optionAndValue[0].trim().toLowerCase()) {
+case "ignorecase":
+            ignoreCaseList.add(Boolean.parseBoolean(optionAndValue[1].trim()));
+          ignoreCaseSet=true;
+        break;
+case "validpospattern":
+      String validPosRegex=optionAndValue[1].trim();
+    if (validPosRegex != null && !validPosRegex.equals("")) {
+      validPosPatternList.add(Pattern.compile(validPosRegex));
+    }
+ else {
+      validPosPatternList.add(validPosPattern);
+    }
+  validPosPatternSet=true;
+break;
+default :
+break;
+}
+}
+}
+mappings[index]=allOptions[numOptions - 1];
+}
+if (!ignoreCaseSet) {
+ignoreCaseList.add(ignoreCase);
+}
+if (!validPosPatternSet) {
+validPosPatternList.add(validPosPattern);
+}
+}
+}
