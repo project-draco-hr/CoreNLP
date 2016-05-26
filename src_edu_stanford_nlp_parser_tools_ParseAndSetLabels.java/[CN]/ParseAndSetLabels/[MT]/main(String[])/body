@@ -11,6 +11,7 @@
   String remapLabels=null;
   int argIndex=0;
   boolean binarize=true;
+  boolean useLabelKeys=false;
   while (argIndex < args.length) {
     if (args[argIndex].equalsIgnoreCase("-output")) {
       outputFile=args[argIndex + 1];
@@ -60,6 +61,14 @@
       binarize=false;
       argIndex+=1;
     }
+ else     if (args[argIndex].equalsIgnoreCase("-useLabelKeys")) {
+      useLabelKeys=true;
+      argIndex+=1;
+    }
+ else     if (args[argIndex].equalsIgnoreCase("-nouseLabelKeys")) {
+      useLabelKeys=false;
+      argIndex+=1;
+    }
  else {
       throw new IllegalArgumentException("Unknown argument " + args[argIndex]);
     }
@@ -67,8 +76,11 @@
   if (outputFile == null) {
     throw new IllegalArgumentException("-output is required");
   }
-  if (sentencesFile == null) {
-    throw new IllegalArgumentException("-sentences is required");
+  if (sentencesFile == null && !useLabelKeys) {
+    throw new IllegalArgumentException("-sentences or -useLabelKeys is required");
+  }
+  if (sentencesFile != null && useLabelKeys) {
+    throw new IllegalArgumentException("Use only one of -sentences or -useLabelKeys");
   }
   if (labelsFile == null) {
     throw new IllegalArgumentException("-labels is required");
@@ -79,7 +91,13 @@
     binarizer=TreeBinarizer.simpleTreeBinarizer(parser.getTLPParams().headFinder(),parser.treebankLanguagePack());
   }
   Map<String,String> labelMap=readLabelMap(labelsFile,separator,remapLabels);
-  List<String> sentences=readSentences(sentencesFile);
+  List<String> sentences;
+  if (sentencesFile == null) {
+    sentences=readSentences(sentencesFile);
+  }
+ else {
+    sentences=new ArrayList<String>(labelMap.keySet());
+  }
   List<Tree> trees=parseSentences(sentences,parser,binarizer);
   Set<String> unknowns=setLabels(trees,labelMap,missing,defaultLabel);
   writeTrees(trees,outputFile);
