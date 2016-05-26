@@ -5,7 +5,7 @@
   if (lexicon != null) {
     return;
   }
-  Timing.startDoing("Loading distsim lexicon from " + flags.distSimLexicon);
+  Timing timing=new Timing();
   lexicon=Generics.newHashMap();
   boolean terryKoo="terryKoo".equals(flags.distSimFileFormat);
   for (  String line : ObjectBank.getLineIterator(flags.distSimLexicon,flags.inputEncoding)) {
@@ -32,5 +32,5 @@
     }
     lexicon.put(word,wordClass);
   }
-  Timing.endDoing();
+  timing.done(log,"Loading distsim lexicon from " + flags.distSimLexicon);
 }

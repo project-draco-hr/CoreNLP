@@ -1,0 +1,10 @@
+{
+  Pair<String,Double> prediction=Pair.makePair(KBPRelationExtractor.NO_RELATION,1.0);
+  for (  KBPRelationExtractor extractor : extractors) {
+    Pair<String,Double> classifierPrediction=extractor.classify(input);
+    if (prediction.first.equals(KBPRelationExtractor.NO_RELATION) || (!classifierPrediction.first.equals(KBPRelationExtractor.NO_RELATION) && classifierPrediction.second > prediction.second)) {
+      prediction=classifierPrediction;
+    }
+  }
+  return prediction;
+}

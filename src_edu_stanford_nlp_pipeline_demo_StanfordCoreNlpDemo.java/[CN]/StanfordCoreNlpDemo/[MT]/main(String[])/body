@@ -11,7 +11,7 @@
     xmlOut=new PrintWriter(args[2]);
   }
   Properties props=new Properties();
-  props.put("annotators","tokenize, ssplit, pos, lemma, ner, parse, dcoref, sentiment");
+  props.setProperty("annotators","tokenize, ssplit, pos, lemma, ner, parse, dcoref, sentiment");
   StanfordCoreNLP pipeline=new StanfordCoreNLP(props);
   Annotation annotation;
   if (args.length > 0) {
@@ -58,7 +58,7 @@
       return;
     }
     for (    Map.Entry<Integer,CorefChain> entry : corefChains.entrySet()) {
-      out.println("Chain " + entry.getKey() + " ");
+      out.println("Chain " + entry.getKey());
       for (      CorefChain.CorefMention m : entry.getValue().getMentionsInTextualOrder()) {
         List<CoreLabel> tokens=sentences.get(m.sentNum - 1).get(CoreAnnotations.TokensAnnotation.class);
         out.println("  " + m + ", i.e., 0-based character offsets ["+ tokens.get(m.startIndex - 1).beginPosition()+ ", "+ tokens.get(m.endIndex - 2).endPosition()+ ")");

@@ -1,0 +1,18 @@
+{
+  System.arraycopy(fg,0,dir,0,fg.length);
+  int mmm=qn.size();
+  double[] as=new double[mmm];
+  for (int i=mmm - 1; i >= 0; i--) {
+    as[i]=qn.getRho(i) * ArrayMath.innerProduct(qn.getS(i),dir);
+    plusAndConstMult(dir,qn.getY(i),-as[i],dir);
+  }
+  qn.applyInitialHessian(dir,sb);
+  for (int i=0; i < mmm; i++) {
+    double b=qn.getRho(i) * ArrayMath.innerProduct(qn.getY(i),dir);
+    plusAndConstMult(dir,qn.getS(i),as[i] - b,dir);
+  }
+  ArrayMath.multiplyInPlace(dir,-1);
+  if (useOWLQN) {
+    constrainSearchDir(dir,fg,x,func);
+  }
+}

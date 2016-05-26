@@ -31,8 +31,6 @@
   sayln("       Max iterations is = " + maxIterations);
   Timing total=new Timing();
   Timing current=new Timing();
-  total.start();
-  current.start();
   int t=t0;
   int iters=0;
   for (int pass=0; pass < numPasses; pass++) {
@@ -43,7 +41,6 @@
     }
     double totalValue=0;
     double lastValue=0;
-    say("Iter: " + iters + " pass "+ pass+ " batch 1 ... ");
     for (int batch=0; batch < numBatches; batch++) {
       iters++;
       double eta=1 / (lambda * t);
@@ -68,10 +65,7 @@
     }
     xnorm=getNorm(x) * xscale * xscale;
     double loss=totalValue + 0.5 * xnorm * lambda* totalSamples;
-    say(String.valueOf(numBatches));
-    say("[" + (total.report()) / 1000.0 + " s ");
-    say("{" + (current.restart() / 1000.0) + " s}] ");
-    sayln(" " + lastValue + " "+ totalValue+ " "+ loss);
+    sayln("Iter: " + iters + " pass "+ pass+ " batch 1 ... "+ String.valueOf(numBatches)+ " ["+ (total.report()) / 1000.0 + " s " + " {" + (current.restart() / 1000.0) + " s}] " + lastValue + " " + totalValue + " " + loss);
     if (iters >= maxIterations) {
       sayln("Stochastic Optimization complete.  Stopped after max iterations");
       break;
