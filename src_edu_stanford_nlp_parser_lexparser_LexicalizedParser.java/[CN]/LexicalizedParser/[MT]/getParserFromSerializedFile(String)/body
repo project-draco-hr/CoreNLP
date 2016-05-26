@@ -1,21 +1,26 @@
 {
   try {
     Timing tim=new Timing();
+    logger.info("Loading parser from serialized file " + serializedFileOrUrl + " ... ");
     ObjectInputStream in=IOUtils.readStreamFromString(serializedFileOrUrl);
     LexicalizedParser pd=loadModel(in);
     in.close();
-    log.info("Loading parser from serialized file " + serializedFileOrUrl + " ... done ["+ tim.toSecondsString()+ " sec].");
+    log.info(" done [" + tim.toSecondsString() + " sec].");
     return pd;
   }
  catch (  InvalidClassException ice) {
+    log.info();
     throw new RuntimeException("Invalid class in file: " + serializedFileOrUrl,ice);
   }
 catch (  FileNotFoundException fnfe) {
+    log.info();
     throw new RuntimeException("File not found: " + serializedFileOrUrl,fnfe);
   }
 catch (  StreamCorruptedException sce) {
+    log.info();
   }
 catch (  Exception e) {
+    log.info();
     e.printStackTrace();
   }
   return null;

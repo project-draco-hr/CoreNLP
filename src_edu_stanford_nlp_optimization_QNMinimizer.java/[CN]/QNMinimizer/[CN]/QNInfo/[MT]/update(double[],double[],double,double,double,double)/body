@@ -30,7 +30,7 @@ d[i]=(1 - d[i] * newS[i] * newS[i] / sDs) * d[i] + newY[i] * newY[i] / sy;
 double minD=ArrayMath.min(d);
 double maxD=ArrayMath.max(d);
 if (minD <= 0 || Double.isInfinite(maxD) || maxD / minD > 1e12) {
-log.warn("QNInfo:update() : PROBLEM WITH DIAGONAL UPDATE");
+System.err.println("QNInfo:update() : PROBLEM WITH DIAGONAL UPDATE");
 double fill=yy / sy;
 for (int i=0; i < d.length; i++) {
 d[i]=fill;
@@ -47,10 +47,10 @@ y.add(newY);
 rho.add(1 / sy);
 }
  catch (NegativeCurvature nc) {
-sayln(" Negative curvature detected, update skipped ");
+say(" Negative curvature detected, update skipped ");
 }
 catch (ZeroGradient zg) {
-sayln(" Either convergence, or floating point errors combined with extremely linear region ");
+say(" Either convergence, or floating point errors combined with extremely linear region ");
 }
 return s.size();
 }

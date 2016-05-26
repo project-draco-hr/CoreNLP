@@ -1,9 +1,8 @@
 {
-  for (  Map.Entry<String,String> entry : attributes.entrySet()) {
-    String key=entry.getKey();
-    String value=entry.getValue();
-    AnnotationLookup.KeyLookup lookup=AnnotationLookup.getCoreKey(key);
-    if (key != null) {
+  for (  String attr : attributes.keySet()) {
+    String value=attributes.get(attr);
+    AnnotationLookup.KeyLookup lookup=AnnotationLookup.getCoreKey(attr);
+    if (attr != null) {
       if (value != null) {
         try {
           Class valueClass=AnnotationLookup.getValueType(lookup.coreKey);
@@ -18,7 +17,7 @@
           }
         }
  catch (        Exception ex) {
-          throw new RuntimeException("Unable to annotate attribute " + key,ex);
+          throw new RuntimeException("Unable to annotate attribute " + attr,ex);
         }
       }
  else {
@@ -26,7 +25,7 @@
       }
     }
  else {
-      throw new UnsupportedOperationException("Unknown null attribute.");
+      throw new UnsupportedOperationException("Unknown attributes: " + attr);
     }
   }
 }

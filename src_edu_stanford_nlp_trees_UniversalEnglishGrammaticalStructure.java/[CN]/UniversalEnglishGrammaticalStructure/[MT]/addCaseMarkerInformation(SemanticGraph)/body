@@ -9,42 +9,48 @@
     addPassiveAgentToReln(sg,gov,mod,caseMarker);
   }
   List<IndexedWord> oldCaseMarkers=Generics.newArrayList();
-  sgCopy=sg.makeSoftCopy();
-  matcher=PREP_MW3_PATTERN.matcher(sgCopy);
-  while (matcher.find()) {
-    List<IndexedWord> caseMarkers=Generics.newArrayList(3);
-    caseMarkers.add(matcher.getNode("c1"));
-    caseMarkers.add(matcher.getNode("c2"));
-    caseMarkers.add(matcher.getNode("c3"));
-    Collections.sort(caseMarkers);
-    if (caseMarkers.equals(oldCaseMarkers))     continue;
-    IndexedWord gov=matcher.getNode("gov");
-    IndexedWord mod=matcher.getNode("mod");
-    addCaseMarkersToReln(sg,gov,mod,caseMarkers);
-    oldCaseMarkers=caseMarkers;
+  for (  SemgrexPattern p : PREP_MW3_PATTERNS) {
+    sgCopy=sg.makeSoftCopy();
+    matcher=p.matcher(sgCopy);
+    while (matcher.find()) {
+      List<IndexedWord> caseMarkers=Generics.newArrayList(3);
+      caseMarkers.add(matcher.getNode("c1"));
+      caseMarkers.add(matcher.getNode("c2"));
+      caseMarkers.add(matcher.getNode("c3"));
+      Collections.sort(caseMarkers);
+      if (caseMarkers.equals(oldCaseMarkers))       continue;
+      IndexedWord gov=matcher.getNode("gov");
+      IndexedWord mod=matcher.getNode("mod");
+      addCaseMarkersToReln(sg,gov,mod,caseMarkers);
+      oldCaseMarkers=caseMarkers;
+    }
   }
-  sgCopy=sg.makeSoftCopy();
-  matcher=PREP_MW2_PATTERN.matcher(sgCopy);
-  while (matcher.find()) {
-    List<IndexedWord> caseMarkers=Generics.newArrayList(2);
-    caseMarkers.add(matcher.getNode("c1"));
-    caseMarkers.add(matcher.getNode("c2"));
-    Collections.sort(caseMarkers);
-    if (caseMarkers.equals(oldCaseMarkers))     continue;
-    IndexedWord gov=matcher.getNode("gov");
-    IndexedWord mod=matcher.getNode("mod");
-    addCaseMarkersToReln(sg,gov,mod,caseMarkers);
-    oldCaseMarkers=caseMarkers;
+  for (  SemgrexPattern p : PREP_MW2_PATTERNS) {
+    sgCopy=sg.makeSoftCopy();
+    matcher=p.matcher(sgCopy);
+    while (matcher.find()) {
+      List<IndexedWord> caseMarkers=Generics.newArrayList(2);
+      caseMarkers.add(matcher.getNode("c1"));
+      caseMarkers.add(matcher.getNode("c2"));
+      Collections.sort(caseMarkers);
+      if (caseMarkers.equals(oldCaseMarkers))       continue;
+      IndexedWord gov=matcher.getNode("gov");
+      IndexedWord mod=matcher.getNode("mod");
+      addCaseMarkersToReln(sg,gov,mod,caseMarkers);
+      oldCaseMarkers=caseMarkers;
+    }
   }
-  sgCopy=sg.makeSoftCopy();
-  matcher=PREP_PATTERN.matcher(sgCopy);
-  while (matcher.find()) {
-    List<IndexedWord> caseMarkers=Generics.newArrayList(1);
-    caseMarkers.add(matcher.getNode("c1"));
-    if (caseMarkers.equals(oldCaseMarkers))     continue;
-    IndexedWord gov=matcher.getNode("gov");
-    IndexedWord mod=matcher.getNode("mod");
-    addCaseMarkersToReln(sg,gov,mod,caseMarkers);
-    oldCaseMarkers=caseMarkers;
+  for (  SemgrexPattern p : PREP_PATTERNS) {
+    sgCopy=sg.makeSoftCopy();
+    matcher=p.matcher(sgCopy);
+    while (matcher.find()) {
+      List<IndexedWord> caseMarkers=Generics.newArrayList(1);
+      caseMarkers.add(matcher.getNode("c1"));
+      if (caseMarkers.equals(oldCaseMarkers))       continue;
+      IndexedWord gov=matcher.getNode("gov");
+      IndexedWord mod=matcher.getNode("mod");
+      addCaseMarkersToReln(sg,gov,mod,caseMarkers);
+      oldCaseMarkers=caseMarkers;
+    }
   }
 }

@@ -1,14 +1,13 @@
 {
+  int patternFlags=ignoreCase ? Pattern.CASE_INSENSITIVE : 0;
+  int stringMatchFlags=ignoreCase ? NodePattern.CASE_INSENSITIVE : 0;
+  Env env=TokenSequencePattern.getNewEnv();
+  env.setDefaultStringPatternFlags(patternFlags);
+  env.setDefaultStringMatchFlags(stringMatchFlags);
+  NodePattern<String> posTagPattern=(validPosPattern != null && PosMatchType.MATCH_ALL_TOKENS.equals(posMatchType)) ? new CoreMapNodePattern.StringAnnotationRegexPattern(validPosPattern) : null;
   List<TokenSequencePattern> patterns=new ArrayList<>(entries.size());
   for (  Entry entry : entries) {
     TokenSequencePattern pattern;
-    Boolean ignoreCaseEntry=ignoreCaseList.get(entryToMappingFileNumber.get(entry));
-    int patternFlags=ignoreCaseEntry ? Pattern.CASE_INSENSITIVE : 0;
-    int stringMatchFlags=ignoreCaseEntry ? NodePattern.CASE_INSENSITIVE : 0;
-    Env env=TokenSequencePattern.getNewEnv();
-    env.setDefaultStringPatternFlags(patternFlags);
-    env.setDefaultStringMatchFlags(stringMatchFlags);
-    NodePattern<String> posTagPattern=(validPosPatternList.get(entryToMappingFileNumber.get(entry)) != null && PosMatchType.MATCH_ALL_TOKENS.equals(posMatchType)) ? new CoreMapNodePattern.StringAnnotationRegexPattern(validPosPatternList.get(entryToMappingFileNumber.get(entry))) : null;
     if (entry.tokensRegex != null) {
       pattern=TokenSequencePattern.compile(env,entry.tokensRegex);
     }
