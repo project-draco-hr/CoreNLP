@@ -91,6 +91,8 @@
   boolean conllx=props.getProperty("conllx") != null;
   boolean checkConnected=props.getProperty("checkConnected") != null;
   boolean portray=props.getProperty("portray") != null;
+  boolean enhanced=props.getProperty("enhanced") != null;
+  boolean enhancedPlusPlus=props.getProperty("enhanced++") != null;
   if (conllx) {
     keepPunct=true;
   }
@@ -183,7 +185,7 @@
         System.out.println();
       }
       if (basic) {
-        if (collapsed || CCprocessed || collapsedTree|| nonCollapsed) {
+        if (collapsed || CCprocessed || collapsedTree|| nonCollapsed|| enhanced|| enhancedPlusPlus) {
           System.out.println("------------- basic dependencies ---------------");
         }
         if (altDepPrinter == null) {
@@ -225,7 +227,19 @@
         }
         printDependencies(gs,gs.typedDependenciesCollapsedTree(),tree,conllx,false);
       }
-      if (!basic && !collapsed && !CCprocessed&& !collapsedTree&& !nonCollapsed) {
+      if (enhanced) {
+        if (basic || enhancedPlusPlus) {
+          System.out.println("----------- enhanced dependencies tree -----------");
+        }
+        printDependencies(gs,gs.typedDependenciesEnhanced(),tree,conllx,false);
+      }
+      if (enhancedPlusPlus) {
+        if (basic || enhanced) {
+          System.out.println("----------- enhanced++ dependencies tree -----------");
+        }
+        printDependencies(gs,gs.typedDependenciesEnhancedPlusPlus(),tree,conllx,false);
+      }
+      if (!basic && !collapsed && !CCprocessed&& !collapsedTree&& !nonCollapsed&& !enhanced&& !enhancedPlusPlus) {
         printDependencies(gs,gs.typedDependenciesCCprocessed(Extras.MAXIMAL),tree,conllx,false);
       }
     }
