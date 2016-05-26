@@ -1,0 +1,16 @@
+{
+  if (!sg.getRoots().contains(oldHead)) {
+    IndexedWord parent=sg.getParent(oldHead);
+    if (parent == null) {
+      return;
+    }
+    SemanticGraphEdge edge=sg.getEdge(parent,oldHead);
+    sg.removeEdge(edge);
+    sg.addEdge(parent,gov,edge.getRelation(),edge.getWeight(),edge.isExtra());
+  }
+ else {
+    sg.getRoots().remove(oldHead);
+    sg.addRoot(gov);
+  }
+  sg.removeEdge(sg.getEdge(oldHead,gov));
+}

@@ -1,0 +1,30 @@
+{
+  SemanticGraph sgCopy=sg.makeSoftCopy();
+  SemgrexMatcher matcher=QUANT_MOD_3W_PATTERN.matcher(sgCopy);
+  while (matcher.findNextMatchingNode()) {
+    IndexedWord w1=matcher.getNode("w1");
+    IndexedWord w2=matcher.getNode("w2");
+    IndexedWord w3=matcher.getNode("w3");
+    IndexedWord gov=matcher.getNode("gov");
+    demoteQmodParentHelper(sg,gov,w2);
+    List<IndexedWord> otherDeps=Generics.newLinkedList();
+    otherDeps.add(w1);
+    otherDeps.add(w2);
+    otherDeps.add(w3);
+    demoteQmodMWEHelper(sg,otherDeps,gov,w2);
+  }
+  for (  SemgrexPattern p : QUANT_MOD_2W_PATTERNS) {
+    sgCopy=sg.makeSoftCopy();
+    matcher=p.matcher(sgCopy);
+    while (matcher.findNextMatchingNode()) {
+      IndexedWord w1=matcher.getNode("w1");
+      IndexedWord w2=matcher.getNode("w2");
+      IndexedWord gov=matcher.getNode("gov");
+      demoteQmodParentHelper(sg,gov,w1);
+      List<IndexedWord> otherDeps=Generics.newLinkedList();
+      otherDeps.add(w1);
+      otherDeps.add(w2);
+      demoteQmodMWEHelper(sg,otherDeps,gov,w1);
+    }
+  }
+}
