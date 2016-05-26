@@ -23,7 +23,6 @@
     if (partition != -1)     MachineReadingProperties.logger.info("In partition #" + partition);
     String modelName=MachineReadingProperties.serializedRelationExtractorPath;
     if (partition != -1)     modelName+="." + partition;
-    Annotation predicted=null;
     if (MachineReadingProperties.useRelationExtractionModelMerging) {
       String[] modelNames=MachineReadingProperties.serializedRelationExtractorPath.split(",");
       if (partition != -1) {
@@ -40,6 +39,7 @@
  else {
       RelationFeatureFactory rff=makeRelationFeatureFactory(MachineReadingProperties.relationFeatureFactoryClass,MachineReadingProperties.relationFeatures,MachineReadingProperties.doNotLexicalizeFirstArg);
       ArgumentParser.fillOptions(rff,args);
+      Annotation predicted=null;
       if (MachineReadingProperties.trainRelationsUsingPredictedEntities) {
         assert(entityExtractor != null);
         predicted=AnnotationUtils.deepMentionCopy(training);
@@ -93,13 +93,13 @@
     String modelName=MachineReadingProperties.serializedEventExtractorPath;
     if (partition != -1)     modelName+="." + partition;
     File modelFile=new File(modelName);
-    Annotation predicted=null;
     if (!this.forceRetraining && modelFile.exists()) {
       MachineReadingProperties.logger.info("Loading event extraction model from " + modelName + " ...");
       Method mstLoader=(Class.forName("MSTBasedEventExtractor")).getMethod("load",String.class);
       eventExtractor=(Extractor)mstLoader.invoke(null,modelName);
     }
  else {
+      Annotation predicted=null;
       if (MachineReadingProperties.trainEventsUsingPredictedEntities) {
         assert(entityExtractor != null);
         predicted=AnnotationUtils.deepMentionCopy(training);

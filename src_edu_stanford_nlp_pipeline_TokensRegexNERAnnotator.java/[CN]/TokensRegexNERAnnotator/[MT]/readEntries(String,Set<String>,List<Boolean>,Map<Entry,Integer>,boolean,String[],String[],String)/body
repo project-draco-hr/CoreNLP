@@ -1,12 +1,12 @@
 {
   List<Entry> entries=new ArrayList<>();
   TrieMap<String,Entry> seenRegexes=new TrieMap<>();
-  Arrays.sort(mappings);
-  for (  String mapping : mappings) {
+  for (int mappingFileIndex=0; mappingFileIndex < mappings.length; mappingFileIndex++) {
+    String mapping=mappings[mappingFileIndex];
     BufferedReader rd=null;
     try {
       rd=IOUtils.readerFromString(mapping);
-      readEntries(annotatorName,headerFields,annotationFieldnames,entries,seenRegexes,mapping,rd,noDefaultOverwriteLabels,ignoreCase,verbose);
+      readEntries(annotatorName,headerFields,annotationFieldnames,entries,seenRegexes,mapping,rd,noDefaultOverwriteLabels,ignoreCaseList.get(mappingFileIndex),mappingFileIndex,entryToMappingFileNumber,verbose);
     }
  catch (    IOException e) {
       throw new RuntimeIOException("Couldn't read TokensRegexNER from " + mapping,e);

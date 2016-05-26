@@ -3,7 +3,7 @@
   String backgroundSymbol=properties.getProperty(prefix + "backgroundSymbol",DEFAULT_BACKGROUND_SYMBOL);
   String[] backgroundSymbols=COMMA_DELIMITERS_PATTERN.split(backgroundSymbol);
   String mappingFiles=properties.getProperty(prefix + "mapping",DefaultPaths.DEFAULT_REGEXNER_RULES);
-  String[] mappings=FILE_DELIMITERS_PATTERN.split(mappingFiles);
+  String[] mappings=processListMappingFiles(mappingFiles);
   String validPosRegex=properties.getProperty(prefix + "validpospattern");
   this.posMatchType=PosMatchType.valueOf(properties.getProperty(prefix + "posmatchtype",DEFAULT_POS_MATCH_TYPE.name()));
   String commonWordsFile=properties.getProperty(prefix + "commonWords");
@@ -62,7 +62,11 @@
  else {
     validPosPattern=null;
   }
-  entries=Collections.unmodifiableList(readEntries(name,noDefaultOverwriteLabels,ignoreCase,verbose,headerFields,annotationFieldnames,mappings));
+  validPosPatternList=new ArrayList<>();
+  ignoreCaseList=new ArrayList<>();
+  entryToMappingFileNumber=new HashMap<>();
+  processPerFileOptions(name,mappings,ignoreCaseList,validPosPatternList,ignoreCase,validPosPattern);
+  entries=Collections.unmodifiableList(readEntries(name,noDefaultOverwriteLabels,ignoreCaseList,entryToMappingFileNumber,verbose,headerFields,annotationFieldnames,mappings));
   IdentityHashMap<SequencePattern<CoreMap>,Entry> patternToEntry=new IdentityHashMap<>();
   multiPatternMatcher=createPatternMatcher(patternToEntry);
   this.patternToEntry=Collections.unmodifiableMap(patternToEntry);
