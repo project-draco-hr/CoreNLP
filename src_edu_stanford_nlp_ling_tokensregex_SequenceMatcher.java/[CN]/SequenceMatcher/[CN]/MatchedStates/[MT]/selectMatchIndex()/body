@@ -1,18 +1,33 @@
 {
   int best=-1;
   int bestbid=-1;
+  MatchedGroup bestMatched=null;
+  int bestMatchedLength=-1;
   for (int i=0; i < states.size(); i++) {
     State state=states.get(i);
     if (state.tstate.equals(SequencePattern.MATCH_STATE)) {
       if (best < 0) {
         best=i;
         bestbid=state.bid;
+        bestMatched=branchStates.getMatchedGroup(bestbid,0);
+        bestMatchedLength=(bestMatched != null) ? bestMatched.matchLength() : -1;
       }
  else {
         int bid=state.bid;
-        if (compareMatches(bestbid,bid) > 0) {
+        MatchedGroup mg=branchStates.getMatchedGroup(bid,0);
+        int matchLength=(mg != null) ? mg.matchLength() : -1;
+        boolean better;
+        if (matchLongest) {
+          better=(matchLength > bestMatchedLength || (matchLength == bestMatchedLength && compareMatches(bestbid,bid) > 0));
+        }
+ else {
+          better=compareMatches(bestbid,bid) > 0;
+        }
+        if (better) {
           bestbid=bid;
           best=i;
+          bestMatched=branchStates.getMatchedGroup(bestbid,0);
+          bestMatchedLength=(bestMatched != null) ? bestMatched.matchLength() : -1;
         }
       }
     }
