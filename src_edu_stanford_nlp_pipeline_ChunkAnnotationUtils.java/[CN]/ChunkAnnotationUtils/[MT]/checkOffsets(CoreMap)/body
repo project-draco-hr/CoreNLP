@@ -13,20 +13,20 @@
     int sentEndToken=sentence.get(CoreAnnotations.TokenEndAnnotation.class);
     String docTextSpan=docText.substring(sentBeginChar,sentEndChar);
     List<CoreLabel> docTokenSpan=new ArrayList<>(docTokens.subList(sentBeginToken,sentEndToken));
-    logger.finer("Checking Document " + docId + " span ("+ sentBeginChar+ ","+ sentEndChar+ ") ");
+    logger.debug("Checking Document " + docId + " span ("+ sentBeginChar+ ","+ sentEndChar+ ") ");
     if (!docTextSpan.equals(sentText)) {
       okay=false;
-      logger.finer("WARNING: Document " + docId + " span does not match sentence");
-      logger.finer("DocSpanText: " + docTextSpan);
-      logger.finer("SentenceText: " + sentText);
+      logger.debug("WARNING: Document " + docId + " span does not match sentence");
+      logger.debug("DocSpanText: " + docTextSpan);
+      logger.debug("SentenceText: " + sentText);
     }
     String sentTokenStr=getTokenText(sentTokens,CoreAnnotations.TextAnnotation.class);
     String docTokenStr=getTokenText(docTokenSpan,CoreAnnotations.TextAnnotation.class);
     if (!docTokenStr.equals(sentTokenStr)) {
       okay=false;
-      logger.finer("WARNING: Document " + docId + " tokens does not match sentence");
-      logger.finer("DocSpanTokens: " + docTokenStr);
-      logger.finer("SentenceTokens: " + sentTokenStr);
+      logger.debug("WARNING: Document " + docId + " tokens does not match sentence");
+      logger.debug("DocSpanTokens: " + docTokenStr);
+      logger.debug("SentenceTokens: " + sentTokenStr);
     }
   }
   return okay;
