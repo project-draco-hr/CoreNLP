@@ -1,0 +1,22 @@
+{
+  if (this.sentences != null && this.sentences.size() > 0) {
+    if (this.sentences.get(0).rawSentence().hasSentiment()) {
+      return this;
+    }
+    if (!this.sentences.get(0).rawSentence().hasBinarizedParseTree()) {
+      throw new IllegalStateException("No binarized parse tree (perhaps it's not supported in this language?)");
+    }
+  }
+  runParse(props);
+  Annotation ann=asAnnotation();
+  Supplier<Annotator> sentiment=(props == EMPTY_PROPS || props == SINGLE_SENTENCE_DOCUMENT) ? defaultSentiment : getOrCreate(AnnotatorFactories.sentiment(props,backend));
+  sentiment.get().annotate(ann);
+synchronized (serializer) {
+    for (int i=0; i < sentences.size(); ++i) {
+      CoreMap sentence=ann.get(CoreAnnotations.SentencesAnnotation.class).get(i);
+      String sentimentClass=sentence.get(SentimentCoreAnnotations.SentimentClass.class);
+      sentences.get(i).updateSentiment(sentimentClass);
+    }
+  }
+  return this;
+}

@@ -31,7 +31,7 @@
   if (sentFileName == null && (altDepReaderName == null || altDepReaderFilename == null) && treeFileName == null && conllXFileName == null && filter == null) {
     try {
       log.info("Usage: java GrammaticalStructure [options]* [-sentFile|-treeFile|-conllxFile file] [-testGraph]");
-      log.info("  options: -basic, -collapsed, -CCprocessed [the default], -collapsedTree, -parseTree, -test, -parserFile file, -conllx, -keepPunct, -altprinter -altreader -altreaderfile -originalDependencies");
+      log.info("  options: -basic, -enhanced, -enhanced++ [the default], -collapsed, -CCprocessed, -collapsedTree, -parseTree, -test, -parserFile file, -conllx, -keepPunct, -altprinter -altreader -altreaderfile -originalDependencies");
       TreeReader tr=new PennTreeReader(new StringReader("((S (NP (NNP Sam)) (VP (VBD died) (NP-TMP (NN today)))))"));
       tb.add(tr.readTree());
     }
@@ -91,6 +91,8 @@
   boolean conllx=props.getProperty("conllx") != null;
   boolean checkConnected=props.getProperty("checkConnected") != null;
   boolean portray=props.getProperty("portray") != null;
+  boolean enhanced=props.getProperty("enhanced") != null;
+  boolean enhancedPlusPlus=props.getProperty("enhanced++") != null;
   if (conllx) {
     keepPunct=true;
   }
@@ -183,7 +185,7 @@
         System.out.println();
       }
       if (basic) {
-        if (collapsed || CCprocessed || collapsedTree|| nonCollapsed) {
+        if (collapsed || CCprocessed || collapsedTree|| nonCollapsed|| enhanced|| enhancedPlusPlus) {
           System.out.println("------------- basic dependencies ---------------");
         }
         if (altDepPrinter == null) {
@@ -225,8 +227,25 @@
         }
         printDependencies(gs,gs.typedDependenciesCollapsedTree(),tree,conllx,false);
       }
-      if (!basic && !collapsed && !CCprocessed&& !collapsedTree&& !nonCollapsed) {
-        printDependencies(gs,gs.typedDependenciesCCprocessed(Extras.MAXIMAL),tree,conllx,false);
+      if (enhanced) {
+        if (basic || enhancedPlusPlus) {
+          System.out.println("----------- enhanced dependencies tree -----------");
+        }
+        printDependencies(gs,gs.typedDependenciesEnhanced(),tree,conllx,false);
+      }
+      if (enhancedPlusPlus) {
+        if (basic || enhanced) {
+          System.out.println("----------- enhanced++ dependencies tree -----------");
+        }
+        printDependencies(gs,gs.typedDependenciesEnhancedPlusPlus(),tree,conllx,false);
+      }
+      if (!basic && !collapsed && !CCprocessed&& !collapsedTree&& !nonCollapsed&& !enhanced&& !enhancedPlusPlus) {
+        if (generateOriginalDependencies) {
+          printDependencies(gs,gs.typedDependenciesCCprocessed(Extras.MAXIMAL),tree,conllx,false);
+        }
+ else {
+          printDependencies(gs,gs.typedDependenciesEnhancedPlusPlus(),tree,conllx,false);
+        }
       }
     }
     if (portray) {

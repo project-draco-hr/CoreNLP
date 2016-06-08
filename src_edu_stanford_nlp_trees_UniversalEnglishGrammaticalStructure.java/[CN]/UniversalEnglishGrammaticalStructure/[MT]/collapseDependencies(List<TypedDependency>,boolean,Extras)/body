@@ -1,64 +1,13 @@
 {
-  SemanticGraph sg=new SemanticGraph(list);
-  if (DEBUG) {
-    printListSorted("collapseDependencies: CCproc: " + CCprocess + " includeExtras: "+ includeExtras,sg.typedDependencies());
-  }
-  correctDependencies(sg);
-  if (DEBUG) {
-    printListSorted("After correctDependencies:",sg.typedDependencies());
-  }
-  processMultiwordPreps(sg);
-  if (DEBUG) {
-    printListSorted("After processMultiwordPreps:",sg.typedDependencies());
-  }
-  expandPPConjunctions(sg);
-  if (DEBUG) {
-    printListSorted("After expandPPConjunctions:",sg.typedDependencies());
-  }
-  expandPrepConjunctions(sg);
-  if (DEBUG) {
-    printListSorted("After expandPrepConjunctions:",sg.typedDependencies());
-  }
-  addCaseMarkerInformation(sg);
-  if (DEBUG) {
-    printListSorted("After addCaseMarkerInformation:",sg.typedDependencies());
-  }
-  addConjInformation(sg);
-  if (DEBUG) {
-    printListSorted("After addConjInformation:",sg.typedDependencies());
-  }
+  EnhancementOptions options=new EnhancementOptions(COLLAPSED_OPTIONS);
   if (includeExtras.doRef) {
-    addRef(sg);
-    if (DEBUG) {
-      printListSorted("After adding ref:",sg.typedDependencies());
-    }
-    if (includeExtras.collapseRef) {
-      collapseReferent(sg);
-      if (DEBUG) {
-        printListSorted("After collapse referent:",sg.typedDependencies());
-      }
-    }
-  }
-  if (CCprocess) {
-    treatCC(sg);
-    if (DEBUG) {
-      printListSorted("After treatCC:",sg.typedDependencies());
-    }
+    options.addReferent=true;
   }
   if (includeExtras.doSubj) {
-    addExtraNSubj(sg);
-    if (DEBUG) {
-      printListSorted("After adding extra nsubj:",sg.typedDependencies());
-    }
-    correctSubjPass(sg);
-    if (DEBUG) {
-      printListSorted("After correctSubjPass:",sg.typedDependencies());
-    }
+    options.addXSubj=true;
   }
-  list.clear();
-  list.addAll(sg.typedDependencies());
-  Collections.sort(list);
-  if (DEBUG) {
-    printListSorted("After all collapse:",list);
+  if (CCprocess) {
+    options.propagateDependents=true;
   }
+  addEnhancements(list,options);
 }
