@@ -1,6 +1,11 @@
 {
-  if (this.sentences != null && this.sentences.size() > 0 && this.sentences.get(0).rawSentence().hasSentiment()) {
-    return this;
+  if (this.sentences != null && this.sentences.size() > 0) {
+    if (this.sentences.get(0).rawSentence().hasSentiment()) {
+      return this;
+    }
+    if (!this.sentences.get(0).rawSentence().hasBinarizedParseTree()) {
+      throw new IllegalStateException("No binarized parse tree (perhaps it's not supported in this language?)");
+    }
   }
   runParse(props);
   Annotation ann=asAnnotation();
