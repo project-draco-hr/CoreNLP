@@ -1,3 +1,20 @@
 {
-  return this.sentences(props,(props == EMPTY_PROPS || props == SINGLE_SENTENCE_DOCUMENT) ? defaultTokenize : AnnotatorFactories.tokenize(props,backend).create());
+  if (sentences == null) {
+    Annotator tokenizer=(props == EMPTY_PROPS || props == SINGLE_SENTENCE_DOCUMENT) ? defaultTokenize : AnnotatorFactories.tokenize(props,backend).create();
+    Annotator ssplit=(props == EMPTY_PROPS || props == SINGLE_SENTENCE_DOCUMENT) ? defaultSSplit : AnnotatorFactories.sentenceSplit(props,backend).create();
+    Annotation ann=new Annotation(this.impl.getText());
+    tokenizer.annotate(ann);
+    ssplit.annotate(ann);
+    if (ann.containsKey(CoreAnnotations.DocIDAnnotation.class)) {
+      impl.setDocID(ann.get(CoreAnnotations.DocIDAnnotation.class));
+    }
+    List<CoreMap> sentences=ann.get(CoreAnnotations.SentencesAnnotation.class);
+    this.sentences=new ArrayList<>(sentences.size());
+    for (    CoreMap sentence : sentences) {
+      Sentence sent=new Sentence(this,this.serializer.toProtoBuilder(sentence),sentence.get(CoreAnnotations.TextAnnotation.class),defaultProps);
+      this.sentences.add(sent);
+      this.impl.addSentence(sent.serialize());
+    }
+  }
+  return sentences;
 }
