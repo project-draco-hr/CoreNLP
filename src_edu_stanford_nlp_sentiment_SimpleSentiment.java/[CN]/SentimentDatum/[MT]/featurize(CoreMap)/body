@@ -1,0 +1,14 @@
+{
+  ClassicCounter<String> features=new ClassicCounter<>();
+  String lastLemma="^";
+  for (  CoreLabel token : sentence.get(CoreAnnotations.TokensAnnotation.class)) {
+    features.incrementCount(token.lemma());
+    String lemma=token.lemma();
+    if (alpha.matcher(lemma).matches()) {
+      features.incrementCount(lastLemma + "__" + lemma);
+      lastLemma=lemma;
+    }
+  }
+  features.incrementCount(lastLemma + "__$");
+  return features;
+}
