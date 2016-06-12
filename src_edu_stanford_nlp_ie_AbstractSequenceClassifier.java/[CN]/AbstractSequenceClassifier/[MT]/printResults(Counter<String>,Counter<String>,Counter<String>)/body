@@ -3,15 +3,15 @@
   entities.addAll(entityTP.keySet());
   entities.addAll(entityFP.keySet());
   entities.addAll(entityFN.keySet());
-  log.info("         Entity\tP\tR\tF1\tTP\tFP\tFN");
+  boolean printedHeader=false;
   for (  String entity : entities) {
     double tp=entityTP.getCount(entity);
     double fp=entityFP.getCount(entity);
     double fn=entityFN.getCount(entity);
-    printPRLine(entity,tp,fp,fn);
+    printedHeader=printPRLine(entity,tp,fp,fn,printedHeader);
   }
   double tp=entityTP.totalCount();
   double fp=entityFP.totalCount();
   double fn=entityFN.totalCount();
-  printPRLine("Totals",tp,fp,fn);
+  printPRLine("Totals",tp,fp,fn,printedHeader);
 }
