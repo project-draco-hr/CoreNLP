@@ -16,7 +16,7 @@ synchronized (serializer) {
       CoreMap sentence=ann.get(CoreAnnotations.SentencesAnnotation.class).get(i);
       Tree tree=sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
       Tree binaryTree=sentence.get(TreeCoreAnnotations.BinarizedTreeAnnotation.class);
-      sentences.get(i).updateParse(serializer.toProto(tree),serializer.toProto(binaryTree));
+      sentences.get(i).updateParse(serializer.toProto(tree),binaryTree == null ? null : serializer.toProto(binaryTree));
       sentences.get(i).updateDependencies(ProtobufAnnotationSerializer.toProto(sentence.get(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class)),ProtobufAnnotationSerializer.toProto(sentence.get(SemanticGraphCoreAnnotations.EnhancedDependenciesAnnotation.class)),ProtobufAnnotationSerializer.toProto(sentence.get(SemanticGraphCoreAnnotations.EnhancedPlusPlusDependenciesAnnotation.class)));
     }
   }
