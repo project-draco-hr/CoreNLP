@@ -3,9 +3,9 @@
   if (requiredDocDateFormat != null) {
     DateFormat defaultFormatter=new SimpleDateFormat("yyyyMMdd");
     DateFormat requiredFormatter=new SimpleDateFormat(requiredDocDateFormat);
-    for (    String docId : docDates.keySet()) {
-      Date date=defaultFormatter.parse(docDates.get(docId));
-      docDates.put(docId,requiredFormatter.format(date));
+    for (    Map.Entry<String,String> docDateEntry : docDates.entrySet()) {
+      Date date=defaultFormatter.parse(docDateEntry.getValue());
+      docDates.put(docDateEntry.getKey(),requiredFormatter.format(date));
     }
   }
   processTempEval2Tab(pipeline,in,out,docDates);
