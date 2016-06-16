@@ -1,5 +1,5 @@
 {
-  if (validPosPattern != null) {
+  if (validPosPattern != null || atLeastOneValidPosPattern(validPosPatternList)) {
 switch (posMatchType) {
 case MATCH_ONE_TOKEN_PHRASE_ONLY:
       if (tokens.size() > 1)       return true;
@@ -7,8 +7,15 @@ case MATCH_AT_LEAST_ONE_TOKEN:
     for (int i=start; i < end; i++) {
       CoreLabel token=tokens.get(i);
       String pos=token.get(CoreAnnotations.PartOfSpeechAnnotation.class);
-      if (pos != null && validPosPattern.matcher(pos).matches()) {
+      if (pos != null && validPosPattern != null && validPosPattern.matcher(pos).matches()) {
         return true;
+      }
+ else       if (pos != null) {
+        for (        Pattern pattern : validPosPatternList) {
+          if (pattern != null && pattern.matcher(pos).matches()) {
+            return true;
+          }
+        }
       }
     }
   return false;
