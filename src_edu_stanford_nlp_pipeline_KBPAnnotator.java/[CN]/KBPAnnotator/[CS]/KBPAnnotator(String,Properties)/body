@@ -1,19 +1,19 @@
 {
   ArgumentParser.fillOptions(this,name,props);
-  extractors=new ArrayList<>();
   try {
+    log.info("Loading KBP classifier from " + model);
     Object object=IOUtils.readObjectFromURLOrClasspathOrFileSystem(model);
+    KBPRelationExtractor statisticalExtractor;
     if (object instanceof LinearClassifier) {
-      extractors.add(new KBPStatisticalExtractor((Classifier<String,String>)object));
+      statisticalExtractor=new KBPStatisticalExtractor((Classifier<String,String>)object);
     }
  else     if (object instanceof KBPStatisticalExtractor) {
-      extractors.add((KBPStatisticalExtractor)object);
+      statisticalExtractor=(KBPStatisticalExtractor)object;
     }
  else {
       throw new ClassCastException(object.getClass() + " cannot be cast into a " + KBPStatisticalExtractor.class);
     }
-    extractors.add(new KBPTokensregexExtractor(tokensregexdir));
-    extractors.add(new KBPSemgrexExtractor(semgrexdir));
+    this.extractor=new KBPEnsembleExtractor(new KBPTokensregexExtractor(tokensregexdir),new KBPSemgrexExtractor(semgrexdir),statisticalExtractor);
   }
  catch (  IOException|ClassNotFoundException e) {
     throw new RuntimeIOException(e);
