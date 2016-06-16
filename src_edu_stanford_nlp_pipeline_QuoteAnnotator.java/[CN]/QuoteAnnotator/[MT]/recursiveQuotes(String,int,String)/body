@@ -24,7 +24,14 @@
       }
     }
     if (DIRECTED_QUOTES.containsKey(quote) && DIRECTED_QUOTES.get(quote).equals(c)) {
-      directed--;
+      if (c.equals("???")) {
+        if ((i == text.length() - 1 || isSingleQuoteEnd(text,i))) {
+          directed--;
+        }
+      }
+ else {
+        directed--;
+      }
     }
     if ((start < 0) && !matchesPrevQuote(c,prevQuote) && (((isSingleQuoteWithUse(c) || c.equals("`")) && isSingleQuoteStart(text,i)) || (c.equals("\"") || DIRECTED_QUOTES.containsKey(c)))) {
       start=i;
