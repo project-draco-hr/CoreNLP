@@ -1,2 +1,11 @@
 {
+  Annotator rtn=customAnnotators.get(factory.signature());
+  if (rtn == null) {
+    rtn=factory.create();
+    customAnnotators.put(factory.signature(),factory.create());
+    while (customAnnotators.size() > 10) {
+      customAnnotators.keySet().iterator().remove();
+    }
+  }
+  return rtn;
 }

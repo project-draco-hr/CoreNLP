@@ -1,10 +1,10 @@
 {
   ArgumentParser.fillOptions(annotator,props);
   Properties withoutPrefix=new Properties();
-  String prefixString=annotatorName + '.';
-  for (  Map.Entry entry : props.entrySet()) {
-    String key=entry.getKey().toString();
-    withoutPrefix.setProperty(key.replace(prefixString,""),entry.getValue().toString());
+  Enumeration<Object> keys=props.keys();
+  while (keys.hasMoreElements()) {
+    String key=keys.nextElement().toString();
+    withoutPrefix.setProperty(key.replace(annotatorName + ".",""),props.getProperty(key));
   }
   ArgumentParser.fillOptions(annotator,withoutPrefix);
 }

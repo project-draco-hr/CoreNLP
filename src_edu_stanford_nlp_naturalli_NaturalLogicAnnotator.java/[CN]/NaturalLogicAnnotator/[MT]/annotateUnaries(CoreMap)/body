@@ -1,7 +1,7 @@
 {
   SemanticGraph tree=sentence.get(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class);
   if (tree == null) {
-    tree=sentence.get(SemanticGraphCoreAnnotations.EnhancedDependenciesAnnotation.class);
+    tree=sentence.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class);
   }
   List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
   boolean[] isOperator=new boolean[tokens.size()];
@@ -22,7 +22,7 @@
     }
     IndexedWord subject=matcher.getNode("subject");
     if (!isOperator[quantifier.index() - 1]) {
-      Optional<Triple<Operator,Integer,Integer>> quantifierInfo=validateQuantifierByHead(sentence,quantifier);
+      Optional<Triple<Operator,Integer,Integer>> quantifierInfo=validateQuantiferByHead(sentence,quantifier);
       if (quantifierInfo.isPresent()) {
         OperatorSpec scope=computeScope(tree,quantifierInfo.get().first,subject,Pair.makePair(quantifierInfo.get().second,quantifierInfo.get().third),null,false,null,tokens.size());
         CoreLabel token=tokens.get(quantifier.index() - 1);

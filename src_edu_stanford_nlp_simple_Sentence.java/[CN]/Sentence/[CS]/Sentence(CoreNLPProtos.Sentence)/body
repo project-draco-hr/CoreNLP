@@ -1,2 +1,11 @@
 {
+  this.impl=proto.toBuilder();
+  tokensBuilders=new ArrayList<>(this.impl.getTokenCount());
+  for (int i=0; i < this.impl.getTokenCount(); ++i) {
+    tokensBuilders.add(this.impl.getToken(i).toBuilder());
+  }
+  this.document=new Document(proto.getText());
+  this.document.forceSentences(Collections.singletonList(this));
+  assert(this.document.sentence(0).impl == this.impl);
+  assert(this.document.sentence(0).tokensBuilders == this.tokensBuilders);
 }
