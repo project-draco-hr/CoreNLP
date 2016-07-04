@@ -1,14 +1,14 @@
 {
   if (headIndexedWord == null)   return 0;
-  Collection<IndexedWord> children=collapsedDependency.getChildren(headIndexedWord);
+  Collection<IndexedWord> children=enhancedDependency.getChildren(headIndexedWord);
   for (  IndexedWord child : children) {
     if (dict.modals.contains(child.lemma()))     return 1;
   }
   IndexedWord parent=getHeadParent();
   if (parent != null) {
     if (dict.modals.contains(parent.lemma()))     return 1;
-    IndexedWord child=collapsedDependency.getChildWithReln(parent,UniversalEnglishGrammaticalRelations.AUX_MODIFIER);
-    if (!collapsedDependency.hasParentWithReln(headIndexedWord,UniversalEnglishGrammaticalRelations.NOMINAL_SUBJECT) && child != null && dict.modals.contains(child.lemma()))     return 1;
+    IndexedWord child=enhancedDependency.getChildWithReln(parent,UniversalEnglishGrammaticalRelations.AUX_MODIFIER);
+    if (!enhancedDependency.hasParentWithReln(headIndexedWord,UniversalEnglishGrammaticalRelations.NOMINAL_SUBJECT) && child != null && dict.modals.contains(child.lemma()))     return 1;
   }
   List<IndexedWord> path=getHeadPathToRoot();
   if (path == null)   return 0;
