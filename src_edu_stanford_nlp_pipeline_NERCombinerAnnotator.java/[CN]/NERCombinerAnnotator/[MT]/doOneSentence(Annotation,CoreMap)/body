@@ -5,38 +5,13 @@
     output=this.ner.classifySentenceWithGlobalInformation(tokens,annotation,sentence);
   }
  catch (  RuntimeInterruptedException e) {
+    output=null;
+  }
+  if (output == null) {
     doOneFailedSentence(annotation,sentence);
-    return;
   }
-  if (VERBOSE) {
-    boolean first=true;
-    log.info("NERCombinerAnnotator direct output: [");
-    for (    CoreLabel w : output) {
-      if (first) {
-        first=false;
-      }
  else {
-        log.info(", ");
-      }
-      log.info(w.toString());
-    }
-  }
-  if (output != null) {
-    if (VERBOSE) {
-      boolean first=true;
-      log.info("NERCombinerAnnotator direct output: [");
-      for (      CoreLabel w : output) {
-        if (first) {
-          first=false;
-        }
- else {
-          log.info(", ");
-        }
-        log.info(w.toString());
-      }
-      log.info(']');
-    }
-    for (int i=0; i < tokens.size(); ++i) {
+    for (int i=0, sz=tokens.size(); i < sz; ++i) {
       String neTag=output.get(i).get(CoreAnnotations.NamedEntityTagAnnotation.class);
       String normNeTag=output.get(i).get(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class);
       tokens.get(i).setNER(neTag);
@@ -45,22 +20,18 @@
     }
     if (VERBOSE) {
       boolean first=true;
-      log.info("NERCombinerAnnotator output: [");
+      StringBuilder sb=new StringBuilder("NERCombinerAnnotator output: [");
       for (      CoreLabel w : tokens) {
         if (first) {
           first=false;
         }
  else {
-          log.info(", ");
+          sb.append(", ");
         }
-        log.info(w.toShorterString("Word","NamedEntityTag","NormalizedNamedEntityTag"));
+        sb.append(w.toShorterString("Text","NamedEntityTag","NormalizedNamedEntityTag"));
       }
-      log.info(']');
-    }
-  }
- else {
-    for (    CoreLabel token : tokens) {
-      token.setNER(this.ner.backgroundSymbol());
+      sb.append(']');
+      log.info(sb);
     }
   }
 }
