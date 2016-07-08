@@ -1,0 +1,15 @@
+{
+  ChineseTreebankParserParams ctpp=new ChineseTreebankParserParams();
+  try {
+    TreeReaderFactory trf=ctpp.treeReaderFactory();
+    TreeReader tr=trf.newTreeReader(new InputStreamReader(new FileInputStream(treeFileName),encoding));
+    Tree t;
+    while ((t=tr.readTree()) != null) {
+      tb.add(t);
+    }
+    tr.close();
+  }
+ catch (  IOException e) {
+    throw new RuntimeException("File problem: " + e);
+  }
+}

@@ -3,11 +3,46 @@
   List<CoreLabel> tokens=annotation.get(CoreAnnotations.TokensAnnotation.class);
   List<CoreMap> sentences=annotation.get(CoreAnnotations.SentencesAnnotation.class);
   String quotesFrom=text;
-  if (ASCII_QUOTES) {
-    quotesFrom=replaceUnicode(text);
+  if (SMART_QUOTES) {
+    List<Pair<Integer,Integer>> overall=getQuotes(quotesFrom);
+    String docID=annotation.get(CoreAnnotations.DocIDAnnotation.class);
+    List<CoreMap> cmQuotesUnicode=getCoreMapQuotes(overall,tokens,sentences,text,docID);
+    int numUnicode=countQuotes(cmQuotesUnicode);
+    if (ASCII_QUOTES) {
+      quotesFrom=replaceUnicode(text);
+    }
+    overall=getQuotes(quotesFrom);
+    docID=annotation.get(CoreAnnotations.DocIDAnnotation.class);
+    List<CoreMap> cmQuotesAscii=getCoreMapQuotes(overall,tokens,sentences,text,docID);
+    int numAsciiSingle=countQuotes(cmQuotesAscii);
+    USE_SINGLE=false;
+    overall=getQuotes(quotesFrom);
+    docID=annotation.get(CoreAnnotations.DocIDAnnotation.class);
+    List<CoreMap> cmQuotesAsciiNoSingle=getCoreMapQuotes(overall,tokens,sentences,text,docID);
+    int numAsciiNoSingle=countQuotes(cmQuotesAsciiNoSingle);
+    log.info("Number of quotes + unicode - single : " + numUnicode);
+    log.info("Number of quotes + ascii - single : " + numAsciiNoSingle);
+    log.info("Number of quotes + ascii + single : " + numAsciiSingle);
+    if (numUnicode >= numAsciiNoSingle && numUnicode > (numAsciiSingle / 2)) {
+      annotation.set(CoreAnnotations.QuotationsAnnotation.class,cmQuotesUnicode);
+      log.info("Using unicode quotes.");
+    }
+ else     if (numAsciiSingle > (numAsciiNoSingle / 2)) {
+      annotation.set(CoreAnnotations.QuotationsAnnotation.class,cmQuotesAscii);
+      log.info("Using ascii quotes.");
+    }
+ else {
+      annotation.set(CoreAnnotations.QuotationsAnnotation.class,cmQuotesAsciiNoSingle);
+      log.info("Using ascii quotes with no single quotes.");
+    }
   }
-  List<Pair<Integer,Integer>> overall=getQuotes(quotesFrom);
-  String docID=annotation.get(CoreAnnotations.DocIDAnnotation.class);
-  List<CoreMap> cmQuotes=getCoreMapQuotes(overall,tokens,sentences,text,docID);
-  annotation.set(CoreAnnotations.QuotationsAnnotation.class,cmQuotes);
+ else {
+    if (ASCII_QUOTES) {
+      quotesFrom=replaceUnicode(text);
+    }
+    List<Pair<Integer,Integer>> overall=getQuotes(quotesFrom);
+    String docID=annotation.get(CoreAnnotations.DocIDAnnotation.class);
+    List<CoreMap> cmQuotes=getCoreMapQuotes(overall,tokens,sentences,text,docID);
+    annotation.set(CoreAnnotations.QuotationsAnnotation.class,cmQuotes);
+  }
 }

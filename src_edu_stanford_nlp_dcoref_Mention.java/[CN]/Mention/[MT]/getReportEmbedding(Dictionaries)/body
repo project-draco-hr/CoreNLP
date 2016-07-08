@@ -1,8 +1,8 @@
 {
   if (headIndexedWord == null)   return 0;
   for (  IndexedWord sibling : dependency.getSiblings(headIndexedWord)) {
-    if (dict.reportVerb.contains(sibling.lemma()) && dependency.hasParentWithReln(sibling,EnglishGrammaticalRelations.ADV_CLAUSE_MODIFIER)) {
-      IndexedWord marker=dependency.getChildWithReln(sibling,EnglishGrammaticalRelations.MARKER);
+    if (dict.reportVerb.contains(sibling.lemma()) && dependency.hasParentWithReln(sibling,UniversalEnglishGrammaticalRelations.ADV_CLAUSE_MODIFIER)) {
+      IndexedWord marker=dependency.getChildWithReln(sibling,UniversalEnglishGrammaticalRelations.MARKER);
       if (marker != null && marker.lemma().equals("as")) {
         return 1;
       }
@@ -11,12 +11,12 @@
   List<IndexedWord> path=dependency.getPathToRoot(headIndexedWord);
   if (path == null)   return 0;
   boolean isSubject=false;
-  if (dependency.hasParentWithReln(headIndexedWord,EnglishGrammaticalRelations.NOMINAL_SUBJECT))   isSubject=true;
+  if (dependency.hasParentWithReln(headIndexedWord,UniversalEnglishGrammaticalRelations.NOMINAL_SUBJECT))   isSubject=true;
   for (  IndexedWord word : path) {
     if (!isSubject && (dict.reportVerb.contains(word.lemma()) || dict.reportNoun.contains(word.lemma()))) {
       return 1;
     }
-    isSubject=dependency.hasParentWithReln(word,EnglishGrammaticalRelations.NOMINAL_SUBJECT);
+    isSubject=dependency.hasParentWithReln(word,UniversalEnglishGrammaticalRelations.NOMINAL_SUBJECT);
   }
   return 0;
 }

@@ -1,12 +1,10 @@
 {
-  logger.info("Loading character dictionary file from " + filename);
+  Map<String,Set<String>> char_dict;
   try {
-    InputStream is=IOUtils.getInputStreamFromURLOrClasspathOrFileSystem(filename);
-    BufferedReader DetectorReader=new BufferedReader(new InputStreamReader(is,"UTF-8"));
-    String DetectorLine;
+    BufferedReader detectorReader=IOUtils.readerFromString(filename,"UTF-8");
     char_dict=Generics.newHashMap();
-    while ((DetectorLine=DetectorReader.readLine()) != null) {
-      String[] fields=DetectorLine.split("	");
+    for (String detectorLine; (detectorLine=detectorReader.readLine()) != null; ) {
+      String[] fields=detectorLine.split("	");
       String tag=fields[0];
       Set<String> chars=char_dict.get(tag);
       if (chars == null) {
@@ -15,10 +13,11 @@
       }
       chars.add(fields[1]);
     }
-    is.close();
+    detectorReader.close();
   }
  catch (  IOException e) {
     throw new RuntimeIOException(e);
   }
+  logger.info("Loading character dictionary file from " + filename + " [done].");
   return char_dict;
 }
