@@ -1,5 +1,29 @@
 {
-  Annotation ann=new Annotation(sentence);
-  pipeline.get().annotate(ann);
-  return ann.get(CoreAnnotations.SentencesAnnotation.class).get(0);
+  Annotation ann;
+  if ("".equals(sentence.trim())) {
+switch (sentiment) {
+case VERY_POSITIVE:
+      ann=new Annotation("cats are super awesome!");
+    break;
+case POSITIVE:
+  ann=new Annotation("cats are great");
+break;
+case NEUTRAL:
+ann=new Annotation("cats have tails");
+break;
+case NEGATIVE:
+ann=new Annotation("cats suck");
+break;
+case VERY_NEGATIVE:
+ann=new Annotation("cats are literally the worst, I can't even.");
+break;
+default :
+throw new IllegalStateException();
+}
+}
+ else {
+ann=new Annotation(sentence);
+}
+pipeline.get().annotate(ann);
+return ann.get(CoreAnnotations.SentencesAnnotation.class).get(0);
 }
