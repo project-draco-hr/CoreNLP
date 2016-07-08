@@ -1,2 +1,39 @@
 {
+  return new AbstractSet<Entry<K,Collection<V>>>(){
+    @Override public Iterator<Map.Entry<K,Collection<V>>> iterator(){
+      Predicate<Entry<K,Collection<V>>> filter1=new Predicate<Entry<K,Collection<V>>>(){
+        private static final long serialVersionUID=-3257173354412718639L;
+        public boolean test(        Map.Entry<K,Collection<V>> e){
+          K key=e.getKey();
+          if (deltaMap.containsKey(key)) {
+            return false;
+          }
+          return true;
+        }
+      }
+;
+      Iterator<Map.Entry<K,Collection<V>>> iter1=new FilteredIterator<>(originalMap.entrySet().iterator(),filter1);
+      Predicate<Entry<K,Collection<V>>> filter2=new Predicate<Entry<K,Collection<V>>>(){
+        private static final long serialVersionUID=1L;
+        public boolean test(        Map.Entry<K,Collection<V>> e){
+          if (e.getValue() == removedValue) {
+            return false;
+          }
+          return true;
+        }
+      }
+;
+      Iterator<Map.Entry<K,Collection<V>>> iter2=new FilteredIterator<>(deltaMap.entrySet().iterator(),filter2);
+      return new ConcatenationIterator<>(iter1,iter2);
+    }
+    @Override public int size(){
+      int size=0;
+      for (      Entry<K,Collection<V>> entry : this) {
+        ErasureUtils.noop(entry);
+        size++;
+      }
+      return size;
+    }
+  }
+;
 }

@@ -6,9 +6,9 @@
     if (word.equals("``") || word.equals("''"))     countQuotationMark++;
   }
   if (countQuotationMark != 1)   return false;
-  IndexedWord w=m.enhancedDependency.getNodeByWordPattern(m.sentenceWords.get(m.headIndex).get(CoreAnnotations.TextAnnotation.class));
+  IndexedWord w=m.collapsedDependency.getNodeByWordPattern(m.sentenceWords.get(m.headIndex).get(CoreAnnotations.TextAnnotation.class));
   if (w == null)   return false;
-  for (  Pair<GrammaticalRelation,IndexedWord> parent : m.enhancedDependency.parentPairs(w)) {
+  for (  Pair<GrammaticalRelation,IndexedWord> parent : m.collapsedDependency.parentPairs(w)) {
     if (parent.first().getShortName().equals("nsubj") && dict.reportVerb.contains(parent.second().get(CoreAnnotations.LemmaAnnotation.class))) {
       return true;
     }

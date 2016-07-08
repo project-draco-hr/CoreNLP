@@ -23,7 +23,7 @@
       log.info("Epoch " + epoch + " batch "+ batch);
       int startTree=batch * model.op.trainOptions.batchSize;
       int endTree=(batch + 1) * model.op.trainOptions.batchSize;
-      if (endTree > shuffledSentences.size()) {
+      if (endTree + model.op.trainOptions.batchSize > shuffledSentences.size()) {
         endTree=shuffledSentences.size();
       }
       executeOneTrainingBatch(model,shuffledSentences.subList(startTree,endTree),sumGradSquare);

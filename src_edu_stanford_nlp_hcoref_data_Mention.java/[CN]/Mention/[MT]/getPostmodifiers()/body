@@ -1,10 +1,10 @@
 {
   ArrayList<ArrayList<IndexedWord>> postmod=new ArrayList<>();
   if (headIndexedWord == null)   return postmod;
-  for (  Pair<GrammaticalRelation,IndexedWord> child : enhancedDependency.childPairs(headIndexedWord)) {
+  for (  Pair<GrammaticalRelation,IndexedWord> child : collapsedDependency.childPairs(headIndexedWord)) {
     String function=child.first().getShortName();
-    if (child.second().index() > headWord.index() && !function.endsWith("det") && !function.equals("nummod") && !function.startsWith("acl") && !function.startsWith("advcl") && !function.equals("punct") && !(function.equals("case") && enhancedDependency.descendants(child.second()).size() == 1 && child.second.tag().equals("POS"))) {
-      ArrayList<IndexedWord> phrase=new ArrayList<>(enhancedDependency.descendants(child.second()));
+    if (child.second().index() > headWord.index() && !function.endsWith("det") && !function.equals("num") && !function.equals("rcmod") && !function.equals("infmod") && !function.equals("partmod") && !function.equals("punct") && !(function.equals("possessive") && collapsedDependency.descendants(child.second()).size() == 1)) {
+      ArrayList<IndexedWord> phrase=new ArrayList<>(collapsedDependency.descendants(child.second()));
       Collections.sort(phrase);
       postmod.add(phrase);
     }

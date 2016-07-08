@@ -3,13 +3,9 @@
   List<String> remainingArgs=new ArrayList<>();
   for (int i=0; i < args.length; i++) {
     String key=args[i];
-    if (!key.isEmpty() && key.charAt(0) == '-') {
-      if (key.length() > 1 && key.charAt(1) == '-') {
-        key=key.substring(2);
-      }
- else {
-        key=key.substring(1);
-      }
+    if (key.length() > 0 && key.charAt(0) == '-') {
+      if (key.length() > 1 && key.charAt(1) == '-')       key=key.substring(2);
+ else       key=key.substring(1);
       Integer maxFlagArgs=flagsToNumArgs.get(key);
       int max=maxFlagArgs == null ? 1 : maxFlagArgs;
       int min=maxFlagArgs == null ? 0 : maxFlagArgs;
@@ -20,18 +16,28 @@
       for (int j=0; j < max && i + 1 < args.length && (j < min || args[i + 1].isEmpty() || args[i + 1].charAt(0) != '-'); i++, j++) {
         flagArgs.add(args[i + 1]);
       }
-      String value;
       if (flagArgs.isEmpty()) {
-        value="true";
+        result.setProperty(key,"true");
       }
  else {
-        value=join(flagArgs," ");
-      }
-      if (key.equalsIgnoreCase(PROP) || key.equalsIgnoreCase(PROPS) || key.equalsIgnoreCase(PROPERTIES)|| key.equalsIgnoreCase(ARGUMENTS)|| key.equalsIgnoreCase(ARGS)) {
-        result.setProperty(PROPERTIES,value);
-      }
- else {
-        result.setProperty(key,value);
+        result.setProperty(key,join(flagArgs," "));
+        if (key.equalsIgnoreCase(PROP) || key.equalsIgnoreCase(PROPS) || key.equalsIgnoreCase(PROPERTIES)|| key.equalsIgnoreCase(ARGUMENTS)|| key.equalsIgnoreCase(ARGS)) {
+          try {
+            BufferedReader reader=IOUtils.readerFromString(result.getProperty(key));
+            result.remove(key);
+            result.load(reader);
+            for (            String propKey : result.stringPropertyNames()) {
+              String newVal=result.getProperty(propKey);
+              result.setProperty(propKey,newVal.trim());
+            }
+            reader.close();
+          }
+ catch (          IOException e) {
+            String msg="argsToProperties could not read properties file: " + result.getProperty(key);
+            result.remove(key);
+            throw new RuntimeIOException(msg,e);
+          }
+        }
       }
     }
  else {
@@ -41,26 +47,10 @@
   if (!remainingArgs.isEmpty()) {
     result.setProperty("",join(remainingArgs," "));
   }
-  while (result.containsKey(PROPERTIES)) {
-    String file=result.getProperty(PROPERTIES);
-    result.remove(PROPERTIES);
-    Properties toAdd=new Properties();
-    BufferedReader reader=null;
-    try {
-      reader=IOUtils.readerFromString(file);
-      toAdd.load(reader);
-      for (      String propKey : toAdd.stringPropertyNames()) {
-        String newVal=toAdd.getProperty(propKey);
-        toAdd.setProperty(propKey,newVal.trim());
-      }
-    }
- catch (    IOException e) {
-      String msg="argsToProperties could not read properties file: " + file;
-      throw new RuntimeIOException(msg,e);
-    }
- finally {
-      IOUtils.closeIgnoringExceptions(reader);
-    }
+  if (result.containsKey(PROP)) {
+    String file=result.getProperty(PROP);
+    result.remove(PROP);
+    Properties toAdd=argsToProperties("-prop",file);
     for (    String key : toAdd.stringPropertyNames()) {
       String val=toAdd.getProperty(key);
       if (!result.containsKey(key)) {

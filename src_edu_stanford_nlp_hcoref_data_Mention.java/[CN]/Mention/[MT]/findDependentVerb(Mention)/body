@@ -1,9 +1,9 @@
 {
-  if (m.enhancedDependency.getRoots().size() == 0) {
+  if (m.collapsedDependency.getRoots().size() == 0) {
     return new Pair<>();
   }
   SemgrexPattern pattern=SemgrexPattern.compile("{idx:" + (m.headIndex + 1) + "} [ <=reln {tag:/^V.*/}=verb | <=reln ({} << {tag:/^V.*/}=verb) ]");
-  SemgrexMatcher matcher=pattern.matcher(m.enhancedDependency);
+  SemgrexMatcher matcher=pattern.matcher(m.collapsedDependency);
   while (matcher.find()) {
     return Pair.makePair(matcher.getNode("verb"),matcher.getRelnString("reln"));
   }
