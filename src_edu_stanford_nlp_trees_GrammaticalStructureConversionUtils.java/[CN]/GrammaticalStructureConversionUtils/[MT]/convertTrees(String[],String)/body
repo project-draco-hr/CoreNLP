@@ -23,7 +23,9 @@
   boolean generateOriginalDependencies=props.getProperty("originalDependencies") != null || opts.stanfordDependencies;
   String tLPP=props.getProperty("tLPP",opts.tlPPClassName);
   TreebankLangParserParams params=ReflectionLoading.loadByReflection(tLPP);
-  params.setGenerateOriginalDependencies(generateOriginalDependencies);
+  if (generateOriginalDependencies) {
+    params.setGenerateOriginalDependencies(true);
+  }
   if (makeCopulaHead) {
     String[] options={"-makeCopulaHead"};
     params.setOptionFlag(options,0);
@@ -95,7 +97,9 @@
     try {
       Method method=lp.getClass().getMethod("getTLPParams");
       params=(TreebankLangParserParams)method.invoke(lp);
-      params.setGenerateOriginalDependencies(generateOriginalDependencies);
+      if (generateOriginalDependencies) {
+        params.setGenerateOriginalDependencies(true);
+      }
     }
  catch (    Exception cnfe) {
       throw new RuntimeException(cnfe);
