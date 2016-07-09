@@ -1,0 +1,29 @@
+{
+  String text=annotation.get(CoreAnnotations.TextAnnotation.class);
+  List<CoreLabel> sentChars=annotation.get(SegmenterCoreAnnotations.CharactersAnnotation.class);
+  List<CoreLabel> tokens=new ArrayList<>();
+  annotation.set(CoreAnnotations.TokensAnnotation.class,tokens);
+  List<HasWord> words=segmenter.segment(text);
+  if (VERBOSE) {
+    log.info(text);
+    log.info("--->");
+    log.info(words);
+  }
+  int pos=0;
+  for (  HasWord w : words) {
+    String word=w.word();
+    CoreLabel fl=sentChars.get(pos);
+    fl.set(CoreAnnotations.ArabicSegAnnotation.class,"1");
+    if (word.isEmpty()) {
+      continue;
+    }
+    CoreLabel token=new CoreLabel();
+    token.setWord(word);
+    token.setValue(word);
+    token.set(CoreAnnotations.CharacterOffsetBeginAnnotation.class,fl.get(CoreAnnotations.CharacterOffsetBeginAnnotation.class));
+    pos+=word.length();
+    fl=sentChars.get(pos - 1);
+    token.set(CoreAnnotations.CharacterOffsetEndAnnotation.class,fl.get(CoreAnnotations.CharacterOffsetEndAnnotation.class));
+    tokens.add(token);
+  }
+}
