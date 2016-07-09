@@ -9,8 +9,14 @@
   }
   if (conllx) {
     List<Tree> leaves=tree.getLeaves();
-    Tree uposTree=UniversalPOSMapper.mapTree(tree);
-    List<Label> uposLabels=uposTree.preTerminalYield();
+    List<Label> uposLabels=null;
+    if (convertToUPOS) {
+      Tree uposTree=UniversalPOSMapper.mapTree(tree);
+      uposLabels=uposTree.preTerminalYield();
+    }
+ else {
+      uposLabels=tree.preTerminalYield();
+    }
     int index=0;
     CoreMap sentence=new CoreLabel();
     List<CoreLabel> tokens=new ArrayList<>(leaves.size());
