@@ -44,5 +44,11 @@
       throw new IllegalArgumentException("Unsatisfiable annotator list: " + StringUtils.join(annotators,","));
     }
   }
+  if (orderedAnnotators.contains(STANFORD_PARSE) && !ArrayUtils.contains(annotators,STANFORD_DEPENDENCIES)) {
+    orderedAnnotators.remove(STANFORD_DEPENDENCIES);
+  }
+  if (orderedAnnotators.contains(Annotator.STANFORD_MENTION) && !orderedAnnotators.contains(Annotator.STANFORD_PARSE) && !props.containsKey("coref.md.type")) {
+    props.setProperty("coref.md.type","dep");
+  }
   return StringUtils.join(orderedAnnotators,",");
 }
