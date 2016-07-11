@@ -1,11 +1,11 @@
 {
-  return new AnnotatorFactory(MentionAnnotator.class,properties){
+  return new AnnotatorFactory(Annotator.STANFORD_MENTION,MentionAnnotator.class,properties){
     private static final long serialVersionUID=1L;
     @Override public Annotator create(){
       return annotatorImplementation.mention(properties);
     }
     @Override public String additionalSignature(){
-      return "";
+      return "md:" + properties.getProperty("coref.md.type","rule") + ";"+ "lang:"+ properties.getProperty("coref.language","en");
     }
   }
 ;
