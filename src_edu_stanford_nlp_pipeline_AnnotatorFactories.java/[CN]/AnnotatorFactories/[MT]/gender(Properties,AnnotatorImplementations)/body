@@ -1,8 +1,11 @@
 {
-  return new AnnotatorFactory(Annotator.STANFORD_GENDER,GenderAnnotator.class,properties){
+  return new AnnotatorFactory(GenderAnnotator.class,properties){
     private static final long serialVersionUID=1L;
     @Override public Annotator create(){
       return annotatorImplementation.gender(properties,false);
+    }
+    @Override public String additionalSignature(){
+      return "gender.firstnames:" + properties.getProperty("gender.firstnames",DefaultPaths.DEFAULT_GENDER_FIRST_NAMES);
     }
   }
 ;
