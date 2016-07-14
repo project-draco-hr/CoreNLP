@@ -1,0 +1,16 @@
+{
+  for (  String property : inputProps.stringPropertyNames()) {
+    if (property.startsWith(CUSTOM_ANNOTATOR_PREFIX)) {
+      final String customName=property.substring(CUSTOM_ANNOTATOR_PREFIX.length());
+      final String customClassName=inputProps.getProperty(property);
+      logger.info("Registering annotator " + customName + " with class "+ customClassName);
+      pool.register(customName,new AnnotatorFactory(customName,customClassName,inputProps){
+        private static final long serialVersionUID=1L;
+        @Override public Annotator create(){
+          return annotatorImplementation.custom(properties,property);
+        }
+      }
+);
+    }
+  }
+}

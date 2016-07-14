@@ -1,4 +1,5 @@
 {
+  this.annotator=annotator;
   Properties forClient=new Properties();
   for (  Object o : properties.keySet()) {
     String key=o.toString();
@@ -6,7 +7,16 @@
     forClient.setProperty(key,value);
     forClient.setProperty(annotator + '.' + key,value);
   }
-  forClient.setProperty("annotators",annotator);
-  forClient.setProperty("enforceRequirements","false");
-  this.client=new StanfordCoreNLPClient(forClient,host,port);
+  if (lazy) {
+    forClient.setProperty("annotators",annotator);
+    forClient.setProperty("enforceRequirements","false");
+  }
+ else {
+    String annotators="tokenize,ssplit,pos,lemma,ner,parse,mention,coref,natlog,openie,sentiment";
+    if (!annotators.contains(annotator)) {
+      annotators+="," + annotator;
+    }
+    forClient.setProperty("annotators",annotators);
+  }
+  this.client=new StanfordCoreNLPClient(forClient,host,port,key,secret);
 }
