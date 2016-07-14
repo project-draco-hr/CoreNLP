@@ -1,5 +1,14 @@
 {
-  List<CoreLabel> labeledSequence=segmentStringToIOB(line);
-  String segmentedString=IOBUtils.IOBToString(labeledSequence,prefixMarker,suffixMarker);
+  List<CoreLabel> tokenList;
+  if (tf == null) {
+    tokenList=IOBUtils.StringToIOB(line);
+  }
+ else {
+    List<CoreLabel> tokens=tf.getTokenizer(new StringReader(line)).tokenize();
+    tokenList=IOBUtils.StringToIOB(tokens,null,false);
+  }
+  IOBUtils.labelDomain(tokenList,domain);
+  tokenList=classifier.classify(tokenList);
+  String segmentedString=IOBUtils.IOBToString(tokenList,prefixMarker,suffixMarker);
   return segmentedString;
 }

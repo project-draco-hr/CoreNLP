@@ -4,6 +4,7 @@
     if (tokenizerFactory != null)     pwErr.println("parseFiles: Tokenizer factory is: " + tokenizerFactory);
   }
   final Timing timer=new Timing();
+  timer.start();
   for (int i=argIndex; i < args.length; i++) {
     final String filename=args[i];
     final DocumentPreprocessor documentPreprocessor;
@@ -36,7 +37,7 @@
       }
       String ext=(op.testOptions.outputFilesExtension == null) ? "stp" : op.testOptions.outputFilesExtension;
       String fname=normalizedName + '.' + ext;
-      if (op.testOptions.outputFilesDirectory != null && !op.testOptions.outputFilesDirectory.isEmpty()) {
+      if (op.testOptions.outputFilesDirectory != null && !op.testOptions.outputFilesDirectory.equals("")) {
         String fseparator=System.getProperty("file.separator");
         if (fseparator == null || fseparator.isEmpty()) {
           fseparator="/";
@@ -48,7 +49,7 @@
         pwo=op.tlpParams.pw(new FileOutputStream(fname));
       }
  catch (      IOException ioe) {
-        throw new RuntimeIOException(ioe);
+        ioe.printStackTrace();
       }
     }
     treePrint.printHeader(pwo,op.tlpParams.getOutputEncoding());
