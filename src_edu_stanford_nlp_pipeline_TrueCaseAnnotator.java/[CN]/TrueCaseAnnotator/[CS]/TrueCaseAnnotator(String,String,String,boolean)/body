@@ -1,10 +1,7 @@
 {
-  this.VERBOSE=verbose;
-  Properties props=new Properties();
-  props.setProperty("loadClassifier",modelLoc);
-  props.setProperty("mixedCaseMapFile",mixedCaseFileName);
-  props.setProperty("classBias",classBias);
-  trueCaser=new CRFBiasedClassifier(props);
+  this.verbose=verbose;
+  Properties props=PropertiesUtils.asProperties("loadClassifier",modelLoc,"mixedCaseMapFile",mixedCaseFileName,"classBias",classBias);
+  trueCaser=new CRFBiasedClassifier<>(props);
   if (modelLoc != null) {
     trueCaser.loadClassifierNoExceptions(modelLoc,props);
   }
@@ -18,7 +15,7 @@
       String cname=bias.nextToken();
       double w=Double.parseDouble(bias.nextToken());
       trueCaser.setBiasWeight(cname,w);
-      if (VERBOSE)       log.info("Setting bias for class " + cname + " to "+ w);
+      if (this.verbose)       log.info("Setting bias for class " + cname + " to "+ w);
     }
   }
   mixedCaseMap=loadMixedCaseMap(mixedCaseFileName);
