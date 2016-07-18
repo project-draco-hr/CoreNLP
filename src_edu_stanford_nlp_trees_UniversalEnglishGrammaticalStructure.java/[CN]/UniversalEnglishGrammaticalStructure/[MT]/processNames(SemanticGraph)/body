@@ -1,4 +1,7 @@
 {
+  if (!USE_NAME) {
+    return;
+  }
   IndexedWord rootToken=sg.getFirstRoot();
   if (rootToken == null || !rootToken.containsKey(CoreAnnotations.NamedEntityTagAnnotation.class)) {
     return;
@@ -18,7 +21,9 @@
         }
         head=w1;
       }
-      nameParts.add(w2);
+      if (w2.ner().equals(w1.ner())) {
+        nameParts.add(w2);
+      }
     }
     if (head != null) {
       processNamesHelper(sg,head,nameParts);

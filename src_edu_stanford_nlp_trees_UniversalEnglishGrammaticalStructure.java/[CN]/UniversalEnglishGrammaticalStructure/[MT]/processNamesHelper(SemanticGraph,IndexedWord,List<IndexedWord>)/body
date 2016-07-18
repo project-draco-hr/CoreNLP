@@ -1,5 +1,13 @@
 {
   if (nameParts.size() < 1) {
+    Set<IndexedWord> children=new HashSet<>(sg.getChildren(oldHead));
+    for (    IndexedWord child : children) {
+      SemanticGraphEdge oldEdge=sg.getEdge(oldHead,child);
+      if (oldEdge.getRelation() == UniversalEnglishGrammaticalRelations.COMPOUND_MODIFIER) {
+        sg.addEdge(oldHead,child,UniversalEnglishGrammaticalRelations.NOMINAL_MODIFIER,oldEdge.getWeight(),oldEdge.isExtra());
+        sg.removeEdge(oldEdge);
+      }
+    }
     return;
   }
   Collections.sort(nameParts);
@@ -31,7 +39,8 @@
     }
  else {
       SemanticGraphEdge oldEdge=sg.getEdge(oldHead,child);
-      sg.addEdge(newHead,child,oldEdge.getRelation(),oldEdge.getWeight(),oldEdge.isExtra());
+      GrammaticalRelation reln=oldEdge.getRelation() == UniversalEnglishGrammaticalRelations.COMPOUND_MODIFIER ? UniversalEnglishGrammaticalRelations.NOMINAL_MODIFIER : oldEdge.getRelation();
+      sg.addEdge(newHead,child,reln,oldEdge.getWeight(),oldEdge.isExtra());
       sg.removeEdge(oldEdge);
     }
   }
