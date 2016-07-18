@@ -50,5 +50,10 @@
   if (orderedAnnotators.contains(Annotator.STANFORD_MENTION) && !orderedAnnotators.contains(Annotator.STANFORD_PARSE) && !props.containsKey("coref.md.type")) {
     props.setProperty("coref.md.type","dep");
   }
+  if (orderedAnnotators.contains(Annotator.STANFORD_NER) && orderedAnnotators.contains(STANFORD_REGEXNER)) {
+    orderedAnnotators.remove(STANFORD_REGEXNER);
+    int nerIndex=orderedAnnotators.indexOf(Annotator.STANFORD_NER);
+    orderedAnnotators.add(nerIndex + 1,STANFORD_REGEXNER);
+  }
   return StringUtils.join(orderedAnnotators,",");
 }
