@@ -50,5 +50,9 @@
     Duration halfDuration=this.divideBy(2);
     likelyRange=new Range(refTime.subtract(halfDuration),refTime.add(halfDuration),this);
   }
-  return new TimeWithRange(likelyRange);
+  if ((flags & (RESOLVE_TO_FUTURE | RESOLVE_TO_PAST)) != 0) {
+    return new TimeWithRange(likelyRange);
+  }
+  Range r=new Range(minTime,maxTime,this.multiplyBy(2));
+  return new InexactTime(new TimeWithRange(likelyRange),this,r);
 }
