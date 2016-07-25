@@ -4,15 +4,14 @@
   String[] refExprs2={"nineteen ninety five","2005"};
   String[] expected1={"SU","WI","FA","FA","SP"};
   String[] expected2={"1995","2005"};
-  for (int j=0; j < refModifiers.length; j++) {
+  for (  String refModifier : refModifiers) {
     String refTime=null;
-    String refMod=refModifiers[j];
     StringBuilder sb=new StringBuilder();
     for (    String s : refExprs1) {
       for (      String y : refExprs2) {
-        sb.append("It happens " + refMod + s+ " "+ y+ ". ");
-        sb.append("It happens " + refMod + s+ " of "+ y+ ". ");
-        sb.append("It happens " + refMod + y+ " "+ s+ ". ");
+        sb.append("It happens " + refModifier + s+ " "+ y+ ". ");
+        sb.append("It happens " + refModifier + s+ " of "+ y+ ". ");
+        sb.append("It happens " + refModifier + y+ " "+ s+ ". ");
       }
     }
     String testText=sb.toString();
@@ -23,11 +22,11 @@
         String s=expected1[k];
         String y=expected2[m];
         String v=y + "-" + s;
-        String expr=refMod + refExprs1[k] + " "+ refExprs2[m];
+        String expr=refModifier + refExprs1[k] + " "+ refExprs2[m];
         expectedTimexes[i++]=Timex.fromXml("<TIMEX3 tid=\"t" + (i) + "\" value=\""+ v+ "\" type=\"DATE\">"+ expr+ "</TIMEX3>");
-        expr=refMod + refExprs1[k] + " of "+ refExprs2[m];
+        expr=refModifier + refExprs1[k] + " of "+ refExprs2[m];
         expectedTimexes[i++]=Timex.fromXml("<TIMEX3 tid=\"t" + (i) + "\" value=\""+ v+ "\" type=\"DATE\">"+ expr+ "</TIMEX3>");
-        expr=refMod + refExprs2[m] + " "+ refExprs1[k];
+        expr=refModifier + refExprs2[m] + " "+ refExprs1[k];
         expectedTimexes[i++]=Timex.fromXml("<TIMEX3 tid=\"t" + (i) + "\" value=\""+ v+ "\" type=\"DATE\">"+ expr+ "</TIMEX3>");
       }
     }
@@ -37,7 +36,7 @@
     i=0;
     for (    CoreMap timexAnn : documentWithRefTime.get(TimeAnnotations.TimexAnnotations.class)) {
       Timex expectedTimex=expectedTimexes[i];
-      testTimex(testText,expectedTimex.text(),expectedTimex,timexAnn);
+      checkTimex(testText,expectedTimex.text(),expectedTimex,timexAnn);
       i++;
     }
     assertEquals(expectedTimexes.length,i);
