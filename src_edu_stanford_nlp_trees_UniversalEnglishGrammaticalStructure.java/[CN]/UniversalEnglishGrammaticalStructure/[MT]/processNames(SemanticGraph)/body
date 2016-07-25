@@ -1,0 +1,33 @@
+{
+  if (!USE_NAME) {
+    return;
+  }
+  IndexedWord rootToken=sg.getFirstRoot();
+  if (rootToken == null || !rootToken.containsKey(CoreAnnotations.NamedEntityTagAnnotation.class)) {
+    return;
+  }
+  SemanticGraph sgCopy=sg.makeSoftCopy();
+  for (  SemgrexPattern pattern : NAME_PATTERNS) {
+    SemgrexMatcher matcher=pattern.matcher(sgCopy);
+    List<IndexedWord> nameParts=new ArrayList<>();
+    IndexedWord head=null;
+    while (matcher.find()) {
+      IndexedWord w1=matcher.getNode("w1");
+      IndexedWord w2=matcher.getNode("w2");
+      if (head != w1) {
+        if (head != null) {
+          processNamesHelper(sg,head,nameParts);
+          nameParts=new ArrayList<>();
+        }
+        head=w1;
+      }
+      if (w2.ner().equals(w1.ner())) {
+        nameParts.add(w2);
+      }
+    }
+    if (head != null) {
+      processNamesHelper(sg,head,nameParts);
+      sgCopy=sg.makeSoftCopy();
+    }
+  }
+}

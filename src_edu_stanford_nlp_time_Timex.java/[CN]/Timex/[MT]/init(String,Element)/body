@@ -15,4 +15,12 @@
   this.beginPoint=(beginPoint == null || beginPoint.length() == 0) ? -1 : Integer.parseInt(beginPoint.substring(1));
   String endPoint=XMLUtils.getAttribute(element,"endPoint");
   this.endPoint=(endPoint == null || endPoint.length() == 0) ? -1 : Integer.parseInt(endPoint.substring(1));
+  String rangeStr=XMLUtils.getAttribute(element,"range");
+  if (rangeStr != null) {
+    if (rangeStr.startsWith("(") && rangeStr.endsWith(")")) {
+      rangeStr=rangeStr.substring(1,rangeStr.length() - 1);
+    }
+    String[] parts=rangeStr.split(",");
+    this.range=new Range(parts.length > 0 ? parts[0] : "",parts.length > 1 ? parts[1] : "",parts.length > 2 ? parts[2] : "");
+  }
 }
