@@ -113,6 +113,12 @@
       newTree=Tsurgeon.processPattern(fixupTregex[i],fixupTsurgeon[i],newTree);
     }
   }
+  if (newTree.numChildren() == 0) {
+    if (DEBUG) {
+      EncodingPrintWriter.err.println("Deleting tree that now has no contents: " + newTree,ChineseTreebankLanguagePack.ENCODING);
+    }
+    return null;
+  }
   if (tagExtender != null) {
     newTree=tagExtender.transformTree(newTree);
   }
