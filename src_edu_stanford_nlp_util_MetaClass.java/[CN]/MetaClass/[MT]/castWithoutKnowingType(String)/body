@@ -1,11 +1,11 @@
 {
-  Object rtn;
   Class[] typesToTry=new Class[]{Integer.class,Double.class,File.class,Date.class,List.class,Set.class,Queue.class,Integer[].class,Double[].class,Character[].class,String.class};
   for (  Class toTry : typesToTry) {
     if (Collection.class.isAssignableFrom(toTry) && !value.contains(",") || value.contains(" ")) {
       continue;
     }
     try {
+      Object rtn;
       if ((rtn=cast(value,toTry)) != null && (!File.class.isAssignableFrom(rtn.getClass()) || ((File)rtn).exists())) {
         return ErasureUtils.uncheckedCast(rtn);
       }
