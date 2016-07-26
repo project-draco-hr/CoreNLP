@@ -7,7 +7,9 @@
  else   if (kids.length > 0) {
     Tree child=kids[0];
     if (!child.isPhrasal()) {
-      EncodingPrintWriter.err.println("Correcting error: treebank tree is not phrasal; wrapping in FRAG: " + child,ChineseTreebankLanguagePack.ENCODING);
+      if (DEBUG) {
+        EncodingPrintWriter.err.println("Correcting error: treebank tree is not phrasal; wrapping in FRAG: " + child,ChineseTreebankLanguagePack.ENCODING);
+      }
       Tree added=tf.newTreeNode("FRAG",Arrays.asList(kids));
       newTree.setChild(0,added);
     }
@@ -112,6 +114,12 @@
  else {
       newTree=Tsurgeon.processPattern(fixupTregex[i],fixupTsurgeon[i],newTree);
     }
+  }
+  if (newTree.numChildren() == 0) {
+    if (DEBUG) {
+      EncodingPrintWriter.err.println("Deleting tree that now has no contents: " + newTree,ChineseTreebankLanguagePack.ENCODING);
+    }
+    return null;
   }
   if (tagExtender != null) {
     newTree=tagExtender.transformTree(newTree);
