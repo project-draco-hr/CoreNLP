@@ -3,23 +3,23 @@
   if (r.ruleType == null) {
     r.ruleType="time";
   }
-  String expr=(String)Expressions.asObject(env,attributes.get("pattern"));
-  String formatter=(String)Expressions.asObject(env,attributes.get("formatter"));
+  String expr=Expressions.asObject(env,attributes.get("pattern"));
+  String formatter=Expressions.asObject(env,attributes.get("formatter"));
   Expression action=Expressions.asExpression(env,attributes.get("action"));
-  String localeString=(String)Expressions.asObject(env,attributes.get("locale"));
+  String localeString=Expressions.asObject(env,attributes.get("locale"));
   r.pattern=expr;
   if (formatter == null) {
     if (r.annotationField == null) {
       r.annotationField=EnvLookup.getDefaultTextAnnotationKey(env);
     }
     CustomDateFormatExtractor formatExtractor=new CustomDateFormatExtractor(expr,localeString);
-    updateExtractRule(r,env,formatExtractor.getTextPattern(),new ApplyActionWrapper(env,formatExtractor,action));
+    updateExtractRule(r,env,formatExtractor.getTextPattern(),new ApplyActionWrapper<>(env,formatExtractor,action));
   }
  else   if ("org.joda.time.format.DateTimeFormat".equals(formatter)) {
     if (r.annotationField == null) {
       r.annotationField=r.tokensAnnotationField;
     }
-    updateExtractRule(r,env,new ApplyActionWrapper(env,new JodaDateTimeFormatExtractor(expr),action));
+    updateExtractRule(r,env,new ApplyActionWrapper<>(env,new JodaDateTimeFormatExtractor(expr),action));
   }
  else   if ("org.joda.time.format.ISODateTimeFormat".equals(formatter)) {
     if (r.annotationField == null) {
@@ -28,7 +28,7 @@
     try {
       Method m=ISODateTimeFormat.class.getMethod(expr);
       DateTimeFormatter dtf=(DateTimeFormatter)m.invoke(null);
-      updateExtractRule(r,env,new ApplyActionWrapper(env,new JodaDateTimeFormatExtractor(expr),action));
+      updateExtractRule(r,env,new ApplyActionWrapper<>(env,new JodaDateTimeFormatExtractor(expr),action));
     }
  catch (    Exception ex) {
       throw new RuntimeException("Error creating DateTimeFormatter",ex);
@@ -38,7 +38,7 @@
     if (r.annotationField == null) {
       r.annotationField=r.tokensAnnotationField;
     }
-    updateExtractRule(r,env,new ApplyActionWrapper(env,new JavaDateFormatExtractor(expr),action));
+    updateExtractRule(r,env,new ApplyActionWrapper<>(env,new JavaDateFormatExtractor(expr),action));
   }
  else {
     throw new IllegalArgumentException("Unsupported formatter: " + formatter);
