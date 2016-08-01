@@ -1,0 +1,11 @@
+{
+  List<Sieve> sieves=new ArrayList<>();
+  String sieveProp=HybridCorefProperties.getSieves(props);
+  String currentSieveForTrain=HybridCorefProperties.getCurrentSieveForTrain(props);
+  String[] sievenames=(currentSieveForTrain == null) ? sieveProp.trim().split(",\\s*") : sieveProp.split(currentSieveForTrain)[0].trim().split(",\\s*");
+  for (  String sievename : sievenames) {
+    Sieve sieve=loadSieve(props,sievename);
+    sieves.add(sieve);
+  }
+  return sieves;
+}
