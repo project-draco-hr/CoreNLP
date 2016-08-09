@@ -7,7 +7,19 @@
     if (hasSpeakerAnnotations(annotation)) {
       annotation.set(CoreAnnotations.UseMarkedDiscourseAnnotation.class,true);
     }
-    corefSystem.annotate(annotation);
+    if (COREF_MODE.equals(HYBRID_MODE)) {
+      Document corefDoc=hcorefSystem.docMaker.makeDocument(annotation);
+      Map<Integer,CorefChain> result=hcorefSystem.coref(corefDoc);
+      annotation.set(CorefCoreAnnotations.CorefChainAnnotation.class,result);
+      if (OLD_FORMAT)       annotateOldFormat(result,corefDoc);
+    }
+ else     if (COREF_MODE.equals(STATISTICAL_MODE)) {
+      scorefSystem.annotate(annotation);
+    }
+ else {
+      log.error("invalid selection for coreference mode!");
+      throw new RuntimeException();
+    }
   }
  catch (  RuntimeException e) {
     throw e;

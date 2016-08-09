@@ -10,18 +10,5 @@
   }
   runKBestTest(crf,txt1,isStoredAnswer);
   CRFClassifier<CoreLabel> crfCaseless=CRFClassifier.getClassifierNoExceptions(System.getProperty("ner.caseless.model",caselessPath));
-  try {
-    Triple<Double,Double,Double> prf=crfCaseless.classifyAndWriteAnswers("/u/nlp/data/ner/column_data/ritter.3class.test",true);
-    Counter<String> results=new ClassicCounter<>();
-    results.setCount("NER F1",prf.third());
-    Counter<String> lowResults=new ClassicCounter<>();
-    lowResults.setCount("NER F1",53.0);
-    Counter<String> highResults=new ClassicCounter<>();
-    highResults.setCount("NER F1",53.5);
-    BenchmarkingHelper.benchmarkResults(results,lowResults,highResults,null);
-  }
- catch (  IOException ioe) {
-    fail("IOError on CRF test file");
-  }
   runSimpleCRFTest(crfCaseless,caselessTests);
 }

@@ -1,0 +1,15 @@
+{
+  int index=buffer.length - 1;
+  buffer[index]=bid;
+  index-=1;
+  Pair<Integer,Integer> p=bidIndex.get(bid);
+  while (p != null && p.first() >= 0) {
+    buffer[index]=p.first;
+    index-=1;
+    if (index < 0) {
+      return getParents(bid);
+    }
+    p=bidIndex.get(p.first());
+  }
+  return Arrays.asList(buffer).subList(index + 1,buffer.length);
+}

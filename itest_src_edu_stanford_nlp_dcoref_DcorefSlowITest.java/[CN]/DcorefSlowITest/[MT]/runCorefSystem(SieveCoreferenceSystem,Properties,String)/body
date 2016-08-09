@@ -4,7 +4,8 @@
   PrintWriter writerGold=new PrintWriter(new FileOutputStream(conllOutputMentionGoldFile));
   PrintWriter writerPredictedCoref=new PrintWriter(new FileOutputStream(conllOutputMentionCorefPredictedFile));
   MentionExtractor mentionExtractor=new CoNLLMentionExtractor(corefSystem.dictionaries(),props,corefSystem.semantics());
-  for (Document document; (document=mentionExtractor.nextDoc()) != null; ) {
+  Document document;
+  while ((document=mentionExtractor.nextDoc()) != null) {
     document.extractGoldCorefClusters();
     SieveCoreferenceSystem.printConllOutput(document,writerGold,true);
     corefSystem.coref(document);

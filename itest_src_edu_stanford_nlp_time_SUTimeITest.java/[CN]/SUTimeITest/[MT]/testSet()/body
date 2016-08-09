@@ -23,7 +23,7 @@
         mg=mg * m;
         g=matcher.group(1) + mg + matcher.group(3);
       }
-      String expr=refMod + ' ' + refExprs[k];
+      String expr=refMod + " " + refExprs[k];
       expectedTimexes[k]=Timex.fromXml("<TIMEX3 tid=\"t" + (k + 1) + "\" value=\""+ v+ "\" type=\"SET\" quant=\""+ refMod+ "\" periodicity=\""+ g+ "\">"+ expr+ "</TIMEX3>");
     }
     Annotation documentWithRefTime=createDocument(testText,refTime);
@@ -32,7 +32,7 @@
     int k=0;
     for (    CoreMap timexAnn : documentWithRefTime.get(TimeAnnotations.TimexAnnotations.class)) {
       Timex expectedTimex=expectedTimexes[k];
-      checkTimex(testText,expectedTimex.text(),expectedTimex,timexAnn);
+      testTimex(testText,expectedTimex.text(),expectedTimex,timexAnn);
       k++;
     }
     assertEquals(expectedTimexes.length,k);

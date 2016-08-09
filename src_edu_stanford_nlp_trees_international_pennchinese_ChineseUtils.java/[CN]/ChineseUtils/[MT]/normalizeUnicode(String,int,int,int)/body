@@ -1,9 +1,10 @@
 {
   StringBuilder out=new StringBuilder();
   int len=in.length();
-  int cpp=0;
-  for (int offset=0, cp; offset < len; offset+=Character.charCount(cp)) {
-    cp=in.codePointAt(offset);
+  int numCP=in.codePointCount(0,len);
+  for (int i=0; i < numCP; i++) {
+    int offset=in.offsetByCodePoints(0,i);
+    int cp=in.codePointAt(offset);
     Character.UnicodeBlock cub=Character.UnicodeBlock.of(cp);
     if (cub == Character.UnicodeBlock.PRIVATE_USE_AREA || cub == Character.UnicodeBlock.SUPPLEMENTARY_PRIVATE_USE_AREA_A || cub == Character.UnicodeBlock.SUPPLEMENTARY_PRIVATE_USE_AREA_B) {
       EncodingPrintWriter.err.println("ChineseUtils.normalize warning: private use area codepoint U+" + Integer.toHexString(cp) + " in "+ in);
@@ -44,10 +45,13 @@ delete=true;
 }
 break;
 case DELETE_EXCEPT_BETWEEN_ASCII:
-int nextOffset=offset + Character.charCount(cp);
+int cpp=0;
+if (i > 0) {
+cpp=in.codePointAt(i - 1);
+}
 int cpn=0;
-if (nextOffset < len) {
-cpn=in.codePointAt(nextOffset);
+if (i < (numCP - 1)) {
+cpn=in.codePointAt(i + 1);
 }
 if (Character.isSpaceChar(cp) && !(isAsciiLowHigh(cpp) && isAsciiLowHigh(cpn))) {
 delete=true;
@@ -57,17 +61,17 @@ switch (midDot) {
 case LEAVE:
 break;
 case NORMALIZE:
-if (isMidDot(cp)) {
+if (cp == '\u00B7' || cp == '\u0387' || cp == '\u2022' || cp == '\u2024' || cp == '\u2027' || cp == '\u2219' || cp == '\u22C5' || cp == '\u30FB') {
 cp='\u00B7';
 }
 break;
 case FULLWIDTH:
-if (isMidDot(cp)) {
+if (cp == '\u00B7' || cp == '\u0387' || cp == '\u2022' || cp == '\u2024' || cp == '\u2027' || cp == '\u2219' || cp == '\u22C5' || cp == '\u30FB') {
 cp='\u30FB';
 }
 break;
 case DELETE:
-if (isMidDot(cp)) {
+if (cp == '\u00B7' || cp == '\u0387' || cp == '\u2022' || cp == '\u2024' || cp == '\u2027' || cp == '\u2219' || cp == '\u22C5' || cp == '\u30FB') {
 delete=true;
 }
 break;
@@ -77,7 +81,6 @@ throw new IllegalArgumentException("ChineseUtils: Unsupported parameter option: 
 if (!delete) {
 out.appendCodePoint(cp);
 }
-cpp=cp;
 }
 return out.toString();
 }
