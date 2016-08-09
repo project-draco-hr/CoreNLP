@@ -1,9 +1,9 @@
 {
   if (proto.getHasCorefMentionsAnnotation()) {
-    sentence.set(CorefMentionsAnnotation.class,new ArrayList<>());
+    sentence.set(CorefMentionsAnnotation.class,new ArrayList<Mention>());
   }
   if (proto.getMentionsForCorefList().size() != 0) {
-    HashMap<Integer,Mention> idToMention=new HashMap<>();
+    HashMap<Integer,Mention> idToMention=new HashMap<Integer,Mention>();
     List<Mention> sentenceMentions=sentence.get(CorefMentionsAnnotation.class);
     for (    CoreNLPProtos.Mention protoMention : proto.getMentionsForCorefList()) {
       Mention m=fromProtoNoTokens(protoMention);
@@ -13,19 +13,19 @@
     for (    CoreNLPProtos.Mention protoMention : proto.getMentionsForCorefList()) {
       Mention m=idToMention.get(protoMention.getMentionID());
       if (protoMention.getAppositionsList().size() != 0) {
-        m.appositions=new HashSet<>();
+        m.appositions=new HashSet<Mention>();
         for (        int mentID : protoMention.getAppositionsList()) {
           m.appositions.add(idToMention.get(mentID));
         }
       }
       if (protoMention.getPredicateNominativesList().size() != 0) {
-        m.predicateNominatives=new HashSet<>();
+        m.predicateNominatives=new HashSet<Mention>();
         for (        int mentID : protoMention.getPredicateNominativesList()) {
           m.predicateNominatives.add(idToMention.get(mentID));
         }
       }
       if (protoMention.getRelativePronounsList().size() != 0) {
-        m.relativePronouns=new HashSet<>();
+        m.relativePronouns=new HashSet<Mention>();
         for (        int mentID : protoMention.getRelativePronounsList()) {
           m.relativePronouns.add(idToMention.get(mentID));
         }
