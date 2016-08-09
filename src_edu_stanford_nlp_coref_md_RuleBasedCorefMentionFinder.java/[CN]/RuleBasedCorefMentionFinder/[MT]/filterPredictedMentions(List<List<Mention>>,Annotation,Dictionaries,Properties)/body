@@ -1,0 +1,22 @@
+{
+  List<List<Mention>> predictedMentions=new ArrayList<>();
+  for (int i=0; i < allGoldMentions.size(); i++) {
+    CoreMap s=doc.get(CoreAnnotations.SentencesAnnotation.class).get(i);
+    List<Mention> goldMentions=allGoldMentions.get(i);
+    List<Mention> mentions=new ArrayList<>();
+    predictedMentions.add(mentions);
+    mentions.addAll(goldMentions);
+    findHead(s,mentions);
+    Set<IntPair> mentionSpanSet=Generics.newHashSet();
+    Set<IntPair> namedEntitySpanSet=Generics.newHashSet();
+    for (    Mention m : mentions) {
+      mentionSpanSet.add(new IntPair(m.startIndex,m.endIndex));
+      if (!m.headWord.get(CoreAnnotations.NamedEntityTagAnnotation.class).equals("O")) {
+        namedEntitySpanSet.add(new IntPair(m.startIndex,m.endIndex));
+      }
+    }
+    setBarePlural(mentions);
+  }
+  removeSpuriousMentions(doc,predictedMentions,dict,CorefProperties.removeNestedMentions(props),lang);
+  return predictedMentions;
+}
