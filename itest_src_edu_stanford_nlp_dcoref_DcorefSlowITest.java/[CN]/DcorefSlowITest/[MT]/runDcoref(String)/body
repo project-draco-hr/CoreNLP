@@ -1,0 +1,22 @@
+{
+  final File WORK_DIR_FILE=File.createTempFile("DcorefITest","");
+  final String WORK_DIR=WORK_DIR_FILE.getPath();
+  final String PROPS_PATH=WORK_DIR + File.separator + "coref.properties";
+  System.err.println("Working in directory " + WORK_DIR);
+  if (WORK_DIR_FILE.exists()) {
+    if (!WORK_DIR_FILE.delete()) {
+      throw new IOException("Couldn't delete existing work dir " + WORK_DIR_FILE);
+    }
+  }
+  if (!WORK_DIR_FILE.mkdir()) {
+    throw new IOException("Couldn't create new work dir " + WORK_DIR_FILE);
+  }
+  WORK_DIR_FILE.deleteOnExit();
+  makePropsFile(PROPS_PATH,WORK_DIR,scorer);
+  System.out.println("Made props file " + PROPS_PATH);
+  Properties props=StringUtils.argsToProperties("-props",PROPS_PATH);
+  SieveCoreferenceSystem corefSystem=new SieveCoreferenceSystem(props);
+  String returnMsg=runCorefSystem(corefSystem,props,WORK_DIR);
+  System.out.println(returnMsg);
+  return getFinalScore(returnMsg);
+}

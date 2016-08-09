@@ -1,0 +1,11 @@
+{
+  List<CoreLabel> words=new ArrayList<>();
+  Set<Integer> seenSentences=new HashSet<>();
+  for (  Mention m : document.predictedMentionsByID.values()) {
+    if (!seenSentences.contains(m.sentNum)) {
+      seenSentences.add(m.sentNum);
+      words.addAll(m.sentenceWords);
+    }
+  }
+  return getAverageEmbedding(words);
+}

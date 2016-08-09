@@ -1,0 +1,23 @@
+{
+  log.info("LOADING SEMANTICS");
+  if (HybridCorefProperties.loadWordEmbedding(props)) {
+    log.info("LOAD: WordVectors");
+    String wordvectorFile=HybridCorefProperties.getPathSerializedWordVectors(props);
+    String word2vecFile=HybridCorefProperties.getPathWord2Vec(props);
+    try {
+      vectors=VectorMap.deserialize(wordvectorFile);
+    }
+ catch (    IOException e) {
+      if (new File(word2vecFile).exists()) {
+        vectors=VectorMap.readWord2Vec(word2vecFile);
+        if (wordvectorFile != null && !wordvectorFile.startsWith("edu")) {
+          vectors.serialize(wordvectorFile);
+        }
+      }
+ else {
+        throw new RuntimeIOException(e);
+      }
+    }
+    dimVector=vectors.entrySet().iterator().next().getValue().length;
+  }
+}

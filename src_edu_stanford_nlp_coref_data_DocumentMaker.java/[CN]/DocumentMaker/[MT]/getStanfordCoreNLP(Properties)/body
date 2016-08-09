@@ -1,0 +1,13 @@
+{
+  if (coreNLP != null) {
+    return coreNLP;
+  }
+  Properties pipelineProps=new Properties(props);
+  if (CorefProperties.conll(props)) {
+    pipelineProps.put("annotators",CorefProperties.getLanguage(props) == Locale.CHINESE ? "lemma, ner, mention" : "lemma, mention");
+  }
+ else {
+    pipelineProps.put("annotators","pos, lemma, ner, " + (CorefProperties.useConstituencyParse(props) ? "parse" : "depparse") + ", mention");
+  }
+  return (coreNLP=new StanfordCoreNLP(pipelineProps,false));
+}
