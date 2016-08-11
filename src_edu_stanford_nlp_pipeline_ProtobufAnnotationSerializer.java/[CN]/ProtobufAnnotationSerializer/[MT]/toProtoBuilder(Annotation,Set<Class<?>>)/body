@@ -17,6 +17,14 @@
     builder.setDocID(doc.get(DocIDAnnotation.class));
     keysToSerialize.remove(DocIDAnnotation.class);
   }
+  if (doc.containsKey(DocDateAnnotation.class)) {
+    builder.setDocDate(doc.get(DocDateAnnotation.class));
+    keysToSerialize.remove(DocDateAnnotation.class);
+  }
+  if (doc.containsKey(CalendarAnnotation.class)) {
+    builder.setCalendar(doc.get(CalendarAnnotation.class).toInstant().toEpochMilli());
+    keysToSerialize.remove(CalendarAnnotation.class);
+  }
   if (doc.containsKey(CorefChainAnnotation.class)) {
     for (    Map.Entry<Integer,CorefChain> chain : doc.get(CorefChainAnnotation.class).entrySet()) {
       builder.addCorefChain(toProto(chain.getValue()));
@@ -28,6 +36,12 @@
       builder.addQuote(toProtoQuote(quote));
     }
     keysToSerialize.remove(QuotationsAnnotation.class);
+  }
+  if (doc.containsKey(MentionsAnnotation.class)) {
+    for (    CoreMap mention : doc.get(MentionsAnnotation.class)) {
+      builder.addMentions(toProtoMention(mention));
+    }
+    keysToSerialize.remove(MentionsAnnotation.class);
   }
   return builder;
 }

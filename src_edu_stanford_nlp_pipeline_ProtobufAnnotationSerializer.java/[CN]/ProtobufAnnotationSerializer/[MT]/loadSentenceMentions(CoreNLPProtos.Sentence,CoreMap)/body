@@ -1,9 +1,9 @@
 {
   if (proto.getHasCorefMentionsAnnotation()) {
-    sentence.set(CorefMentionsAnnotation.class,new ArrayList<Mention>());
+    sentence.set(CorefMentionsAnnotation.class,new ArrayList<>());
   }
   if (proto.getMentionsForCorefList().size() != 0) {
-    HashMap<Integer,Mention> idToMention=new HashMap<Integer,Mention>();
+    HashMap<Integer,Mention> idToMention=new HashMap<>();
     List<Mention> sentenceMentions=sentence.get(CorefMentionsAnnotation.class);
     for (    CoreNLPProtos.Mention protoMention : proto.getMentionsForCorefList()) {
       Mention m=fromProtoNoTokens(protoMention);
@@ -13,31 +13,31 @@
     for (    CoreNLPProtos.Mention protoMention : proto.getMentionsForCorefList()) {
       Mention m=idToMention.get(protoMention.getMentionID());
       if (protoMention.getAppositionsList().size() != 0) {
-        m.appositions=new HashSet<Mention>();
+        m.appositions=new HashSet<>();
         for (        int mentID : protoMention.getAppositionsList()) {
           m.appositions.add(idToMention.get(mentID));
         }
       }
       if (protoMention.getPredicateNominativesList().size() != 0) {
-        m.predicateNominatives=new HashSet<Mention>();
+        m.predicateNominatives=new HashSet<>();
         for (        int mentID : protoMention.getPredicateNominativesList()) {
           m.predicateNominatives.add(idToMention.get(mentID));
         }
       }
       if (protoMention.getRelativePronounsList().size() != 0) {
-        m.relativePronouns=new HashSet<Mention>();
+        m.relativePronouns=new HashSet<>();
         for (        int mentID : protoMention.getRelativePronounsList()) {
           m.relativePronouns.add(idToMention.get(mentID));
         }
       }
       if (protoMention.getListMembersList().size() != 0) {
-        m.listMembers=new HashSet<Mention>();
+        m.listMembers=new HashSet<>();
         for (        int mentID : protoMention.getListMembersList()) {
           m.listMembers.add(idToMention.get(mentID));
         }
       }
       if (protoMention.getBelongToListsList().size() != 0) {
-        m.belongToLists=new HashSet<Mention>();
+        m.belongToLists=new HashSet<>();
         for (        int mentID : protoMention.getBelongToListsList()) {
           m.belongToLists.add(idToMention.get(mentID));
         }

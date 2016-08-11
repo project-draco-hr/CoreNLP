@@ -1,0 +1,17 @@
+{
+  if (!dict.firstPersonPronouns.contains(ant.spanToString().toLowerCase()) || ant.number == Number.PLURAL || ant.sentNum != m.sentNum)   return false;
+  int countQuotationMark=0;
+  for (int i=Math.min(m.headIndex,ant.headIndex) + 1; i < Math.max(m.headIndex,ant.headIndex); i++) {
+    String word=m.sentenceWords.get(i).get(CoreAnnotations.TextAnnotation.class);
+    if (word.equals("``") || word.equals("''"))     countQuotationMark++;
+  }
+  if (countQuotationMark != 1)   return false;
+  IndexedWord w=m.enhancedDependency.getNodeByWordPattern(m.sentenceWords.get(m.headIndex).get(CoreAnnotations.TextAnnotation.class));
+  if (w == null)   return false;
+  for (  Pair<GrammaticalRelation,IndexedWord> parent : m.enhancedDependency.parentPairs(w)) {
+    if (parent.first().getShortName().equals("nsubj") && dict.reportVerb.contains(parent.second().get(CoreAnnotations.LemmaAnnotation.class))) {
+      return true;
+    }
+  }
+  return false;
+}

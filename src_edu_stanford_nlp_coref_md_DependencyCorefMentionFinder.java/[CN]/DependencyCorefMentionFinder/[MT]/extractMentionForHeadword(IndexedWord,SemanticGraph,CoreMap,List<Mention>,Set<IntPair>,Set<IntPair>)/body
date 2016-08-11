@@ -1,0 +1,38 @@
+{
+  List<CoreLabel> sent=s.get(CoreAnnotations.TokensAnnotation.class);
+  SemanticGraph basic=s.get(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class);
+  SemanticGraph enhanced=s.get(SemanticGraphCoreAnnotations.EnhancedDependenciesAnnotation.class);
+  if (enhanced == null) {
+    enhanced=s.get(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class);
+  }
+  if (headword.tag().startsWith("PRP")) {
+    extractPronounForHeadword(headword,dep,s,mentions,mentionSpanSet,namedEntitySpanSet);
+    return;
+  }
+  IntPair npSpan=getNPSpan(headword,dep,sent);
+  int beginIdx=npSpan.get(0);
+  int endIdx=npSpan.get(1) + 1;
+  if (",".equals(sent.get(endIdx - 1).word())) {
+    endIdx--;
+  }
+  if ("IN".equals(sent.get(beginIdx).tag())) {
+    beginIdx++;
+  }
+  addMention(beginIdx,endIdx,headword,mentions,mentionSpanSet,namedEntitySpanSet,sent,basic,enhanced);
+  Set<IndexedWord> conjChildren=dep.getChildrenWithReln(headword,UniversalEnglishGrammaticalRelations.CONJUNCT);
+  if (conjChildren.size() > 0) {
+    IndexedWord conjChild=dep.getChildWithReln(headword,UniversalEnglishGrammaticalRelations.CONJUNCT);
+    for (    IndexedWord c : conjChildren) {
+      if (c.index() < conjChild.index())       conjChild=c;
+    }
+    IndexedWord left=SemanticGraphUtils.leftMostChildVertice(conjChild,dep);
+    for (int endIdxFirstElement=left.index() - 1; endIdxFirstElement > beginIdx; endIdxFirstElement--) {
+      if (!sent.get(endIdxFirstElement - 1).tag().matches("CC|,")) {
+        if (headword.index() - 1 < endIdxFirstElement) {
+          addMention(beginIdx,endIdxFirstElement,headword,mentions,mentionSpanSet,namedEntitySpanSet,sent,basic,enhanced);
+        }
+        break;
+      }
+    }
+  }
+}

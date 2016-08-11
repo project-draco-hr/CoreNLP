@@ -1,0 +1,41 @@
+{
+  List<CoreLabel> sent=s.get(CoreAnnotations.TokensAnnotation.class);
+  SemanticGraph basicDependency=s.get(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class);
+  SemanticGraph enhancedDependency=s.get(SemanticGraphCoreAnnotations.EnhancedDependenciesAnnotation.class);
+  if (enhancedDependency == null) {
+    enhancedDependency=s.get(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class);
+  }
+  String preNE="O";
+  int beginIndex=-1;
+  for (  CoreLabel w : sent) {
+    String nerString=w.ner();
+    if (!nerString.equals(preNE)) {
+      int endIndex=w.get(CoreAnnotations.IndexAnnotation.class) - 1;
+      if (!preNE.matches("O|QUANTITY|CARDINAL|PERCENT|DATE|DURATION|TIME|SET")) {
+        if (w.get(CoreAnnotations.TextAnnotation.class).equals("'s") && w.tag().equals("POS")) {
+          endIndex++;
+        }
+        IntPair mSpan=new IntPair(beginIndex,endIndex);
+        if (beginIndex < endIndex && !mentionSpanSet.contains(mSpan)) {
+          int dummyMentionId=-1;
+          Mention m=new Mention(dummyMentionId,beginIndex,endIndex,sent,basicDependency,enhancedDependency,new ArrayList<>(sent.subList(beginIndex,endIndex)));
+          mentions.add(m);
+          mentionSpanSet.add(mSpan);
+          namedEntitySpanSet.add(mSpan);
+        }
+      }
+      beginIndex=endIndex;
+      preNE=nerString;
+    }
+  }
+  if (!preNE.matches("O|QUANTITY|CARDINAL|PERCENT|DATE|DURATION|TIME|SET")) {
+    IntPair mSpan=new IntPair(beginIndex,sent.size());
+    if (!mentionSpanSet.contains(mSpan)) {
+      int dummyMentionId=-1;
+      Mention m=new Mention(dummyMentionId,beginIndex,sent.size(),sent,basicDependency,enhancedDependency,new ArrayList<>(sent.subList(beginIndex,sent.size())));
+      mentions.add(m);
+      mentionSpanSet.add(mSpan);
+      namedEntitySpanSet.add(mSpan);
+    }
+  }
+}

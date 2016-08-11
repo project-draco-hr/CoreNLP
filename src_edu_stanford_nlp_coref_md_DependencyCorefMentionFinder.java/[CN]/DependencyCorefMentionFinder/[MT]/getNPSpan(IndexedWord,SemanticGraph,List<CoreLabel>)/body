@@ -1,0 +1,23 @@
+{
+  int headwordIdx=headword.index() - 1;
+  List<IndexedWord> children=dep.getChildList(headword);
+  IndexedWord cop=dep.getChildWithReln(headword,UniversalEnglishGrammaticalRelations.COPULA);
+  int startIdx=(cop == null) ? 0 : children.indexOf(cop) + 1;
+  List<IndexedWord> insideNP=Generics.newArrayList();
+  for (int i=startIdx; i < children.size(); i++) {
+    IndexedWord child=children.get(i);
+    SemanticGraphEdge edge=dep.getEdge(headword,child);
+    if (edge.getRelation().getShortName().matches("dep|discourse|punct")) {
+      continue;
+    }
+ else {
+      insideNP.add(child);
+    }
+  }
+  if (insideNP.size() == 0)   return new IntPair(headwordIdx,headwordIdx);
+  Pair<IndexedWord,IndexedWord> firstChildLeftRight=SemanticGraphUtils.leftRightMostChildVertices(insideNP.get(0),dep);
+  Pair<IndexedWord,IndexedWord> lastChildLeftRight=SemanticGraphUtils.leftRightMostChildVertices(insideNP.get(insideNP.size() - 1),dep);
+  int beginIdx=Math.min(headwordIdx,firstChildLeftRight.first.index() - 1);
+  int endIdx=Math.max(headwordIdx,lastChildLeftRight.second.index() - 1);
+  return new IntPair(beginIdx,endIdx);
+}
