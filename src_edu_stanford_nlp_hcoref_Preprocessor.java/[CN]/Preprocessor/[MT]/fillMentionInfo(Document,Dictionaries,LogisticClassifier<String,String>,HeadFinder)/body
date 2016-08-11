@@ -1,0 +1,56 @@
+{
+  List<CoreMap> sentences=doc.annotation.get(SentencesAnnotation.class);
+  for (int i=0; i < doc.predictedMentions.size(); i++) {
+    CoreMap sentence=sentences.get(i);
+    for (int j=0; j < doc.predictedMentions.get(i).size(); j++) {
+      Mention m=doc.predictedMentions.get(i).get(j);
+      doc.predictedMentionsByID.put(m.mentionID,m);
+      IntTuple pos=new IntTuple(2);
+      pos.set(0,i);
+      pos.set(1,j);
+      doc.positions.put(m,pos);
+      m.sentNum=i;
+      IntTuple headPosition=new IntTuple(2);
+      headPosition.set(0,i);
+      headPosition.set(1,m.headIndex);
+      doc.mentionheadPositions.put(headPosition,m);
+      m.contextParseTree=sentence.get(TreeAnnotation.class);
+      m.basicDependency=sentence.get(BasicDependenciesAnnotation.class);
+      m.collapsedDependency=sentence.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class);
+      if (m.collapsedDependency == null) {
+        m.collapsedDependency=sentence.get(SemanticGraphCoreAnnotations.EnhancedDependenciesAnnotation.class);
+      }
+      if (m.contextParseTree != null) {
+        Tree headTree=m.contextParseTree.getLeaves().get(m.headIndex);
+        if (headTree == null) {
+          throw new RuntimeException("Missing head tree for a mention!");
+        }
+        Tree t=headTree;
+        while ((t=t.parent(m.contextParseTree)) != null) {
+          if (t.headTerminal(headFinder) == headTree && t.value().equals("NP")) {
+            m.mentionSubTree=t;
+          }
+ else           if (m.mentionSubTree != null) {
+            break;
+          }
+        }
+        if (m.mentionSubTree == null) {
+          m.mentionSubTree=headTree;
+        }
+      }
+      m.process(dict,null,singletonPredictor);
+    }
+  }
+  boolean hasGold=(doc.goldMentions != null);
+  if (hasGold) {
+    doc.goldMentionsByID=Generics.newHashMap();
+    int sentNum=0;
+    for (    List<Mention> golds : doc.goldMentions) {
+      for (      Mention g : golds) {
+        doc.goldMentionsByID.put(g.mentionID,g);
+        g.sentNum=sentNum;
+      }
+      sentNum++;
+    }
+  }
+}

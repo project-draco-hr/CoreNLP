@@ -1,5 +1,5 @@
 {
-  return new AnnotatorFactory(Annotator.STANFORD_CLEAN_XML,CleanXmlAnnotator.class,properties){
+  return new AnnotatorFactory(CleanXmlAnnotator.class,properties){
     private static final long serialVersionUID=1L;
     @Override public Annotator create(){
       String xmlTags=properties.getProperty("clean.xmltags",CleanXmlAnnotator.DEFAULT_XML_TAGS);
@@ -29,6 +29,9 @@
       annotator.setSectionAnnotationPatterns(sectionAnnotations);
       annotator.setSsplitDiscardTokensMatcher(ssplitDiscardTokens);
       return annotator;
+    }
+    @Override public String additionalSignature(){
+      return "clean.xmltags:" + properties.getProperty("clean.xmltags",CleanXmlAnnotator.DEFAULT_XML_TAGS) + "clean.sentenceendingtags:"+ properties.getProperty("clean.sentenceendingtags",CleanXmlAnnotator.DEFAULT_SENTENCE_ENDERS)+ "clean.sentenceendingtags:"+ properties.getProperty("clean.singlesentencetags",CleanXmlAnnotator.DEFAULT_SINGLE_SENTENCE_TAGS)+ "clean.allowflawedxml:"+ properties.getProperty("clean.allowflawedxml","")+ "clean.datetags:"+ properties.getProperty("clean.datetags",CleanXmlAnnotator.DEFAULT_DATE_TAGS)+ "clean.docidtags:"+ properties.getProperty("clean.docid",CleanXmlAnnotator.DEFAULT_DOCID_TAGS)+ "clean.doctypetags:"+ properties.getProperty("clean.doctype",CleanXmlAnnotator.DEFAULT_DOCTYPE_TAGS)+ "clean.turntags:"+ properties.getProperty("clean.turntags",CleanXmlAnnotator.DEFAULT_UTTERANCE_TURN_TAGS)+ "clean.speakertags:"+ properties.getProperty("clean.speakertags",CleanXmlAnnotator.DEFAULT_SPEAKER_TAGS)+ "clean.docAnnotations:"+ properties.getProperty("clean.docAnnotations",CleanXmlAnnotator.DEFAULT_DOC_ANNOTATIONS_PATTERNS)+ "clean.tokenAnnotations:"+ properties.getProperty("clean.tokenAnnotations",CleanXmlAnnotator.DEFAULT_TOKEN_ANNOTATIONS_PATTERNS)+ "clean.sectiontags:"+ properties.getProperty("clean.sectiontags",CleanXmlAnnotator.DEFAULT_SECTION_TAGS)+ "clean.sectionAnnotations:"+ properties.getProperty("clean.sectionAnnotations",CleanXmlAnnotator.DEFAULT_SECTION_ANNOTATIONS_PATTERNS);
     }
   }
 ;

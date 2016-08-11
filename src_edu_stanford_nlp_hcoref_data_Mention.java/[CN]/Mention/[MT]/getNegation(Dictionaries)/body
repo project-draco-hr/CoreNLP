@@ -1,0 +1,17 @@
+{
+  if (headIndexedWord == null)   return 0;
+  Collection<IndexedWord> children=collapsedDependency.getChildren(headIndexedWord);
+  for (  IndexedWord child : children) {
+    if (dict.negations.contains(child.lemma()))     return 1;
+  }
+  for (  IndexedWord sibling : getHeadSiblings()) {
+    if (dict.negations.contains(sibling.lemma()) && !collapsedDependency.hasParentWithReln(headIndexedWord,UniversalEnglishGrammaticalRelations.NOMINAL_SUBJECT))     return 1;
+  }
+  List<Pair<GrammaticalRelation,IndexedWord>> parentPairs=collapsedDependency.parentPairs(headIndexedWord);
+  if (!parentPairs.isEmpty()) {
+    Pair<GrammaticalRelation,IndexedWord> parentPair=parentPairs.get(0);
+    GrammaticalRelation gr=parentPair.first;
+    if (dict.neg_relations.contains(gr.toString()))     return 1;
+  }
+  return 0;
+}

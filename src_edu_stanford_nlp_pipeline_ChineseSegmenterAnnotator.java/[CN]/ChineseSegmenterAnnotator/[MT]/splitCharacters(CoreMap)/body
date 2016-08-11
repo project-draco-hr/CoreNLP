@@ -6,11 +6,8 @@
     CoreLabel wi=new CoreLabel();
     char[] ca={origText.charAt(i)};
     String wordString=new String(ca);
-    if ((Character.isSpaceChar(origText.charAt(i)) || Character.isISOControl(origText.charAt(i))) && !(origText.charAt(i) == '\n' || origText.charAt(i) == '\r')) {
+    if (Character.isWhitespace(origText.charAt(i)) || Character.isISOControl(origText.charAt(i))) {
       seg=true;
-    }
- else     if (Character.isISOControl(origText.charAt(i))) {
-      seg=false;
     }
  else {
       wi.set(CoreAnnotations.ChineseCharAnnotation.class,wordString);
@@ -26,5 +23,5 @@
       seg=false;
     }
   }
-  annotation.set(SegmenterCoreAnnotations.CharactersAnnotation.class,words);
+  annotation.set(ChineseCoreAnnotations.CharactersAnnotation.class,words);
 }

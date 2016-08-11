@@ -1,0 +1,23 @@
+{
+  try {
+    if (https) {
+      server=addSSLContext(HttpsServer.create(new InetSocketAddress(serverPort),0));
+    }
+ else {
+      server=HttpServer.create(new InetSocketAddress(serverPort),0);
+    }
+    server.createContext("/",new CoreNLPHandler(defaultProps,authenticator,callback,homepage));
+    server.createContext("/tokensregex",new TokensRegexHandler(authenticator,callback));
+    server.createContext("/semgrex",new SemgrexHandler(authenticator,callback));
+    server.createContext("/corenlp-brat.js",new FileHandler("edu/stanford/nlp/pipeline/demo/corenlp-brat.js"));
+    server.createContext("/corenlp-brat.cs",new FileHandler("edu/stanford/nlp/pipeline/demo/corenlp-brat.css"));
+    server.createContext("/ping",new PingHandler());
+    server.createContext("/shutdown",new ShutdownHandler());
+    server.setExecutor(serverExecutor);
+    server.start();
+    log("StanfordCoreNLPServer listening at " + server.getAddress());
+  }
+ catch (  IOException e) {
+    e.printStackTrace();
+  }
+}

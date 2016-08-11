@@ -1,8 +1,11 @@
 {
-  return new AnnotatorFactory(Annotator.STANFORD_REGEXNER,RegexNERAnnotator.class,properties){
+  return new AnnotatorFactory(RegexNERAnnotator.class,properties){
     private static final long serialVersionUID=1L;
     @Override public Annotator create(){
       return annotatorImplementation.tokensRegexNER(properties,Annotator.STANFORD_REGEXNER);
+    }
+    @Override public String additionalSignature(){
+      return PropertiesUtils.getSignature(Annotator.STANFORD_REGEXNER,properties,TokensRegexNERAnnotator.SUPPORTED_PROPERTIES);
     }
   }
 ;

@@ -1,9 +1,8 @@
 {
   String text=annotation.get(CoreAnnotations.TextAnnotation.class);
-  List<CoreLabel> sentChars=annotation.get(SegmenterCoreAnnotations.CharactersAnnotation.class);
+  List<CoreLabel> sentChars=annotation.get(ChineseCoreAnnotations.CharactersAnnotation.class);
   List<CoreLabel> tokens=new ArrayList<>();
   annotation.set(CoreAnnotations.TokensAnnotation.class,tokens);
-  text=text.replaceAll("[\n\r]","");
   List<String> words=segmenter.segmentString(text);
   if (VERBOSE) {
     log.info(text);
@@ -24,9 +23,6 @@
     pos+=w.length();
     fl=sentChars.get(pos - 1);
     token.set(CoreAnnotations.CharacterOffsetEndAnnotation.class,fl.get(CoreAnnotations.CharacterOffsetEndAnnotation.class));
-    if (VERBOSE) {
-      log.info("Adding token " + token.toShorterString());
-    }
     tokens.add(token);
   }
 }

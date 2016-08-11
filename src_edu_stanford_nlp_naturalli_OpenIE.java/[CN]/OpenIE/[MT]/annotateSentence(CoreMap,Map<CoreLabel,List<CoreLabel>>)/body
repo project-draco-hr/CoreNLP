@@ -2,9 +2,7 @@
   List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
   if (tokens.size() < 2) {
     sentence.set(NaturalLogicAnnotations.RelationTriplesAnnotation.class,Collections.emptyList());
-    if (!stripEntailments) {
-      sentence.set(NaturalLogicAnnotations.EntailedSentencesAnnotation.class,Collections.emptySet());
-    }
+    sentence.set(NaturalLogicAnnotations.EntailedSentencesAnnotation.class,Collections.emptySet());
   }
  else {
     SemanticGraph parse=sentence.get(SemanticGraphCoreAnnotations.EnhancedPlusPlusDependenciesAnnotation.class);
@@ -24,8 +22,6 @@
     List<RelationTriple> extractions=segmenter.extract(parse,tokens);
     extractions.addAll(relationsInFragments(fragments,sentence));
     sentence.set(NaturalLogicAnnotations.EntailedSentencesAnnotation.class,fragments);
-    if (!stripEntailments) {
-      sentence.set(NaturalLogicAnnotations.RelationTriplesAnnotation.class,new ArrayList<>(new HashSet<>(extractions)));
-    }
+    sentence.set(NaturalLogicAnnotations.RelationTriplesAnnotation.class,new ArrayList<>(new HashSet<>(extractions)));
   }
 }

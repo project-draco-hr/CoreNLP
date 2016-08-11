@@ -1,2 +1,10 @@
 {
+  if (!this.annotators.containsKey(name)) {
+    AnnotatorFactory factory=this.factories.get(name);
+    if (factory == null) {
+      throw new IllegalArgumentException("No annotator named " + name);
+    }
+    this.annotators.put(name,factory.create());
+  }
+  return this.annotators.get(name);
 }

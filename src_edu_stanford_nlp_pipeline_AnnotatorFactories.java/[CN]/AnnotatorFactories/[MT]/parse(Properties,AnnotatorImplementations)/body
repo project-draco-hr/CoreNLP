@@ -1,14 +1,20 @@
 {
-  return new AnnotatorFactory(Annotator.STANFORD_PARSE,ParserAnnotator.class,properties){
+  return new AnnotatorFactory(ParserAnnotator.class,properties){
     private static final long serialVersionUID=1L;
     @Override public Annotator create(){
       return annotatorImplementation.parse(properties);
     }
     @Override public String additionalSignature(){
-      if (StanfordCoreNLP.usesBinaryTrees(properties) || PropertiesUtils.getBool(properties,Annotator.STANFORD_PARSE + ".binaryTrees",false)) {
-        return "parse.binaryTrees=true";
+      String type=properties.getProperty("parse.type","stanford");
+      if (type.equalsIgnoreCase("stanford")) {
+        return ParserAnnotator.signature("parse",properties);
       }
-      return "";
+ else       if (type.equalsIgnoreCase("charniak")) {
+        return "parse.model:" + properties.getProperty("parse.model","") + "parse.executable:"+ properties.getProperty("parse.executable","")+ "parse.maxlen:"+ properties.getProperty("parse.maxlen","");
+      }
+ else {
+        throw new RuntimeException("Unknown parser type: " + type + " (currently supported: stanford and charniak)");
+      }
     }
   }
 ;

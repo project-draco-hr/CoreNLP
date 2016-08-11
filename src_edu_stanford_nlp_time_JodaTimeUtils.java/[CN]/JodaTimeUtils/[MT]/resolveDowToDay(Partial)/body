@@ -1,10 +1,9 @@
 {
   if (p.isSupported(DateTimeFieldType.dayOfWeek())) {
     if (!p.isSupported(DateTimeFieldType.dayOfMonth())) {
-      if (p.isSupported(DateTimeFieldType.weekOfWeekyear()) && (p.isSupported(DateTimeFieldType.year()))) {
-        Partial pwy=withWeekYear(p);
-        Instant t2=getInstant(pwy);
-        DateTime t1=pwy.toDateTime(t2);
+      if (p.isSupported(DateTimeFieldType.weekOfWeekyear()) && p.isSupported(DateTimeFieldType.year())) {
+        Instant t2=getInstant(p);
+        DateTime t1=p.toDateTime(t2);
         Partial res=getPartial(t1.toInstant(),EMPTY_ISO_PARTIAL);
         DateTimeFieldType mostSpecific=getMostSpecific(p);
         res=discardMoreSpecificFields(res,mostSpecific.getDurationType());
