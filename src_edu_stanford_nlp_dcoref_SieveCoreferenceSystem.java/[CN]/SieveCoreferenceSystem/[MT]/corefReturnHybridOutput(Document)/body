@@ -5,26 +5,26 @@
     coreference(document,sieve);
   }
   if ((!Constants.USE_GOLD_MENTIONS && doPostProcessing) || replicateCoNLL)   postProcessing(document);
-  Map<Integer,edu.stanford.nlp.hcoref.data.CorefChain> result=Generics.newHashMap();
+  Map<Integer,edu.stanford.nlp.coref.data.CorefChain> result=Generics.newHashMap();
   for (  CorefCluster c : document.corefClusters.values()) {
-    Map<IntPair,Set<edu.stanford.nlp.hcoref.data.CorefChain.CorefMention>> mentionsMap=Generics.newHashMap();
+    Map<IntPair,Set<edu.stanford.nlp.coref.data.CorefChain.CorefMention>> mentionsMap=Generics.newHashMap();
     IntPair keyPair=new IntPair(0,0);
     mentionsMap.put(keyPair,new HashSet<>());
     Mention represents=null;
-    edu.stanford.nlp.hcoref.data.CorefChain.CorefMention representsHybridVersion=null;
+    edu.stanford.nlp.coref.data.CorefChain.CorefMention representsHybridVersion=null;
     for (    Mention mention : c.getCorefMentions()) {
       IntTuple mentionPosition=document.positions.get(mention);
       CorefMention dcorefMention=new CorefMention(mention,mentionPosition);
-      mention.headWord.set(edu.stanford.nlp.hcoref.CorefCoreAnnotations.CorefClusterIdAnnotation.class,mention.corefClusterID);
+      mention.headWord.set(edu.stanford.nlp.coref.CorefCoreAnnotations.CorefClusterIdAnnotation.class,mention.corefClusterID);
       mention.headWord.remove(CorefCoreAnnotations.CorefClusterIdAnnotation.class);
-      edu.stanford.nlp.hcoref.data.CorefChain.CorefMention hcorefMention=new edu.stanford.nlp.hcoref.data.CorefChain.CorefMention(edu.stanford.nlp.hcoref.data.Dictionaries.MentionType.valueOf(dcorefMention.mentionType.name()),edu.stanford.nlp.hcoref.data.Dictionaries.Number.valueOf(dcorefMention.number.name()),edu.stanford.nlp.hcoref.data.Dictionaries.Gender.valueOf(dcorefMention.gender.name()),edu.stanford.nlp.hcoref.data.Dictionaries.Animacy.valueOf(dcorefMention.animacy.name()),dcorefMention.startIndex,dcorefMention.endIndex,dcorefMention.headIndex,dcorefMention.corefClusterID,dcorefMention.mentionID,dcorefMention.sentNum,dcorefMention.position,dcorefMention.mentionSpan);
+      edu.stanford.nlp.coref.data.CorefChain.CorefMention hcorefMention=new edu.stanford.nlp.coref.data.CorefChain.CorefMention(edu.stanford.nlp.coref.data.Dictionaries.MentionType.valueOf(dcorefMention.mentionType.name()),edu.stanford.nlp.coref.data.Dictionaries.Number.valueOf(dcorefMention.number.name()),edu.stanford.nlp.coref.data.Dictionaries.Gender.valueOf(dcorefMention.gender.name()),edu.stanford.nlp.coref.data.Dictionaries.Animacy.valueOf(dcorefMention.animacy.name()),dcorefMention.startIndex,dcorefMention.endIndex,dcorefMention.headIndex,dcorefMention.corefClusterID,dcorefMention.mentionID,dcorefMention.sentNum,dcorefMention.position,dcorefMention.mentionSpan);
       mentionsMap.get(keyPair).add(hcorefMention);
       if (mention.moreRepresentativeThan(represents)) {
         represents=mention;
         representsHybridVersion=hcorefMention;
       }
     }
-    edu.stanford.nlp.hcoref.data.CorefChain hybridCorefChain=new edu.stanford.nlp.hcoref.data.CorefChain(c.clusterID,mentionsMap,representsHybridVersion);
+    edu.stanford.nlp.coref.data.CorefChain hybridCorefChain=new edu.stanford.nlp.coref.data.CorefChain(c.clusterID,mentionsMap,representsHybridVersion);
     result.put(c.clusterID,hybridCorefChain);
   }
   return result;

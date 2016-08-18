@@ -1,0 +1,38 @@
+{
+  List<Mention> sortedMentions=CorefUtils.getSortedMentions(document);
+  Map<Integer,List<Mention>> mentionsByHeadIndex=new HashMap<>();
+  for (  Mention m : sortedMentions) {
+    List<Mention> withIndex=mentionsByHeadIndex.get(m.headIndex);
+    if (withIndex == null) {
+      withIndex=new ArrayList<>();
+      mentionsByHeadIndex.put(m.headIndex,withIndex);
+    }
+    withIndex.add(m);
+  }
+  SimpleMatrix documentEmbedding=embeddingExtractor.getDocumentEmbedding(document);
+  Map<Integer,SimpleMatrix> antecedentEmbeddings=new HashMap<>();
+  Map<Integer,SimpleMatrix> anaphorEmbeddings=new HashMap<>();
+  Counter<Integer> anaphoricityScores=new ClassicCounter<>();
+  for (  Mention m : sortedMentions) {
+    SimpleMatrix mentionEmbedding=embeddingExtractor.getMentionEmbeddings(m,documentEmbedding);
+    antecedentEmbeddings.put(m.mentionID,model.getAntecedentEmbedding(mentionEmbedding));
+    anaphorEmbeddings.put(m.mentionID,model.getAnaphorEmbedding(mentionEmbedding));
+    anaphoricityScores.incrementCount(m.mentionID,model.getAnaphoricityScore(mentionEmbedding,featureExtractor.getAnaphoricityFeatures(m,document,mentionsByHeadIndex)));
+  }
+  Map<Integer,List<Integer>> mentionToCandidateAntecedents=CorefUtils.heuristicFilter(sortedMentions,maxMentionDistance,maxMentionDistanceWithStringMatch);
+  for (  Map.Entry<Integer,List<Integer>> e : mentionToCandidateAntecedents.entrySet()) {
+    double bestScore=anaphoricityScores.getCount(e.getKey()) - greedyness / 10.0;
+    int m=e.getKey();
+    Integer antecedent=null;
+    for (    int ca : e.getValue()) {
+      double score=model.getPairwiseScore(antecedentEmbeddings.get(ca),anaphorEmbeddings.get(m),featureExtractor.getPairFeatures(new Pair<>(ca,m),document,mentionsByHeadIndex));
+      if (score > bestScore) {
+        bestScore=score;
+        antecedent=ca;
+      }
+    }
+    if (antecedent != null) {
+      CorefUtils.mergeCoreferenceClusters(new Pair<>(antecedent,m),document);
+    }
+  }
+}

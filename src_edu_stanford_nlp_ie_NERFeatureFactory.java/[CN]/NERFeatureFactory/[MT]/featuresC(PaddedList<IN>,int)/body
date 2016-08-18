@@ -742,5 +742,27 @@
       featuresC.add(s + "-SPLITWORD");
     }
   }
+  if (flags.useMoreNeighborNGrams) {
+    int maxLen=pWord.length();
+    if (flags.maxNGramLeng >= 0 && flags.maxNGramLeng < maxLen) {
+      maxLen=flags.maxNGramLeng;
+    }
+    for (int len=1; len <= maxLen; ++len) {
+      featuresC.add(pWord.substring(0,len) + "-PREV-PREFIX");
+    }
+    for (int pos=pWord.length() - maxLen; pos < pWord.length(); ++pos) {
+      featuresC.add(pWord.substring(pos,pWord.length()) + "-PREV-SUFFIX");
+    }
+    maxLen=nWord.length();
+    if (flags.maxNGramLeng >= 0 && flags.maxNGramLeng < maxLen) {
+      maxLen=flags.maxNGramLeng;
+    }
+    for (int len=1; len <= maxLen; ++len) {
+      featuresC.add(nWord.substring(0,len) + "-NEXT-PREFIX");
+    }
+    for (int pos=nWord.length() - maxLen; pos < nWord.length(); ++pos) {
+      featuresC.add(nWord.substring(pos,nWord.length()) + "-NEXT-SUFFIX");
+    }
+  }
   return featuresC;
 }

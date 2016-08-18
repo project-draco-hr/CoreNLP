@@ -1,0 +1,16 @@
+{
+  InputDoc input=reader.nextDoc();
+  if (input == null) {
+    return null;
+  }
+  if (!CorefProperties.useConstituencyParse(props)) {
+    for (    CoreMap sentence : input.annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
+      sentence.remove(TreeCoreAnnotations.TreeAnnotation.class);
+    }
+  }
+  getStanfordCoreNLP(props).annotate(input.annotation);
+  if (CorefProperties.conll(props)) {
+    input.annotation.set(CoreAnnotations.UseMarkedDiscourseAnnotation.class,true);
+  }
+  return makeDocument(input);
+}

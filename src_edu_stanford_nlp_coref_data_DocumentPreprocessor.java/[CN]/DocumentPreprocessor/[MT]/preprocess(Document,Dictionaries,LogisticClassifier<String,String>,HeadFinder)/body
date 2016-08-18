@@ -1,0 +1,17 @@
+{
+  initializeMentions(doc,dict,singletonPredictor,headFinder);
+  mentionReordering(doc,headFinder);
+  fillSyntacticInfo(doc);
+  setParagraphAnnotation(doc);
+  processDiscourse(doc,dict);
+  initializeClusters(doc);
+  if (doc.goldMentions != null) {
+    extractGoldClusters(doc);
+    int foundGoldCount=0;
+    for (    Mention g : doc.goldMentionsByID.values()) {
+      if (g.hasTwin)       foundGoldCount++;
+    }
+    Redwood.log("debug-md","# of found gold mentions: " + foundGoldCount + " / # of gold mentions: "+ doc.goldMentionsByID.size());
+  }
+  assignMentionNumbers(doc);
+}

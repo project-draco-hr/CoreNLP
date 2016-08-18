@@ -1,0 +1,34 @@
+{
+  Map<String,List<Mention>> wordToMentions=new HashMap<>();
+  for (int i=0; i < sortedMentions.size(); i++) {
+    Mention m=sortedMentions.get(i);
+    for (    String word : getContentWords(m)) {
+      wordToMentions.putIfAbsent(word,new ArrayList<>());
+      wordToMentions.get(word).add(m);
+    }
+  }
+  Map<Integer,List<Integer>> mentionToCandidateAntecedents=new HashMap<>();
+  for (int i=0; i < sortedMentions.size(); i++) {
+    Mention m=sortedMentions.get(i);
+    List<Integer> candidateAntecedents=new ArrayList<>();
+    for (int j=Math.max(0,i - maxMentionDistance); j < i; j++) {
+      candidateAntecedents.add(sortedMentions.get(j).mentionID);
+    }
+    for (    String word : getContentWords(m)) {
+      List<Mention> withStringMatch=wordToMentions.get(word);
+      if (withStringMatch != null) {
+        for (        Mention match : withStringMatch) {
+          if (match.mentionNum < m.mentionNum && match.mentionNum >= m.mentionNum - maxMentionDistanceWithStringMatch) {
+            if (!candidateAntecedents.contains(match.mentionID)) {
+              candidateAntecedents.add(match.mentionID);
+            }
+          }
+        }
+      }
+    }
+    if (!candidateAntecedents.isEmpty()) {
+      mentionToCandidateAntecedents.put(m.mentionID,candidateAntecedents);
+    }
+  }
+  return mentionToCandidateAntecedents;
+}
