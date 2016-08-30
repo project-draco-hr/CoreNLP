@@ -1,0 +1,41 @@
+{
+  try {
+    URLConnection connection=serverURL.openConnection();
+    if (apiKey != null && apiSecret != null) {
+      String userpass=apiKey + ":" + apiSecret;
+      String basicAuth="Basic " + new String(Base64.getEncoder().encode(userpass.getBytes()));
+      connection.setRequestProperty("Authorization",basicAuth);
+    }
+    connection.setDoOutput(true);
+    connection.setRequestProperty("Content-Type","application/x-protobuf");
+    connection.setRequestProperty("Content-Length",Integer.toString(message.length));
+    connection.setRequestProperty("Accept-Charset","utf-8");
+    connection.setRequestProperty("User-Agent",StanfordCoreNLPClient.class.getName());
+switch (backend.protocol) {
+case "https":
+      ((HttpsURLConnection)connection).setRequestMethod("POST");
+    break;
+case "http":
+  ((HttpURLConnection)connection).setRequestMethod("POST");
+break;
+default :
+throw new IllegalStateException("Haven't implemented protocol: " + backend.protocol);
+}
+connection.connect();
+connection.getOutputStream().write(message);
+connection.getOutputStream().flush();
+Annotation response=serializer.read(connection.getInputStream()).first;
+for (Class key : response.keySet()) {
+annotation.set(key,response.get(key));
+}
+}
+ catch (Throwable t) {
+if (tries < 3) {
+log.warn(t);
+doAnnotation(annotation,backend,serverURL,message,tries + 1);
+}
+ else {
+throw new RuntimeException(t);
+}
+}
+}
