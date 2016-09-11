@@ -2,7 +2,6 @@
   if (sentence instanceof CoreLabel) {
     throw new IllegalArgumentException("CoreMap is actually a CoreLabel");
   }
-  List<CoreLabel> tokens=sentence.get(TokensAnnotation.class);
   CoreNLPProtos.Sentence.Builder builder=CoreNLPProtos.Sentence.newBuilder();
   keysToSerialize.remove(TextAnnotation.class);
   keysToSerialize.remove(NumerizedTokensAnnotation.class);
@@ -82,12 +81,12 @@
   }
   if (keySet.contains(NaturalLogicAnnotations.RelationTriplesAnnotation.class)) {
     for (    RelationTriple triple : getAndRegister(sentence,keysToSerialize,NaturalLogicAnnotations.RelationTriplesAnnotation.class)) {
-      builder.addOpenieTriple(toProto(triple,tokens));
+      builder.addOpenieTriple(toProto(triple));
     }
   }
   if (keySet.contains(KBPTriplesAnnotation.class)) {
     for (    RelationTriple triple : getAndRegister(sentence,keysToSerialize,KBPTriplesAnnotation.class)) {
-      builder.addKbpTriple(toProto(triple,tokens));
+      builder.addKbpTriple(toProto(triple));
     }
   }
   if (keySet.contains(EntityMentionsAnnotation.class)) {
