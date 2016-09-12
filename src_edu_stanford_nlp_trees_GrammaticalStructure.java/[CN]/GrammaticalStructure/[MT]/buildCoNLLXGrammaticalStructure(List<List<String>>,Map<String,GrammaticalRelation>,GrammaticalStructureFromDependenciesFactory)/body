@@ -30,7 +30,9 @@
   IndexedWord dependencyRoot=new IndexedWord(rootLabel);
   for (int i=0; i < tgWords.size(); i++) {
     String parentIdStr=tokenFields.get(i).get(CoNLLX_GovField);
-    if (parentIdStr == null || parentIdStr.equals(""))     continue;
+    if (StringUtils.isNullOrEmpty(parentIdStr)) {
+      continue;
+    }
     int parentId=Integer.parseInt(parentIdStr) - 1;
     String grelString=tokenFields.get(i).get(CoNLLX_RelnField);
     if (grelString.equals("null") || grelString.equals("erased"))     continue;
