@@ -1,0 +1,11 @@
+{
+  RedwoodConfiguration config;
+  try {
+    MetaClass.create("org.slf4j.LoggerFactory").createInstance();
+    config=new RedwoodConfiguration().clear().handlers(Handlers.chain(Handlers.showOnlyError,Handlers.slf4j));
+  }
+ catch (  Exception ignored) {
+    config=new RedwoodConfiguration().clear().handlers(Handlers.chain(Handlers.showOnlyError,Handlers.stderr));
+  }
+  return config;
+}
