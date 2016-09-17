@@ -4,29 +4,31 @@
   if (kids.length > 1) {
     EncodingPrintWriter.err.println("Possible error: non-unary initial rewrite: " + newTree.localTree(),ChineseTreebankLanguagePack.ENCODING);
   }
- else {
-    if (kids.length > 0) {
-      Tree child=kids[0];
-      if (!child.isPhrasal()) {
-        EncodingPrintWriter.err.println("Correcting error: treebank tree is not phrasal; wrapping in FRAG: " + child,ChineseTreebankLanguagePack.ENCODING);
-        Tree added=tf.newTreeNode("FRAG",Arrays.asList(kids));
-        newTree.setChild(0,added);
-      }
+ else   if (kids.length > 0) {
+    Tree child=kids[0];
+    if (!child.isPhrasal()) {
+      EncodingPrintWriter.err.println("Correcting error: treebank tree is not phrasal; wrapping in FRAG: " + child,ChineseTreebankLanguagePack.ENCODING);
+      Tree added=tf.newTreeNode("FRAG",Arrays.asList(kids));
+      newTree.setChild(0,added);
     }
- else {
-      EncodingPrintWriter.err.println("Error: tree with no children: " + tree,ChineseTreebankLanguagePack.ENCODING);
+ else     if (child.label().value().equals("META")) {
+      EncodingPrintWriter.err.println("Deleting META tree that should be XML metadata in chtb_5200.df: " + child,ChineseTreebankLanguagePack.ENCODING);
+      return null;
     }
+  }
+ else {
+    EncodingPrintWriter.err.println("Error: tree with no children: " + tree,ChineseTreebankLanguagePack.ENCODING);
   }
   for (  Tree subtree : newTree) {
     if (subtree.value().equals("CP") && subtree.numChildren() == 1) {
       Tree subsubtree=subtree.firstChild();
       if (subsubtree.value().equals("ROOT")) {
         if (subsubtree.firstChild().isLeaf() && "CP".equals(subsubtree.firstChild().value())) {
-          EncodingPrintWriter.err.println("Correcting error: seriously messed up tree in CTB6: " + newTree,ChineseTreebankLanguagePack.ENCODING);
+          EncodingPrintWriter.err.println("Correcting error: seriously messed up tree in CTB6 (chtb_3095.bn): " + newTree,ChineseTreebankLanguagePack.ENCODING);
           List<Tree> children=subsubtree.getChildrenAsList();
           children=children.subList(1,children.size());
           subtree.setChildren(children);
-          EncodingPrintWriter.err.println("  Corrected as:                                     " + newTree,ChineseTreebankLanguagePack.ENCODING);
+          EncodingPrintWriter.err.println("  Corrected as:                                                    " + newTree,ChineseTreebankLanguagePack.ENCODING);
         }
       }
     }
@@ -52,9 +54,9 @@
         }
       }
  else       if (subtree.value().matches("PU")) {
-        if (subtree.firstChild().value().matches("\u4ed6")) {
+        if (subtree.firstChild().value().matches("???")) {
           if (DEBUG) {
-            EncodingPrintWriter.err.println("Correcting error: \"\u4ed6\" under PU tag; tag changed to PN: " + subtree,ChineseTreebankLanguagePack.ENCODING);
+            EncodingPrintWriter.err.println("Correcting error: \"???\" under PU tag; tag changed to PN: " + subtree,ChineseTreebankLanguagePack.ENCODING);
           }
           subtree.setValue("PN");
         }
@@ -70,7 +72,7 @@
           }
           subtree.setValue("VC");
         }
- else         if (subtree.firstChild().value().matches("tw|\u534A\u7A74\u5F0F")) {
+ else         if (subtree.firstChild().value().matches("tw|?????????")) {
           if (DEBUG) {
             EncodingPrintWriter.err.println("Correcting error: \"" + subtree.firstChild().value() + "\" under PU tag; tag changed to NN: "+ subtree,ChineseTreebankLanguagePack.ENCODING);
           }
@@ -97,17 +99,25 @@
       subtree.setValue("VP");
     }
   }
-  for (int i=0; i < splitPuncTregex.length; ++i) {
+  for (int i=0; i < fixupTregex.length; ++i) {
     if (DEBUG) {
       Tree preProcessed=newTree.deepCopy();
-      newTree=Tsurgeon.processPattern(splitPuncTregex[i],splitPuncTsurgeon[i],newTree);
+      newTree=Tsurgeon.processPattern(fixupTregex[i],fixupTsurgeon[i],newTree);
       if (!preProcessed.equals(newTree)) {
-        EncodingPrintWriter.err.println("Correcting error: Updated tree using tregex " + splitPuncTregex[i] + " and tsurgeon "+ splitPuncTsurgeon[i],ChineseTreebankLanguagePack.ENCODING);
+        EncodingPrintWriter.err.println("Correcting error: Updated tree using tregex " + fixupTregex[i] + " and tsurgeon "+ fixupTsurgeon[i],ChineseTreebankLanguagePack.ENCODING);
+        EncodingPrintWriter.err.println("  from: " + preProcessed,ChineseTreebankLanguagePack.ENCODING);
+        EncodingPrintWriter.err.println("    to: " + newTree,ChineseTreebankLanguagePack.ENCODING);
       }
     }
  else {
-      newTree=Tsurgeon.processPattern(splitPuncTregex[i],splitPuncTsurgeon[i],newTree);
+      newTree=Tsurgeon.processPattern(fixupTregex[i],fixupTsurgeon[i],newTree);
     }
+  }
+  if (newTree.numChildren() == 0) {
+    if (DEBUG) {
+      EncodingPrintWriter.err.println("Deleting tree that now has no contents: " + newTree,ChineseTreebankLanguagePack.ENCODING);
+    }
+    return null;
   }
   if (tagExtender != null) {
     newTree=tagExtender.transformTree(newTree);
