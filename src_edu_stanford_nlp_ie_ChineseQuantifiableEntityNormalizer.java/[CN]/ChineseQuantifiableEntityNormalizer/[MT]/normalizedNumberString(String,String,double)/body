@@ -1,0 +1,27 @@
+{
+  s=s.trim();
+  s=s.replaceAll("[ \t\n\0\f\r,]","");
+  if (ARABIC_NUMBERS_PATTERN.matcher(s).matches()) {
+    return prettyNumber(String.format("%f",multiplier * Double.valueOf(s)));
+  }
+  int decimalIndex=s.indexOf(LITERAL_DECIMAL_POINT);
+  Double decimalValue=Double.valueOf(0);
+  if (decimalIndex != -1) {
+    if (DEBUG) {
+      log.info("Normalizing decimal part: " + s.substring(decimalIndex + 1));
+    }
+    decimalValue=normalizeLiteralDecimalString(s.substring(decimalIndex + 1));
+    if (decimalValue == null) {
+      return null;
+    }
+    s=s.substring(0,decimalIndex);
+  }
+  if (DEBUG) {
+    log.info("Normalizing integer part: " + s);
+  }
+  Double integerValue=recurNormalizeLiteralIntegerString(s);
+  if (integerValue == null) {
+    return null;
+  }
+  return prettyNumber(String.format("%f",multiplier * Double.valueOf(integerValue.doubleValue() + decimalValue.doubleValue())));
+}
