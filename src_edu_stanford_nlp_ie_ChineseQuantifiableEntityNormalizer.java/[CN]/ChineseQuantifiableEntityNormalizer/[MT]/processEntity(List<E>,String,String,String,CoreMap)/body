@@ -3,6 +3,15 @@
     log.info("ChineseQuantifiableEntityNormalizer.processEntity: " + l);
   }
   String s=singleEntityToString(l);
+  StringBuilder sb=new StringBuilder();
+  for (int i=0, sz=s.length(); i < sz; i++) {
+    String ch=s.substring(i,i + 1);
+    if (fullDigitToHalfDigit.containsKey(ch)) {
+      ch=fullDigitToHalfDigit.get(ch);
+    }
+    sb.append(ch);
+  }
+  s=sb.toString();
   if (DEBUG) {
     log.info("Quantifiable: Processing entity string " + s);
   }
