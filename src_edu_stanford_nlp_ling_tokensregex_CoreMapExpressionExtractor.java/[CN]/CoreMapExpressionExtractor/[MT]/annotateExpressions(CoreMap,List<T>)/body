@@ -1,10 +1,13 @@
 {
-  List<MatchedExpression> toDiscard=new ArrayList<>();
-  for (  MatchedExpression te : expressions) {
+  List<T> toDiscard=new ArrayList<>();
+  for (  T te : expressions) {
     if (te.annotation == null) {
       try {
-        boolean extrackOkay=te.extractAnnotation(env,annotation);
-        if (!extrackOkay) {
+        boolean extractOkay=te.extractAnnotation(env,annotation);
+        if (verbose && extractOkay) {
+          log.info("annotateExpressions() matched " + te + " from "+ annotation);
+        }
+        if (!extractOkay) {
           toDiscard.add(te);
           log.warn("Error extracting annotation from " + te);
         }

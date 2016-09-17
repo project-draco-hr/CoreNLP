@@ -1,5 +1,5 @@
 {
-  return new AnnotatorFactory(NERCombinerAnnotator.class,properties){
+  return new AnnotatorFactory(Annotator.STANFORD_NER,NERCombinerAnnotator.class,properties){
     private static final long serialVersionUID=1L;
     @Override public Annotator create(){
       try {
@@ -11,7 +11,7 @@
     }
     @Override public String additionalSignature(){
       boolean useSUTime=Boolean.parseBoolean(properties.getProperty(NumberSequenceClassifier.USE_SUTIME_PROPERTY,Boolean.toString(NumberSequenceClassifier.USE_SUTIME_DEFAULT)));
-      String nerSig="ner.model:" + properties.getProperty("ner.model","") + NERClassifierCombiner.APPLY_NUMERIC_CLASSIFIERS_PROPERTY+ ':'+ properties.getProperty(NERClassifierCombiner.APPLY_NUMERIC_CLASSIFIERS_PROPERTY,Boolean.toString(NERClassifierCombiner.APPLY_NUMERIC_CLASSIFIERS_DEFAULT))+ NumberSequenceClassifier.USE_SUTIME_PROPERTY+ ':'+ properties.getProperty(NumberSequenceClassifier.USE_SUTIME_PROPERTY,Boolean.toString(NumberSequenceClassifier.USE_SUTIME_DEFAULT));
+      String nerSig="";
       if (useSUTime) {
         String sutimeSig=PropertiesUtils.getSignature(NumberSequenceClassifier.SUTIME_PROPERTY,properties);
         if (!sutimeSig.isEmpty()) {

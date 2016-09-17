@@ -5,26 +5,6 @@
   for (  Map.Entry<String,BiFunction<Properties,AnnotatorImplementations,AnnotatorFactory>> entry : getNamedAnnotators().entrySet()) {
     pool.register(entry.getKey(),entry.getValue().apply(inputProps,annotatorImplementation));
   }
-  for (  String property : inputProps.stringPropertyNames()) {
-    if (property.startsWith(CUSTOM_ANNOTATOR_PREFIX)) {
-      final String customName=property.substring(CUSTOM_ANNOTATOR_PREFIX.length());
-      final String customClassName=inputProps.getProperty(property);
-      logger.info("Registering annotator " + customName + " with class "+ customClassName);
-      pool.register(customName,new AnnotatorFactory(customClassName,inputProps){
-        private static final long serialVersionUID=1L;
-        @Override public Annotator create(){
-          return annotatorImplementation.custom(properties,property);
-        }
-        @Override public String additionalSignature(){
-          StringBuilder os=new StringBuilder();
-          for (          String skey : properties.stringPropertyNames()) {
-            os.append(skey).append(':').append(properties.getProperty(skey));
-          }
-          return os.toString();
-        }
-      }
-);
-    }
-  }
+  registerCustomAnnotators(pool,annotatorImplementation,inputProps);
   return pool;
 }

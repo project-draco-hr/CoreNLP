@@ -1,19 +1,19 @@
 {
   Map<String,String> map=Generics.newHashMap();
   try {
-    InputStream is=IOUtils.getInputStreamFromURLOrClasspathOrFileSystem(mapFile);
-    BufferedReader br=new BufferedReader(new InputStreamReader(is));
+    BufferedReader br=IOUtils.readerFromString(mapFile);
     for (    String line : ObjectBank.getLineIterator(br)) {
       line=line.trim();
       String[] els=line.split("\\s+");
-      if (els.length != 2)       throw new RuntimeException("Wrong format: " + mapFile);
+      if (els.length != 2) {
+        throw new RuntimeException("Wrong format: " + mapFile);
+      }
       map.put(els[0],els[1]);
     }
     br.close();
-    is.close();
   }
  catch (  IOException e) {
-    throw new RuntimeException(e);
+    throw new RuntimeIOException(e);
   }
   return map;
 }
