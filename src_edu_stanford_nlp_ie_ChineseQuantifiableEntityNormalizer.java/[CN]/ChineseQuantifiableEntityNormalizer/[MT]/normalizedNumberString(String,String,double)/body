@@ -1,8 +1,8 @@
 {
-  s=s.trim().replaceAll(" ","");
-  s=s.replaceAll(",","");
+  s=s.trim();
+  s=s.replaceAll("[ \t\n\0\f\r,]","");
   if (ARABIC_NUMBERS_PATTERN.matcher(s).matches()) {
-    return prettyNumber(String.format("%f",Double.valueOf(s)));
+    return prettyNumber(String.format("%f",multiplier * Double.valueOf(s)));
   }
   int decimalIndex=s.indexOf(LITERAL_DECIMAL_POINT);
   Double decimalValue=Double.valueOf(0);
@@ -23,5 +23,5 @@
   if (integerValue == null) {
     return null;
   }
-  return prettyNumber(String.format("%f",Double.valueOf(integerValue.doubleValue() + decimalValue.doubleValue())));
+  return prettyNumber(String.format("%f",multiplier * Double.valueOf(integerValue.doubleValue() + decimalValue.doubleValue())));
 }

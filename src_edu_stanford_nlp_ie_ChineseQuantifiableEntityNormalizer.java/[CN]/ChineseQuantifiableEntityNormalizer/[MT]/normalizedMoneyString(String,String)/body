@@ -1,3 +1,51 @@
 {
-  return null;
+  if (DEBUG) {
+    log.info("normalizedMoneyString: Normalizing " + s);
+  }
+  double multiplier=1.0;
+  char currencySign='$';
+  boolean notMatched=true;
+  for (  String currencyWord : multiCharCurrencyWords.keySet()) {
+    if (notMatched && StringUtils.find(s,currencyWord)) {
+      if (currencyWord.equals("??????")) {
+        multiplier=0.01;
+      }
+ else       if (currencyWord.equals("??????")) {
+        multiplier=0.05;
+      }
+ else       if (currencyWord.equals("??????")) {
+        multiplier=1.0 / 240;
+      }
+      s=s.replaceAll(currencyWord,"");
+      currencySign=multiCharCurrencyWords.get(currencyWord);
+      notMatched=false;
+    }
+  }
+  if (notMatched) {
+    for (    String currencyWord : oneCharCurrencyWords.keySet()) {
+      if (notMatched && StringUtils.find(s,currencyWord)) {
+        s=s.replaceAll(currencyWord,"");
+        currencySign=oneCharCurrencyWords.get(currencyWord);
+        notMatched=false;
+      }
+    }
+  }
+  if (notMatched) {
+    for (    String currencyWord : ChineseNumberSequenceClassifier.CURRENCY_WORDS_VALUES) {
+      if (notMatched && StringUtils.find(s,currencyWord)) {
+        s=s.replaceAll(currencyWord,"");
+        break;
+      }
+    }
+  }
+  String value=normalizedNumberString(s,nextWord,multiplier);
+  if (value == null) {
+    if (DEBUG) {
+      log.info("normalizedMoneyString: Failed to parse number " + s);
+    }
+    return null;
+  }
+ else {
+    return currencySign + value;
+  }
 }
