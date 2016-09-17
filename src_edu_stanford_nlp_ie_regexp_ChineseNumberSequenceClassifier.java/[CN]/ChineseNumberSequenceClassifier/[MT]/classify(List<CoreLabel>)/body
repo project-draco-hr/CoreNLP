@@ -1,0 +1,38 @@
+{
+  PaddedList<CoreLabel> pl=new PaddedList<>(document,pad);
+  for (int i=0, sz=pl.size(); i < sz; i++) {
+    CoreLabel me=pl.get(i);
+    CoreLabel prev=pl.get(i - 1);
+    CoreLabel next=pl.get(i + 1);
+    me.set(CoreAnnotations.AnswerAnnotation.class,flags.backgroundSymbol);
+    if (me.getString(CoreAnnotations.PartOfSpeechAnnotation.class).equals("OD")) {
+      me.set(CoreAnnotations.AnswerAnnotation.class,ORDINAL_TAG);
+    }
+ else     if (CURRENCY_WORD_PATTERN.matcher(me.word()).matches() && prev.getString(CoreAnnotations.PartOfSpeechAnnotation.class).equals("CD")) {
+      me.set(CoreAnnotations.AnswerAnnotation.class,MONEY_TAG);
+    }
+ else     if (me.getString(CoreAnnotations.PartOfSpeechAnnotation.class).equals("CD")) {
+      if (PERCENT_WORD_PATTERN1.matcher(me.word()).matches() || PERCENT_WORD_PATTERN2.matcher(me.word()).matches()) {
+        me.set(CoreAnnotations.AnswerAnnotation.class,PERCENT_TAG);
+      }
+ else       if (rightScanFindsMoneyWord(pl,i)) {
+        me.set(CoreAnnotations.AnswerAnnotation.class,MONEY_TAG);
+      }
+ else {
+        me.set(CoreAnnotations.AnswerAnnotation.class,NUMBER_TAG);
+      }
+    }
+ else     if (me.getString(CoreAnnotations.PartOfSpeechAnnotation.class).equals("NT")) {
+      if (DATE_PATTERN1.matcher(me.word()).matches() || DATE_PATTERN2.matcher(me.word()).matches() || DATE_WORDS.contains(me.word())) {
+        me.set(CoreAnnotations.AnswerAnnotation.class,DATE_TAG);
+      }
+ else       if (TIME_PATTERN1.matcher(me.word()).matches() || TIME_PATTERN2.matcher(me.word()).matches() || TIME_WORDS.contains(me.word())) {
+        me.set(CoreAnnotations.AnswerAnnotation.class,TIME_TAG);
+      }
+ else {
+        me.set(CoreAnnotations.AnswerAnnotation.class,TIME_TAG);
+      }
+    }
+  }
+  return document;
+}

@@ -12,6 +12,7 @@
   }
   boolean applyNumericClassifiers=PropertiesUtils.getBool(properties,NERClassifierCombiner.APPLY_NUMERIC_CLASSIFIERS_PROPERTY,NERClassifierCombiner.APPLY_NUMERIC_CLASSIFIERS_DEFAULT);
   boolean useSUTime=PropertiesUtils.getBool(properties,NumberSequenceClassifier.USE_SUTIME_PROPERTY,NumberSequenceClassifier.USE_SUTIME_DEFAULT);
+  String nerLanguage=PropertiesUtils.getString(properties,NERClassifierCombiner.NER_LANGUAGE_PROPERTY,NERClassifierCombiner.NER_LANGUAGE_DEFAULT);
   boolean verbose=PropertiesUtils.getBool(properties,"ner." + "verbose",false);
   String[] loadPaths=models.toArray(new String[models.size()]);
   Properties combinerProperties=PropertiesUtils.extractSelectedProperties(properties,NERClassifierCombiner.DEFAULT_PASS_DOWN_PROPERTIES);
@@ -19,7 +20,7 @@
     Properties sutimeProps=PropertiesUtils.extractPrefixedProperties(properties,NumberSequenceClassifier.SUTIME_PROPERTY + ".",true);
     PropertiesUtils.overWriteProperties(combinerProperties,sutimeProps);
   }
-  NERClassifierCombiner nerCombiner=new NERClassifierCombiner(applyNumericClassifiers,useSUTime,combinerProperties,loadPaths);
+  NERClassifierCombiner nerCombiner=new NERClassifierCombiner(applyNumericClassifiers,nerLanguage,useSUTime,combinerProperties,loadPaths);
   int nThreads=PropertiesUtils.getInt(properties,"ner.nthreads",PropertiesUtils.getInt(properties,"nthreads",1));
   long maxTime=PropertiesUtils.getLong(properties,"ner.maxtime",0);
   int maxSentenceLength=PropertiesUtils.getInt(properties,"ner.maxlen",Integer.MAX_VALUE);

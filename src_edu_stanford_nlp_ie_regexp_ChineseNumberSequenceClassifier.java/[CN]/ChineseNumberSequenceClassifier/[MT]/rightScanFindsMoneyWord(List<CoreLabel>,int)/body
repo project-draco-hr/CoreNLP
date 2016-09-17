@@ -1,0 +1,19 @@
+{
+  int j=i;
+  if (DEBUG) {
+    log.info("rightScan from: " + pl.get(j).word());
+  }
+  int sz=pl.size();
+  while (j < sz && pl.get(j).getString(CoreAnnotations.PartOfSpeechAnnotation.class).equals("CD")) {
+    j++;
+  }
+  if (j >= sz) {
+    return false;
+  }
+  String tag=pl.get(j).getString(CoreAnnotations.PartOfSpeechAnnotation.class);
+  String word=pl.get(j).word();
+  if (DEBUG) {
+    log.info("rightScan testing: " + word + '/'+ tag+ "; answer is: "+ Boolean.toString((tag.equals("NN") || tag.equals("NNS")) && CURRENCY_WORD_PATTERN.matcher(word).matches()));
+  }
+  return (tag.equals("M") || tag.equals("NN") || tag.equals("NNS")) && CURRENCY_WORD_PATTERN.matcher(word).matches();
+}

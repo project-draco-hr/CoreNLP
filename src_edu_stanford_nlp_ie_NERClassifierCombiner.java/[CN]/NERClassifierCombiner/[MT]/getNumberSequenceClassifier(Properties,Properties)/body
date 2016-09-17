@@ -1,0 +1,19 @@
+{
+  log.info("NER language is: " + this.nerLanguage);
+  if (this.nerLanguage.equals("english")) {
+    if (props == null && sutimeProps == null) {
+      return new NumberSequenceClassifier(this.useSUTime);
+    }
+    return new NumberSequenceClassifier(props,this.useSUTime,sutimeProps);
+  }
+ else   if (this.nerLanguage.equals("chinese")) {
+    if (props == null && sutimeProps == null) {
+      return new ChineseNumberSequenceClassifier(this.useSUTime);
+    }
+    return new ChineseNumberSequenceClassifier(props,this.useSUTime,sutimeProps);
+  }
+ else {
+    log.fatal("Property ner.language not recognized: " + nerLanguage);
+  }
+  return null;
+}
