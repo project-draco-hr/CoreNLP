@@ -10,15 +10,12 @@
     }
     if (basicExtractRule != null) {
       basicExtractRule.extract(annotation,matchedExpressions);
-      if (verbose && matchedExpressions != null) {
-        log.info("extractExpressions() extracting with " + basicExtractRule + " from "+ annotation+ " gives "+ matchedExpressions);
-      }
       annotateExpressions(annotation,matchedExpressions);
       matchedExpressions=MatchedExpression.removeNullValues(matchedExpressions);
       matchedExpressions=MatchedExpression.removeNested(matchedExpressions);
       matchedExpressions=MatchedExpression.removeOverlapping(matchedExpressions);
     }
-    List<? extends CoreMap> merged=MatchedExpression.replaceMergedUsingTokenOffsets(annotation.get(tokensAnnotationKey),matchedExpressions);
+    List<? extends CoreMap> merged=MatchedExpression.replaceMergedUsingTokenOffsets((List<? extends CoreMap>)annotation.get(tokensAnnotationKey),matchedExpressions);
     SequenceMatchRules.ExtractRule<List<? extends CoreMap>,T> compositeExtractRule=stage.compositeExtractRule;
     if (compositeExtractRule != null) {
       Pair<List<? extends CoreMap>,List<T>> p=applyCompositeRule(compositeExtractRule,merged,matchedExpressions,stage.limitIters);

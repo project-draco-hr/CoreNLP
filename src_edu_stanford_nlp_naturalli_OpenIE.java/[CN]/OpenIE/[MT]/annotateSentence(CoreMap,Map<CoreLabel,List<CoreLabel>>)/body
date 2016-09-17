@@ -2,9 +2,7 @@
   List<CoreLabel> tokens=sentence.get(CoreAnnotations.TokensAnnotation.class);
   if (tokens.size() < 2) {
     sentence.set(NaturalLogicAnnotations.RelationTriplesAnnotation.class,Collections.emptyList());
-    if (!stripEntailments) {
-      sentence.set(NaturalLogicAnnotations.EntailedSentencesAnnotation.class,Collections.emptySet());
-    }
+    sentence.set(NaturalLogicAnnotations.EntailedSentencesAnnotation.class,Collections.emptySet());
   }
  else {
     SemanticGraph parse=sentence.get(SemanticGraphCoreAnnotations.EnhancedPlusPlusDependenciesAnnotation.class);
@@ -14,7 +12,6 @@
     if (parse == null) {
       throw new IllegalStateException("Cannot run OpenIE without a parse tree!");
     }
-    parse=new SemanticGraph(parse);
     Util.cleanTree(parse);
     SemanticGraph canonicalizedParse=parse;
     if (resolveCoref && !canonicalMentionMap.isEmpty()) {
@@ -26,8 +23,5 @@
     extractions.addAll(relationsInFragments(fragments,sentence));
     sentence.set(NaturalLogicAnnotations.EntailedSentencesAnnotation.class,fragments);
     sentence.set(NaturalLogicAnnotations.RelationTriplesAnnotation.class,new ArrayList<>(new HashSet<>(extractions)));
-    if (stripEntailments) {
-      sentence.remove(NaturalLogicAnnotations.EntailedSentencesAnnotation.class);
-    }
   }
 }

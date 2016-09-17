@@ -5,10 +5,10 @@
     char cp=in.charAt(i);
     if (Character.isHighSurrogate(cp)) {
       if (i + 1 < len) {
-        log.warn("ChineseUtils.normalize warning: non-BMP codepoint U+" + Integer.toHexString(Character.codePointAt(in,i)) + " in "+ in);
+        EncodingPrintWriter.err.println("ChineseUtils.normalize warning: non-BMP codepoint U+" + Integer.toHexString(Character.codePointAt(in,i)) + " in "+ in);
       }
  else {
-        log.warn("ChineseUtils.normalize warning: unmatched high surrogate character U+" + Integer.toHexString(Character.codePointAt(in,i)) + " in "+ in);
+        EncodingPrintWriter.err.println("ChineseUtils.normalize warning: unmatched high surrogate character U+" + Integer.toHexString(Character.codePointAt(in,i)) + " in "+ in);
       }
     }
     Character.UnicodeBlock cub=Character.UnicodeBlock.of(cp);
@@ -67,17 +67,17 @@ switch (midDot) {
 case LEAVE:
 break;
 case NORMALIZE:
-if (isMidDot(cp)) {
+if (cp == '\u00B7' || cp == '\u0387' || cp == '\u2022' || cp == '\u2024' || cp == '\u2027' || cp == '\u2219' || cp == '\u22C5' || cp == '\u30FB') {
 cp='\u00B7';
 }
 break;
 case FULLWIDTH:
-if (isMidDot(cp)) {
+if (cp == '\u00B7' || cp == '\u0387' || cp == '\u2022' || cp == '\u2024' || cp == '\u2027' || cp == '\u2219' || cp == '\u22C5' || cp == '\u30FB') {
 cp='\u30FB';
 }
 break;
 case DELETE:
-if (isMidDot(cp)) {
+if (cp == '\u00B7' || cp == '\u0387' || cp == '\u2022' || cp == '\u2024' || cp == '\u2027' || cp == '\u2219' || cp == '\u22C5' || cp == '\u30FB') {
 delete=true;
 }
 break;

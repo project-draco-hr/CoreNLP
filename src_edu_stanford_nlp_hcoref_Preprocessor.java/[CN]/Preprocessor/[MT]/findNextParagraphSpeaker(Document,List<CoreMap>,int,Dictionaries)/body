@@ -1,0 +1,29 @@
+{
+  if (paragraph.isEmpty()) {
+    return "";
+  }
+  CoreMap lastSent=paragraph.get(paragraph.size() - 1);
+  String speaker="";
+  for (  CoreLabel w : lastSent.get(CoreAnnotations.TokensAnnotation.class)) {
+    if (w.get(CoreAnnotations.LemmaAnnotation.class).equals("report") || w.get(CoreAnnotations.LemmaAnnotation.class).equals("say")) {
+      String word=w.get(CoreAnnotations.TextAnnotation.class);
+      SemanticGraph dependency=lastSent.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class);
+      if (dependency == null) {
+        dependency=lastSent.get(SemanticGraphCoreAnnotations.EnhancedDependenciesAnnotation.class);
+      }
+      IndexedWord t=dependency.getNodeByWordPattern(word);
+      for (      Pair<GrammaticalRelation,IndexedWord> child : dependency.childPairs(t)) {
+        if (child.first().getShortName().equals("nsubj")) {
+          int subjectIndex=child.second().index();
+          IntTuple headPosition=new IntTuple(2);
+          headPosition.set(0,paragraph.size() - 1 + paragraphOffset);
+          headPosition.set(1,subjectIndex - 1);
+          if (doc.mentionheadPositions.containsKey(headPosition) && doc.mentionheadPositions.get(headPosition).nerString.startsWith("PER")) {
+            speaker=Integer.toString(doc.mentionheadPositions.get(headPosition).mentionID);
+          }
+        }
+      }
+    }
+  }
+  return speaker;
+}

@@ -1,5 +1,5 @@
 {
-  return new AnnotatorFactory(Annotator.STANFORD_TOKENIZE,TokenizerAnnotator.class,properties){
+  return new AnnotatorFactory(TokenizerAnnotator.class,properties){
     private static final long serialVersionUID=1L;
     @Override public Annotator create(){
       String extraOptions=null;
@@ -21,7 +21,18 @@
     }
     @Override public String additionalSignature(){
       StringBuilder os=new StringBuilder();
+      os.append("tokenize.whitespace:").append(properties.getProperty("tokenize.whitespace","false"));
+      if (properties.getProperty("tokenize.options") != null) {
+        os.append(":tokenize.options:").append(properties.getProperty("tokenize.options"));
+      }
+      if (properties.getProperty("tokenize.language") != null) {
+        os.append(":tokenize.language:").append(properties.getProperty("tokenize.language"));
+      }
+      if (properties.getProperty("tokenize.class") != null) {
+        os.append(":tokenize.class:").append(properties.getProperty("tokenize.class"));
+      }
       if (Boolean.valueOf(properties.getProperty("tokenize.whitespace","false"))) {
+        os.append(TokenizerAnnotator.EOL_PROPERTY + ':').append(properties.getProperty(TokenizerAnnotator.EOL_PROPERTY,"false"));
         os.append(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY + ':');
         os.append(properties.getProperty(StanfordCoreNLP.NEWLINE_SPLITTER_PROPERTY,"false"));
       }

@@ -5,11 +5,10 @@
   while (!done) {
     List<T> newExprs=new ArrayList<>();
     boolean extracted=compositeExtractRule.extract(merged,newExprs);
-    if (verbose && extracted)     log.info("applyCompositeRule() extracting with " + compositeExtractRule + " from "+ merged+ " gives "+ newExprs);
     if (extracted) {
       annotateExpressions(merged,newExprs);
       newExprs=MatchedExpression.removeNullValues(newExprs);
-      if (!newExprs.isEmpty()) {
+      if (newExprs.size() > 0) {
         newExprs=MatchedExpression.removeNested(newExprs);
         newExprs=MatchedExpression.removeOverlapping(newExprs);
         merged=MatchedExpression.replaceMerged(merged,newExprs);
