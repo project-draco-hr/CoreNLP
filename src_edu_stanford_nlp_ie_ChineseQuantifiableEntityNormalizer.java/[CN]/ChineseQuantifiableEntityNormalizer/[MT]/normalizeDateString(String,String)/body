@@ -1,9 +1,37 @@
 {
-  String ctxyear=new SimpleDateFormat("yyyy").format(ctxdate);
-  String ctxmonth=new SimpleDateFormat("MM").format(ctxdate);
-  String ctxday=new SimpleDateFormat("dd").format(ctxdate);
-  Pattern p=Pattern.compile("^" + BASIC_YYYYMMDD_PATTERN + "$");
-  Matcher m=p.matcher(s);
+  Pattern p;
+  Matcher m;
+  String ctxyear="XXXX", ctxmonth="XX", ctxday="XX";
+  if (ctxdate != null) {
+    p=Pattern.compile("^" + BASIC_YYYYMMDD_PATTERN + "$");
+    m=p.matcher(ctxdate);
+    if (m.find() && m.groupCount() == 3) {
+      ctxyear=m.group(1);
+      ctxmonth=m.group(2);
+      ctxday=m.group(3);
+    }
+  }
+  p=Pattern.compile("^" + BIRTH_DECADE_PATTERN + "$");
+  m=p.matcher(s);
+  if (m.find() && m.groupCount() == 1) {
+    StringBuilder res=new StringBuilder();
+    res.append(normalizeYear(m.group(1),ctxyear,true).substring(0,3) + "X");
+    res.append("-XX-XX");
+    return res.toString();
+  }
+  p=Pattern.compile("^" + RELATIVE_TIME_PATTERN + "$");
+  m=p.matcher(s);
+  if (m.find() && m.groupCount() == 1) {
+    StringBuilder res=new StringBuilder();
+    res.append(ctxyear);
+    res.append("-");
+    res.append(ctxmonth);
+    res.append("-");
+    res.append(normalizeMonthOrDay(m.group(1),ctxday));
+    return res.toString();
+  }
+  p=Pattern.compile("^" + BASIC_YYYYMMDD_PATTERN + "$");
+  m=p.matcher(s);
   if (m.find() && m.groupCount() == 3) {
     StringBuilder res=new StringBuilder();
     res.append(normalizeYear(m.group(1),ctxyear));

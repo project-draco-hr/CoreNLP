@@ -7,6 +7,14 @@
     if (hasSpeakerAnnotations(annotation)) {
       annotation.set(CoreAnnotations.UseMarkedDiscourseAnnotation.class,true);
     }
+    String documentText=annotation.get(CoreAnnotations.TextAnnotation.class);
+    long docByteSize=documentText.getBytes("UTF-8").length;
+    if (docByteSize > COREF_MAX_DOC_SIZE) {
+      log.error("WARNING: document exceeds max size, not performing coref!");
+      HashMap<Integer,CorefChain> emptyCorefMap=new HashMap<Integer,CorefChain>();
+      annotation.set(CorefCoreAnnotations.CorefChainAnnotation.class,emptyCorefMap);
+      return;
+    }
     if (COREF_MODE.equals(HYBRID_MODE)) {
       Document corefDoc=hcorefSystem.docMaker.makeDocument(annotation);
       Map<Integer,CorefChain> result=hcorefSystem.coref(corefDoc);
