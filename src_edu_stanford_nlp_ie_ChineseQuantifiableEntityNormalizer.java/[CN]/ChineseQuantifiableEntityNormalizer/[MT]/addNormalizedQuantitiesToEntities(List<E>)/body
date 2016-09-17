@@ -1,6 +1,7 @@
 {
   fixupNerBeforeNormalization(list);
   String prevNerTag=BACKGROUND_SYMBOL;
+  int beforeIndex=-1;
   ArrayList<E> collector=new ArrayList<>();
   for (int i=0, sz=list.size(); i <= sz; i++) {
     E wi=null;
@@ -29,6 +30,7 @@ case DATE_TAG:
       break;
 default :
     if (prevNerTag.equals(NUMBER_TAG) || prevNerTag.equals(PERCENT_TAG) || prevNerTag.equals(MONEY_TAG)) {
+      modifier=detectQuantityModifier(list,beforeIndex,i);
     }
   processEntity(collector,prevNerTag,modifier,nextWord);
 break;
@@ -36,6 +38,9 @@ break;
 collector=new ArrayList<>();
 }
 if (quantifiable.contains(currNerTag)) {
+if (collector.isEmpty()) {
+beforeIndex=i - 1;
+}
 collector.add(wi);
 }
 prevNerTag=currNerTag;
