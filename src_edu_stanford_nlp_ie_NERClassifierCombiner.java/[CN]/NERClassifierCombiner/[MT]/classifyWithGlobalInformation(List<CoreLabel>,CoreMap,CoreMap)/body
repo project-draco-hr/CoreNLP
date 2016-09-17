@@ -14,7 +14,12 @@ catch (    Exception e) {
     }
     copyAnswerFieldsToNERField(output);
     try {
-      QuantifiableEntityNormalizer.addNormalizedQuantitiesToEntities(output,false,useSUTime);
+      if (nerLanguage.toLowerCase().equals("chinese")) {
+        ChineseQuantifiableEntityNormalizer.addNormalizedQuantitiesToEntities(output);
+      }
+ else {
+        QuantifiableEntityNormalizer.addNormalizedQuantitiesToEntities(output,false,useSUTime);
+      }
     }
  catch (    Exception e) {
       log.info("Ignored an exception in QuantifiableEntityNormalizer: (result is that entities were not normalized)");

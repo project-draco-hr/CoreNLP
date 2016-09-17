@@ -1,0 +1,49 @@
+{
+  if (DEBUG) {
+    log.info("ChineseQuantifiableEntityNormalizer.processEntity: " + l);
+  }
+  String s=singleEntityToString(l);
+  if (DEBUG) {
+    log.info("Quantifiable: Processing entity string " + s);
+  }
+  String p=null;
+switch (entityType) {
+case NUMBER_TAG:
+    p="";
+  if (compModifier != null) {
+    p=compModifier;
+  }
+String q=normalizedNumberString(s,nextWord);
+if (q != null) {
+p=p.concat(q);
+}
+ else {
+p=null;
+}
+break;
+case ORDINAL_TAG:
+p=normalizedOrdinalString(s,nextWord);
+break;
+case PERCENT_TAG:
+p=normalizedPercentString(s,nextWord);
+break;
+case MONEY_TAG:
+break;
+case DATE_TAG:
+break;
+case TIME_TAG:
+break;
+}
+if (DEBUG) {
+err.println("Quantifiable: Processed '" + s + "' as '"+ p+ '\'');
+}
+for (E wi : l) {
+if (p != null) {
+if (DEBUG) {
+log.info("Changing normalized NER from " + wi.get(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class) + " to "+ p);
+}
+wi.set(CoreAnnotations.NormalizedNamedEntityTagAnnotation.class,p);
+}
+}
+return l;
+}

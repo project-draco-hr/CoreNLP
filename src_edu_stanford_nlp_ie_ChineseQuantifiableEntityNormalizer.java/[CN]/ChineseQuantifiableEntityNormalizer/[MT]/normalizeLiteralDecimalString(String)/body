@@ -1,0 +1,20 @@
+{
+  if (s.isEmpty()) {
+    return Double.valueOf(0);
+  }
+  if (!CHINESE_LITERAL_DECIMAL_PATTERN.matcher(s).matches()) {
+    return null;
+  }
+  double decimalValue=0;
+  double base=1;
+  for (int i=0, sz=s.length(); i < sz; i++) {
+    base*=0.1;
+    String c=Character.toString(s.charAt(i));
+    if (!wordsToValues.containsKey(c)) {
+      return null;
+    }
+    double v=wordsToValues.getCount(c);
+    decimalValue+=v * base;
+  }
+  return Double.valueOf(decimalValue);
+}

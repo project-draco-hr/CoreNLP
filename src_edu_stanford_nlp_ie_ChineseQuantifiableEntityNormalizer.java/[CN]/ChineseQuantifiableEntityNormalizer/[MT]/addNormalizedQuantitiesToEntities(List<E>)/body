@@ -1,0 +1,43 @@
+{
+  fixupNerBeforeNormalization(list);
+  String prevNerTag=BACKGROUND_SYMBOL;
+  ArrayList<E> collector=new ArrayList<>();
+  for (int i=0, sz=list.size(); i <= sz; i++) {
+    E wi=null;
+    String currNerTag=null;
+    String nextWord="";
+    if (i < sz) {
+      wi=list.get(i);
+      if (DEBUG) {
+        log.info("addNormalizedQuantitiesToEntities: wi=" + wi + ", collector="+ collector);
+      }
+      if (i + 1 < sz) {
+        nextWord=list.get(i + 1).get(CoreAnnotations.TextAnnotation.class);
+        if (nextWord == null) {
+          nextWord="";
+        }
+      }
+      currNerTag=wi.get(CoreAnnotations.NamedEntityTagAnnotation.class);
+    }
+    E wprev=(i > 0) ? list.get(i - 1) : null;
+    if ((currNerTag == null || !currNerTag.equals(prevNerTag)) && quantifiable.contains(prevNerTag)) {
+      String modifier=null;
+switch (prevNerTag) {
+case TIME_TAG:
+        break;
+case DATE_TAG:
+      break;
+default :
+    if (prevNerTag.equals(NUMBER_TAG) || prevNerTag.equals(PERCENT_TAG) || prevNerTag.equals(MONEY_TAG)) {
+    }
+  processEntity(collector,prevNerTag,modifier,nextWord);
+break;
+}
+collector=new ArrayList<>();
+}
+if (quantifiable.contains(currNerTag)) {
+collector.add(wi);
+}
+prevNerTag=currNerTag;
+}
+}
