@@ -18,6 +18,9 @@
  else       if (rightScanFindsMoneyWord(pl,i)) {
         me.set(CoreAnnotations.AnswerAnnotation.class,MONEY_TAG);
       }
+ else       if (me.word().length() == 2 && CHINESE_AND_ARABIC_NUMERALS_PATTERN.matcher(me.word()).matches() && DATE_AGE_LOCALIZER.equals(next.word())) {
+        me.set(CoreAnnotations.AnswerAnnotation.class,DATE_TAG);
+      }
  else {
         me.set(CoreAnnotations.AnswerAnnotation.class,NUMBER_TAG);
       }
@@ -32,6 +35,9 @@
  else {
         me.set(CoreAnnotations.AnswerAnnotation.class,TIME_TAG);
       }
+    }
+ else     if (DATE_AGE_LOCALIZER.equals(me.word()) && prev.word().length() == 2 && CHINESE_AND_ARABIC_NUMERALS_PATTERN.matcher(prev.word()).matches()) {
+      me.set(CoreAnnotations.AnswerAnnotation.class,DATE_TAG);
     }
   }
   return document;

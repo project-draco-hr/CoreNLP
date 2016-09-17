@@ -1,50 +1,59 @@
 {
-  String ctxyear=new SimpleDateFormat("yyyy").format(ctxdate);
-  String ctxmonth=new SimpleDateFormat("MM").format(ctxdate);
-  String ctxday=new SimpleDateFormat("dd").format(ctxdate);
-  Pattern p=Pattern.compile("^" + BASIC_YYYYMMDD_PATTERN + "$");
+  Pattern p=Pattern.compile(BASIC_YYYYMMDD_PATTERN);
   Matcher m=p.matcher(s);
   if (m.find() && m.groupCount() == 3) {
     StringBuilder res=new StringBuilder();
-    res.append(normalizeYear(m.group(1),ctxyear));
+    String year=m.group(1);
+    for (int i=0; i < year.length(); i++) {
+      String t="" + year.charAt(i);
+      if (CHINESE_LITERAL_DECIMAL_PATTERN.matcher(t).matches()) {
+        if (wordsToValues.containsKey(t))         res.append((int)wordsToValues.getCount(t));
+ else         return null;
+      }
+ else       res.append(t);
+    }
     res.append("-");
-    res.append(normalizeMonthOrDay(m.group(2),ctxmonth));
+    res.append(normalizeMonthOrDay(m.group(2)));
     res.append("-");
-    res.append(normalizeMonthOrDay(m.group(3),ctxday));
+    res.append(normalizeMonthOrDay(m.group(3)));
     return res.toString();
   }
-  p=Pattern.compile("^" + BASIC_MMDD_PATTERN + "$");
+  p=Pattern.compile(BASIC_MMDD_PATTERN);
   m=p.matcher(s);
   if (m.find() && m.groupCount() == 2) {
     StringBuilder res=new StringBuilder();
-    res.append(ctxyear);
+    String year=new SimpleDateFormat("yyyy").format(docdate);
+    res.append(year);
     res.append("-");
-    res.append(normalizeMonthOrDay(m.group(1),ctxmonth));
+    res.append(normalizeMonthOrDay(m.group(1)));
     res.append("-");
-    res.append(normalizeMonthOrDay(m.group(2),ctxday));
+    res.append(normalizeMonthOrDay(m.group(2)));
     return res.toString();
   }
-  p=Pattern.compile("^" + BASIC_DD_PATTERN + "$");
+  p=Pattern.compile(BASIC_DD_PATTERN);
   m=p.matcher(s);
   if (m.find() && m.groupCount() == 1) {
     StringBuilder res=new StringBuilder();
-    res.append(ctxyear);
+    String year=new SimpleDateFormat("yyyy").format(docdate);
+    String month=new SimpleDateFormat("MM").format(docdate);
+    res.append(year);
     res.append("-");
-    res.append(ctxmonth);
+    res.append(month);
     res.append("-");
-    res.append(normalizeMonthOrDay(m.group(1),ctxday));
+    res.append(normalizeMonthOrDay(m.group(1)));
     return res.toString();
   }
-  p=Pattern.compile("^" + ENGLISH_MMDDYYYY_PATTERN + "$");
+  p=Pattern.compile(ENGLISH_MMDDYYYY_PATTERN);
   m=p.matcher(s);
   if (m.find() && m.groupCount() == 3) {
     StringBuilder res=new StringBuilder();
-    if (m.group(3) == null)     res.append(ctxyear);
- else     res.append(normalizeYear(m.group(3),ctxyear));
+    String year=new SimpleDateFormat("yyyy").format(docdate);
+    if (m.group(3) == null)     res.append(year);
+ else     res.append(m.group(3));
     res.append("-");
-    res.append(normalizeMonthOrDay(m.group(1),ctxmonth));
+    res.append(normalizeMonthOrDay(m.group(1)));
     res.append("-");
-    res.append(normalizeMonthOrDay(m.group(2),ctxday));
+    res.append(normalizeMonthOrDay(m.group(2)));
     return res.toString();
   }
   return s;
