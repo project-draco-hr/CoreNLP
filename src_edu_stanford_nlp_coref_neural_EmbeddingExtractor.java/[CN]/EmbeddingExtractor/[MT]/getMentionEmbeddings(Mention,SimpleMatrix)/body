@@ -1,0 +1,5 @@
+{
+  Iterator<SemanticGraphEdge> depIterator=m.enhancedDependency.incomingEdgeIterator(m.headIndexedWord);
+  SemanticGraphEdge depRelation=depIterator.hasNext() ? depIterator.next() : null;
+  return NeuralUtils.concatenate(getAverageEmbedding(m.sentenceWords,m.startIndex,m.endIndex),getAverageEmbedding(m.sentenceWords,m.startIndex - 5,m.startIndex),getAverageEmbedding(m.sentenceWords,m.endIndex,m.endIndex + 5),getAverageEmbedding(m.sentenceWords.subList(0,m.sentenceWords.size() - 1)),docEmbedding,getWordEmbedding(m.sentenceWords,m.headIndex),getWordEmbedding(m.sentenceWords,m.startIndex),getWordEmbedding(m.sentenceWords,m.endIndex - 1),getWordEmbedding(m.sentenceWords,m.startIndex - 1),getWordEmbedding(m.sentenceWords,m.endIndex),getWordEmbedding(m.sentenceWords,m.startIndex - 2),getWordEmbedding(m.sentenceWords,m.endIndex + 1),getWordEmbedding(depRelation == null ? null : depRelation.getSource().word()));
+}

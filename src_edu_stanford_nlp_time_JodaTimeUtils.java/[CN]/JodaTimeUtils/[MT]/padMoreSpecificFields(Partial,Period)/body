@@ -41,6 +41,16 @@
     DateTimeFieldType fieldType=p2.getFieldType(i);
     if (msf == null || isMoreSpecific(fieldType,msf,p.getChronology())) {
       if (!p.isSupported(fieldType)) {
+        if (fieldType == DateTimeFieldType.monthOfYear()) {
+          if (p.isSupported(QuarterOfYear)) {
+            p=p.with(DateTimeFieldType.monthOfYear(),(p.get(QuarterOfYear) - 1) * 3 + 1);
+            continue;
+          }
+ else           if (p.isSupported(HalfYearOfYear)) {
+            p=p.with(DateTimeFieldType.monthOfYear(),(p.get(HalfYearOfYear) - 1) * 6 + 1);
+            continue;
+          }
+        }
         p=p.with(fieldType,p2.getValue(i));
       }
     }

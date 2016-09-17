@@ -27,7 +27,13 @@ catch (  NullPointerException npe) {
       out.flush();
     }
   }
- catch (  RuntimeException e) {
+ catch (  RuntimeException|OutOfMemoryError e) {
+    if (DEBUG) {
+      log.error("NERServer.Session: error classifying string.");
+      log.error(e);
+    }
   }
-  close();
+ finally {
+    close();
+  }
 }

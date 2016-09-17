@@ -15,5 +15,12 @@
     this.applyNumericClassifiers=diskApplyNumericClassifiers;
   }
   this.nerLanguage=NER_LANGUAGE_DEFAULT;
-  this.nsc=getNumberSequenceClassifier(new Properties(),props);
+  this.nsc=new NumberSequenceClassifier(new Properties(),useSUTime,props);
+  if (PropertiesUtils.getBool(props,NERClassifierCombiner.APPLY_GAZETTE_PROPERTY,NERClassifierCombiner.APPLY_GAZETTE_DEFAULT)) {
+    this.gazetteMapping=readRegexnerGazette(DefaultPaths.DEFAULT_NER_GAZETTE_MAPPING);
+  }
+ else {
+    this.gazetteMapping=Collections.emptyMap();
+    log.fatal("Property ner.language not recognized: " + nerLanguage);
+  }
 }

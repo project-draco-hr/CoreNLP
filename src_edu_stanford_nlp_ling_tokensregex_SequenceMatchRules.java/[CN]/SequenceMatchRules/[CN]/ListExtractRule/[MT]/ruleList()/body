@@ -2,7 +2,21 @@
   List<String> names=new ArrayList<>();
   for (  ExtractRule rule : rules) {
     if (rule instanceof AnnotationExtractRule) {
-      names.add(((AnnotationExtractRule)rule).name);
+      AnnotationExtractRule aer=(AnnotationExtractRule)rule;
+      String ruleString=null;
+      if (aer.pattern != null) {
+        ruleString=aer.pattern.toString();
+      }
+ else       if (aer.extractRule != null) {
+        ruleString=aer.extractRule.toString();
+      }
+ else       if (aer.filterRule != null) {
+        ruleString=aer.filterRule.toString();
+      }
+ else {
+        ruleString=aer.toString();
+      }
+      names.add(ruleString);
     }
  else {
       names.add(rule.getClass().getName());

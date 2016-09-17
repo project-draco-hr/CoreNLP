@@ -1,22 +1,8 @@
 {
   this.props=props;
   try {
-    COREF_MODE=props.getProperty("coref.mode",STATISTICAL_MODE);
-    String LONG_MAX_VALUE="9223372036854775807";
-    COREF_MAX_DOC_SIZE=Long.parseLong(props.getProperty("coref.maxDocSize",LONG_MAX_VALUE));
-    if (COREF_MODE.equals(HYBRID_MODE)) {
-      hcorefSystem=new CorefSystem(props);
-      scorefSystem=null;
-    }
- else     if (COREF_MODE.equals(STATISTICAL_MODE)) {
-      scorefSystem=StatisticalCorefSystem.fromProps(props);
-      hcorefSystem=null;
-    }
- else {
-      scorefSystem=null;
-      hcorefSystem=null;
-    }
-    OLD_FORMAT=Boolean.parseBoolean(props.getProperty("oldCorefFormat","false"));
+    corefSystem=new CorefSystem(props);
+    oldFormat=Boolean.parseBoolean(props.getProperty("oldCorefFormat","false"));
   }
  catch (  Exception e) {
     log.error("cannot create CorefAnnotator!");
