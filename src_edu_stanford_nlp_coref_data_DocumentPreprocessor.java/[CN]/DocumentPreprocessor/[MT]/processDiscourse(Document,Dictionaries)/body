@@ -67,9 +67,9 @@
       doc.speakers.put(utter,Integer.toString(speakerID));
     }
   }
-  for (  String speaker : speakerConversion.keySet()) {
-    doc.speakerInfoMap.put(Integer.toString(speakerConversion.get(speaker)),doc.speakerInfoMap.get(speaker));
-    doc.speakerInfoMap.remove(speaker);
+  for (  Map.Entry<String,Integer> stringIntegerEntry : speakerConversion.entrySet()) {
+    doc.speakerInfoMap.put(Integer.toString(stringIntegerEntry.getValue()),doc.speakerInfoMap.get(stringIntegerEntry.getKey()));
+    doc.speakerInfoMap.remove(stringIntegerEntry.getKey());
   }
   for (  CoreLabel cl : doc.annotation.get(TokensAnnotation.class)) {
     int utter=cl.get(UtteranceAnnotation.class);
