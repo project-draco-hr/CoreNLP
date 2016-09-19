@@ -5,33 +5,33 @@
   for (int i=0; i < keys.length; i++) {
     String key=keys[i];
     String value=values[i];
-    Class coreKeyClass=AnnotationLookup.toCoreKey(key);
-    if (coreKeyClass == null) {
+    KeyLookup lookup=AnnotationLookup.getCoreKey(key);
+    if (lookup == null) {
       if (key != null) {
         throw new UnsupportedOperationException("Unknown key " + key);
       }
     }
  else {
       try {
-        Class<?> valueClass=AnnotationLookup.getValueType(coreKeyClass);
+        Class<?> valueClass=AnnotationLookup.getValueType(lookup.coreKey);
         if (valueClass.equals(String.class)) {
-          this.set(coreKeyClass,values[i]);
+          this.set(lookup.coreKey,values[i]);
         }
  else         if (valueClass == Integer.class) {
-          this.set(coreKeyClass,Integer.parseInt(values[i]));
+          this.set(lookup.coreKey,Integer.parseInt(values[i]));
         }
  else         if (valueClass == Double.class) {
-          this.set(coreKeyClass,Double.parseDouble(values[i]));
+          this.set(lookup.coreKey,Double.parseDouble(values[i]));
         }
  else         if (valueClass == Long.class) {
-          this.set(coreKeyClass,Long.parseLong(values[i]));
+          this.set(lookup.coreKey,Long.parseLong(values[i]));
         }
  else {
           throw new RuntimeException("Can't handle " + valueClass);
         }
       }
  catch (      Exception e) {
-        throw new UnsupportedOperationException("CORE: CoreLabel.initFromStrings: " + "Bad type for " + key + ". Value was: "+ value+ "; expected "+ AnnotationLookup.getValueType(coreKeyClass),e);
+        throw new UnsupportedOperationException("CORE: CoreLabel.initFromStrings: " + "Bad type for " + key + ". Value was: "+ value+ "; expected "+ AnnotationLookup.getValueType(lookup.coreKey),e);
       }
     }
   }
