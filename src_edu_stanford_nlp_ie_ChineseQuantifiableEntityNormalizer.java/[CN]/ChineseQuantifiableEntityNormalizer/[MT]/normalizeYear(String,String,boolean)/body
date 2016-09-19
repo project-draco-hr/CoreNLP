@@ -1,0 +1,35 @@
+{
+  int ctx=-1;
+  if (!contextYear.equals("XXXX"))   ctx=Integer.valueOf(contextYear);
+  if (yearModifiers.containsKey(s)) {
+    if (ctx >= 0)     return String.format("%d",ctx + yearModifiers.get(s));
+ else     return "XXXX";
+  }
+ else {
+    String candidate;
+    StringBuilder yearcandidate=new StringBuilder();
+    for (int i=0; i < s.length(); i++) {
+      String t="" + s.charAt(i);
+      if (CHINESE_LITERAL_DECIMAL_PATTERN.matcher(t).matches()) {
+        if (wordsToValues.containsKey(t))         yearcandidate.append((int)wordsToValues.getCount(t));
+ else         return null;
+      }
+ else       yearcandidate.append(t);
+    }
+    candidate=yearcandidate.toString();
+    if (candidate.length() != 2) {
+      return candidate;
+    }
+    if (ctx < 0) {
+      ctx=Integer.valueOf(new SimpleDateFormat("yyyy").format(new Date()));
+    }
+    int cand=Integer.valueOf(candidate);
+    if ((strict && cand >= (ctx % 100)) || cand > (ctx % 100 + 10)) {
+      cand+=(ctx / 100 - 1) * 100;
+    }
+ else {
+      cand+=(ctx / 100) * 100;
+    }
+    return String.format("%d",cand);
+  }
+}
