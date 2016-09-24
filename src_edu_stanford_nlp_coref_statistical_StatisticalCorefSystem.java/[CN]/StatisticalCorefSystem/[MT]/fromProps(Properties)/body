@@ -1,0 +1,13 @@
+{
+  try {
+    if (StatisticalCorefProperties.cluster(props)) {
+      return new ClusteringCorefSystem(props,StatisticalCorefProperties.clusteringModelPath(props),StatisticalCorefProperties.classificationModelPath(props),StatisticalCorefProperties.rankingModelPath(props),StatisticalCorefProperties.anaphoricityModelPath(props),StatisticalCorefProperties.wordCountsPath(props));
+    }
+ else {
+      return new BestFirstCorefSystem(props,StatisticalCorefProperties.wordCountsPath(props),StatisticalCorefProperties.rankingModelPath(props),StatisticalCorefProperties.maxMentionDistance(props),StatisticalCorefProperties.maxMentionDistanceWithStringMatch(props),StatisticalCorefProperties.pairwiseScoreThresholds(props));
+    }
+  }
+ catch (  Exception e) {
+    throw new RuntimeException("Error creating coreference system",e);
+  }
+}

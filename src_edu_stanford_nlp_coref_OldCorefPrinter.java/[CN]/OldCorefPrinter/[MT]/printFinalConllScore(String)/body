@@ -1,0 +1,11 @@
+{
+  Pattern f1=Pattern.compile("Coreference:.*F1: (.*)%");
+  Matcher f1Matcher=f1.matcher(summary);
+  double[] F1s=new double[5];
+  int i=0;
+  while (f1Matcher.find()) {
+    F1s[i++]=Double.parseDouble(f1Matcher.group(1));
+  }
+  double finalScore=(F1s[0] + F1s[1] + F1s[3]) / 3;
+  Redwood.log("Final conll score ((muc+bcub+ceafe)/3) = " + (new DecimalFormat("#.##")).format(finalScore));
+}

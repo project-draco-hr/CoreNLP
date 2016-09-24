@@ -1,0 +1,24 @@
+{
+  for (  Mention m1 : orderedMentions) {
+    for (    Mention m2 : orderedMentions) {
+      if (m1 == m2)       continue;
+      if (m1.isListMemberOf(m2) || m2.isListMemberOf(m1) || m1.isMemberOfSameList(m2)) {
+        continue;
+      }
+      for (      Pair<Integer,Integer> foundPair : foundPairs) {
+        if (foundPair.first() == m1.headIndex && foundPair.second() == m2.headIndex) {
+          if (flag.equals("APPOSITION")) {
+            if (!foundPair.first().equals(foundPair.second()) || m2.insideIn(m1)) {
+              m2.addApposition(m1);
+            }
+          }
+ else           if (flag.equals("PREDICATE_NOMINATIVE")) {
+            m2.addPredicateNominatives(m1);
+          }
+ else           if (flag.equals("RELATIVE_PRONOUN"))           m2.addRelativePronoun(m1);
+ else           throw new RuntimeException("check flag in markMentionRelation (dcoref/MentionExtractor.java)");
+        }
+      }
+    }
+  }
+}

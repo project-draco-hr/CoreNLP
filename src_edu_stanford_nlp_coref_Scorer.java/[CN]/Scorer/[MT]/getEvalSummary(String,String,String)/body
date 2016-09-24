@@ -1,0 +1,23 @@
+{
+  ProcessBuilder process=new ProcessBuilder(evalScript,"all",goldFile,predictFile,"none");
+  StringOutputStream errSos=new StringOutputStream();
+  StringOutputStream outSos=new StringOutputStream();
+  PrintWriter out=new PrintWriter(outSos);
+  PrintWriter err=new PrintWriter(errSos);
+  SystemUtils.run(process,out,err);
+  out.close();
+  err.close();
+  String summary=outSos.toString();
+  String errStr=errSos.toString();
+  if (!errStr.isEmpty()) {
+    summary+="\nERROR: " + errStr;
+  }
+  Pattern pattern=Pattern.compile("\\d+\\.\\d\\d\\d+");
+  DecimalFormat df=new DecimalFormat("#.##");
+  Matcher matcher=pattern.matcher(summary);
+  while (matcher.find()) {
+    String number=matcher.group();
+    summary=summary.replaceFirst(number,df.format(Double.parseDouble(number)));
+  }
+  return summary;
+}
