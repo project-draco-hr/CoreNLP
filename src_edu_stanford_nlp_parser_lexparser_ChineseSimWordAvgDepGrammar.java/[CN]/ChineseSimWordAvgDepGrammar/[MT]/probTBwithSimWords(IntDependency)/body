@@ -6,7 +6,10 @@
     System.out.println("Generating " + dependency);
   }
   short distance=dependency.distance;
+  int hW=dependency.head.word;
+  int aW=dependency.arg.word;
   IntTaggedWord aTW=dependency.arg;
+  IntTaggedWord hTW=dependency.head;
   double pb_stop_hTWds=getStopProb(dependency);
   boolean isRoot=rootTW(dependency.head);
   if (dependency.arg.word == -2) {
@@ -42,8 +45,10 @@
   double pb_aTW_hTWd;
   double pb_aT_hTWd=(c_aT_hTWd + smooth_aT_hTWd * p_aT_hTd) / (c_hTWd + smooth_aT_hTWd);
   double score;
-  List<Triple<Integer,String,Double>> sim2arg=simArgMap.get(new Pair<>(dependency.arg.word,stringBasicCategory(dependency.arg.tag)));
-  List<Triple<Integer,String,Double>> sim2head=simHeadMap.get(new Pair<>(dependency.head.word,stringBasicCategory(dependency.head.tag)));
+  List<Triple<Integer,String,Double>> sim2head=null;
+  List<Triple<Integer,String,Double>> sim2arg=null;
+  sim2arg=simArgMap.get(new Pair<>(dependency.arg.word,stringBasicCategory(dependency.arg.tag)));
+  sim2head=simHeadMap.get(new Pair<>(dependency.head.word,stringBasicCategory(dependency.head.tag)));
   List<Integer> simArg=new ArrayList<>();
   List<Integer> simHead=new ArrayList<>();
   if (sim2arg != null) {

@@ -1,16 +1,12 @@
 {
   cl.remove(ParentAnnotation.class);
   String[] parts=pSpace.split(pDash.matcher(cl.word()).replaceAll(" - "));
-  int lengthAccum=0;
   for (  String part : parts) {
     CoreLabel newLabel=new CoreLabel(cl);
     newLabel.setWord(part);
     newLabel.setValue(part);
-    newLabel.setBeginPosition(cl.beginPosition() + lengthAccum);
-    newLabel.setEndPosition(cl.beginPosition() + lengthAccum + part.length());
     newLabel.set(OriginalTextAnnotation.class,part);
     compoundBuffer.add(newLabel);
-    lengthAccum+=part.length();
   }
   return compoundBuffer.remove(0);
 }

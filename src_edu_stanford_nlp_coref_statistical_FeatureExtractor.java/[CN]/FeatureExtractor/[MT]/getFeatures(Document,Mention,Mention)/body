@@ -39,7 +39,7 @@
     addFeature(features,"heads-equal",m1.headString.equalsIgnoreCase(m2.headString));
     addFeature(features,"heads-agree",m2.headsAgree(m1));
     addFeature(features,"exact-match",m1.toString().trim().toLowerCase().equals(m2.toString().trim().toLowerCase()));
-    addFeature(features,"partial-match",partialMatch(m1,m2));
+    addFeature(features,"partial-match",relaxedStringMatch(m1,m2));
     double editDistance=StringUtils.editDistance(m1.spanToString(),m2.spanToString()) / (double)(m1.spanToString().length() + m2.spanToString().length());
     features.incrementCount("edit-distance",editDistance);
     features.incrementCount("edit-distance=" + ((int)(editDistance * 10) / 10.0));

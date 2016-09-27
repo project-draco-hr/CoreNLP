@@ -1,10 +1,9 @@
 {
-  System.err.print("Loading classifier from " + path + "... ");
+  System.out.print("Loading classifier from " + path + "... ");
   ObjectInputStream in=new ObjectInputStream(new FileInputStream(path));
-  double[][] myWeights=ErasureUtils.uncheckedCast(in.readObject());
-  Index<FF> myFeatureIndex=ErasureUtils.uncheckedCast(in.readObject());
-  Index<LL> myLabelIndex=ErasureUtils.uncheckedCast(in.readObject());
+  weights=ErasureUtils.uncheckedCast(in.readObject());
+  featureIndex=ErasureUtils.uncheckedCast(in.readObject());
+  labelIndex=ErasureUtils.uncheckedCast(in.readObject());
   in.close();
-  System.err.println("done.");
-  return new MultinomialLogisticClassifier<>(myWeights,myFeatureIndex,myLabelIndex);
+  System.out.println("done.");
 }
