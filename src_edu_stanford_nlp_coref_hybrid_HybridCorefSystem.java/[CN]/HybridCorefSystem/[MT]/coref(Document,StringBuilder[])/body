@@ -1,18 +1,20 @@
 {
-  if (HybridCorefProperties.printMDLog(props)) {
-    Redwood.log(HybridCorefPrinter.printMentionDetectionLog(document));
+  if (CorefProperties.printMDLog(props)) {
+    Redwood.log(OldCorefPrinter.printMentionDetectionLog(document));
   }
-  if (HybridCorefProperties.doScore(props)) {
+  if (CorefProperties.doScore(props)) {
     output[0]=(new StringBuilder()).append(CorefPrinter.printConllOutput(document,true));
     output[1]=(new StringBuilder()).append(CorefPrinter.printConllOutput(document,false));
   }
   output[3]=new StringBuilder();
   for (  Sieve sieve : sieves) {
-    CorefUtils.checkForInterrupt();
+    if (Thread.interrupted()) {
+      throw new RuntimeInterruptedException();
+    }
     output[3].append(sieve.resolveMention(document,dictionaries,props));
   }
-  if (HybridCorefProperties.doPostProcessing(props))   postProcessing(document);
-  if (HybridCorefProperties.doScore(props)) {
+  if (CorefProperties.doPostProcessing(props))   postProcessing(document);
+  if (CorefProperties.doScore(props)) {
     output[2]=(new StringBuilder()).append(CorefPrinter.printConllOutput(document,false,true));
   }
   return makeCorefOutput(document);

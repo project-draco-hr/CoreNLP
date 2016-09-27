@@ -1,0 +1,16 @@
+{
+  Properties props=StringUtils.argsToProperties("-props","/Users/yuhao/Research/tmp/ChineseNumberClassifierProps.properties");
+  props.setProperty("outputFormat","text");
+  props.setProperty("ssplit.boundaryTokenRegex","\\n");
+  StanfordCoreNLP pipeline=new StanfordCoreNLP(props);
+  String docFileName="/Users/yuhao/Research/tmp/chinese_number_examples.txt";
+  List<String> docLines=IOUtils.linesFromFile(docFileName);
+  PrintStream out=new PrintStream(docFileName + ".out");
+  for (  String docLine : docLines) {
+    Annotation sentenceAnnotation=new Annotation(docLine);
+    pipeline.annotate(sentenceAnnotation);
+    pipeline.prettyPrint(sentenceAnnotation,out);
+    pipeline.prettyPrint(sentenceAnnotation,System.out);
+  }
+  out.close();
+}
