@@ -1,18 +1,26 @@
 {
   this.props=props;
   try {
-    COREF_MODE=props.getProperty("coref.mode",STATISTICAL_MODE);
+    COREF_MODE=props.getProperty("coref.algorithm",NEURAL_MODE);
     if (COREF_MODE.equals(HYBRID_MODE)) {
       hcorefSystem=new HybridCorefSystem(props);
       scorefSystem=null;
+      corefSystem=null;
     }
  else     if (COREF_MODE.equals(STATISTICAL_MODE)) {
       scorefSystem=StatisticalCorefSystem.fromProps(props);
       hcorefSystem=null;
+      corefSystem=null;
+    }
+ else     if (COREF_MODE.equals(NEURAL_MODE)) {
+      scorefSystem=null;
+      hcorefSystem=null;
+      corefSystem=new CorefSystem(props);
     }
  else {
       scorefSystem=null;
       hcorefSystem=null;
+      corefSystem=null;
     }
     OLD_FORMAT=Boolean.parseBoolean(props.getProperty("oldCorefFormat","false"));
   }
