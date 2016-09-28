@@ -29,7 +29,7 @@
     }
   }
 class RelComp implements Comparator<RelationMention> {
-    public int compare(    RelationMention rel1,    RelationMention rel2){
+    @Override public int compare(    RelationMention rel1,    RelationMention rel2){
       String prediction1=predictions.get(rel1);
       String prediction2=predictions.get(rel2);
       int entComp=(rel1.getArg(0).getType() + rel1.getArg(1).getType()).compareTo(rel2.getArg(0).getType() + rel2.getArg(1).getType());
@@ -67,7 +67,7 @@ class RelComp implements Comparator<RelationMention> {
     if (!((type1.equals("PEOPLE") && type2.equals("PEOPLE")) || (type1.equals("PEOPLE") && type2.equals("LOCATION")) || (type1.equals("LOCATION") && type2.equals("LOCATION"))|| (type1.equals("ORGANIZATION") && type2.equals("LOCATION"))|| (type1.equals("PEOPLE") && type2.equals("ORGANIZATION")))) {
       continue;
     }
-    if (path == "") {
+    if (path.equals("")) {
       continue;
     }
     pw.println("\nLABEL: " + prediction);

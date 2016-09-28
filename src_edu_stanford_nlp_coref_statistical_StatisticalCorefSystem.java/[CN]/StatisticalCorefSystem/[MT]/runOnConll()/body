@@ -1,0 +1,33 @@
+{
+  String baseName=StatisticalCorefProperties.conllOutputPath(props) + Calendar.getInstance().getTime().toString().replaceAll("\\s","-").replaceAll(":","-");
+  String goldOutput=baseName + ".gold.txt";
+  String beforeCorefOutput=baseName + ".predicted.txt";
+  String afterCorefOutput=baseName + ".coref.predicted.txt";
+  PrintWriter writerGold=new PrintWriter(new FileOutputStream(goldOutput));
+  PrintWriter writerBeforeCoref=new PrintWriter(new FileOutputStream(beforeCorefOutput));
+  PrintWriter writerAfterCoref=new PrintWriter(new FileOutputStream(afterCorefOutput));
+  (new DocumentProcessor(){
+    @Override public void process(    int id,    Document document){
+      writerGold.print(CorefPrinter.printConllOutput(document,true));
+      writerBeforeCoref.print(CorefPrinter.printConllOutput(document,false));
+      runCoref(document);
+      StatisticalCorefUtils.removeSingletonClusters(document);
+      writerAfterCoref.print(CorefPrinter.printConllOutput(document,false,true));
+    }
+    @Override public void finish() throws Exception {
+    }
+    @Override public String getName(){
+      return StatisticalCorefSystem.this.getClass().getSimpleName();
+    }
+  }
+).run(docMaker);
+  Logger logger=Logger.getLogger(CorefSystem.class.getName());
+  String summary=Scorer.getEvalSummary(CorefProperties.getPathScorer(props),goldOutput,beforeCorefOutput);
+  OldCorefPrinter.printScoreSummary(summary,logger,false);
+  summary=Scorer.getEvalSummary(CorefProperties.getPathScorer(props),goldOutput,afterCorefOutput);
+  OldCorefPrinter.printScoreSummary(summary,logger,true);
+  OldCorefPrinter.printFinalConllScore(summary);
+  writerGold.close();
+  writerBeforeCoref.close();
+  writerAfterCoref.close();
+}

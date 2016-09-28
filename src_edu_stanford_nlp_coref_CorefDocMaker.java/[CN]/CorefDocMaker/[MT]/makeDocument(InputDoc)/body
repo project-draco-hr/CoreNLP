@@ -1,0 +1,18 @@
+{
+  if (input == null)   return null;
+  Annotation anno=input.annotation;
+  if (Boolean.parseBoolean(props.getProperty("coref.useMarkedDiscourse","false"))) {
+    anno.set(CoreAnnotations.UseMarkedDiscourseAnnotation.class,true);
+  }
+  if (addMissingAnnotations) {
+    addMissingAnnotation(anno);
+  }
+  List<List<Mention>> mentions=new ArrayList<>();
+  for (  CoreMap sentence : anno.get(CoreAnnotations.SentencesAnnotation.class)) {
+    mentions.add(sentence.get(CorefCoreAnnotations.CorefMentionsAnnotation.class));
+  }
+  Document doc=new Document(input,mentions);
+  if (input.goldMentions != null)   findGoldMentionHeads(doc);
+  Preprocessor.preprocess(doc,dict,singletonPredictor,headFinder);
+  return doc;
+}
