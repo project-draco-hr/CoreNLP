@@ -1,5 +1,8 @@
 {
-  RedwoodConfiguration.empty().handlers(RedwoodConfiguration.Handlers.chain(RedwoodConfiguration.Handlers.showAllChannels(),RedwoodConfiguration.Handlers.stderr),RedwoodConfiguration.Handlers.file(logFilePath.toString())).apply();
+  FileHandler fh=new FileHandler(logFilePath.toString(),false);
+  log.addHandler(fh);
+  log.setLevel(Level.FINE);
+  fh.setFormatter(new NewlineLogFormatter());
   System.out.println("Starting Ssurgeon log, at " + logFilePath.getAbsolutePath() + " date="+ DateFormat.getDateInstance(DateFormat.FULL).format(new Date()));
   log.info("Starting Ssurgeon log, date=" + DateFormat.getDateInstance(DateFormat.FULL).format(new Date()));
 }

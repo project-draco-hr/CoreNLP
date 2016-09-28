@@ -1,7 +1,9 @@
 {
   this.properties=properties;
   Properties serverProperties=new Properties();
-  for (  String key : properties.stringPropertyNames()) {
+  Enumeration<?> keys=properties.propertyNames();
+  while (keys.hasMoreElements()) {
+    String key=keys.nextElement().toString();
     serverProperties.setProperty(key,properties.getProperty(key));
   }
   Collections.shuffle(backends,new Random(System.currentTimeMillis()));
@@ -13,8 +15,10 @@
   serverProperties.setProperty("inputSerializer",ProtobufAnnotationSerializer.class.getName());
   serverProperties.setProperty("outputSerializer",ProtobufAnnotationSerializer.class.getName());
   List<String> jsonProperties=new ArrayList<>();
-  for (  String key : serverProperties.stringPropertyNames()) {
-    jsonProperties.add("\"" + JSONOutputter.cleanJSON(key) + "\": \""+ JSONOutputter.cleanJSON(serverProperties.getProperty(key))+ "\"");
+  keys=serverProperties.propertyNames();
+  while (keys.hasMoreElements()) {
+    Object key=keys.nextElement();
+    jsonProperties.add("\"" + JSONOutputter.cleanJSON(key.toString()) + "\": \""+ JSONOutputter.cleanJSON(serverProperties.getProperty(key.toString()))+ "\"");
   }
   this.propsAsJSON="{ " + StringUtils.join(jsonProperties,", ") + " }";
   this.scheduler.start();

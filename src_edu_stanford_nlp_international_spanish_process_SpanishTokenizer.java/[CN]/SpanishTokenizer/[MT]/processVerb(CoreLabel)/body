@@ -4,13 +4,8 @@
   if (parts == null) {
     return cl;
   }
-  int stemEnd=cl.beginPosition() + parts.first().length();
-  int lengthRemoved=0;
   for (  String pronoun : parts.second()) {
-    int beginOffset=stemEnd + lengthRemoved;
-    compoundBuffer.add(copyCoreLabel(cl,pronoun,beginOffset));
-    lengthRemoved+=pronoun.length();
+    compoundBuffer.add(copyCoreLabel(cl,pronoun));
   }
-  CoreLabel stem=copyCoreLabel(cl,parts.first(),cl.beginPosition(),stemEnd);
-  return stem;
+  return copyCoreLabel(cl,parts.first());
 }

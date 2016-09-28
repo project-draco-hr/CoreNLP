@@ -1,0 +1,76 @@
+{
+  Redwood.hideChannelsEverywhere("debug-cluster","debug-mention","debug-preprocessor","debug-docreader","debug-mergethres","debug-featureselection","debug-md");
+  int nThreads=HybridCorefProperties.getThreadCounts(props);
+  String timeStamp=Calendar.getInstance().getTime().toString().replaceAll("\\s","-").replaceAll(":","-");
+  Logger logger=Logger.getLogger(HybridCorefSystem.class.getName());
+  if (props.containsKey(HybridCorefProperties.LOG_PROP)) {
+    File logFile=new File(props.getProperty(HybridCorefProperties.LOG_PROP));
+    RedwoodConfiguration.current().handlers(RedwoodConfiguration.Handlers.file(logFile)).apply();
+    Redwood.log("Starting coref log");
+  }
+  log.info(props.toString());
+  if (HybridCorefProperties.checkMemory(props))   checkMemoryUsage();
+  HybridCorefSystem cs=new HybridCorefSystem(props);
+  String goldOutput=null;
+  String beforeCorefOutput=null;
+  String afterCorefOutput=null;
+  PrintWriter writerGold=null;
+  PrintWriter writerBeforeCoref=null;
+  PrintWriter writerAfterCoref=null;
+  if (HybridCorefProperties.doScore(props)) {
+    String pathOutput=CorefProperties.conllOutputPath(props);
+    (new File(pathOutput)).mkdir();
+    goldOutput=pathOutput + "output-" + timeStamp+ ".gold.txt";
+    beforeCorefOutput=pathOutput + "output-" + timeStamp+ ".predicted.txt";
+    afterCorefOutput=pathOutput + "output-" + timeStamp+ ".coref.predicted.txt";
+    writerGold=new PrintWriter(new FileOutputStream(goldOutput));
+    writerBeforeCoref=new PrintWriter(new FileOutputStream(beforeCorefOutput));
+    writerAfterCoref=new PrintWriter(new FileOutputStream(afterCorefOutput));
+  }
+  MulticoreWrapper<Pair<Document,HybridCorefSystem>,StringBuilder[]> wrapper=new MulticoreWrapper<>(nThreads,new ThreadsafeProcessor<Pair<Document,HybridCorefSystem>,StringBuilder[]>(){
+    @Override public StringBuilder[] process(    Pair<Document,HybridCorefSystem> input){
+      try {
+        Document document=input.first;
+        HybridCorefSystem cs=input.second;
+        StringBuilder[] outputs=new StringBuilder[4];
+        cs.coref(document,outputs);
+        return outputs;
+      }
+ catch (      Exception e) {
+        throw new RuntimeException(e);
+      }
+    }
+    @Override public ThreadsafeProcessor<Pair<Document,HybridCorefSystem>,StringBuilder[]> newInstance(){
+      return this;
+    }
+  }
+);
+  Date startTime=null;
+  if (HybridCorefProperties.checkTime(props)) {
+    startTime=new Date();
+    System.err.printf("END-TO-END COREF Start time: %s\n",startTime);
+  }
+  int docCnt=0;
+  while (true) {
+    Document document=cs.docMaker.nextDoc();
+    if (document == null)     break;
+    wrapper.put(Pair.makePair(document,cs));
+    docCnt=logOutput(wrapper,writerGold,writerBeforeCoref,writerAfterCoref,docCnt);
+  }
+  wrapper.join();
+  docCnt=logOutput(wrapper,writerGold,writerBeforeCoref,writerAfterCoref,docCnt);
+  IOUtils.closeIgnoringExceptions(writerGold);
+  IOUtils.closeIgnoringExceptions(writerBeforeCoref);
+  IOUtils.closeIgnoringExceptions(writerAfterCoref);
+  if (HybridCorefProperties.checkTime(props)) {
+    System.err.printf("END-TO-END COREF Elapsed time: %.3f seconds\n",(((new Date()).getTime() - startTime.getTime()) / 1000F));
+  }
+  if (HybridCorefProperties.checkMemory(props))   checkMemoryUsage();
+  if (HybridCorefProperties.doScore(props)) {
+    String summary=CorefScorer.getEvalSummary(CorefProperties.getScorerPath(props),goldOutput,beforeCorefOutput);
+    CorefScorer.printScoreSummary(summary,logger,false);
+    summary=CorefScorer.getEvalSummary(CorefProperties.getScorerPath(props),goldOutput,afterCorefOutput);
+    CorefScorer.printScoreSummary(summary,logger,true);
+    CorefScorer.printFinalConllScore(summary);
+  }
+}

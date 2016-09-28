@@ -1,6 +1,6 @@
 {
   List<SsurgeonPattern> patterns=readFromDirectory(tgtDirPath);
-  System.out.println("Patterns, num = " + patterns.size());
+  System.out.println("Patterns, num=" + patterns.size());
   int num=1;
   for (  SsurgeonPattern pattern : patterns) {
     System.out.println("\n# " + (num++));
@@ -11,13 +11,14 @@
     System.out.println(rsrc + "* * * * *");
   }
   BufferedReader in=new BufferedReader(new InputStreamReader(System.in));
+  String line;
   boolean runFlag=true;
   Ssurgeon.inst().initLog(new File("./ssurgeon_run.log"));
   while (runFlag) {
     try {
       System.out.println("Enter a sentence:");
-      String line=in.readLine();
-      if (line.isEmpty()) {
+      line=in.readLine();
+      if (line.length() == 0) {
         System.exit(0);
       }
       System.out.println("Parsing...");
@@ -33,7 +34,7 @@
       }
     }
  catch (    Exception e) {
-      log.error(e);
+      e.printStackTrace();
     }
   }
 }

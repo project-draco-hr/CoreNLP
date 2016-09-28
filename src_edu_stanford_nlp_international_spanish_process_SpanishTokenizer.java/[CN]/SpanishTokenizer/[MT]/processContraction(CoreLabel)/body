@@ -3,7 +3,6 @@
   String word=cl.word();
   String first;
   String second;
-  int secondOffset=0, secondLength=0;
   String lowered=word.toLowerCase();
 switch (lowered) {
 case "del":
@@ -12,27 +11,19 @@ case "al":
   char lastChar=word.charAt(lowered.length() - 1);
 if (Character.isLowerCase(lastChar)) second="el";
  else second="EL";
-secondOffset=1;
-secondLength=lowered.length() - 1;
 break;
 case "conmigo":
 case "consigo":
 first=word.substring(0,3);
 second=word.charAt(3) + "??";
-secondOffset=3;
-secondLength=4;
 break;
 case "contigo":
 first=word.substring(0,3);
 second=word.substring(3,5);
-secondOffset=3;
-secondLength=4;
 break;
 default :
 throw new IllegalArgumentException("Invalid contraction provided to processContraction");
 }
-int secondStart=cl.beginPosition() + secondOffset;
-int secondEnd=secondStart + secondLength;
-compoundBuffer.add(copyCoreLabel(cl,second,secondStart,secondEnd));
-return copyCoreLabel(cl,first,cl.beginPosition(),secondStart);
+compoundBuffer.add(copyCoreLabel(cl,second));
+return copyCoreLabel(cl,first);
 }
