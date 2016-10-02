@@ -5,6 +5,9 @@
     if (pieces[arg].equalsIgnoreCase("mapdigits")) {
       mapdigits=true;
     }
+ else     if (pieces[arg].equalsIgnoreCase("casedDistSim")) {
+      casedDistSim=true;
+    }
  else {
       throw new IllegalArgumentException("Unknown argument " + pieces[arg]);
     }
@@ -12,7 +15,11 @@
   lexicon=Generics.newHashMap();
   for (  String word : ObjectBank.getLineIterator(new File(filename))) {
     String[] bits=word.split("\\s+");
-    lexicon.put(bits[0].toLowerCase(),bits[1]);
+    String w=bits[0];
+    if (!casedDistSim) {
+      w=w.toLowerCase();
+    }
+    lexicon.put(w,bits[1]);
   }
   if (lexicon.containsKey("<unk>")) {
     unk=lexicon.get("<unk>");
