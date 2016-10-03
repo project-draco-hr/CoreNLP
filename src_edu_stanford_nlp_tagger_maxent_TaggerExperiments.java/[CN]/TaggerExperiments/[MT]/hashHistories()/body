@@ -4,33 +4,19 @@
   log.info("Hashing histories ...");
   for (int x=0; x < xSize; x++) {
     History h=tHistories.getHistory(x);
-    if (x > 0 && x % 10000 == 0) {
-      System.err.printf("%d ",x);
-      if (x % 100000 == 0) {
-        log.info();
-      }
-    }
     int fSize=(maxentTagger.isRare(ExtractorFrames.cWord.extract(h)) ? fAll : fGeneral);
     for (int i=0; i < fSize; i++) {
       tFeature.addPrev(i,h);
     }
   }
-  log.info();
   log.info("Hashed " + xSize + " histories.");
   log.info("Hashing populated histories ...");
   for (int x=0; x < xSize; x++) {
     History h=tHistories.getHistory(x);
-    if (x > 0 && x % 10000 == 0) {
-      log.info(x + " ");
-      if (x % 100000 == 0) {
-        log.info();
-      }
-    }
     int fSize=(maxentTagger.isRare(ExtractorFrames.cWord.extract(h)) ? fAll : fGeneral);
     for (int i=0; i < fSize; i++) {
       tFeature.add(i,h,x);
     }
   }
-  log.info();
   log.info("Hashed populated histories.");
 }
